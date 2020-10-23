@@ -5,6 +5,7 @@
 package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
@@ -27,7 +28,7 @@ import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -41,9 +42,8 @@ import java.io.File;
 public class LjMC3D extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MCMoveAtom mcMoveAtom;
@@ -52,8 +52,7 @@ public class LjMC3D extends Simulation {
     public LjMC3D(int numAtoms, double temperature, double density, double rcShort) {
         super(Space3D.getInstance());
         setRandom(new RandomMersenneTwister(1));
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);
@@ -70,8 +69,7 @@ public class LjMC3D extends Simulation {
         mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomType leafType = species.getLeafType();
@@ -215,9 +213,7 @@ public class LjMC3D extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -325,8 +321,7 @@ public class LjMC3D extends Simulation {
 
 
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();

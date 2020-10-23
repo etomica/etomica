@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
 import etomica.atom.IAtom;
@@ -14,7 +17,6 @@ public class ColorSchemeDirection extends ColorScheme {
     protected final Box box;
     protected final Vector dr;
     protected final Color[] colors;
-    protected double fac;
     protected int axis;
 
     public ColorSchemeDirection(Box box, ConfigurationStorage configStorage) {

@@ -4,6 +4,7 @@
 
 package etomica.modules.colloid;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -17,7 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Colloid simulation.  Design by Alberto Striolo.
@@ -27,10 +28,10 @@ import etomica.species.SpeciesSpheresMono;
 public class ColloidSim extends Simulation {
     
     public PotentialMasterList potentialMaster;
-    public SpeciesSpheresMono species, speciesColloid;
+    public SpeciesGeneral species, speciesColloid;
     public Box box;
     public IntegratorHard integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public ConfigurationColloid configuration;
     public AtomLeafAgentManager<AtomArrayList> colloidMonomerBondManager;
     public AtomLeafAgentManager<AtomArrayList> monomerMonomerBondManager;
@@ -46,11 +47,9 @@ public class ColloidSim extends Simulation {
         super(Space3D.getInstance());
 
         //species
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        speciesColloid = new SpeciesSpheresMono(this, space);
-        speciesColloid.setIsDynamic(true);
+        speciesColloid = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesColloid);
 
         potentialMaster = new PotentialMasterList(this, 6, space);
@@ -73,8 +72,6 @@ public class ColloidSim extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
-        getController().addAction(activityIntegrate);
 
         //potentials
         Vector dim = space.makeVector();
@@ -178,7 +175,7 @@ public class ColloidSim extends Simulation {
         Space space = Space3D.getInstance();
 
         ColloidSim sim = new ColloidSim();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
     
     public void setNumGraft(int newNumGraft) {

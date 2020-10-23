@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -30,7 +30,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
@@ -348,13 +348,13 @@ public static void main(String[] args) {
 
         }
 
-        SpeciesSpheresMono speciesSF6 = new SpeciesSpheresMono(space, new ElementSimple("A"));//species SF6
+        SpeciesGeneral speciesSF6 = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
 
-        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);// species alkane TraPPE-UA
+    SpeciesGeneral speciesAlkane = SpeciesAlkane.create(nSpheres);
 
-   
 
-        ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
+
+    ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),
 
                                                         ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
@@ -630,87 +630,68 @@ public static void main(String[] args) {
         sim.accumulators[1].reset();// don't want to collect these data!!!!
 
 
-        if (false) {
+        if(false) {
+    double size = 10;
 
-          double size = 10;
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
 
-              sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
 
-              sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
 
-              DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
+            DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
 
-              DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            dBox0.setPixelUnit(new Pixel(300.0 / size));
 
-              dBox0.setPixelUnit(new Pixel(300.0/size));
+            dBox1.setPixelUnit(new Pixel(300.0 / size));
 
-              dBox1.setPixelUnit(new Pixel(300.0/size));
+            dBox0.setShowBoundary(false);
 
-              dBox0.setShowBoundary(false);
+            dBox1.setShowBoundary(false);
 
-              dBox1.setShowBoundary(false);
+            //set diameters
 
-              //set diameters
+            DiameterHashByType diameter = new DiameterHashByType();
 
-              DiameterHashByType diameter = new DiameterHashByType();
+            diameter.setDiameter(speciesSF6.getAtomType(0), 0.2);
 
-              diameter.setDiameter(speciesSF6.getAtomType(0),0.2);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH2"), 0.3);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH3"), 0.4);
 
-              diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);
+            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
 
-              diameter.setDiameter(speciesAlkane.getCH3Type(), 0.4);
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
 
-              simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
+            colorScheme.setColor(speciesSF6.getAtomType(0), Color.blue);
 
-              ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH2"), Color.green);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH3"), Color.yellow);
 
-              colorScheme.setColor(speciesSF6.getAtomType(0), Color.blue);
+            ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 
-              colorScheme.setColor(speciesAlkane.getCH2Type(), Color.green);
+            simGraphic.makeAndDisplayFrame();
 
-              colorScheme.setColor(speciesAlkane.getCH3Type(), Color.yellow);          
+            sim.integratorOS.setNumSubSteps(1000);
 
-              ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
+            sim.setAccumulatorBlockSize(100);
 
-              simGraphic.makeAndDisplayFrame();
+            // if running interactively, set filename to null so that it doens't read
 
-              sim.integratorOS.setNumSubSteps(1000);
+            // (or write) to a refpref file
 
-              sim.setAccumulatorBlockSize(100);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
-              // if running interactively, set filename to null so that it doens't read
+            if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
 
-              // (or write) to a refpref file
+                throw new RuntimeException("Oops");
 
-              sim.getController().removeAction(sim.ai);
-
-              sim.getController().addAction(new IAction() {
-
-              public void actionPerformed() {
-
-                      sim.initRefPref(null, 10);
-
-                      sim.equilibrate(null, 20);
-
-                      sim.ai.setMaxSteps(Long.MAX_VALUE);
-
-                  }
-
-              });
-
-              sim.getController().addAction(sim.ai);
-
-              if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
-
-              throw new RuntimeException("Oops");
-
-              }
-
-              return;
-
-          }
+            }
+    return;
+}
 
 
         // if running interactively, don't use the file
@@ -726,8 +707,8 @@ public static void main(String[] args) {
         // if it does continue looking for a pref, it will write the value to the file
 
         sim.equilibrate(refFileName, steps/40);
-
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
 
             throw new RuntimeException("oops");
 
@@ -740,8 +721,6 @@ public static void main(String[] args) {
         sim.setAccumulatorBlockSize(steps);
 
         sim.integratorOS.setNumSubSteps((int)steps);
-
-        sim.ai.setMaxSteps(1000);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
 
@@ -782,9 +761,7 @@ public static void main(String[] args) {
             sim.integratorOS.setAdjustStepFraction(false);
 
         }
-
-
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 

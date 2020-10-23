@@ -30,8 +30,12 @@ public class DecimalSlider extends javax.swing.JSlider {
     private int standardSpacingLabel;
     
     public DecimalSlider() {
+        this(0);
+    }
+
+    public DecimalSlider(int precision) {
         super();
-        setPrecision(0);
+        setPrecision(precision);
     }
     
     /**

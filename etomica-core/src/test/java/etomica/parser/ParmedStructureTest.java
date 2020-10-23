@@ -12,7 +12,7 @@ import etomica.molecule.MoleculePair;
 import etomica.potential.PotentialGroup;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresCustom;
+import etomica.species.SpeciesGeneral;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class ParmedStructureTest {
 
     @Test
     public void testGetSpecies() throws Exception {
-        SpeciesSpheresCustom species = structure.getSpecies();
+        SpeciesGeneral species = structure.getSpecies();
 
         Assertions.assertEquals(
                 12.01078,
@@ -62,7 +62,7 @@ public class ParmedStructureTest {
     @Test
     public void testGetIntermolecularPotential() throws JsonProcessingException {
         PotentialGroup potentialGroup = structure.getIntermolecularPotential();
-        SpeciesSpheresCustom species = structure.getSpecies();
+        SpeciesGeneral species = structure.getSpecies();
         potentialGroup.setBox(structure.getBox());
 
         IMolecule mol1 = species.makeMolecule();

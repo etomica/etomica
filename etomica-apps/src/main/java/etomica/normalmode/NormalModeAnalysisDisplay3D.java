@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -20,9 +21,8 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 /**
@@ -35,13 +35,13 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "3-D Harmonic Oscillator";
     protected IntegratorHarmonic integrator;
-    protected ActivityIntegrate activityIntegrate;
+    
     protected Box box;
     protected Boundary boundary;
     protected Primitive primitive;
     protected Basis basis;
     protected int[] nCells;
-    protected SpeciesSpheresMono species;
+    protected SpeciesGeneral species;
     protected NormalModes3D nm;
     protected WaveVectorFactory waveVectorFactory;
     protected CoordinateDefinitionLeaf coordinateDefinition;
@@ -57,7 +57,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     public NormalModeAnalysisDisplay3D() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         L = Math.pow(4.0 / density, 1.0 / 3.0);
@@ -102,10 +102,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //integrator.setEValNum(4);
 
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(0);
-
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(0);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
     }
 

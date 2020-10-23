@@ -46,6 +46,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
     private IDataInfo dataInfo;
     private String name;
     protected boolean resetAfterData;
+    protected final boolean singleSample;
 
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -53,7 +54,12 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
 	 * @param space
 	 */
     public MeterRDF(Space space) {
+        this(space, false);
+    }
+
+    public MeterRDF(Space space, boolean singleSample) {
 	    this.space = space;
+        this.singleSample = singleSample;
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(LimitType.HALF_STEP);
@@ -86,10 +92,6 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
     public void setAtomTypes(AtomType type1, AtomType type2) {
         this.type1 = type1;
         this.type2 = type2;
-    }
-
-    public void setResetAfterData(boolean doResetAfterData) {
-        resetAfterData = doResetAfterData;
     }
 
     /**
@@ -144,14 +146,20 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
      * meter was reset or had some parameter changed (xMax or # of bins).
 	 */
 	public IData getData() {
-        if (rData != xDataSource.getData() ||
-            data.getLength() != rData.getLength() ||
-            xDataSource.getXMax() != xMax) {
-            reset();
-            //that zeroed everything.  just return the zeros.
-            return data;
-        }
 
+        if (singleSample) {
+            zeroData();
+            actionPerformed();
+        }
+        else {
+            if (rData != xDataSource.getData() ||
+                    data.getLength() != rData.getLength() ||
+                    xDataSource.getXMax() != xMax) {
+                reset();
+                //that zeroed everything.  just return the zeros.
+                return data;
+            }
+        }
         final double[] y = data.getData();
         long numAtomPairs = 0;
         if (type1 == null) {
@@ -173,7 +181,6 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
 	        double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
 	        y[i] = gSum[i] / (norm*vShell);
 	    }
-        if (resetAfterData) zeroData();
 	    return data;
 	}
 

@@ -60,7 +60,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
         final DeviceSlider ABSlider = sliders(eMin, eMax, "Diol-Carboxylic Acid", sim.ABbonded);
@@ -87,7 +87,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tHistory.setTimeDataSource(timer);
         tFork.addDataSink(tHistory);
-        DisplayPlot tPlot = new DisplayPlot();
+        DisplayPlotXChart tPlot = new DisplayPlotXChart();
         tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setUnit(Kelvin.UNIT);
         tPlot.setLabel("Temperature");
@@ -168,18 +168,18 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setLabel("Reset");
         getController().getResetAveragesButton().setPostAction(resetData);
 
-        DisplayPlot compositionPlot = new DisplayPlot();
-        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
+        DisplayPlotXChart compositionPlot = new DisplayPlotXChart();
+        accumulator.addDataSink(compositionPlot.makeSink("composition"),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        DisplayPlot mwPlot = new DisplayPlot();
+        DisplayPlotXChart mwPlot = new DisplayPlotXChart();
         mwPlot.setLabel("Molecular Weight");
         mwHistory.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mwHistory.getTag()}, "Number Avg");
         mw2History.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mw2History.getTag()}, "Weight Avg");
 
-        DisplayPlot conversionPlot = new DisplayPlot();
+        DisplayPlotXChart conversionPlot = new DisplayPlotXChart();
         conversionHistoryAccDiol.addDataSink(conversionPlot.getDataSet().makeDataSink());
         conversionPlot.setLegend(new DataTag[]{reactionConversionDiol.getTag()}, "diol conversion");
         conversionHistoryAccAcid.addDataSink(conversionPlot.getDataSet().makeDataSink());
@@ -204,7 +204,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();
@@ -356,7 +356,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         speciesEditors.add(nDiAcidBox.graphic());
         speciesEditors.add(nCrossLinkerBox.graphic());
 
-        epsilonSliders.add(ABSlider.graphic(null), vertGBC);
+        epsilonSliders.add(ABSlider.graphic(), vertGBC);
 //        epsilonSliders.add(ACSlider.graphic(null), vertGBC);
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
 

@@ -7,8 +7,8 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -24,7 +24,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple square-well molecular dynamics simulation in 3D
@@ -32,17 +32,15 @@ import etomica.species.SpeciesSpheresMono;
 public class SWMD3D extends Simulation {
 
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2SquareWell potential;
-    public Controller controller;
     public DisplayBox display;
 
     public SWMD3D() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
@@ -53,8 +51,7 @@ public class SWMD3D extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         double lambda = 2;
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
         potential = new P2SquareWell(space);
         potential.setLambda(lambda);
 

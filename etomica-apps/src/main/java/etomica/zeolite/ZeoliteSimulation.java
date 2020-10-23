@@ -5,6 +5,7 @@
 package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -23,7 +24,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 
@@ -58,17 +59,19 @@ public class ZeoliteSimulation extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono[] species;
+    public final SpeciesGeneral[] species;
     /**
      * The hard-sphere potential governing the interactions.
      */
     //public final P2HardSphere potential;
     public final P2LennardJones potentialMM;
-    public ActivityIntegrate activityIntegrate;
+
+    public final ActivityIntegrate ai;
+
     public DisplayPlot ePlot;
     private int nAtomsMeth;
     private int interval;
-    private SpeciesSpheresMono sp;
+    private SpeciesGeneral sp;
     private String filename;
 
     public ZeoliteSimulation() {
@@ -81,10 +84,9 @@ public class ZeoliteSimulation extends Simulation {
         ConfigurationFileXYZ config = new ConfigurationFileXYZ("2unitcell.xyz", space);
         int[] numAtoms = config.getNumAtoms();
 
-        species = new SpeciesSpheresMono[numAtoms.length];
+        species = new SpeciesGeneral[numAtoms.length];
         for (int i = 0; i < numAtoms.length; i++) {
-            species[i] = new SpeciesSpheresMono(this, space);
-            species[i].setIsDynamic(true);
+            species[i] = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
             addSpecies(species[i]);
             if (i != (numAtoms.length - 1)) {
                 // all elements except the last (methane) are fixed
@@ -112,9 +114,10 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
 
 
-        activityIntegrate = new ActivityIntegrate(integrator, 2, true);
-        activityIntegrate.setMaxSteps(500);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(2);
+        long steps = 1_000_000;
+        ai = new ActivityIntegrate(integrator, steps, true);
+        getController().addActivity(ai);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         for (int i = 0; i < numAtoms.length; i++) {
             box.setNMolecules(species[i], numAtoms[i]);
@@ -153,7 +156,6 @@ public class ZeoliteSimulation extends Simulation {
 
         //PARAMETERS For Simulation Run
         //activityIntegrate.setMaxSteps(5000000);
-        activityIntegrate.setMaxSteps(1000000);
         double ts = 0.00611;
         integrator.setTimeStep(ts);
         interval = 2000;
@@ -161,7 +163,7 @@ public class ZeoliteSimulation extends Simulation {
 
         //      Adding coordinate writer by Mike Sellars
 
-        filename = (numAtoms[2] + "_" + activityIntegrate.getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
+        filename = (numAtoms[2] + "_" + steps + "_" + ts + "_" + interval + "_WCA");
         sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);
@@ -301,7 +303,7 @@ public class ZeoliteSimulation extends Simulation {
         return filename;
     }
 
-    SpeciesSpheresMono getSpeciesRMS() {
+    SpeciesGeneral getSpeciesRMS() {
         return sp;
     }
 

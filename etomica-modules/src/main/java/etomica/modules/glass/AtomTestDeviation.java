@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
 import etomica.atom.AtomTest;
@@ -12,6 +15,7 @@ public class AtomTestDeviation implements AtomTest {
     protected final Box box;
     protected final Vector dr;
     protected double minDistance;
+    protected boolean doMobileOnly = true;
 
     public AtomTestDeviation(Box box, ConfigurationStorage configStorage) {
         this.box = box;
@@ -21,6 +25,14 @@ public class AtomTestDeviation implements AtomTest {
 
         setMinDistance(0);
         configIndex = 100;
+    }
+
+    public void setDoMobileOnly(boolean doMobileOnly) {
+        this.doMobileOnly = doMobileOnly;
+    }
+
+    public boolean getDoMobileOnly() {
+        return doMobileOnly;
     }
 
     public void setConfigIndex(int idx) {
@@ -53,6 +65,6 @@ public class AtomTestDeviation implements AtomTest {
 
     @Override
     public boolean test(IAtom a) {
-        return getDisplacementSq(a) > minDistance * minDistance;
+        return getDisplacementSq(a) > minDistance * minDistance == doMobileOnly;
     }
 }

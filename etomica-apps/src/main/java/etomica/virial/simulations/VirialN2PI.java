@@ -4,6 +4,7 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementSimple;
@@ -20,7 +21,8 @@ import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
@@ -136,16 +138,12 @@ public class VirialN2PI {
 
         // make species
         ElementSimple n2 = new ElementSimple("N2", 2*Nitrogen.INSTANCE.getMass());
-        AtomTypeOriented atype = new AtomTypeOriented(n2, space);
-        SpeciesSpheresHetero speciesN2 = null;
-        speciesN2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-            @Override
-            protected IAtom makeLeafAtom(AtomType leafType) {
-                return new AtomHydrogen(space, (AtomTypeOriented) leafType, blN2);
-            }
-        };
-        speciesN2.setChildCount(new int [] {nBeads});
-        speciesN2.setConformation(new ConformationLinear(space, 0));
+        AtomTypeOriented atype = new AtomTypeOriented(n2, space.makeVector());
+        SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
+                .addCount(atype, nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .withAtomFactory((leafType) -> new AtomHydrogen(space, (AtomTypeOriented) leafType, blN2))
+                .build();
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);
         //        sim.init();
@@ -247,13 +245,12 @@ public class VirialN2PI {
             sim.integratorOS.setAdjustStepFraction(false);
         }
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
-
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
@@ -266,7 +263,7 @@ public class VirialN2PI {
                 public void integratorStepStarted(IntegratorEvent e) {}
                 @Override
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -281,7 +278,8 @@ public class VirialN2PI {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
 

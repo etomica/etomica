@@ -1,7 +1,7 @@
 package etomica.simulation;
 
 import etomica.action.ActionIntegrate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.tests.TestLammpsLJ;
 import org.openjdk.jmh.annotations.*;

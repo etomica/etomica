@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -28,7 +29,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -46,7 +47,7 @@ import java.awt.*;
 public class SimOverlapSoftSphereTP extends Simulation {
 
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public CoordinateDefinitionLeaf coordinateDefinition;
@@ -62,7 +63,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
     public SimOverlapSoftSphereTP(Space _space, int numAtoms, boolean slanty, boolean flex, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (slanty) {
@@ -180,9 +181,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         if (potentialMaster instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
@@ -342,10 +341,9 @@ public class SimOverlapSoftSphereTP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         double avgP = accP.getData(accP.AVERAGE).getValue(0);
@@ -417,13 +415,12 @@ public class SimOverlapSoftSphereTP extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
 
         accumulator.reset();
 
-        getController().reset();
+
 
     }
     

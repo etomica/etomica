@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -26,7 +27,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -44,11 +45,11 @@ public class SimHarmonicUmbrella extends Simulation {
 	private static final String APP_NAME = "Sim Harmonic-Umbrella";
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Basis basis;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
@@ -79,7 +80,7 @@ public class SimHarmonicUmbrella extends Simulation {
         }
         //System.out.println("refPref is: "+ refPref);
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         int D = space.D();
@@ -96,8 +97,7 @@ public class SimHarmonicUmbrella extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         nCells = new int[]{n, n, n};
         basis = new BasisCubicFcc();
@@ -247,8 +247,7 @@ public class SimHarmonicUmbrella extends Simulation {
         outputActionListener.setInterval(20000);
         sim.integrator.getEventManager().addListener(outputActionListener);
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         try {
 	        fileWriterHarmUmb.close();

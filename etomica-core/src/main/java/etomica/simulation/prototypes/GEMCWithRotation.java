@@ -6,10 +6,12 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
@@ -28,6 +30,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 
 import java.awt.*;
@@ -41,7 +44,7 @@ public class GEMCWithRotation extends Simulation {
 
     public Box box1, box2;
     public IntegratorGEMC integrator;
-    public SpeciesSpheresRotating species;
+    public SpeciesGeneral species;
     public P2HardAssociationCone potential;
 
     public GEMCWithRotation() {
@@ -51,7 +54,7 @@ public class GEMCWithRotation extends Simulation {
     public GEMCWithRotation(Space _space) {
         super(_space);
 
-        species = new SpeciesSpheresRotating(this, space);
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);
         addSpecies(species);
 
         double sigma = 1.2;
@@ -59,9 +62,9 @@ public class GEMCWithRotation extends Simulation {
         integrator = new IntegratorGEMC(getRandom(), space);
         integrator.setTemperature(0.420);
         integrator.setEventInterval(400);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setSleepPeriod(1);
+
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         box1 = this.makeBox();
         box1.setNMolecules(species, 200);

@@ -5,12 +5,11 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
@@ -19,6 +18,7 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -130,25 +130,26 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         
         ElementSimple CH3element = new ElementSimple("CH3",15);
         ElementSimple CH2element = new ElementSimple("CH2",14);
-        
-        SpeciesFactorySpheres2 speciesFactoryEthane = new SpeciesFactorySpheres2(space, 2, CH3element, CH2element);
-        speciesFactoryEthane.setBondL(bondL);
-                
-        SpeciesFactorySpheres2 speciesFactoryMethane = new SpeciesFactorySpheres2(space,1, CH3element, CH2element);
-        
-        SpeciesFactory[] speciesFactory = new SpeciesFactory[2];
-        
-        speciesFactory[0] = speciesFactoryMethane;
-        speciesFactory[1] = speciesFactoryEthane;
-        
-        
-        final SimulationVirialMultiOverlap sim = new SimulationVirialMultiOverlap(space, speciesFactory,
-                          temperature,refCluster,targetCluster, new int[]{nMethane,nEthane} );
+
+        ISpecies[] species = new ISpecies[] {
+                SpeciesAlkane.create(2, AtomType.element(CH3element), AtomType.element(CH2element), bondL, SpeciesAlkane.nominalBondTheta),
+                SpeciesAlkane.create(1, AtomType.element(CH3element), AtomType.element(CH2element))
+        };
+
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(
+                space,
+                species,
+                new int[]{nMethane, nEthane},
+                temperature,
+                refCluster,
+                targetCluster
+        );
+        sim.init();
         //        sim.integratorOS.setAdjustStepFreq(false);
 //        sim.integratorOS.setStepFreq0(1);
 
-        SpeciesAlkane speciesCH4 = (SpeciesAlkane)sim.species[0];
-        SpeciesAlkane speciesCH3 = (SpeciesAlkane)sim.species[1];
+        ISpecies speciesCH4 = sim.species[0];
+        ISpecies speciesCH3 = sim.species[1];
         AtomType typeCH4 = speciesCH4.getAtomType(0);
         AtomType typeCH3 = speciesCH3.getAtomType(0);
         pMethaneMethaneGroup.addPotential(p2CH4, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH4, typeCH4}));
@@ -158,15 +159,15 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         sim.integratorOS.setNumSubSteps(1000);
         
                                
-        if (true) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(true) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             displayBox0.setShowBoundary(false);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            
-            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
+
+            DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
             diameterManager.setDiameter(typeCH3, sigmaCH3);
             diameterManager.setDiameter(typeCH4, sigmaCH4);
             displayBox1.setDiameterHash(diameterManager);
@@ -174,24 +175,17 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
@@ -200,9 +194,9 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        
-        sim.setAccumulatorBlockSize((int)steps);
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.setAccumulatorBlockSize((int)steps);
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize()+" "
@@ -210,11 +204,11 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
                 +sim.mcMoveRotate[1].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
-        
+
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
             }
         };
@@ -223,34 +217,12 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("hard sphere ratio average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].RATIO.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("hard sphere   average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
-        System.out.println("hard sphere overlap average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
-        
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-        System.out.println("chain ratio average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("chain average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
-        System.out.println("chain overlap average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
-    }
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+
+        sim.printResults(HSB[nPoints]);
+   }
 
     /**
      * Inner class for parameters

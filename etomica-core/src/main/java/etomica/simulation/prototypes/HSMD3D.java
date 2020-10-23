@@ -7,6 +7,7 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -26,7 +27,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 
 /**
@@ -53,7 +54,7 @@ public class HSMD3D extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     /**
      * The hard-sphere potential governing the interactions.
      */
@@ -76,8 +77,7 @@ public class HSMD3D extends Simulation {
 
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();
@@ -92,9 +92,8 @@ public class HSMD3D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        ActivityIntegrate ai2 = new ActivityIntegrate(integrator);
+        getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
 
         potential = new P2HardSphere(space, sigma, true);
         AtomType leafType = species.getLeafType();
@@ -117,6 +116,11 @@ public class HSMD3D extends Simulation {
         } else {
             integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         }
+    }
+
+    @Override
+    public IntegratorHard getIntegrator() {
+        return integrator;
     }
 
     /**

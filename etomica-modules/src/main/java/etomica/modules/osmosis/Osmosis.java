@@ -4,45 +4,24 @@
 
 package etomica.modules.osmosis;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.space.Vector;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.Drawable;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
-import etomica.lattice.LatticeCubicSimple;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
 import etomica.potential.P1HardBoundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
@@ -50,6 +29,13 @@ import etomica.space3d.Vector3D;
 import etomica.units.Kelvin;
 import etomica.units.Unit;
 import etomica.util.Constants.CompassDirection;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Osmosis module.
@@ -134,7 +120,7 @@ public class Osmosis extends SimulationGraphic {
         //
         // Delay panel
         //
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         
         //
         // temperature panel
@@ -208,13 +194,10 @@ public class Osmosis extends SimulationGraphic {
         	public void stateChanged(ChangeEvent evt) {
 				molePumpLeft.actionPerformed();
 				leftMFBox.putData(moleFractionAvgLeft.getData());
-				leftMFBox.repaint();
-		
+
 				molePumpRight.actionPerformed();
 				rightMFBox.putData(moleFractionAvgRight.getData());
-				rightMFBox.repaint();
 				osmoticBox.putData(osmosisPMeterAvg.getData());
-				osmoticBox.repaint();
 				getDisplayBox(sim.box).graphic().repaint();
         	}
         };
@@ -224,8 +207,8 @@ public class Osmosis extends SimulationGraphic {
 
         // left side panel for mole fraction
         JPanel leftMoleFractionPanel = new JPanel(new FlowLayout());
-        leftMoleFractionPanel.setBorder(new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP));
-        leftMoleFractionPanel.add(leftMFBox.graphic(null));
+		leftMoleFractionPanel.setBorder(new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP));
+		leftMoleFractionPanel.add(leftMFBox.graphic());
 
         // left side metrics panel
         JPanel leftMetricsPanel = new JPanel(new GridLayout(0, 1));
@@ -234,8 +217,8 @@ public class Osmosis extends SimulationGraphic {
 
         // right side panel for mole fraction
         JPanel rightMoleFractionPanel = new JPanel(new FlowLayout());
-        rightMoleFractionPanel.setBorder(new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP));
-        rightMoleFractionPanel.add(rightMFBox.graphic(null));
+		rightMoleFractionPanel.setBorder(new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP));
+		rightMoleFractionPanel.add(rightMFBox.graphic());
 
         // right side metrics panel
         JPanel rightMetricsPanel = new JPanel(new GridLayout(0, 1));
@@ -260,13 +243,10 @@ public class Osmosis extends SimulationGraphic {
         	public void actionPerformed() {
         		molePumpLeft.actionPerformed();
         		leftMFBox.putData(moleFractionAvgLeft.getData());
-        		leftMFBox.repaint();
 
         		molePumpRight.actionPerformed();
         		rightMFBox.putData(moleFractionAvgRight.getData());
-        		rightMFBox.repaint();
         		osmoticBox.putData(osmosisPMeterAvg.getData());
-        		osmoticBox.repaint();
         		getDisplayBox(sim.box).graphic().repaint();
         	}
         };
@@ -275,13 +255,10 @@ public class Osmosis extends SimulationGraphic {
         	public void actionPerformed() {
         		molePumpLeft.actionPerformed();
         		leftMFBox.putData(moleFractionAvgLeft.getData());
-        		leftMFBox.repaint();
 
         		molePumpRight.actionPerformed();
         		rightMFBox.putData(moleFractionAvgRight.getData());
-        		rightMFBox.repaint();
         		osmoticBox.putData(osmosisPMeterAvg.getData());
-        		osmoticBox.repaint();
         	}
         };
 
@@ -316,28 +293,13 @@ public class Osmosis extends SimulationGraphic {
         OsmosisSim sim = null;
 
         Space sp = Space3D.getInstance();
-    	sim = new OsmosisSim(sp);
+        sim = new OsmosisSim(sp);
 
-        sim.activityIntegrate.setSleepPeriod(1);
+        sim.getController().setSleepPeriod(1);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-	    public void init() {
-
-	    	OsmosisSim sim = null;
-
-	    	Space sp = Space3D.getInstance();
-	    	sim = new OsmosisSim(sp);
-
-	        sim.activityIntegrate.setSleepPeriod(1);
-
-		    getContentPane().add(new Osmosis(sim, sp).getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
     }
 
     protected class InitializeMolecules {
@@ -394,7 +356,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController().doActionNow(setAction);
+    	    		sim.getController().submitActionInterrupt(setAction);
     			}
     		};
 
@@ -440,7 +402,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController().doActionNow(setAction);
+    	    		sim.getController().submitActionInterrupt(setAction);
     			}
     		};
 

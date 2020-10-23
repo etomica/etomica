@@ -4,6 +4,7 @@
 
 package etomica.association.GCPMWater;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -16,6 +17,8 @@ import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -294,10 +297,10 @@ public class WertheimGCPM4PtThreeSiteEDecompDirectSampling {
 		sim.accumulator.setBlockSize(numSteps/100);
 	
 
-		if (false) {
+		if (true) {
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
+            ISpecies species = sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
 
@@ -306,15 +309,13 @@ public class WertheimGCPM4PtThreeSiteEDecompDirectSampling {
                 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(sim.ai);
             return;
         }
 		sim.equilibrate(numSteps/40);
-        System.out.println("equilibration finished");
-        sim.ai.setMaxSteps(numSteps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, numSteps);
+System.out.println("equilibration finished");
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         double referenceAverage = ((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0];

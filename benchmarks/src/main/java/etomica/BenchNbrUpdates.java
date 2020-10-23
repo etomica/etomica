@@ -15,9 +15,8 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -34,7 +33,7 @@ public class BenchNbrUpdates {
     @Setup(Level.Iteration)
     public void setUp() {
         Simulation sim = new Simulation(Space3D.getInstance());
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sim.getSpace());
+        SpeciesGeneral species = SpeciesGeneral.monatomic(sim.getSpace(), AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box = sim.makeBox(new BoundaryRectangularPeriodic(sim.getSpace(), 10000));
         box.setNMolecules(species, 100_000);

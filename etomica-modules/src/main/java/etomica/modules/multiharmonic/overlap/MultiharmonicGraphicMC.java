@@ -5,6 +5,7 @@
 package etomica.modules.multiharmonic.overlap;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
@@ -36,9 +37,9 @@ import etomica.overlap.IntegratorOverlap;
 import etomica.overlap.MeterOverlap;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
-import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -63,25 +64,25 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
     public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
-        
-        
+
+
         final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxA);
         final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxB);
         final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxA);
         final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxB);
-        
+
         final int na = 11;
         final MeterOverlap meterOverlapA = new MeterOverlap(meterPEAinA, meterPEBinA, 1.0, true);
         meterOverlapA.setNumAlpha(na);
-        meterOverlapA.setAlphaRange(1, 2*(na-1)*Math.log(2));
+        meterOverlapA.setAlphaRange(1, 2 * (na - 1) * Math.log(2));
         final MeterOverlap meterOverlapB = new MeterOverlap(meterPEAinB, meterPEBinB, 1.0, false);
         meterOverlapB.setNumAlpha(na);
-        meterOverlapB.setAlphaRange(1, 2*(na-1)*Math.log(2));
+        meterOverlapB.setAlphaRange(1, 2 * (na - 1) * Math.log(2));
 
         final DataFork forkA = new DataFork();
         final DataFork forkB = new DataFork();
-        
-        
+
+
         DataPumpListener dataPumpA = new DataPumpListener(meterOverlapA, forkA);
         sim.integratorA.getEventManager().addListener(dataPumpA);
 
@@ -98,24 +99,23 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         };
         if (doCollapsing) {
-            
+
             splitterA = new DataSplitter();
             splitterA.setDataSinkFactory(dataSinkFactory);
             forkA.addDataSink(splitterA);
-            for (int i=0; i<na; i++) {
-                ((AccumulatorAverageCollapsingLogAB)splitterA.getDataSink(i)).setMaxSample(1);
+            for (int i = 0; i < na; i++) {
+                ((AccumulatorAverageCollapsingLogAB) splitterA.getDataSink(i)).setMaxSample(1);
             }
             overlapAvgA = new DataOverlap.DataSourceOverlapAvgCollapsingSplit(splitterA);
-            
+
             splitterB = new DataSplitter();
             splitterB.setDataSinkFactory(dataSinkFactory);
             forkB.addDataSink(splitterB);
-            for (int i=0; i<na; i++) {
-                ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).setMaxSample(1.0/meterOverlapB.getAlpha(i));
+            for (int i = 0; i < na; i++) {
+                ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).setMaxSample(1.0 / meterOverlapB.getAlpha(i));
             }
             overlapAvgB = new DataOverlap.DataSourceOverlapAvgCollapsingSplit(splitterB);
-        }
-        else {
+        } else {
             AccumulatorAverageFixed accFixedA = new AccumulatorAverageFixed();
             forkA.addDataSink(accFixedA);
             overlapAvgA = new DataOverlap.DataSourceOverlapAvgSimple(accFixedA);
@@ -124,9 +124,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkB.addDataSink(accFixedB);
             overlapAvgB = new DataOverlap.DataSourceOverlapAvgSimple(accFixedB);
         }
-        DisplayPlot dWPlot = null;
+        DisplayPlotXChart dWPlot = null;
         if (makeDWPlot) {
-            dWPlot = new DisplayPlot();
+            dWPlot = new DisplayPlotXChart();
             dWPlot.setLabel("dW");
             dWPlot.getPlot().setXLabel("Ui-UW");
             dWPlot.getDataSet().setUpdatingOnAnyChange(true);
@@ -134,12 +134,13 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkA.addDataSink(new IDataSink() {
                 final DataDouble myData = new DataDouble();
                 final DataInfoDouble myDataInfo = new DataInfoDouble("dAW", Energy.DIMENSION);
+
                 public void putDataInfo(IDataInfo inputDataInfo) {
                     dAW.putDataInfo(myDataInfo);
                 }
-                
+
                 public void putData(IData inputData) {
-                    myData.x = Math.log(inputData.getValue((inputData.getLength()-1)/2));
+                    myData.x = Math.log(inputData.getValue((inputData.getLength() - 1) / 2));
                     dAW.putData(myData);
                 }
             });
@@ -150,12 +151,13 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkB.addDataSink(new IDataSink() {
                 final DataDouble myData = new DataDouble();
                 final DataInfoDouble myDataInfo = new DataInfoDouble("dBW", Energy.DIMENSION);
+
                 public void putDataInfo(IDataInfo inputDataInfo) {
                     dBW.putDataInfo(myDataInfo);
                 }
-                
+
                 public void putData(IData inputData) {
-                    myData.x = Math.log(inputData.getValue((inputData.getLength()-1)/2));
+                    myData.x = Math.log(inputData.getValue((inputData.getLength() - 1) / 2));
                     dBW.putData(myData);
                 }
             });
@@ -163,7 +165,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             dBW.addDataSink(dWPlot.getDataSet().makeDataSink());
             dWPlot.setLegend(new DataTag[]{dBW.getTag()}, "dBW");
         }
-        
+
         final DataOverlap dsvo = new DataOverlapCaching(overlapAvgA, overlapAvgB, meterOverlapA, sim.integratorOS);
         sim.integratorOS.setReferenceFracSource(dsvo);
         sim.integratorOS.setAdjustStepFraction(true);
@@ -171,23 +173,26 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.integratorOS.setAdjustInterval(dataInterval);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.integratorOS.getEventManager().addListener(new IntegratorListener() {
-            
-            public void integratorStepStarted(IntegratorEvent e) {}
-            public void integratorInitialized(IntegratorEvent e) {}
-            
+
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+
             public void integratorStepFinished(IntegratorEvent e) {
                 long stepCount = sim.integratorOS.getStepCount();
                 if (stepCount < 100) return;
                 long oldInterval = sim.integratorOS.getAdjustInterval();
                 if (stepCount % oldInterval == 0) {
-                    int newInterval = (int)(stepCount / 50);
+                    int newInterval = (int) (stepCount / 50);
                     if (newInterval == oldInterval * 2) {
-                        sim.integratorOS.setAdjustInterval((int)(stepCount / 50));
+                        sim.integratorOS.setAdjustInterval((int) (stepCount / 50));
                     }
                 }
             }
         });
-        
+
         final DisplayBox displayBoxA = getDisplayBox(sim.boxA);
         remove(displayBoxA);
         final DisplayBox displayBoxB = getDisplayBox(sim.boxB);
@@ -195,57 +200,55 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         final Device controllerButtons = getController();
         getPanel().graphicsPanel.remove(controllerButtons.graphic());
         getPanel().footerPanel.add(controllerButtons.graphic());
-        getPanel().graphicsPanel.setLayout(new GridBagLayout());
-        
+        getPanel().graphicsPanel.setLayout(new MigLayout("flowy"));
+
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         dataStreamPumps.add(dataPumpA);
 
-        displayBoxA.setPixelUnit(new Pixel(350/sim.boxA.getBoundary().getBoxSize().getX(0)));
-        ((DiameterHashByType)displayBoxA.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
-        displayBoxB.setPixelUnit(new Pixel(350/sim.boxB.getBoundary().getBoxSize().getX(0)));
+        ((DiameterHashByType) displayBoxA.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
         displayBoxB.setDiameterHash(displayBoxA.getDiameterHash());
 
-        final DisplayPlot fePlot = new DisplayPlot();
-        final DisplayPlot feLnPlot = new DisplayPlot();
+        final DisplayPlotXChart fePlot = new DisplayPlotXChart();
+        final DisplayPlotXChart feLnPlot = new DisplayPlotXChart();
         feLnPlot.getPlot().setXLog(true);
-        
+
         final DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integratorOS);
 
         final ArrayList<DataPumpListener> allPumps = new ArrayList<DataPumpListener>();
-        
+
         DataSourceScalar feAntibiasDataSource = new DataSourceScalar("antibias", Null.DIMENSION) {
             public double getDataAsScalar() {
                 long refSteps = sim.integratorA.getStepCount();
                 long targetSteps = sim.integratorB.getStepCount();
-                double myAlpha = (dsvo.getOverlapAverageAndError()[0]*refSteps)/targetSteps;
+                double myAlpha = (dsvo.getOverlapAverageAndError()[0] * refSteps) / targetSteps;
                 double refChi = dsvo.getAverageAndError(true, myAlpha)[0];
                 double targetChi = dsvo.getAverageAndError(false, myAlpha)[0];
                 long refCount = sim.integratorA.getStepCount();
-                double antibiasRefChi = (refChi * refCount + 1) / (refCount+1);
-                double lnRefDiff = 0.5*Math.log(refChi/antibiasRefChi);
+                double antibiasRefChi = (refChi * refCount + 1) / (refCount + 1);
+                double lnRefDiff = 0.5 * Math.log(refChi / antibiasRefChi);
                 long targetCount = sim.integratorB.getStepCount();
-                double antibiasTargetChi = (targetChi * targetCount + 1/myAlpha) / (targetCount+1);
-                double lnTargetDiff = 0.5*(Math.log(targetChi/antibiasTargetChi));
-                return -Math.log(refChi/targetChi) + lnRefDiff - lnTargetDiff; 
+                double antibiasTargetChi = (targetChi * targetCount + 1 / myAlpha) / (targetCount + 1);
+                double lnTargetDiff = 0.5 * (Math.log(targetChi / antibiasTargetChi));
+                return -Math.log(refChi / targetChi) + lnRefDiff - lnTargetDiff;
             }
         };
-        
+
         DataSourceScalar feAntibiasPDataSource = new DataSourceScalar("antibias", Null.DIMENSION) {
             public double getDataAsScalar() {
                 long refSteps = sim.integratorA.getStepCount();
                 long targetSteps = sim.integratorB.getStepCount();
-                double myAlpha = (dsvo.getOverlapAverageAndError()[0]*refSteps)/targetSteps;
+                double myAlpha = (dsvo.getOverlapAverageAndError()[0] * refSteps) / targetSteps;
                 double myErr = dsvo.getLogAverageAndError(myAlpha)[1];
                 double refChi = dsvo.getAverageAndError(true, myAlpha)[0];
                 double targetChi = dsvo.getAverageAndError(false, myAlpha)[0];
                 long refCount = sim.integratorA.getStepCount();
-                double antibiasRefChi = (refChi * refCount + 1) / (refCount+1);
-                double lnRefDiff = 0.5*Math.log(refChi/antibiasRefChi);
+                double antibiasRefChi = (refChi * refCount + 1) / (refCount + 1);
+                double lnRefDiff = 0.5 * Math.log(refChi / antibiasRefChi);
                 long targetCount = sim.integratorB.getStepCount();
-                double antibiasTargetChi = (targetChi * targetCount + 1/myAlpha) / (targetCount+1);
-                double lnTargetDiff = 0.5*Math.log(targetChi/antibiasTargetChi);
+                double antibiasTargetChi = (targetChi * targetCount + 1 / myAlpha) / (targetCount + 1);
+                double lnTargetDiff = 0.5 * Math.log(targetChi / antibiasTargetChi);
                 double lnDiffSum = Math.abs(lnRefDiff + lnTargetDiff);
-                return -Math.log(refChi/targetChi) + lnRefDiff - lnTargetDiff + myErr + lnDiffSum; 
+                return -Math.log(refChi / targetChi) + lnRefDiff - lnTargetDiff + myErr + lnDiffSum;
             }
         };
 
@@ -253,7 +256,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public double getDataAsScalar() {
                 long refSteps = sim.integratorA.getStepCount();
                 long targetSteps = sim.integratorB.getStepCount();
-                double bestAlpha = (dsvo.getOverlapAverageAndError()[0]*refSteps)/targetSteps;
+                double bestAlpha = (dsvo.getOverlapAverageAndError()[0] * refSteps) / targetSteps;
                 return -dsvo.getLogAverageAndError(bestAlpha)[0];
             }
         };
@@ -261,14 +264,14 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public double getDataAsScalar() {
                 long refSteps = sim.integratorA.getStepCount();
                 long targetSteps = sim.integratorB.getStepCount();
-                double bestAlpha = (dsvo.getOverlapAverageAndError()[0]*refSteps)/targetSteps;
+                double bestAlpha = (dsvo.getOverlapAverageAndError()[0] * refSteps) / targetSteps;
                 double[] avgErr = dsvo.getLogAverageAndError(bestAlpha);
                 return -avgErr[0] + avgErr[1];
             }
         };
 
         AccumulatorHistory feLHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        DataPumpListenerSmart feLPump = new DataPumpListenerSmart(feDataSource, feLHistory, dataInterval, (HistoryCollapsingDiscard)feLHistory.getHistory());
+        DataPumpListenerSmart feLPump = new DataPumpListenerSmart(feDataSource, feLHistory, dataInterval, (HistoryCollapsingDiscard) feLHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feLPump);
         feLHistory.setTimeDataSource(stepCounter);
         feLHistory.setPushInterval(1);
@@ -284,7 +287,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feLnPlot.setLegend(new DataTag[]{feLHistoryLn.getTag()}, "fe");
 
         AccumulatorHistory feLPHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        DataPumpListenerSmart feLPPump = new DataPumpListenerSmart(fePDataSource, feLPHistory, dataInterval, (HistoryCollapsingDiscard)feLPHistory.getHistory());
+        DataPumpListenerSmart feLPPump = new DataPumpListenerSmart(fePDataSource, feLPHistory, dataInterval, (HistoryCollapsingDiscard) feLPHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feLPPump);
         feLPHistory.setTimeDataSource(stepCounter);
         feLPHistory.setPushInterval(1);
@@ -298,14 +301,14 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feLPHistoryLn.setPushInterval(1);
         feLPHistoryLn.setDataSink(feLnPlot.getDataSet().makeDataSink());
         feLnPlot.setLegend(new DataTag[]{feLPHistoryLn.getTag()}, "fe+");
-        
+
         AccumulatorHistory feAntibiasHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        DataPumpListenerSmart feAntibiasPump = new DataPumpListenerSmart(feAntibiasDataSource, feAntibiasHistory, dataInterval, (HistoryCollapsingDiscard)feAntibiasHistory.getHistory());
+        DataPumpListenerSmart feAntibiasPump = new DataPumpListenerSmart(feAntibiasDataSource, feAntibiasHistory, dataInterval, (HistoryCollapsingDiscard) feAntibiasHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feAntibiasPump);
         feAntibiasHistory.setTimeDataSource(stepCounter);
         feAntibiasHistory.addDataSink(fePlot.getDataSet().makeDataSink());
         fePlot.setLegend(new DataTag[]{feAntibiasHistory.getTag()}, "fe(ab)");
-        
+
         AccumulatorHistory feAntibiasHistoryLn = new AccumulatorHistory(new HistoryComplete());
         DataPumpListenerPowStrict feAntibiasPumpLn = new DataPumpListenerPowStrict(feAntibiasDataSource, feAntibiasHistoryLn);
         sim.integratorOS.getEventManager().addListener(feAntibiasPumpLn);
@@ -314,7 +317,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feLnPlot.setLegend(new DataTag[]{feAntibiasHistoryLn.getTag()}, "fe(ab)");
 
         AccumulatorHistory feAntibiasErrHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        DataPumpListenerSmart feAntibiasErrPump = new DataPumpListenerSmart(feAntibiasPDataSource, feAntibiasErrHistory, dataInterval, (HistoryCollapsingDiscard)feAntibiasErrHistory.getHistory());
+        DataPumpListenerSmart feAntibiasErrPump = new DataPumpListenerSmart(feAntibiasPDataSource, feAntibiasErrHistory, dataInterval, (HistoryCollapsingDiscard) feAntibiasErrHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feAntibiasErrPump);
         feAntibiasErrHistory.setTimeDataSource(stepCounter);
         feAntibiasErrHistory.addDataSink(fePlot.getDataSet().makeDataSink());
@@ -336,7 +339,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         fracHistory.setTimeDataSource(stepCounter);
         DataPumpListener fracPump = new DataPumpListener(fracDataSource, fracHistory, 1);
         sim.integratorOS.getEventManager().addListener(fracPump);
-        DisplayPlot fracPlot = new DisplayPlot();
+        DisplayPlotXChart fracPlot = new DisplayPlotXChart();
         fracHistory.setDataSink(fracPlot.getDataSet().makeDataSink());
         fracPlot.setLegend(new DataTag[]{fracHistory.getTag()}, "actual");
         DataSourceScalar frac2DataSource = new DataSourceScalar("frac A", Fraction.DIMENSION) {
@@ -346,38 +349,42 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         };
         AccumulatorHistory frac2History = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         frac2History.setTimeDataSource(stepCounter);
-        DataPumpListenerSmart frac2Pump = new DataPumpListenerSmart(frac2DataSource, frac2History, dataInterval, (HistoryCollapsingDiscard)frac2History.getHistory());
+        DataPumpListenerSmart frac2Pump = new DataPumpListenerSmart(frac2DataSource, frac2History, dataInterval, (HistoryCollapsingDiscard) frac2History.getHistory());
         sim.integratorOS.getEventManager().addListener(frac2Pump);
         frac2History.setDataSink(fracPlot.getDataSet().makeDataSink());
         fracPlot.setLegend(new DataTag[]{frac2History.getTag()}, "optimal");
-        
+
         DataSourceChiSlope slopeDataSource = new DataSourceChiSlope(dsvo);
         AccumulatorHistory slopeHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         slopeHistory.setTimeDataSource(stepCounter);
-        DataPumpListenerSmart slopePump = new DataPumpListenerSmart(slopeDataSource, slopeHistory, dataInterval, (HistoryCollapsingDiscard)slopeHistory.getHistory());
+        DataPumpListenerSmart slopePump = new DataPumpListenerSmart(slopeDataSource, slopeHistory, dataInterval, (HistoryCollapsingDiscard) slopeHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(slopePump);
-        DisplayPlot slopePlot = new DisplayPlot();
+        DisplayPlotXChart slopePlot = new DisplayPlotXChart();
         slopeHistory.setDataSink(slopePlot.getDataSet().makeDataSink());
         slopePlot.setLegend(new DataTag[]{slopeHistory.getTag()}, "slope");
 
         final DataSourceUa uaDataSource = new DataSourceUa(dsvo);
         AccumulatorHistory uaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         uaHistory.setTimeDataSource(stepCounter);
-        DataPumpListenerSmart uaPump = new DataPumpListenerSmart(uaDataSource, uaHistory, 10*dataInterval, (HistoryCollapsingDiscard)uaHistory.getHistory());
+        DataPumpListenerSmart uaPump = new DataPumpListenerSmart(uaDataSource, uaHistory, 10 * dataInterval, (HistoryCollapsingDiscard) uaHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(uaPump);
-        DisplayPlot uaPlot = new DisplayPlot();
+        DisplayPlotXChart uaPlot = new DisplayPlotXChart();
         uaHistory.setDataSink(uaPlot.getDataSet().makeDataSink());
         uaPlot.setLegend(new DataTag[]{uaHistory.getTag()}, "Ua");
-        
+
         DataProcessorFunction dpRefUa2 = new DataProcessorFunction(new IFunction() {
-            public double f(double x) {return x*x;}
+            public double f(double x) {
+                return x * x;
+            }
         });
         forkA.addDataSink(dpRefUa2);
         final AccumulatorAverageFixed accRefUa2 = new AccumulatorAverageFixed();
         dpRefUa2.setDataSink(accRefUa2);
 
         DataProcessorFunction dpTargetUa2 = new DataProcessorFunction(new IFunction() {
-            public double f(double x) {return x*x;}
+            public double f(double x) {
+                return x * x;
+            }
         });
         forkB.addDataSink(dpTargetUa2);
         final AccumulatorAverageFixed accTargetUa2 = new AccumulatorAverageFixed();
@@ -386,7 +393,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         AccumulatorHistory ua2History = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         ua2History.setTimeDataSource(stepCounter);
         DataFork ua2Fork = new DataFork();
-        DataPumpListenerSmart ua2Pump = new DataPumpListenerSmart(ua2DataSource, ua2Fork, 10*dataInterval, (HistoryCollapsingDiscard)ua2History.getHistory());
+        DataPumpListenerSmart ua2Pump = new DataPumpListenerSmart(ua2DataSource, ua2Fork, 10 * dataInterval, (HistoryCollapsingDiscard) ua2History.getHistory());
         ua2Fork.addDataSink(ua2History);
         sim.integratorOS.getEventManager().addListener(ua2Pump);
         ua2History.setPushInterval(1);
@@ -394,33 +401,33 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         uaPlot.setLegend(new DataTag[]{ua2History.getTag()}, "Ua2");
 
         final AccumulatorHistory aHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        DataProcessor aDataSource = new DataProcessAHT(uaDataSource, (HistoryCollapsingDiscard)aHistory.getHistory());
+        DataProcessor aDataSource = new DataProcessAHT(uaDataSource, (HistoryCollapsingDiscard) aHistory.getHistory());
         ua2Fork.addDataSink(aDataSource);
         aHistory.setTimeDataSource(stepCounter);
         aDataSource.setDataSink(aHistory);
-        DisplayPlot aPlot = new DisplayPlot();
+        DisplayPlotXChart aPlot = new DisplayPlotXChart();
         aHistory.setDataSink(slopePlot.getDataSet().makeDataSink());
         aPlot.setDoLegend(false);
         slopePlot.setLegend(new DataTag[]{aHistory.getTag()}, "a");
-        
-        
-        DisplayPlot alphaChiPlot = new DisplayPlot();
+
+
+        DisplayPlotXChart alphaChiPlot = new DisplayPlotXChart();
         alphaChiPlot.getPlot().setXLog(true);
         alphaChiPlot.getPlot().setYLog(true);
-        alphaChiPlot.setSize(350, 250);
+        alphaChiPlot.getChart().getStyler().setPlotGridLinesVisible(false);
         IDataSource alphaChi = new DataSourceAlphaChi(dsvo, 0);
-        DataPumpListenerPow alphaChiPump = new DataPumpListenerPow(alphaChi, alphaChiPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+        DataPumpListenerPow alphaChiPump = new DataPumpListenerPow(alphaChi, alphaChiPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
         sim.integratorOS.getEventManager().addListener(alphaChiPump);
         IDataSource alphaAlpha = new DataSourceAlphaAlpha(dsvo);
-        DataPumpListenerPow alphaAlphaPump = new DataPumpListenerPow(alphaAlpha, alphaChiPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+        DataPumpListenerPow alphaAlphaPump = new DataPumpListenerPow(alphaAlpha, alphaChiPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
         sim.integratorOS.getEventManager().addListener(alphaAlphaPump);
 
         DataSourceAlphaChi alphaChiErrP1 = new DataSourceAlphaChi(dsvo, 1);
         alphaChiErrP1.setSpiffiness(1);
-        DataPumpListenerPow alphaChiPumpErrP1 = new DataPumpListenerPow(alphaChiErrP1, alphaChiPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+        DataPumpListenerPow alphaChiPumpErrP1 = new DataPumpListenerPow(alphaChiErrP1, alphaChiPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
         sim.integratorOS.getEventManager().addListener(alphaChiPumpErrP1);
         alphaChiPlot.setLegend(new DataTag[]{alphaChiErrP1.getTag()}, "chi+");
-        
+
         DeviceSlider x0Slider = new DeviceSlider(sim.getController());
         final DeviceSlider omegaASlider = new DeviceSlider(sim.getController());
         final DeviceSlider omegaBSlider = new DeviceSlider(sim.getController());
@@ -437,11 +444,18 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public void setValue(double value) {
                 sim.potentialB.setX0(new Vector1D(value));
             }
+
             public double getValue() {
                 return sim.potentialB.getX0().getX(0);
             }
-            public String getLabel() {return "x0";}
-            public Dimension getDimension() {return Length.DIMENSION;}
+
+            public String getLabel() {
+                return "x0";
+            }
+
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
         };
         x0Slider.setModifier(x0Modifier);
         x0Slider.setMinimum(0.0);
@@ -455,86 +469,86 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         omegaBSlider.setMinimum(0.1);
         omegaBSlider.setMaximum(10.0);
         omegaBSlider.setValue(1.0);
-        
+
         final DeviceBox alphaCenterBox = new DeviceBox();
         alphaCenterBox.setController(sim.getController());
         alphaCenterBox.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 if (newValue <= 0) throw new IllegalArgumentException();
                 double span = meterOverlapA.getAlphaSpan();
                 meterOverlapA.setAlphaRange(newValue, span);
                 meterOverlapB.setAlphaRange(newValue, span);
-                for (int i=0; i<na; i++) {
-                    ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).setMaxSample(1.0/meterOverlapB.getAlpha(i));
+                for (int i = 0; i < na; i++) {
+                    ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).setMaxSample(1.0 / meterOverlapB.getAlpha(i));
                 }
             }
-            
+
             public double getValue() {
                 return meterOverlapA.getAlphaCenter();
             }
-            
+
             public String getLabel() {
                 return "alpha center";
             }
-            
+
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
         });
 
-        final DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
+        final DataSourceScalar delta = new DataSourceScalar("exact", Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.boxA.getLeafList().size() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5 * sim.boxA.getLeafList().size() * Math.log(omegaBSlider.getValue() / omegaASlider.getValue());
             }
         };
-        
-        
+
+
         DeviceBox alphaSpanBox = new DeviceBox();
         alphaSpanBox.setController(sim.getController());
         alphaSpanBox.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 if (newValue <= 0 || newValue > 100) throw new IllegalArgumentException();
                 double center = meterOverlapA.getAlphaCenter();
                 meterOverlapA.setAlphaRange(center, newValue);
                 meterOverlapB.setAlphaRange(center, newValue);
-                for (int i=0; i<na; i++) {
-                    ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).setMaxSample(1.0/meterOverlapB.getAlpha(i));
+                for (int i = 0; i < na; i++) {
+                    ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).setMaxSample(1.0 / meterOverlapB.getAlpha(i));
                 }
 
             }
-            
+
             public double getValue() {
                 return meterOverlapA.getAlphaSpan();
             }
-            
+
             public String getLabel() {
                 return "alpha span";
             }
-            
+
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
         });
         alphaSpanBox.setPrecision(6);
 
-        DisplayPlot feRefTargetPlot = null;
-        DisplayPlot stdevRefTargetPlot = new DisplayPlot();
+        DisplayPlotXChart feRefTargetPlot = null;
+        DisplayPlotXChart stdevRefTargetPlot = new DisplayPlotXChart();
         stdevRefTargetPlot.getPlot().setXLog(true);
         stdevRefTargetPlot.getPlot().setYLog(true);
-        DisplayPlot biasRefTargetPlot = null;
+        DisplayPlotXChart biasRefTargetPlot = null;
         if (overlapAvgA instanceof DataSourceOverlapLogAvg) {
             dataSourceRefFE = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.AVG);
             dataSourceRefFE.setOverlapSplitter(splitterA);
             dataSourceTargetFE = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.AVG);
             dataSourceTargetFE.setOverlapSplitter(splitterB);
-            feRefTargetPlot = new DisplayPlot();
+            feRefTargetPlot = new DisplayPlotXChart();
             feRefTargetPlot.getPlot().setXLog(true);
-            DataPumpListenerPow pump = new DataPumpListenerPow(dataSourceRefFE, feRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+            DataPumpListenerPow pump = new DataPumpListenerPow(dataSourceRefFE, feRefTargetPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
             feRefTargetPlot.setLegend(new DataTag[]{dataSourceRefFE.getTag()}, "A");
-            pump = new DataPumpListenerPow(dataSourceTargetFE, feRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+            pump = new DataPumpListenerPow(dataSourceTargetFE, feRefTargetPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
             feRefTargetPlot.setLegend(new DataTag[]{dataSourceTargetFE.getTag()}, "B");
 
@@ -542,33 +556,33 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             dataSourceRefStdev.setOverlapSplitter(splitterA);
             dataSourceTargetStdev = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.STDEV);
             dataSourceTargetStdev.setOverlapSplitter(splitterB);
-            pump = new DataPumpListenerPow(dataSourceRefStdev, stdevRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+            pump = new DataPumpListenerPow(dataSourceRefStdev, stdevRefTargetPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
             stdevRefTargetPlot.setLegend(new DataTag[]{dataSourceRefStdev.getTag()}, "A");
-            pump = new DataPumpListenerPow(dataSourceTargetStdev, stdevRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+            pump = new DataPumpListenerPow(dataSourceTargetStdev, stdevRefTargetPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
             stdevRefTargetPlot.setLegend(new DataTag[]{dataSourceTargetStdev.getTag()}, "B");
 
-            biasRefTargetPlot = new DisplayPlot();
+            biasRefTargetPlot = new DisplayPlotXChart();
             biasRefTargetPlot.getPlot().setXLog(true);
             biasRefTargetPlot.getPlot().setYLog(true);
             dataSourceRefBias = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.BIAS);
             dataSourceRefBias.setOverlapSplitter(splitterA);
             dataSourceTargetBias = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.BIAS);
             dataSourceTargetBias.setOverlapSplitter(splitterB);
-            pump = new DataPumpListenerPow(dataSourceRefBias, biasRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+            pump = new DataPumpListenerPow(dataSourceRefBias, biasRefTargetPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
             biasRefTargetPlot.setLegend(new DataTag[]{dataSourceRefBias.getTag()}, "A");
-            pump = new DataPumpListenerPow(dataSourceTargetBias, biasRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
+            pump = new DataPumpListenerPow(dataSourceTargetBias, biasRefTargetPlot.getDataSet().makeDataSink(), 10 * dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
             biasRefTargetPlot.setLegend(new DataTag[]{dataSourceTargetBias.getTag()}, "B");
         }
-        
+
         DataSourceScalar refAntibiasDataSource = new DataSourceScalar("antibias", Null.DIMENSION) {
             public double getDataAsScalar() {
                 double refChi = dsvo.getAverageAndError(true, alphaChoice)[0];
                 long refCount = sim.integratorA.getStepCount();
-                double antibiasRefChi = (refChi * refCount + 1) / (refCount+1);
+                double antibiasRefChi = (refChi * refCount + 1) / (refCount + 1);
                 return Math.log(antibiasRefChi);
             }
         };
@@ -584,7 +598,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public double getDataAsScalar() {
                 double targetChi = dsvo.getAverageAndError(false, alphaChoice)[0];
                 long targetCount = sim.integratorB.getStepCount();
-                double antibiasRefChi = (targetChi * targetCount + 1.0/alphaChoice) / (targetCount+1);
+                double antibiasRefChi = (targetChi * targetCount + 1.0 / alphaChoice) / (targetCount + 1);
                 return Math.log(antibiasRefChi);
             }
         };
@@ -595,77 +609,83 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         targetAntibiasHistory.setPushInterval(1);
         targetAntibiasHistory.addDataSink(feRefTargetPlot.getDataSet().makeDataSink());
         feRefTargetPlot.setLegend(new DataTag[]{targetAntibiasHistory.getTag()}, "B(ab)");
-        
+
 
         sim.integratorA.getEventManager().addListener(new IntegratorListener() {
-            public void integratorStepStarted(IntegratorEvent e) {}
-            public void integratorInitialized(IntegratorEvent e) {}
-            
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+
             public void integratorStepFinished(IntegratorEvent e) {
                 long stepCount = sim.integratorA.getStepCount();
-                int ls = (int)Math.round(Math.log(stepCount)/Math.log(2));
-                if (ls < 10 || stepCount != 1L<<ls) return;
+                int ls = (int) Math.round(Math.log(stepCount) / Math.log(2));
+                if (ls < 10 || stepCount != 1L << ls) return;
                 int numAlphas = meterOverlapA.getNumAlpha();
-                double[][] avgs = new double[numAlphas][ls+1];
-                double[][] sdevs = new double[numAlphas][ls+1];
-                double[][] abavgs = new double[numAlphas][ls+1];
-                double[][] absdevs = new double[numAlphas][ls+1];
-                for (int i=0; i<numAlphas; i++) {
-                    IData davg = ((AccumulatorAverageCollapsingLog)splitterA.getDataSink(i)).getAverageLogs();
-                    IData dsdev = ((AccumulatorAverageCollapsingLog)splitterA.getDataSink(i)).getStdevLog();
-                    for (int j=0; j<=ls; j++) {
+                double[][] avgs = new double[numAlphas][ls + 1];
+                double[][] sdevs = new double[numAlphas][ls + 1];
+                double[][] abavgs = new double[numAlphas][ls + 1];
+                double[][] absdevs = new double[numAlphas][ls + 1];
+                for (int i = 0; i < numAlphas; i++) {
+                    IData davg = ((AccumulatorAverageCollapsingLog) splitterA.getDataSink(i)).getAverageLogs();
+                    IData dsdev = ((AccumulatorAverageCollapsingLog) splitterA.getDataSink(i)).getStdevLog();
+                    for (int j = 0; j <= ls; j++) {
                         avgs[i][j] = davg.getValue(j);
                         sdevs[i][j] = dsdev.getValue(j);
                     }
-                    IData dabavg = ((AccumulatorAverageCollapsingLogAB)splitterA.getDataSink(i)).getAverageAntibiasedLogs();
-                    IData dabsdev = ((AccumulatorAverageCollapsingLogAB)splitterA.getDataSink(i)).getStdevantibiasedLog();
-                    for (int j=0; j<=ls; j++) {
+                    IData dabavg = ((AccumulatorAverageCollapsingLogAB) splitterA.getDataSink(i)).getAverageAntibiasedLogs();
+                    IData dabsdev = ((AccumulatorAverageCollapsingLogAB) splitterA.getDataSink(i)).getStdevantibiasedLog();
+                    for (int j = 0; j <= ls; j++) {
                         abavgs[i][j] = dabavg.getValue(j);
                         absdevs[i][j] = dabsdev.getValue(j);
                     }
                 }
-                for (int j=0; j<=ls; j++) {
-                    long steps = 1L<<j;
-                    System.out.print("A "+steps);
-                    for (int i=0; i<numAlphas; i++) {
-                        System.out.print("   "+avgs[i][j]+" "+sdevs[i][j]+" "+abavgs[i][j]+" "+absdevs[i][j]);
+                for (int j = 0; j <= ls; j++) {
+                    long steps = 1L << j;
+                    System.out.print("A " + steps);
+                    for (int i = 0; i < numAlphas; i++) {
+                        System.out.print("   " + avgs[i][j] + " " + sdevs[i][j] + " " + abavgs[i][j] + " " + absdevs[i][j]);
                     }
                     System.out.println();
                 }
             }
         });
         sim.integratorB.getEventManager().addListener(new IntegratorListener() {
-            public void integratorStepStarted(IntegratorEvent e) {}
-            public void integratorInitialized(IntegratorEvent e) {}
-            
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+
             public void integratorStepFinished(IntegratorEvent e) {
                 long stepCount = sim.integratorB.getStepCount();
-                int ls = (int)Math.round(Math.log(stepCount)/Math.log(2));
-                if (ls < 10 || stepCount != 1L<<ls) return;
+                int ls = (int) Math.round(Math.log(stepCount) / Math.log(2));
+                if (ls < 10 || stepCount != 1L << ls) return;
                 int numAlphas = meterOverlapA.getNumAlpha();
-                double[][] avgs = new double[numAlphas][ls+1];
-                double[][] sdevs = new double[numAlphas][ls+1];
-                double[][] abavgs = new double[numAlphas][ls+1];
-                double[][] absdevs = new double[numAlphas][ls+1];
-                for (int i=0; i<numAlphas; i++) {
-                    IData davg = ((AccumulatorAverageCollapsingLog)splitterB.getDataSink(i)).getAverageLogs();
-                    IData dsdev = ((AccumulatorAverageCollapsingLog)splitterB.getDataSink(i)).getStdevLog();
-                    for (int j=0; j<=ls; j++) {
+                double[][] avgs = new double[numAlphas][ls + 1];
+                double[][] sdevs = new double[numAlphas][ls + 1];
+                double[][] abavgs = new double[numAlphas][ls + 1];
+                double[][] absdevs = new double[numAlphas][ls + 1];
+                for (int i = 0; i < numAlphas; i++) {
+                    IData davg = ((AccumulatorAverageCollapsingLog) splitterB.getDataSink(i)).getAverageLogs();
+                    IData dsdev = ((AccumulatorAverageCollapsingLog) splitterB.getDataSink(i)).getStdevLog();
+                    for (int j = 0; j <= ls; j++) {
                         avgs[i][j] = davg.getValue(j);
                         sdevs[i][j] = dsdev.getValue(j);
                     }
-                    IData dabavg = ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).getAverageAntibiasedLogs();
-                    IData dabsdev = ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).getStdevantibiasedLog();
-                    for (int j=0; j<=ls; j++) {
+                    IData dabavg = ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).getAverageAntibiasedLogs();
+                    IData dabsdev = ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).getStdevantibiasedLog();
+                    for (int j = 0; j <= ls; j++) {
                         abavgs[i][j] = dabavg.getValue(j);
                         absdevs[i][j] = dabsdev.getValue(j);
                     }
                 }
-                for (int j=0; j<=ls; j++) {
-                    long steps = 1L<<j;
-                    System.out.print("B "+steps);
-                    for (int i=0; i<numAlphas; i++) {
-                        System.out.print("   "+avgs[i][j]+" "+sdevs[i][j]+" "+abavgs[i][j]+" "+absdevs[i][j]);
+                for (int j = 0; j <= ls; j++) {
+                    long steps = 1L << j;
+                    System.out.print("B " + steps);
+                    for (int i = 0; i < numAlphas; i++) {
+                        System.out.print("   " + avgs[i][j] + " " + sdevs[i][j] + " " + abavgs[i][j] + " " + absdevs[i][j]);
                     }
                     System.out.println();
                 }
@@ -707,24 +727,24 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //            }
 //            public void integratorInitialized(IIntegratorEvent e) {}
 //        });
-        
+
         DeviceBox numAlphaBox = new DeviceBox();
         numAlphaBox.setController(sim.getController());
         numAlphaBox.setInteger(true);
         numAlphaBox.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 if (newValue <= 0 || newValue >= 50) throw new IllegalArgumentException();
-                int numAlpha = (int)newValue;
+                int numAlpha = (int) newValue;
                 meterOverlapA.setNumAlpha(numAlpha);
                 meterOverlapB.setNumAlpha(numAlpha);
                 forkA.putDataInfo(meterOverlapA.getDataInfo());
-                for (int i=0; i<numAlpha; i++) {
-                    ((AccumulatorAverageCollapsingLogAB)splitterA.getDataSink(i)).setMaxSample(1);
+                for (int i = 0; i < numAlpha; i++) {
+                    ((AccumulatorAverageCollapsingLogAB) splitterA.getDataSink(i)).setMaxSample(1);
                 }
                 forkB.putDataInfo(meterOverlapB.getDataInfo());
-                for (int i=0; i<numAlpha; i++) {
-                    ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).setMaxSample(1.0/meterOverlapB.getAlpha(i));
+                for (int i = 0; i < numAlpha; i++) {
+                    ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).setMaxSample(1.0 / meterOverlapB.getAlpha(i));
                 }
                 for (DataPumpListener pump : allPumps) {
                     sim.integratorOS.getEventManager().removeListener(pump);
@@ -732,15 +752,15 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 allPumps.clear();
                 fePlot.getDataSet().reset();
             }
-            
+
             public double getValue() {
                 return meterOverlapA.getNumAlpha();
             }
-            
+
             public String getLabel() {
                 return "# alpha";
             }
-            
+
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
@@ -751,7 +771,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public void setValue(double newValue) {
                 AlphaSource alphaSource = dsvo.getAlphaSource();
                 int numAlpha = alphaSource.getNumAlpha();
-                if (newValue < alphaSource.getAlpha(0) || newValue > alphaSource.getAlpha(numAlpha-1)) {
+                if (newValue < alphaSource.getAlpha(0) || newValue > alphaSource.getAlpha(numAlpha - 1)) {
                     throw new IllegalArgumentException();
                 }
                 alphaChoice = newValue;
@@ -762,15 +782,15 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 dataSourceRefBias.setAlpha(alphaChoice);
                 dataSourceTargetBias.setAlpha(alphaChoice);
             }
-            
+
             public double getValue() {
                 return alphaChoice;
             }
-            
+
             public String getLabel() {
                 return "alpha";
             }
-            
+
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
@@ -787,7 +807,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         nSlider.setShowBorder(true);
 
         AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        DataPumpListenerSmart exactPump = new DataPumpListenerSmart(delta, deltaHistory, dataInterval, (HistoryCollapsingDiscard)deltaHistory.getHistory());
+        DataPumpListenerSmart exactPump = new DataPumpListenerSmart(delta, deltaHistory, dataInterval, (HistoryCollapsingDiscard) deltaHistory.getHistory());
         deltaHistory.setDataSink(fePlot.getDataSet().makeDataSink());
         sim.integratorOS.getEventManager().addListener(exactPump);
         dataStreamPumps.add(exactPump);
@@ -800,30 +820,30 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         dataStreamPumps.add(exactPumpLn);
         deltaHistoryLn.setTimeDataSource(stepCounter);
 
-        final DisplayPlot uPlot = new DisplayPlot();
+        final DisplayPlotXChart uPlot = new DisplayPlotXChart();
         final double yMax = 2.0;
         uPlot.getPlot().setYRange(0.0, yMax);
-        
+
         Function fUA = new Function() {
             public double f(double x) {
                 double x0 = sim.potentialA.getX0().getX(0);
-                return 0.5*sim.potentialA.getSpringConstant()*(x - x0)*(x - x0);
+                return 0.5 * sim.potentialA.getSpringConstant() * (x - x0) * (x - x0);
             }
         };
         Function fUB = new Function() {
             public double f(double x) {
                 double x0 = sim.potentialB.getX0().getX(0);
-                return 0.5*sim.potentialB.getSpringConstant()*(x - x0)*(x - x0);
+                return 0.5 * sim.potentialB.getSpringConstant() * (x - x0) * (x - x0);
             }
         };
 
-        final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
-        final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
+        final DataSourceFunction uA = new DataSourceFunction("A", Null.DIMENSION, fUA, 100, "x", Length.DIMENSION);
+        final DataSourceFunction uB = new DataSourceFunction("B", Null.DIMENSION, fUB, 100, "x", Length.DIMENSION);
         double Lx = sim.boxA.getBoundary().getBoxSize().getX(0);
-        uA.getXSource().setXMin(-Lx);
-        uB.getXSource().setXMin(-Lx);
-        uA.getXSource().setXMax(Lx);
-        uB.getXSource().setXMax(Lx);
+        uA.getXSource().setXMin(-Lx / 2);
+        uB.getXSource().setXMin(-Lx / 2);
+        uA.getXSource().setXMax(Lx / 2);
+        uB.getXSource().setXMax(Lx / 2);
         final DataPump uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         final DataPump uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         final IAction uUpdate = new IAction() {
@@ -832,13 +852,13 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 uB.update();
                 uAPump.actionPerformed();
                 uBPump.actionPerformed();
-                
+
                 double span = meterOverlapA.getAlphaSpan();
                 double alpha = Math.exp(-delta.getDataAsScalar());
                 meterOverlapA.setAlphaRange(alpha, span);
                 meterOverlapB.setAlphaRange(alpha, span);
-                for (int i=0; i<na; i++) {
-                    ((AccumulatorAverageCollapsingLogAB)splitterB.getDataSink(i)).setMaxSample(1.0/meterOverlapB.getAlpha(i));
+                for (int i = 0; i < na; i++) {
+                    ((AccumulatorAverageCollapsingLogAB) splitterB.getDataSink(i)).setMaxSample(1.0 / meterOverlapB.getAlpha(i));
                 }
                 alphaCenterBox.doUpdate();
                 alphaChoice = alpha;
@@ -857,114 +877,91 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         x0Slider.setPostAction(uUpdate);
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
-                sim.boxB.setNMolecules(sim.species, (int)nSlider.getValue());
+                sim.boxB.setNMolecules(sim.species, (int) nSlider.getValue());
                 uUpdate.actionPerformed();
             }
         });
 
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
 
-        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
-
         //controls -- start/pause and sliders
         JTabbedPane sliderPanel = new JTabbedPane();
         sliderPanel.add(x0Slider.graphic(), "x0");
         sliderPanel.add(omegaASlider.graphic(), "omegaA");
         sliderPanel.add(omegaBSlider.graphic(), "omegaB");
-        
-        JPanel topPanel = new JPanel(new GridBagLayout());
-        JPanel displayPanel = new JPanel(new GridBagLayout());
-        topPanel.add(sliderPanel, vertGBC);
-        topPanel.add(nSlider.graphic(), vertGBC);
+
+        JPanel topPanel = new JPanel(new MigLayout("flowy, novisualpadding"));
+        JPanel displayPanel = new JPanel(new MigLayout("flowy"));
+        topPanel.add(sliderPanel, "");
+        topPanel.add(nSlider.graphic(), "");
         JPanel alphaPanel = new JPanel(new GridLayout(2, 2));
         alphaPanel.add(alphaCenterBox.graphic());
         alphaPanel.add(alphaSpanBox.graphic());
         alphaPanel.add(numAlphaBox.graphic());
         alphaPanel.add(alphaChoiceBox.graphic());
-        topPanel.add(alphaPanel, vertGBC);
-        displayPanel.add(uPlot.graphic(), vertGBC);
+        topPanel.add(alphaPanel, "");
+        displayPanel.add(uPlot.graphic());
         JTabbedPane displayBoxPanel = new JTabbedPane();
         displayBoxPanel.add(displayBoxA.graphic(), "box A");
         displayBoxPanel.add(displayBoxB.graphic(), "box B");
-        displayPanel.add(displayBoxPanel, vertGBC);
-        GridBagConstraints mygbc = new GridBagConstraints();
-        mygbc.gridx = 1;
-        mygbc.gridy = 0;
-        mygbc.gridheight = 3;
-        topPanel.add(displayPanel, mygbc);
-
-        stdevRefTargetPlot.setSize(350,250);
-        if (feRefTargetPlot != null) {
-            feRefTargetPlot.setSize(350,250);
-            biasRefTargetPlot.setSize(350,250);
-        }
-        aPlot.setSize(450,250);
-        uaPlot.setSize(450,250);
-        slopePlot.setSize(450,250);
-        fracPlot.setSize(450,250);
-        fePlot.setSize(450, 250);
-        feLnPlot.setSize(450, 250);
-        uPlot.setSize(450, 250);
-        if (dWPlot != null) {
-            dWPlot.setSize(450, 250);
-        }
+        displayPanel.add(displayBoxPanel, "growx, center, gapx 4% 9%");
+        topPanel.add(displayPanel, "newline, spany");
 
         getPanel().graphicsPanel.add(topPanel);
 
         JTabbedPane plotTabs = new JTabbedPane();
 
-        getPanel().graphicsPanel.add(plotTabs, vertGBC);
+        getPanel().graphicsPanel.add(plotTabs);
 
         getController().getReinitButton().setPostAction(new IAction() {
-        	public void actionPerformed() {
+            public void actionPerformed() {
                 displayBoxA.repaint();
                 displayBoxB.repaint();
-                fePlot.getPlot().repaint();
-                feLnPlot.getPlot().repaint();
-        	}
+                fePlot.getPlot().doUpdate();
+                feLnPlot.getPlot().doUpdate();
+            }
         });
 
         uUpdate.actionPerformed();
 
-        JPanel tab2 = new JPanel(new GridBagLayout());
+        JPanel tab2 = new JPanel(new MigLayout());
         plotTabs.add(tab2, "Free Energy");
-        tab2.add(fePlot.graphic(), horizGBC);
-        JPanel tab2a = new JPanel(new GridBagLayout());
+        tab2.add(fePlot.graphic(), "");
+        JPanel tab2a = new JPanel(new MigLayout());
         plotTabs.add(tab2a, "Free Energy (log)");
-        tab2a.add(feLnPlot.graphic(), horizGBC);
-        JPanel tab3 = new JPanel(new GridBagLayout());
+        tab2a.add(feLnPlot.graphic(), "");
+        JPanel tab3 = new JPanel(new MigLayout());
         plotTabs.add(tab3, "Alpha vs. Chi");
-        tab3.add(alphaChiPlot.graphic(), horizGBC);
-        JPanel tab4 = new JPanel(new GridBagLayout());
+        tab3.add(alphaChiPlot.graphic(), "");
+        JPanel tab4 = new JPanel(new MigLayout());
         plotTabs.add(tab4, "Frac A");
-        tab4.add(fracPlot.graphic(), horizGBC);
-        JPanel tab5 = new JPanel(new GridBagLayout());
+        tab4.add(fracPlot.graphic(), "");
+        JPanel tab5 = new JPanel(new MigLayout());
         plotTabs.add(tab5, "Chi Slope");
-        tab5.add(slopePlot.graphic(), horizGBC);
-        JPanel tab6 = new JPanel(new GridBagLayout());
+        tab5.add(slopePlot.graphic(), "");
+        JPanel tab6 = new JPanel(new MigLayout());
         plotTabs.add(tab6, "Ua");
-        tab6.add(uaPlot.graphic(), horizGBC);
+        tab6.add(uaPlot.graphic(), "");
         if (feRefTargetPlot != null) {
-            JPanel tab7 = new JPanel(new GridBagLayout());
+            JPanel tab7 = new JPanel(new MigLayout());
             plotTabs.add(tab7, "AB FE");
-            tab7.add(feRefTargetPlot.graphic(), horizGBC);
+            tab7.add(feRefTargetPlot.graphic(), "");
         }
-        JPanel tab8 = new JPanel(new GridBagLayout());
+        JPanel tab8 = new JPanel(new MigLayout());
         plotTabs.add(tab8, "AB Stdev");
-        tab8.add(stdevRefTargetPlot.graphic(), horizGBC);
+        tab8.add(stdevRefTargetPlot.graphic(), "");
         if (biasRefTargetPlot != null) {
-            JPanel tab10 = new JPanel(new GridBagLayout());
+            JPanel tab10 = new JPanel(new MigLayout());
             plotTabs.add(tab10, "AB bias");
-            tab10.add(biasRefTargetPlot.graphic(), horizGBC);
+            tab10.add(biasRefTargetPlot.graphic(), "");
         }
-        
+
         if (dWPlot != null) {
-            JPanel tab13 = new JPanel(new GridBagLayout());
+            JPanel tab13 = new JPanel(new MigLayout());
             plotTabs.add(tab13, "dW");
-            tab13.add(dWPlot.graphic(), horizGBC);
+            tab13.add(dWPlot.graphic(), "");
         }
-        
+
         final DataSinkReweightedDeltaU deltaUA = new DataSinkReweightedDeltaU(meterOverlapA);
         forkA.addDataSink(deltaUA);
         DisplayTextBox sWABox = new DisplayTextBox();
@@ -973,7 +970,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 // sWA = <UA - UW>W - (FA-FW)
                 return deltaUA.getDeltaU(alphaChoice) - Math.log(dsvo.getAverageAndError(true, alphaChoice)[0]);
             }
-        }, sWABox, dataInterval*1000, 10, 20);
+        }, sWABox, dataInterval * 1000, 10, 20);
         sim.integratorA.getEventManager().addListener(sWAPump);
 
         final DataSinkReweightedDeltaU deltaUB = new DataSinkReweightedDeltaU(meterOverlapB);
@@ -984,17 +981,17 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 // sWB = <UB - UW>W - (FB-FW)
                 return deltaUB.getDeltaU(alphaChoice) - Math.log(dsvo.getAverageAndError(false, alphaChoice)[0]);
             }
-        }, sWBBox, dataInterval*1000, 10, 20);
+        }, sWBBox, dataInterval * 1000, 10, 20);
         sim.integratorB.getEventManager().addListener(sWBPump);
 
         DisplayTextBox MABox = new DisplayTextBox();
         DataSourceScalar dataSourceMA = new DataSourceScalar("MA", Quantity.DIMENSION) {
             public double getDataAsScalar() {
                 double sWA = deltaUA.getDeltaU(alphaChoice) - Math.log(dsvo.getAverageAndError(true, alphaChoice)[0]);
-                return 1.0 + Math.exp(sWA)*Math.sqrt(2*Math.PI);
+                return 1.0 + Math.exp(sWA) * Math.sqrt(2 * Math.PI);
             }
         };
-        DataPumpListenerPow pumpMA = new DataPumpListenerPow(dataSourceMA, MABox, dataInterval*1000, 10, 20);
+        DataPumpListenerPow pumpMA = new DataPumpListenerPow(dataSourceMA, MABox, dataInterval * 1000, 10, 20);
         sim.integratorA.getEventManager().addListener(pumpMA);
         AccumulatorHistory historyMA = new AccumulatorHistory(new HistoryComplete());
         DataPumpListenerPowStrict pumpMALog = new DataPumpListenerPowStrict(dataSourceMA, historyMA);
@@ -1005,31 +1002,24 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         DataSourceScalar dataSourceMB = new DataSourceScalar("MB", Quantity.DIMENSION) {
             public double getDataAsScalar() {
                 double sWB = deltaUB.getDeltaU(alphaChoice) - Math.log(dsvo.getAverageAndError(false, alphaChoice)[0]);
-                return 1.0 + Math.exp(sWB)*Math.sqrt(2*Math.PI);
+                return 1.0 + Math.exp(sWB) * Math.sqrt(2 * Math.PI);
             }
         };
-        DataPumpListenerPow pumpMB = new DataPumpListenerPow(dataSourceMB, MBBox, dataInterval*1000, 10, 20);
+        DataPumpListenerPow pumpMB = new DataPumpListenerPow(dataSourceMB, MBBox, dataInterval * 1000, 10, 20);
         sim.integratorB.getEventManager().addListener(pumpMB);
         AccumulatorHistory historyMB = new AccumulatorHistory(new HistoryComplete());
         DataPumpListenerPowStrict pumpMBLog = new DataPumpListenerPowStrict(dataSourceMB, historyMB);
         historyMB.setTimeDataSource(new DataSourceCountSteps(sim.integratorB));
         sim.integratorB.getEventManager().addListener(pumpMBLog);
 
-        
-        JPanel tab11 = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        tab11.add(sWABox.graphic(), gbc);
-        gbc.gridx = 1;
-        tab11.add(sWBBox.graphic(), gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        tab11.add(MABox.graphic(), gbc);
-        gbc.gridx = 1;
-        tab11.add(MBBox.graphic(), gbc);
+
+        JPanel tab11 = new JPanel(new MigLayout());
+        tab11.add(sWABox.graphic());
+        tab11.add(sWBBox.graphic(), "wrap");
+        tab11.add(MABox.graphic());
+        tab11.add(MBBox.graphic());
         plotTabs.add(tab11, "s");
-        
+
 
         DataSourceScalar dataSourceMM = new DataSourceScalar("MM", Quantity.DIMENSION) {
             public double getDataAsScalar() {
@@ -1041,7 +1031,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         historyMM.setTimeDataSource(dataSourceMM);
         sim.integratorOS.getEventManager().addListener(pumpMMLog);
 
-        DisplayPlot plotM = new DisplayPlot();
+        DisplayPlotXChart plotM = new DisplayPlotXChart();
         historyMA.setDataSink(plotM.getDataSet().makeDataSink());
         historyMB.setDataSink(plotM.getDataSet().makeDataSink());
         historyMM.setDataSink(plotM.getDataSet().makeDataSink());
@@ -1050,12 +1040,12 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         plotM.setLegend(new DataTag[]{historyMM.getTag()}, "M");
         plotM.getPlot().setXLog(true);
         plotM.getPlot().setYLog(true);
-        plotM.setSize(450,250);
-        JPanel tab12 = new JPanel();
-        tab12.add(plotM.graphic(), horizGBC);
+        JPanel tab12 = new JPanel(new MigLayout());
+        tab12.add(plotM.graphic(), "");
         plotTabs.add(tab12, "M");
-        
-        sim.activityIntegrate.setSleepPeriod(0);
+
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
     }
 
     public static void main(String[] args) {
@@ -1551,12 +1541,12 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
             double[] lnAlpha = new double[numAlpha];
             double[] lnAlphaDiff = new double[numAlpha];
-            double[] lnRefAvg = new double[numAlpha];
+            double[] lnTargetAvg = new double[numAlpha];
 
             for (int j=0; j<numAlpha; j++) {
                 double refOverlap = dsvo.getRefSource().getAverage(j);
                 double targetOverlap = dsvo.getTargetSource().getAverage(j);
-                lnRefAvg[j] = Math.log(targetOverlap);
+                lnTargetAvg[j] = Math.log(targetOverlap);
                 lnAlphaDiff[j] = Math.log(refOverlap/targetOverlap);
 
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);
@@ -1564,7 +1554,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 lnAlphaDiff[j] -= lnAlpha[j];
             }
 
-            double lnUa = Double.NaN;
             if (lnAlphaDiff[0] < 0) {
                 // first new alpha is less than initial first alpha
                 return Double.NaN;
@@ -1575,8 +1564,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             AkimaSpline spline = new AkimaSpline();
 
             double[] x = new double[]{Math.log(dsvo.getOverlapAverageAndError()[0])};
-            spline.setInputData(lnAlpha, lnRefAvg);
-            lnUa = spline.doInterpolation(x)[0];
+            spline.setInputData(lnAlpha, lnTargetAvg);
+            double lnUa = spline.doInterpolation(x)[0];
 
             return 2*Math.exp(lnUa+x[0]);
         }

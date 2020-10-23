@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -23,6 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -85,10 +87,10 @@ public class VirialAceticAcid {
         refCluster.setTemperature(temperature);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-        
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space,new SpeciesAceticAcid(space),temperature,refCluster,targetCluster, false);
+
+        SpeciesGeneral species = SpeciesAceticAcid.create();
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space, species,temperature,refCluster,targetCluster, false);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-    	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
     	AceticAcidModPotentialHelper.initPotential(space, species, p);
 
     	// bond angle bending is governed by harmonic potential
@@ -145,57 +147,50 @@ public class VirialAceticAcid {
         Box referenceBox = sim.box[0];
         Box targetBox = sim.box[1];
              
-        if (false) {
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(false) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ColorSchemeByType colorScheme0 = (ColorSchemeByType) simGraphic.getDisplayBox(referenceBox).getColorScheme();
             ColorSchemeByType colorScheme1 = (ColorSchemeByType) simGraphic.getDisplayBox(targetBox).getColorScheme();
-            DiameterHashByType	diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
-            DiameterHashByType	diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
+            DiameterHashByType diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
+            DiameterHashByType diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
 
-            AtomType typeCH3 = species.getCH3Type();
-            AtomType typeC = species.getCType();
-            AtomType typeDBO = species.getDBOType();
-            AtomType typeSBO = species.getSBOType();
-            AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeC = species.getTypeByName("C");
+            AtomType typeDBO = species.getTypeByName("DBO");
+            AtomType typeSBO = species.getTypeByName("SBO");
+            AtomType typeH = species.getTypeByName("H");
             colorScheme0.setColor(typeCH3, Color.GREEN);
-            diameterScheme0.setDiameter(typeCH3, 2*1.7);
+            diameterScheme0.setDiameter(typeCH3, 2 * 1.7);
             colorScheme0.setColor(typeC, Color.BLUE);
             colorScheme0.setColor(typeDBO, Color.RED);
             colorScheme0.setColor(typeSBO, Color.YELLOW);
             colorScheme0.setColor(typeH, Color.WHITE);
             colorScheme1.setColor(typeCH3, Color.GREEN);
-            diameterScheme1.setDiameter(typeCH3, 2*1.7);
+            diameterScheme1.setDiameter(typeCH3, 2 * 1.7);
             colorScheme1.setColor(typeC, Color.BLUE);
             colorScheme1.setColor(typeDBO, Color.RED);
             colorScheme1.setColor(typeSBO, Color.YELLOW);
             colorScheme1.setColor(typeH, Color.WHITE);
-            
+
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);
             simGraphic.makeAndDisplayFrame();
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(targetBox).canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(targetBox).canvas).setBackgroundColor(Color.WHITE);
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nBody+"_"+temperature : null;
@@ -204,13 +199,14 @@ public class VirialAceticAcid {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         sim.setAccumulatorBlockSize((int)steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize()+" "
@@ -218,7 +214,7 @@ public class VirialAceticAcid {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
                 +sim.mcMoveRotate[1].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
-        
+
         IAction progressReport = new IAction() {
             public void actionPerformed() {
             	System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -231,8 +227,7 @@ public class VirialAceticAcid {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         
         System.out.println("ideal reference step frequency "+sim.integratorOS.getIdealRefStepFraction());//optimize the uncertainty
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());//actually happened

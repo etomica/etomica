@@ -35,18 +35,22 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     protected IRandom random;
     protected int stepcount = 0;
     protected long totcount = 0;
-    protected boolean count=false;
+    protected boolean count = false;
     protected double rCut2 = Double.POSITIVE_INFINITY;
+    protected boolean valueBD;
+    protected long timeBD = 0;
+    protected double[] avgAbsCheck = {0, 0}, avgAbsCheckBD = {0, 0};
+    protected long[] nCheck = {0, 0};
 
 
-    public ClusterWheatleySoftDerivatives(int nPoints, MayerFunction f, double tol, int nDer) {        
+    public ClusterWheatleySoftDerivatives(int nPoints, MayerFunction f, double tol, int nDer) {
         this.n = nPoints;
-        value = new double[nDer+1];
-        lastValue = new double[nDer+1];
+        value = new double[nDer + 1];
+        lastValue = new double[nDer + 1];
         this.f = f;
-        int nf = 1<<n;  // 2^n
-        fQ = new double[nf][nDer+1];
-        fC = new double[nf][nDer+1];
+        int nf = 1 << n;  // 2^n
+        fQ = new double[nf][nDer + 1];
+        fC = new double[nf][nDer + 1];
         for(int i=0; i<n; i++) {
             fQ[1<<i][0] = 1.0;
     	}
@@ -159,7 +163,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
             if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)){
-                // 2-point set; these fQ's were filled when bonds were computed, so skip
+                // 2-point set
                 if (fQ[i][0] == 0){
                     for (int m=1;m<=nDer;m++){
                         fQ[i][m]=0;
@@ -399,45 +403,62 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
         double bfac = (1.0-n)/SpecialFunctions.factorial(n);     
         totcount++;
-        double r = BDAccFrac < 1 ? random.nextDouble() : 1;
-        if (Math.abs(fB[nf - 1][0]) < Math.abs(tol)) {
+        valueBD = false;
+        if (Math.abs(fB[nf - 1][0]) < tol * 100 && fB[nf - 1][0] != 0) {
+            double r = BDAccFrac < 1 ? random.nextDouble() : 1;
+            boolean justChecking = Math.abs(fB[nf - 1][0]) > tol;
+            if (justChecking) {
+                r /= 1000;
+            }
             // integrand is too small for recursion to compute accurately.  we ought to do
             // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
             // boost the returned value by 1/BDAccFrac to account for the missed configurations
             boolean doBD = clusterBD != null && (BDAccFrac == 1 || r < BDAccFrac);
-            boolean returnDoubleVal = false;
             if (doBD) {
-                for(int m = 0; m<=nDer; m++) {
-                    value[m] = bfac * fB[nf - 1][m] / BDAccFrac;
+                valueBD = true;
+                double[] foo = fB[nf - 1].clone();
+                for (int m = 0; m <= nDer; m++) {
+                    foo[m] *= bfac;
                 }
-                double[] foo = value.clone();                            
-                SoftBDcount+=1;                
-                if(count&&box.getIndex()==1&&!returnDoubleVal)System.out.println(stepcount);                
-                System.arraycopy(clusterBD.getAllLastValues(box), 0, value, 0, nDer+1);                
-                if(count&&box.getIndex()==1 && false){
-                    double err = Math.abs(Math.abs(value[0]/bfac)-Math.abs(foo[0]/bfac))*100/Math.abs(value[0]/bfac);
-                    System.out.println(stepcount + " : fB double = " + Math.abs(foo[0]/bfac)+" ,fB BD = " + Math.abs(value[0]/bfac) + ", Error % = "+ err);
+                SoftBDcount += 1;
+//                if(count&&box.getIndex()==1&&!returnDoubleVal)System.out.println(stepcount);
+                timeBD -= System.nanoTime();
+                System.arraycopy(clusterBD.getAllLastValues(box), 0, value, 0, nDer + 1);
+                timeBD += System.nanoTime();
+                if (count && box.getIndex() == 1) {
+                    double err = Math.abs(Math.abs(value[0] / bfac - foo[0] / bfac)) * 100 / Math.abs(value[0] / bfac);
+                    System.out.println("fB double = " + Math.abs(foo[0] / bfac) + " ,fB BD = " + Math.abs(value[0] / bfac) + ", Error % = " + err);
                     if(true){
-                        double minr2 = 1000;
-                        int mini=1000;
-                        int minj=1000;
-                        for (int i=0; i<n-1; i++) {
-                            for (int j=i+1; j<n; j++) {
-                                double r2 = box.getCPairSet().getr2(i,j);
-                                if (r2<minr2){
-                                    minr2=r2;
-                                    mini=i;
-                                    minj=j;
-                                }
+                        double maxr2 = 0;
+                        for (int i = 0; i < n - 1; i++) {
+                            for (int j = i + 1; j < n; j++) {
+                                double r2 = box.getCPairSet().getr2(i, j);
+                                if (r2 > maxr2) maxr2 = r2;
                             }
-                        }System.out.println("R2 pair "+mini+","+minj+ " : " + minr2);
+                        }
+                        System.out.println(Math.sqrt(maxr2) + " " + value[0] / bfac + " " + value[1] / bfac + " " + value[2] / bfac + " "
+                                + foo[0] / bfac + " " + foo[1] / bfac + " " + foo[2] / bfac);
                     }
                 }
-                if(pushme||pushmeval){
-                    for( int i=0;i<=nDer;i++){
-                        System.out.print(value[i]/bfac+" "+foo[i]/bfac+" ");
+                if (justChecking) {
+                    int idx = (int) Math.log10(Math.abs(fB[nf - 1][0]) / tol);
+                    if (idx >= nCheck.length) idx = nCheck.length - 1;
+                    nCheck[idx]++;
+                    avgAbsCheck[idx] += (Math.abs(fB[nf - 1][0]) - avgAbsCheck[idx]) / nCheck[idx];
+                    avgAbsCheckBD[idx] += (Math.abs(value[0] / bfac) - avgAbsCheckBD[idx]) / nCheck[idx];
+                    if (nCheck[idx] > 3 && avgAbsCheck[idx] / avgAbsCheckBD[idx] > 1.5) {
+                        System.err.println("nChecks: " + nCheck[0] + " " + nCheck[1]);
+                        System.err.println("avgAbsChecks: " + avgAbsCheck[0] + " " + avgAbsCheck[1]);
+                        System.err.println("avgAbsChecksBD: " + avgAbsCheckBD[0] + " " + avgAbsCheckBD[1]);
+                        throw new RuntimeException("ratios: " + avgAbsCheck[0] / avgAbsCheckBD[0] + " " + avgAbsCheckBD[1] / avgAbsCheckBD[1]);
                     }
-                    System.out.println();
+                } else {
+                    for (int m = 0; m <= nDer; m++) {
+                        value[m] /= BDAccFrac;
+                    }
+                }
+                if (pushmeval && Math.abs(value[0] / bfac) > tol) {
+                    value[0] = tol;
                 }
             }
             else {
@@ -445,7 +466,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                     value[m] = 0;
                 }
             }
-            if (!returnDoubleVal) return;
+            return;
         }
 
 //        System.out.println("fQ"+" "+Arrays.toString(fQ[nf-1]));
@@ -465,6 +486,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         if(pushmeval){ value[0] = 1e-200;}
     }
 
+    public double getTimeBD() {
+        return timeBD / 1e9;
+    }
+
     protected void updateF(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
@@ -474,31 +499,9 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
                 double ff = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                if (false && Double.isNaN(ff)) {
-                    f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    throw new RuntimeException("oops");
-                }
-//                if (Math.abs(ff) < 1e-14) ff = 0;
                 fQ[(1<<i)|(1<<j)][0] = ff+1;
             }
         }
-        
-//        ANALYTICAL CHECK FOR B2 LJ
-//        double sum = 0;
-//        double sumpi = 0;
-//        double dsum = 0;
-//        double dr = 0.001;
-//        for (int i=0; i<10000; i++) {
-//            double r = dr*i;
-//            double fval = f.f(null,  r*r, beta);
-//            sum += fval*r*r*dr;
-//            sumpi += Math.abs(fval)*r*r*dr;
-//            double u = ((P2LennardJones)f.getPotential()).u(r*r);
-//            if (u<Double.POSITIVE_INFINITY) {
-//                dsum += -u*Math.exp(-u*beta)*r*r*dr;
-//            }
-//        }
-//        System.out.println("B2 = "+(-0.5*4*Math.PI*sum) +" "+ (-0.5*4*Math.PI*dsum)+" "+(dsum/sumpi)+" "+2*Math.PI*sumpi);
     }
 
     public void setTemperature(double temperature) {
@@ -506,6 +509,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         if (clusterBD != null) {
             clusterBD.setTemperature(temperature);
         }
+    }
+
+    public int getNumValues() {
+        return value.length;
     }
 
     public double[] getAllLastValues(BoxCluster box) {
@@ -524,37 +531,66 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     public double getSoftBDfrac(){
         return ((double)SoftBDcount)/totcount;
     }
-    
-    public static class ClusterRetrievePrimes implements ClusterAbstract{
+
+    public static class ClusterRetrievePrimes implements ClusterAbstract {
     	protected final ClusterWheatleySoftDerivatives cluster;
     	protected final int n;
-    	
-    	public ClusterRetrievePrimes(ClusterWheatleySoftDerivatives cluster, int n){
+
+        public ClusterRetrievePrimes(ClusterWheatleySoftDerivatives cluster, int n) {
     		this.cluster=cluster;
     		this.n = n;
     	}
 		
 		public ClusterAbstract makeCopy() {
-			
 			return null;
 		}
 
-		
 		public int pointCount() {
-			return cluster.n;
-		}
+            return cluster.n;
+        }
 
-		
         public double value(BoxCluster box) {
             return cluster.value[n];
         }
 
-		public void setTemperature(double temperature) {
-			
-			
-		}
-    	
-    	
+        public void setTemperature(double temperature) {
+        }
     }
 
+    public double[] getAverageCheck() {
+        return avgAbsCheck;
+    }
+
+    public double[] getAverageCheckBD() {
+        return avgAbsCheckBD;
+    }
+
+    /**
+     * Cluster returns only BD values.  configurations where BD was not used
+     * result in value=0.
+     */
+    public static class ClusterRetrievePrimesBD implements ClusterAbstract {
+        protected final ClusterWheatleySoftDerivatives cluster;
+        protected final int n;
+
+        public ClusterRetrievePrimesBD(ClusterWheatleySoftDerivatives cluster, int n) {
+            this.cluster = cluster;
+            this.n = n;
+        }
+
+        public ClusterAbstract makeCopy() {
+            return null;
+        }
+
+        public int pointCount() {
+            return cluster.n;
+        }
+
+        public double value(BoxCluster box) {
+            return cluster.valueBD ? cluster.value[n] : 0;
+        }
+
+        public void setTemperature(double temperature) {
+        }
+    }
 }

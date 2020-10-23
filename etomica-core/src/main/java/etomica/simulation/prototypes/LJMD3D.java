@@ -5,8 +5,8 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -23,7 +23,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -31,10 +31,9 @@ import etomica.species.SpeciesSpheresMono;
 public class LJMD3D extends Simulation {
 
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public MeterPotentialEnergy energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
@@ -43,8 +42,7 @@ public class LJMD3D extends Simulation {
     public LJMD3D() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -52,9 +50,8 @@ public class LJMD3D extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomType leafType = species.getLeafType();

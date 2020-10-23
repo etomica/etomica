@@ -6,7 +6,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
@@ -24,6 +24,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Formatter;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Device the changes a property using a graphical slider, via a Modifier.
@@ -94,10 +96,16 @@ public class DeviceSlider extends Device {
     protected boolean suppressAction = false;
 
     public DeviceSlider(Controller controller) {
+        this(controller, 0);
+    }
+
+    public DeviceSlider(Controller controller, int precision) {
         super(controller);
+        slider = new DecimalSlider(precision);
         init();
     }
-    
+
+
     /**
      * Constructs a slider connected to the given property of the given object
      */
@@ -106,6 +114,13 @@ public class DeviceSlider extends Device {
         component = object;
         this.property = property;
     }
+
+    public DeviceSlider(Controller controller, Object object, String property, int precision) {
+        this(controller, new ModifierGeneral(object, property),precision);
+        component = object;
+        this.property = property;
+    }
+
     /**
      * Constructs a slider connected to the get/set Value methods of the given Modifier
      */
@@ -114,6 +129,14 @@ public class DeviceSlider extends Device {
         //set component and property in some way
         setModifier(m);
     }
+
+    public DeviceSlider(Controller controller, Modifier m, int precision) {
+        this(controller, precision);
+        //set component and property in some way
+        setModifier(m);
+    }
+
+
 
     private void init() {
         textField = new JTextField("");
@@ -126,7 +149,6 @@ public class DeviceSlider extends Device {
         setLabel("");
         panel.setLayout(gbLayout);
         column = 5;
-        slider = new DecimalSlider();
         slider.setSize(200,40);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
@@ -195,10 +217,11 @@ public class DeviceSlider extends Device {
         suppressAction = false;
     }
 
-    public void doAction(IAction action) {
+    public CompletableFuture<Void> doAction(IAction action) {
         if (!suppressAction) {
-            super.doAction(action);
+            return super.doAction(action);
         }
+        return CompletableFuture.completedFuture(null);
     }
     
     public String getProperty() {return property;}
@@ -394,7 +417,7 @@ public class DeviceSlider extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
 //        if(showValues){ return panel;
 //        } else {return slider;}
         return panel;
@@ -415,7 +438,7 @@ public class DeviceSlider extends Device {
      */
     public void setLabel(String s){
         label = s;
-        if(s == null || s.equals("") || !showBorder) panel.setBorder(new javax.swing.border.EmptyBorder(0,0,0,0));
+        if(s == null || s.equals("") || !showBorder) panel.setBorder(new javax.swing.border.EmptyBorder(0,2,0,2));
         else {
         	TitledBorder border = new TitledBorder(s);
         	border.setTitleJustification(borderAlignment);
@@ -453,25 +476,36 @@ public class DeviceSlider extends Device {
      * Slider listener, which relays the slider change events to the modifier
      */
     private class SliderListener implements ChangeListener, java.io.Serializable {
+        private CompletableFuture<Void> actionFuture = null;
          public void stateChanged(ChangeEvent evt) {
              double newValue = slider.getDecimalSliderValue();
-             if(modifyAction!=null) {
+             if(modifyAction != null) {
                  modifyAction.setValueForAction(unit.toSim(newValue));
-                 try {
-                     doAction(targetAction);
+
+                 if (actionFuture != null) {
+                     actionFuture.cancel(false);
                  }
-                 catch (RuntimeException e) {
-                     //XXX We want to put the slider back where it was (which is hopefully
-                     //what the backend element has now), but changing the 
-                     //slider position fires an event that brings us back here.  
-                     //null-out modifyAction to prevent recursion!
-                     ModifyAction actualModifyAction = modifyAction;
-                     modifyAction = null;
-                     // new value is the old value!
-                     newValue = unit.fromSim(actualModifyAction.getValue());
-                     slider.setDecimalSliderValue(newValue);
-                     modifyAction = actualModifyAction;
-                 }
+                 actionFuture = doAction(() -> {
+                     if (unit.toSim(newValue) == modifyAction.getValue()) {
+                         return;
+                     }
+                     modifyAction.setValueForAction(unit.toSim(newValue));
+                     targetAction.actionPerformed();
+                 });
+                 this.actionFuture.whenComplete((res, ex) -> {
+                     this.actionFuture = null;
+                     if (ex != null && !(ex instanceof CancellationException)) {
+                         //XXX We want to put the slider back where it was (which is hopefully
+                         //what the backend element has now), but changing the
+                         //slider position fires an event that brings us back here.
+                         //null-out modifyAction to prevent recursion!
+                         // new value is the old value!
+                         double oldValue = unit.fromSim(modifyAction.getValue());
+                         SwingUtilities.invokeLater(() -> {
+                             slider.setDecimalSliderValue(oldValue);
+                         });
+                     }
+                 });
              }
              String formatString = "%."+slider.getPrecision()+"f";
              textField.setText(new Formatter().format(formatString, newValue).toString());

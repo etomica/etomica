@@ -5,6 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -40,7 +41,7 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -54,9 +55,8 @@ import static etomica.freeenergy.npath.SimFe.Crystal.HCP;
 public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
-    public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
@@ -64,8 +64,7 @@ public class SimFe extends Simulation {
 
     public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap, boolean doHarmonic, double timeStep) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(space, Iron.INSTANCE);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Iron.INSTANCE), true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);
@@ -133,8 +132,7 @@ public class SimFe extends Simulation {
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         p1ImageHarmonic.setZeroForce(true);
 
@@ -264,7 +262,7 @@ public class SimFe extends Simulation {
         IData u = dsEnergies.getData();
         if (!graphics) System.out.println("Fe lattice energy (eV/atom): "+ElectronVolt.UNIT.fromSim(u.getValue(1)/numAtoms));
 
-        MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
+        MeterStructureFactor meterSfac = new MeterStructureFactor(sim.box, 8);
         if (graphics) {
             sim.integrator.setThermostatInterval(thermostatInterval);
             final String APP_NAME = "SimFe";
@@ -403,13 +401,11 @@ public class SimFe extends Simulation {
         MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
 
         sim.integrator.setThermostatInterval(10);
-        sim.ai.setMaxSteps(steps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
+
         sim.integrator.resetStepCount();
         sim.integrator.setThermostatInterval(thermostatInterval);
-        sim.ai.setMaxSteps(steps);
-        if (nve) {
+if (nve) {
             sim.integrator.setIsothermal(false);
         }
         if (sim.integrator instanceof IntegratorMDHarmonicMC) {
@@ -431,8 +427,9 @@ public class SimFe extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
+        DataLogger dataLogger = null;
         if (rmsdFile != null) {
-            DataLogger dataLogger = new DataLogger();
+            dataLogger = new DataLogger();
             DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, 5 * interval);
             sim.integrator.getEventManager().addListener(pumpRMSD);
             dataLogger.setFileName(rmsdFile);
@@ -440,10 +437,13 @@ public class SimFe extends Simulation {
             writer.setIncludeHeader(false);
             dataLogger.setDataSink(writer);
             dataLogger.setAppending(false);
-            sim.getController().getEventManager().addListener(dataLogger);
+        }
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+
+        if (dataLogger != null) {
+            dataLogger.cleanUp();
         }
 
-        sim.getController().actionPerformed();
 
         if (sim.mcMoveSwap != null) {
             System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());

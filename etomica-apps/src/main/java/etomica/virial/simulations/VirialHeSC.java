@@ -4,6 +4,8 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -13,7 +15,7 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -134,7 +136,7 @@ public class VirialHeSC {
 
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
 		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("He")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("He"))), temperature, refCluster, targetCluster);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
         long t1 = System.currentTimeMillis();
@@ -185,15 +187,14 @@ public class VirialHeSC {
 
         sim.initRefPref(refFileName, steps/40);
         sim.equilibrate(refFileName, steps/20);
-        
-        System.out.println("equilibration finished");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println();
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());

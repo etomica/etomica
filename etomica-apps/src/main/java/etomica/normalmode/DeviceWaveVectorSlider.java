@@ -4,20 +4,8 @@
 
       package etomica.normalmode;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -25,15 +13,21 @@ import etomica.modifier.Modifier;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 /**
  * @author taitan
- *
  */
 public class DeviceWaveVectorSlider extends Device {
 
-	private JPanel        waveVectorNumPanel;  // main panel for wave vectors device PRIVATE
-	private DeviceSlider  waveVectorNumSlider; // Do not make make accessible
+	private JPanel waveVectorNumPanel;  // main panel for wave vectors device PRIVATE
+	private DeviceSlider waveVectorNumSlider; // Do not make make accessible
 	private JRadioButton  buttonAllWV;   // Do not make make accessible
 	private JRadioButton  buttonOneWV;  // Do not make make accessible
 	protected IntegratorHarmonic integrator;
@@ -127,7 +121,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller.doActionNow(integratorBoxChangeSetOneWV);
+	        controller.submitActionInterrupt(integratorBoxChangeSetOneWV);
 	    }
 	}
 
@@ -205,11 +199,11 @@ public class DeviceWaveVectorSlider extends Device {
     }
 
     /**
-     * @return The panel that holds all graphical objects for the DeviceThermoSlider.
-     */
-    public Component graphic(Object obj) {
-    	return waveVectorNumPanel;
-    }
+	 * @return The panel that holds all graphical objects for the DeviceThermoSlider.
+	 */
+	public Component graphic() {
+		return waveVectorNumPanel;
+	}
 
 
 	/**
@@ -280,7 +274,7 @@ public class DeviceWaveVectorSlider extends Device {
 
     	ActionListener actionListen = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-				controller.doActionNow(integratorBoxChangeSetOneWV);
+				controller.submitActionInterrupt(integratorBoxChangeSetOneWV);
             }
         };
 
@@ -298,29 +292,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 
     
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
 
-       
-        etomica.space.Space sp = etomica.space1d.Space1D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        
-        DeviceWaveVectorSlider device = new DeviceWaveVectorSlider(new Controller());
-        device.setMinimum(0);
-        device.setMaximum(100);
-        device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-    
     
     
     

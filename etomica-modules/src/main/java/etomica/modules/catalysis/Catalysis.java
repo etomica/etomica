@@ -4,6 +4,7 @@
 
 package etomica.modules.catalysis;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -21,7 +22,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
@@ -38,10 +39,10 @@ import etomica.util.random.RandomNumberGeneratorUnix;
 public class Catalysis extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono speciesO, speciesC, speciesSurface;
+    public final SpeciesGeneral speciesO, speciesC, speciesSurface;
     public final Box box;
     public final IntegratorHard integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final P2SquareWellBonding potentialOO;
     public final P2SquareWellBondingCO potentialCO;
     public final P2SquareWell potentialCC;
@@ -58,14 +59,11 @@ public class Catalysis extends Simulation {
         super(_space);
         this.setRandom(random);
         //species
-        speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
-        speciesO.setIsDynamic(true);
+        speciesO = SpeciesGeneral.monatomic(space, AtomType.element(Oxygen.INSTANCE), true);
         addSpecies(speciesO);
-        speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
-        speciesC.setIsDynamic(true);
+        speciesC = SpeciesGeneral.monatomic(space, AtomType.element(Carbon.INSTANCE), true);
         addSpecies(speciesC);
-        speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
-        speciesSurface.setIsDynamic(true);
+        speciesSurface = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("Surface", Double.POSITIVE_INFINITY)), true);
         addSpecies(speciesSurface);
 
         //construct box
@@ -79,8 +77,7 @@ public class Catalysis extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         double sigmaO = 3.6;
         double sigmaC = 3.8;

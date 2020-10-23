@@ -13,7 +13,7 @@ public class MeterCavity extends MeterRDF {
     protected final P2HardSphereCavity p2;
 
     public MeterCavity(Space space, P2HardSphereCavity p2) {
-        super(space);
+        super(space, true);
         this.p2 = p2;
     }
 

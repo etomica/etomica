@@ -288,6 +288,10 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         }
     }
 
+    public int getNumValues() {
+        return value.length;
+    }
+
     public double[] getAllLastValues(BoxCluster box) {
         value(box);
         return value;

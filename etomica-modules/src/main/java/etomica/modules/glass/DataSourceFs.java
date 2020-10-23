@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
 import etomica.atom.AtomType;
@@ -27,8 +30,9 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     protected double[] fsSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
-    protected final Vector dr, q;
+    protected Vector dr, q;
     protected AtomType type;
+    protected int minInterval = 3;
 
     public DataSourceFs(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
@@ -39,15 +43,26 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         tTag = new DataTag();
         dr = space.makeVector();
         q = space.makeVector();
-        q.setX(0,7.0);
+        q.setX(0, 7.0);
+        reallocate(0);
+    }
+
+    public void setQ(Vector q) {
+        for (int i = 0; i < q.getD(); i++) {
+            this.q.setX(i, q.getX(i));
+        }
         reset();
     }
 
+    public Vector getQ() {
+        return q;
+    }
+
     public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n + 1 == fsSum.length && data != null) return;
-        if (n < 1) n = 0;
-        else n--;
+        reallocate(0);
+    }
+
+    public void reallocate(int n) {
         fsSum = Arrays.copyOf(fsSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
@@ -77,7 +92,6 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         }
 
         for (int i = 0; i < fsSum.length; i++) {
-            // (3/5) for 3D instead of (1/2) for 2D
             y[i] = fsSum[i] / (nAtoms * nSamples[i]) ; // Why subtract "-1" ?
         }
         return data;
@@ -99,22 +113,23 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         Box box = configStorage.getBox();
         IAtomList atoms = box.getLeafList();
-        for (int i = 1; i < fsSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
+            if (step % (1L << x) == 0) {
+                if (i >= fsSum.length) reallocate(i + 1);
+                Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
                     IAtom jAtom = atoms.get(j);
-                    if(type == null || jAtom.getType() == type){
+                    if (type == null || jAtom.getType() == type) {
                         dr.Ev1Mv2(positions[j], iPositions[j]);
-                        fsSum[i-1] += Math.cos(q.dot(dr));
+                        fsSum[i] += Math.cos(q.dot(dr));
                     }
                 }
-                nSamples[i - 1]++;
+                nSamples[i]++;
             }
         }
     }

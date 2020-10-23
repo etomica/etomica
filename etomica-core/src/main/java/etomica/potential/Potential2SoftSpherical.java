@@ -11,6 +11,8 @@ import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
+import java.util.Arrays;
+
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
  * Subclasses must provide concrete definitions for the energy (method
@@ -20,7 +22,7 @@ import etomica.space.Tensor;
  */
  
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
-   
+
     public Potential2SoftSpherical(Space space) {
         super(space);
         gradient = new Vector[2];
@@ -85,19 +87,22 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
-        if (r2 < 1.e-10) {
-            gradient[0].E(0);
-            gradient[1].E(0);
+        double du = du(r2);
+        if (du == 0) {
+            gradient[0].E(0.0);
+            gradient[1].E(0.0);
             return gradient;
         }
-        gradient[1].Ea1Tv1(du(r2)/r2,dr);
+        gradient[1].Ea1Tv1(du/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
         return gradient;
     }
     
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
-        pressureTensor.PEv1v2(gradient[0],dr);
+        if (!gradient[0].isZero()) {
+            pressureTensor.PEv1v2(gradient[0],dr);
+        }
         return gradient;
     }
     

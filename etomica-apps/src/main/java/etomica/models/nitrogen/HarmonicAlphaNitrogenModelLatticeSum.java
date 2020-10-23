@@ -21,6 +21,7 @@ import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 import etomica.units.Joule;
 
@@ -45,13 +46,10 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 		
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
-		species.setConformation(conformation);
+		SpeciesGeneral species = SpeciesN2.create(false);
 		addSpecies(species);
 		
-		SpeciesN2B ghostSpecies = new SpeciesN2B(space);
-		ghostSpecies.setConformation(conformation);
+		SpeciesGeneral ghostSpecies = SpeciesN2.create(false);
 		addSpecies(ghostSpecies);
 		
 		

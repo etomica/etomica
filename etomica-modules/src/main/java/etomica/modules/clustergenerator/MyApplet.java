@@ -4,38 +4,14 @@
 
 package etomica.modules.clustergenerator;
 
-import java.awt.BorderLayout;
-import java.awt.Checkbox;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.TextArea;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-
 import etomica.virial.cluster.ClusterDiagram;
 import etomica.virial.cluster.ClusterGenerator;
+
+import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
  * @author andrew
@@ -126,7 +102,7 @@ public class MyApplet extends javax.swing.JApplet {
         gbConst.fill = GridBagConstraints.BOTH;
         addComponent(pointSelectorPanel, managerPanel, 0,1,1,1); // the panel of number of points is added to the manager panel       
 
-        JPanel clusterTypePanel = new JPanel(new GridLayout(3,1)); // option panel of graphics of clusters
+        JPanel clusterTypePanel = new JPanel(new GridLayout(3, 1)); // option panel of graphics of clusters
         clusterTypePanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.red, Color.blue) 
                 ,"Display Option ",TitledBorder.LEFT,TitledBorder.TOP
                 ,new Font(null,Font.BOLD,12),Color.black));

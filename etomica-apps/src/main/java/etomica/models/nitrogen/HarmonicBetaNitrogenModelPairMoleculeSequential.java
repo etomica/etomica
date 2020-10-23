@@ -21,6 +21,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
 import java.io.FileWriter;
@@ -40,7 +41,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		super(space);
 		this.space = space;
 
-        SpeciesN2 species = new SpeciesN2(space);
+		SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
 		potentialMaster = new PotentialMaster();

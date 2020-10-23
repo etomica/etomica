@@ -1,22 +1,19 @@
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation that attempts to replicate a LAMMPS benchmark. The input file is
@@ -59,8 +56,7 @@ public class TestLammpsLJ extends Simulation {
     public TestLammpsLJ() {
         super(Space3D.getInstance());
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         Box box = this.makeBox();
@@ -93,12 +89,9 @@ public class TestLammpsLJ extends Simulation {
 
     public static void main(String[] args) {
         TestLammpsLJ sim = new TestLammpsLJ();
-        ActionIntegrate ai = new ActionIntegrate(sim.integrator);
-        ai.setMaxSteps(100);
-        sim.getController().addAction(ai);
 
         long t1 = System.nanoTime();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 100));
         long t2 = System.nanoTime();
 
         System.out.println((t2 - t1) / 1_000_000 + " ms");

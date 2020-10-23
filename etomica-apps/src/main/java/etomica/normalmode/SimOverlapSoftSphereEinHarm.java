@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -31,7 +32,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
@@ -57,7 +58,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public final IntegratorOverlap integratorOverlap;
     public IntegratorBox[] integrators;
     public DataSourceVirialOverlap dsvo;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box, boxRef;
     public Boundary boundary, boundaryRef;
     public int[] nCells;
@@ -72,7 +73,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public SimOverlapSoftSphereEinHarm(Space _space, int numAtoms, double density, boolean slanty, double temperature, double spring, double frac, int exponent, double rc) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (slanty) {
@@ -222,9 +223,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         integratorOverlap.setRefStepFraction(0.5);
         integratorOverlap.setAdjustStepFraction(false);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -311,13 +310,11 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             steps = numSteps/20;
         }
         sim.equilibrate(numMolecules/5);
-
-        final long startTime = System.currentTimeMillis();
-
-        sim.activityIntegrate.setMaxSteps(numSteps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+final long startTime = System.currentTimeMillis();
+sim.getController().runActivityBlocking(ai);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         System.out.println("\nratio averages:\n");
@@ -395,14 +392,12 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
+
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(false);

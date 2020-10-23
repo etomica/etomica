@@ -4,13 +4,13 @@
 
 package etomica.virial.overlap;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.util.Debug;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Accumulator for taking ratio between two sums (and pretend it's an "average")
@@ -55,8 +55,8 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         if (nBennetPoints%2 == 0) {
             throw new IllegalArgumentException("try again with an odd aNPoints");
         }
-        overlapSum = new double[nBennetPoints];
-        blockOverlapSum = new double[nBennetPoints];
+        overlapAvg = new double[nBennetPoints];
+        blockOverlapAvg = new double[nBennetPoints];
         overlapSumBlockSquare = new double[nBennetPoints];
         overlapSumSquare = new double[nBennetPoints];
         expX = new double[nBennetPoints];
@@ -102,7 +102,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             else {
                 v = 1.0 / (expX[j] + 1.0/value1);
             }
-            blockOverlapSum[j] += v;
+            blockOverlapAvg[j] += (v - blockOverlapAvg[j]) / (blockSize - blockCountDown + 1);
             overlapSumSquare[j] += v*v;
         }
         // superclass sums up blockSum[1], but we drop it on the floor in doBlockSum in
@@ -116,7 +116,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     	if (nBennetPoints ==1 && fnm!=null){
     		blockCounter += blockSize;
     		try{
-    			fileWriter.write(blockCounter + " " + (blockOverlapSum[0]/blockSize)+"\n");
+                fileWriter.write(blockCounter + " " + blockOverlapAvg[0] + "\n");
     		
     		} catch (IOException e){
     		
@@ -124,22 +124,22 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     	}
     	
         for (int j=0; j<nBennetPoints; j++) {
-            overlapSum[j] += blockOverlapSum[j];
-            blockOverlapSum[j] /= blockSize;
+            double oldAvg = overlapAvg[j];
+            overlapAvg[j] += (blockOverlapAvg[j] - overlapAvg[j]) / (count + 1);
 			// this is actually blockSum[1], but for all the various values of the overlap parameter
-            overlapSumBlockSquare[j] += blockOverlapSum[j]*blockOverlapSum[j];
+            overlapSumBlockSquare[j] += (blockOverlapAvg[j] - oldAvg) * (blockOverlapAvg[j] - overlapAvg[j]);
 
             if (!mostRecentBlock.isNaN()) {
-                overlapCorrelationSum[j] += overlapMostRecentBlock[j] * blockOverlapSum[j];
+                overlapCorrelationSum[j] += overlapMostRecentBlock[j] * blockOverlapAvg[j];
             }
             else {
-                overlapFirstBlock[j] = blockOverlapSum[j];
+                overlapFirstBlock[j] = blockOverlapAvg[j];
             }
 
-            overlapBlockCovSum[j] += blockOverlapSum[j]*currentBlockSum.getValue(0)/blockSize;
+            overlapBlockCovSum[j] += blockOverlapAvg[j] * currentBlockAvg.getValue(0);
 
-            overlapMostRecentBlock[j] = blockOverlapSum[j];
-            blockOverlapSum[j] = 0.0;
+            overlapMostRecentBlock[j] = blockOverlapAvg[j];
+            blockOverlapAvg[j] = 0.0;
 		}
 
         super.doBlockSum();
@@ -170,7 +170,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * Bennet parameter (value[1]/(value[1]+expX[iParam]).
      */
     public double getBennetAverage(int iParam) {
-        return (overlapSum[iParam]+blockOverlapSum[iParam])/((double)count*blockSize+(blockSize-blockCountDown));
+        return overlapAvg[iParam] + (blockOverlapAvg[iParam] - overlapAvg[iParam]) * (blockSize - blockCountDown) / ((double) count * blockSize + (blockSize - blockCountDown));
     }
 
     /**
@@ -179,9 +179,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     public IData getData(int iParam) {
         if(count > 0) {
             // fill in data for set "1" with appropriate "overlap" data
-            ((DataDoubleArray)sum).getData()[1] = overlapSum[iParam];
-            ((DataDoubleArray)currentBlockSum).getData()[1] = blockOverlapSum[iParam];
-            ((DataDoubleArray)sumBlockSquare).getData()[1] = overlapSumBlockSquare[iParam];
+            ((DataDoubleArray) average).getData()[1] = overlapAvg[iParam];
+            ((DataDoubleArray) currentBlockAvg).getData()[1] = blockOverlapAvg[iParam];
+            ((DataDoubleArray) blockVarSum).getData()[1] = overlapSumBlockSquare[iParam];
             ((DataDoubleArray)sumSquare).getData()[1] = overlapSumSquare[iParam];
             ((DataDoubleArray)firstBlock).getData()[1] = overlapFirstBlock[iParam];
             ((DataDoubleArray)mostRecentBlock).getData()[1] = overlapMostRecentBlock[iParam];
@@ -201,9 +201,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
  	 */
     public void reset() {
         for (int i=0; i<nBennetPoints; i++) {
-            overlapSum[i] = 0.0;
+            overlapAvg[i] = 0.0;
             overlapSumBlockSquare[i] = 0.0;
-            blockOverlapSum[i] = 0.0;
+            blockOverlapAvg[i] = 0.0;
             overlapSumSquare[i] = 0.0;
             overlapCorrelationSum[i] = 0.0;
             overlapBlockCovSum[i] = 0;
@@ -227,16 +227,14 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         fileWriter = null;
     }
 
-    private static final long serialVersionUID = 1L;
-    private double[] blockOverlapSum;
+    private double[] blockOverlapAvg;
     private double[] overlapSumBlockSquare, overlapSumSquare;
-    private double[] overlapSum;
+    private double[] overlapAvg;
     protected double[] overlapFirstBlock, overlapMostRecentBlock, overlapCorrelationSum;
     protected double[] overlapBlockCovSum;
     private int nBennetPoints;
     private double[] expX;
     private final boolean isReference;
-    protected double bennetUDiff;
     protected FileWriter fileWriter;
     protected long blockCounter;
     private String fnm;

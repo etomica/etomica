@@ -4,18 +4,15 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -27,7 +24,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -120,24 +118,16 @@ public class VirialCO2SKSMix {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
-        final IConformation conformation = new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-                double bondL = 1.1491;
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, -bondL);
-                atomList.get(2).getPosition().E(0);
-                atomList.get(2).getPosition().setX(0, +bondL);
-            }
-        };
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(conformation);
+        double bondL = 1.1491;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
 
-        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
-        
+        SpeciesGeneral speciesAlkane = SpeciesAlkane.create(nSpheres);
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{speciesCO2,speciesAlkane}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},true);
         ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[0]).setSpecies(sim.getSpecies(1));
@@ -224,51 +214,44 @@ public class VirialCO2SKSMix {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (false) {
-            double size = 10;
+        if(false) {
+    double size = 10;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            dBox0.setPixelUnit(new Pixel(300.0/size));
-            dBox1.setPixelUnit(new Pixel(300.0/size));
+            dBox0.setPixelUnit(new Pixel(300.0 / size));
+            dBox1.setPixelUnit(new Pixel(300.0 / size));
             dBox0.setShowBoundary(false);
             dBox1.setShowBoundary(false);
-            DiameterHashByType diameterHash = (DiameterHashByType)dBox1.getDiameterHash();
-            diameterHash.setDiameter(((SpeciesAlkane)sim.getSpecies(1)).getCH2Type(), sigmaCH2);
-            diameterHash.setDiameter(((SpeciesAlkane)sim.getSpecies(1)).getCH3Type(), sigmaCH3);
+            DiameterHashByType diameterHash = (DiameterHashByType) dBox1.getDiameterHash();
+            diameterHash.setDiameter(speciesAlkane.getTypeByName("CH2"), 0.3);
+            diameterHash.setDiameter(speciesAlkane.getTypeByName("CH3"), 0.4);
             dBox0.setDiameterHash(diameterHash);
-            ColorSchemeByType colorScheme = (ColorSchemeByType)dBox1.getColorScheme();
-            colorScheme.setColor(((SpeciesAlkane)sim.getSpecies(1)).getCH2Type(), new Color(190, 190, 190));
-            colorScheme.setColor(((SpeciesAlkane)sim.getSpecies(1)).getCH3Type(), new Color(240, 240, 240));
+            ColorSchemeByType colorScheme = (ColorSchemeByType) dBox1.getColorScheme();
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH2"), Color.green);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH3"), Color.yellow);
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), new Color(100, 100, 150));
             colorScheme.setColor(sim.getSpecies(0).getAtomType(1), Color.RED);
             dBox0.setColorScheme(colorScheme);
-            ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
-            
+            ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
+
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
@@ -277,7 +260,8 @@ public class VirialCO2SKSMix {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
@@ -285,7 +269,6 @@ public class VirialCO2SKSMix {
         sim.setAccumulatorBlockSize((int)steps);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -300,7 +283,7 @@ public class VirialCO2SKSMix {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
@@ -308,8 +291,7 @@ public class VirialCO2SKSMix {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

@@ -4,15 +4,16 @@
 
 package etomica.graphics;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.simulation.prototypes.HSMD2D;
@@ -46,8 +47,15 @@ public class SimulationGraphic implements SimulationContainer {
     private static int DEFAULT_UPDATE_INTERVAL = 100;
 
     static {
+        initGraphics();
+    }
+
+    public static void initGraphics() {
         try {
-            javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            FlatLightLaf.install();
+            UIManager.put("Table.showHorizontalLines", true);
+            UIManager.put("Table.showVerticalLines", true);
+            UIManager.put("TabbedPane.hasFullBorder", true);
         } catch (Exception e) {
         }
     }
@@ -59,7 +67,6 @@ public class SimulationGraphic implements SimulationContainer {
     private final DeviceTrioControllerButton dcb;
     private final LinkedList<Display> displayList = new LinkedList<Display>();
     private final LinkedList<Device> deviceList = new LinkedList<Device>();
-    protected int repaintSleep = 0;
     private SimulationPanel simulationPanel;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private HashMap<Box, IntegratorListenerAction> repaintActions = new HashMap<Box, IntegratorListenerAction>();
@@ -210,10 +217,6 @@ public class SimulationGraphic implements SimulationContainer {
         repaintAction.setInterval(interval);
     }
 
-    public void setRepaintSleep(int newRepaintSleep) {
-        repaintSleep = newRepaintSleep;
-    }
-
     /**
      * getPaintAction()
      *
@@ -224,7 +227,7 @@ public class SimulationGraphic implements SimulationContainer {
     }
 
     public void add(final Display display) {
-        final Component component = display.graphic(null);
+        final Component component = display.graphic();
         if (component == null) return; //display is not graphic
 
         if (display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
@@ -336,7 +339,7 @@ public class SimulationGraphic implements SimulationContainer {
     }
 
     public void remove(Display display) {
-        final Component component = display.graphic(null);
+        final Component component = display.graphic();
         if (component == null) return; //display is not graphic
         if (display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
             if (this.graphicType == GRAPHIC_ONLY) {
@@ -363,39 +366,22 @@ public class SimulationGraphic implements SimulationContainer {
      * Adds displays graphic to the simulation display pane
      */
     public void add(Device device) {
-        Component component = device.graphic(null);
-        if (device instanceof DeviceTable) {
-            if (this.graphicType == GRAPHIC_ONLY) {
-                getPanel().graphicsPanel.add(component);
-            } else {
-                getPanel().tabbedPane.add(component);
-            }
+        Component component = device.graphic();
+        if (device instanceof DeviceTrioControllerButton) {
+            getPanel().graphicsPanel.add(component, BorderLayout.SOUTH);
         } else {
-            if (device instanceof DeviceTrioControllerButton) {
-                getPanel().graphicsPanel.add(component, BorderLayout.SOUTH);
-            } else {
-                getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
-            }
+            getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
         }
         deviceList.add(device);
     }
 
     public void remove(Device device) {
-        final Component component = device.graphic(null);
+        final Component component = device.graphic();
         if (component == null) return; //display is not graphic
-        if (device instanceof DeviceTable) {
-            if (this.graphicType == GRAPHIC_ONLY) {
-                getPanel().graphicsPanel.remove(component);
-            } else {
-                getPanel().tabbedPane.remove(component);
-            }
-
+        if (device == dcb) {
+            getPanel().graphicsPanel.remove(component);
         } else {
-            if (device == dcb) {
-                getPanel().graphicsPanel.remove(component);
-            } else {
-                getPanel().controlPanel.remove(component);
-            }
+            getPanel().controlPanel.remove(component);
         }
         deviceList.remove(device);
     }
@@ -411,13 +397,13 @@ public class SimulationGraphic implements SimulationContainer {
         if (display != null) {
 
             repaintAction = new IAction() {
+                long lastPaint = 0;
                 public void actionPerformed() {
-                    display.repaint();
-                    if (repaintSleep != 0) {
-                        try {
-                            Thread.sleep(repaintSleep);
-                        } catch (InterruptedException ex) {
-                        }
+                    long now = System.nanoTime();
+                    // wait at least 0.01 seconds between paints
+                    if (now > lastPaint + 1e7) {
+                        display.repaint();
+                        lastPaint = now;
                     }
                 }
             };

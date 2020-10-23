@@ -57,9 +57,7 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
         processDataInfo(inputDataInfo);
     }
 
-    public int getNMax() {
-        return nMax;
-    }
+    public int getNMax() {return nMax;}
 
     public DataFork getAvgErrFork() {
         return avgErrFork;

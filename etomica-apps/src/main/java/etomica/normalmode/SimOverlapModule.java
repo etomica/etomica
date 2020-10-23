@@ -8,8 +8,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.data.AccumulatorAverageCollapsingLog;
@@ -78,9 +79,7 @@ public class SimOverlapModule {
         
         setAlpha(1.0, 30);
         
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
         controller = new Controller();
-        controller.addAction(activityIntegrate);
     }
 
     public void setTargetDataInterval(int newTargetDataInterval) {
@@ -113,16 +112,8 @@ public class SimOverlapModule {
         return dataOverlap;
     }
 
-    public ActivityIntegrate getActivityIntegrate() {
-        return activityIntegrate;
-    }
-
     public double getAlphaCenter() {
         return meters[0].getAlphaCenter();
-    }
-
-    public Controller getController() {
-        return controller;
     }
 
     public void setAlpha(double refPrefCenter, double span) {
@@ -152,17 +143,13 @@ public class SimOverlapModule {
         
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
-            // in theory we could care about equilibrating the reference, so we'll do that too
-            // but, in practice, the reference needs no equilibration
-            controller.actionPerformed();
-            controller.reset();
+            controller.runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps / 2));
             System.out.println("target equilibration finished");
 
             setAlpha(1, 60);
-            activityIntegrate.setMaxSteps(initSteps);
-            controller.actionPerformed();
-            controller.reset();
+            controller.runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps));
+            // in theory we could care about equilibrating the reference, so we'll do that too
+            // but, in practice, the reference needs no equilibration
 
             refPref = dataOverlap.getOverlapAverageAndError()[0];
             if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
@@ -174,7 +161,6 @@ public class SimOverlapModule {
 
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value
-            controller.reset();
         }
 
     }
@@ -182,13 +168,10 @@ public class SimOverlapModule {
     public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        controller.actionPerformed();
-        controller.reset();
+        controller.runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps));
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }
@@ -201,7 +184,6 @@ public class SimOverlapModule {
     protected IntegratorOverlap integratorOverlap;
     protected DataOverlap dataOverlap;
     protected Integrator[] integrators;
-    protected ActivityIntegrate activityIntegrate;
     protected DataPumpListener[] accumulatorPumps;
     protected MeterOverlap[] meters;
     protected Controller controller;

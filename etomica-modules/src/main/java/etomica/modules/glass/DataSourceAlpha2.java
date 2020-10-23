@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
 import etomica.data.*;
@@ -22,6 +25,7 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
     protected double[] msdSum, m4dSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
+    protected int minInterval = 4;
 
     public DataSourceAlpha2(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
@@ -30,14 +34,10 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
-        reset();
+        reallocate(0);
     }
 
-    public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n + 1 == msdSum.length && data != null) return;
-        if (n < 1) n = 0;
-        else n--;
+    public void reallocate(int n) {
         msdSum = Arrays.copyOf(msdSum, n);
         m4dSum = Arrays.copyOf(m4dSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
@@ -45,6 +45,8 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         dataInfo = new DataFunction.DataInfoFunction("alpha", Null.DIMENSION, this);
+        tDataInfo.addTag(tTag);
+        dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
             double[] savedTimes = configStorage.getSavedTimes();
@@ -80,18 +82,19 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        for (int i = 1; i < msdSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
+            if (step % (1L << x) == 0) {
+                if (i >= msdSum.length) reallocate(i + 1);
+                Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
                     double d2 = positions[j].Mv1Squared(iPositions[j]);
-                    msdSum[i - 1] += d2;
-                    m4dSum[i - 1] += d2 * d2;
+                    msdSum[i] += d2;
+                    m4dSum[i] += d2 * d2;
                 }
-                nSamples[i - 1]++;
+                nSamples[i]++;
             }
         }
     }

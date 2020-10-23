@@ -24,6 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
@@ -151,16 +152,14 @@ public class P3Induction implements IPotentialAtomic {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
-        species.setAxisSymmetric(false);
+        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
         sim.addSpecies(species);
         Box box = new Box(space);
         Box box2 = new Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 3);
         box.getBoundary().setBoxSize(Vector.of(new double[]{10000, 10000, 10000}));
-        SpeciesWater4P water4P = new SpeciesWater4P(space);
-        water4P.setConformation(new ConformationWaterGCPM(space));
+        SpeciesGeneral water4P = SpeciesWater4P.create(new ConformationWaterGCPM(space));
         sim.addSpecies(water4P);
         sim.addBox(box2);
         box2.setNMolecules(water4P, 3);
@@ -197,7 +196,7 @@ public class P3Induction implements IPotentialAtomic {
         double[] qH2O = P2WaterSzalewicz.getQ();
         Vector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
         polH2O.E(qSiteH2O[0]);
-        P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
+        MyAgent agentH2O = new MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
 
         paramsManager.put(species.getLeafType(), agentH2O);
 

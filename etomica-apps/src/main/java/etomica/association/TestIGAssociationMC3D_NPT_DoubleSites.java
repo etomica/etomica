@@ -6,9 +6,11 @@ package etomica.association;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
@@ -29,6 +31,7 @@ import etomica.potential.P2HardAssociationConeSW;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
@@ -44,13 +47,13 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     public MCMoveAtomMonomer mcMoveAtomMonomer;
     public MCMoveAtomSmer mcMoveAtomSmer;
     public MCMoveRotateAssociated mcMoveRotate;
-    public SpeciesSpheresRotating species;
+    public SpeciesGeneral species;
     public Box box;
     public P2HardAssociationConeSW potential;
     public MCMoveSmer mcMoveSmer;
     public MCMoveSmerRotate mcMoveSmerRotate;
     public MCMoveVolumeAssociated mcMoveVolume;
-    public ActivityIntegrate actionIntegrator;
+
     public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
     public BiasVolumeSphereOrientedDoubleSites bvso;
@@ -61,7 +64,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     public TestIGAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);//Species in which molecules are made of a single atom of type OrientedSphere
         addSpecies(species);
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -115,10 +118,8 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         }
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
-        actionIntegrator = new ActivityIntegrate(integrator);
+        this.getController().addActivity(new ActivityIntegrate(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        actionIntegrator.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrator);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -178,7 +179,6 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
             
         }
         final TestIGAssociationMC3D_NPT_DoubleSites sim = new TestIGAssociationMC3D_NPT_DoubleSites(numAtoms, pressure, density, wellConstant, temperature, truncationRadius,maxChainLength, useUB, numSteps);
-        sim.actionIntegrator.setMaxSteps(numSteps/5);//equilibrium period
         IAction energyDiffActionEq = new IAction() {
             protected final Vector dr = sim.space.makeVector();
 
@@ -195,7 +195,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 				    		IAtom atom0 = bondList.get(0);
 				    		IAtom atom1 = bondList.get(1);
 				    		double innerRadius = 0.8;
-				        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+				        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(Degree.UNIT.toSim(27.0)));
 				    		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
 				        	sim.box.getBoundary().nearestImage(dr);
 				        	if (dr.squared() < minDistance){
@@ -225,20 +225,17 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 						}
 					}
 				}
-				
-		
+
+
 			}
 		};
         IntegratorListenerAction energyDiffListenerEq = new IntegratorListenerAction(energyDiffActionEq,1);
         sim.integrator.getEventManager().addListener(energyDiffListenerEq);
         System.out.println("equilibrium period = " +numSteps/5);
-        sim.getController().actionPerformed();
-        System.out.println("equilibrium finished");
-        sim.getController().reset();
-        
-        sim.actionIntegrator.setMaxSteps(numSteps);
-        MeterDensity rhoMeter = new MeterDensity(sim.space);//Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box 
-        rhoMeter.setBox(sim.box);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 5));
+System.out.println("equilibrium finished");
+
+MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);
@@ -251,7 +248,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyManager);
         energyListener.setInterval(1000);
         sim.integrator.getEventManager().addListener(energyListener);
-        
+
         AccumulatorAverage smerAccumulator = new AccumulatorAverageFixed(10);
         MeterDimerMoleFraction smerMeter = new MeterDimerMoleFraction(sim.getSpace(), sim.box);
         DataPump dimerPump = new DataPump(smerMeter,smerAccumulator);
@@ -259,7 +256,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         smerListener.setInterval(50);
         sim.integrator.getEventManager().addListener(smerListener);
         smerMeter.setAssociationManager(sim.associationManagerOriented);
-        
+
         AccumulatorAverage energy2Accumulator = new AccumulatorAverageFixed(10);
         final MeterPotentialEnergy energy2Meter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());//true energy
         energy2Meter.setBox(sim.box);
@@ -267,7 +264,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         IntegratorListenerAction energy2Listener = new IntegratorListenerAction(energy2Pump);
         energy2Listener.setInterval(1000);
         sim.integrator.getEventManager().addListener(energy2Listener);
-        
+
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -300,11 +297,10 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
         	graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
         IAction energyDiffAction = new IAction() {
-		
+
 			public void actionPerformed() {
 				IAtomOriented atom253 = (IAtomOriented)sim.box.getLeafList().get(253);
 				IAtomOriented atom63 = (IAtomOriented)sim.box.getLeafList().get(63);
@@ -329,23 +325,24 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 					if (sim.integrator.getStepCount() > 3807000 || Math.abs(energyDifference)> 1E-7){
 						System.exit(1);
 					}
-				} 
+				}
 				else if (sim.integrator.getStepCount()%1000 == 0){
 					double energyDifference = energyMeter.getDataAsScalar()-energy2Meter.getDataAsScalar();
 					if (Math.abs(energyDifference)> 1E-7){
 						System.out.println(sim.integrator.getStepCount()+ " steps");
 						System.out.println("energy= "+energyMeter.getDataAsScalar()+" true energy= "+energy2Meter.getDataAsScalar());
-						throw new RuntimeException(); 
+						throw new RuntimeException();
 					}
 				}
-				
-		
+
+
 			}
 		};
         IntegratorListenerAction energyDiffListener = new IntegratorListenerAction(energyDiffAction,1000);
-        //sim.integrator.getEventManager().addListener(energyDiffListener);
-        
-        sim.getController().actionPerformed();
+        //sim.integrator.getEventManager().addListener(energyDiffListener)
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
+        //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
         
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density

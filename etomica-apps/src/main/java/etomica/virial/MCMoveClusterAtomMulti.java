@@ -27,7 +27,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
-            translationVectors = new Vector[box.getLeafList().size()-1];
+            translationVectors = new Vector[box.getLeafList().size() - startAtom];
             for (int i=0; i<translationVectors.length; i++) {
                 translationVectors[i] = space.makeVector();
             }
@@ -36,19 +36,32 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     
     public void setStartAtom(int newStartAtom) {
         startAtom = newStartAtom;
+        if (translationVectors != null && translationVectors.length != box.getLeafList().size() - startAtom) {
+            translationVectors = new Vector[box.getLeafList().size() - startAtom];
+            for (int i = 0; i < translationVectors.length; i++) {
+                translationVectors[i] = space.makeVector();
+            }
+        }
+
     }
     
     public int getStartAtom() {
         return startAtom;
+    }
+
+    public void setDoImposePBC(boolean doImposePBC) {
+        imposePBC = doImposePBC;
     }
     
 	public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList leafAtoms = box.getLeafList();
         for(int i = startAtom; i<leafAtoms.size(); i++) {
-            translationVectors[i-1].setRandomCube(random);
-            translationVectors[i-1].TE(stepSize);
-            leafAtoms.get(i).getPosition().PE(translationVectors[i-1]);
+            translationVectors[i - startAtom].setRandomCube(random);
+            translationVectors[i - startAtom].TE(stepSize);
+            Vector r = leafAtoms.get(i).getPosition();
+            r.PE(translationVectors[i - startAtom]);
+            if (imposePBC) r.PE(box.getBoundary().centralImage(r));
         }
 		((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -62,7 +75,9 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void rejectNotify() {
         IAtomList leafAtoms = box.getLeafList();
         for(int i = startAtom; i<leafAtoms.size(); i++) {
-            leafAtoms.get(i).getPosition().ME(translationVectors[i-1]);
+            Vector r = leafAtoms.get(i).getPosition();
+            r.ME(translationVectors[i - startAtom]);
+            if (imposePBC) r.PE(box.getBoundary().centralImage(r));
         }
     	((BoxCluster)box).rejectNotify();
     }
@@ -73,4 +88,5 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     protected Vector[] translationVectors;
     protected int startAtom = 1;
+    protected boolean imposePBC = false;
 }

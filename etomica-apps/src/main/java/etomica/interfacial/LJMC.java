@@ -4,6 +4,7 @@
 
 package etomica.interfacial;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
@@ -31,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -44,9 +45,8 @@ import java.util.List;
 public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
+    public SpeciesGeneral speciesFluid, speciesTopWall, speciesBottomWall;
     public Box box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
@@ -55,11 +55,11 @@ public class LJMC extends Simulation {
     public LJMC(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
 
-        speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
+        speciesFluid = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("F")));
         addSpecies(speciesFluid);
-        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW"));
+        speciesTopWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("TW")));
         addSpecies(speciesTopWall);
-        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
+        speciesBottomWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("BW")));
         addSpecies(speciesBottomWall);
 
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
@@ -84,8 +84,7 @@ public class LJMC extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveAtomBig);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
         AtomType leafType = speciesFluid.getLeafType();
@@ -217,8 +216,7 @@ public class LJMC extends Simulation {
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
         forkWF.addDataSink(accWF);
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);

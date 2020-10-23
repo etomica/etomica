@@ -4,7 +4,6 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -18,7 +17,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -31,17 +30,15 @@ import etomica.util.ParseArgs;
 public class TestHSMD3D extends Simulation {
     
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species, species2;
+    public SpeciesGeneral species, species2;
     public Box box;
 
-    public TestHSMD3D(Space _space, int numAtoms, int numSteps, Configuration config) {
+    public TestHSMD3D(Space _space, int numAtoms, Configuration config) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species2);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
@@ -56,9 +53,6 @@ public class TestHSMD3D extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
-        ActionIntegrate activityIntegrate = new ActionIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(numSteps);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
 
@@ -86,11 +80,11 @@ public class TestHSMD3D extends Simulation {
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("HSMD3D%d.pos", numAtoms), TestHSMD3D.class);
 
-        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, params.numSteps / numAtoms, config);
+        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, config);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms));
 
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);

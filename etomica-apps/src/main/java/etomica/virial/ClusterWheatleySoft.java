@@ -5,6 +5,7 @@
 package etomica.virial;
 
 import etomica.math.SpecialFunctions;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -28,20 +29,26 @@ public class ClusterWheatleySoft implements ClusterAbstract {
     protected ClusterWheatleySoftBD clusterBD;
     protected boolean debug = false;
     protected boolean doCaching = true;
+    protected long totCount, countBD;
+    protected double BDAccFrac;
+    protected long timeBD;
+    protected IRandom random;
+    protected double[] avgAbsCheck = {0, 0}, avgAbsCheckBD = {0, 0};
+    protected long[] nCheck = {0, 0};
 
     public ClusterWheatleySoft(int nPoints, MayerFunction f, double tol) {
         this.n = nPoints;
         this.f = f;
-        int nf = 1<<n;  // 2^n
+        int nf = 1 << n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
-        for(int i=0; i<n; i++) {
-            fQ[1<<i] = 1.0;
+        for (int i = 0; i < n; i++) {
+            fQ[1 << i] = 1.0;
         }
         fA = new double[nf];
         fB = new double[nf];
         this.tol = tol;
-        clusterBD = tol == 0 ? null : new ClusterWheatleySoftBD(nPoints, f, -3*(int)Math.log10(tol));
+        clusterBD = tol == 0 ? null : new ClusterWheatleySoftBD(nPoints, f, -3 * (int) Math.log10(tol));
     }
 
     public void setDoCaching(boolean newDoCaching) {
@@ -51,10 +58,26 @@ public class ClusterWheatleySoft implements ClusterAbstract {
         }
     }
 
+    /**
+     * Directs this cluster to only compute p fraction of the time when the
+     * value is too small (below tol).  When it is computed, the value will be
+     * boosted by 1/p.
+     *
+     * @param p   the fraction of time BD values will be computed
+     * @param rng the random number generated used to decide to do BD or not
+     */
+    public void setBDAccFrac(double p, IRandom rng) {
+        BDAccFrac = p;
+        random = rng;
+    }
+
     public ClusterAbstract makeCopy() {
         ClusterWheatleySoft c = new ClusterWheatleySoft(n, f, tol);
-        c.setTemperature(1/beta);
+        c.setTemperature(1 / beta);
         c.setDoCaching(doCaching);
+        if (BDAccFrac < 1) {
+            c.setBDAccFrac(BDAccFrac, random);
+        }
         return c;
     }
 
@@ -258,25 +281,51 @@ public class ClusterWheatleySoft implements ClusterAbstract {
                             j += jlow;
                             jComp = (i & ~j);
                         }
-                        if (j==i) break;
-                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
+                        if (j == i) break;
+                        fA[i] += fB[j] * (fB[jComp | vs1] + fA[jComp | vs1]);
                     }
                 }
 
                 fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
             }
         }
-        if (Math.abs(fB[nf-1]) < tol) {
-            if (clusterBD != null) {
-                value = clusterBD.value(box);
+
+        totCount++;
+        double bfac = (1.0 - n) / SpecialFunctions.factorial(n);
+        if (Math.abs(fB[nf - 1]) < tol * 100 && fB[nf - 1] != 0) {
+            double r = BDAccFrac < 1 ? random.nextDouble() : 1;
+            boolean justChecking = Math.abs(fB[nf - 1]) > tol;
+            if (justChecking) {
+                r /= 1000;
             }
-            else {
+            // integrand is too small for recursion to compute accurately.  we ought to do
+            // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
+            // boost the returned value by 1/BDAccFrac to account for the missed configurations
+            boolean doBD = clusterBD != null && (BDAccFrac == 1 || r < BDAccFrac);
+            if (doBD) {
+                countBD++;
+                timeBD -= System.nanoTime();
+                double valueBD = clusterBD.value(box);
+                timeBD += System.nanoTime();
+                if (justChecking) {
+                    int idx = (int) Math.log10(Math.abs(fB[nf - 1]) / tol);
+                    if (idx >= nCheck.length) idx = nCheck.length - 1;
+                    nCheck[idx]++;
+                    avgAbsCheck[idx] += (Math.abs(fB[nf - 1]) - avgAbsCheck[idx]) / nCheck[idx];
+                    avgAbsCheckBD[idx] += (Math.abs(valueBD) / bfac - avgAbsCheckBD[idx]) / nCheck[idx];
+                } else {
+                    value = valueBD / BDAccFrac;
+                }
+            } else if (Math.abs(fB[nf - 1]) > tol) {
+                // value is near tol, but we decided to use double
+                value = bfac * fB[nf - 1];
+            } else {
                 value = 0;
             }
-            return;
+        } else {
+            value = bfac * fB[nf - 1];
         }
-        value = (1-n)*fB[nf-1]/SpecialFunctions.factorial(n);
-        if (pushme && maxR2 > 2*2) {
+        if (pushme && maxR2 > 2 * 2) {
 //            value *= Math.pow(maxR2/4, 6);
         }
     }
@@ -301,9 +350,17 @@ public class ClusterWheatleySoft implements ClusterAbstract {
     }
 
     public void setTemperature(double temperature) {
-        beta = 1/temperature;
+        beta = 1 / temperature;
         if (clusterBD != null) {
             clusterBD.setTemperature(temperature);
         }
+    }
+
+    public double[] getAverageCheck() {
+        return avgAbsCheck;
+    }
+
+    public double[] getAverageCheckBD() {
+        return avgAbsCheckBD;
     }
 }

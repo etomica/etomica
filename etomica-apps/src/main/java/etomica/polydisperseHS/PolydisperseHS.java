@@ -7,6 +7,7 @@ package etomica.polydisperseHS;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -34,9 +35,8 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
-import etomica.util.random.IRandom;
 import etomica.zeolite.MSDCoordWriter;
 
 import java.awt.*;
@@ -65,7 +65,7 @@ public class PolydisperseHS extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     /**
      * The hard-sphere potential governing the interactions.
      */
@@ -73,7 +73,6 @@ public class PolydisperseHS extends Simulation {
 
     public final PotentialMaster potentialMaster;
 
-    public final ActivityIntegrate activityIntegrate;
 
     /**
      * Makes a simulation according to the specified parameters.
@@ -83,8 +82,7 @@ public class PolydisperseHS extends Simulation {
 
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();
@@ -136,8 +134,6 @@ public class PolydisperseHS extends Simulation {
 
 
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         AtomType leafType = species.getLeafType();
 
@@ -196,8 +192,7 @@ public class PolydisperseHS extends Simulation {
                 for (double eta = params.initEta+deltaEta; eta<params.finalEta+deltaEta; eta+=deltaEta) {
                     if (eta > params.finalEta) eta = params.finalEta;
                     System.out.println(prevEta +"(current) => "+eta);
-                    sim.activityIntegrate.setMaxSteps(params.numStepsComp);
-                    sim.activityIntegrate.actionPerformed();
+                    sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsComp));
 
                     System.out.println("uncompressed density: " + params.numAtoms / sim.box.getBoundary().volume());
                     System.out.println(" uncompressed energy: " + (Math.log(meterPE.getDataAsScalar())));
@@ -220,7 +215,6 @@ public class PolydisperseHS extends Simulation {
 
                     if (eta==params.finalEta){ //for Graphics
                         System.out.println(prevEta+"(final)");
-                        sim.activityIntegrate.setMaxSteps(Long.MAX_VALUE);
                         break; // then go to scond line below: sim.getController().addAction(sim.activityIntegrate);
                     }
 
@@ -261,10 +255,8 @@ public class PolydisperseHS extends Simulation {
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-
-            sim.getController().removeAction(sim.activityIntegrate);
-            sim.getController().addAction(init);
-            sim.getController().addAction(sim.activityIntegrate);
+            sim.getController().addActionSequential(init);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
             AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataPumpListener pumpP = new DataPumpListener(meterP, historyP, params.numAtoms);
@@ -295,8 +287,7 @@ public class PolydisperseHS extends Simulation {
         //Compress from initEta to finalEta
             init.actionPerformed();
         //Equilibarate with finalEta
-            sim.activityIntegrate.setMaxSteps(params.numStepsEqu);
-            sim.activityIntegrate.actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqu));
 
             System.out.println("=========================================================================");
             System.out.println("After Equilibaration: ");
@@ -316,7 +307,6 @@ public class PolydisperseHS extends Simulation {
             MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename_pos, params.writeIntervalPos);
             coordWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sim.species.getLeafType()));
             System.out.println("created MSDCoordWriter");
-            sim.getController().getEventManager().addListener(coordWriter);
 
         //velWriter
             String filename_vel = "velocities";
@@ -324,7 +314,6 @@ public class PolydisperseHS extends Simulation {
             VelocityWriter velWriter = new VelocityWriter(sim.integrator, sim.box, filename_vel, params.writeIntervalVel);
             velWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sim.species.getLeafType()));
             System.out.println("created velCoordWriter");
-            sim.getController().getEventManager().addListener(velWriter);
 
 
             int numBlocks = 100;
@@ -339,10 +328,11 @@ public class PolydisperseHS extends Simulation {
             // RDF
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF));
 
+            coordWriter.closeFile();
+            velWriter.closeFile();
 
         //Run ...
-            sim.activityIntegrate.setMaxSteps(params.numStepsProd);
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsProd));
 
             // statistics
             DataGroup dataP = (DataGroup)accumulatorP.getData();
@@ -369,7 +359,7 @@ public class PolydisperseHS extends Simulation {
     }
 
     public static class HSPolyParam extends ParameterBase {
-        public boolean isGraphics = true;
+        public boolean isGraphics = !true;
         public int nC = 4;
         public int numAtoms = 4*nC*nC*nC;
 
@@ -390,7 +380,7 @@ public class PolydisperseHS extends Simulation {
         public long numStepsComp = 10000;
         public long numStepsEqu  = 10000;
 
-        public double timestep   = 0.01;
+        public double timestep   = 0.001;
         public long numStepsProd = 100000;
 
         //RDF

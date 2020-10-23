@@ -1,13 +1,9 @@
 package etomica.simulation;
 
-import etomica.action.IAction;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.histogram.HistogramSimple;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
@@ -16,9 +12,8 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
@@ -30,7 +25,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("Duplicates")
@@ -110,7 +104,7 @@ public class BenchSimVirialLJ {
 
 //        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster);
 
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
@@ -175,7 +169,6 @@ public class BenchSimVirialLJ {
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
 //            if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }

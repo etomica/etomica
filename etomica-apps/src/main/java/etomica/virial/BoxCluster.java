@@ -8,6 +8,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 
 /**
@@ -22,7 +23,11 @@ public class BoxCluster extends Box {
 	 * Constructor for BoxCluster.
 	 */
 	public BoxCluster(ClusterWeight cluster, Space _space) {
-		super(new BoundaryRectangularNonperiodic(_space), _space);
+        this(cluster, _space, 0);
+    }
+
+    public BoxCluster(ClusterWeight cluster, Space _space, double L) {
+        super(L == 0 ? new BoundaryRectangularNonperiodic(_space) : new BoundaryRectangularPeriodic(_space, L), _space);
         sampleCluster = cluster;
         this.space = _space;
 	}

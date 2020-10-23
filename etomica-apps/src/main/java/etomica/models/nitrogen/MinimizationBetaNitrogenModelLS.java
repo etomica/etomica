@@ -30,6 +30,7 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.dimensions.Energy;
 
@@ -61,13 +62,10 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
         Basis basisHCP = new BasisHcp();
         basis = new BasisBigCell(space, basisHCP, nCells);
 
-        ConformationNitrogen conformation = new ConformationNitrogen(space);
-        SpeciesN2 species = new SpeciesN2(space);
-        species.setConformation(conformation);
+		SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
-        SpeciesN2B ghostSpecies = new SpeciesN2B(space);
-        ghostSpecies.setConformation(conformation);
+		SpeciesGeneral ghostSpecies = SpeciesN2.create(false);
         addSpecies(ghostSpecies);
 
         int numMolecule = 4;

@@ -7,6 +7,8 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
@@ -19,7 +21,8 @@ import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
@@ -115,7 +118,7 @@ public class VirialCPSHeliumNonAdditive {
         refCluster.setTemperature(temperature);
 
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), 
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))),
                 temperature, refCluster,targetCluster, false);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
@@ -179,7 +182,7 @@ public class VirialCPSHeliumNonAdditive {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            SpeciesSpheresMono species = (SpeciesSpheresMono)sim.getSpecies(0);
+            ISpecies species = sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             simGraphic.makeAndDisplayFrame();
@@ -189,15 +192,13 @@ public class VirialCPSHeliumNonAdditive {
                 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 0);
+//                    sim.initRefPref(null, 0, false);
 //                    sim.equilibrate(null,0);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
 //            });
-            sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -212,16 +213,17 @@ public class VirialCPSHeliumNonAdditive {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         sim.setAccumulatorBlockSize((int)steps);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
-        
+
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
 //                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -234,8 +236,7 @@ public class VirialCPSHeliumNonAdditive {
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

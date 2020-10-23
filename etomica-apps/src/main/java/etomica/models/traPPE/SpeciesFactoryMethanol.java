@@ -20,9 +20,7 @@ public class SpeciesFactoryMethanol implements SpeciesFactory, java.io.Serializa
     public ISpecies makeSpecies(Space space) {
     	
     	// The satellite site, X, is closer to the oxygen atom in the model with point charges.
-    	SpeciesMethanol species = new SpeciesMethanol(space);
-        
-        return species;
+        return SpeciesMethanol.create(false);
     }
     
     private static final long serialVersionUID = 1L;

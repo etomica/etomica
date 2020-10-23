@@ -14,7 +14,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
@@ -38,8 +38,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	
         	
         	//Set Max Steps Based on SimulationParameters.xls
-        	sim.activityIntegrate.setMaxSteps(3270000/2);
-        	sim.activityIntegrate.setSleepPeriod(0);
+        	sim.ai.setMaxSteps(3270000/2);
+        	sim.getController().setSleepPeriod(0);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
         	MeterEnergy eMeter = new MeterEnergy(((IntegratorBox)integrator).getPotentialMaster(), sim.box);
@@ -95,6 +95,6 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
     private int interval;
     private ZeoliteSimulation sim;
     private String filename;
-    private SpeciesSpheresMono sp;
+    private SpeciesGeneral sp;
     private zeoliteSimGraphic graphic;
 }

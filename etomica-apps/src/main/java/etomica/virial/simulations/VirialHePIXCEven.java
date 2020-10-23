@@ -5,13 +5,14 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIntergroupCoupled;
-import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IDataInfo;
@@ -26,7 +27,8 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.units.dimensions.*;
@@ -371,7 +373,11 @@ public class VirialHePIXCEven {
         System.out.println(steps+" steps");
         double heMass = 4.002602;
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*heMass*temperature);
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(AtomType.element(Helium.INSTANCE), nBeads)
+                .withConformation(new ConformationLinear(space))
+                .build();
+
         // the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
         // we handle that manually below, so just set T=1 here
         
@@ -432,7 +438,7 @@ public class VirialHePIXCEven {
 //        sim.box.acceptNotify();
 
 
-        AtomType type = species.getLeafType();
+        AtomType type = species.getAtomType(0);
         
         
         
@@ -479,10 +485,10 @@ public class VirialHePIXCEven {
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("ratio");
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
 
 
@@ -505,23 +511,17 @@ public class VirialHePIXCEven {
             errorBox.setPrecision(2);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
 
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.equilibrate(steps/100);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
-            
+            sim.addEquilibration(steps / 100);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+
             return;
         }
         
         long t1 = System.currentTimeMillis();
         sim.equilibrate(steps/100);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
 
-        sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
-        
         System.out.println("equilibration finished");
 
 //        if (false) {
@@ -530,7 +530,7 @@ public class VirialHePIXCEven {
 //                public void integratorInitialized(IIntegratorEvent e) {}
 //                public void integratorStepStarted(IIntegratorEvent e) {}
 //                public void integratorStepFinished(IIntegratorEvent e) {
-//                    if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+//                    if ((sim.integrator.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
 //                    System.out.print(sim.integrator.getStepCount()+" steps: ");
 //                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
 //                    double ratio = ratioAndError[0];
@@ -542,8 +542,7 @@ public class VirialHePIXCEven {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         System.out.println("Ring acceptance "+ring.getTracker().acceptanceRatio());

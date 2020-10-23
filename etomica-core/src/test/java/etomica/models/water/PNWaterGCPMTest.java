@@ -23,8 +23,8 @@ public class PNWaterGCPMTest {
     private static final double EPSILON = 7e-7;
     @BeforeEach
     public void setUp() throws Exception {
-        IMolecule mol1 = new SpeciesWater4PCOM(Space3D.getInstance()).makeMolecule();
-        IMolecule mol2 = new SpeciesWater4PCOM(Space3D.getInstance()).makeMolecule();
+        IMolecule mol1 = SpeciesWater4PCOM.create(false).makeMolecule();
+        IMolecule mol2 = SpeciesWater4PCOM.create(false).makeMolecule();
 
         MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
         act.setDestination(new Vector3D(4, 4, 4));
