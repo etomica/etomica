@@ -14,6 +14,7 @@ import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Helium;
+import etomica.config.ConformationLinear;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramNotSoSimple;
@@ -512,8 +513,8 @@ public class VirialHePISysErr {
         System.out.println(steps + " steps (1000 blocks of " + steps / 1000 + ")");
         ISpecies species = new SpeciesBuilder(space)
                 .addCount(new AtomType(Helium.INSTANCE), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
                 .build();
-//        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints + (doFlex ? 1 : 0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                 targetDiagrams, new ClusterWeight[]{refSampleCluster, targetSampleCluster}, false);
