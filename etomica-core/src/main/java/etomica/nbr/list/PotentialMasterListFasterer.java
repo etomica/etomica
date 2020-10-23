@@ -234,6 +234,13 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
         if (!isPureAtoms) {
             uTot += this.computeAllBonds(doForces);
         }
+
+        double[] uCorrection = new double[1];
+        double[] duCorrection = new double[1];
+        this.computeAllTruncationCorrection(uCorrection, duCorrection);
+        uTot += uCorrection[0];
+        virialTot += duCorrection[0];
+
         return uTot;
     }
 

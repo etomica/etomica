@@ -106,7 +106,16 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     public double getRange() {
         return rCutoff;
     }
-    
+
+    @Override
+    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        double A = space.sphereArea(1.0);
+        double D = space.D();
+        double integral = potential.integral(rCutoff);
+        uCorrection[0] = integral;
+        duCorrection[0] = (-A * space.powerD(rCutoff) * potential.u(r2Cutoff) - D * integral);
+    }
+
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */

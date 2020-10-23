@@ -100,6 +100,12 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         if (!isPureAtoms) {
             uTot += computeAllBonds(doForces);
         }
+        double[] uCorrection = new double[1];
+        double[] duCorrection = new double[1];
+        this.computeAllTruncationCorrection(uCorrection, duCorrection);
+        uTot += uCorrection[0];
+        virialTot += duCorrection[0];
+
         return uTot;
     }
 
@@ -167,6 +173,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         if (!isPureAtoms && !isOnlyRigidMolecules) {
             u1 += computeOneBonded(iAtom);
         }
+        u1 += this.computeOneTruncationCorrection(i);
 //        System.out.println(uAtomsChanged.size());
         return u1;
     }

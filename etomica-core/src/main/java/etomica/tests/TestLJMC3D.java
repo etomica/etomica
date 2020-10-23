@@ -112,10 +112,10 @@ public class TestLJMC3D extends Simulation {
         Cv *= Cv / numAtoms;
         System.out.println("Cv/k=" + Cv);
 
-        if (Double.isNaN(Z) || Math.abs(Z + 0.25 - 0.4) > 0.2) {
+        if (Double.isNaN(Z) || Math.abs(Z + 0.25) > 0.2) {
             System.exit(1);
         }
-        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56 - 0.2) > 0.04) {
+        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56) > 0.04) {
             System.exit(2);
         }
         if (Double.isNaN(Cv) || Math.abs(Cv - 0.61) > 0.45) {  // actual average seems to be 0.51

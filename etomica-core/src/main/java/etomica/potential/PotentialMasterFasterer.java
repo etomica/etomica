@@ -7,6 +7,8 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.BoxEventListener;
+import etomica.box.BoxMoleculeEvent;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.simulation.Simulation;
@@ -37,6 +39,9 @@ public class PotentialMasterFasterer {
     protected int[][][] bondedAtoms;
     protected Map<Potential2Soft, List<int[]>>[] bondedPairs;
     protected Map<Potential2Soft, int[][]>[] bondedPartners;
+    protected final int[] atomCountByType;
+    public boolean doAllTruncationCorrection = true;
+    public boolean doOneTruncationCorrection = false;
 
     public PotentialMasterFasterer(Simulation sim, Box box) {
         space = box.getSpace();
@@ -62,6 +67,22 @@ public class PotentialMasterFasterer {
             bondedPartners[i] = new HashMap<>();
         }
 
+        this.atomCountByType = new int[lastTypeIndex + 1];
+        box.getEventManager().addListener(new BoxEventListener() {
+            @Override
+            public void boxMoleculeAdded(BoxMoleculeEvent e) {
+                for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
+                    atomCountByType[atomType.getIndex()]++;
+                }
+            }
+
+            @Override
+            public void boxMoleculeRemoved(BoxMoleculeEvent e) {
+                for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
+                    atomCountByType[atomType.getIndex()]--;
+                }
+            }
+        });
     }
 
     public void init() {
@@ -80,6 +101,10 @@ public class PotentialMasterFasterer {
         for (double iuAtom : uAtom) {
             uTot += iuAtom;
         }
+        double[] uCorrection = new double[1];
+        double[] duCorrection = new double[1];
+        this.computeAllTruncationCorrection(uCorrection, duCorrection);
+        uTot += uCorrection[0];
         return uTot;
     }
 
@@ -272,11 +297,18 @@ public class PotentialMasterFasterer {
             u += computeAllBonds(doForces);
         }
 
+        double[] uCorrection = new double[1];
+        double[] duCorrection = new double[1];
+        this.computeAllTruncationCorrection(uCorrection, duCorrection);
+        u += uCorrection[0];
+        virialTot += duCorrection[0];
+
         return u;
     }
 
     public double computeOneOld(IAtom iAtom) {
-        return uAtom[iAtom.getLeafIndex()] * 2;
+        double u = this.computeOneTruncationCorrection(iAtom.getLeafIndex());
+        return u + uAtom[iAtom.getLeafIndex()] * 2;
     }
 
     protected double handleComputeOne(Potential2Soft pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom) {
@@ -321,6 +353,7 @@ public class PotentialMasterFasterer {
         if (!isPureAtoms && !isOnlyRigidMolecules) {
             u += computeOneBonded(iAtom);
         }
+        u += this.computeOneTruncationCorrection(i);
         return u;
     }
 
@@ -329,5 +362,54 @@ public class PotentialMasterFasterer {
             int jj = uAtomsChanged.getInt(j);
             uAtom[jj] += fac * duAtom.getDouble(j);
         }
+    }
+
+    public void computeAllTruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        if (!doAllTruncationCorrection) {
+            return;
+        }
+        double uCor = 0;
+        double duCor = 0;
+        for (int i = 0; i < atomCountByType.length; i++) {
+            for (int j = i; j < atomCountByType.length; j++) {
+                Potential2Soft p = pairPotentials[i][j];
+                int numPairs;
+                if (j == i) {
+                    numPairs = atomCountByType[i] * (atomCountByType[j] - 1) / 2;
+                } else {
+                    numPairs = atomCountByType[i] * atomCountByType[j];
+                }
+                double pairDensity = numPairs / box.getBoundary().volume();
+
+                double[] u = new double[1];
+                double[] du = new double[1];
+                p.u01TruncationCorrection(u, du);
+                uCor += pairDensity * u[0];
+                duCor += pairDensity * du[0];
+
+            }
+        }
+        uCorrection[0] = uCor;
+        duCorrection[0] = duCor;
+    }
+
+    public double computeOneTruncationCorrection(int iAtom) {
+        if (!doOneTruncationCorrection) {
+            return 0;
+        }
+        int iType = box.getLeafList().get(iAtom).getType().getIndex();
+        double uCorrection = 0;
+        for (int j = 0; j < atomCountByType.length; j++) {
+            Potential2Soft p = pairPotentials[iType][j];
+            double pairDensity;
+            if (iType == j) {
+                pairDensity = (atomCountByType[j] - 1) / box.getBoundary().volume();
+            } else {
+                pairDensity = atomCountByType[j] / box.getBoundary().volume();
+            }
+            double integral = p.integral(p.getRange());
+            uCorrection += pairDensity * integral;
+        }
+        return uCorrection;
     }
 }
