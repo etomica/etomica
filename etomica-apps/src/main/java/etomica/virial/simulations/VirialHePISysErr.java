@@ -7,13 +7,13 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
-import etomica.chem.elements.ElementChemical;
-import etomica.config.ConformationLinear;
+import etomica.chem.elements.Helium;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramNotSoSimple;
@@ -34,7 +34,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
@@ -176,7 +176,7 @@ public class VirialHePISysErr {
 		
         Space space = Space3D.getInstance();
 
-        double heMass = 4.002602;
+        double heMass = Helium.INSTANCE.getMass();
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
@@ -499,21 +499,24 @@ public class VirialHePISysErr {
         // we want 1/(P*kT)
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
-        
+
         ClusterWeight targetSampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster);
         ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
 
-        System.out.println("sigmaHSRef: "+sigmaHSRef);
+        System.out.println("sigmaHSRef: " + sigmaHSRef);
         // overerr expects this string, BnHS
-        System.out.println("B"+nPoints+"HS: "+refIntegral);
-        if (steps%1000 != 0) {
+        System.out.println("B" + nPoints + "HS: " + refIntegral);
+        if (steps % 1000 != 0) {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
-        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        System.out.println(steps + " steps (1000 blocks of " + steps / 1000 + ")");
+        ISpecies species = new SpeciesBuilder(space)
+                .addCount(new AtomType(Helium.INSTANCE), nBeads)
+                .build();
+//        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
-                 targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints + (doFlex ? 1 : 0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+                targetDiagrams, new ClusterWeight[]{refSampleCluster, targetSampleCluster}, false);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
 
@@ -825,7 +828,7 @@ public class VirialHePISysErr {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount() * 10) % 1000 != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -842,7 +845,7 @@ public class VirialHePISysErr {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount() * 10) % 1000 != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -877,8 +880,7 @@ public class VirialHePISysErr {
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS, 1000));
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {
