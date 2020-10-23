@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
@@ -19,10 +19,9 @@ import etomica.potential.IPotential;
 import etomica.potential.P2PotentialGroupBuilder;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.units.Degree;
 import etomica.units.Electron;
@@ -167,13 +166,13 @@ public class VirialTraPPE {
         refCluster.setTemperature(temperature);
 
         // Setting up Target Cluster Mayer Function
-        Species[] species = null;
+        ISpecies[] species = null;
         ClusterAbstractMultivalue targetCluster = null;
         ClusterWheatleySoftDerivativesMixBD targetClusterBD = null;
 
         boolean anyPolar = false;
         MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
-        species = new Species[chemForm.length];
+        species = new ISpecies[chemForm.length];
 
         TraPPEParams[] TPList = new TraPPEParams[chemForm.length];
 
@@ -185,7 +184,7 @@ public class VirialTraPPE {
 
             TraPPEParams TPi = TPList[i];
             PotentialGroup PGii = TPi.potentialGroup;
-            Species speciesi = TPi.species;
+            ISpecies speciesi = TPi.species;
             species[i] = speciesi;
 
             P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes,TPi.sigma,TPi.epsilon,TPi.charge);
@@ -290,18 +289,9 @@ public class VirialTraPPE {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
-            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
-                throw new RuntimeException("Oops");
-            }
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             return;
         }
 
@@ -347,13 +337,13 @@ public class VirialTraPPE {
         sim.setAccumulatorBlockSize(blockSize);
 
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(steps / blockSize);
-        for (int i=0; i<2; i++) {
+        for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
 
         // Production Run
-        sim.getController().actionPerformed();
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, numBlocks);
+        sim.getController().runActivityBlocking(ai);
 
         System.out.println();
 
@@ -380,7 +370,7 @@ public class VirialTraPPE {
         long t2 = System.currentTimeMillis();
         System.out.println("time: " + (t2 - t1) / 1000.0);
 
-	}
+    }
 
     enum ChemForm {
         N2, O2, CO2, NH3
@@ -418,7 +408,7 @@ public class VirialTraPPE {
         protected double[] sigma;
         protected double[] epsilon;
         protected double[] charge;
-        protected Species species;
+        protected ISpecies species;
         protected PotentialGroup potentialGroup;
         protected static Element elementM = new ElementSimple("M", 0.0);
         protected boolean polar;
@@ -434,8 +424,6 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeM,typeN};
 
-                int[] atomCount = new int[]{1,2};
-
                 //TraPPE Parameters
                 double bondLength = 1.10; // Angstrom
                 double sigmaN = 3.31; // Angstrom
@@ -446,22 +434,25 @@ public class VirialTraPPE {
                 double qM = Electron.UNIT.toSim(0.964);
 
                 //Construct Arrays
-                sigma = new double[] {sigmaM,sigmaN};
-                epsilon = new double[] {epsilonM,epsilonN};
-                charge = new double[] {qM,qN};
+                sigma = new double[]{sigmaM, sigmaN};
+                epsilon = new double[]{epsilonM, epsilonN};
+                charge = new double[]{qM, qN};
 
                 //Get Coordinates
-                Vector3D posM = new Vector3D(new double[] {0,0,0});
-                Vector3D posN1 = new Vector3D(new double[] {-bondLength/2,0,0});
-                Vector3D posN2 = new Vector3D(new double[] {+bondLength/2,0,0});
-                Vector[] pos = new Vector[]{posM,posN1,posN2};
+                Vector3D posM = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posN1 = new Vector3D(new double[]{-bondLength / 2, 0, 0});
+                Vector3D posN2 = new Vector3D(new double[]{+bondLength / 2, 0, 0});
 
                 //Set Geometry
-                species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeM, posM, "M")
+                        .addAtom(typeN, posN1, "N1")
+                        .addAtom(typeN, posN2, "N2")
+                        .build();
 
                 //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
             }
 
             else if (chemForm == ChemForm.O2) {
@@ -471,8 +462,6 @@ public class VirialTraPPE {
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
 
                 atomTypes = new AtomType[]{typeM,typeO};
-
-                int[] atomCount = new int[]{1,2};
 
                 //TraPPE Parameters
                 double bondLength = 1.210; // Angstrom
@@ -484,22 +473,25 @@ public class VirialTraPPE {
                 double qM = Electron.UNIT.toSim(0.226);
 
                 //Construct Arrays
-                sigma = new double[] {sigmaM,sigmaO};
-                epsilon = new double[] {epsilonM,epsilonO};
-                charge = new double[] {qM,qO};
+                sigma = new double[]{sigmaM, sigmaO};
+                epsilon = new double[]{epsilonM, epsilonO};
+                charge = new double[]{qM, qO};
 
                 //Get Coordinates
-                Vector3D posM = new Vector3D(new double[] {0,0,0});
-                Vector3D posO1 = new Vector3D(new double[] {-bondLength/2,0,0});
-                Vector3D posO2 = new Vector3D(new double[] {+bondLength/2,0,0});
-                Vector[] pos = new Vector[]{posM,posO1,posO2};
+                Vector3D posM = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posO1 = new Vector3D(new double[]{-bondLength / 2, 0, 0});
+                Vector3D posO2 = new Vector3D(new double[]{+bondLength / 2, 0, 0});
 
                 //Set Geometry
-                species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeM, posM, "M")
+                        .addAtom(typeO, posO1, "O1")
+                        .addAtom(typeO, posO2, "O2")
+                        .build();
 
                 //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
 
             }
 
@@ -511,8 +503,6 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeC,typeO};
 
-                int[] atomCount = new int[] {1,2};
-
                 //TraPPE Parameters
                 double bondLengthCO = 1.160; // Angstrom
                 double sigmaC = 2.800; // Angstrom
@@ -523,22 +513,25 @@ public class VirialTraPPE {
                 double qO = Electron.UNIT.toSim(-0.350);
 
                 //Construct Arrays
-                sigma = new double[] {sigmaC,sigmaO};
-                epsilon = new double[] {epsilonC,epsilonO};
-                charge = new double[] {qC,qO};
+                sigma = new double[]{sigmaC, sigmaO};
+                epsilon = new double[]{epsilonC, epsilonO};
+                charge = new double[]{qC, qO};
 
                 //Get Coordinates
-                Vector3D posC = new Vector3D(new double[] {0,0,0});
-                Vector3D posO1 = new Vector3D(new double[] {-bondLengthCO,0,0});
-                Vector3D posO2 = new Vector3D(new double[] {+bondLengthCO,0,0});
-                Vector[] pos = new Vector[]{posC,posO1,posO2};
+                Vector3D posC = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posO1 = new Vector3D(new double[]{-bondLengthCO, 0, 0});
+                Vector3D posO2 = new Vector3D(new double[]{+bondLengthCO, 0, 0});
 
                 //Set Geometry
-                species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC, "C")
+                        .addAtom(typeO, posO1, "O1")
+                        .addAtom(typeO, posO2, "O2")
+                        .build();
 
                 //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
             }
             else if (chemForm == ChemForm.NH3) {
 
@@ -548,8 +541,6 @@ public class VirialTraPPE {
                 AtomType typeM = new AtomType(elementM);
 
                 atomTypes = new AtomType[]{typeN,typeH,typeM};
-
-                int[] atomCount = new int[] {1,3,1};
 
                 polar = true;
 
@@ -572,22 +563,27 @@ public class VirialTraPPE {
                 //Construct Arrays
                 sigma = new double[] {sigmaN,sigmaH,sigmaM};
                 epsilon = new double[] {epsilonN,epsilonH,epsilonM};
-                charge = new double[] {qN,qH,qM};
+                charge = new double[]{qN, qH, qM};
 
                 //Get Coordinates
-                Vector3D posN = new Vector3D(new double[] {0,0,0});
-                Vector3D posH1 = new Vector3D(new double[] {bondLengthNH*Math.sin(thetaHNM),0,-bondLengthNH*Math.cos(thetaHNM)});
-                Vector3D posH2 = new Vector3D(new double[] {-bondLengthNH*Math.sin(thetaHNM)*Math.cos(thetaHNHxy),bondLengthNH*Math.sin(thetaHNM)*Math.sin(thetaHNHxy),-bondLengthNH*Math.cos(thetaHNM)});
-                Vector3D posH3 = new Vector3D(new double[] {-bondLengthNH*Math.sin(thetaHNM)*Math.cos(thetaHNHxy),-bondLengthNH*Math.sin(thetaHNM)*Math.sin(thetaHNHxy),-bondLengthNH*Math.cos(thetaHNM)});
-                Vector3D posM = new Vector3D(new double[] {0,0,-bondLengthNM});
-                Vector[] pos = new Vector[]{posN,posH1,posH2,posH3,posM};
+                Vector3D posN = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posH1 = new Vector3D(new double[]{bondLengthNH * Math.sin(thetaHNM), 0, -bondLengthNH * Math.cos(thetaHNM)});
+                Vector3D posH2 = new Vector3D(new double[]{-bondLengthNH * Math.sin(thetaHNM) * Math.cos(thetaHNHxy), bondLengthNH * Math.sin(thetaHNM) * Math.sin(thetaHNHxy), -bondLengthNH * Math.cos(thetaHNM)});
+                Vector3D posH3 = new Vector3D(new double[]{-bondLengthNH * Math.sin(thetaHNM) * Math.cos(thetaHNHxy), -bondLengthNH * Math.sin(thetaHNM) * Math.sin(thetaHNHxy), -bondLengthNH * Math.cos(thetaHNM)});
+                Vector3D posM = new Vector3D(new double[]{0, 0, -bondLengthNM});
 
                 //Set Geometry
-                species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeN, posN, "N")
+                        .addAtom(typeH, posH1, "H1")
+                        .addAtom(typeH, posH2, "H2")
+                        .addAtom(typeH, posH3, "H3")
+                        .addAtom(typeM, posM, "M")
+                        .build();
 
                 //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
             }
 
         }
