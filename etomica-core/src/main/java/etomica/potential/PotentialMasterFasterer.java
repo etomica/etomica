@@ -42,7 +42,7 @@ public class PotentialMasterFasterer {
         space = box.getSpace();
         this.speciesList = sim.getSpeciesList();
         ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getAtomTypeCount() - 1).getIndex();
+        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
         pairPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
         this.box = box;
         dr = sim.getSpace().makeVector();

@@ -6,7 +6,6 @@ package etomica.nbr;
 
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -31,7 +30,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         int numAtomTypes = 0;
         if (sim.getSpeciesCount() > 0) {
             ISpecies lastSpecies = sim.getSpecies(sim.getSpeciesCount() - 1);
-            numAtomTypes = lastSpecies.getAtomType(lastSpecies.getAtomTypeCount() - 1).getIndex() + 1;
+            numAtomTypes = lastSpecies.getAtomType(lastSpecies.getUniqueAtomTypeCount() - 1).getIndex() + 1;
         }
         rangedPotentials = new IPotentialAtomic[numAtomTypes][numAtomTypes];
         criteria = new NeighborCriterion[numAtomTypes][numAtomTypes];
