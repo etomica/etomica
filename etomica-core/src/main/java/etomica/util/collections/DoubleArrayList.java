@@ -62,6 +62,10 @@ public final class DoubleArrayList {
         this.size = 0;
     }
 
+    public void setAll(double x) {
+        Arrays.fill(data, x);
+    }
+
 //    @Override
 //    public Double get(int i) {
 //        return getDouble(i);

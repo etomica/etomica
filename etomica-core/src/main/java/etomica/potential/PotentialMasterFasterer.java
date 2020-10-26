@@ -40,6 +40,8 @@ public class PotentialMasterFasterer {
     protected Map<Potential2Soft, List<int[]>>[] bondedPairs;
     protected Map<Potential2Soft, int[][]>[] bondedPartners;
     protected final int[] atomCountByType;
+    protected boolean duAtomMulti = false;
+
     public boolean doAllTruncationCorrection = true;
     public boolean doOneTruncationCorrection = false;
 
@@ -231,9 +233,12 @@ public class PotentialMasterFasterer {
         return uij;
     }
 
-    protected static boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom, int[][][] bondedAtoms) {
+    protected boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom, int[][][] bondedAtoms) {
         if (!isPureAtoms && iAtom.getParentGroup() == jAtom.getParentGroup()) {
             // ensure i < j
+            if (isOnlyRigidMolecules) {
+                return true;
+            }
             if (iAtom.getLeafIndex() > jAtom.getLeafIndex()) {
                 IAtom tmp = iAtom;
                 iAtom = jAtom;
@@ -311,22 +316,38 @@ public class PotentialMasterFasterer {
         return u + uAtom[iAtom.getLeafIndex()] * 2;
     }
 
+    public double computeOneOldMolecule(IMolecule molecule) {
+        if (!isOnlyRigidMolecules) {
+            throw new RuntimeException();
+        }
+        double u = 0;
+        for (IAtom atom : molecule.getChildList()) {
+            u += uAtom[atom.getLeafIndex()] * 2;
+            u += this.computeOneTruncationCorrection(atom.getLeafIndex());
+        }
+        return u;
+    }
+
     protected double handleComputeOne(Potential2Soft pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom) {
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double uij = pij.u(dr.squared());
         if (uij == 0) return 0;
 
-        duAtom.plusEquals(0, 0.5 * uij);
-        duAtom.add(0.5 * uij);
         uAtomsChanged.add(jAtom);
+        if (duAtomMulti) {
+            duAtom.plusEquals(iAtom, 0.5 * uij);
+            duAtom.plusEquals(jAtom, 0.5 * uij);
+        } else {
+            duAtom.plusEquals(0, 0.5 * uij);
+            duAtom.add(0.5 * uij);
+        }
         return uij;
     }
 
     public double computeOne(IAtom iAtom) {
+        this.duAtomMulti = false;
         int i = iAtom.getLeafIndex();
-        Vector ri = iAtom.getPosition();
-        int iType = iAtom.getType().getIndex();
         IAtomList atoms = box.getLeafList();
         uAtomsChanged.clear();
         uAtomsChanged.ensureCapacity(atoms.size());
@@ -335,21 +356,7 @@ public class PotentialMasterFasterer {
         duAtom.ensureCapacity(atoms.size());
         duAtom.add(0);
 
-        Potential2Soft[] ip = pairPotentials[iType];
-        double u = 0;
-        Boundary boundary = box.getBoundary();
-        int s = atoms.size();
-        for (int j = 0; j < s; j++) {
-            if (i == j) continue;
-            IAtom jAtom = atoms.get(j);
-            int jType = jAtom.getType().getIndex();
-            Potential2Soft pij = ip[jType];
-            if (pij == null) continue;
-            if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
-            dr.Ev1Mv2(jAtom.getPosition(), ri);
-            boundary.nearestImage(dr);
-            u += handleComputeOne(pij, zero, dr, zero, i, j);
-        }
+        double u = computeOneInternal(iAtom);
         if (!isPureAtoms && !isOnlyRigidMolecules) {
             u += computeOneBonded(iAtom);
         }
@@ -357,10 +364,68 @@ public class PotentialMasterFasterer {
         return u;
     }
 
+    protected double computeOneInternal(IAtom atom) {
+        int iType = atom.getType().getIndex();
+        int i = atom.getLeafIndex();
+        Potential2Soft[] ip = pairPotentials[iType];
+        double u = 0;
+        Boundary boundary = box.getBoundary();
+        for (int j = 0; j < box.getLeafList().size(); j++) {
+            if (i == j) continue;
+            IAtom jAtom = box.getLeafList().get(j);
+            int jType = jAtom.getType().getIndex();
+            Potential2Soft pij = ip[jType];
+            if (pij == null) continue;
+            if (skipBondedPair(isPureAtoms, atom, jAtom, bondedAtoms)) continue;
+            dr.Ev1Mv2(jAtom.getPosition(), atom.getPosition());
+            boundary.nearestImage(dr);
+            u += handleComputeOne(pij, zero, dr, zero, i, j);
+        }
+        return u;
+    }
+
+    public double computeOneMolecule(IMolecule molecule) {
+        duAtomMulti = true;
+        uAtomsChanged.clear();
+        duAtom.setAll(0);
+        duAtom.ensureCapacity(box.getLeafList().size());
+        double u = 0;
+
+        for (IAtom atom : molecule.getChildList()) {
+            uAtomsChanged.add(atom.getLeafIndex());
+            u += computeOneInternal(atom);
+            u += computeOneTruncationCorrection(atom.getLeafIndex());
+        }
+
+        if (!isPureAtoms && !isOnlyRigidMolecules) {
+            u += computeOneMoleculeBonds(molecule);
+        }
+
+        return u;
+    }
+
+    public double computeOneMoleculeBonds(IMolecule molecule) {
+        final double[] u = {0};
+        Map<Potential2Soft, List<int[]>> potentials = bondedPairs[molecule.getType().getIndex()];
+        potentials.forEach((potential, pairs) -> {
+            for (int[] pair : pairs) {
+                IAtom iAtom = molecule.getChildList().get(pair[0]);
+                IAtom jAtom = molecule.getChildList().get(pair[1]);
+                u[0] += handleOneBondPair(false, iAtom, jAtom, potential);
+            }
+        });
+        return u[0];
+    }
+
     public void processAtomU(double fac) {
         for (int j = 0; j < uAtomsChanged.size(); j++) {
             int jj = uAtomsChanged.getInt(j);
-            uAtom[jj] += fac * duAtom.getDouble(j);
+            if (duAtomMulti) {
+                uAtom[jj] += fac * duAtom.getDouble(jj);
+                duAtom.replace(jj, 0);
+            } else {
+                uAtom[jj] += fac * duAtom.getDouble(j);
+            }
         }
     }
 
