@@ -60,4 +60,9 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     public Potential0Lrc makeLrcPotential(AtomType[] types) {
         return null;
     }
+
+    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        uCorrection[0] = 0;
+        duCorrection[0] = 0;
+    }
 }
