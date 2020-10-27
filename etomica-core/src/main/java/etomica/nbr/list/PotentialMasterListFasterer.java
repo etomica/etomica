@@ -14,8 +14,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Debug;
 
-import java.util.Arrays;
-
 public class PotentialMasterListFasterer extends PotentialMasterCellFasterer implements IntegratorListener {
 
     protected double nbrRange;
@@ -62,6 +60,11 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
 
     public void setNeighborRange(double newRange) {
         nbrRange = newRange;
+    }
+
+    // this determines how big the cells are.  PMCell just returns potential range
+    public double getRange() {
+        return nbrRange;
     }
 
     public void setDoDownNbrs(boolean doDown) {
@@ -216,7 +219,6 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
             Potential2Soft[] iPotentials = pairPotentials[iType];
-            Vector fi = doForces ? forces[i] : null;
             int iNumNbrs = numAtomNbrsUp[i];
             int[] iNbrs = nbrs[i];
             Vector[] iNbrBoxOffsets = nbrBoxOffsets[i];
