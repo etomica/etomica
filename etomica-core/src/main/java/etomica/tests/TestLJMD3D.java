@@ -18,6 +18,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -46,7 +47,7 @@ public class TestLJMD3D extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        PotentialMasterListFasterer potentialMaster = new PotentialMasterListFasterer(this, box, 2, 4);
+        PotentialMasterListFasterer potentialMaster = new PotentialMasterListFasterer(this, box, 2, 4, BondingInfo.noBonding());
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
         integrator.setTimeStep(0.02);

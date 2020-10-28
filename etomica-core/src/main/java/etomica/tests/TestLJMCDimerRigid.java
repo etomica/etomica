@@ -19,23 +19,15 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -63,7 +55,7 @@ public class TestLJMCDimerRigid extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2) : new PotentialMasterFasterer(this, box);
+        PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2, BondingInfo.noBonding()) : new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
 
         integrator = new IntegratorMCFasterer(this, potentialMaster, box);
         integrator.setTemperature(moleculeSize);
@@ -101,7 +93,7 @@ public class TestLJMCDimerRigid extends Simulation {
 
     public static void main(String[] args) {
         final String APP_NAME = "LJMDDimer";
-        final TestLJMCDimerRigid sim = new TestLJMCDimerRigid(2, 512, false);
+        final TestLJMCDimerRigid sim = new TestLJMCDimerRigid(2, 512, true);
 //        long t0 = System.nanoTime();
 //        sim.getController().actionPerformed();
 //        long t1 = System.nanoTime();

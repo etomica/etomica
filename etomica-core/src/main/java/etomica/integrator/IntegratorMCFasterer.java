@@ -6,7 +6,7 @@ package etomica.integrator;
 
 import etomica.box.Box;
 import etomica.integrator.mcmove.*;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
 import etomica.util.EventManager;
 import etomica.util.random.IRandom;
@@ -33,20 +33,20 @@ public class IntegratorMCFasterer extends IntegratorBoxFasterer {
 
     /**
      * @param sim             Simulation where this integrator is used
-     * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
+     * @param potentialCompute PotentialMaster instance used by moves to calculate the energy
      */
 
-    public IntegratorMCFasterer(Simulation sim, PotentialMasterFasterer potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 1.0, box);
+    public IntegratorMCFasterer(Simulation sim, PotentialCompute potentialCompute, Box box) {
+        this(potentialCompute, sim.getRandom(), 1.0, box);
     }
 
     /**
-     * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
+     * @param potentialCompute PotentialMaster instance used by moves to calculate the energy
      * @param random          random number generator used to select moves and decide acceptance
      * @param temperature     temperature of the ensemble
      */
-    public IntegratorMCFasterer(PotentialMasterFasterer potentialMaster, IRandom random, double temperature, Box box) {
-        super(potentialMaster, temperature, box);
+    public IntegratorMCFasterer(PotentialCompute potentialCompute, IRandom random, double temperature, Box box) {
+        super(potentialCompute, temperature, box);
         this.random = random;
         setIsothermal(true); //has no practical effect, but sets value of
         // isothermal to be consistent with way integrator

@@ -11,6 +11,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -24,7 +25,7 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveAtomFasterer extends MCMoveBoxStep {
 
-    protected final PotentialMasterFasterer potentialMasterFasterer;
+    protected final PotentialCompute potentialCompute;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final Vector translationVector, oldPosition;
     protected final IRandom random;
@@ -37,13 +38,12 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
 
     /**
      * Constructs the move with default stepSize = 1.0, stepSizeMax = 15.0, fixOverlap = false
-     *
-     * @param random          random number generator used to select the atom and its displacement
-     * @param potentialMaster used to construct MeterPotentialEnergy required by full constructor
+     *  @param random          random number generator used to select the atom and its displacement
+     * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
-    public MCMoveAtomFasterer(IRandom random, PotentialMasterFasterer potentialMaster, Box box) {
+    public MCMoveAtomFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
         super(null);
-        this.potentialMasterFasterer = potentialMaster;
+        this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();
         atomSource = new AtomSourceRandomLeaf();
@@ -60,7 +60,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        uOld = potentialMasterFasterer.computeOneOld(atom);
+        uOld = potentialCompute.computeOneOld(atom);
         if (uOld > 1e8) {
             throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
@@ -71,12 +71,12 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         r.PE(translationVector);
         Vector shift = box.getBoundary().centralImage(r);
         r.PE(shift);
-        potentialMasterFasterer.updateAtom(atom);
+        potentialCompute.updateAtom(atom);
         return true;
     }//end of doTrial
 
     public double getChi(double temperature) {
-        uNew = potentialMasterFasterer.computeOne(atom);
+        uNew = potentialCompute.computeOne(atom);
         return Math.exp(-(uNew - uOld) / temperature);
     }
 
@@ -86,23 +86,23 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
 
     public void acceptNotify() {
 //        System.out.println("accepted");
-        potentialMasterFasterer.processAtomU(1);
+        potentialCompute.processAtomU(1);
         // put it back, then compute old contributions to energy
         Vector r = atom.getPosition();
         r.E(oldPosition);
-        potentialMasterFasterer.updateAtom(atom);
-        potentialMasterFasterer.computeOne(atom);
+        potentialCompute.updateAtom(atom);
+        potentialCompute.computeOne(atom);
         atom.getPosition().PE(translationVector);
         Vector shift = box.getBoundary().centralImage(r);
         r.PE(shift);
-        potentialMasterFasterer.processAtomU(-1);
-        potentialMasterFasterer.updateAtom(atom);
+        potentialCompute.processAtomU(-1);
+        potentialCompute.updateAtom(atom);
     }
 
     public void rejectNotify() {
 //        System.out.println("rejected");
         atom.getPosition().E(oldPosition);
-        potentialMasterFasterer.updateAtom(atom);
+        potentialCompute.updateAtom(atom);
     }
 
     public AtomIterator affectedAtoms() {

@@ -8,7 +8,7 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -16,13 +16,13 @@ import etomica.util.random.IRandom;
 
 public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
 
-    public IntegratorVelocityVerletFasterer(Simulation sim, PotentialMasterFasterer potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
+    public IntegratorVelocityVerletFasterer(Simulation sim, PotentialCompute potentialCompute, Box box) {
+        this(potentialCompute, sim.getRandom(), 0.05, 1.0, box);
     }
 
-    public IntegratorVelocityVerletFasterer(PotentialMasterFasterer potentialMaster, IRandom random,
+    public IntegratorVelocityVerletFasterer(PotentialCompute potentialCompute, IRandom random,
                                             double timeStep, double temperature, Box box) {
-        super(potentialMaster, random, timeStep, temperature, box);
+        super(potentialCompute, random, timeStep, temperature, box);
     }
 
 //--------------------------------------------------------------
@@ -41,7 +41,7 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
         }
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
-        Vector[] forces = potentialMaster.getForces();
+        Vector[] forces = potentialCompute.getForces();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
             Vector force = forces[iLeaf];
@@ -56,7 +56,7 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
 
         eventManager.forcePrecomputed();
 
-        currentPotentialEnergy = potentialMaster.computeAll(true);
+        currentPotentialEnergy = potentialCompute.computeAll(true);
 
         eventManager.forceComputed();
 
@@ -90,7 +90,7 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
 
         eventManager.forcePrecomputed();
 
-        currentPotentialEnergy = potentialMaster.computeAll(true);
+        currentPotentialEnergy = potentialCompute.computeAll(true);
 
         eventManager.forceComputed();
     }

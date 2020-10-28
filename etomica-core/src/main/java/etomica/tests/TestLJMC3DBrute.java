@@ -20,9 +20,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -50,7 +48,7 @@ public class TestLJMC3DBrute extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        potentialMaster = new PotentialMasterFasterer(this, box);
+        potentialMaster = new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
         integrator = new IntegratorMCFasterer(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.275 * sigma);

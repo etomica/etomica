@@ -25,7 +25,7 @@ public class MeterPressureFromIntegratorFasterer extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        double lastVirial = integrator.getPotentialMaster().getLastVirial();
+        double lastVirial = integrator.getPotentialCompute().getLastVirial();
         Box box = integrator.getBox();
         double vol = box.getBoundary().volume();
         int dim = box.getSpace().D();

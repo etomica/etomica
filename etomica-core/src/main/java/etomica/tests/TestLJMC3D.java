@@ -22,6 +22,7 @@ import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -51,7 +52,7 @@ public class TestLJMC3D extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        potentialMaster = new PotentialMasterCellFasterer(this, box, 2);
+        potentialMaster = new PotentialMasterCellFasterer(this, box, 2, BondingInfo.noBonding());
         integrator = new IntegratorMCFasterer(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.275 * sigma);

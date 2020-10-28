@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -27,8 +28,8 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
     protected Vector[][] nbrBoxOffsets;
     protected Vector[] oldAtomPositions;
 
-    public PotentialMasterListFasterer(Simulation sim, Box box, int cellRange, double nbrRange) {
-        super(sim, box, cellRange);
+    public PotentialMasterListFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
+        super(sim, box, cellRange, bondingInfo);
         int numAtomTypes = pairPotentials.length;
         maxR2 = new double[numAtomTypes];
         maxR2Unsafe = new double[numAtomTypes];
@@ -74,7 +75,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
     private int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
 
-        if (skipBondedPair(this.isPureAtoms, iAtom, jAtom, this.bondedAtoms)) return 0;
+        if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) return 0;
 
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
@@ -231,10 +232,6 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
                 Vector jbo = iNbrBoxOffsets[j];
                 uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
             }
-        }
-
-        if (!isPureAtoms) {
-            uTot += this.computeAllBonds(doForces);
         }
 
         double[] uCorrection = new double[1];

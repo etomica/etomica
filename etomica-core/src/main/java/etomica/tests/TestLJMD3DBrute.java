@@ -17,9 +17,7 @@ import etomica.data.meter.MeterPressureFromIntegratorFasterer;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -46,7 +44,7 @@ public class TestLJMD3DBrute extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(this, box);
+        PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
         integrator.setTimeStep(0.02);

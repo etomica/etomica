@@ -17,6 +17,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimensioned;
@@ -51,13 +52,13 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
     /**
      * Constructs integrator with a default for non-isothermal sampling.
      *
-     * @param potentialMaster PotentialMaster instance used to compute the energy and forces
+     * @param potentialCompute PotentialMaster instance used to compute the energy and forces
      * @param random          random number generator used for initial velocities and some thermostats
      * @param timeStep        time step for integration
      * @param temperature     used by thermostat and/or to initialize velocities
      */
-    public IntegratorMDFasterer(PotentialMasterFasterer potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
-        super(potentialMaster, temperature, box);
+    public IntegratorMDFasterer(PotentialCompute potentialCompute, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialCompute, temperature, box);
         this.random = random;
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
@@ -283,7 +284,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             if (thermostat == ThermostatType.HYBRID_MC) {
                 if (!Double.isNaN(oldEnergy)) {
                     // decide whether or not to go back to the old configuration
-                    double newPotentialEnergy = potentialMaster.getOldEnergy();
+                    double newPotentialEnergy = potentialCompute.getOldEnergy();
                     double newKineticEnergy = meterKE.getDataAsScalar();
 //                    System.out.println(newPotentialEnergy+" "+newKineticEnergy+" "+oldEnergy);
                     double energyDiff = newPotentialEnergy + newKineticEnergy - oldEnergy;
@@ -320,7 +321,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                         IAtom a = leafAtoms.get(i);
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
-                    oldPotentialEnergy = potentialMaster.getOldEnergy();
+                    oldPotentialEnergy = potentialCompute.getOldEnergy();
                     oldEnergy = oldPotentialEnergy;
                 }
 

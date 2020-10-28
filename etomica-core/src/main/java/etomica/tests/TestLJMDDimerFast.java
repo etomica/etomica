@@ -21,10 +21,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterListFasterer;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
@@ -61,7 +58,19 @@ public class TestLJMDDimerFast extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = nbrListing ? new PotentialMasterListFasterer(this, box, 2, 4) : new PotentialMasterFasterer(this, box);
+
+        PotentialMasterBonding pmBonding = new PotentialMasterBonding(this, box);
+        P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
+        List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
+                .mapToObj(i -> new int[]{i, i+1})
+                .collect(Collectors.toList());
+
+        pmBonding.setBondingPotential(species, pBond, bonds);
+
+        BondingInfo bi = BondingInfo.makeBondingInfo(pmBonding);
+        PotentialMasterFasterer potentialMaster = nbrListing ?
+                new PotentialMasterListFasterer(this, box, 2, 4, bi)
+                : new PotentialMasterFasterer(this, box, bi);
         integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
         integrator.setTimeStep(0.005);
         integrator.setTemperature(moleculeSize);
@@ -75,12 +84,6 @@ public class TestLJMDDimerFast extends Simulation {
         P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 3.0);
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
-        P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
-        List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
-                .mapToObj(i -> new int[]{i, i+1})
-                .collect(Collectors.toList());
-
-        potentialMaster.setBondingPotential(species, pBond, bonds);
 
 
         if (nbrListing) {

@@ -22,10 +22,8 @@ import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.*;
+import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
@@ -62,13 +60,23 @@ public class TestLJMCDimerFast extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2) : new PotentialMasterFasterer(this, box);
 
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        PotentialMasterBonding pmBond = new PotentialMasterBonding(this, box);
+        P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
+        List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
+                .mapToObj(i -> new int[]{i, i+1})
+                .collect(Collectors.toList());
+
+        pmBond.setBondingPotential(species, pBond, bonds);
+        BondingInfo bi = BondingInfo.makeBondingInfo(pmBond);
+        PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2, bi) : new PotentialMasterFasterer(this, box, bi);
+
+        PotentialCompute compute = PotentialCompute.aggregate(pmBond, potentialMaster);
+        integrator = new IntegratorMCFasterer(this, compute, box);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
 
-        integrator.getMoveManager().addMCMove(new MCMoveAtomFasterer(this.getRandom(), potentialMaster, box));
+        integrator.getMoveManager().addMCMove(new MCMoveAtomFasterer(this.getRandom(), compute, box));
 
         box.setNMolecules(species, totalAtoms / moleculeSize);
         new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
@@ -79,12 +87,6 @@ public class TestLJMCDimerFast extends Simulation {
         P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 3.0);
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
-        P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
-        List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
-                .mapToObj(i -> new int[]{i, i+1})
-                .collect(Collectors.toList());
-
-        potentialMaster.setBondingPotential(species, pBond, bonds);
 
 
         if (!cellListing) {
@@ -113,9 +115,10 @@ public class TestLJMCDimerFast extends Simulation {
 //        sim.getController().actionPerformed();
 //        long t1 = System.nanoTime();
 //        System.out.println((t1 - t0) / 1e6);
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);

@@ -9,6 +9,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Dimensioned;
@@ -24,7 +25,7 @@ import java.util.Objects;
 
 public abstract class IntegratorBoxFasterer extends Integrator {
 
-    protected final PotentialMasterFasterer potentialMaster;
+    protected final PotentialCompute potentialCompute;
     protected final Box box;
     protected final Space space;
     protected double temperature;
@@ -32,14 +33,14 @@ public abstract class IntegratorBoxFasterer extends Integrator {
     protected double currentPotentialEnergy;
 
     /**
-     * @param potentialMaster PotentialMaster instance used to compute energy etc.
+     * @param potentialCompute PotentialMaster instance used to compute energy etc.
      * @param temperature     used by integration algorithm and/or to initialize velocities
      */
-    public IntegratorBoxFasterer(PotentialMasterFasterer potentialMaster, double temperature, Box box) {
+    public IntegratorBoxFasterer(PotentialCompute potentialCompute, double temperature, Box box) {
         super();
         this.box = Objects.requireNonNull(box);
         this.space = box.getSpace();
-        this.potentialMaster = Objects.requireNonNull(potentialMaster);
+        this.potentialCompute = Objects.requireNonNull(potentialCompute);
         setTemperature(temperature);
     }
 
@@ -47,8 +48,8 @@ public abstract class IntegratorBoxFasterer extends Integrator {
      * @return the PotentialMaster instance used to compute energy etc.
      */
     @IgnoreProperty
-    public PotentialMasterFasterer getPotentialMaster() {
-        return potentialMaster;
+    public PotentialCompute getPotentialCompute() {
+        return potentialCompute;
     }
 
     /**
@@ -58,12 +59,12 @@ public abstract class IntegratorBoxFasterer extends Integrator {
      */
     public void reset() {
         super.reset();
-        potentialMaster.init();
-        currentPotentialEnergy = potentialMaster.computeAll(false);
+        potentialCompute.init();
+        currentPotentialEnergy = potentialCompute.computeAll(false);
         if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
             System.err.println("overlap in configuration for " + box + " when resetting integrator");
             PotentialCalculationEnergySum.debug = true;
-            potentialMaster.computeAll(false);
+            potentialCompute.computeAll(false);
             PotentialCalculationEnergySum.debug = false;
             throw new ConfigurationOverlapException(box);
         }

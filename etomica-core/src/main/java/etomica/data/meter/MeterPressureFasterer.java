@@ -7,6 +7,7 @@ package etomica.data.meter;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Pressure;
 
 /**
@@ -20,16 +21,16 @@ import etomica.units.dimensions.Pressure;
 
 public class MeterPressureFasterer extends DataSourceScalar {
 
-    protected final PotentialMasterFasterer potentialMaster;
+    protected final PotentialCompute potentialCompute;
     protected double temperature;
     protected final Box box;
     private final int dim;
 
-    public MeterPressureFasterer(Box box, PotentialMasterFasterer potentialMaster) {
+    public MeterPressureFasterer(Box box, PotentialCompute potentialCompute) {
         super("Pressure", Pressure.dimension(box.getSpace().D()));
         dim = box.getSpace().D();
         this.box = box;
-        this.potentialMaster = potentialMaster;
+        this.potentialCompute = potentialCompute;
     }
 
     public void setTemperature(double newTemperature) {
@@ -41,11 +42,11 @@ public class MeterPressureFasterer extends DataSourceScalar {
      * ideal-gas contribution.
      */
     public double getDataAsScalar() {
-        potentialMaster.computeAll(false);
+        potentialCompute.computeAll(false);
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
         double vol = box.getBoundary().volume();
         return (box.getMoleculeList().size() / vol) * temperature
-                - potentialMaster.getLastVirial() / (vol * dim);
+                - potentialCompute.getLastVirial() / (vol * dim);
     }
 
 }

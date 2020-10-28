@@ -259,6 +259,11 @@ public class Simulation {
         return speciesList.size();
     }
 
+    public final int getAtomTypeCount() {
+        ISpecies species = this.getSpecies(this.getSpeciesCount() - 1);
+        return species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex() + 1;
+    }
+
     /**
      * Returns one of the simulation ISpecies. ISpecies are numbered in
      * the order that they are added, beginning with 0.

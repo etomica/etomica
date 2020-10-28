@@ -4,9 +4,6 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
@@ -14,6 +11,7 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -30,7 +28,7 @@ import java.util.List;
  */
 public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
 
-    protected final PotentialMasterFasterer potentialMasterFasterer;
+    protected final PotentialCompute potentialCompute;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final Vector translationVector;
     private final List<Vector> oldPositions = new ArrayList<>();
@@ -44,13 +42,12 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
 
     /**
      * Constructs the move with default stepSize = 1.0, stepSizeMax = 15.0, fixOverlap = false
-     *
-     * @param random          random number generator used to select the atom and its displacement
-     * @param potentialMaster used to construct MeterPotentialEnergy required by full constructor
+     *  @param random          random number generator used to select the atom and its displacement
+     * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
-    public MCMoveMoleculeFasterer(IRandom random, PotentialMasterFasterer potentialMaster, Box box) {
+    public MCMoveMoleculeFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
         super(null);
-        this.potentialMasterFasterer = potentialMaster;
+        this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();
         MoleculeSourceRandomMolecule source = new MoleculeSourceRandomMolecule();
@@ -67,7 +64,7 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
     public boolean doTrial() {
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
-        uOld = potentialMasterFasterer.computeOneOldMolecule(molecule);
+        uOld = potentialCompute.computeOneOldMolecule(molecule);
         if (uOld > 1e8) {
             throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap");
         }
@@ -81,13 +78,13 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
             atom.getPosition().PE(translationVector);
             Vector shift = box.getBoundary().centralImage(atom.getPosition());
             atom.getPosition().PE(shift);
-            potentialMasterFasterer.updateAtom(atom);
+            potentialCompute.updateAtom(atom);
         });
         return true;
     }//end of doTrial
 
     public double getChi(double temperature) {
-        uNew = potentialMasterFasterer.computeOneMolecule(molecule);
+        uNew = potentialCompute.computeOneMolecule(molecule);
         return Math.exp(-(uNew - uOld) / temperature);
     }
 
@@ -97,19 +94,19 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
 
     public void acceptNotify() {
 //        System.out.println("accepted");
-        potentialMasterFasterer.processAtomU(1);
+        potentialCompute.processAtomU(1);
         // put it back, then compute old contributions to energy
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().E(oldPositions.get(atom.getIndex()));
-            potentialMasterFasterer.updateAtom(atom);
+            potentialCompute.updateAtom(atom);
         });
-        potentialMasterFasterer.computeOneMolecule(molecule);
-        potentialMasterFasterer.processAtomU(-1);
+        potentialCompute.computeOneMolecule(molecule);
+        potentialCompute.processAtomU(-1);
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().PE(translationVector);
             Vector shift = box.getBoundary().centralImage(atom.getPosition());
             atom.getPosition().PE(shift);
-            potentialMasterFasterer.updateAtom(atom);
+            potentialCompute.updateAtom(atom);
         });
     }
 
@@ -117,7 +114,7 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
 //        System.out.println("rejected");
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().E(oldPositions.get(atom.getIndex()));
-            potentialMasterFasterer.updateAtom(atom);
+            potentialCompute.updateAtom(atom);
         });
     }
 

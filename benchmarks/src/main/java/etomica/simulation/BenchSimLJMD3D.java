@@ -8,7 +8,7 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCompute;
 import etomica.tests.*;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -29,10 +29,10 @@ public class BenchSimLJMD3D {
     private int numSteps;
 
     private TestLJMD3D sim;
-    private PotentialMasterFasterer pm;
+    private PotentialCompute pm;
 
     private TestLJMD3DBrute simBrute;
-    private PotentialMasterFasterer pmBrute;
+    private PotentialCompute pmBrute;
 
     private TestLJMD3DSlowerer simSlow;
     private PotentialCalculationForceSum pcSlow;
@@ -53,13 +53,13 @@ public class BenchSimLJMD3D {
         {
             sim = new TestLJMD3D(numMolecules, config);
             sim.integrator.reset();
-            pm = sim.integrator.getPotentialMaster();
+            pm = sim.integrator.getPotentialCompute();
         }
 
         {
             simBrute = new TestLJMD3DBrute(numMolecules, config);
             simBrute.integrator.reset();
-            pmBrute = sim.integrator.getPotentialMaster();
+            pmBrute = sim.integrator.getPotentialCompute();
         }
 
         {
