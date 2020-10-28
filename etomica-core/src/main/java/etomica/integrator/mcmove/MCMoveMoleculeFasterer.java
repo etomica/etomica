@@ -107,9 +107,9 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
         potentialMasterFasterer.processAtomU(-1);
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().PE(translationVector);
-            potentialMasterFasterer.updateAtom(atom);
             Vector shift = box.getBoundary().centralImage(atom.getPosition());
             atom.getPosition().PE(shift);
+            potentialMasterFasterer.updateAtom(atom);
         });
     }
 

@@ -109,17 +109,11 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         return uTot;
     }
 
-    public double computeOne(IAtom iAtom) {
+    protected double computeOneInternal(IAtom iAtom) {
+        int iType = iAtom.getType().getIndex();
         int i = iAtom.getLeafIndex();
         Vector ri = iAtom.getPosition();
-        int iType = iAtom.getType().getIndex();
         IAtomList atoms = box.getLeafList();
-        uAtomsChanged.clear();
-//        uAtomsChanged.ensureCapacity(6000); // TODO
-        uAtomsChanged.add(i);
-        duAtom.clear();
-//        duAtom.ensureCapacity(6000); // TODO
-        duAtom.add(0);
         Potential2Soft[] ip = pairPotentials[iType];
 
         Vector[] boxOffsets = cellManager.getBoxOffsets();
@@ -169,12 +163,6 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
             }
         }
-
-        if (!isPureAtoms && !isOnlyRigidMolecules) {
-            u1 += computeOneBonded(iAtom);
-        }
-        u1 += this.computeOneTruncationCorrection(i);
-//        System.out.println(uAtomsChanged.size());
         return u1;
     }
 }
