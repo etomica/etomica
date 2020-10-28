@@ -71,7 +71,7 @@ public class BenchSimLJMC3D {
         }
 
         {
-            sim = new TestLJMC3D(numMolecules, numSteps, config);
+            sim = new TestLJMC3D(numMolecules, config);
 
             MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
             pMeter.setTemperature(sim.integrator.getTemperature());

@@ -15,12 +15,13 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.meter.MeterPressureFasterer;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.potential.*;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMasterFasterer;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -29,7 +30,6 @@ import etomica.util.ParseArgs;
 
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
- * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
 public class TestLJMC3DBrute extends Simulation {
 
@@ -49,7 +49,7 @@ public class TestLJMC3DBrute extends Simulation {
         double sigma = 1.0;
         box = this.makeBox();
         potentialMaster = new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        integrator = new IntegratorMCFasterer(potentialMaster, random, 1.1, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.275 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
@@ -79,48 +79,70 @@ public class TestLJMC3DBrute extends Simulation {
 
         TestLJMC3DBrute sim = new TestLJMC3DBrute(numAtoms, config);
 
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
+
+        int bs = params.numSteps / (100 * 2 * numAtoms);
         MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
         pMeter.setTemperature(sim.integrator.getTemperature());
-        AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(10);
+        AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pPump);
+
+        bs = params.numSteps / (100 * 10);
         MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
+        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
-        energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(energyPump);
 
         long t1 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / params.numAtoms));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         long t2 = System.nanoTime();
         System.out.println("time: " + (t2 - t1) / 1e9);
 
         System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
-        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-        avgPE /= numAtoms;
-        System.out.println("Z=" + Z);
-        System.out.println("PE/epsilon=" + avgPE);
+        double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
+        double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
+        double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
+        System.out.println("P " + avgP + " " + errP + " " + corP);
+
+        double avgPE = energyAccumulator.getData(energyAccumulator.AVERAGE).getValue(0) / numAtoms;
+        double errPE = energyAccumulator.getData(energyAccumulator.ERROR).getValue(0) / numAtoms;
+        double corPE = energyAccumulator.getData(energyAccumulator.BLOCK_CORRELATION).getValue(0);
+        System.out.println("PE " + avgPE + " " + errPE + " " + corPE);
+
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
+        double Cv = energyAccumulator.getData(energyAccumulator.STANDARD_DEVIATION).getValue(0);
         Cv /= temp;
         Cv *= Cv / numAtoms;
-        System.out.println("Cv/k=" + Cv);
+        System.out.println("Cv " + Cv);
 
-        if (Double.isNaN(Z) || Math.abs(Z + 0.25 - 0.4) > 0.2) {
+        // expected values based on 10^8 steps
+        // stdev based on 50 x 10^6 steps with 4000 atoms (a bit larger than for 500)
+        // 4 sigma should fail 1 in 16,000 runs
+
+        double expectedP = 0.0826 - 3.71 / numAtoms;
+        double stdevP = 0.015;
+        if (Double.isNaN(avgP) || Math.abs(avgP - expectedP) / stdevP > 4) {
             System.exit(1);
         }
-        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56 - 0.2) > 0.04) {
-            System.exit(1);
+
+        double expectedPE = -4.48971 - 0.331 / numAtoms;
+        double stdevPE = 0.004;
+        if (Double.isNaN(avgPE) || Math.abs(avgPE - expectedPE) / stdevPE > 4) {
+            System.exit(2);
         }
-        if (Double.isNaN(Cv) || Math.abs(Cv - 0.61) > 0.45) {  // actual average seems to be 0.51
-            System.exit(1);
+
+        double expectedCv = 0.597;
+        double stdevCv = 0.1; // stdev 500 atoms is ~2x smaller
+        // at 4sigma, this isn't too useful expect that it's not super-big
+        if (Double.isNaN(Cv) || Math.abs(Cv - expectedCv) / stdevCv > 4) {
+            System.exit(3);
         }
     }
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 400000;
+        public int numSteps = 1000000;
     }
 }
