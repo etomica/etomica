@@ -113,19 +113,19 @@ public class TestLJMD3DSlowerer extends Simulation {
         // stdev based on 50 x 10^6 steps with 4000 atoms (a bit larger than for 500)
         // 4 sigma should fail 1 in 16,000 runs
 
-        double expectedP = 0.466751 - 9.74 / numAtoms;
+        double expectedP = 0.466751 + 9.74 / numAtoms;
         double stdevP = 0.005;
         if (Double.isNaN(avgP) || Math.abs(avgP - expectedP) / stdevP > 4) {
             System.exit(1);
         }
 
-        double expectedPE = -3.81607 - 4.40 / numAtoms;
+        double expectedPE = -3.81607 + 4.40 / numAtoms;
         double stdevPE = 0.0012;
         if (Double.isNaN(avgPE) || Math.abs(avgPE - expectedPE) / stdevPE > 4) {
             System.exit(2);
         }
 
-        double expectedCv = 0.3946 - 7.724 / numAtoms;
+        double expectedCv = 0.3946 + 7.724 / numAtoms;
         double stdevCv = 0.038; // stdev 500 atoms is ~2x smaller
         // at 4sigma, this isn't too useful expect that it's not super-big
         if (Double.isNaN(Cv) || Math.abs(Cv - expectedCv) / stdevCv > 4) {
