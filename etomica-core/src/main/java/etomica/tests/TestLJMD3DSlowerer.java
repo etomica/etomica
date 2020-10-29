@@ -43,7 +43,7 @@ public class TestLJMD3DSlowerer extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 4.5, space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.01, 1.1, box);
@@ -52,7 +52,7 @@ public class TestLJMD3DSlowerer extends Simulation {
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
         potential = new P2LennardJones(space, sigma, 1.0);
-        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 4);
+        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 3);
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
