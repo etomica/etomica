@@ -22,6 +22,7 @@ import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
@@ -71,7 +72,9 @@ public class TestLJMDDimerFast extends Simulation {
         PotentialMasterFasterer potentialMaster = nbrListing ?
                 new PotentialMasterListFasterer(this, box, 2, 4, bi)
                 : new PotentialMasterFasterer(this, box, bi);
-        integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
+
+        PotentialCompute compute = PotentialCompute.aggregate(potentialMaster, pmBonding);
+        integrator = new IntegratorVelocityVerletFasterer(this, compute, box);
         integrator.setTimeStep(0.005);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
@@ -114,9 +117,9 @@ public class TestLJMDDimerFast extends Simulation {
 //        sim.getController().actionPerformed();
 //        long t1 = System.nanoTime();
 //        System.out.println((t1 - t0) / 1e6);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
-        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);

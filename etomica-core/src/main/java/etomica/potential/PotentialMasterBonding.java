@@ -15,7 +15,7 @@ import java.util.*;
 public class PotentialMasterBonding implements PotentialCompute {
 
     private final List<ISpecies> speciesList;
-    protected Vector[] forces;
+    protected Vector[] forces = new Vector[0];
     protected boolean isOnlyRigidMolecules = true;
     protected int[][][] bondedAtoms;
     protected Map<Potential2Soft, List<int[]>>[] bondedPairs;
