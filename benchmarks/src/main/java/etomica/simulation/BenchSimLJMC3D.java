@@ -9,10 +9,7 @@ import etomica.config.ConfigurationResourceFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPressureFasterer;
-import etomica.tests.TestLJMC3D;
-import etomica.tests.TestLJMC3DBrute;
-import etomica.tests.TestLJMC3DSlowBrute;
-import etomica.tests.TestLJMC3DSlowerer;
+import etomica.tests.*;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -30,6 +27,7 @@ public class BenchSimLJMC3D {
     private TestLJMC3DSlowerer simSlowerer;
     private TestLJMC3DSlowBrute simSlowBrute;
     private TestLJMC3D sim;
+    private TestLJMC3DNew simNew;
     private TestLJMC3DBrute simBrute;
 
     @Setup(Level.Iteration)
@@ -79,6 +77,14 @@ public class BenchSimLJMC3D {
             sim.integrator.getEventManager().addListener(pumpListener);
             sim.integrator.reset();
         }
+        {
+            simNew = new TestLJMC3DNew(numMolecules, config);
+            MeterPressureFasterer pMeter = new MeterPressureFasterer(simNew.box, simNew.integrator.getPotentialCompute());
+            pMeter.setTemperature(simNew.integrator.getTemperature());
+            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+            simNew.integrator.getEventManager().addListener(pumpListener);
+            simNew.integrator.reset();
+        }
 
     }
 
@@ -100,7 +106,7 @@ public class BenchSimLJMC3D {
         simSlowerer.integrator.doStep();
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
@@ -117,6 +123,16 @@ public class BenchSimLJMC3D {
     public void integratorStep() {
         sim.integrator.doStep();
     }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 10, iterations = 3)
+    public void integratorStepNew() {
+        simNew.integrator.doStep();
+    }
+
 
 }
 

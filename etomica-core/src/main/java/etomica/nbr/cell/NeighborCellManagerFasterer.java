@@ -6,12 +6,23 @@ package etomica.nbr.cell;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.potential.BondingInfo;
+import etomica.potential.Potential2Soft;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-public class NeighborCellManagerFasterer {
+public class NeighborCellManagerFasterer implements NeighborManager {
     protected final Box box;
+    private final boolean isPureAtoms;
+    private final BondingInfo bondingInfo;
     protected int cellRange;
     protected Vector[] boxOffsets;
     protected final Vector boxHalf;
@@ -23,6 +34,7 @@ public class NeighborCellManagerFasterer {
     protected Vector[] rawBoxOffsets = new Vector[0];
     protected int[] cellNextAtom;
     protected int[] atomCell;
+    public int[] allCellOffsets;
 
     public NeighborCellManagerFasterer(Simulation sim, Box box, int cellRange, BondingInfo bondingInfo) {
         this.box = box;
@@ -86,6 +98,11 @@ public class NeighborCellManagerFasterer {
         while (rv < cellRange) rv += nc - 2 * cellRange;
         while (nc - rv <= cellRange) rv -= nc - 2 * cellRange;
         return rv;
+    }
+
+    @Override
+    public NeighborIterator makeNeighborIterator() {
+        return new NeighborIteratorCellFasterer(this, bondingInfo, isPureAtoms, box);
     }
 
     public void init() {
@@ -199,6 +216,12 @@ public class NeighborCellManagerFasterer {
                 }
             }
         }
+
+        this.allCellOffsets = Stream.of(
+                IntStream.of(0),
+                IntStream.of(cellOffsets),
+                IntStream.of(cellOffsets).map(offset -> offset * -1)
+        ).flatMapToInt(s -> s).toArray();
 
         assignCellAll();
     }

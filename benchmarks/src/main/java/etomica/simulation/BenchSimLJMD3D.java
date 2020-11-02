@@ -31,6 +31,8 @@ public class BenchSimLJMD3D {
     private TestLJMD3D sim;
     private PotentialCompute pm;
 
+    private TestLJMD3DNew simNew;
+
     private TestLJMD3DBrute simBrute;
     private PotentialCompute pmBrute;
 
@@ -54,6 +56,11 @@ public class BenchSimLJMD3D {
             sim = new TestLJMD3D(numMolecules, config);
             sim.integrator.reset();
             pm = sim.integrator.getPotentialCompute();
+        }
+
+        {
+            simNew = new TestLJMD3DNew(numMolecules, config);
+            simNew.integrator.reset();
         }
 
         {
@@ -93,12 +100,22 @@ public class BenchSimLJMD3D {
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 3, iterations = 5)
+    public void integratorStepNew() {
+        simNew.integrator.doStep();
+//        pm.computeAll(true);
+    }
+
+//    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
     public void integratorStepBrute() {
         simBrute.integrator.doStep();
 //        pmBrute.computeAll(true);
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
@@ -108,7 +125,7 @@ public class BenchSimLJMD3D {
 //        pmSlow.calculate(simSlow.box, null, pcSlow);
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
