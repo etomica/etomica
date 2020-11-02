@@ -1,27 +1,17 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.virial;
 
-import java.math.BigDecimal;
-
-/**
- * Cluster class using Whealtey's recursion with BigDecimal to handle mixtures.
- * 
- * @author Andrew Schultz
- */
-public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
+public class ClusterWheatleySoftDerivativesMix extends ClusterWheatleySoftDerivatives {
 
     protected final MayerFunction[][] mixF;
     protected final int[] nTypes;
     protected final MayerFunction[][] fMap;
-    
-    public ClusterWheatleySoftBDMix(int nPoints, int[] nTypes, MayerFunction[][] f, int precision) {
-        super(nPoints, null, precision);
-        this.nTypes = nTypes;
+
+    public ClusterWheatleySoftDerivativesMix(int nPoints, int[] nTypes, MayerFunction[][] f, double tol, int nDer){
+        super(nPoints,null,tol,nDer);
+        this.nTypes=nTypes;
         mixF = f;
         fMap = new MayerFunction[nPoints][nPoints];
+        if(tol!=0){setTolerance(tol);}
         int iType = 0, jType = 0;
         int iSum = nTypes[0], jSum = 0;
         for (int i=0; i<nPoints; i++) {
@@ -39,12 +29,25 @@ public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
                 fMap[i][j] = f[iType][jType];
             }
         }
-                
     }
-    
+
+    public void setTolerance(double newTol) {
+        if(nTypes==null)return;
+        if(newTol!=0){
+            clusterBD = new ClusterWheatleySoftDerivativesMixBD(n, nTypes, mixF, -3*(int)Math.log10(newTol),nDer);
+            clusterBD.setDoCaching(false);
+            clusterBD.setPrecisionLimit(300);
+        }
+        else{
+            clusterBD = null;
+        }
+        tol = newTol;
+    }
+
     public ClusterAbstract makeCopy() {
-        ClusterWheatleySoftMix c = new ClusterWheatleySoftMix(n, nTypes, mixF, tol);
+        ClusterWheatleySoftDerivativesMix c = new ClusterWheatleySoftDerivativesMix(n, nTypes, mixF, tol,nDer);
         c.setTemperature(1/beta);
+        c.setDoCaching(doCaching);
         return c;
     }
 
@@ -61,10 +64,12 @@ public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
                 double ff = fMap[i][j].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                if (debug && (Double.isNaN(ff) || Double.isInfinite(ff))) {
+                    System.err.println("oops in updateF "+i+" "+j+" "+ff);
+                }
 //                if (Math.abs(ff) < 1e-14) ff = 0;
-                fQ[(1<<i)|(1<<j)] = new BigDecimal(ff).add(BDONE, mc);
+                fQ[(1<<i)|(1<<j)][0] = ff+1;
             }
         }
     }
-
 }
