@@ -86,12 +86,42 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         int iCell = atomCell[iAtom];
         double sum = 0;
 
+//        for (int cellOffset : allCellOffsets) {
+//            int jCell = iCell + cellOffset;
+//            Vector jbo = boxOffsets[jCell];
+//            jCell = wrapMap[jCell];
+//            for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+//                if (j == iAtom) { continue; }
+//                IAtom atom2 = atoms.get(j);
+//                if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+//                    continue;
+//                }
+//
+//                Vector rij = space.makeVector();
+//                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+//                rij.PE(jbo);
+//                sum += consumer.accept(atom1, atom2, rij);
+//            }
+//        }
+//        return sum;
+
+
+        for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
+            if (j == iAtom) { continue; }
+            IAtom atom2 = atoms.get(j);
+            if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+                continue;
+            }
+            Vector rij = space.makeVector();
+            rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+            sum += consumer.accept(atom1, atom2, rij);
+        }
+
         for (int cellOffset : allCellOffsets) {
             int jCell = iCell + cellOffset;
             Vector jbo = boxOffsets[jCell];
             jCell = wrapMap[jCell];
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
-                if (j == iAtom) { continue; }
                 IAtom atom2 = atoms.get(j);
                 if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
                     continue;
@@ -102,6 +132,21 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
                 rij.PE(jbo);
                 sum += consumer.accept(atom1, atom2, rij);
             }
+
+//            jCell = iCell - cellOffset;
+//            jbo = boxOffsets[jCell];
+//            jCell = wrapMap[jCell];
+//            for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+//                IAtom atom2 = atoms.get(j);
+//                if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+//                    continue;
+//                }
+//
+//                Vector rij = space.makeVector();
+//                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+//                rij.PE(jbo);
+//                sum += consumer.accept(atom1, atom2, rij);
+//            }
         }
         return sum;
     }
@@ -119,33 +164,22 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         IAtom atom1 = atoms.get(iAtom);
         int iCell = atomCell[iAtom];
 
-//        IntStream cell0 = IntStream.of(iCell);
-//        IntStream offsetsPlus = IntStream.of(cellOffsets).map(cellOffset -> iCell + cellOffset);
-//        IntStream offsetsMinus = IntStream.of(cellOffsets).map(cellOffset -> iCell - cellOffset);
-//        IntStream everything = IntStream.concat(cell0, IntStream.concat(offsetsPlus, offsetsMinus));
-//
-//        everything.forEach(cell -> {
-//            Vector jbo = boxOffsets[cell];
-//            int jCell = wrapMap[cell];
-//            for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
-//                if (j == iAtom) { continue; }
-//                IAtom atom2 = atoms.get(j);
-//                if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
-//                    continue;
-//                }
-//                Vector rij = space.makeVector();
-//                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-//                rij.PE(jbo);
-//                consumer.accept(atom2, rij);
-//            }
-//        });
+        for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
+            if (j == iAtom) { continue; }
+            IAtom atom2 = atoms.get(j);
+            if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+                continue;
+            }
+            Vector rij = space.makeVector();
+            rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+            consumer.accept(atom2, rij);
+        }
 
         for (int cellOffset : allCellOffsets) {
             int jCell = iCell + cellOffset;
             Vector jbo = boxOffsets[jCell];
             jCell = wrapMap[jCell];
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
-                if (j == iAtom) { continue; }
                 IAtom atom2 = atoms.get(j);
                 if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
                     continue;
@@ -157,35 +191,6 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
                 consumer.accept(atom2, rij);
             }
         }
-
-//        for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
-//            if (j == iAtom) { continue; }
-//            IAtom atom2 = atoms.get(j);
-//            if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
-//                continue;
-//            }
-//            Vector rij = space.makeVector();
-//            rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-//            consumer.accept(atom2, rij);
-//        }
-//
-//        for (int cellOffset : cellOffsets) {
-//            for (int jCell : new int[]{iCell + cellOffset, iCell - cellOffset}) {
-//                Vector jbo = boxOffsets[jCell];
-//                jCell = wrapMap[jCell];
-//                for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
-//                    IAtom atom2 = atoms.get(j);
-//                    if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
-//                        continue;
-//                    }
-//
-//                    Vector rij = space.makeVector();
-//                    rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-//                    rij.PE(jbo);
-//                    consumer.accept(atom2, rij);
-//                }
-//            }
-//        }
     }
 
 }
