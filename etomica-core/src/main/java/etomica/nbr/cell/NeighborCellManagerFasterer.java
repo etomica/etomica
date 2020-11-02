@@ -24,13 +24,15 @@ public class NeighborCellManagerFasterer {
     protected int[] cellNextAtom;
     protected int[] atomCell;
 
-    public NeighborCellManagerFasterer(Box box, int cellRange) {
+    public NeighborCellManagerFasterer(Simulation sim, Box box, int cellRange, BondingInfo bondingInfo) {
         this.box = box;
         this.cellRange = cellRange;
         boxHalf = box.getSpace().makeVector();
         numCells = new int[3];
         jump = new int[3];
         cellNextAtom = atomCell = cellOffsets = wrapMap = cellLastAtom = new int[0];
+        this.isPureAtoms = sim.getSpeciesList().stream().allMatch(s -> s.getLeafAtomCount() == 1);
+        this.bondingInfo = bondingInfo;
     }
 
     public int cellForCoord(Vector r) {
@@ -51,6 +53,26 @@ public class NeighborCellManagerFasterer {
 
     public void setPotentialRange(double newRange) {
         range = newRange;
+    }
+
+    @Override
+    public IntegratorListener makeIntegratorListener() {
+        return new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+                init();
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+
+            }
+        };
     }
 
     private int iCell(int ax, int ay, int az) {

@@ -2,6 +2,8 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.compute.PotentialCompute;
@@ -180,6 +182,26 @@ public class PotentialMasterBonding implements PotentialCompute {
     @Override
     public void processAtomU(double fac) {
 
+    }
+
+    @Override
+    public IntegratorListener makeIntegratorListener() {
+        return new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+
+            }
+        };
     }
 
     public double computeOneOld(IAtom iAtom) {

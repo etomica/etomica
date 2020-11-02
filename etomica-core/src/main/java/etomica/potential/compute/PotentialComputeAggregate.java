@@ -1,12 +1,15 @@
 package etomica.potential.compute;
 
 import etomica.atom.IAtom;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PotentialComputeAggregate implements PotentialCompute {
     private final List<PotentialCompute> potentialComputes;
@@ -96,5 +99,27 @@ public class PotentialComputeAggregate implements PotentialCompute {
         for (PotentialCompute compute : this.potentialComputes) {
             compute.processAtomU(fac);
         }
+    }
+
+    @Override
+    public IntegratorListener makeIntegratorListener() {
+        List<IntegratorListener> listeners = this.potentialComputes.stream()
+                .map(PotentialCompute::makeIntegratorListener).collect(Collectors.toList());
+        return new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+                listeners.forEach(l -> l.integratorInitialized(e));
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+                listeners.forEach(l -> l.integratorStepStarted(e));
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+                listeners.forEach(l -> l.integratorStepFinished(e));
+            }
+        };
     }
 }

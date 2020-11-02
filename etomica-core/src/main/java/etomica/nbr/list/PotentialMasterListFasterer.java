@@ -22,7 +22,8 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
 
     public PotentialMasterListFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         super(sim, box, bondingInfo);
-        this.nbrManager = new NeighborListManagerFasterer(sim, box, cellRange, nbrRange, pairPotentials, bondingInfo);
+        this.nbrManager = new NeighborListManagerFasterer(sim, box, cellRange, nbrRange, bondingInfo);
+        this.nbrManager.setPairPotentials(this.pairPotentials);
     }
 
     public void init() {
@@ -75,6 +76,11 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         virialTot += duCorrection[0];
 
         return uTot;
+    }
+
+    @Override
+    public IntegratorListener makeIntegratorListener() {
+        return this;
     }
 
     @Override

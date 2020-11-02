@@ -1,6 +1,7 @@
 package etomica.potential.compute;
 
 import etomica.atom.IAtom;
+import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 
@@ -26,6 +27,8 @@ public interface PotentialCompute {
     double computeOneMolecule(IMolecule molecule);
 
     void processAtomU(double fac);
+
+    IntegratorListener makeIntegratorListener();
 
     static PotentialCompute aggregate(PotentialCompute... computes) {
         return new PotentialComputeAggregate(computes);

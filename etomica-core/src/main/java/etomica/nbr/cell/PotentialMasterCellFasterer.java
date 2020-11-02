@@ -20,7 +20,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
 
     public PotentialMasterCellFasterer(Simulation sim, Box box, int cellRange, BondingInfo bondingInfo) {
         super(sim, box, bondingInfo);
-        cellManager = new NeighborCellManagerFasterer(box, cellRange);
+        cellManager = new NeighborCellManagerFasterer(sim, box, cellRange, bondingInfo);
         this.cellRange = cellRange;
     }
 

@@ -57,8 +57,6 @@ public class TestLJMD3D extends Simulation {
 
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
-        integrator.getEventManager().addListener(potentialMaster);
-
         config.initializeCoordinates(box);
     }
 

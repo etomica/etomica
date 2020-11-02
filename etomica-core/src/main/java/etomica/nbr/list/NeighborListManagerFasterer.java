@@ -3,23 +3,28 @@ package etomica.nbr.list;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.NeighborCellManagerFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.Potential2Soft;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
 
-public class NeighborListManagerFasterer {
+public class NeighborListManagerFasterer implements NeighborManager {
     private final NeighborCellManagerFasterer cellManager;
-    private final Potential2Soft[][] pairPotentials;
+    private Potential2Soft[][] pairPotentials;
     private final Box box;
     private final BondingInfo bondingInfo;
     private final boolean isPureAtoms;
     private final double[] maxR2, maxR2Unsafe;
     private final int numAtomTypes;
     private final Space space;
+    private final NeighborIteratorList neighborIterator;
     public int[] numAtomNbrsUp, numAtomNbrsDn;
     // consider 1D array since Java sucks
     public int[][] nbrs;
@@ -30,13 +35,12 @@ public class NeighborListManagerFasterer {
     private int maxNab;
     private Vector[] oldAtomPositions;
 
-    public NeighborListManagerFasterer(Simulation sim, Box box, int cellRange, double nbrRange, Potential2Soft[][] pairPotentials, BondingInfo bondingInfo) {
+    public NeighborListManagerFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         this.box = box;
         this.space = box.getSpace();
         this.bondingInfo = bondingInfo;
-        this.cellManager = new NeighborCellManagerFasterer(box, cellRange);
+        this.cellManager = new NeighborCellManagerFasterer(sim, box, cellRange, bondingInfo);
         this.setNeighborRange(nbrRange);
-        this.pairPotentials = pairPotentials;
         numAtomTypes = sim.getAtomTypeCount();
         maxR2 = new double[numAtomTypes];
         maxR2Unsafe = new double[numAtomTypes];
@@ -45,6 +49,12 @@ public class NeighborListManagerFasterer {
         nbrs = new int[0][0];
         numAtomNbrsUp = new int[0];
         isPureAtoms = sim.getSpeciesList().stream().allMatch(s -> s.getLeafAtomCount() == 1);
+        this.neighborIterator = new NeighborIteratorList(this, box);
+    }
+
+    @Override
+    public void setPairPotentials(Potential2Soft[][] potentials) {
+        this.pairPotentials = potentials;
     }
 
     public double getNeighborRange() {
@@ -58,6 +68,11 @@ public class NeighborListManagerFasterer {
 
     public void setDoDownNeighbors(boolean doDown) {
         this.onlyUpNbrs = !doDown;
+    }
+
+    @Override
+    public NeighborIterator makeNeighborIterator() {
+        return this.neighborIterator;
     }
 
     public void init() {
@@ -76,6 +91,31 @@ public class NeighborListManagerFasterer {
             }
         }
         reset();
+    }
+
+    @Override
+    public IntegratorListener makeIntegratorListener() {
+        return new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+                init();
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+                checkUpdateNbrs();
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+
+            }
+        };
+    }
+
+    @Override
+    public void updateAtom(IAtom atom) {
+        this.cellManager.updateAtom(atom);
     }
 
     public void reset() {
