@@ -25,6 +25,10 @@ public class Complex {
         y = v;
     }
 
+    public Complex() {
+        this(0, 0);
+    }
+
     /**
      * Real part of this Complex number, the x-coordinate in rectangular coordinates.
      *
