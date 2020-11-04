@@ -375,7 +375,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
         this.nWaveVectors = ik;
         uTot += fourierSum + fourierSum6;
-        virialTot += virialSum - virialSum6;
+        virialTot += virialSum + virialSum6;
 
         return uTot;
     }
