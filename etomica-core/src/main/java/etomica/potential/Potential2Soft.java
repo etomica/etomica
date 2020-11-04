@@ -29,8 +29,8 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical {
     public double du(double r2);
 
     default void udu(double r2, double[] u, double[] du) {
-        u[0] = u(r2);
-        du[0] = du(r2);
+        u[0] += u(r2);
+        du[0] += du(r2);
     }
 
     default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {

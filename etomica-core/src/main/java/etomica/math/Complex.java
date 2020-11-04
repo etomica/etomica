@@ -11,8 +11,10 @@ package etomica.math;
  * @author shu
  */
 public class Complex {
+    public final static Complex ZERO = new Complex();
 
-    private double x, y;
+    private final double x;
+    private final double y;
 
     /**
      * Constructs the complex number z = u + i*v
@@ -109,6 +111,10 @@ public class Complex {
      */
     public Complex times(Complex w) {
         return new Complex(x * w.real() - y * w.imaginary(), x * w.imaginary() + y * w.real());
+    }
+
+    public Complex times(double a) {
+        return new Complex(x * a, y * a);
     }
 
     /**
