@@ -9,13 +9,17 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
 import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.meter.MeterPressureFromIntegratorFasterer;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -35,6 +39,7 @@ public class TestLJMD3DEwald extends Simulation {
     public IntegratorVelocityVerletFasterer integrator;
     public SpeciesGeneral species;
     public Box box;
+    private final PotentialComputeEwaldFourier ewaldFourier;
 
     public TestLJMD3DEwald(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
@@ -43,25 +48,28 @@ public class TestLJMD3DEwald extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        PotentialMasterListFasterer pair = new PotentialMasterListFasterer(this, box, 2, 4, BondingInfo.noBonding());
-        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(this, box, BondingInfo.noBonding());
-        PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair, ewaldFourier);
-//        PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair);
-        integrator = new IntegratorVelocityVerletFasterer(aggregate, random, 0.01, 1.1, box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
-        double alpha6 = 1;
-        P2Ewald6Real ewaldReal = new P2Ewald6Real(1, 1, 1, 1, 1);
+
+        ewaldFourier = new PotentialComputeEwaldFourier(this, box, BondingInfo.noBonding());
+        PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 35.0 / 165);
+        System.out.println(ewaldParams);
+        PotentialMasterListFasterer pair = new PotentialMasterListFasterer(this, box, 2, ewaldParams.rCut + 1, BondingInfo.noBonding());
+        PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair, ewaldFourier);
+//        PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair);
+        integrator = new IntegratorVelocityVerletFasterer(aggregate, random, 0.01, 1.1, box);
+        double alpha6 = ewaldParams.alpha;
+        P2Ewald6Real ewaldReal = new P2Ewald6Real(1, 1, 1, 1, alpha6);
         P2SoftSphere pCore12 = new P2SoftSphere(space, 1, 4, 12);
-        P2SoftSphericalTruncatedSum2 trunc = new P2SoftSphericalTruncatedSum2(space, ewaldReal, pCore12, 5);
+        P2SoftSphericalTruncatedSum2 trunc = new P2SoftSphericalTruncatedSum2(space, ewaldReal, pCore12, ewaldParams.rCut);
         AtomType leafType = species.getLeafType();
 
         pair.setPairPotential(leafType, leafType, trunc);
         ewaldFourier.setAlpha6(alpha6);
-        ewaldFourier.setkCut(1.5);
-        ewaldFourier.setAlpha(0);
+        ewaldFourier.setkCut(ewaldParams.kCut);
+//        ewaldFourier.setkCut(1.5);
         ewaldFourier.setR6Coefficient(leafType, 1, 1);
 
         config.initializeCoordinates(box);
@@ -72,6 +80,7 @@ public class TestLJMD3DEwald extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
+//        config = new ConfigurationLattice(new LatticeCubicFcc(Space3D.getInstance()), Space3D.getInstance());
 
         TestLJMD3DEwald sim = new TestLJMD3DEwald(numAtoms, config);
 
@@ -82,6 +91,8 @@ public class TestLJMD3DEwald extends Simulation {
 
         int steps = params.numSteps / params.numAtoms;
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
+        System.out.println("Done equilibrating");
+
 
         int bs = steps / (4 * 100);
         MeterPressureFromIntegratorFasterer pMeter = new MeterPressureFromIntegratorFasterer(sim.integrator);
@@ -143,7 +154,7 @@ public class TestLJMD3DEwald extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 5000000;
+        public int numSteps = 1000000;
     }
 
 }

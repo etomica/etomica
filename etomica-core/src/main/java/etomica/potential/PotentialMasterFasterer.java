@@ -62,6 +62,12 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         isPureAtoms = speciesList.stream().allMatch(s -> s.getLeafAtomCount() == 1);
 
         this.atomCountByType = new int[lastTypeIndex + 1];
+        for (ISpecies s : sim.getSpeciesList()) {
+            int nMols = box.getNMolecules(s);
+            for (AtomType type : s.getAtomTypes()) {
+                atomCountByType[type.getIndex()] += nMols;
+            }
+        }
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {

@@ -21,6 +21,7 @@ import etomica.util.collections.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 import static etomica.math.SpecialFunctions.erfc;
@@ -124,6 +125,12 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
         int numAtomTypes = lastTypeIndex + 1;
         this.atomCountByType = new int[numAtomTypes];
+        for (ISpecies s : sim.getSpeciesList()) {
+            int nMols = box.getNMolecules(s);
+            for (AtomType type : s.getAtomTypes()) {
+                atomCountByType[type.getIndex()] += nMols;
+            }
+        }
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {
@@ -145,6 +152,29 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         this.b6 = new double[numAtomTypes][7];
 
         this.kBasis = space.makeVector();
+    }
+
+    public static class EwaldParams {
+        public double alpha;
+        public double rCut;
+        public double kCut;
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", EwaldParams.class.getSimpleName() + "[", "]") .add("alpha=" + alpha) .add("rCut=" + rCut) .add("kCut=" + kCut) .toString();
+        }
+    }
+
+    public EwaldParams getOptimalParams(double s, double tauRatio) {
+        int numAtoms = box.getLeafList().size();
+        double vol = box.getBoundary().volume();
+        // based on simple benchmarks for etomica-cpp
+        if (tauRatio == 0) tauRatio = 9;
+        EwaldParams params = new EwaldParams();
+        params.alpha = Math.pow(tauRatio * Math.pow(PI, 3) * numAtoms / (vol*vol), 1.0/6.0);
+        params.rCut = s/params.alpha;
+        params.kCut = 2 * params.alpha*s;
+        return params;
     }
 
     public void setCharge(AtomType type, double charge) {
