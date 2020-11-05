@@ -14,6 +14,7 @@ import etomica.potential.BondingInfo;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
@@ -73,6 +74,10 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     private double[] fExp; // double for each kVector
     private double[] f6Exp; // double for each kVector
     private int nWaveVectors;
+    private final IntArrayList ik = new IntArrayList();
+    private final DoubleArrayList kxyz2 = new DoubleArrayList();
+    private final Vector3D lastBoxSize = new Vector3D();
+    private double lastKCut = Double.NaN;
 
 
     private void setArraySizes(int numAtoms, int numKVectors, int[] dimKVectors) {
@@ -224,6 +229,44 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     }
 
+    private void computeKVectors(int kxMax) {
+        Vector bs = box.getBoundary().getBoxSize();
+        if (lastBoxSize.equals(bs) && lastKCut == kCut) {
+            return;
+        }
+        lastBoxSize.E(bs);
+        lastKCut = kCut;
+        this.ik.clear();
+        this.kxyz2.clear();
+        double kCut2 = kCut * kCut;
+        kBasis.E(2 * PI);
+        kBasis.DE(bs);
+
+        for (int ikx=0; ikx<=kxMax; ikx++) {
+            double kx = ikx * kBasis.getX(0);
+            double kx2 = kx * kx;
+            double kyCut2 = kCut2 - kx2;
+            boolean xpositive = ikx > 0;
+            int kyMax = (int) (0.5 * bs.getX(1) * Math.sqrt(kyCut2) / PI);
+            for (int iky = -kyMax; iky <= kyMax; iky++) {
+                if (!xpositive && iky < 0) continue;
+                boolean ypositive = iky > 0;
+                double ky = iky * kBasis.getX(1);
+                double kxy2 = kx2 + ky * ky;
+                int kzMax = (int) (0.5 * bs.getX(2) * Math.sqrt(kCut2 - kxy2) / PI);
+                for (int ikz = -kzMax; ikz <= kzMax; ikz++) {
+                    if (!xpositive && !ypositive && ikz <= 0) continue;
+                    double kz = ikz * kBasis.getX(2);
+                    double kxyz2 = kxy2 + kz * kz;
+                    ik.add(ikx);
+                    ik.add(iky);
+                    ik.add(ikz);
+                    this.kxyz2.add(kxyz2);
+                }
+            }
+        }
+    }
+
     @Override
     public double computeAll(boolean doForces) {
         int numAtoms = box.getLeafList().size();
@@ -271,6 +314,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         int nkTot = ((2*kxMax + 1) * nk[1] * nk[2] - 1) / 2;
 
         this.setArraySizes(numAtoms, nkTot, nk);
+        this.computeKVectors(kxMax);
         Arrays.stream(forces).forEach(v -> v.E(0));
 
         // We want exp(i dot(k,r)) for every k and every r
@@ -313,97 +357,81 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         double fourierSum6 = 0;
         double virialSum = 0;
         double virialSum6 = 0;
-        int ik = 0;
-        kBasis.E(2 * PI);
-        kBasis.DE(bs);
 
-        for (int ikx=0; ikx<=kxMax; ikx++) {
-            double kx = ikx*kBasis.getX(0);
-            double kx2 = kx*kx;
-            double kyCut2 = kCut2 - kx2;
-            boolean xpositive = ikx>0;
-            int kyMax = (int)(0.5*bs.getX(1)*Math.sqrt(kyCut2)/PI);
-            for (int iky=-kyMax; iky<=kyMax; iky++) {
-                if (!xpositive && iky<0) continue;
-                boolean ypositive = iky>0;
-                double ky = iky*kBasis.getX(1);
-                double kxy2 = kx2 + ky*ky;
-                int kzMax = (int)(0.5*bs.getX(2)*Math.sqrt(kCut2 - kxy2)/PI);
-                for (int ikz=-kzMax; ikz<=kzMax; ikz++) {
-                    if (!xpositive && !ypositive && ikz<=0) continue;
-                    double kz = ikz*kBasis.getX(2);
-                    double kxyz2 = kxy2 + kz*kz;
-                    double expthing = Math.exp(-0.25*kxyz2/(alpha*alpha));
-                    sFac[ik] = Complex.ZERO;
-                    for (int kB=0; kB<=6; kB++) sFacB[kB][ik] = Complex.ZERO;
-                    // we could skip this as long as box-length, kCut don't change between calls
-                    fExp[ik] = coeff*expthing/kxyz2;
-                    double hdf6dh = 0;
+        for (int ik = 0; ik < this.kxyz2.size(); ik++) {
+            double kxyz2 = this.kxyz2.getDouble(ik);
+            int ikx = this.ik.getInt(ik * 3);
+            int iky = this.ik.getInt(ik * 3 + 1);
+            int ikz = this.ik.getInt(ik * 3 + 2);
+            double expthing = Math.exp(-0.25*kxyz2/(alpha*alpha));
+            sFac[ik] = Complex.ZERO;
+            for (int kB=0; kB<=6; kB++) sFacB[kB][ik] = Complex.ZERO;
+            // we could skip this as long as box-length, kCut don't change between calls
+            fExp[ik] = coeff*expthing/kxyz2;
+            double hdf6dh = 0;
+            if (alpha6 > 0) {
+                double kxyz1 = Math.sqrt(kxyz2);
+                double h = kxyz1/(2*alpha6);
+                double h2 = h*h;
+                double exph2 = Math.exp(-h2);
+                f6Exp[ik] = coeffB2*h*h2*(SQRT_PI * erfc(h) + (0.5/h2 - 1)/h*exph2);
+                hdf6dh = 3*f6Exp[ik] - 1.5*coeffB2*exph2;
+            }
+            for (int iAtom=0; iAtom<numAtoms; iAtom++) {
+                int iType = atoms.get(iAtom).getType().getIndex();
+                double qi = chargesByType[iType];
+                double Bii = B6[iType][iType];
+                if (qi==0 && Bii == 0) {
+                    sFacAtom[iAtom] = Complex.ZERO;
+                    continue;
+                }
+                Complex iContrib = eik[0][iAtom*nk[0]+ikx]
+                        .times(eik[1][iAtom*nk[1]+kMax[1]+iky])
+                        .times(eik[2][iAtom*nk[2]+kMax[2]+ikz]);
+                sFacAtom[iAtom] = iContrib;
+                sFac[ik] = sFac[ik].plus(iContrib.times(qi));
+                if (alpha6 > 0) {
+                    for (int kB=0; kB<=6; kB++) {
+                        sFacB[kB][ik] = sFacB[kB][ik].plus(iContrib.times(b6[iType][kB]));
+                    }
+                }
+            }
+            double x = (sFac[ik].times(sFac[ik].conjugate())).real();
+            fourierSum += fExp[ik] * x;
+            if (alpha>0) {
+                double kdfdk = -(2 + kxyz2 / (2 * alpha * alpha)) * fExp[ik];
+                double dfqdV = -fExp[ik] / vol - kdfdk / (3 * vol);
+                virialSum += 3*vol*dfqdV*x;
+            }
+            if (alpha6>0) {
+                double df6dV = -f6Exp[ik] / vol - hdf6dh / (3 * vol);
+                for (int kB=0; kB<=6; kB++) {
+                    double y = sFacB[kB][ik].times(sFacB[6 - kB][ik].conjugate()).real();
+                    fourierSum6 += f6Exp[ik] * y;
+                    virialSum6 += 3*vol*df6dV*y;
+                }
+            }
+            if (doForces) {
+                double kx = kBasis.getX(0) * ikx;
+                double ky = kBasis.getX(1) * iky;
+                double kz = kBasis.getX(2) * ikz;
+                for (int iAtom=0; iAtom<numAtoms; iAtom++) {
+                    int iType = atoms.get(iAtom).getType().getIndex();
+                    double coeffki = alpha==0 ? 0 :
+                            2*fExp[ik]*chargesByType[iType]*(sFacAtom[iAtom].times(sFac[ik].conjugate()).imaginary());
+                    double coeffki6 = 0;
                     if (alpha6 > 0) {
-                        double kxyz1 = Math.sqrt(kxyz2);
-                        double h = kxyz1/(2*alpha6);
-                        double h2 = h*h;
-                        double exph2 = Math.exp(-h2);
-                        f6Exp[ik] = coeffB2*h*h2*(SQRT_PI * erfc(h) + (0.5/h2 - 1)/h*exph2);
-                        hdf6dh = 3*f6Exp[ik] - 1.5*coeffB2*exph2;
-                    }
-                    for (int iAtom=0; iAtom<numAtoms; iAtom++) {
-                        int iType = atoms.get(iAtom).getType().getIndex();
-                        double qi = chargesByType[iType];
-                        double Bii = B6[iType][iType];
-                        if (qi==0 && Bii == 0) {
-                            sFacAtom[iAtom] = Complex.ZERO;
-                            continue;
-                        }
-                        Complex iContrib = eik[0][iAtom*nk[0]+ikx]
-                                .times(eik[1][iAtom*nk[1]+kMax[1]+iky])
-                                .times(eik[2][iAtom*nk[2]+kMax[2]+ikz]);
-                        sFacAtom[iAtom] = iContrib;
-                        sFac[ik] = sFac[ik].plus(iContrib.times(qi));
-                        if (alpha6 > 0) {
-                            for (int kB=0; kB<=6; kB++) {
-                                sFacB[kB][ik] = sFacB[kB][ik].plus(iContrib.times(b6[iType][kB]));
-                            }
-                        }
-                    }
-                    double x = (sFac[ik].times(sFac[ik].conjugate())).real();
-                    fourierSum += fExp[ik] * x;
-                    double kdfdk = 0;
-                    double dfqdV = 0, df6dV = 0;
-                    if (alpha>0) {
-                        kdfdk = -(2 + kxyz2/(2*alpha*alpha))*fExp[ik];
-                        dfqdV = -fExp[ik]/vol - kdfdk/(3*vol);
-                        virialSum += 3*vol*dfqdV*x;
-                    }
-                    if (alpha6>0) {
-                        df6dV = -f6Exp[ik]/vol - hdf6dh/(3*vol);
                         for (int kB=0; kB<=6; kB++) {
-                            double y = sFacB[kB][ik].times(sFacB[6 - kB][ik].conjugate()).real();
-                            fourierSum6 += f6Exp[ik] * y;
-                            virialSum6 += 3*vol*df6dV*y;
+                            coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*(sFacAtom[iAtom].times(sFacB[6-kB][ik].conjugate())).imaginary();
                         }
                     }
-                    if (doForces) {
-                        for (int iAtom=0; iAtom<numAtoms; iAtom++) {
-                            int iType = atoms.get(iAtom).getType().getIndex();
-                            double coeffki = alpha==0 ? 0 :
-                                    2*fExp[ik]*chargesByType[iType]*(sFacAtom[iAtom].times(sFac[ik].conjugate()).imaginary());
-                            double coeffki6 = 0;
-                            if (alpha6 > 0) {
-                                for (int kB=0; kB<=6; kB++) {
-                                    coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*(sFacAtom[iAtom].times(sFacB[6-kB][ik].conjugate())).imaginary();
-                                }
-                            }
-                            coeffki += coeffki6;
-                            forces[iAtom].PE(Vector.of(coeffki * kx, coeffki * ky, coeffki * kz));
-                        }
-                    }
-                    ik++;
+                    coeffki += coeffki6;
+                    forces[iAtom].PE(Vector.of(coeffki * kx, coeffki * ky, coeffki * kz));
                 }
             }
         }
 
-        this.nWaveVectors = ik;
+        this.nWaveVectors = this.kxyz2.size();
         uTot += fourierSum + fourierSum6;
         virialTot += virialSum + virialSum6;
 
