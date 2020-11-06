@@ -62,15 +62,20 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     private double kCut;
     private double alpha;
     private double alpha6;
-    private Complex[] sFacAtom = new Complex[0]; // Complex for each atom
-    private Complex[] sFac = new Complex[0]; // Complex for each kVector
-    private final Complex[][] sFacB = new Complex[7][0]; // 7 arrays of, Complex for each kVector
+//    private Complex[] sFacAtom = new Complex[0]; // Complex for each atom
+    private double[] sFacAtom = new double[0];
+//    private Complex[] sFac = new Complex[0]; // Complex for each kVector
+    private double[] sFac = new double[0];
+//    private final Complex[][] sFacB = new Complex[7][0]; // 7 arrays of, Complex for each kVector
+    private final double[][] sFacB = new double[7][0];
 
     // Array for each spacial dimension, then flattened array of (num kVectors in that dimension)*Complex for each atom
-    private final Complex[][] eik = new Complex[3][0];
+//    private final Complex[][] eik = new Complex[3][0];
+    private final double[][] eik = new double[3][0];
 
     private Complex[] dsFac = new Complex[0]; // Complex for each kVector
-    private final Complex[][] dsFacB = new Complex[7][0]; // 7 arrays of, Complex for each kVector
+//    private final Complex[][] dsFacB = new Complex[7][0]; // 7 arrays of, Complex for each kVector
+    private final double[][] dsFacB = new double[7][0];
     private double[] fExp; // double for each kVector
     private double[] f6Exp; // double for each kVector
     private int nWaveVectors;
@@ -82,8 +87,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     private void setArraySizes(int numAtoms, int numKVectors, int[] dimKVectors) {
         if (numAtoms > sFacAtom.length) {
-            sFacAtom = new Complex[numAtoms];
-            Arrays.setAll(sFacAtom, i -> new Complex());
+            sFacAtom = new double[numAtoms*2];
 
             forces = new Vector[numAtoms];
             Arrays.setAll(forces, i -> space.makeVector());
@@ -91,26 +95,22 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
         for (int i = 0; i < eik.length; i++) {
             if (dimKVectors[i] * numAtoms > eik[i].length) {
-                eik[i] = new Complex[numAtoms * dimKVectors[i]];
-                Arrays.setAll(eik[i], j -> new Complex());
+                eik[i] = new double[numAtoms * dimKVectors[i] * 2];
             }
         }
 
         if (numKVectors > sFac.length) {
-            sFac = new Complex[numKVectors];
-            Arrays.setAll(sFac, i -> new Complex());
+            sFac = new double[numKVectors*2];
 
             for (int j = 0; j < sFacB.length; j++) {
-                sFacB[j] = new Complex[numKVectors];
-                Arrays.setAll(sFacB[j], i -> new Complex());
+                sFacB[j] = new double[numKVectors*2];
             }
 
             dsFac = new Complex[numKVectors];
             Arrays.setAll(dsFac, i -> new Complex());
 
             for (int j = 0; j < dsFacB.length; j++) {
-                dsFacB[j] = new Complex[numKVectors];
-                Arrays.setAll(dsFacB[j], i -> new Complex());
+                dsFacB[j] = new double[numKVectors*2];
             }
 
             fExp = new double[numKVectors];
@@ -340,18 +340,19 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             for (int iAtom=0; iAtom<numAtoms; iAtom++) {
                 int idx = iAtom*nk[a];
                 if (a>0) idx += kMax[a];
-                eik[a][idx] = new Complex(1, 0);
+                Complex.ONE.intoArray(eik[a], idx);
                 if (nk[a]==1) continue;
                 int iType = atoms.get(iAtom).getType().getIndex();
                 if (chargesByType[iType] == 0 && B6[iType][iType] == 0) continue;
                 Vector ri = atoms.get(iAtom).getPosition();
-                eik[a][idx+1] = new Complex(Math.cos(fac*ri.getX(a)), Math.sin(fac*ri.getX(a)));
+                new Complex(Math.cos(fac*ri.getX(a)), Math.sin(fac*ri.getX(a))).intoArray(eik[a], idx+1);
                 for (int i=2; i<=kMax[a]; i++) {
-                    eik[a][idx+i] = eik[a][idx+1].times(eik[a][idx+i-1]);
+                    Complex.fromArray(eik[a], idx + 1).times(Complex.fromArray(eik[a], idx + i - 1))
+                            .intoArray(eik[a], idx + i);
                 }
                 if (a==0) continue;
                 for (int i=1; i<=kMax[a]; i++) {
-                    eik[a][idx-i] = eik[a][idx+i].conjugate();
+                    Complex.fromArray(eik[a], idx + i).conjugate().intoArray(eik[a], idx - i);
                 }
             }
         }
@@ -363,14 +364,16 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         double virialSum = 0;
         double virialSum6 = 0;
 
+        for (int kB=0; kB<=6; kB++) {
+            Arrays.fill(sFacB[kB], 0);
+        }
         for (int ik = 0; ik < this.kxyz2.size(); ik++) {
             double kxyz2 = this.kxyz2.getDouble(ik);
             int ikx = this.ik.getInt(ik * 3);
             int iky = this.ik.getInt(ik * 3 + 1);
             int ikz = this.ik.getInt(ik * 3 + 2);
             double expthing = Math.exp(-0.25*kxyz2/(alpha*alpha));
-            sFac[ik] = Complex.ZERO;
-            for (int kB=0; kB<=6; kB++) sFacB[kB][ik] = Complex.ZERO;
+            Complex.ZERO.intoArray(sFac, ik);
             // we could skip this as long as box-length, kCut don't change between calls
             fExp[ik] = coeff*expthing/kxyz2;
             double hdf6dh = 0;
@@ -385,7 +388,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
             this.sFacStuff(ik, ikx, iky, ikz, nk[0], nk[1], nk[2], kMax[1], kMax[2]);
 
-            double x = (sFac[ik].times(sFac[ik].conjugate())).real();
+            double x = Complex.fromArray(sFac, ik).times(Complex.fromArray(sFac, ik).conjugate()).real();
             fourierSum += fExp[ik] * x;
             if (alpha>0) {
                 double kdfdk = -(2 + kxyz2 / (2 * alpha * alpha)) * fExp[ik];
@@ -395,7 +398,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             if (alpha6>0) {
                 double df6dV = -f6Exp[ik] / vol - hdf6dh / (3 * vol);
                 for (int kB=0; kB<=6; kB++) {
-                    double y = sFacB[kB][ik].times(sFacB[6 - kB][ik].conjugate()).real();
+                    double y = Complex.fromArray(sFacB[kB], ik).times(Complex.fromArray(sFacB[6 - kB], ik).conjugate()).real();
                     fourierSum6 += f6Exp[ik] * y;
                     virialSum6 += 3*vol*df6dV*y;
                 }
@@ -420,17 +423,18 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             double qi = chargesByType[iType];
             double Bii = B6[iType][iType];
             if (qi==0 && Bii == 0) {
-                sFacAtom[iAtom] = Complex.ZERO;
+                Complex.ZERO.intoArray(sFacAtom, iAtom);
                 continue;
             }
-            Complex iContrib = eik[0][iAtom*nkx+ikx]
-                    .times(eik[1][iAtom*nky+kMaxY+iky])
-                    .times(eik[2][iAtom*nkz+kMaxZ+ikz]);
-            sFacAtom[iAtom] = iContrib;
-            sFac[ik] = sFac[ik].plus(iContrib.times(qi));
+            Complex iContrib = Complex.fromArray(eik[0], iAtom * nkx + ikx)
+                    .times(Complex.fromArray(eik[1], iAtom * nky + kMaxY + iky))
+                    .times(Complex.fromArray(eik[2], iAtom * nkz + kMaxZ + ikz));
+            iContrib.intoArray(sFacAtom, iAtom);
+            Complex.fromArray(sFac, ik).plus(iContrib.times(qi)).intoArray(sFac, ik);
             if (alpha6 > 0) {
                 for (int kB=0; kB<=6; kB++) {
-                    sFacB[kB][ik] = sFacB[kB][ik].plus(iContrib.times(b6[iType][kB]));
+                    Complex.fromArray(sFacB[kB], ik).plus(iContrib.times(b6[iType][kB]))
+                            .intoArray(sFacB[kB], ik);
                 }
             }
         }
@@ -445,11 +449,13 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         for (int iAtom=0; iAtom<numAtoms; iAtom++) {
             int iType = atoms.get(iAtom).getType().getIndex();
             double coeffki = alpha==0 ? 0 :
-                    2*fExp[ik]*chargesByType[iType]*(sFacAtom[iAtom].times(sFac[ik].conjugate()).imaginary());
+                    2*fExp[ik]*chargesByType[iType] *
+                            Complex.fromArray(sFacAtom,iAtom).times(Complex.fromArray(sFac, ik).conjugate()).imaginary();
             double coeffki6 = 0;
             if (alpha6 > 0) {
                 for (int kB=0; kB<=6; kB++) {
-                    coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*(sFacAtom[iAtom].times(sFacB[6-kB][ik].conjugate())).imaginary();
+                    coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*
+                            Complex.fromArray(sFacAtom, iAtom).times(Complex.fromArray(sFacB[6-kB],ik).conjugate()).imaginary();
                 }
             }
             coeffki += coeffki6;
