@@ -267,6 +267,12 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
     }
 
+    private void zeroForces() {
+        for (Vector force : this.forces) {
+            force.E(0);
+        }
+    }
+
     @Override
     public double computeAll(boolean doForces) {
         int numAtoms = box.getLeafList().size();
@@ -301,7 +307,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
         // TODO intramolecular
 
-        double kCut2 = kCut * kCut;
         Vector bs = box.getBoundary().getBoxSize();
         int kxMax = (int)(0.5 * bs.getX(0) / PI * kCut);
         // cube instead of sphere, so conservatively big
@@ -315,7 +320,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
         this.setArraySizes(numAtoms, nkTot, nk);
         this.computeKVectors(kxMax);
-        Arrays.stream(forces).forEach(v -> v.E(0));
+        this.zeroForces();
 
         // We want exp(i dot(k,r)) for every k and every r
         // then sum over atoms, s(k) = sum[exp(i dot(k,r))] and U(k) = s(k) * s*(k)
@@ -377,25 +382,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 f6Exp[ik] = coeffB2*h*h2*(SQRT_PI * erfc(h) + (0.5/h2 - 1)/h*exph2);
                 hdf6dh = 3*f6Exp[ik] - 1.5*coeffB2*exph2;
             }
-            for (int iAtom=0; iAtom<numAtoms; iAtom++) {
-                int iType = atoms.get(iAtom).getType().getIndex();
-                double qi = chargesByType[iType];
-                double Bii = B6[iType][iType];
-                if (qi==0 && Bii == 0) {
-                    sFacAtom[iAtom] = Complex.ZERO;
-                    continue;
-                }
-                Complex iContrib = eik[0][iAtom*nk[0]+ikx]
-                        .times(eik[1][iAtom*nk[1]+kMax[1]+iky])
-                        .times(eik[2][iAtom*nk[2]+kMax[2]+ikz]);
-                sFacAtom[iAtom] = iContrib;
-                sFac[ik] = sFac[ik].plus(iContrib.times(qi));
-                if (alpha6 > 0) {
-                    for (int kB=0; kB<=6; kB++) {
-                        sFacB[kB][ik] = sFacB[kB][ik].plus(iContrib.times(b6[iType][kB]));
-                    }
-                }
-            }
+
+            this.sFacStuff(ik, ikx, iky, ikz, nk[0], nk[1], nk[2], kMax[1], kMax[2]);
+
             double x = (sFac[ik].times(sFac[ik].conjugate())).real();
             fourierSum += fExp[ik] * x;
             if (alpha>0) {
@@ -412,22 +401,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 }
             }
             if (doForces) {
-                double kx = kBasis.getX(0) * ikx;
-                double ky = kBasis.getX(1) * iky;
-                double kz = kBasis.getX(2) * ikz;
-                for (int iAtom=0; iAtom<numAtoms; iAtom++) {
-                    int iType = atoms.get(iAtom).getType().getIndex();
-                    double coeffki = alpha==0 ? 0 :
-                            2*fExp[ik]*chargesByType[iType]*(sFacAtom[iAtom].times(sFac[ik].conjugate()).imaginary());
-                    double coeffki6 = 0;
-                    if (alpha6 > 0) {
-                        for (int kB=0; kB<=6; kB++) {
-                            coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*(sFacAtom[iAtom].times(sFacB[6-kB][ik].conjugate())).imaginary();
-                        }
-                    }
-                    coeffki += coeffki6;
-                    forces[iAtom].PE(Vector.of(coeffki * kx, coeffki * ky, coeffki * kz));
-                }
+                this.forcesStuff(ik, ikx, iky, ikz);
             }
         }
 
@@ -436,6 +410,51 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         virialTot += virialSum + virialSum6;
 
         return uTot;
+    }
+
+    private void sFacStuff(int ik, int ikx, int iky, int ikz, int nkx, int nky, int nkz, int kMaxY, int kMaxZ) {
+        IAtomList atoms = box.getLeafList();
+        int numAtoms = atoms.size();
+        for (int iAtom=0; iAtom<numAtoms; iAtom++) {
+            int iType = atoms.get(iAtom).getType().getIndex();
+            double qi = chargesByType[iType];
+            double Bii = B6[iType][iType];
+            if (qi==0 && Bii == 0) {
+                sFacAtom[iAtom] = Complex.ZERO;
+                continue;
+            }
+            Complex iContrib = eik[0][iAtom*nkx+ikx]
+                    .times(eik[1][iAtom*nky+kMaxY+iky])
+                    .times(eik[2][iAtom*nkz+kMaxZ+ikz]);
+            sFacAtom[iAtom] = iContrib;
+            sFac[ik] = sFac[ik].plus(iContrib.times(qi));
+            if (alpha6 > 0) {
+                for (int kB=0; kB<=6; kB++) {
+                    sFacB[kB][ik] = sFacB[kB][ik].plus(iContrib.times(b6[iType][kB]));
+                }
+            }
+        }
+    }
+
+    private void forcesStuff(int ik, int ikx, int iky, int ikz) {
+        IAtomList atoms = box.getLeafList();
+        int numAtoms = atoms.size();
+        double kx = kBasis.getX(0) * ikx;
+        double ky = kBasis.getX(1) * iky;
+        double kz = kBasis.getX(2) * ikz;
+        for (int iAtom=0; iAtom<numAtoms; iAtom++) {
+            int iType = atoms.get(iAtom).getType().getIndex();
+            double coeffki = alpha==0 ? 0 :
+                    2*fExp[ik]*chargesByType[iType]*(sFacAtom[iAtom].times(sFac[ik].conjugate()).imaginary());
+            double coeffki6 = 0;
+            if (alpha6 > 0) {
+                for (int kB=0; kB<=6; kB++) {
+                    coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*(sFacAtom[iAtom].times(sFacB[6-kB][ik].conjugate())).imaginary();
+                }
+            }
+            coeffki += coeffki6;
+            forces[iAtom].PE(Vector.of(coeffki * kx, coeffki * ky, coeffki * kz));
+        }
     }
 
     @Override
