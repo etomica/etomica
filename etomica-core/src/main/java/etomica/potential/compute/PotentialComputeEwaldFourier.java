@@ -73,7 +73,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 //    private final Complex[][] eik = new Complex[3][0];
     private final double[][] eik = new double[3][0];
 
-    private Complex[] dsFac = new Complex[0]; // Complex for each kVector
+    private double[] dsFac = new double[0]; // Complex for each kVector
 //    private final Complex[][] dsFacB = new Complex[7][0]; // 7 arrays of, Complex for each kVector
     private final double[][] dsFacB = new double[7][0];
     private double[] fExp; // double for each kVector
@@ -106,8 +106,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 sFacB[j] = new double[numKVectors*2];
             }
 
-            dsFac = new Complex[numKVectors];
-            Arrays.setAll(dsFac, i -> new Complex());
+            dsFac = new double[numKVectors*2];
 
             for (int j = 0; j < dsFacB.length; j++) {
                 dsFacB[j] = new double[numKVectors*2];
@@ -221,7 +220,52 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     @Override
     public double getOldEnergy() {
-        return 0;
+        double q2sum = 0;
+        double sumBij = 0;
+        double sumBii = 0;
+        double uTot = 0;
+        for (int iType = 0; iType < atomCountByType.length; iType++) {
+            int iNum = atomCountByType[iType];
+            if (iNum == 0) { continue; }
+            double qi = chargesByType[iType];
+            q2sum += iNum * qi * qi;
+            double Bii = B6[iType][iType];
+            if (alpha6 > 0 && Bii != 0) {
+                sumBii += iNum * Bii;
+                for (int jType = 0; jType < atomCountByType.length; jType++) {
+                    sumBij += iNum * atomCountByType[jType] * B6[iType][jType];
+                }
+            }
+        }
+        uTot -= alpha / SQRT_PI * q2sum;
+        double vol = box.getBoundary().volume();
+
+        if (sumBii > 0) {
+            double alpha63 = alpha6 * alpha6 * alpha6;
+            uTot -= SQRT_PI * PI * alpha63 / (6 * vol) * sumBij;
+            uTot += alpha63 * (alpha63 / 12) * sumBii;
+        }
+
+        // TODO
+
+//            for (int iMolecule=0; iMolecule<box.getTotalNumMolecules(); iMolecule++) {
+//                computeFourierIntramolecular(iMolecule, false, false, uTot, virialTot, nullptr);
+//            }
+
+        double fourierSum = 0, fourierSum6 = 0;
+        for (int ik=0; ik < nWaveVectors; ik++) {
+            double x = Complex.fromArray(sFac, ik).times(Complex.fromArray(sFac, ik).conjugate()).real();
+            fourierSum += fExp[ik] * x;
+            if (alpha6 > 0) {
+                for (int kB=0; kB<=6; kB++) {
+                    double y = Complex.fromArray(sFacB[kB], ik).times(Complex.fromArray(sFacB[6 - kB], ik).conjugate()).real();
+                    fourierSum6 += f6Exp[ik] * y;
+                }
+            }
+        }
+        uTot += fourierSum;
+        uTot += fourierSum6;
+        return uTot;
     }
 
     @Override
@@ -386,7 +430,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 hdf6dh = 3*f6Exp[ik] - 1.5*coeffB2*exph2;
             }
 
-            this.sFacStuff(ik, ikx, iky, ikz, nk[0], nk[1], nk[2], kMax[1], kMax[2]);
+            this.handleKVectorSFac(ik, ikx, iky, ikz, nk[0], nk[1], nk[2], kMax[1], kMax[2]);
 
             double x = Complex.fromArray(sFac, ik).times(Complex.fromArray(sFac, ik).conjugate()).real();
             fourierSum += fExp[ik] * x;
@@ -404,7 +448,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 }
             }
             if (doForces) {
-                this.forcesStuff(ik, ikx, iky, ikz);
+                this.handleKVectorForces(ik, ikx, iky, ikz);
             }
         }
 
@@ -415,7 +459,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         return uTot;
     }
 
-    private void sFacStuff(int ik, int ikx, int iky, int ikz, int nkx, int nky, int nkz, int kMaxY, int kMaxZ) {
+    private void handleKVectorSFac(int ik, int ikx, int iky, int ikz, int nkx, int nky, int nkz, int kMaxY, int kMaxZ) {
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.size();
         for (int iAtom=0; iAtom<numAtoms; iAtom++) {
@@ -440,7 +484,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
     }
 
-    private void forcesStuff(int ik, int ikx, int iky, int ikz) {
+    private void handleKVectorForces(int ik, int ikx, int iky, int ikz) {
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.size();
         double kx = kBasis.getX(0) * ikx;
@@ -464,8 +508,8 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     }
 
     @Override
-    public double computeOneOld(IAtom iAtom) {
-        return 0;
+    public double computeOneOld(IAtom atom) {
+        return computeOneInternal(atom, true);
     }
 
     @Override
@@ -474,8 +518,125 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     }
 
     @Override
-    public double computeOne(IAtom iAtom) {
-        return 0;
+    public double computeOne(IAtom atom) {
+        return computeOneInternal(atom, false);
+    }
+
+    private double computeOneInternal(IAtom atom, boolean oldEnergy) {
+        int iAtom = atom.getLeafIndex();
+        int iType = atom.getType().getIndex();
+        double qi = chargesByType[iType];
+        if (qi==0 && B6[iType][iType]==0) return 0;
+
+        double u = 0;
+        double q2Sum = qi*qi;
+        u -= alpha/SQRT_PI*q2Sum;
+        double vol = box.getBoundary().volume();
+        if (alpha6 > 0 && B6[iType][iType]!=0) {
+            double sumBii = B6[iType][iType];
+            double sumBij = 0;
+            for (int jType=0; jType<atomCountByType.length; jType++) {
+                sumBij += atomCountByType[jType]*B6[iType][jType];
+            }
+            double alpha63 = alpha6 * alpha6 * alpha6;
+            u -= SQRT_PI * PI/(6*vol) * alpha63 * sumBij;
+            u += (1.0/12.0) * alpha63 * alpha63 * sumBii;
+        }
+        // we save this too... would need to update after accepted move, revert after rejection
+        int numAtoms = box.getLeafList().size();
+        Vector bs = box.getBoundary().getBoxSize();int kxMax = (int)(0.5 * bs.getX(0) / PI * kCut);
+        // cube instead of sphere, so conservatively big
+        int[] kMax = {
+                kxMax,
+                (int)(0.5 * bs.getX(1) / PI * kCut),
+                (int)(0.5 * bs.getX(2) / PI * kCut)
+        };
+        int[] nk = {kMax[0] + 1, 2*kMax[1] + 1, 2*kMax[2] + 1};
+        for (int a=0; a<3; a++) {
+            double fac = 2.0*PI/bs.getX(a);
+            if (a==0) q2Sum += qi*qi;
+            int idx = iAtom*nk[a];
+            if (a>0) idx += kMax[a];
+            Vector ri = atom.getPosition();
+            eik[a][idx] = 1;
+            Complex.ONE.intoArray(eik[a], idx);
+            new Complex(Math.cos(fac * ri.getX(a)), Math.sin(fac * ri.getX(a)))
+                    .intoArray(eik[a], idx + 1);
+            for (int i=2; i<=kMax[a]; i++) {
+                eik[a][idx+i] = eik[a][idx+1] * eik[a][idx+i-1];
+            }
+            if (a==0) continue;
+            for (int i=1; i<=kMax[a]; i++) {
+                Complex.fromArray(eik[a], idx+i).conjugate().intoArray(eik[a], idx - 1);
+            }
+        }
+
+        double fourierSum = 0;
+        double fourierSum6 = 0;
+        for (int ik = 0; ik < this.kxyz2.size(); ik++) {
+            double kxyz2 = this.kxyz2.getDouble(ik);
+            int ikx = this.ik.getInt(ik * 3);
+            int iky = this.ik.getInt(ik * 3 + 1);
+            int ikz = this.ik.getInt(ik * 3 + 2);
+
+            if (!oldEnergy) {
+                Complex sFacMinus = Complex.fromArray(sFac, ik).minus(Complex.fromArray(dsFac, ik));
+                // energy without this atom
+                fourierSum -= fExp[ik] * (sFacMinus.times(sFacMinus.conjugate())).real();
+                Complex.fromArray(dsFac, ik).changeSign().intoArray(dsFac, ik);
+                if (alpha6>0) {
+                    for (int kB=0; kB<=6; kB++) {
+                        sFacMinus = Complex.fromArray(sFacB[kB], ik).minus(Complex.fromArray(dsFacB[kB], ik));
+                        Complex sFacMinus2 = Complex.fromArray(sFacB[6-kB], ik).minus(Complex.fromArray(dsFacB[6-kB], ik));
+                        // energy without this atom
+                        fourierSum6 -= f6Exp[ik] * (sFacMinus.times(sFacMinus2.conjugate())).real();
+                    }
+                    for (int kB=0; kB<=6; kB++) {
+                        Complex.fromArray(dsFacB[kB], ik).changeSign().intoArray(dsFacB[kB], ik);
+                    }
+                }
+            }
+            Complex iContrib = Complex.fromArray(eik[0], iAtom * nk[0] + ikx)
+                    .times(Complex.fromArray(eik[1], iAtom * nk[1] + kMax[1] + iky))
+                    .times(Complex.fromArray(eik[2], iAtom * nk[2] + kMax[2] + ikz));
+            Complex.fromArray(dsFac, ik).plus(iContrib.times(qi)).intoArray(dsFac, ik);
+            if (alpha6 > 0) {
+                for (int kB = 0; kB <= 6; kB++) {
+                    Complex.fromArray(dsFacB[kB], ik).plus(iContrib.times(b6[iType][kB]))
+                            .intoArray(dsFacB[kB], ik);
+                }
+            }
+
+            if (oldEnergy) {
+                Complex sFacMinus = Complex.fromArray(sFac, ik).minus(Complex.fromArray(dsFac, ik));
+                fourierSum += fExp[ik] *
+                        (Complex.fromArray(sFac, ik).times(Complex.fromArray(sFac, ik).conjugate()).real()
+                        - sFacMinus.times(sFacMinus.conjugate()).real());
+
+                if (alpha6 > 0) {
+                    for (int kB = 0; kB <= 6; kB++) {
+                        sFacMinus = Complex.fromArray(sFacB[kB], ik).minus(Complex.fromArray(dsFacB[kB], ik));
+                        Complex sFacMinus2 = Complex.fromArray(sFacB[6-kB], ik).minus(Complex.fromArray(dsFacB[6-kB], ik));
+                        fourierSum6 += f6Exp[ik] *
+                                (Complex.fromArray(sFacB[kB], ik).times(Complex.fromArray(sFacB[kB], ik).conjugate()).real()
+                                        - sFacMinus.times(sFacMinus2.conjugate()).real());
+                    }
+                }
+            } else {
+                Complex sFacNew = Complex.fromArray(sFac, ik).plus(Complex.fromArray(dsFac, ik));
+                fourierSum += fExp[ik] * sFacNew.times(sFacNew.conjugate()).real();
+                if (alpha6 > 0) {
+                    for (int kB = 0; kB <= 6; kB++) {
+                        sFacNew = Complex.fromArray(sFacB[kB], ik).plus(Complex.fromArray(dsFacB[kB], ik));
+                        Complex sFacNew2 = Complex.fromArray(sFacB[6-kB], ik).plus(Complex.fromArray(dsFacB[6-kB], ik));
+                        fourierSum6 += f6Exp[ik] * sFacNew.times(sFacNew2.conjugate()).real();
+                    }
+                }
+            }
+        }
+        u += fourierSum;
+        u += fourierSum6;
+        return u;
     }
 
     @Override
@@ -485,7 +646,22 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     @Override
     public void processAtomU(double fac) {
-
+        for (int ik = 0; ik < nWaveVectors; ik++) {
+            if (fac == 1) {
+                Complex.fromArray(sFac, ik).plus(Complex.fromArray(dsFac, ik)).intoArray(sFac, ik);
+                if (alpha6 > 0) {
+                    for (int kB = 0; kB <= 6; kB++) {
+                        Complex.fromArray(sFacB[kB], ik).plus(Complex.fromArray(dsFacB[kB], ik)).intoArray(sFac, ik);
+                    }
+                }
+            }
+        }
+        Arrays.fill(dsFac, 0, nWaveVectors * 2, 0);
+        if (alpha6 > 0) {
+            for (int kB = 0; kB <= 6; kB++) {
+                Arrays.fill(dsFacB[kB], 0, nWaveVectors * 2, 0);
+            }
+        }
     }
 
     @Override
