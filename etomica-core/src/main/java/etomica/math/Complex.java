@@ -11,10 +11,15 @@ package etomica.math;
  * @author shu
  */
 public class Complex {
-    public final static Complex ZERO = new Complex();
+    public static final Complex ZERO = new Complex();
+    public static final Complex ONE = new Complex(1, 0);
 
     private final double x;
     private final double y;
+
+    public static Complex fromArray(double[] array, int i) {
+        return new Complex(array[i * 2], array[i * 2 + 1]);
+    }
 
     /**
      * Constructs the complex number z = u + i*v
@@ -29,6 +34,11 @@ public class Complex {
 
     public Complex() {
         this(0, 0);
+    }
+
+    public void intoArray(double[] array, int i) {
+        array[i * 2] = this.x;
+        array[i * 2 + 1] = this.y;
     }
 
     /**
