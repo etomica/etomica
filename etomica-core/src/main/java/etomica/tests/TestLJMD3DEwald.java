@@ -154,7 +154,7 @@ public class TestLJMD3DEwald extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 1000000;
+        public int numSteps = 5000000;
     }
 
 }
