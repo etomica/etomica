@@ -19,11 +19,8 @@ import etomica.species.ISpecies;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Stream;
 
 import static etomica.math.SpecialFunctions.erfc;
 import static etomica.math.SpecialFunctions.factorial;
@@ -32,7 +29,6 @@ import static java.lang.Math.PI;
 public class PotentialComputeEwaldFourier implements PotentialCompute {
     private static final double SQRT_PI = Math.sqrt(PI);
     private final Box box;
-    protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
     protected double virialTot;
@@ -246,18 +242,16 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             uTot += alpha63 * (alpha63 / 12) * sumBii;
         }
 
-        // TODO
-
-//            for (int iMolecule=0; iMolecule<box.getTotalNumMolecules(); iMolecule++) {
-//                computeFourierIntramolecular(iMolecule, false, false, uTot, virialTot, nullptr);
-//            }
+        for (IMolecule molecule : box.getMoleculeList()) {
+            computeFourierIntramolecular(molecule, false);
+        }
 
         double fourierSum = 0, fourierSum6 = 0;
-        for (int ik=0; ik < nWaveVectors; ik++) {
+        for (int ik = 0; ik < nWaveVectors; ik++) {
             double x = Complex.fromArray(sFac, ik).times(Complex.fromArray(sFac, ik).conjugate()).real();
             fourierSum += fExp[ik] * x;
             if (alpha6 > 0) {
-                for (int kB=0; kB<=6; kB++) {
+                for (int kB = 0; kB <= 6; kB++) {
                     double y = Complex.fromArray(sFacB[kB], ik).times(Complex.fromArray(sFacB[6 - kB], ik).conjugate()).real();
                     fourierSum6 += f6Exp[ik] * y;
                 }
@@ -349,17 +343,19 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             uTot += alpha63 * (alpha63 / 12) * sumBii;
         }
 
-        // TODO intramolecular
+        for (IMolecule molecule : box.getMoleculeList()) {
+            computeFourierIntramolecular(molecule, doForces);
+        }
 
         Vector bs = box.getBoundary().getBoxSize();
-        int kxMax = (int)(0.5 * bs.getX(0) / PI * kCut);
+        int kxMax = (int) (0.5 * bs.getX(0) / PI * kCut);
         // cube instead of sphere, so conservatively big
         int[] kMax = {
                 kxMax,
-                (int)(0.5 * bs.getX(1) / PI * kCut),
-                (int)(0.5 * bs.getX(2) / PI * kCut)
+                (int) (0.5 * bs.getX(1) / PI * kCut),
+                (int) (0.5 * bs.getX(2) / PI * kCut)
         };
-        int[] nk = {kMax[0] + 1, 2*kMax[1] + 1, 2*kMax[2] + 1};
+        int[] nk = {kMax[0] + 1, 2 * kMax[1] + 1, 2 * kMax[2] + 1};
         int nkTot = ((2*kxMax + 1) * nk[1] * nk[2] - 1) / 2;
 
         this.setArraySizes(numAtoms, nkTot, nk);
@@ -497,14 +493,79 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                             Complex.fromArray(sFacAtom,iAtom).times(Complex.fromArray(sFac, ik).conjugate()).imaginary();
             double coeffki6 = 0;
             if (alpha6 > 0) {
-                for (int kB=0; kB<=6; kB++) {
-                    coeffki6 += 2*f6Exp[ik]*b6[iType][kB]*
-                            Complex.fromArray(sFacAtom, iAtom).times(Complex.fromArray(sFacB[6-kB],ik).conjugate()).imaginary();
+                for (int kB = 0; kB <= 6; kB++) {
+                    coeffki6 += 2 * f6Exp[ik] * b6[iType][kB] *
+                            Complex.fromArray(sFacAtom, iAtom).times(Complex.fromArray(sFacB[6 - kB], ik).conjugate()).imaginary();
                 }
             }
             coeffki += coeffki6;
             forces[iAtom].PE(Vector.of(coeffki * kx, coeffki * ky, coeffki * kz));
         }
+    }
+
+    protected double computeFourierIntramolecular(IMolecule molecule, boolean doForces) {
+        IAtomList atoms = molecule.getChildList();
+        if (atoms.size() == 1) return 0;
+        double twoosqrtpi = 2.0 / SQRT_PI;
+        double uTot = 0;
+        for (int iAtom = 0; iAtom < atoms.size() - 1; iAtom++) {
+            IAtom atom = atoms.get(iAtom);
+            int iType = atom.getType().getIndex();
+            double qi = chargesByType[iType];
+            double Bii = B6[iType][iType];
+            if (qi == 0 && Bii == 0) continue;
+            Vector ri = atom.getPosition();
+            for (int jAtom = iAtom + 1; jAtom < atoms.size(); jAtom++) {
+                int jType = atoms.get(jAtom).getType().getIndex();
+                double qj = chargesByType[jType];
+                double Bij = B6[iType][jType];
+                double qiqj = qi * qj;
+                if (qiqj == 0 && Bij == 0) continue;
+                Vector rj = atoms.get(jAtom).getPosition();
+                Vector dr = space.makeVector();
+                dr.Ev1Mv2(rj, ri);
+                box.getBoundary().nearestImage(dr);
+                double r2 = dr.squared();
+                double r = Math.sqrt(r2);
+                double ec = 0;
+                if (alpha > 0) {
+                    ec = erfc(alpha * r);
+                    uTot -= qiqj * (1 - ec) / r;
+                }
+                double s2 = 0, s4 = 0, a2 = 0, a4 = 0, alpha66 = 0, e = 0;
+                if (alpha6 > 0) {
+                    s2 = 1 / r2;
+                    s4 = s2 * s2;
+                    double alpha62 = alpha6 * alpha6;
+                    a2 = r2 * alpha62;
+                    a4 = a2 * a2;
+                    alpha66 = alpha62 * alpha62 * alpha62;
+                    e = Math.exp(-a2);
+                    double ureal = -Bij * alpha66 * (1 + a2 + a4 / 2) * e / (a4 * a2);
+                    double ufull = -Bij * s4 * s2;
+                    uTot += -ufull + ureal;
+                }
+                if (!bondingInfo.isOnlyRigidMolecules()) {
+                    // skip any non-bonded pair
+                    if (!bondingInfo.skipBondedPair(false, atom, atoms.get(jAtom))) continue;
+                    double du = 0;
+                    if (alpha > 0)
+                        du = -qiqj * (twoosqrtpi * Math.exp(-alpha * alpha * r2) * alpha + (ec - 1) / r) / r2;
+                    if (alpha6 > 0) {
+                        double a6 = a4 * a2;
+                        double dureal = Bij * alpha66 * (6 + 6 * a2 + 3 * a4 + a6) * e / a6;
+                        double dufull = 6 * Bij * s2 * s4;
+                        du += -dufull + dureal;
+                    }
+                    if (doForces) {
+                        forces[iAtom].PEa1Tv1(du, dr);
+                        forces[jAtom].PEa1Tv1(-du, dr);
+                    }
+                    virialTot += du * r2;
+                }
+            }
+        }
+        return uTot;
     }
 
     @Override
@@ -542,8 +603,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             u -= SQRT_PI * PI/(6*vol) * alpha63 * sumBij;
             u += (1.0/12.0) * alpha63 * alpha63 * sumBii;
         }
-        // we save this too... would need to update after accepted move, revert after rejection
-        int numAtoms = box.getLeafList().size();
         Vector bs = box.getBoundary().getBoxSize();int kxMax = (int)(0.5 * bs.getX(0) / PI * kCut);
         // cube instead of sphere, so conservatively big
         int[] kMax = {
@@ -552,6 +611,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 (int)(0.5 * bs.getX(2) / PI * kCut)
         };
         int[] nk = {kMax[0] + 1, 2*kMax[1] + 1, 2*kMax[2] + 1};
+        // we could save eik too... would need to update after accepted move, revert after rejection
         for (int a=0; a<3; a++) {
             double fac = 2.0*PI/bs.getX(a);
             if (a==0) q2Sum += qi*qi;
@@ -573,8 +633,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
         double fourierSum = 0;
         double fourierSum6 = 0;
-        for (int ik = 0; ik < this.kxyz2.size(); ik++) {
-            double kxyz2 = this.kxyz2.getDouble(ik);
+        for (int ik = 0; ik < this.ik.size(); ik++) {
             int ikx = this.ik.getInt(ik * 3);
             int iky = this.ik.getInt(ik * 3 + 1);
             int ikz = this.ik.getInt(ik * 3 + 2);
@@ -584,7 +643,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 // energy without this atom
                 fourierSum -= fExp[ik] * (sFacMinus.times(sFacMinus.conjugate())).real();
                 Complex.fromArray(dsFac, ik).changeSign().intoArray(dsFac, ik);
-                if (alpha6>0) {
+                if (alpha6 > 0) {
                     for (int kB=0; kB<=6; kB++) {
                         sFacMinus = Complex.fromArray(sFacB[kB], ik).minus(Complex.fromArray(dsFacB[kB], ik));
                         Complex sFacMinus2 = Complex.fromArray(sFacB[6-kB], ik).minus(Complex.fromArray(dsFacB[6-kB], ik));
