@@ -243,7 +243,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
 
         for (IMolecule molecule : box.getMoleculeList()) {
-            computeFourierIntramolecular(molecule, false);
+            uTot += computeFourierIntramolecular(molecule, false);
         }
 
         double fourierSum = 0, fourierSum6 = 0;
@@ -344,7 +344,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
 
         for (IMolecule molecule : box.getMoleculeList()) {
-            computeFourierIntramolecular(molecule, doForces);
+            uTot += computeFourierIntramolecular(molecule, doForces);
         }
 
         Vector bs = box.getBoundary().getBoxSize();
