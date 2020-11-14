@@ -120,6 +120,10 @@ class EwaldSummationTest {
                 () -> assertEquals(Kelvin.UNIT.toSim(fourierNIST), fourier.computeAll(false), 100, "uFourierFasterer")
         );
 
+        assertAll(
+                () -> assertEquals(es.uReal(), pair.computeAll(false), 0.001, "uRealFasterer"),
+                () -> assertEquals(es.uFourier() + es.uSelf() + es.uBondCorr(), fourier.computeAll(false), 0.001, "uFourierFasterer")
+        );
     }
 
     private static class ChargeAgentSourceSPCE implements AtomLeafAgentManager.AgentSource<EwaldSummation.MyCharge> {
