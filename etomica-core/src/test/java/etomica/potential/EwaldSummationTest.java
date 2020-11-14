@@ -12,6 +12,8 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.models.water.P2WaterSPCE;
 import etomica.models.water.SpeciesWater3P;
+import etomica.potential.compute.PotentialComputeEwaldFourier;
+import etomica.potential.ewald.P2Ewald1Real;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
@@ -30,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test compares the computed values against the values provided by NIST at
- * https://www.nist.gov/mml/csd/chemical-informatics-research-group/spce-water-reference-calculations-10%C3%A5-cutoff.
+ * https://www.nist.gov/mml/csd/chemical-informatics-research-group/spce-water-reference-calculations-10%C3%A5-cutoff
  * NIST provides data for 4 configurations. This test checks only 1 of them. The file being compared can be changed by
  * changing the field "filenum".
  * <p>
@@ -40,12 +42,15 @@ class EwaldSummationTest {
 
     private static final int[] NIST_nmol = {100, 200, 300, 750};
     private static final double[] NIST_boxl = {20, 20, 20, 30};
+    //results deviate from NIST values due to differences in universal constants
     private static final double[] NIST_real = {-5.58889E+05, -1.19295E+06, -1.96297E+06, -3.57226E+06};
     private static final double[] NIST_fourier = {6.27009E+03, 6.03495E+03, 5.24461E+03, 7.58785E+03};
     private static final double[] NIST_self = {-2.84469E+06, -5.68938E+06, -8.53407E+06, -1.42235E+07};
     private static final double[] NIST_corr = {2.80999E+06, 5.61998E+06, 8.42998E+06, 1.41483E+07};
 
     private EwaldSummation es;
+    private PotentialMasterFasterer pair;
+    private PotentialComputeEwaldFourier fourier;
 
     @BeforeEach
     void setup(RepetitionInfo repetitionInfo) {
@@ -64,6 +69,26 @@ class EwaldSummationTest {
 
         box.setNMolecules(species, numofmolecules);
         box.getBoundary().setBoxSize(new Vector3D(boxlength, boxlength, boxlength));
+
+        pair = new PotentialMasterFasterer(sim, box, BondingInfo.noBonding());
+
+        double alpha = 5.6 / boxlength;
+        P2SoftSphericalTruncated p2hh = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QH, alpha), rCutRealES);
+        P2SoftSphericalTruncated p2ho = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QO, alpha), rCutRealES);
+        P2SoftSphericalTruncated p2oo = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QO * P2WaterSPCE.QO, alpha), rCutRealES);
+        AtomType hType = species.getTypeByName("H");
+        AtomType oType = species.getTypeByName("O");
+        pair.setPairPotential(hType, hType, p2hh);
+        pair.setPairPotential(hType, oType, p2ho);
+        pair.setPairPotential(oType, oType, p2oo);
+        pair.init();
+
+        fourier = new PotentialComputeEwaldFourier(sim, box, BondingInfo.noBonding());
+        fourier.setAlpha(alpha);
+        fourier.setCharge(hType, P2WaterSPCE.QH);
+        fourier.setCharge(oType, P2WaterSPCE.QO);
+        fourier.setkCut(kcut);
+        fourier.init();
 
         es = new EwaldSummation(box, atomAgentManager, space, kcut, rCutRealES);
         es.setAlpha(5.6 / boxlength);
@@ -87,6 +112,12 @@ class EwaldSummationTest {
                 () -> assertEquals(Kelvin.UNIT.toSim(NIST_fourier[filenum - 1]), es.uFourier(), 0.01, "uFourier"),
                 () -> assertEquals(Kelvin.UNIT.toSim(NIST_self[filenum - 1]), es.uSelf(), 100, "uSelf"),
                 () -> assertEquals(Kelvin.UNIT.toSim(NIST_corr[filenum - 1]), es.uBondCorr(), 100, "uBondCorr")
+        );
+
+        double fourierNIST = NIST_fourier[filenum - 1] + NIST_self[filenum - 1] + NIST_corr[filenum - 1];
+        assertAll(
+                () -> assertEquals(Kelvin.UNIT.toSim(NIST_real[filenum - 1]), pair.computeAll(false), 10, "uRealFasterer"),
+                () -> assertEquals(Kelvin.UNIT.toSim(fourierNIST), fourier.computeAll(false), 100, "uFourierFasterer")
         );
 
     }
