@@ -32,8 +32,8 @@ class CatalysisTest {
         assertDoesNotThrow(() -> actionIntegrate.actionPerformed());
         assertAll(
                 () -> assertEquals(3.5144282273534565e-5, densityCO.getDataAsScalar(), delta, "CO density"),
-                () -> assertEquals(3.983018657667251e-5, densityO2.getDataAsScalar(), delta, "O2 density"),
-                () -> assertEquals(2.342952151568971e-6, densityCO2.getDataAsScalar(), delta, "CO2 density")
+                () -> assertEquals(4.1001662652457E-5, densityO2.getDataAsScalar(), delta, "O2 density"),
+                () -> assertEquals(1.1714760757844856E-6, densityCO2.getDataAsScalar(), delta, "CO2 density")
         );
 
     }
