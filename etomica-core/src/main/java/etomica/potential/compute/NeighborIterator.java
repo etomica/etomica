@@ -8,9 +8,13 @@ public interface NeighborIterator {
 
     void iterUpNeighbors(int iAtom, NeighborConsumer consumer);
 
+    void iterDownNeighbors(int iAtom, NeighborConsumer consumer);
+
     void iterAllNeighbors(int iAtom, NeighborConsumer consumer);
 
-    default double iterAndSumAllNeighbors(IAtom atom1, NeighborIteratorCellFasterer.SuperNbrConsumer consumer) { return 0; }
+    default double iterAndSumAllNeighbors(IAtom atom1, NeighborIteratorCellFasterer.SuperNbrConsumer consumer) {
+        return 0;
+    }
 
     interface NeighborConsumer {
         void accept(IAtom jAtom, Vector rij);

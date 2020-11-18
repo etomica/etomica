@@ -3,7 +3,6 @@ package etomica.nbr.list;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -29,6 +28,28 @@ public class NeighborIteratorList implements NeighborIterator {
         Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[iAtom];
 
         for (int j = 0; j < iNumNbrs; j++) {
+            int jAtom = iNbrs[j];
+            IAtom atom2 = atoms.get(jAtom);
+            Vector rj = atom2.getPosition();
+            Vector jbo = iNbrBoxOffsets[j];
+            Vector rij = space.makeVector();
+            rij.Ev1Mv2(rj, ri);
+            rij.PE(jbo);
+            consumer.accept(atom2, rij);
+        }
+    }
+
+    @Override
+    public void iterDownNeighbors(int iAtom, NeighborConsumer consumer) {
+        IAtomList atoms = box.getLeafList();
+        IAtom atom1 = atoms.get(iAtom);
+        Vector ri = atom1.getPosition();
+        int iNumNbrs = nbrManager.numAtomNbrsDn[iAtom];
+        int[] iNbrs = nbrManager.nbrs[iAtom];
+        Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[iAtom];
+        int maxNbrs = iNbrs.length;
+
+        for (int j = maxNbrs - 1; j > maxNbrs - 1 - iNumNbrs; j++) {
             int jAtom = iNbrs[j];
             IAtom atom2 = atoms.get(jAtom);
             Vector rj = atom2.getPosition();

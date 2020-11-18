@@ -4,12 +4,9 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.space.Space;
 import etomica.space.Vector;
-
-import java.util.stream.IntStream;
 
 public class NeighborIteratorCellFasterer implements NeighborIterator {
 
@@ -26,7 +23,6 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         this.box = box;
         this.space = box.getSpace();
     }
-
 
     @Override
     public void iterUpNeighbors(int iAtom, NeighborConsumer consumer) {
@@ -52,6 +48,46 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         int iCell = atomCell[iAtom];
         for (int cellOffset : cellOffsets) {
             int jCell = iCell + cellOffset;
+            Vector jbo = boxOffsets[jCell];
+            jCell = wrapMap[jCell];
+            for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+                IAtom atom2 = atoms.get(j);
+                if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+                    continue;
+                }
+
+                Vector rij = space.makeVector();
+                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                rij.PE(jbo);
+                consumer.accept(atom2, rij);
+            }
+        }
+    }
+
+    @Override
+    public void iterDownNeighbors(int iAtom, NeighborConsumer consumer) {
+        IAtomList atoms = box.getLeafList();
+        Vector[] boxOffsets = cellManager.getBoxOffsets();
+        int[] atomCell = cellManager.getAtomCell();
+        int[] cellNextAtom = cellManager.getCellNextAtom();
+        int[] cellOffsets = cellManager.getCellOffsets();
+        int[] wrapMap = cellManager.getWrapMap();
+        int[] cellLastAtom = cellManager.getCellLastAtom();
+        IAtom atom1 = atoms.get(iAtom);
+
+        int iCell = atomCell[iAtom];
+        for (int j = cellLastAtom[iCell]; j != iAtom; j = cellNextAtom[j]) {
+            IAtom atom2 = atoms.get(j);
+            if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+                continue;
+            }
+            Vector rij = space.makeVector();
+            rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+            consumer.accept(atom2, rij);
+        }
+
+        for (int cellOffset : cellOffsets) {
+            int jCell = iCell - cellOffset;
             Vector jbo = boxOffsets[jCell];
             jCell = wrapMap[jCell];
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {

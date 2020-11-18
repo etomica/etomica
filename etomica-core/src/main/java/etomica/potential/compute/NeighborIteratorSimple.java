@@ -43,6 +43,26 @@ public class NeighborIteratorSimple implements NeighborIterator {
     }
 
     @Override
+    public void iterDownNeighbors(int iAtom, NeighborConsumer consumer) {
+        IAtomList atoms = box.getLeafList();
+        Boundary boundary = box.getBoundary();
+
+        for (int i = 1; i < iAtom; i++) {
+            IAtom atom1 = atoms.get(iAtom);
+            IAtom atom2 = atoms.get(i);
+
+            if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
+                continue;
+            }
+
+            Vector dr = space.makeVector();
+            dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+            boundary.nearestImage(dr);
+            consumer.accept(atom2, dr);
+        }
+    }
+
+    @Override
     public void iterAllNeighbors(int iAtom, NeighborConsumer consumer) {
         IAtomList atoms = box.getLeafList();
         Boundary boundary = box.getBoundary();
