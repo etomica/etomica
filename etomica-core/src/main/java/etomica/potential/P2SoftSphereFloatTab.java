@@ -109,13 +109,6 @@ public class P2SoftSphereFloatTab extends P2SoftSphere {
     }
 
     /**
-     * Accessor method for soft-sphere energy parameter
-     */
-    public double getEpsilon() {
-        return epsilon;
-    }
-
-    /**
      * Mutator method for soft-sphere energy parameter
      */
     public void setEpsilon(double eps) {
