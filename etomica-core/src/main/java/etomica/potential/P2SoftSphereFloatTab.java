@@ -45,6 +45,7 @@ public class P2SoftSphereFloatTab extends P2SoftSphere {
     }
 
     private void populateTabulatedValues() {
+        if (rpTab == null) return;
         // compute extra bits beyond rc so we can accurately compute
         // derivatives up to rc
         for (int i = 0; i < rpTab.length; i++) {
