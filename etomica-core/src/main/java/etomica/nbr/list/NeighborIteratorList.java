@@ -49,14 +49,14 @@ public class NeighborIteratorList implements NeighborIterator {
         Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[iAtom];
         int maxNbrs = iNbrs.length;
 
-        for (int j = maxNbrs - 1; j > maxNbrs - 1 - iNumNbrs; j++) {
+        for (int j = maxNbrs - 1; j > maxNbrs - 1 - iNumNbrs; j--) {
             int jAtom = iNbrs[j];
             IAtom atom2 = atoms.get(jAtom);
             Vector rj = atom2.getPosition();
             Vector jbo = iNbrBoxOffsets[j];
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
-            rij.PE(jbo);
+            rij.ME(jbo);
             consumer.accept(atom2, rij);
         }
     }

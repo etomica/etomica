@@ -206,6 +206,10 @@ public class NeighborListManagerFasterer implements NeighborManager {
                             break outerDn;
                         }
                         nbrs[jj][maxNab - 1 - numAtomNbrsDn[jj]] = i;
+                        // these offsets are actually opposite... we don't have a clean
+                        // way to find the index of the opposite offset.
+                        nbrBoxOffsets[jj][maxNab - 1 - numAtomNbrsDn[jj]] = nbrBoxOffsets[i][j];
+
                         numAtomNbrsDn[jj]++;
                     }
                 }
