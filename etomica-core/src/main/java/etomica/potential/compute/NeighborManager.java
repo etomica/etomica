@@ -2,13 +2,14 @@ package etomica.potential.compute;
 
 import etomica.atom.IAtom;
 import etomica.integrator.IntegratorListener;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotentialAtomic;
 
 public interface NeighborManager {
 
     NeighborIterator makeNeighborIterator();
 
-    default void setPairPotentials(Potential2Soft[][] potentials) {}
+    default void setPairPotentials(IPotentialAtomic[][] potentials) {
+    }
 
     void init();
 

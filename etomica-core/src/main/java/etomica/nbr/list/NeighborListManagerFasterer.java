@@ -7,7 +7,7 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.NeighborCellManagerFasterer;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.simulation.Simulation;
@@ -17,7 +17,7 @@ import etomica.util.Debug;
 
 public class NeighborListManagerFasterer implements NeighborManager {
     private final NeighborCellManagerFasterer cellManager;
-    private Potential2Soft[][] pairPotentials;
+    private IPotentialAtomic[][] pairPotentials;
     private final Box box;
     private final BondingInfo bondingInfo;
     private final boolean isPureAtoms;
@@ -53,7 +53,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
     }
 
     @Override
-    public void setPairPotentials(Potential2Soft[][] potentials) {
+    public void setPairPotentials(IPotentialAtomic[][] potentials) {
         this.pairPotentials = potentials;
     }
 
@@ -165,7 +165,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
                 int j = i;
                 int iCell = atomCell[i];
                 Vector jbo = boxOffsets[iCell];
-                Potential2Soft[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
+                IPotentialAtomic[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
                 while ((j = cellNextAtom[j]) > -1) {
                     IAtom jAtom = atoms.get(j);
                     tooMuch += checkNbrPair(i, j, iAtom, jAtom, rc2, jbo, iPotentials);
@@ -219,7 +219,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
         }
     }
 
-    private int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
+    private int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
 
         if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) return 0;
