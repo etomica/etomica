@@ -8,6 +8,7 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -92,7 +93,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                     for (int[] pair : pairs) {
                         IAtom iAtom = molecule.getChildList().get(pair[0]);
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
-                        uTot[0] += handleOneBondPair(doForces, iAtom, jAtom, potential);
+                        uTot[0] += handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces);
                     }
                 }
             });
@@ -121,13 +122,13 @@ public class PotentialMasterBonding implements PotentialCompute {
         return pij.u(dr.squared());
     }
 
-    private double handleOneBondPair(boolean doForces, IAtom iAtom, IAtom jAtom, Potential2Soft potential) {
+    private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, Potential2Soft potential, Vector[] forces) {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
-        Vector dr = space.makeVector();
+        Vector dr = Vector.d(ri.getD());
 
         dr.Ev1Mv2(rj, ri);
-        box.getBoundary().nearestImage(dr);
+        boundary.nearestImage(dr);
         double r2 = dr.squared();
         double[] u = {0};
         double[] du = {0};
@@ -145,13 +146,17 @@ public class PotentialMasterBonding implements PotentialCompute {
     }
 
     public double computeOneMolecule(IMolecule molecule) {
+        return computeOneMolecule(box.getBoundary(), molecule, bondingInfo);
+    }
+
+    public static double computeOneMolecule(Boundary boundary, IMolecule molecule, FullBondingInfo bondingInfo) {
         final double[] u = {0};
         Map<Potential2Soft, List<int[]>> potentials = bondingInfo.bondedPairs[molecule.getType().getIndex()];
         potentials.forEach((potential, pairs) -> {
             for (int[] pair : pairs) {
                 IAtom iAtom = molecule.getChildList().get(pair[0]);
                 IAtom jAtom = molecule.getChildList().get(pair[1]);
-                u[0] += handleOneBondPair(false, iAtom, jAtom, potential);
+                u[0] += handleOneBondPair(false, boundary, iAtom, jAtom, potential, null);
             }
         });
         return u[0];
