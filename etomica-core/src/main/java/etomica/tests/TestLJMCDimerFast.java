@@ -68,7 +68,7 @@ public class TestLJMCDimerFast extends Simulation {
                 .collect(Collectors.toList());
 
         pmBond.setBondingPotential(species, pBond, bonds);
-        BondingInfo bi = BondingInfo.makeBondingInfo(pmBond);
+        BondingInfo bi = pmBond.getBondingInfo();
         PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2, bi) : new PotentialMasterFasterer(this, box, bi);
 
         PotentialCompute compute = PotentialCompute.aggregate(pmBond, potentialMaster);

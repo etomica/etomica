@@ -18,49 +18,27 @@ public class PotentialMasterBonding implements PotentialCompute {
 
     private final List<ISpecies> speciesList;
     protected Vector[] forces = new Vector[0];
-    protected boolean isOnlyRigidMolecules = true;
-    protected int[][][] bondedAtoms;
-    protected Map<Potential2Soft, List<int[]>>[] bondedPairs;
-    protected Map<Potential2Soft, int[][]>[] bondedPartners;
     private final Box box;
     private final Space space;
+    private final FullBondingInfo bondingInfo;
 
     public PotentialMasterBonding(Simulation sim, Box box) {
+        this(sim, box, new FullBondingInfo(sim));
+    }
+
+    public PotentialMasterBonding(Simulation sim, Box box, FullBondingInfo bondingInfo) {
         speciesList = sim.getSpeciesList();
-        bondedAtoms = new int[sim.getSpeciesCount()][][];
-        bondedPairs = new HashMap[sim.getSpeciesCount()];
-        bondedPartners = new HashMap[sim.getSpeciesCount()];
         this.box = box;
         this.space = box.getSpace();
-        for (int i = 0; i < bondedPairs.length; i++) {
-            bondedPairs[i] = new HashMap<>();
-            bondedPartners[i] = new HashMap<>();
-        }
+        this.bondingInfo = bondingInfo;
+    }
+
+    public FullBondingInfo getBondingInfo() {
+        return bondingInfo;
     }
 
     public void setBondingPotential(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
-        isOnlyRigidMolecules = false;
-        int speciesIndex = species.getIndex();
-        if (bondedAtoms[speciesIndex] == null) {
-            bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
-        }
-
-        int[][] partners = new int[species.getLeafAtomCount()][0];
-
-        int[][] speciesAtoms = bondedAtoms[speciesIndex];
-        for (int[] indices : bondedIndices) {
-            int iAtom = Math.min(indices[0], indices[1]);
-            int jAtom = Math.max(indices[0], indices[1]);
-            speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
-            partners[iAtom] = etomica.util.Arrays.addInt(partners[iAtom], jAtom);
-            partners[jAtom] = etomica.util.Arrays.addInt(partners[jAtom], iAtom);
-        }
-        if (bondedPairs[speciesIndex].containsKey(potential)) {
-            throw new RuntimeException("Attempting to add the same bonding potential twice");
-        }
-        bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
-        bondedPartners[speciesIndex].put(potential, partners);
-
+        bondingInfo.setBondingPotential(species, potential, bondedIndices);
     }
 
     private void zeroArrays(boolean doForces) {
@@ -107,7 +85,7 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         double[] uTot = {0};
         for (int i = 0; i < speciesList.size(); i++) {
-            Map<Potential2Soft, List<int[]>> potentials = bondedPairs[i];
+            Map<Potential2Soft, List<int[]>> potentials = bondingInfo.bondedPairs[i];
             IMoleculeList molecules = box.getMoleculeList(speciesList.get(i));
             potentials.forEach((potential, pairs) -> {
                 for (IMolecule molecule : molecules) {
@@ -125,7 +103,7 @@ public class PotentialMasterBonding implements PotentialCompute {
     public double computeOne(IAtom atom) {
         double[] uTot = {0};
         IMolecule parentMolecule = atom.getParentGroup();
-        bondedPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+        bondingInfo.bondedPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
             for (int partnerIdx : partners[atom.getIndex()]) {
                 IAtom jAtom = parentMolecule.getChildList().get(partnerIdx);
                 uTot[0] += handleComputeOneBonded(potential, atom, jAtom);
@@ -168,7 +146,7 @@ public class PotentialMasterBonding implements PotentialCompute {
 
     public double computeOneMolecule(IMolecule molecule) {
         final double[] u = {0};
-        Map<Potential2Soft, List<int[]>> potentials = bondedPairs[molecule.getType().getIndex()];
+        Map<Potential2Soft, List<int[]>> potentials = bondingInfo.bondedPairs[molecule.getType().getIndex()];
         potentials.forEach((potential, pairs) -> {
             for (int[] pair : pairs) {
                 IAtom iAtom = molecule.getChildList().get(pair[0]);
@@ -209,9 +187,78 @@ public class PotentialMasterBonding implements PotentialCompute {
     }
 
     public double computeOneOldMolecule(IMolecule molecule) {
-        if (!isOnlyRigidMolecules) {
+        if (!bondingInfo.isOnlyRigidMolecules) {
             throw new RuntimeException();
         }
         return computeOneMolecule(molecule);
+    }
+
+    public static class FullBondingInfo implements BondingInfo {
+        public boolean isOnlyRigidMolecules = true;
+        public final int[][][] bondedAtoms;
+        public final Map<Potential2Soft, List<int[]>>[] bondedPairs;
+        public final Map<Potential2Soft, int[][]>[] bondedPartners;
+
+        public FullBondingInfo(Simulation sim) {
+            bondedAtoms = new int[sim.getSpeciesCount()][][];
+            bondedPairs = new HashMap[sim.getSpeciesCount()];
+            bondedPartners = new HashMap[sim.getSpeciesCount()];
+            for (int i = 0; i < bondedPairs.length; i++) {
+                bondedPairs[i] = new HashMap<>();
+                bondedPartners[i] = new HashMap<>();
+            }
+        }
+
+        public void setBondingPotential(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
+            isOnlyRigidMolecules = false;
+            int speciesIndex = species.getIndex();
+            if (bondedAtoms[speciesIndex] == null) {
+                bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
+            }
+
+            int[][] partners = new int[species.getLeafAtomCount()][0];
+
+            int[][] speciesAtoms = bondedAtoms[speciesIndex];
+            for (int[] indices : bondedIndices) {
+                int iAtom = Math.min(indices[0], indices[1]);
+                int jAtom = Math.max(indices[0], indices[1]);
+                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
+                partners[iAtom] = etomica.util.Arrays.addInt(partners[iAtom], jAtom);
+                partners[jAtom] = etomica.util.Arrays.addInt(partners[jAtom], iAtom);
+            }
+            if (bondedPairs[speciesIndex].containsKey(potential)) {
+                throw new RuntimeException("Attempting to add the same bonding potential twice");
+            }
+            bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
+            bondedPartners[speciesIndex].put(potential, partners);
+        }
+
+        @Override
+        public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
+            if (!isPureAtoms && iAtom.getParentGroup() == jAtom.getParentGroup()) {
+                // ensure i < j
+                if (isOnlyRigidMolecules) {
+                    return true;
+                }
+                if (iAtom.getLeafIndex() > jAtom.getLeafIndex()) {
+                    IAtom tmp = iAtom;
+                    iAtom = jAtom;
+                    jAtom = tmp;
+                }
+                int species = iAtom.getParentGroup().getType().getIndex();
+                int iChildIndex = iAtom.getIndex();
+                int jChildIndex = jAtom.getIndex();
+                int[] iBondedAtoms = bondedAtoms[species][iChildIndex];
+                for (int iBondedAtom : iBondedAtoms) {
+                    if (iBondedAtom == jChildIndex) return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isOnlyRigidMolecules() {
+            return isOnlyRigidMolecules;
+        }
     }
 }
