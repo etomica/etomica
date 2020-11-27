@@ -8,12 +8,14 @@ import java.util.*;
 public final class SpeciesManager {
 
     private final ISpecies[] speciesArray;
+    private final List<ISpecies> speciesList;
     private final int atomTypeCount;
     private final boolean isPureAtoms;
 
     // TODO should it be public? would need to handle setIndex
     private SpeciesManager(ISpecies[] speciesArray) {
         this.speciesArray = speciesArray;
+        this.speciesList = Arrays.asList(speciesArray);
         this.atomTypeCount = Arrays.stream(speciesArray).mapToInt(ISpecies::getUniqueAtomTypeCount).sum();
         this.isPureAtoms = Arrays.stream(speciesArray).allMatch(s -> s.getLeafAtomCount() == 1);
     }
@@ -24,6 +26,10 @@ public final class SpeciesManager {
 
     public ISpecies[] getSpeciesArray() {
         return this.speciesArray;
+    }
+
+    public List<ISpecies> getSpeciesList() {
+        return this.speciesList;
     }
 
     public ISpecies getSpecies(int idx) {
