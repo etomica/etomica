@@ -67,7 +67,7 @@ public class TestLJMCDimerFast extends Simulation {
                 .mapToObj(i -> new int[]{i, i+1})
                 .collect(Collectors.toList());
 
-        pmBond.setBondingPotential(species, pBond, bonds);
+        pmBond.setBondingPotentialPair(species, pBond, bonds);
         BondingInfo bi = pmBond.getBondingInfo();
         PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2, bi) : new PotentialMasterFasterer(this, box, bi);
 
