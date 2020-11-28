@@ -55,7 +55,9 @@ public class TestLJMCDimerRigid extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 2, BondingInfo.noBonding()) : new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
+        PotentialMasterFasterer potentialMaster = cellListing
+                ? new PotentialMasterCellFasterer(this.getSpeciesManager(), box, 2, BondingInfo.noBonding())
+                : new PotentialMasterFasterer(this.getSpeciesManager(), box, BondingInfo.noBonding());
 
         integrator = new IntegratorMCFasterer(this, potentialMaster, box);
         integrator.setTemperature(moleculeSize);

@@ -48,7 +48,7 @@ public class TestLJMC3DBrute extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        potentialMaster = new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
+        potentialMaster = new PotentialMasterFasterer(this.getSpeciesManager(), box, BondingInfo.noBonding());
         integrator = new IntegratorMCFasterer(potentialMaster, random, 1.1, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.275 * sigma);

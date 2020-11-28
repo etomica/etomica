@@ -70,8 +70,8 @@ public class TestLJMDDimerFast extends Simulation {
 
         BondingInfo bi = pmBonding.getBondingInfo();
         PotentialMasterFasterer potentialMaster = nbrListing ?
-                new PotentialMasterListFasterer(this, box, 2, 4, bi)
-                : new PotentialMasterFasterer(this, box, bi);
+                new PotentialMasterListFasterer(this.getSpeciesManager(), box, 2, 4, bi)
+                : new PotentialMasterFasterer(this.getSpeciesManager(), box, bi);
 
         PotentialCompute compute = PotentialCompute.aggregate(potentialMaster, pmBonding);
         integrator = new IntegratorVelocityVerletFasterer(this, compute, box);

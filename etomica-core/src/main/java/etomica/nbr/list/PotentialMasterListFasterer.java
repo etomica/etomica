@@ -14,15 +14,16 @@ import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterFasterer;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 import etomica.util.Debug;
 
 public class PotentialMasterListFasterer extends PotentialMasterFasterer implements IntegratorListener {
 
     private final NeighborListManagerFasterer nbrManager;
 
-    public PotentialMasterListFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
-        super(sim, box, bondingInfo);
-        this.nbrManager = new NeighborListManagerFasterer(sim, box, cellRange, nbrRange, bondingInfo);
+    public PotentialMasterListFasterer(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
+        super(sm, box, bondingInfo);
+        this.nbrManager = new NeighborListManagerFasterer(sm, box, cellRange, nbrRange, bondingInfo);
         this.nbrManager.setPairPotentials(this.pairPotentials);
     }
 

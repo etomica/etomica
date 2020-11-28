@@ -12,15 +12,16 @@ import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterFasterer;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 
 public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
 
     protected final NeighborCellManagerFasterer cellManager;
     protected int cellRange;
 
-    public PotentialMasterCellFasterer(Simulation sim, Box box, int cellRange, BondingInfo bondingInfo) {
-        super(sim, box, bondingInfo);
-        cellManager = new NeighborCellManagerFasterer(sim, box, cellRange, bondingInfo);
+    public PotentialMasterCellFasterer(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo) {
+        super(sm, box, bondingInfo);
+        cellManager = new NeighborCellManagerFasterer(sm, box, cellRange, bondingInfo);
         this.cellRange = cellRange;
     }
 

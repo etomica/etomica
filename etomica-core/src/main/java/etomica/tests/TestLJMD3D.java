@@ -44,7 +44,7 @@ public class TestLJMD3D extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        PotentialMasterListFasterer potentialMaster = new PotentialMasterListFasterer(this, box, 2, 4, BondingInfo.noBonding());
+        PotentialMasterListFasterer potentialMaster = new PotentialMasterListFasterer(this.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(potentialMaster, random, 0.01, 1.1, box);
         box.setNMolecules(species, numAtoms);

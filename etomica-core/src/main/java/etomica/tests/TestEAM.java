@@ -46,7 +46,7 @@ public class TestEAM extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        NeighborListManagerFasterer nbrs = new NeighborListManagerFasterer(this, box, 2, 7.2, BondingInfo.noBonding());
+        NeighborListManagerFasterer nbrs = new NeighborListManagerFasterer(this.getSpeciesManager(), box, 2, 7.2, BondingInfo.noBonding());
         nbrs.setDoDownNeighbors(true);
         PotentialComputeEAM potentialMaster = new PotentialComputeEAM(this, box, nbrs);
         potentialMaster.doAllTruncationCorrection = false;

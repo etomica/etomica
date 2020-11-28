@@ -14,6 +14,7 @@ import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -36,14 +37,14 @@ public class NeighborCellManagerFasterer implements NeighborManager {
     protected int[] atomCell;
     public int[] allCellOffsets;
 
-    public NeighborCellManagerFasterer(Simulation sim, Box box, int cellRange, BondingInfo bondingInfo) {
+    public NeighborCellManagerFasterer(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo) {
         this.box = box;
         this.cellRange = cellRange;
         boxHalf = box.getSpace().makeVector();
         numCells = new int[3];
         jump = new int[3];
         cellNextAtom = atomCell = cellOffsets = wrapMap = cellLastAtom = new int[0];
-        this.isPureAtoms = sim.getSpeciesList().stream().allMatch(s -> s.getLeafAtomCount() == 1);
+        this.isPureAtoms = sm.isPureAtoms();
         this.bondingInfo = bondingInfo;
     }
 

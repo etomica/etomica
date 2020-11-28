@@ -49,7 +49,7 @@ public class TestLJMC3DNew extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        NeighborCellManagerFasterer cellManager = new NeighborCellManagerFasterer(this, box, 2, BondingInfo.noBonding());
+        NeighborCellManagerFasterer cellManager = new NeighborCellManagerFasterer(this.getSpeciesManager(), box, 2, BondingInfo.noBonding());
         PotentialComputePair compute = new PotentialComputePair(this, box, cellManager);
         integrator = new IntegratorMCFasterer(compute, random, 1.1, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, compute, box);

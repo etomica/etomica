@@ -17,13 +17,13 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
 import java.util.*;
 
 public class PotentialMasterFasterer implements etomica.potential.compute.PotentialCompute {
-    private final List<ISpecies> speciesList;
     protected final BondingInfo bondingInfo;
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
@@ -43,15 +43,12 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     public boolean doAllTruncationCorrection = true;
     public boolean doOneTruncationCorrection = false;
 
-    public PotentialMasterFasterer(Simulation sim, Box box, BondingInfo bondingInfo) {
+    public PotentialMasterFasterer(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
         space = box.getSpace();
-        this.speciesList = sim.getSpeciesList();
         this.bondingInfo = bondingInfo;
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        pairPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
+        pairPotentials = new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()];
         this.box = box;
-        dr = sim.getSpace().makeVector();
+        dr = box.getSpace().makeVector();
 
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
@@ -59,10 +56,10 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
 
-        isPureAtoms = speciesList.stream().allMatch(s -> s.getLeafAtomCount() == 1);
+        isPureAtoms = sm.isPureAtoms();
 
-        this.atomCountByType = new int[lastTypeIndex + 1];
-        for (ISpecies s : sim.getSpeciesList()) {
+        this.atomCountByType = new int[sm.getAtomTypeCount()];
+        for (ISpecies s : sm.getSpeciesArray()) {
             int nMols = box.getNMolecules(s);
             for (AtomType type : s.getAtomTypes()) {
                 atomCountByType[type.getIndex()] += nMols;
