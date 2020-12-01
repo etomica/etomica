@@ -73,12 +73,12 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft,
 //        	int i2 = atom2.getIndex();
 //        	int i3 = atom3.getIndex();
 //        		System.out.println(String.format("%2d %2d %2d %2d %f", i0, i1, i2, i3, cosphi));
-        return u(cosphi, true);
+        return u(cosphi);
 
     }
 
     @Override
-    public double u(double cosphi, boolean positiveTheta) {
+    public double u(double cosphi) {
         double cos2phi = 2 * cosphi * cosphi - 1;
         double cos3phi = cosphi * (2 * cos2phi - 1);
         return a0 + a1 * (1 + cosphi) + a2 * (1 - cos2phi) + a3 * (1 - cos3phi);
@@ -87,7 +87,7 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft,
     }
 
     @Override
-    public void udu(double costheta, boolean positiveTheta, double[] u, double[] du) {
+    public void udu(double costheta, double[] u, double[] du) {
         double cos2theta = 2 * costheta * costheta - 1;
         double cos3theta = costheta * (2 * cos2theta - 1);
         u[0] = a0 + a1 * (1 + costheta) + a2 * (1 - cos2theta) + a3 * (1 - cos3theta);
