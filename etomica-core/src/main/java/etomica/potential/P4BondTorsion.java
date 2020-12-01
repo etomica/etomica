@@ -72,7 +72,7 @@ public class P4BondTorsion extends Potential implements PotentialSoft, IPotentia
     @Override
     public double u(double costheta) {
         double cos2phi = 2 * costheta * costheta - 1;
-        double cos3phi = costheta * (2 * cos2phi - 1);
+        double cos3phi = costheta * (2 * costheta * costheta - 1);
 
         return a0 + a1 * (1 + costheta) + a2 * (1 - cos2phi) + a3 * (1 + cos3phi);
     }
@@ -170,13 +170,12 @@ public class P4BondTorsion extends Potential implements PotentialSoft, IPotentia
     @Override
     public void udu(double costheta, double[] u, double[] du) {
         // cos(2phi) = 2*cosphi*cosphi - 1
-        double cosSQtheta = costheta * costheta;  // cos^2theta, not cos(2theta)
-        double cos2theta = 2 * cosSQtheta - 1;
-        double cos3theta = costheta * (4 * cos2theta - 3); // cos(3theta)
+        double cosSQtheta = costheta * costheta;
+        double cosCBtheta = cosSQtheta * costheta;
 
         // a0 + a1*(1+cos(phi)) + a2*(1-cos2phi) + a3*(1+cos3phi)
-        u[0] = a0 + a1 * (1 + costheta) + a2 * (1 - cos2theta) + a3 * (1 + cos3theta);
-        du[0] = 12.0 * a3 * cosSQtheta - 4.0 * a2 * costheta + a1 - 3 * a3;
+        u[0] = a0 + a1 * (1 + costheta) + a2 * (2 - 2 * cosSQtheta) + a3 * (1 + 4 * cosCBtheta - 3 * costheta);
+        du[0] = 12 * a3 * cosSQtheta - 4 * a2 * costheta + a1 - 3 * a3;
     }
 
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
