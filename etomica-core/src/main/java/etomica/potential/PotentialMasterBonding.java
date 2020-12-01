@@ -11,6 +11,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 
 import java.util.*;
@@ -165,17 +166,17 @@ public class PotentialMasterBonding implements PotentialCompute {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector rk = jAtom.getPosition();
-        Vector drij = Vector.d(ri.getD());
-        Vector drkj = Vector.d(ri.getD());
+        Vector drji = Vector.d(ri.getD());
+        Vector drjk = Vector.d(ri.getD());
 
-        drij.Ev1Mv2(ri, rj);
-        boundary.nearestImage(drij);
-        drkj.Ev1Mv2(rk, rj);
-        boundary.nearestImage(drkj);
-        double rij2 = drij.squared();
-        double rkj2 = drkj.squared();
+        drji.Ev1Mv2(ri, rj);
+        boundary.nearestImage(drji);
+        drjk.Ev1Mv2(rk, rj);
+        boundary.nearestImage(drjk);
+        double rij2 = drji.squared();
+        double rkj2 = drjk.squared();
         double drij_kj = 1.0 / Math.sqrt(rij2 * rkj2);
-        double costheta = drij.dot(drkj) / drij_kj;
+        double costheta = drji.dot(drjk) / drij_kj;
         double[] u = {0};
         double[] du = {0};
         potential.udu(costheta, u, du);
@@ -188,13 +189,13 @@ public class PotentialMasterBonding implements PotentialCompute {
             Vector fj = forces[jAtom.getLeafIndex()];
             Vector fk = forces[kAtom.getLeafIndex()];
             // dcostheta/dri
-            fi.Ea1Tv1(-drij_kj, drkj);
-            fi.PEa1Tv1(costheta / rij2, drij);
+            fi.Ea1Tv1(-drij_kj, drjk);
+            fi.PEa1Tv1(costheta / rij2, drji);
             // times -du/dcostheta
             fi.TE(-duijk);
 
-            fk.Ea1Tv1(-drij_kj, drij);
-            fk.PEa1Tv1(-costheta / rkj2, drkj);
+            fk.Ea1Tv1(-drij_kj, drji);
+            fk.PEa1Tv1(-costheta / rkj2, drjk);
             fk.TE(-duijk);
 
             // fj = -fi - fk
@@ -202,6 +203,85 @@ public class PotentialMasterBonding implements PotentialCompute {
             fj.PEa1Tv1(-1, fk);
         }
         return uijk;
+    }
+
+    private static double handleOneBondQuad(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, IAtom kAtom, IAtom lAtom, IPotentialBondTorsion potential, Vector[] forces) {
+        Vector ri = iAtom.getPosition();
+        Vector rj = jAtom.getPosition();
+        Vector rk = jAtom.getPosition();
+        Vector rl = jAtom.getPosition();
+        Vector rji = new Vector3D();
+        Vector rjk = new Vector3D();
+        Vector rkl = new Vector3D();
+
+        rji.Ev1Mv2(ri, rj);
+        boundary.nearestImage(rji);
+        rjk.Ev1Mv2(rk, rj);
+        boundary.nearestImage(rjk);
+        double rjk2 = rjk.squared();
+        rkl.Ev1Mv2(rl, rk);
+        boundary.nearestImage(rkl);
+
+        Vector vji = new Vector3D();
+        vji.E(rji);
+        vji.PEa1Tv1(-rjk.dot(rji) / rjk2, rjk);
+        double vji2 = vji.squared();
+        Vector vkl = new Vector3D();
+        vkl.E(rkl);
+        vkl.PEa1Tv1(-rjk.dot(rkl) / rjk2, rjk);
+        double vkl2 = vkl.squared();
+        double rji2 = rji.squared();
+        double rkl2 = rkl.squared();
+
+        double vji2vkl2 = vji2 * vkl2;
+        if (vji2 < 1e-6 * rji2 || vkl2 < 1e-6 * rkl2) {
+            // one of the vectors (ji, kl) is nearly colinear with jk
+            return 0;
+        }
+        double vji_vkl = 1 / Math.sqrt(vji2vkl2);
+        double costheta = vji.dot(vkl) * vji_vkl;
+        Vector3D tmp = new Vector3D();
+        tmp.E(vji);
+        tmp.XE(vkl);
+        // tmp will now either be parallel to rjk (positive) or
+        // antiparallel (negative).
+        boolean postheta = tmp.dot(rjk) > 0;
+        double[] u = {0}, du = {0};
+        potential.udu(costheta, u, du);
+
+        if (u[0] == 0) return 0;
+
+        if (doForces) {
+
+            Vector fi = forces[iAtom.getLeafIndex()];
+            Vector fj = forces[jAtom.getLeafIndex()];
+            Vector fk = forces[kAtom.getLeafIndex()];
+            Vector fl = forces[lAtom.getLeafIndex()];
+
+            Vector df = new Vector3D();
+            tmp.Ea1Tv1(-vji_vkl, vkl);
+            tmp.PEa1Tv1(costheta / vji2, vji);
+            df.Ea1Tv1(du[0], tmp);
+            // we won't compute fk directly, but fk=-(fi+fj+fl);
+            fk.ME(df);
+            fi.PE(df);
+
+            tmp.Ea1Tv1(-vji_vkl, vji);
+            tmp.PEa1Tv1(costheta / vkl2, vkl);
+            df.Ea1Tv1(du[0], tmp);
+            fk.ME(df);
+            fl.PE(df);
+
+            double aj = rjk.dot(rji) / rjk2;
+            double ak = rjk.dot(rkl) / rjk2;
+
+            df.Ea1Tv1(-vji_vkl - costheta * ak / rkl2, rkl);
+            df.PEa1Tv1((ak + aj - 2 * aj * ak) * vji_vkl - costheta * ((aj - aj * aj) / rji2 + ak * ak / rkl2), rjk);
+            df.PEa1Tv1(ak * vji_vkl + costheta / rji2 * (1 + aj), rji);
+            fk.ME(df);
+            fj.PE(df);
+        }
+        return u[0];
     }
 
     public double computeOneMolecule(IMolecule molecule) {
@@ -226,6 +306,17 @@ public class PotentialMasterBonding implements PotentialCompute {
                 IAtom jAtom = molecule.getChildList().get(triplet[1]);
                 IAtom kAtom = molecule.getChildList().get(triplet[2]);
                 u[0] += handleOneBondTriplet(false, boundary, iAtom, jAtom, kAtom, potential, null);
+            }
+        });
+
+        Map<IPotentialBondTorsion, List<int[]>> potentials4 = bondingInfo.bondedQuads[molecule.getType().getIndex()];
+        potentials4.forEach((potential, quads) -> {
+            for (int[] quad : quads) {
+                IAtom iAtom = molecule.getChildList().get(quad[0]);
+                IAtom jAtom = molecule.getChildList().get(quad[1]);
+                IAtom kAtom = molecule.getChildList().get(quad[2]);
+                IAtom lAtom = molecule.getChildList().get(quad[3]);
+                u[0] += handleOneBondQuad(false, boundary, iAtom, jAtom, kAtom, lAtom, potential, null);
             }
         });
 
@@ -275,6 +366,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         public final Map<Potential2Soft, int[][]>[] bondedPartners;
         public final Map<IPotentialBondAngle, List<int[]>>[] bondedTriplets;
         public final Map<IPotentialBondAngle, int[][][]>[] bondedTripletPartners;
+        public final Map<IPotentialBondTorsion, List<int[]>>[] bondedQuads;
+        public final Map<IPotentialBondTorsion, int[][][]>[] bondedQuadPartners;
 
         public FullBondingInfo(Simulation sim) {
             bondedAtoms = new int[sim.getSpeciesCount()][][];
@@ -282,6 +375,8 @@ public class PotentialMasterBonding implements PotentialCompute {
             bondedPartners = new HashMap[sim.getSpeciesCount()];
             bondedTriplets = new HashMap[sim.getSpeciesCount()];
             bondedTripletPartners = new HashMap[sim.getSpeciesCount()];
+            bondedQuads = new HashMap[sim.getSpeciesCount()];
+            bondedQuadPartners = new HashMap[sim.getSpeciesCount()];
             for (int i = 0; i < sim.getSpeciesCount(); i++) {
                 bondedPairs[i] = new HashMap<>();
                 bondedPartners[i] = new HashMap<>();
@@ -356,6 +451,34 @@ public class PotentialMasterBonding implements PotentialCompute {
             }
             bondedTriplets[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
             bondedTripletPartners[speciesIndex].put(potential, partners);
+        }
+
+        public void setBondingPotentialQuads(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
+            isOnlyRigidMolecules = false;
+            int speciesIndex = species.getIndex();
+            if (bondedAtoms[speciesIndex] == null) {
+                bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
+            }
+
+            int[][][] partners = new int[species.getLeafAtomCount()][0][0];
+
+            int[][] speciesAtoms = bondedAtoms[speciesIndex];
+            for (int[] indices : bondedIndices) {
+                int iAtom = minVal(indices);
+                int kAtom = maxVal(indices);
+                int jAtom = indices[0] + indices[1] + indices[2] - iAtom - kAtom;
+                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
+                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], kAtom);
+                speciesAtoms[jAtom] = etomica.util.Arrays.addInt(speciesAtoms[jAtom], jAtom);
+                partners[iAtom] = (int[][]) etomica.util.Arrays.addObject(partners[iAtom], bondedIndices);
+                partners[jAtom] = (int[][]) etomica.util.Arrays.addObject(partners[jAtom], bondedIndices);
+                partners[kAtom] = (int[][]) etomica.util.Arrays.addObject(partners[kAtom], bondedIndices);
+            }
+            if (bondedQuads[speciesIndex].containsKey(potential)) {
+                throw new RuntimeException("Attempting to add the same bonding potential twice");
+            }
+            bondedQuads[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
+            bondedQuadPartners[speciesIndex].put(potential, partners);
         }
 
         @Override
