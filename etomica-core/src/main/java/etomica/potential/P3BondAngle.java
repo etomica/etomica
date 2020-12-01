@@ -147,8 +147,8 @@ public class P3BondAngle extends Potential implements PotentialSoft, IPotentialB
             theta = Math.acos(costheta);
         }
         double dtheta = theta - angle;
-        du[0] = epsilon * dtheta;
-        u[0] = 0.5 * du[0] * dtheta;
+        du[0] = -epsilon * dtheta / Math.sqrt(1 - costheta * costheta);
+        u[0] = 0.5 * epsilon * dtheta * dtheta;
     }
 
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {

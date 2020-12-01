@@ -165,7 +165,7 @@ public class PotentialMasterBonding implements PotentialCompute {
     private static double handleOneBondTriplet(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, IAtom kAtom, IPotentialBondAngle potential, Vector[] forces) {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
-        Vector rk = jAtom.getPosition();
+        Vector rk = kAtom.getPosition();
         Vector drji = Vector.d(ri.getD());
         Vector drjk = Vector.d(ri.getD());
 
@@ -176,7 +176,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         double rij2 = drji.squared();
         double rkj2 = drjk.squared();
         double drij_kj = 1.0 / Math.sqrt(rij2 * rkj2);
-        double costheta = drji.dot(drjk) / drij_kj;
+        double costheta = drji.dot(drjk) * drij_kj;
         double[] u = {0};
         double[] du = {0};
         potential.udu(costheta, u, du);
@@ -188,19 +188,20 @@ public class PotentialMasterBonding implements PotentialCompute {
             Vector fi = forces[iAtom.getLeafIndex()];
             Vector fj = forces[jAtom.getLeafIndex()];
             Vector fk = forces[kAtom.getLeafIndex()];
+            Vector df = Vector.d(fi.getD());
             // dcostheta/dri
-            fi.Ea1Tv1(-drij_kj, drjk);
-            fi.PEa1Tv1(costheta / rij2, drji);
+            df.Ea1Tv1(drij_kj, drjk);
+            df.PEa1Tv1(-costheta / rij2, drji);
             // times -du/dcostheta
-            fi.TE(-duijk);
+            df.TE(-duijk);
+            fi.PE(df);
+            fj.ME(df);
 
-            fk.Ea1Tv1(-drij_kj, drji);
-            fk.PEa1Tv1(-costheta / rkj2, drjk);
-            fk.TE(-duijk);
-
-            // fj = -fi - fk
-            fj.Ea1Tv1(-1, fi);
-            fj.PEa1Tv1(-1, fk);
+            df.Ea1Tv1(drij_kj, drji);
+            df.PEa1Tv1(-costheta / rkj2, drjk);
+            df.TE(-duijk);
+            fk.PE(df);
+            fj.ME(df);
         }
         return uijk;
     }
@@ -388,7 +389,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         private static int maxVal(int[] a) {
             int m = Integer.MIN_VALUE;
             for (int j : a) {
-                m = Math.min(m, j);
+                m = Math.max(m, j);
             }
             return m;
         }
@@ -396,7 +397,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         private static int minVal(int[] a) {
             int m = Integer.MAX_VALUE;
             for (int j : a) {
-                m = Math.max(m, j);
+                m = Math.min(m, j);
             }
             return m;
         }
@@ -442,9 +443,9 @@ public class PotentialMasterBonding implements PotentialCompute {
                 speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
                 speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], kAtom);
                 speciesAtoms[jAtom] = etomica.util.Arrays.addInt(speciesAtoms[jAtom], jAtom);
-                partners[iAtom] = (int[][]) etomica.util.Arrays.addObject(partners[iAtom], bondedIndices);
-                partners[jAtom] = (int[][]) etomica.util.Arrays.addObject(partners[jAtom], bondedIndices);
-                partners[kAtom] = (int[][]) etomica.util.Arrays.addObject(partners[kAtom], bondedIndices);
+                partners[iAtom] = etomica.util.Arrays.addObject(partners[iAtom], indices);
+                partners[jAtom] = etomica.util.Arrays.addObject(partners[jAtom], indices);
+                partners[kAtom] = etomica.util.Arrays.addObject(partners[kAtom], indices);
             }
             if (bondedTriplets[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");
