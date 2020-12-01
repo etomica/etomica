@@ -9,11 +9,10 @@ import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesAlkane;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
-import etomica.virial.SpeciesAlkane;
-import etomica.virial.SpeciesFactory;
 
 public class MolecularModelTRAPPE_SpeciesAlkane implements IMolecularModel_SpeciesFactory,Cloneable{
 	private String MoleculeDisplayName;
