@@ -145,6 +145,23 @@ public class PotentialMasterBonding implements PotentialCompute {
                 uTot[0] += handleComputeOneBonded(potential, iAtom, jAtom);
             }
         });
+        bondingInfo.bondedTripletPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+            for (int[] pairIdx : partners[atom.getIndex()]) {
+                IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                IAtom kAtom = parentMolecule.getChildList().get(pairIdx[2]);
+                uTot[0] += handleComputeOneBondedTriplet(potential, iAtom, jAtom, kAtom);
+            }
+        });
+        bondingInfo.bondedQuadPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+            for (int[] pairIdx : partners[atom.getIndex()]) {
+                IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                IAtom kAtom = parentMolecule.getChildList().get(pairIdx[2]);
+                IAtom lAtom = parentMolecule.getChildList().get(pairIdx[3]);
+                uTot[0] += handleComputeOneBondedQuad(potential, iAtom, jAtom, kAtom, lAtom);
+            }
+        });
         return uTot[0];
     }
 
@@ -155,6 +172,62 @@ public class PotentialMasterBonding implements PotentialCompute {
         dr.Ev1Mv2(rj, ri);
         box.getBoundary().nearestImage(dr);
         return pij.u(dr.squared());
+    }
+
+    private double handleComputeOneBondedTriplet(IPotentialBondAngle potential, IAtom iAtom, IAtom jAtom, IAtom kAtom) {
+        Vector ri = iAtom.getPosition();
+        Vector rj = jAtom.getPosition();
+        Vector rk = kAtom.getPosition();
+        Vector drji = Vector.d(ri.getD());
+        Vector drjk = Vector.d(ri.getD());
+
+        drji.Ev1Mv2(ri, rj);
+        box.getBoundary().nearestImage(drji);
+        drjk.Ev1Mv2(rk, rj);
+        box.getBoundary().nearestImage(drjk);
+        double rij2 = drji.squared();
+        double rkj2 = drjk.squared();
+        double drij_kj = 1.0 / Math.sqrt(rij2 * rkj2);
+        double costheta = drji.dot(drjk) * drij_kj;
+        return potential.u(costheta);
+    }
+
+    private double handleComputeOneBondedQuad(IPotentialBondTorsion potential, IAtom iAtom, IAtom jAtom, IAtom kAtom, IAtom lAtom) {
+        Vector ri = iAtom.getPosition();
+        Vector rj = jAtom.getPosition();
+        Vector rk = kAtom.getPosition();
+        Vector rl = lAtom.getPosition();
+        Vector rji = new Vector3D();
+        Vector rjk = new Vector3D();
+        Vector rkl = new Vector3D();
+
+        rji.Ev1Mv2(ri, rj);
+        box.getBoundary().nearestImage(rji);
+        rjk.Ev1Mv2(rk, rj);
+        box.getBoundary().nearestImage(rjk);
+        double rjk2 = rjk.squared();
+        rkl.Ev1Mv2(rl, rk);
+        box.getBoundary().nearestImage(rkl);
+
+        Vector vji = new Vector3D();
+        vji.E(rji);
+        vji.PEa1Tv1(-rjk.dot(rji) / rjk2, rjk);
+        double vji2 = vji.squared();
+        Vector vkl = new Vector3D();
+        vkl.E(rkl);
+        vkl.PEa1Tv1(-rjk.dot(rkl) / rjk2, rjk);
+        double vkl2 = vkl.squared();
+        double rji2 = rji.squared();
+        double rkl2 = rkl.squared();
+
+        double vji2vkl2 = vji2 * vkl2;
+        if (vji2 < 1e-6 * rji2 || vkl2 < 1e-6 * rkl2) {
+            // one of the vectors (ji, kl) is nearly colinear with jk
+            return 0;
+        }
+        double vji_vkl = 1 / Math.sqrt(vji2vkl2);
+        double costheta = vji.dot(vkl) * vji_vkl;
+        return potential.u(costheta);
     }
 
     private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, Potential2Soft potential, Vector[] forces) {
