@@ -33,10 +33,6 @@ class P4BondTorsionTest {
         sim.addSpecies(alkane);
         Box box = sim.makeBox();
         box.setNMolecules(alkane, 1);
-        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        for (int i = 0; i < atoms.size(); i++) {
-            System.out.println("r" + i + " " + atoms.get(i).getPosition());
-        }
         pmBonding = new PotentialMasterBonding(sim, box);
         P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
         List<int[]> quads = new ArrayList<>();
@@ -66,7 +62,6 @@ class P4BondTorsionTest {
                 fi.PE(f[i]);
                 fi.TE(0.5);
                 double duExpected = -fi.dot(dr);
-                System.out.println(i + " " + dr + " f " + fi + " du " + duExpected + " " + (newU - u));
                 // we start failing at 1e-10
                 assertEquals(duExpected, newU - u, 1e-8);
 
