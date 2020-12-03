@@ -138,10 +138,11 @@ public class PotentialMasterBonding implements PotentialCompute {
     public double computeOne(IAtom atom) {
         double[] uTot = {0};
         IMolecule parentMolecule = atom.getParentGroup();
-        bondingInfo.bondedPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
-            for (int partnerIdx : partners[atom.getIndex()]) {
-                IAtom jAtom = parentMolecule.getChildList().get(partnerIdx);
-                uTot[0] += handleComputeOneBonded(potential, atom, jAtom);
+        bondingInfo.bondedPairPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+            for (int[] pairIdx : partners[atom.getIndex()]) {
+                IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                uTot[0] += handleComputeOneBonded(potential, iAtom, jAtom);
             }
         });
         return uTot[0];
@@ -373,7 +374,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         public boolean isOnlyRigidMolecules = true;
         public final int[][][] bondedAtoms;
         public final Map<Potential2Soft, List<int[]>>[] bondedPairs;
-        public final Map<Potential2Soft, int[][]>[] bondedPartners;
+        public final Map<Potential2Soft, int[][][]>[] bondedPairPartners;
         public final Map<IPotentialBondAngle, List<int[]>>[] bondedTriplets;
         public final Map<IPotentialBondAngle, int[][][]>[] bondedTripletPartners;
         public final Map<IPotentialBondTorsion, List<int[]>>[] bondedQuads;
@@ -382,14 +383,14 @@ public class PotentialMasterBonding implements PotentialCompute {
         public FullBondingInfo(Simulation sim) {
             bondedAtoms = new int[sim.getSpeciesCount()][][];
             bondedPairs = new HashMap[sim.getSpeciesCount()];
-            bondedPartners = new HashMap[sim.getSpeciesCount()];
+            bondedPairPartners = new HashMap[sim.getSpeciesCount()];
             bondedTriplets = new HashMap[sim.getSpeciesCount()];
             bondedTripletPartners = new HashMap[sim.getSpeciesCount()];
             bondedQuads = new HashMap[sim.getSpeciesCount()];
             bondedQuadPartners = new HashMap[sim.getSpeciesCount()];
             for (int i = 0; i < sim.getSpeciesCount(); i++) {
                 bondedPairs[i] = new HashMap<>();
-                bondedPartners[i] = new HashMap<>();
+                bondedPairPartners[i] = new HashMap<>();
                 bondedTriplets[i] = new HashMap<>();
                 bondedTripletPartners[i] = new HashMap<>();
                 bondedQuads[i] = new HashMap<>();
@@ -397,111 +398,66 @@ public class PotentialMasterBonding implements PotentialCompute {
             }
         }
 
-        private static int maxVal(int[] a) {
-            int m = Integer.MIN_VALUE;
+        private static int[] addIfMissing(int[] a, int i) {
             for (int j : a) {
-                m = Math.max(m, j);
+                if (i == j) return a;
             }
-            return m;
+            return etomica.util.Arrays.addInt(a, i);
         }
 
-        private static int minVal(int[] a) {
-            int m = Integer.MAX_VALUE;
-            for (int j : a) {
-                m = Math.min(m, j);
+        private int[][][] handledIndices(ISpecies species, List<int[]> bondedIndices) {
+            isOnlyRigidMolecules = false;
+            int speciesIndex = species.getIndex();
+            if (bondedAtoms[speciesIndex] == null) {
+                bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
             }
-            return m;
+            int[][] speciesAtoms = bondedAtoms[speciesIndex];
+            int[][][] partners = new int[species.getLeafAtomCount()][0][0];
+            for (int[] indices : bondedIndices) {
+                int[] indicesSorted = indices.clone();
+                Arrays.sort(indicesSorted);
+                for (int i = 0; i < indicesSorted.length; i++) {
+                    int ii = indicesSorted[i];
+                    for (int j = i + 1; j < indicesSorted.length; j++) {
+                        speciesAtoms[ii] = addIfMissing(speciesAtoms[ii], indicesSorted[j]);
+                    }
+                    partners[ii] = etomica.util.Arrays.addObject(partners[ii], indices);
+                }
+            }
+            return partners;
         }
 
         public void setBondingPotentialPair(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
-            isOnlyRigidMolecules = false;
             int speciesIndex = species.getIndex();
-            if (bondedAtoms[speciesIndex] == null) {
-                bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
-            }
-
-            int[][] partners = new int[species.getLeafAtomCount()][0];
-
-            int[][] speciesAtoms = bondedAtoms[speciesIndex];
-            for (int[] indices : bondedIndices) {
-                int[] indicesSorted = indices.clone();
-                Arrays.sort(indicesSorted);
-                int i = indicesSorted[0];
-                int j = indicesSorted[1];
-                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], j);
-                partners[i] = etomica.util.Arrays.addInt(partners[i], j);
-                partners[j] = etomica.util.Arrays.addInt(partners[j], i);
-            }
             if (bondedPairs[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");
             }
+
+            int[][][] partners = handledIndices(species, bondedIndices);
             bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
-            bondedPartners[speciesIndex].put(potential, partners);
+            bondedPairPartners[speciesIndex].put(potential, partners);
         }
 
         public void setBondingPotentialTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {
-            isOnlyRigidMolecules = false;
             int speciesIndex = species.getIndex();
-            if (bondedAtoms[speciesIndex] == null) {
-                bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
-            }
-
-            int[][][] partners = new int[species.getLeafAtomCount()][0][0];
-
-            int[][] speciesAtoms = bondedAtoms[speciesIndex];
-            for (int[] indices : bondedIndices) {
-                int[] indicesSorted = indices.clone();
-                Arrays.sort(indicesSorted);
-                int i = indicesSorted[0];
-                int j = indicesSorted[1];
-                int k = indicesSorted[2];
-                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], j);
-                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], k);
-                speciesAtoms[j] = etomica.util.Arrays.addInt(speciesAtoms[j], k);
-                partners[i] = etomica.util.Arrays.addObject(partners[i], indices);
-                partners[j] = etomica.util.Arrays.addObject(partners[j], indices);
-                partners[k] = etomica.util.Arrays.addObject(partners[k], indices);
-            }
             if (bondedTriplets[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");
             }
+
+            int[][][] partners = handledIndices(species, bondedIndices);
             bondedTriplets[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
             bondedTripletPartners[speciesIndex].put(potential, partners);
         }
 
         public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
-            isOnlyRigidMolecules = false;
             int speciesIndex = species.getIndex();
-            if (bondedAtoms[speciesIndex] == null) {
-                bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
-            }
-
-            int[][][] partners = new int[species.getLeafAtomCount()][0][0];
-
-            int[][] speciesAtoms = bondedAtoms[speciesIndex];
-            for (int[] indices : bondedIndices) {
-                int[] indicesSorted = indices.clone();
-                Arrays.sort(indicesSorted);
-                int i = indicesSorted[0];
-                int j = indicesSorted[1];
-                int k = indicesSorted[2];
-                int l = indicesSorted[3];
-                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], j);
-                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], k);
-                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], l);
-                speciesAtoms[j] = etomica.util.Arrays.addInt(speciesAtoms[j], k);
-                speciesAtoms[j] = etomica.util.Arrays.addInt(speciesAtoms[j], l);
-                speciesAtoms[k] = etomica.util.Arrays.addInt(speciesAtoms[k], l);
-                partners[i] = etomica.util.Arrays.addObject(partners[i], indices);
-                partners[j] = etomica.util.Arrays.addObject(partners[j], indices);
-                partners[k] = etomica.util.Arrays.addObject(partners[k], indices);
-                partners[l] = etomica.util.Arrays.addObject(partners[l], indices);
-            }
             if (bondedQuads[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");
             }
-            bondedQuads[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
+
+            int[][][] partners = handledIndices(species, bondedIndices);
             bondedQuadPartners[speciesIndex].put(potential, partners);
+            bondedQuads[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
         }
 
         @Override
