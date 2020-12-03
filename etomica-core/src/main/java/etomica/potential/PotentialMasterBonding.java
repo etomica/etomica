@@ -43,8 +43,12 @@ public class PotentialMasterBonding implements PotentialCompute {
         bondingInfo.setBondingPotentialPair(species, potential, bondedIndices);
     }
 
-    public void setBondingPairTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {
+    public void setBondingPotentialTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {
         bondingInfo.setBondingPotentialTriplet(species, potential, bondedIndices);
+    }
+
+    public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
+        bondingInfo.setBondingPotentialQuad(species, potential, bondedIndices);
     }
 
     private void zeroArrays(boolean doForces) {
@@ -111,6 +115,19 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom jAtom = molecule.getChildList().get(triplet[1]);
                         IAtom kAtom = molecule.getChildList().get(triplet[2]);
                         uTot[0] += handleOneBondTriplet(doForces, box.getBoundary(), iAtom, jAtom, kAtom, potential, forces);
+                    }
+                }
+            });
+
+            Map<IPotentialBondTorsion, List<int[]>> potentials4 = bondingInfo.bondedQuads[i];
+            potentials4.forEach((potential, quads) -> {
+                for (IMolecule molecule : molecules) {
+                    for (int[] quad : quads) {
+                        IAtom iAtom = molecule.getChildList().get(quad[0]);
+                        IAtom jAtom = molecule.getChildList().get(quad[1]);
+                        IAtom kAtom = molecule.getChildList().get(quad[2]);
+                        IAtom lAtom = molecule.getChildList().get(quad[3]);
+                        uTot[0] += handleOneBondQuad(doForces, box.getBoundary(), iAtom, jAtom, kAtom, lAtom, potential, forces);
                     }
                 }
             });
@@ -181,7 +198,6 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] du = {0};
         potential.udu(costheta, u, du);
         double uijk = u[0];
-        if (uijk == 0) return 0;
 
         if (doForces) {
             double duijk = du[0]; // du/dcostheta
@@ -209,8 +225,8 @@ public class PotentialMasterBonding implements PotentialCompute {
     private static double handleOneBondQuad(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, IAtom kAtom, IAtom lAtom, IPotentialBondTorsion potential, Vector[] forces) {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
-        Vector rk = jAtom.getPosition();
-        Vector rl = jAtom.getPosition();
+        Vector rk = kAtom.getPosition();
+        Vector rl = lAtom.getPosition();
         Vector rji = new Vector3D();
         Vector rjk = new Vector3D();
         Vector rkl = new Vector3D();
@@ -241,16 +257,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         }
         double vji_vkl = 1 / Math.sqrt(vji2vkl2);
         double costheta = vji.dot(vkl) * vji_vkl;
-        Vector3D tmp = new Vector3D();
-        tmp.E(vji);
-        tmp.XE(vkl);
-        // tmp will now either be parallel to rjk (positive) or
-        // antiparallel (negative).
-        boolean postheta = tmp.dot(rjk) > 0;
         double[] u = {0}, du = {0};
         potential.udu(costheta, u, du);
-
-        if (u[0] == 0) return 0;
 
         if (doForces) {
 
@@ -260,25 +268,26 @@ public class PotentialMasterBonding implements PotentialCompute {
             Vector fl = forces[lAtom.getLeafIndex()];
 
             Vector df = new Vector3D();
-            tmp.Ea1Tv1(-vji_vkl, vkl);
-            tmp.PEa1Tv1(costheta / vji2, vji);
-            df.Ea1Tv1(du[0], tmp);
+            df.Ea1Tv1(vji_vkl, vkl);
+            df.PEa1Tv1(-costheta / vji2, vji);
+            df.TE(-du[0]);
             // we won't compute fk directly, but fk=-(fi+fj+fl);
             fk.ME(df);
             fi.PE(df);
 
-            tmp.Ea1Tv1(-vji_vkl, vji);
-            tmp.PEa1Tv1(costheta / vkl2, vkl);
-            df.Ea1Tv1(du[0], tmp);
+            df.Ea1Tv1(vji_vkl, vji);
+            df.PEa1Tv1(-costheta / vkl2, vkl);
+            df.TE(-du[0]);
             fk.ME(df);
             fl.PE(df);
 
             double aj = rjk.dot(rji) / rjk2;
             double ak = rjk.dot(rkl) / rjk2;
 
-            df.Ea1Tv1(-vji_vkl - costheta * ak / rkl2, rkl);
-            df.PEa1Tv1((ak + aj - 2 * aj * ak) * vji_vkl - costheta * ((aj - aj * aj) / rji2 + ak * ak / rkl2), rjk);
-            df.PEa1Tv1(ak * vji_vkl + costheta / rji2 * (1 + aj), rji);
+            df.Ea1Tv1((aj - 1) * vji_vkl - costheta * ak / vkl2, rkl);
+            df.PEa1Tv1((ak - 2 * aj * ak) * vji_vkl - costheta * ((aj - aj * aj) / vji2 - ak * ak / vkl2), rjk);
+            df.PEa1Tv1(ak * vji_vkl + costheta / vji2 * (1 - aj), rji);
+            df.TE(-du[0]);
             fk.ME(df);
             fj.PE(df);
         }
@@ -383,6 +392,8 @@ public class PotentialMasterBonding implements PotentialCompute {
                 bondedPartners[i] = new HashMap<>();
                 bondedTriplets[i] = new HashMap<>();
                 bondedTripletPartners[i] = new HashMap<>();
+                bondedQuads[i] = new HashMap<>();
+                bondedQuadPartners[i] = new HashMap<>();
             }
         }
 
@@ -413,11 +424,13 @@ public class PotentialMasterBonding implements PotentialCompute {
 
             int[][] speciesAtoms = bondedAtoms[speciesIndex];
             for (int[] indices : bondedIndices) {
-                int iAtom = minVal(indices);
-                int jAtom = maxVal(indices);
-                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
-                partners[iAtom] = etomica.util.Arrays.addInt(partners[iAtom], jAtom);
-                partners[jAtom] = etomica.util.Arrays.addInt(partners[jAtom], iAtom);
+                int[] indicesSorted = indices.clone();
+                Arrays.sort(indicesSorted);
+                int i = indicesSorted[0];
+                int j = indicesSorted[1];
+                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], j);
+                partners[i] = etomica.util.Arrays.addInt(partners[i], j);
+                partners[j] = etomica.util.Arrays.addInt(partners[j], i);
             }
             if (bondedPairs[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");
@@ -437,15 +450,17 @@ public class PotentialMasterBonding implements PotentialCompute {
 
             int[][] speciesAtoms = bondedAtoms[speciesIndex];
             for (int[] indices : bondedIndices) {
-                int iAtom = minVal(indices);
-                int kAtom = maxVal(indices);
-                int jAtom = indices[0] + indices[1] + indices[2] - iAtom - kAtom;
-                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
-                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], kAtom);
-                speciesAtoms[jAtom] = etomica.util.Arrays.addInt(speciesAtoms[jAtom], jAtom);
-                partners[iAtom] = etomica.util.Arrays.addObject(partners[iAtom], indices);
-                partners[jAtom] = etomica.util.Arrays.addObject(partners[jAtom], indices);
-                partners[kAtom] = etomica.util.Arrays.addObject(partners[kAtom], indices);
+                int[] indicesSorted = indices.clone();
+                Arrays.sort(indicesSorted);
+                int i = indicesSorted[0];
+                int j = indicesSorted[1];
+                int k = indicesSorted[2];
+                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], j);
+                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], k);
+                speciesAtoms[j] = etomica.util.Arrays.addInt(speciesAtoms[j], k);
+                partners[i] = etomica.util.Arrays.addObject(partners[i], indices);
+                partners[j] = etomica.util.Arrays.addObject(partners[j], indices);
+                partners[k] = etomica.util.Arrays.addObject(partners[k], indices);
             }
             if (bondedTriplets[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");
@@ -454,7 +469,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             bondedTripletPartners[speciesIndex].put(potential, partners);
         }
 
-        public void setBondingPotentialQuads(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
+        public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
             isOnlyRigidMolecules = false;
             int speciesIndex = species.getIndex();
             if (bondedAtoms[speciesIndex] == null) {
@@ -465,15 +480,22 @@ public class PotentialMasterBonding implements PotentialCompute {
 
             int[][] speciesAtoms = bondedAtoms[speciesIndex];
             for (int[] indices : bondedIndices) {
-                int iAtom = minVal(indices);
-                int kAtom = maxVal(indices);
-                int jAtom = indices[0] + indices[1] + indices[2] - iAtom - kAtom;
-                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], jAtom);
-                speciesAtoms[iAtom] = etomica.util.Arrays.addInt(speciesAtoms[iAtom], kAtom);
-                speciesAtoms[jAtom] = etomica.util.Arrays.addInt(speciesAtoms[jAtom], jAtom);
-                partners[iAtom] = (int[][]) etomica.util.Arrays.addObject(partners[iAtom], bondedIndices);
-                partners[jAtom] = (int[][]) etomica.util.Arrays.addObject(partners[jAtom], bondedIndices);
-                partners[kAtom] = (int[][]) etomica.util.Arrays.addObject(partners[kAtom], bondedIndices);
+                int[] indicesSorted = indices.clone();
+                Arrays.sort(indicesSorted);
+                int i = indicesSorted[0];
+                int j = indicesSorted[1];
+                int k = indicesSorted[2];
+                int l = indicesSorted[3];
+                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], j);
+                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], k);
+                speciesAtoms[i] = etomica.util.Arrays.addInt(speciesAtoms[i], l);
+                speciesAtoms[j] = etomica.util.Arrays.addInt(speciesAtoms[j], k);
+                speciesAtoms[j] = etomica.util.Arrays.addInt(speciesAtoms[j], l);
+                speciesAtoms[k] = etomica.util.Arrays.addInt(speciesAtoms[k], l);
+                partners[i] = etomica.util.Arrays.addObject(partners[i], indices);
+                partners[j] = etomica.util.Arrays.addObject(partners[j], indices);
+                partners[k] = etomica.util.Arrays.addObject(partners[k], indices);
+                partners[l] = etomica.util.Arrays.addObject(partners[l], indices);
             }
             if (bondedQuads[speciesIndex].containsKey(potential)) {
                 throw new RuntimeException("Attempting to add the same bonding potential twice");

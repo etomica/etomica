@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class P3BondAngleTest {
+class P4BondTorsionTest {
 
     Simulation sim;
     PotentialMasterBonding pmBonding;
@@ -33,15 +33,17 @@ class P3BondAngleTest {
         sim.addSpecies(alkane);
         Box box = sim.makeBox();
         box.setNMolecules(alkane, 1);
-        pmBonding = new PotentialMasterBonding(sim, box);
-        P3BondAngle p3 = new P3BondAngle(space);
-        p3.setAngle(Math.PI * 114.0 / 180.0);
-        p3.setEpsilon(Kelvin.UNIT.toSim(62500));
-        List<int[]> triplets = new ArrayList<>();
-        for (int i = 0; i < nSpheres - 2; i++) {
-            triplets.add(new int[]{i, i + 1, i + 2});
+        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
+        for (int i = 0; i < atoms.size(); i++) {
+            System.out.println("r" + i + " " + atoms.get(i).getPosition());
         }
-        pmBonding.setBondingPotentialTriplet(alkane, p3, triplets);
+        pmBonding = new PotentialMasterBonding(sim, box);
+        P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
+        List<int[]> quads = new ArrayList<>();
+        for (int i = 0; i < nSpheres - 3; i++) {
+            quads.add(new int[]{i, i + 1, i + 2, i + 3});
+        }
+        pmBonding.setBondingPotentialQuad(alkane, p4, quads);
         pmBonding.init();
     }
 
@@ -64,9 +66,9 @@ class P3BondAngleTest {
                 fi.PE(f[i]);
                 fi.TE(0.5);
                 double duExpected = -fi.dot(dr);
-//                System.out.println(i+" "+dr+" "+duExpected+" "+(newU-u));
-                // typically less than 1e-8
-                assertEquals(duExpected, newU - u, 1e-7);
+                System.out.println(i + " " + dr + " f " + fi + " du " + duExpected + " " + (newU - u));
+                // we start failing at 1e-10
+                assertEquals(duExpected, newU - u, 1e-8);
 
                 u = newU;
             }
