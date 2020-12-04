@@ -5,7 +5,8 @@ package etomica.potential;
 
 /**
  * Interface for a potential capable of return bond torsion energies and derivatives.
- * Because it only takes cos(theta), the u(-theta) = u(theta) and u(0)=0.
+ * Because it only takes cos(theta), the u(-theta) = u(theta) and du/dtheta = 0 at
+ * theta=0 and theta=pi.
  */
 public interface IPotentialBondTorsion {
 
