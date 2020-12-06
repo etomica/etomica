@@ -7,6 +7,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.potential.IPotentialAtom;
@@ -172,6 +173,20 @@ public class PotentialComputeOne implements PotentialCompute {
     @Override
     public IntegratorListener makeIntegratorListener() {
         return new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+
+            }
         };
     }
 }
