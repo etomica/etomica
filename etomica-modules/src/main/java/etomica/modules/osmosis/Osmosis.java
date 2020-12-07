@@ -10,7 +10,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
-import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
@@ -48,7 +47,6 @@ public class Osmosis extends SimulationGraphic {
 	private final static String APP_NAME = "Osmosis";
 	private final static int REPAINT_INTERVAL = 1;
 
-    public DataSourceCountTime cycles;
     public DisplayTextBox displayCycles;
     public MeterOsmoticPressure osmosisPMeter;
     public MeterLocalMoleFraction moleFractionRight, moleFractionLeft;
@@ -97,7 +95,6 @@ public class Osmosis extends SimulationGraphic {
         
         simRestart.setConfiguration(config);
 
-        cycles = new DataSourceCountTime();
         displayCycles = new DisplayTimer(sim.integrator);
         displayCycles.setLabel("Cycle Time");
 	    displayCycles.setPrecision(6);	
