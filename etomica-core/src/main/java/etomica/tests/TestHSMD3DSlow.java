@@ -4,18 +4,15 @@
 
 package etomica.tests;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Configurations;
-import etomica.data.meter.MeterPressureHardFasterer;
-import etomica.integrator.IntegratorHardFasterer;
-import etomica.nbr.list.NeighborListManagerFasterer;
-import etomica.potential.BondingInfo;
+import etomica.data.meter.MeterPressureHard;
+import etomica.integrator.IntegratorHard;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
-import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -27,16 +24,17 @@ import etomica.util.ParseArgs;
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
+ *
  * @author David Kofke
  */
- 
-public class TestHSMD3D extends Simulation {
 
-    public IntegratorHardFasterer integrator;
+public class TestHSMD3DSlow extends Simulation {
+
+    public IntegratorHard integrator;
     public SpeciesGeneral species, species2;
     public Box box;
 
-    public TestHSMD3D(Space _space, int numAtoms, Configuration config) {
+    public TestHSMD3DSlow(Space _space, int numAtoms, Configuration config) {
         super(_space);
 
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
@@ -44,27 +42,31 @@ public class TestHSMD3D extends Simulation {
         species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species2);
 
-        box = makeBox();
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
-        NeighborListManagerFasterer neighborManager = new NeighborListManagerFasterer(this, box, 1, 1.5, BondingInfo.noBonding());
-        neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
-
+        double neighborRangeFac = 1.6;
         double sigma = 1.0;
         // makes eta = 0.35
         double l = 14.4573 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1.0, box);
+        potentialMaster.setCellRange(1);
+        potentialMaster.setRange(neighborRangeFac * sigma);
+        box = makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator.setTimeStep(0.01);
+        integrator.setIsothermal(true);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
 
-        potentialMaster.setPairPotential(type1, type1, P2HardSphere.makePotential(sigma));
-        potentialMaster.setPairPotential(type1, type2, P2HardSphere.makePotential(sigma));
-        potentialMaster.setPairPotential(type2, type2, P2HardSphere.makePotential(sigma));
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type1});
+
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type2});
+
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type2, type2});
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         config.initializeCoordinates(box);
-        new BoxImposePbc(box, space).actionPerformed();
 
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
 //        integrator.addIntervalListener(writeConfig);
@@ -77,14 +79,12 @@ public class TestHSMD3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        Configuration config = Configurations.fromResourceFile(String.format("HSMD3D%d.pos", numAtoms), TestHSMD3D.class);
+        Configuration config = Configurations.fromResourceFile(String.format("HSMD3D%d.pos", numAtoms), TestHSMD3DSlow.class);
 
-        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, config);
-
+        TestHSMD3DSlow sim = new TestHSMD3DSlow(Space3D.getInstance(), numAtoms, config);
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms / 10));
         sim.integrator.resetStepCount();
-
-        MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
         long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms));

@@ -15,6 +15,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NeighborListManagerFasterer implements NeighborManager {
     private final NeighborCellManagerFasterer cellManager;
     private IPotentialAtomic[][] pairPotentials;
@@ -34,6 +37,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
     private boolean onlyUpNbrs = true;
     private int maxNab;
     private Vector[] oldAtomPositions;
+    private final List<INeighborListListener> listeners;
 
     public NeighborListManagerFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         this.box = box;
@@ -50,6 +54,11 @@ public class NeighborListManagerFasterer implements NeighborManager {
         numAtomNbrsUp = new int[0];
         isPureAtoms = sim.getSpeciesList().stream().allMatch(s -> s.getLeafAtomCount() == 1);
         this.neighborIterator = new NeighborIteratorList(this, box);
+        listeners = new ArrayList<>();
+    }
+
+    public void addListener(INeighborListListener newListener) {
+        listeners.add(newListener);
     }
 
     @Override
@@ -252,10 +261,20 @@ public class NeighborListManagerFasterer implements NeighborManager {
                     needsUpdate = true;
                 } else {
                     reset();
+                    fireNeighborUpdateEvent();
                     return;
                 }
             }
         }
-        if (Debug.ON && needsUpdate) reset();
+        if (Debug.ON && needsUpdate) {
+            reset();
+            fireNeighborUpdateEvent();
+        }
+    }
+
+    private void fireNeighborUpdateEvent() {
+        for (INeighborListListener l : listeners) {
+            l.neighborListNeighborsUpdated();
+        }
     }
 }

@@ -12,11 +12,9 @@ import etomica.box.BoxMoleculeEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCellFasterer;
-import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -99,6 +97,10 @@ public class PotentialComputePair implements PotentialCompute {
                 return uij;
             }
         };
+    }
+
+    public Potential2Soft[][] getPairPotentials() {
+        return pairPotentials;
     }
 
     @Override

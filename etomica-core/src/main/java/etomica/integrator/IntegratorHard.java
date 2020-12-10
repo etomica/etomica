@@ -65,13 +65,16 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     private double minDelta;
     private AtomPair debugPair;
 
+    private long tSteps, tDelete, tNext, tAdd, tUp, tDown, tUpdate, tBump, tData, tCollect, tCollision, tAdvance, tNotStep;
+    private final boolean writeTimings = false;
+
     public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Box box) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
 
     public IntegratorHard(PotentialMaster potentialMaster, IRandom random,
                           double timeStep, double temperature, Box box) {
-        super(potentialMaster,random,timeStep,temperature, box);
+        super(potentialMaster, random, timeStep, temperature, box);
         pair = new AtomPair();
         singlet = new AtomSetSinglet();
         nullPotentialManager = new HashMap<>();
@@ -105,17 +108,22 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
     protected void doStepInternal() {
+        if (tNotStep != 0) tNotStep += System.nanoTime();
         if (Double.isInfinite(currentPotentialEnergy)) {
             // we were overlapped at some point.  try recalculating the PE now
             // so we can start re-tracking the PE once we aren't overlapped.
             currentPotentialEnergy = meterPE.getDataAsScalar();
         }
+
+        long t1 = System.nanoTime();
         super.doStepInternal();
 
+        long t1n = System.nanoTime();
         Agent colliderAgent = (Agent) this.eventList.firstElement();
+        tNext += System.nanoTime() - t1n;
         collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         double oldTime = 0;
-        while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
+        while (collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
             IAtomList atoms;
             if (colliderAgent.collisionPartner() != null) {
                 atoms = pair;
@@ -130,32 +138,38 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             if (collisionTimeStep - oldTime < minDelta) {
                 logTimeDiffError(colliderAgent, oldTime, atoms);
             }
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0 &&((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
-                System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0 && ((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
+                System.out.println("collision between atoms " + atoms + " at " + collisionTimeStep + " with " + colliderAgent.collisionPotential.getClass());
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box) && (debugPair = Debug.getAtoms(box)) != null) {
                 debugStep();
             }
 
-            colliderAgent.collisionPotential.bump(atoms,collisionTimeStep);
+            long t1bump = System.nanoTime();
+            colliderAgent.collisionPotential.bump(atoms, collisionTimeStep);
+            tBump += System.nanoTime() - t1bump;
+            long t1data = System.nanoTime();
             double dE = colliderAgent.collisionPotential.energyChange();
             currentPotentialEnergy += dE;
             if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1) {
                 System.out.println("dE: " + dE + " PE => " + currentPotentialEnergy);
             }
             currentKineticEnergy -= dE;
-            
-            for(CollisionListener listener : this.collisionListeners) {
+
+            for (CollisionListener listener : this.collisionListeners) {
                 listener.collisionAction(colliderAgent);
             }
             collisionCount++;
+            tData += System.nanoTime() - t1data;
             if (atoms.size() == 1) {
                 updateAtom(atoms.get(0));
             }
             else {
                 updateAtoms((AtomPair)atoms);
             }
+            t1n = System.nanoTime();
             colliderAgent = (Agent) this.eventList.firstElement();
+            tNext += System.nanoTime() - t1n;
             if (Debug.ON && colliderAgent != null && colliderAgent.atom == atoms.get(0) && (atoms.size() == 2 && colliderAgent.collisionPartner == atoms.get(1))
                     && colliderAgent.collisionTime() == collisionTimeStep) {
                 throw new RuntimeException("repeating collision "+atoms+" "+collisionTimeStep);
@@ -163,9 +177,11 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             
             oldTime = collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
-        } 
+        }
 
+        long t1a = System.nanoTime();
         advanceAcrossTimeStep(timeStep);
+        tAdvance += System.nanoTime() - t1a;
         collisionTimeStep = 0.0;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisBox(box)) {
             eventList.check();
@@ -176,14 +192,24 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             }
             double KE = meterKE.getDataAsScalar();
             if (Math.abs(KE - currentKineticEnergy) > 1.e-8) {
-                throw new RuntimeException("kinetic energy of "+box+" is wrong. it's actually "+KE+" but I thought it was "+currentKineticEnergy);
+                throw new RuntimeException("kinetic energy of " + box + " is wrong. it's actually " + KE + " but I thought it was " + currentKineticEnergy);
             }
         }
 
-        if(isothermal) doThermostatInternal();
+        if (isothermal) doThermostatInternal();
 
         // set the last collider to be read externally
         this.lastColliderAgent = colliderAgent;
+
+        tSteps += System.nanoTime() - t1;
+        int printInterval = 4000000 / box.getLeafList().size();
+        if (writeTimings && stepCount % printInterval == 0) {
+            double scale = box.getLeafList().size() * printInterval;
+            System.out.printf("time/step: %3.1f %3.1f  update: %3.1f  collect: %3.1f  up: %3.1f  down: %3.1f  ctime: %3.1f  add: %3.1f  next: %3.1f  delete: %3.1f  bump: %3.1f  data: %3.1f  adv: %3.1f\n",
+                    tSteps / scale, tNotStep / scale, tUpdate / scale, tCollect / scale, tUp / scale, tDown / scale, tCollision / scale, tAdd / scale, tNext / scale, tDelete / scale, tBump / scale, tData / scale, tAdvance / scale);
+            tNotStep = tAdvance = tCollect = tUpdate = tUp = tDown = tCollision = tAdd = tSteps = tNext = tDelete = tBump = tData = 0;
+        }
+        tNotStep -= System.nanoTime();
     }
 
     private void debugStep() {
@@ -270,7 +296,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      * should not be called for 1-body collisions (call updateAtom).
      */
     protected void updateAtoms(AtomPair colliders) {
-
+        collisionHandlerUp.tCollision = collisionHandlerDown.tCollision = 0;
+        long t1u = System.nanoTime();
+        long t1c = t1u;
         listToUpdate.clear();
 
         downList.setTargetAtom(colliders.atom0);
@@ -282,11 +310,15 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         // atom1.  But we to full reset it, so remove it from the (hopefully
         // small) list.
         listToUpdate.remove(listToUpdate.indexOf(colliders.atom0));
+        tCollect += System.nanoTime() - t1c;
         processReverseList();
 
+        long t1up = System.nanoTime();
         Agent agent = agentManager.getAgent(colliders.atom0);
         if (agent.collisionPotential != null) {
+            long t1d = System.nanoTime();
             agent.eventLinker.remove();
+            tDelete += System.nanoTime() - t1d;
         }
         agent.resetCollisionFull();
         upList.setTargetAtom(colliders.atom0);
@@ -294,15 +326,24 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potentialMaster.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
+            long t1a = System.nanoTime();
             eventList.add(agent.eventLinker);
+            tAdd += System.nanoTime() - t1a;
         }
+        tUp += System.nanoTime() - t1up;
+        long t1down = System.nanoTime();
         downList.setTargetAtom(colliders.atom0);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
+        collisionHandlerDown.tDelete = 0;
         potentialMaster.calculate(box, downList, collisionHandlerDown);
+        tDown += System.nanoTime() - t1down;
 
+        t1up = System.nanoTime();
         agent = agentManager.getAgent(colliders.atom1);
         if (agent.collisionPotential != null) {
+            long t1d = System.nanoTime();
             agent.eventLinker.remove();
+            tDelete += System.nanoTime() - t1d;
         }
         agent.resetCollisionFull();
         upList.setTargetAtom(colliders.atom1);
@@ -310,11 +351,19 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potentialMaster.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
+            long t1a = System.nanoTime();
             eventList.add(agent.eventLinker);
+            tAdd += System.nanoTime() - t1a;
         }
+        tUp += System.nanoTime() - t1up;
+        t1down = System.nanoTime();
         downList.setTargetAtom(colliders.atom1);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potentialMaster.calculate(box, downList, collisionHandlerDown);
+        tDelete += collisionHandlerDown.tDelete;
+        tDown += System.nanoTime() - t1down;
+        tUpdate += System.nanoTime() - t1u;
+        tCollision += collisionHandlerDown.tCollision + collisionHandlerUp.tCollision;
     }
 
     /**
@@ -332,7 +381,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         processReverseList();
 
         if (agent.collisionPotential != null) {
+            long t1d = System.nanoTime();
             agent.eventLinker.remove();
+            tDelete += System.nanoTime() - t1d;
         }
         agent.resetCollisionFull();
         upList.setTargetAtom(a);
@@ -352,12 +403,15 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      * changed.
      */
     protected void processReverseList() {
+        long t1up = System.nanoTime();
         int size = listToUpdate.size();
         for (int i=0; i<size; i++) {
             IAtom reverseAtom = listToUpdate.get(i);
             Agent agent = agentManager.getAgent(reverseAtom);
             if (agent.collisionPotential != null) {
+                long t1d = System.nanoTime();
                 agent.eventLinker.remove();
+                tDelete += System.nanoTime() - t1d;
             }
             // reset collision, but not a "full" reset
             // this atom thought it would collide with something and now it
@@ -372,6 +426,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
                 eventList.add(agent.eventLinker);
             }
         }
+        tUp += System.nanoTime() - t1up;
     }
 
 	/**
@@ -571,6 +626,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         IntegratorHard.Agent aia;
         IAtom atom1;
         double collisionTimeStep;
+        double tCollision;
         private final AtomLeafAgentManager<Agent> integratorAgentManager;
 
         CollisionHandlerUp(AtomLeafAgentManager<Agent> integratorAgentManager) {
@@ -599,7 +655,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             PotentialHard pHard = (PotentialHard)potential;
             if(atoms.get(0) != atom1) setAtom(atoms.get(0)); //need this if doing minimum collision time calculation for more than one atom
-            double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
+            long t1 = System.nanoTime();
+            double collisionTime = pHard.collisionTime(atoms, collisionTimeStep);
+            tCollision += System.nanoTime() - t1;
             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
                 System.out.println("collision up time "+collisionTime+" for atom "+atoms+" "+pHard.getClass());
             }
@@ -614,13 +672,14 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
 
     } //end of collisionHandlerUp
 
-	//the down-handler has the logic of the Allen & Tildesley downList subroutine
-	//sets collision times of atoms downlist of given atom to minimum of their current
-	//value and their value with given atom
-	private static final class CollisionHandlerDown implements PotentialCalculation {
+    //the down-handler has the logic of the Allen & Tildesley downList subroutine
+    //sets collision times of atoms downlist of given atom to minimum of their current
+    //value and their value with given atom
+    private static final class CollisionHandlerDown implements PotentialCalculation {
         final TreeList eventList;
         double collisionTimeStep;
         private final AtomLeafAgentManager<Agent> integratorAgentManager;
+        double tDelete, tCollision;
 
         CollisionHandlerDown(TreeList list, AtomLeafAgentManager<Agent> integratorAgentManager) {
             eventList = list;
@@ -628,22 +687,26 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         }
 
 
-		public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-			if (atoms.size() != 2) return;
-            PotentialHard pHard = (PotentialHard)potential;
+        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+            if (atoms.size() != 2) return;
+            PotentialHard pHard = (PotentialHard) potential;
 
-			double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
+            long t1 = System.nanoTime();
+            double collisionTime = pHard.collisionTime(atoms, collisionTimeStep);
+            tCollision += System.nanoTime() - t1;
             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
-                System.out.println("collision down time "+collisionTime+" for atoms "+atoms+" "+pHard.getClass());
+                System.out.println("collision down time " + collisionTime + " for atoms " + atoms + " " + pHard.getClass());
             }
-			if(collisionTime < Double.POSITIVE_INFINITY) {
-				Agent aia = integratorAgentManager.getAgent(atoms.get(0));
-				if(collisionTime < aia.collisionTime()) {
-					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-						System.out.println("setting down time "+collisionTime+" for atoms "+atoms);
-					}
+            if (collisionTime < Double.POSITIVE_INFINITY) {
+                Agent aia = integratorAgentManager.getAgent(atoms.get(0));
+                if (collisionTime < aia.collisionTime()) {
+                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+                        System.out.println("setting down time " + collisionTime + " for atoms " + atoms);
+                    }
                     if (aia.collisionPotential != null) {
+                        long t1d = System.nanoTime();
                         aia.eventLinker.remove();
+                        tDelete += System.nanoTime() - t1d;
                     }
                     aia.setCollision(collisionTime, (IAtomKinetic) atoms.get(1), pHard);
                     eventList.add(aia.eventLinker);
