@@ -55,9 +55,9 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         double r2 = r12.squared();
         double[] cd2 = collisionDistances2;
         for (int i = 0; i < cd2.length; i++) {
-            if (cd2[i] * cd2[i] > r2) return i;
+            if (cd2[i] > r2) return i;
         }
-        return cd2.length;
+        return -1;
     }
 
     public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
@@ -123,6 +123,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         if (ke < uJump) {
             // not enough ke; bounce off core
             virial[0] = 2.0 * reducedMass * bij;
+            newState = oldState;
         } else {
             // capture
             virial[0] = reducedMass * (bij + (core ? +1 : -1) * Math.sqrt(bij * bij - 2.0 * r2 * uJump / reducedMass));
@@ -136,8 +137,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         atom2.getVelocity().PEa1Tv1(-rm1, dp);
         atom1.getPosition().PEa1Tv1(-falseTime * rm0, dp);
         atom2.getPosition().PEa1Tv1(falseTime * rm1, dp);
-        du[0] = 0;
-        return -1;
+        return newState < collisionDistances2.length ? newState : -1;
     }
 
     public double getRange() {

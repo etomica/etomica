@@ -51,7 +51,7 @@ public class Int2IntHash {
         for (Entry e = entries[hash]; e != null; e = e.next) {
             if (e.key == key) {
                 if (ePrev == null) {
-                    entries[hash] = null;
+                    entries[hash] = e.next;
                 } else {
                     ePrev.next = e.next;
                 }
