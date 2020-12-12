@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
+
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
@@ -20,7 +21,7 @@ import etomica.util.Debug;
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
  * Can be used with negative value for epsilon to produce square-shoulder potential. 
- * 
+ *
  * This implementation determines which atoms are interacting (in the well) by
  * checking their distance.  This is prone to numerical roundoff issues, and so
  * atoms are bumped off the well after capture and escape.  This can cause
@@ -28,6 +29,14 @@ import etomica.util.Debug;
  * instead to avoid such issues.
  */
 public class P2SquareWell extends Potential2HardSpherical {
+
+    public static P2HardGeneric makePotential(double sigma, double lambda, double epsilon) {
+        return new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon, 0});
+    }
+
+    public static P2HardGenericFast makeFastPotential(double sigma, double lambda, double epsilon) {
+        return new P2HardGenericFast(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon, 0});
+    }
 
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;

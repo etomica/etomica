@@ -114,7 +114,6 @@ public class TestSWChainSlow extends Simulation {
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(energyPump);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
         long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
         System.out.println("time: " + (System.nanoTime() - t1) / 1e9);

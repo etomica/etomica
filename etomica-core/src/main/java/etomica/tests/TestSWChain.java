@@ -22,6 +22,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHardFasterer;
 import etomica.nbr.list.NeighborListManagerFasterer;
 import etomica.potential.P2HardGeneric;
+import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
@@ -69,8 +70,8 @@ public class TestSWChain extends Simulation {
         addSpecies(species);
         box = this.makeBox();
 
-        PotentialMasterBonding pmBonding = new PotentialMasterBonding(this, box);
-        NeighborListManagerFasterer neighborManager = new NeighborListManagerFasterer(this, box, 2, nbrRange, pmBonding.getBondingInfo());
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(this);
+        NeighborListManagerFasterer neighborManager = new NeighborListManagerFasterer(this, box, 2, nbrRange, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
 
@@ -79,15 +80,15 @@ public class TestSWChain extends Simulation {
         for (int i = 0; i < chainLength - 1; i++) {
             bondedIndices.add(new int[]{i, i + 1});
         }
-        pmBonding.setBondingPotentialPair(species, p2Bond, bondedIndices);
+        bondingInfo.setBondingPotentialPair(species, p2Bond, bondedIndices);
 
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1.0, box, pmBonding.getBondingInfo());
+        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1.0, box, bondingInfo);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
 
-        P2HardGeneric potential = new P2HardGeneric(new double[]{1, sqwLambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon, 0});
+        P2HardGeneric potential = P2SquareWell.makeFastPotential(sigma, sqwLambda, epsilon);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
 
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
@@ -129,7 +130,7 @@ public class TestSWChain extends Simulation {
         Cv /= temp;
         Cv *= Cv / numMolecules;
         System.out.println("Cv/k="+Cv);
-        
+
         if (Double.isNaN(Z) || Math.abs(Z-4.5) > 1.5) {
             System.exit(1);
         }
