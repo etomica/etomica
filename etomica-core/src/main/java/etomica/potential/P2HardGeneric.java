@@ -18,6 +18,15 @@ import etomica.space.Vector;
 public class P2HardGeneric implements IPotentialHard, Potential2Soft {
 
     /**
+     * Setting fixOverlapDefault to true will cause any P2HardGeneric to be
+     * created with fixOverlap on by default.  With fixOverlap enabled, the
+     * energy of overlapping pairs will be returned as the energy of pairs
+     * that are barely not overlapping and collision times will be returned
+     * to help push the particles apart.
+     */
+    public static boolean fixOverlapDefault;
+
+    /**
      * The pair distances where collisions should happen.
      * Distances are listed from smallest to largest.
      */
@@ -40,12 +49,19 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     // only used to support the energy(IAtomList) legacy method
     protected Boundary boundary;
 
+    protected final boolean fixOverlap;
+
     public P2HardGeneric(double[] collisionDistances, double[] energies) {
+        this(collisionDistances, energies, fixOverlapDefault);
+    }
+
+    public P2HardGeneric(double[] collisionDistances, double[] energies, boolean fixOverlap) {
         this.collisionDistances2 = new double[collisionDistances.length];
         for (int i = 0; i < collisionDistances.length; i++) {
             collisionDistances2[i] = collisionDistances[i] * collisionDistances[i];
         }
         this.energies = energies;
+        this.fixOverlap = fixOverlap;
     }
 
     /**
@@ -76,6 +92,9 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
                 if (discriminant > 0) {
                     // hit
                     time = (-bij - Math.sqrt(discriminant)) / v2;
+                } else if (fixOverlap && r2 < cd2[0]) {
+                    // overlapped collide now
+                    return 0.001 * Math.sqrt(r2 / v2);
                 } else if (collisionState < cd2.length) {
                     // miss, look for escape
                     double discr = bij * bij - v2 * (r2 - cd2[collisionState]);
@@ -167,6 +186,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
                 break;
             }
         }
+        if (fixOverlap && s == 0) s = 1;
         return energies[s];
     }
 
