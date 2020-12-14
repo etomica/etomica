@@ -33,7 +33,6 @@ import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,6 @@ public class TestSWChain extends Simulation {
 
     public TestSWChain(Space _space, int numMolecules, Configuration config) {
         super(_space);
-        setRandom(new RandomMersenneTwister(4));
 
         int numAtoms = numMolecules * chainLength;
         double sigma = 1.0;
