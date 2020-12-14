@@ -33,11 +33,12 @@ public class NeighborListManagerFasterer implements NeighborManager {
     public int[][] nbrs;
     public Vector[][] nbrBoxOffsets;
     private double nbrRange;
-    private double safetyFac = 0.45;
+    private double safetyFac = 0.4;
     private boolean onlyUpNbrs = true;
     private int maxNab;
     private Vector[] oldAtomPositions;
     private final List<INeighborListListener> listeners;
+    private int numUnsafe = 0;
 
     public NeighborListManagerFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         this.box = box;
@@ -84,7 +85,13 @@ public class NeighborListManagerFasterer implements NeighborManager {
         return this.neighborIterator;
     }
 
+    public void setSafetyFac(double newSafetyFac) {
+        safetyFac = newSafetyFac;
+        init();
+    }
+
     public void init() {
+        if (pairPotentials == null) return;
         cellManager.init();
         for (int i = 0; i < numAtomTypes; i++) {
             maxR2Unsafe[i] = maxR2[i] = 1e100;
@@ -251,22 +258,34 @@ public class NeighborListManagerFasterer implements NeighborManager {
         IAtomList atoms = box.getLeafList();
         int boxNumAtoms = atoms.size();
         boolean needsUpdate = false;
+        double thisMaxR2 = 0;
+        boolean unsafe = false;
         for (int i = 0; i < boxNumAtoms; i++) {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
             double r2 = ri.Mv1Squared(oldAtomPositions[i]);
+            thisMaxR2 = Math.max(r2, thisMaxR2);
             if (r2 > maxR2[iAtom.getType().getIndex()]) {
-                if (Debug.ON && safetyFac > 0 && r2 > maxR2Unsafe[iAtom.getType().getIndex()]) {
-                    System.err.println(iAtom + " drifted into unsafe zone before nbr update");
-                    needsUpdate = true;
-                } else {
-                    reset();
-                    fireNeighborUpdateEvent();
-                    return;
+                if (safetyFac > 0 && r2 > maxR2Unsafe[iAtom.getType().getIndex()]) {
+                    unsafe = true;
+                    if (numUnsafe == 0)
+                        System.out.println(iAtom + " drifted into unsafe zone before nbr update " + Math.sqrt(r2) + " > " + Math.sqrt(maxR2Unsafe[iAtom.getType().getIndex()]));
                 }
+                needsUpdate = true;
             }
         }
-        if (Debug.ON && needsUpdate) {
+
+        if (needsUpdate) {
+            if (unsafe) {
+                numUnsafe++;
+                if (numUnsafe == 1 || (Long.toString(numUnsafe).matches("10*"))) {
+                    System.err.print("Atoms exceeded the safe neighbor limit");
+                    if (numUnsafe > 1) {
+                        System.err.print(" (" + numUnsafe + " times)");
+                    }
+                    System.err.println();
+                }
+            }
             reset();
             fireNeighborUpdateEvent();
         }
