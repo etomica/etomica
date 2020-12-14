@@ -44,7 +44,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     private final boolean writeTiming = false, verbose = false;
 
     private long nanoTime() {
-        return writeTiming ? nanoTime() : 0;
+        return writeTiming ? System.nanoTime() : 0;
     }
 
     /**
