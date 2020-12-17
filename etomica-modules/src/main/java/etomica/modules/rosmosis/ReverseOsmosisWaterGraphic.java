@@ -190,6 +190,9 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         };
         DiameterHashByType diameterManager = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
         diameterManager.setDiameter(sim.speciesMembrane.getLeafType(), sim.potentialMM.getSigma());
+        diameterManager.setDiameter(sim.speciesSodium.getLeafType(), sim.potentialLJNaNa.getSigma());
+        diameterManager.setDiameter(sim.speciesChlorine.getLeafType(), sim.potentialLJClCl.getSigma());
+        diameterManager.setDiameter(sim.speciesSolvent.getTypeByName("O"), sim.potentialWater.getSigma());
         ModifierAtomDiameter sigMembraneModifier = new ModifierAtomDiameter(sim.speciesMembrane, sim.potentialMM,
                 new P2LennardJones[]{sim.potentialMO, sim.potentialMNa, sim.potentialMCl},
                 new P2LennardJones[]{p2LJOO, sim.potentialLJNaNa, sim.potentialLJClCl}, diameterManager);
