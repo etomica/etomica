@@ -17,6 +17,8 @@ import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.Space;
 import etomica.util.Debug;
 
+import java.util.Arrays;
+
 /**
  * Collection of potentials that act between the atoms contained in
  * one or more groups of atoms.  This group iterates over all such atom-groups
@@ -81,27 +83,30 @@ public class PotentialGroup extends PotentialMolecular {
      * atom, with the second-type atoms taken from the second basis.
      */
     public void addPotential(IPotentialAtomic potential, AtomType[] types) {
-        if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
-        if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);} else {
-            switch(types.length) {
-        		case 0:
-        			addPotential(potential, new AtomIterator0());
-        			break;
-	            case 1:
-	                addPotential(potential, new AtomIteratorBasisFilteredType(types[0]),types);
-	                break;
-	            case 2:
-	                if(this.nBody() == 1) {
-	                    throw new RuntimeException("It doesn't make sense to have type-based pair iteration within a molecule");
-	                }
-	                else if(this.nBody() == 2) {
-	                    addPotential(potential,
-	                            ApiBuilder.makeIntergroupTypeIterator(types),types);
-	                }
-	                break;
-        	}
+        if (this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length)
+            throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
+        Arrays.sort(types);
+        if (this.nBody() == Integer.MAX_VALUE) {
+            addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);
+        } else {
+            switch (types.length) {
+                case 0:
+                    addPotential(potential, new AtomIterator0());
+                    break;
+                case 1:
+                    addPotential(potential, new AtomIteratorBasisFilteredType(types[0]), types);
+                    break;
+                case 2:
+                    if (this.nBody() == 1) {
+                        throw new RuntimeException("It doesn't make sense to have type-based pair iteration within a molecule");
+                    } else if (this.nBody() == 2) {
+                        addPotential(potential,
+                                ApiBuilder.makeIntergroupTypeIterator(types), types);
+                    }
+                    break;
+            }
         }
-        if(potential instanceof PotentialTruncated) {
+        if (potential instanceof PotentialTruncated) {
             Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);
             if(lrc != null) {
                 potentialMaster.lrcMaster().addPotential(lrc);

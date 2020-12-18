@@ -12,13 +12,11 @@ import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
 
-import java.util.StringJoiner;
-
 /**
  * Identifies a set of atoms and defines properties of those atoms. Properties include indices used for tracking, mass
  * and element.
  */
-public class AtomType {
+public class AtomType implements Comparable<AtomType> {
 
     protected final IElement element;
     protected int index;
@@ -133,5 +131,10 @@ public class AtomType {
     @Override
     public String toString() {
         return AtomType.class.getSimpleName() + "[" + this.name + "]";
+    }
+
+    public int compareTo(AtomType otherAtomType) {
+        int otherIndex = otherAtomType.getIndex();
+        return Integer.compare(index, otherIndex);
     }
 }

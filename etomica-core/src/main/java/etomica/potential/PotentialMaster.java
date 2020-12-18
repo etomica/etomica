@@ -138,6 +138,7 @@ public class PotentialMaster {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }
 
+        Arrays.sort(atomTypes);
         // depth of molecules
         ISpecies[] parentAtomTypes = new ISpecies[atomTypes.length];
         for (int i = 0; i < atomTypes.length; i++) {
