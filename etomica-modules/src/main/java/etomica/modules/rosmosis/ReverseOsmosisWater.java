@@ -5,7 +5,6 @@
 package etomica.modules.rosmosis;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -226,7 +225,7 @@ public class ReverseOsmosisWater extends Simulation {
         integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
-        integrator.setTimeStep(0.002);
+        integrator.setTimeStep(0.004);
         integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
         getController().addActivity(new ActivityIntegrate(integrator));
 
