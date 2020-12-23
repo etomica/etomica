@@ -102,6 +102,6 @@ public class TestHSMD3DSlow extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 20000000;
+        public int numSteps = 50000000;
     }
 }

@@ -16,6 +16,9 @@ public interface NeighborIterator {
         return 0;
     }
 
+    /**
+     * Interface for neighbor iteration callback.
+     */
     interface NeighborConsumer {
         void accept(IAtom jAtom, Vector rij);
     }

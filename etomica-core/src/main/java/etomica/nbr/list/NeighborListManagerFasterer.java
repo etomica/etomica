@@ -21,12 +21,12 @@ import java.util.List;
 public class NeighborListManagerFasterer implements NeighborManager {
     private final NeighborCellManagerFasterer cellManager;
     private IPotentialAtomic[][] pairPotentials;
-    private final Box box;
-    private final BondingInfo bondingInfo;
-    private final boolean isPureAtoms;
+    protected final Box box;
+    protected final BondingInfo bondingInfo;
+    protected final boolean isPureAtoms;
     private final double[] maxR2, maxR2Unsafe;
     private final int numAtomTypes;
-    private final Space space;
+    protected final Space space;
     private final NeighborIteratorList neighborIterator;
     public int[] numAtomNbrsUp, numAtomNbrsDn;
     // consider 1D array since Java sucks
@@ -35,7 +35,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
     private double nbrRange;
     private double safetyFac = 0.4;
     private boolean onlyUpNbrs = true;
-    private int maxNab;
+    protected int maxNab;
     private Vector[] oldAtomPositions;
     private final List<INeighborListListener> listeners;
     private int numUnsafe = 0;
@@ -134,6 +134,12 @@ public class NeighborListManagerFasterer implements NeighborManager {
         this.cellManager.updateAtom(atom);
     }
 
+    protected void realloc() {
+        int boxNumAtoms = box.getLeafList().size();
+        nbrs = new int[boxNumAtoms][maxNab];
+        nbrBoxOffsets = new Vector[boxNumAtoms][maxNab];
+    }
+
     public void reset() {
         IAtomList atoms = box.getLeafList();
         int boxNumAtoms = atoms.size();
@@ -167,8 +173,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
             if (moreAtoms || forceReallocNbrs) {
                 maxNab *= 1.2;
                 if (maxNab == 0) maxNab = 5;
-                nbrs = new int[boxNumAtoms][maxNab];
-                nbrBoxOffsets = new Vector[boxNumAtoms][maxNab];
+                realloc();
                 forceReallocNbrs = false;
             }
 
@@ -221,7 +226,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
                             forceReallocNbrs = true;
                             break outerDn;
                         }
-                        nbrs[jj][maxNab - 1 - numAtomNbrsDn[jj]] = i;
+                        newDownNeighbor(jj, i, j, maxNab - 1 - numAtomNbrsDn[jj]);
                         // these offsets are actually opposite... we don't have a clean
                         // way to find the index of the opposite offset.
                         nbrBoxOffsets[jj][maxNab - 1 - numAtomNbrsDn[jj]] = nbrBoxOffsets[i][j];
@@ -235,7 +240,11 @@ public class NeighborListManagerFasterer implements NeighborManager {
         }
     }
 
-    private int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
+    protected void newDownNeighbor(int j, int i, int upSlot, int downSlot) {
+        nbrs[j][downSlot] = i;
+    }
+
+    protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
 
         if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) return 0;

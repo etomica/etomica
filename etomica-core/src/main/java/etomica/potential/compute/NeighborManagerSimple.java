@@ -15,7 +15,7 @@ import etomica.space.Vector;
  */
 public class NeighborManagerSimple implements NeighborManager {
 
-    private final Box box;
+    protected final Box box;
 
     public NeighborManagerSimple(Box box) {
         this.box = box;

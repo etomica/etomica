@@ -107,42 +107,59 @@ public class TestSWChainSlow extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps / 10));
         sim.integrator.resetStepCount();
 
+        long bs = nSteps / 100;
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
+        DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
+        sim.integrator.getEventManager().addListener(pPump);
+
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
-        energyAccumulator.setBlockSize(50);
+        AccumulatorAverage uAccumulator = new AccumulatorAverageFixed(bs);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter, uAccumulator);
         sim.integrator.getEventManager().addListener(energyPump);
 
         long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
         System.out.println("time: " + (System.nanoTime() - t1) / 1e9);
 
-        double Z = pMeter.getDataAsScalar() * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
-        avgPE /= numMolecules;
-        System.out.println("Z=" + Z);
-        System.out.println("PE/epsilon=" + avgPE);
+        double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
+        double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
+        double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
+        System.out.println("P " + avgP + " " + errP + " " + corP);
+
+        double avgU = uAccumulator.getData(pAccumulator.AVERAGE).getValue(0) / numMolecules;
+        double errU = uAccumulator.getData(pAccumulator.ERROR).getValue(0) / numMolecules;
+        double corU = uAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
+        System.out.println("U " + avgU + " " + errU + " " + corU);
+
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) uAccumulator.getData()).getData(uAccumulator.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv / numMolecules;
-        System.out.println("Cv/k=" + Cv);
+        System.out.println("Cv/k " + Cv);
 
-        if (Double.isNaN(Z) || Math.abs(Z - 4.5) > 1.5) {
+        // expected values based on 2x10^7 steps
+        // for MD, avg values are very close for short and longer runs
+        // stdev based on 50 x (2x10^5) steps
+        // 4 sigma should fail 1 in 16,000 runs
+
+        double expectedP = 3.008496525057149e-01 - 1.570490504414807e-01 / numMolecules;
+        double stdevP = 0.006;
+        if (Double.isNaN(avgP) || Math.abs(avgP - expectedP) / stdevP > 4) {
             System.exit(1);
         }
-        if (Double.isNaN(avgPE) || Math.abs(avgPE + 19.32) > 0.12) {
-            System.exit(1);
+
+        double expectedU = -1.930034804482143e+01 + 1.424254285711056e+00 / numMolecules;
+        double stdevU = 0.013;
+        if (Double.isNaN(avgU) || Math.abs(avgU - expectedU) / stdevU > 4) {
+            System.exit(2);
         }
-        // actual value ~2
-        if (Double.isNaN(Cv) || Cv < 0.5 || Cv > 4.5) {
-            System.exit(1);
-        }
+
+        // Cv is 2.0, but can be pretty far off, especially for N=4000
     }
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 100000;
+        public int numSteps = 200000;
     }
 }

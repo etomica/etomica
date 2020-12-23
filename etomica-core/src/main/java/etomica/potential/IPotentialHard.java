@@ -7,7 +7,10 @@ import etomica.atom.IAtomKinetic;
 import etomica.space.Vector;
 
 /**
- * Interface for a hard pair potential.
+ * Interface for a hard pair potential.  The additional methods here facilitate
+ * hard dynamics.  The state for a given pair is an implementation detail of
+ * the potential, except that a negative state indicates that a pair is not
+ * interacting (energy = 0).
  */
 public interface IPotentialHard extends IPotentialAtomic {
 
@@ -22,6 +25,8 @@ public interface IPotentialHard extends IPotentialAtomic {
     double getEnergyForState(int state);
 
     /**
+     * Computes the collision time for a given atom pair.
+     *
      * @param atom1 the first atom
      * @param atom2 the second atom
      * @param r12   the position vector between the atoms (r2 - r1)

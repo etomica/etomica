@@ -12,7 +12,7 @@ import etomica.config.Configuration;
 import etomica.config.Configurations;
 import etomica.data.meter.MeterPressureHardFasterer;
 import etomica.integrator.IntegratorHardFasterer;
-import etomica.nbr.list.NeighborListManagerFasterer;
+import etomica.nbr.list.NeighborListManagerFastererHard;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2HardSphere;
 import etomica.potential.compute.PotentialComputePair;
@@ -46,7 +46,7 @@ public class TestHSMD3D extends Simulation {
 
         box = makeBox();
 
-        NeighborListManagerFasterer neighborManager = new NeighborListManagerFasterer(this, box, 1, 1.5, BondingInfo.noBonding());
+        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(this, box, 1, 1.5, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
 
@@ -65,9 +65,6 @@ public class TestHSMD3D extends Simulation {
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
         config.initializeCoordinates(box);
         new BoxImposePbc(box, space).actionPerformed();
-
-//        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
-//        integrator.addIntervalListener(writeConfig);
     }
 
     /**
@@ -102,6 +99,6 @@ public class TestHSMD3D extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 20000000;
+        public int numSteps = 50000000;
     }
 }
