@@ -139,8 +139,6 @@ public class TestSWChain extends Simulation {
         System.out.println("Cv/k " + Cv);
 
         // expected values based on 2x10^7 steps
-        // for MD, avg values are very close for short and longer runs
-        // stdev based on 50 x (2x10^5) steps
         // 4 sigma should fail 1 in 16,000 runs
 
         double expectedP = 3.008496525057149e-01 - 1.570490504414807e-01 / numMolecules;
@@ -150,7 +148,7 @@ public class TestSWChain extends Simulation {
         }
 
         double expectedU = -1.930034804482143e+01 + 1.424254285711056e+00 / numMolecules;
-        double stdevU = 0.013;
+        double stdevU = 0.06;   // short sim stdev is smaller, but short avg deviates from long avg
         if (Double.isNaN(avgU) || Math.abs(avgU - expectedU) / stdevU > 4) {
             System.exit(2);
         }
