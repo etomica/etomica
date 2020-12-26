@@ -34,10 +34,6 @@ public class P2SquareWell extends Potential2HardSpherical {
         return new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon, 0});
     }
 
-    public static P2HardGenericFast makeFastPotential(double sigma, double lambda, double epsilon) {
-        return new P2HardGenericFast(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon, 0});
-    }
-
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda
