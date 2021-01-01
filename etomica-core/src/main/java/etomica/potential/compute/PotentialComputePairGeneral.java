@@ -34,7 +34,6 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
-    protected Vector zero;
     protected double virialTot;
     protected Vector[] forces;
     protected final Space space;
@@ -55,7 +54,6 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
-        zero = box.getSpace().makeVector();
         forces = new Vector[0];
 
         this.atomCountByType = new int[lastTypeIndex + 1];

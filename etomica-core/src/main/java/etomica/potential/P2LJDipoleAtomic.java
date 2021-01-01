@@ -412,22 +412,14 @@ public class P2LJDipoleAtomic implements IPotentialPair {
         return ener;
     }
 
-    public double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector g1, Vector g2, Vector t1, Vector t2) {
+    public double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
         // LJ contributation
 
         double r2 = dr12.squared();
         if (r2 < hsdiasq) {
-            g1.E(0);
-            g2.E(0);
-            t1.E(0);
-            t2.E(0);
             return Double.POSITIVE_INFINITY;
         }
         if (r2 > cutoff2) {
-            g1.E(0);
-            g2.E(0);
-            t1.E(0);
-            t2.E(0);
             return 0;
         }
         double s2 = sigma2 / r2;
@@ -444,7 +436,8 @@ public class P2LJDipoleAtomic implements IPotentialPair {
         // LJ contributation
 
         double rdudr = epsilon48 * s6 * s6 - fShift / s1;
-        g1.Ea1Tv1(rdudr / r2, dr);
+        Vector ftmp1 = space.makeVector();
+        ftmp1.Ea1Tv1(-rdudr / r2, dr);
 
         if (momentSq != 0.0) {
             // normalize dr, the vector between the molecules
@@ -460,28 +453,32 @@ public class P2LJDipoleAtomic implements IPotentialPair {
             work.PEa1Tv1(v1.dot(drunit), v2);
             work.PEa1Tv1(-2 * v1.dot(drunit) * v2.dot(drunit) * s1, dr);
             work.TE(3.0 * s1 * fac);
-            g1.PE(work);
-            g1.PEa1Tv1(dfac * udd, dr);
+            ftmp1.ME(work);
+            ftmp1.PEa1Tv1(-dfac * udd, dr);
 
             work.E(v1);
             work.XE(v2);
-            t1.E(v1);
-            t1.XE(drunit);
-            t1.TE(3.0 * v2.dot(drunit));
-            t1.ME(work);
-            t1.TE(fac);
+            Vector ttmp = space.makeVector();
+            ttmp.E(v1);
+            ttmp.XE(drunit);
+            ttmp.TE(3.0 * v2.dot(drunit));
+            ttmp.ME(work);
+            ttmp.TE(fac);
+            t1.PE(ttmp);
 
-            t2.E(v2);
-            t2.XE(drunit);
-            t2.TE(3.0 * v1.dot(drunit));
-            t2.PE(work);
-            t2.TE(fac);
+            ttmp.E(v2);
+            ttmp.XE(drunit);
+            ttmp.TE(3.0 * v1.dot(drunit));
+            ttmp.PE(work);
+            ttmp.TE(fac);
+            t2.PE(ttmp);
 
             ener += fac * udd;
         }
 
         // pairwise additive, so
-        g2.Ea1Tv1(-1, g1);
+        f1.PE(ftmp1);
+        f2.ME(ftmp1);
 
         return ener;
     }
