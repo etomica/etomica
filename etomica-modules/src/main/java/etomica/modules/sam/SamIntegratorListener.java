@@ -51,14 +51,16 @@ public class SamIntegratorListener implements IntegratorListenerMD {
     public void integratorForceComputed(IntegratorEvent e) {
         Vector[] forces = compute.getForces();
         IAtomList atoms = box.getLeafList();
+        // attenuate any huge force (not conservative, but that's fine)
+        // prevent Sulfur from moving in Y if appropriate
         for (int i = 0; i < atoms.size(); i++) {
             Vector f = forces[i];
             IAtom a = atoms.get(i);
+            if (a.getType() == atomTypeFixedY) f.setX(1, 0);
             for (int j = 0; j < f.getD(); j++) {
-                if (a.getType() == atomTypeFixedY) f.setX(1, 0);
-                if (Math.abs(f.getX(i)) > 2.5e9) {
-                    double fnew = 2.5e9 * Math.signum(f.getX(i));
-                    f.setX(i, fnew);
+                if (Math.abs(f.getX(j)) > 2.5e9) {
+                    double fnew = 2.5e9 * Math.signum(f.getX(j));
+                    f.setX(j, fnew);
                 }
             }
         }
