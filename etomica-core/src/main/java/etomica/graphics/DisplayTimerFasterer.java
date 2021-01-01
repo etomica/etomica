@@ -5,21 +5,21 @@
 package etomica.graphics;
 
 import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.integrator.IntegratorMD;
+import etomica.data.DataSourceCountTimeFasterer;
+import etomica.integrator.IntegratorMDFasterer;
 
 /**
  * DisplayBox to present the elapsed time in a
  * molecular dynamics simulation.  Designed for use with
  * a single integrator.
  */
-public class DisplayTimer extends DisplayTextBox {
+public class DisplayTimerFasterer extends DisplayTextBox {
 
-    public DisplayTimer(IntegratorMD integrator) {
-        this(integrator, new DataSourceCountTime(integrator));
+    public DisplayTimerFasterer(IntegratorMDFasterer integrator) {
+        this(integrator, new DataSourceCountTimeFasterer(integrator));
     }
-        
-    private DisplayTimer(IntegratorMD integrator, DataSourceCountTime timer) {
+
+    private DisplayTimerFasterer(IntegratorMDFasterer integrator, DataSourceCountTimeFasterer timer) {
         super();
         putDataInfo(timer.getDataInfo());
         this.timer = timer;
@@ -32,7 +32,7 @@ public class DisplayTimer extends DisplayTextBox {
     }
 
     /**
-     * Sets the period for updating the display.  Number of integrator 
+     * Sets the period for updating the display.  Number of integrator
      * interval events between updates.  Does not have any effect on the
      * value displayed; affects only how often it is updated.
      */
@@ -46,17 +46,18 @@ public class DisplayTimer extends DisplayTextBox {
     public void dispose() {
         integrator.getEventManager().removeListener(dataPump);
     }
-    
+
     /**
      * Returns the data source used to count the time, to permit
-     * access to its methods for reset, etc.  
+     * access to its methods for reset, etc.
+     *
      * @return
      */
-    public DataSourceCountTime getTimer() {
+    public DataSourceCountTimeFasterer getTimer() {
         return timer;
     }
-    
+
     protected final DataPumpListener dataPump;
-    protected final IntegratorMD integrator;
-    protected final DataSourceCountTime timer;
+    protected final IntegratorMDFasterer integrator;
+    protected final DataSourceCountTimeFasterer timer;
 }

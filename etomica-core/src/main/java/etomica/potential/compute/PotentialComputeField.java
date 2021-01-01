@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential.compute;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -36,6 +37,10 @@ public class PotentialComputeField implements PotentialCompute {
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
+    }
+
+    public void setFieldPotential(AtomType atomType, IPotentialField p) {
+        potentials[atomType.getIndex()] = p;
     }
 
     @Override
@@ -95,7 +100,12 @@ public class PotentialComputeField implements PotentialCompute {
             int iType = iAtom.getType().getIndex();
             IPotentialField ip = potentials[iType];
             if (ip == null) continue;
-            double u = ip.udu(iAtom, forces[i]);
+            double u;
+            if (doForces) {
+                u = ip.udu(iAtom, forces[i]);
+            } else {
+                u = ip.u(iAtom);
+            }
             uAtom[i] = u;
             uTot += u;
         }

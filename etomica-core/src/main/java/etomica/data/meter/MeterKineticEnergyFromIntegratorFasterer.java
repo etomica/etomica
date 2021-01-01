@@ -5,26 +5,26 @@
 package etomica.data.meter;
 
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorMDFasterer;
 import etomica.units.dimensions.Energy;
 
 /**
  * Acts as a DataSource to retrieve the energy from the integrator
  */
-public class MeterPotentialEnergyFromIntegratorFasterer extends DataSourceScalar {
+public class MeterKineticEnergyFromIntegratorFasterer extends DataSourceScalar {
 
-    public MeterPotentialEnergyFromIntegratorFasterer(IntegratorBoxFasterer aIntegrator) {
+    public MeterKineticEnergyFromIntegratorFasterer(IntegratorMDFasterer aIntegrator) {
         super("Potential Energy", Energy.DIMENSION);
         integrator = aIntegrator;
     }
 
-    public IntegratorBoxFasterer getIntegrator() {
+    public IntegratorMDFasterer getIntegrator() {
         return integrator;
     }
 
     public double getDataAsScalar() {
-        return integrator.getPotentialEnergy();
+        return integrator.getKineticEnergy();
     }
 
-    private final IntegratorBoxFasterer integrator;
+    private final IntegratorMDFasterer integrator;
 }

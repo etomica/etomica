@@ -20,7 +20,8 @@ import etomica.species.ISpecies;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class PotentialMasterFasterer implements etomica.potential.compute.PotentialCompute {
     private final List<ISpecies> speciesList;
@@ -327,6 +328,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         for (int i = 0; i < atomCountByType.length; i++) {
             for (int j = i; j < atomCountByType.length; j++) {
                 Potential2Soft p = pairPotentials[i][j];
+                if (p == null) continue;
                 int numPairs;
                 if (j == i) {
                     numPairs = atomCountByType[i] * (atomCountByType[j] - 1) / 2;
