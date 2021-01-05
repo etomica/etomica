@@ -31,7 +31,7 @@ import etomica.util.Debug;
 public class P2SquareWell extends Potential2HardSpherical {
 
     public static P2HardGeneric makePotential(double sigma, double lambda, double epsilon) {
-        return new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon, 0});
+        return new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon});
     }
 
     protected double coreDiameter, coreDiameterSquared;
