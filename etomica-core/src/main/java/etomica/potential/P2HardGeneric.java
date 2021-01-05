@@ -151,18 +151,8 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
             rCollision2 = core ? cdc2 : cde2;
         }
         double ke = bij * bij * reducedMass / (2.0 * rCollision2);
-        int newState = oldState + (core ? -1 : +1);
-        double uJump = energies[newState] - energies[oldState];
         du[0] = 0;
-        if (ke < uJump) {
-            // not enough ke; bounce off core
-            virial[0] = 2.0 * reducedMass * bij;
-            newState = oldState;
-        } else {
-            // capture
-            virial[0] = reducedMass * (bij + (core ? +1 : -1) * Math.sqrt(bij * bij - 2.0 * r2 * uJump / reducedMass));
-            du[0] = uJump;
-        }
+        int newState = decideBump(atom1, atom2, oldState, core, ke, reducedMass, bij, r2, du, virial);
         double lastCollisionVirialr2 = virial[0] / r2;
         Vector dp = Vector.d(v12.getD());
         //dp is the change in momentum due to collision
@@ -172,6 +162,36 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         atom1.getPosition().PEa1Tv1(-falseTime * rm0, dp);
         atom2.getPosition().PEa1Tv1(falseTime * rm1, dp);
         return newState < collisionDistances2.length ? newState : -1;
+    }
+
+    /**
+     * Decides what happens during a collision
+     *
+     * @param atom1       the first atom in the collision
+     * @param atom2       the second atom in the collision
+     * @param oldState    the old state of the pair
+     * @param core        true if the pair is approach the collision distance from the outside
+     * @param ke          kinetic energy of the pair in collision direction
+     * @param reducedMass reduced mass for the pair
+     * @param bij         rij dot vij
+     * @param r2          squared distance at the collision
+     * @param du          (out parameter) energy change due to the collision
+     * @param virial      (out parameter) virial; used to compute momentum change and pressure
+     * @return the new state of the pair
+     */
+    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial) {
+        int newState = oldState + (core ? -1 : +1);
+        double uJump = getEnergyForState(newState) - getEnergyForState(oldState);
+        if (ke < uJump) {
+            // not enough ke; bounce off core
+            virial[0] = 2.0 * reducedMass * bij;
+            newState = oldState;
+        } else {
+            // capture or escape
+            virial[0] = reducedMass * (bij + (core ? +1 : -1) * Math.sqrt(bij * bij - 2.0 * r2 * uJump / reducedMass));
+            du[0] = uJump;
+        }
+        return newState;
     }
 
     public double getRange() {
@@ -202,12 +222,12 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
             }
         }
         if (fixOverlap && s == 0) s = 1;
-        return energies[s];
+        return getEnergyForState(s);
     }
 
     @Override
     public double getEnergyForState(int state) {
-        return energies[state];
+        return state < 0 || state >= energies.length ? 0 : energies[state];
     }
 
     @Override
