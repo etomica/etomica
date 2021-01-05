@@ -9,7 +9,6 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.simulation.Simulation;
@@ -110,7 +109,10 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         int totalCells = 1;
         final Vector bs = box.getBoundary().getBoxSize();
         final boolean[] periodic = box.getBoundary().getPeriodicity();
-        for (int i = 0; i < 3; i++) {
+        int D = periodic.length;
+        // numCells is 3D even if we aren't, has 1 for extra components
+        Arrays.fill(numCells, 1);
+        for (int i = 0; i < D; i++) {
             // with cell lists, we can accommodate rc>L/2
             // we need the box to be at least the size of a cell.
             // when rc>L/2, we'll end up doing a lattice sum
@@ -137,11 +139,12 @@ public class NeighborCellManagerFasterer implements NeighborManager {
             // but exclude any cells handle in the previous passes
             int icd2 = icd * icd;
             int iz2;
-            for (int iz = 0; (iz2 = iz * iz) <= icd2; iz++) {
+            int izMax2 = D == 3 ? icd2 : 0;
+            for (int iz = 0; (iz2 = iz * iz) <= izMax2; iz++) {
                 int izm1 = iz == 0 ? 0 : (Math.abs(iz) - 1);
                 int izm1Sq = izm1 * izm1;
                 int iy2Max = icd2 - iz2;
-                int iyMax = (int) Math.sqrt(iy2Max + 0.001);
+                int iyMax = D > 1 ? ((int) Math.sqrt(iy2Max + 0.001)) : 0;
                 for (int iy = -iyMax; iy <= iyMax; iy++) {
                     int iym1 = iy == 0 ? 0 : (Math.abs(iy) - 1);
                     int iym1Sq = iym1 * iym1;
@@ -169,7 +172,14 @@ public class NeighborCellManagerFasterer implements NeighborManager {
                         int ixm1 = ix == 0 ? 0 : (Math.abs(ix) - 1);
                         int ixm1Sq = ixm1 * ixm1;
                         if (ixm1Sq + iym1Sq + izm1Sq >= cellRange * cellRange) continue;
-                        int mv = ix + (iy + iz * numCells[1]) * numCells[0];
+                        int mv = ix;
+                        if (D > 0) {
+                            if (D == 2) {
+                                mv += iy * numCells[0];
+                            } else if (D > 1) {
+                                mv += (iy + iz * numCells[1]) * numCells[0];
+                            }
+                        }
                         // terrible? yes.
                         if (cellOffsets.length <= numCellOffsets)
                             cellOffsets = Arrays.copyOf(cellOffsets, numCellOffsets + 1);
@@ -183,8 +193,8 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         }
 
         int xboRange = periodic[0] ? (numCells[0] - cellRange - 1) / (numCells[0] - 2 * cellRange) : 0;
-        int yboRange = periodic[1] ? (numCells[1] - cellRange - 1) / (numCells[1] - 2 * cellRange) : 0;
-        int zboRange = periodic[2] ? (numCells[2] - cellRange - 1) / (numCells[2] - 2 * cellRange) : 0;
+        int yboRange = D > 1 ? (periodic[1] ? (numCells[1] - cellRange - 1) / (numCells[1] - 2 * cellRange) : 0) : 0;
+        int zboRange = D > 2 ? (periodic[2] ? (numCells[2] - cellRange - 1) / (numCells[2] - 2 * cellRange) : 0) : 0;
         int nx = (2 * xboRange + 1);
         int ny = (2 * yboRange + 1);
         int nz = (2 * zboRange + 1);
@@ -195,7 +205,14 @@ public class NeighborCellManagerFasterer implements NeighborManager {
             for (int iy = -yboRange; iy <= yboRange; iy++) {
                 for (int iz = -zboRange; iz <= zboRange; iz++) {
                     int idx = (ix + xboRange) * ny * nz + (iy + yboRange) * nz + (iz + zboRange);
-                    rawBoxOffsets[idx] = Vector.of(ix * bs.getX(0), iy * bs.getX(1), iz * bs.getX(2));
+                    rawBoxOffsets[idx] = Vector.d(D);
+                    rawBoxOffsets[idx].setX(0, ix * bs.getX(0));
+                    if (ny > 1) {
+                        rawBoxOffsets[idx].setX(1, iy * bs.getX(1));
+                        if (nz > 1) {
+                            rawBoxOffsets[idx].setX(2, iz * bs.getX(2));
+                        }
+                    }
                 }
             }
         }
@@ -204,11 +221,11 @@ public class NeighborCellManagerFasterer implements NeighborManager {
             int x2 = periodic[0] ? wrappedIndex(ix, numCells[0]) : ix;
             int xbo = periodic[0] ? (ix - x2) / (numCells[0] - 2 * cellRange) : 0;
             for (int iy = 0; iy < numCells[1]; iy++) {
-                int y2 = periodic[1] ? wrappedIndex(iy, numCells[1]) : iy;
-                int ybo = periodic[1] ? (iy - y2) / (numCells[1] - 2 * cellRange) : 0;
+                int y2 = (D > 1 && periodic[1]) ? wrappedIndex(iy, numCells[1]) : iy;
+                int ybo = (D > 1 && periodic[1]) ? (iy - y2) / (numCells[1] - 2 * cellRange) : 0;
                 for (int iz = 0; iz < numCells[2]; iz++) {
-                    int z2 = periodic[2] ? wrappedIndex(iz, numCells[2]) : iz;
-                    int zbo = periodic[2] ? (iz - z2) / (numCells[2] - 2 * cellRange) : 0;
+                    int z2 = (D > 2 && periodic[2]) ? wrappedIndex(iz, numCells[2]) : iz;
+                    int zbo = (D > 2 && periodic[2]) ? (iz - z2) / (numCells[2] - 2 * cellRange) : 0;
                     int iMap = iCell(ix, iy, iz);
                     int dCell = iCell(x2, y2, z2);
                     wrapMap[iMap] = dCell;
@@ -255,7 +272,7 @@ public class NeighborCellManagerFasterer implements NeighborManager {
             int cellNum = 0;
             IAtom atom = atoms.get(iAtom);
             Vector r = atom.getPosition();
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < r.getD(); i++) {
                 double x = (r.getX(i) + boxHalf.getX(i)) / bs.getX(i);
                 int y = ((int) (cellRange + x * (numCells[i] - 2 * cellRange)));
                 if (y == numCells[i] - cellRange) y--;
