@@ -56,12 +56,27 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     }
 
     public P2HardGeneric(double[] collisionDistances, double[] energies, boolean fixOverlap) {
+        if (collisionDistances.length != energies.length) {
+            throw new IllegalArgumentException("collision distances and energies must have the same length");
+        }
         this.collisionDistances2 = new double[collisionDistances.length];
         for (int i = 0; i < collisionDistances.length; i++) {
             collisionDistances2[i] = collisionDistances[i] * collisionDistances[i];
         }
         this.energies = energies;
         this.fixOverlap = fixOverlap;
+    }
+
+    public double getCollisionDiameter(int i) {
+        return Math.sqrt(collisionDistances2[i]);
+    }
+
+    public void setCollisionDiameter(int i, double collisionDiameter) {
+        collisionDistances2[i] = collisionDiameter * collisionDiameter;
+    }
+
+    public void setEnergyForState(int i, double u) {
+        energies[i] = u;
     }
 
     /**
