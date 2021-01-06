@@ -9,7 +9,9 @@ import etomica.config.ConfigurationResourceFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterPressureFasterer;
 import etomica.tests.TestLJGCMC3D;
+import etomica.tests.TestLJGCMC3DSlowerer;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -24,8 +26,8 @@ public class BenchSimLJGCMC3D {
     @Param({"200000"})
     private int numSteps;
 
+    private TestLJGCMC3DSlowerer simSlowerer;
     private TestLJGCMC3D sim;
-    private MeterPressure pMeter;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -36,13 +38,26 @@ public class BenchSimLJGCMC3D {
                 TestLJGCMC3D.class
         );
 
-        sim = new TestLJGCMC3D(numMolecules, numSteps, config);
+        {
+            sim = new TestLJGCMC3D(numMolecules, config);
 
-        pMeter = new MeterPressure(sim.space);
-        pMeter.setIntegrator(sim.integrator);
-        DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
-        sim.integrator.getEventManager().addListener(pumpListener);
-        sim.integrator.reset();
+            MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.integrator.getPotentialCompute());
+            pMeter.setTemperature(sim.integrator.getTemperature());
+            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+            sim.integrator.getEventManager().addListener(pumpListener);
+            sim.integrator.reset();
+        }
+
+        {
+            simSlowerer = new TestLJGCMC3DSlowerer(numMolecules, config);
+
+            MeterPressure pMeter = new MeterPressure(sim.space);
+            pMeter.setIntegrator(simSlowerer.integrator);
+            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+            sim.integrator.getEventManager().addListener(pumpListener);
+            sim.integrator.reset();
+        }
+
     }
 
     @Benchmark
@@ -53,6 +68,16 @@ public class BenchSimLJGCMC3D {
     public long integratorStep() {
         sim.integrator.doStep();
         return sim.integrator.getStepCount();
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5, timeUnit = TimeUnit.SECONDS)
+    public long integratorStepSlowerer() {
+        simSlowerer.integrator.doStep();
+        return simSlowerer.integrator.getStepCount();
     }
 }
 

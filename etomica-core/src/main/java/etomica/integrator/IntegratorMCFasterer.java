@@ -100,7 +100,7 @@ public class IntegratorMCFasterer extends IntegratorBoxFasterer {
         double chi = move.getChi(temperature);
         if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
             if (dodebug) {
-                System.out.println(stepCount + " move " + move + " rejected");
+                System.out.println(stepCount + " move " + move + " rejected " + chi);
             }
             move.getTracker().updateCounts(false, chi);
             move.rejectNotify();
@@ -108,7 +108,7 @@ public class IntegratorMCFasterer extends IntegratorBoxFasterer {
             moveEventManager.fireEvent(rejectedEvent);
         } else {
             if (dodebug) {
-                System.out.println(stepCount + " move " + move + " accepted");
+                System.out.println(stepCount + " move " + move + " accepted " + chi);
             }
             move.getTracker().updateCounts(true, chi);
             move.acceptNotify();

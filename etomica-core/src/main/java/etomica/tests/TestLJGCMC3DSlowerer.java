@@ -14,14 +14,13 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFasterer;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
-import etomica.integrator.mcmove.MCMoveInsertDeleteFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
-import etomica.potential.BondingInfo;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -29,39 +28,39 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Grand Canonical Lennard-Jones Monte Carlo simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  * This class uses the same LJMC3D that TestLJMC3DSlowerer uses
  */
-public class TestLJGCMC3D extends Simulation {
+public class TestLJGCMC3DSlowerer extends Simulation {
 
-    public IntegratorMCFasterer integrator;
-    public MCMoveAtomFasterer mcMoveAtom;
-    public MCMoveInsertDeleteFasterer mcMoveID;
+    public IntegratorMC integrator;
+    public MCMoveAtom mcMoveAtom;
+    public MCMoveInsertDelete mcMoveID;
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
 
-    public TestLJGCMC3D(int numAtoms, Configuration config) {
+    public TestLJGCMC3DSlowerer(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
+        setRandom(new RandomMersenneTwister(1));
 
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        box = this.makeBox();
-
-        PotentialMasterCellFasterer potentialMaster = new PotentialMasterCellFasterer(this, box, 3, BondingInfo.noBonding());
-        potentialMaster.doOneTruncationCorrection = true;
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        box = this.makeBox();
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(1.1);
-        mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        mcMoveID = new MCMoveInsertDeleteFasterer(potentialMaster, random, space);
+        mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveID.setBox(box);
         mcMoveID.setMu(-3.67);
         integrator.getMoveManager().addMCMove(mcMoveID);
@@ -77,10 +76,14 @@ public class TestLJGCMC3D extends Simulation {
             throw new RuntimeException("Truncation radius too large.  Max allowed is" + 0.5 * box.getBoundary().getBoxSize().getX(0));
         }
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        potentialMaster.setCellRange(3);
+        potentialMaster.setRange(potentialTruncated.getRange());
         AtomType leafType = species.getLeafType();
-        potentialMaster.setPairPotential(leafType, leafType, potentialTruncated);
+        potentialMaster.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
+        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
         config.initializeCoordinates(box);
+        potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
     public static void main(String[] args) {
@@ -89,14 +92,15 @@ public class TestLJGCMC3D extends Simulation {
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJGCMC3D.class);
 
-        TestLJGCMC3D sim = new TestLJGCMC3D(numAtoms, config);
+        TestLJGCMC3DSlowerer sim = new TestLJGCMC3DSlowerer(numAtoms, config);
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
 
         int pInterval = 2 * numAtoms;
         int bs = params.numSteps / (pInterval * 50);
         if (bs == 0) bs = 1;
-        MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.integrator.getPotentialCompute());
+        MeterPressure pMeter = new MeterPressure(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         pMeter.setTemperature(sim.integrator.getTemperature());
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, pInterval);
@@ -104,7 +108,7 @@ public class TestLJGCMC3D extends Simulation {
 
         bs = params.numSteps / 50;
         if (bs == 0) bs = 1;
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener uPump = new DataPumpListener(energyMeter, energyAccumulator);
         sim.integrator.getEventManager().addListener(uPump);

@@ -6,9 +6,7 @@ package etomica.potential;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.box.BoxEventListener;
-import etomica.box.BoxMoleculeEvent;
+import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
@@ -75,6 +73,36 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
                 for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
                     atomCountByType[atomType.getIndex()]++;
                 }
+
+                int newAtoms = e.getMolecule().getType().getLeafAtomCount();
+                int nowAtoms = box.getLeafList().size();
+                if (nowAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms - newAtoms);
+                    uAtom = uAtomNew;
+                } else {
+                    Arrays.fill(uAtom, nowAtoms - newAtoms, nowAtoms, 0);
+                }
+            }
+
+            @Override
+            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
+                int n = e.getCount();
+
+                int nowAtoms = box.getLeafList().size();
+                int newAtoms = e.getSpecies().getLeafAtomCount() * n;
+                if (nowAtoms + newAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms + newAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms);
+                    uAtom = uAtomNew;
+                }
+            }
+
+            @Override
+            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
+                int oldIndex = e.getIndex();
+                int newIndex = e.getAtom().getLeafIndex();
+                uAtom[newIndex] = uAtom[oldIndex];
             }
 
             @Override
@@ -103,8 +131,9 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     @Override
     public double getOldEnergy() {
         double uTot = 0;
-        for (double iuAtom : uAtom) {
-            uTot += iuAtom;
+        int numAtoms = box.getLeafList().size();
+        for (int i = 0; i < numAtoms; i++) {
+            uTot += uAtom[i];
         }
         double[] uCorrection = new double[1];
         double[] duCorrection = new double[1];
