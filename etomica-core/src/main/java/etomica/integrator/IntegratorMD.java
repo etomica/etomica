@@ -592,6 +592,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                 sum += mass * v * v;
                 nLeafNotFixed++;
             }
+            if (nLeafNotFixed == 0) break;
             if (sum == 0) {
                 if (t.getX(i) == 0) {
                     continue;
