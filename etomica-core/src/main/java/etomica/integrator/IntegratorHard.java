@@ -67,6 +67,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
 
     private long tSteps, tDelete, tNext, tAdd, tUp, tDown, tUpdate, tBump, tData, tCollect, tCollision, tAdvance, tNotStep;
     private final boolean writeTiming = false;
+    private long lastTimingPrint = 0;
 
     private long nanoTime() {
         return writeTiming ? nanoTime() : 0;
@@ -210,12 +211,15 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         this.lastColliderAgent = colliderAgent;
 
         tSteps += nanoTime() - t1;
-        int printInterval = 4000000 / box.getLeafList().size();
-        if (writeTiming && stepCount % printInterval == 0) {
+        int s = box.getLeafList().size();
+        if (s == 0) s = 1;
+        int printInterval = 4000000 / s;
+        if (stepCount >= lastTimingPrint + printInterval) {
             double scale = box.getLeafList().size() * printInterval;
             System.out.printf("time/step: %3.1f %3.1f  update: %3.1f  collect: %3.1f  up: %3.1f  down: %3.1f  ctime: %3.1f  add: %3.1f  next: %3.1f  delete: %3.1f  bump: %3.1f  data: %3.1f  adv: %3.1f\n",
                     tSteps / scale, tNotStep / scale, tUpdate / scale, tCollect / scale, tUp / scale, tDown / scale, tCollision / scale, tAdd / scale, tNext / scale, tDelete / scale, tBump / scale, tData / scale, tAdvance / scale);
             tNotStep = tAdvance = tCollect = tUpdate = tUp = tDown = tCollision = tAdd = tSteps = tNext = tDelete = tBump = tData = 0;
+            lastTimingPrint = stepCount;
         }
         tNotStep -= nanoTime();
     }

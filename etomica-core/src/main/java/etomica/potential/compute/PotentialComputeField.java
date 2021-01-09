@@ -43,6 +43,10 @@ public class PotentialComputeField implements PotentialCompute {
         potentials[atomType.getIndex()] = p;
     }
 
+    public IPotentialField[] getFieldPotentials() {
+        return potentials;
+    }
+
     @Override
     public void init() {
 

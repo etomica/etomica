@@ -61,7 +61,7 @@ public class MeterPressureHardFasterer extends DataSourceScalar implements Integ
     }
 
     @Override
-    public void collisionAction(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector dv, double virial) {
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector dv, double virial) {
         virialSum += virial;
     }
 
