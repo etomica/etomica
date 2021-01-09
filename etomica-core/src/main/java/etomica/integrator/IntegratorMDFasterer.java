@@ -16,7 +16,6 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.molecule.IMolecule;
-import etomica.potential.PotentialMasterFasterer;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -46,7 +45,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
     protected double oldEnergy = Double.NaN, oldPotentialEnergy = Double.NaN;
     protected long nRejected = 0, nAccepted = 0;
     protected AtomLeafAgentManager<Vector> oldPositionAgentManager = null;
-    protected IntegratorMC integratorMC;
+    protected IntegratorMCFasterer integratorMC;
     protected int mcSteps;
 
     /**
@@ -176,13 +175,12 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
      * @param mcSteps      number of Monte Carlo trial steps to perform after MD segment
      * @throws RuntimeException if HYBRID_MC thermostat is not enabled or if isothermal is false
      */
-    public void setIntegratorMC(IntegratorMC integratorMC, int mcSteps) {
+    public void setIntegratorMC(IntegratorMCFasterer integratorMC, int mcSteps) {
         if (thermostat != ThermostatType.HYBRID_MC || !isothermal) {
             throw new RuntimeException("integratorMC only works with HYBRID MC thermostat");
         }
         this.integratorMC = integratorMC;
         integratorMC.setTemperature(temperature);
-        integratorMC.reset();
         this.mcSteps = mcSteps;
     }
 
@@ -190,7 +188,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
      * @return the Monte Carlo integrator used to enable hybrid MD/MC sampling. Will be null
      * if not previously set via setIntegratorMC.
      */
-    public IntegratorMC getIntegratorMC() {
+    public IntegratorMCFasterer getIntegratorMC() {
         return integratorMC;
     }
 
@@ -326,6 +324,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                 }
 
                 if (initialized && integratorMC != null) {
+                    integratorMC.reset();
                     for (int i = 0; i < mcSteps; i++) {
                         integratorMC.doStep();
                     }
@@ -334,11 +333,11 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                         IAtom a = leafAtoms.get(i);
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
+                    reset();
                     randomizeMomenta();
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
                 } else if (rejected) {
