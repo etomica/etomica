@@ -147,6 +147,9 @@ public class NeighborCellManagerFasterer implements NeighborManager {
     }
 
     public void init() {
+        if (range == 0) {
+            throw new RuntimeException("Need a range for init");
+        }
         double minCellSize = range / cellRange;
         int totalCells = 1;
         final Vector bs = box.getBoundary().getBoxSize();
@@ -251,9 +254,9 @@ public class NeighborCellManagerFasterer implements NeighborManager {
                     rawBoxOffsets[idx].setX(0, ix * bs.getX(0));
                     if (ny > 1) {
                         rawBoxOffsets[idx].setX(1, iy * bs.getX(1));
-                        if (nz > 1) {
-                            rawBoxOffsets[idx].setX(2, iz * bs.getX(2));
-                        }
+                    }
+                    if (nz > 1) {
+                        rawBoxOffsets[idx].setX(2, iz * bs.getX(2));
                     }
                 }
             }
