@@ -6,9 +6,7 @@ package etomica.potential.compute;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.box.BoxEventListener;
-import etomica.box.BoxMoleculeEvent;
+import etomica.box.*;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCellFasterer;
@@ -70,6 +68,36 @@ public class PotentialComputePair implements PotentialCompute {
                 for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
                     atomCountByType[atomType.getIndex()]++;
                 }
+
+                int newAtoms = e.getMolecule().getType().getLeafAtomCount();
+                int nowAtoms = box.getLeafList().size();
+                if (nowAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms - newAtoms);
+                    uAtom = uAtomNew;
+                } else {
+                    Arrays.fill(uAtom, nowAtoms - newAtoms, nowAtoms, 0);
+                }
+            }
+
+            @Override
+            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
+                int n = e.getCount();
+
+                int nowAtoms = box.getLeafList().size();
+                int newAtoms = e.getSpecies().getLeafAtomCount() * n;
+                if (nowAtoms + newAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms + newAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms);
+                    uAtom = uAtomNew;
+                }
+            }
+
+            @Override
+            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
+                int oldIndex = e.getIndex();
+                int newIndex = e.getAtom().getLeafIndex();
+                uAtom[newIndex] = uAtom[oldIndex];
             }
 
             @Override
@@ -101,6 +129,20 @@ public class PotentialComputePair implements PotentialCompute {
 
     public Potential2Soft[][] getPairPotentials() {
         return pairPotentials;
+    }
+
+    public void setPairPotentials(Potential2Soft[][] newPairPotentials) {
+
+        for (int i = 0; i < pairPotentials.length; i++) {
+            System.arraycopy(newPairPotentials[i], 0, pairPotentials[i], 0, pairPotentials[i].length);
+        }
+
+        double maxRange = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
+                .filter(Objects::nonNull)
+                .mapToDouble(IPotential::getRange)
+                .max().orElse(0);
+
+        this.neighborManager.setPotentialRange(maxRange);
     }
 
     @Override
@@ -290,6 +332,7 @@ public class PotentialComputePair implements PotentialCompute {
         for (int i = 0; i < atomCountByType.length; i++) {
             for (int j = i; j < atomCountByType.length; j++) {
                 Potential2Soft p = pairPotentials[i][j];
+                if (p == null) continue;
                 int numPairs;
                 if (j == i) {
                     numPairs = atomCountByType[i] * (atomCountByType[j] - 1) / 2;
