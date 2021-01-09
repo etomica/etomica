@@ -12,7 +12,7 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
-import etomica.potential.IPotentialAtom;
+import etomica.potential.IPotentialField;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PotentialComputeOneTest {
+public class PotentialComputeFieldTest {
 
     Simulation sim;
     IntegratorMCFasterer integrator;
@@ -39,8 +39,8 @@ public class PotentialComputeOneTest {
         Box box = sim.makeBox();
         box.getBoundary().setBoxSize(Vector.of(10, 10, 10));
         box.setNMolecules(species, 100);
-        PotentialComputeOne pcOne = new PotentialComputeOne(sim, box);
-        IPotentialAtom p1 = new IPotentialAtom() {
+        PotentialComputeField pcOne = new PotentialComputeField(sim, box);
+        IPotentialField p1 = new IPotentialField() {
             @Override
             public double u(IAtom atom) {
                 double x = atom.getPosition().getX(0);
@@ -57,7 +57,7 @@ public class PotentialComputeOneTest {
                 return 0.5 * x * x;
             }
         };
-        pcOne.setPotential(species.getLeafType(), p1);
+        pcOne.setFieldPotential(species.getLeafType(), p1);
         integratorMD = new IntegratorVelocityVerletFasterer(pcOne, sim.getRandom(), 0.0005, 1.0, box);
         integratorMD.setIsothermal(true);
         integratorMD.setThermostatInterval(10);
