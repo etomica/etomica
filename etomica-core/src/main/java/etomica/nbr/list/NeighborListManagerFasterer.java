@@ -38,7 +38,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
     protected int maxNab;
     private Vector[] oldAtomPositions;
     private final List<INeighborListListener> listeners;
-    private int numUnsafe = 0;
+    private int numUnsafe = -1;
 
     public NeighborListManagerFasterer(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         this.box = box;
@@ -164,6 +164,8 @@ public class NeighborListManagerFasterer implements NeighborManager {
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
 
+        if (!moreAtoms && boxNumAtoms > nbrs.length) realloc();
+
         while (true) {
             if (moreAtoms) {
                 numAtomNbrsUp = new int[boxNumAtoms];
@@ -171,7 +173,9 @@ public class NeighborListManagerFasterer implements NeighborManager {
             }
             // forceReallocNbrs can be used to force reallocation when max # of nbrs is too small
             if (moreAtoms || forceReallocNbrs) {
-                maxNab *= 1.2;
+                if (forceReallocNbrs) {
+                    maxNab *= 1.2;
+                }
                 if (maxNab == 0) maxNab = 5;
                 realloc();
                 forceReallocNbrs = false;
@@ -277,8 +281,10 @@ public class NeighborListManagerFasterer implements NeighborManager {
             if (r2 > maxR2[iAtom.getType().getIndex()]) {
                 if (safetyFac > 0 && r2 > maxR2Unsafe[iAtom.getType().getIndex()]) {
                     unsafe = true;
-                    if (numUnsafe == 0)
+                    if (numUnsafe == -1) {
+                        numUnsafe++;
                         System.out.println(iAtom + " drifted into unsafe zone before nbr update " + Math.sqrt(r2) + " > " + Math.sqrt(maxR2Unsafe[iAtom.getType().getIndex()]));
+                    }
                 }
                 needsUpdate = true;
             }
