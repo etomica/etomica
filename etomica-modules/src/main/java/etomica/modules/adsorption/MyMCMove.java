@@ -24,7 +24,6 @@ import etomica.util.random.IRandom;
  */
 public class MyMCMove extends MCMoveInsertDelete {
 
-    private static final long serialVersionUID = 1L;
     private double zFraction, sigma;
     private Vector position;
     private final MoleculeArrayList activeAtoms;
