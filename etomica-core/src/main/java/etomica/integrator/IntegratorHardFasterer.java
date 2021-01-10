@@ -72,7 +72,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     }
 
     public IntegratorHardFasterer(PotentialComputePair potentialCompute, PotentialComputeField pcField, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
-        super(potentialCompute, random, timeStep, temperature, box);
+        super(makeTotalCompute(potentialCompute, pcField), random, timeStep, temperature, box);
         this.computePair = potentialCompute;
         this.computeField = pcField;
         this.neighborManager = neighborManager;
@@ -92,6 +92,12 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             ((NeighborListManagerFasterer) neighborManager).addListener(this);
         }
         collisionListeners = new ArrayList<>(0);
+    }
+
+    private static PotentialCompute makeTotalCompute(PotentialComputePair pcPair, PotentialComputeField pcField) {
+        if (pcPair == null) return pcField;
+        if (pcField == null) return pcPair;
+        return new PotentialComputeAggregate(pcField, pcPair);
     }
 
     public void setCollisionUpdateInterval(int newInterval) {
