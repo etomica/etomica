@@ -615,12 +615,6 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                 updateAtom(cAtom, tcol - tBase);
 
             }
-            for (IAtom atom : box.getLeafList()) {
-                if (atom.getPosition().isNaN()) {
-                    System.out.println("oops " + atom.getLeafIndex() + " " + atom.getPosition());
-                    throw new RuntimeException();
-                }
-            }
         }
         tBase += timeStep;
 //        System.out.println("advancing "+timeStep+" for "+stepCount);
