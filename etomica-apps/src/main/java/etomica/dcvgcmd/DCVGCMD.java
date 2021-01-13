@@ -12,6 +12,8 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.Hydrogen;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -77,8 +79,13 @@ public class DCVGCMD extends Simulation {
         super(_space);
 
         setRandom(new RandomMersenneTwister(1));
-        AtomType propaneCH3 = new AtomType(Carbon.INSTANCE, "propaneCH3");
-        AtomType propaneCH2 = new AtomType(Carbon.INSTANCE, "propaneCH2");
+        double massC = Carbon.INSTANCE.getMass();
+        double massH = Hydrogen.INSTANCE.getMass();
+        ElementSimple CH3 = new ElementSimple("CH3", massC + 3 * massH);
+        ElementSimple CH2 = new ElementSimple("CH2", massC + 2 * massH);
+        ElementSimple CH = new ElementSimple("CH", massC + massH);
+        AtomType propaneCH3 = new AtomType(CH3, "propaneCH3");
+        AtomType propaneCH2 = new AtomType(CH2, "propaneCH2");
         double thetaPropane = 114 * Math.PI / 180;
         propane = new SpeciesBuilder(space)
                 .setDynamic(true)
@@ -87,9 +94,9 @@ public class DCVGCMD extends Simulation {
                 .addAtom(propaneCH3, Vector.of(1.54 * Math.cos(Math.PI - thetaPropane), 1.54 * Math.sin(thetaPropane), 0))
                 .build();
 
-        AtomType propeneCH3 = new AtomType(Carbon.INSTANCE, "propeneCH3");
-        AtomType propeneCH = new AtomType(Carbon.INSTANCE, "propeneCH");
-        AtomType propeneCH2 = new AtomType(Carbon.INSTANCE, "propeneCH2");
+        AtomType propeneCH3 = new AtomType(CH3, "propeneCH3");
+        AtomType propeneCH = new AtomType(CH, "propeneCH");
+        AtomType propeneCH2 = new AtomType(CH2, "propeneCH2");
         double thetaPropene = 119.7 * Math.PI / 180;
         propene = new SpeciesBuilder(space)
                 .setDynamic(true)
@@ -161,7 +168,7 @@ public class DCVGCMD extends Simulation {
         P2SoftSphericalTruncatedForceShifted p2MCH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2MCH2e, rc);
         P2SoftSphericalTruncatedForceShifted p2MCHesf = new P2SoftSphericalTruncatedForceShifted(space, p2MCHe, rc);
 
-        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propaneCH3});
+/*        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propaneCH3});
         potentialMaster.addPotential(p2CH3CH2sf, new AtomType[]{propaneCH3, propaneCH2});
         potentialMaster.addPotential(p2CH2CH2sf, new AtomType[]{propaneCH2, propaneCH2});
 
@@ -180,7 +187,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propeneCH3});
 
         if (!membraneFixed) potentialMaster.addPotential(p2MMsf, new AtomType[]{atomTypeMembrane, atomTypeMembrane});
-/*
+
         potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
         potentialMaster.addPotential(p2MCH2sf, new AtomType[]{atomTypeMembrane, propaneCH2});
         potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propeneCH3});
@@ -244,7 +251,7 @@ public class DCVGCMD extends Simulation {
 
         integratorMD.setMeterTemperature(thermometer);
         //integrator.setSleepPeriod(1);
-        integratorMD.setTimeStep(0.005);
+        integratorMD.setTimeStep(0.001);
         //integrator.setInterval(10);
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
@@ -301,6 +308,6 @@ public class DCVGCMD extends Simulation {
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 5000));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 5000000));
     }
 }
