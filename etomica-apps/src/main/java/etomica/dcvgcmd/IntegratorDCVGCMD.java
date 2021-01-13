@@ -10,6 +10,7 @@
  */
 package etomica.dcvgcmd;
 
+import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
@@ -19,6 +20,7 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
 import etomica.species.ISpecies;
+import etomica.units.Kelvin;
 import etomica.util.random.IRandom;
 
 
@@ -100,11 +102,18 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			integratormd.reset();
 		} else {
 			MDStepCount--;
-			integratormd.doStep();
 			IAtomList allAtoms = box.getLeafList();
 			for (int i = 0; i < allAtoms.size(); i++) {
-				if (allAtoms.get(i).getPosition().getX(2) < -40) {
-					throw new RuntimeException(i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition());
+				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > 40
+						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
+					throw new RuntimeException("step " + stepCount + " " + i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition() + " " + ((IAtomKinetic) allAtoms.get(i)).getVelocity());
+				}
+			}
+			integratormd.doStep();
+			for (int i = 0; i < allAtoms.size(); i++) {
+				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > 40
+						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
+					throw new RuntimeException("step " + stepCount + " " + i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition() + " " + ((IAtomKinetic) allAtoms.get(i)).getVelocity());
 				}
 			}
 		}
@@ -120,25 +129,22 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 		integratormc.setTemperature(temperature);
 		integratormd.setTemperature(temperature);
 		mcMove1 = new MyMCMove(this, random, space, -zFraction);
+		mcMove1.setMu(Kelvin.UNIT.toSim(-10000));
 		mcMove2 = new MyMCMove(this, random, space, +zFraction);
+		mcMove2.setMu(Kelvin.UNIT.toSim(-3333));
 		MCMoveManager moveManager = integratormc.getMoveManager();
 		moveManager.addMCMove(mcMove1);
 		moveManager.addMCMove(mcMove2);
 		mcMove1.setSpecies(speciesA);
 		mcMove2.setSpecies(speciesA);
 		mcMove3 = new MyMCMove(this, random, space, -zFraction);
+		mcMove3.setMu(Kelvin.UNIT.toSim(-10000));
 		mcMove4 = new MyMCMove(this, random, space, +zFraction);
+		mcMove4.setMu(Kelvin.UNIT.toSim(-3333));
 		moveManager.addMCMove(mcMove3);
 		moveManager.addMCMove(mcMove4);
 		mcMove3.setSpecies(speciesB);
 		mcMove4.setSpecies(speciesB);
-	}
-
-	public void setMu(double mu1, double mu2) {
-		mcMove1.setMu(mu1);
-		mcMove2.setMu(mu2);
-		mcMove3.setMu(mu2);
-		mcMove4.setMu(mu1);
 	}
 
 	public void reset() {
