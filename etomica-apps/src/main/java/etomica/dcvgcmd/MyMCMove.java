@@ -5,6 +5,7 @@
 package etomica.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -39,6 +40,12 @@ public class MyMCMove extends MCMoveInsertDelete {
 		energyMeter.setBox(p);
 	}
 
+	public void setSpecies(ISpecies s, double theta0, double epsilon, double temperature) {
+		super.setSpecies(s);
+		this.theta0 = theta0;
+		width = temperature / epsilon;
+	}
+
 	/**
 	 * Chooses and performs with equal probability an elementary molecule insertion
 	 * or deletion.
@@ -51,6 +58,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 				testMolecule = reservoir.remove(reservoir.size() - 1);
 			} else {
 				testMolecule = species.makeMolecule();
+				double theta = theta0 + random.nextGaussian() * width;
 			}
 			box.addMolecule(testMolecule);
 			position.E(positionSource.randomPosition());
@@ -100,12 +108,16 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public void acceptNotify() {
 		super.acceptNotify();
 		if (!insert) {
+//			System.out.println("removed "+testMolecule.getType().getIndex()+" "+testMoleculeIndex);
 			activeAtoms.remove(testMoleculeIndex);
 			deltaN--;
 		} else {
+//			System.out.println("added "+testMolecule.getType().getIndex()+" "+testMolecule.getIndex());
 			activeAtoms.add(testMolecule);
 			randomizer.setTemperature(integrator.getTemperature());
-			randomizer.actionPerformed(testMolecule.getChildList().get(0));
+			for (IAtom a : testMolecule.getChildList()) {
+				randomizer.actionPerformed(a);
+			}
 			deltaN++;
 		}
 	}
@@ -129,16 +141,16 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return deltaN;
 	}
 
-	private static final long serialVersionUID = 1L;
 	private double zFraction;
 	private int deltaN = 0;
-	private Vector position;
+	private final Vector position;
 	private boolean leftSide;
 	private final MoleculeArrayList activeAtoms;
 	private IMoleculeList moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
 	private final IntegratorBox integrator;
 	protected int testMoleculeIndex;
+	protected double theta0, width;
 
 	/**
 	 * Returns the zFraction.
