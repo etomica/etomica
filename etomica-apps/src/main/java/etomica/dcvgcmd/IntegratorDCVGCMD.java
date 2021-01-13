@@ -10,6 +10,7 @@
  */
 package etomica.dcvgcmd;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -17,6 +18,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
 import etomica.species.ISpecies;
@@ -102,18 +104,37 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			integratormd.reset();
 		} else {
 			MDStepCount--;
+			if (MDStepCount % 50 == 0) {
+				integratormd.reset();
+			}
 			IAtomList allAtoms = box.getLeafList();
 			for (int i = 0; i < allAtoms.size(); i++) {
 				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > 40
 						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
-					throw new RuntimeException("step " + stepCount + " " + i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition() + " " + ((IAtomKinetic) allAtoms.get(i)).getVelocity());
+					IMolecule m = allAtoms.get(i).getParentGroup();
+					IAtomList atoms = m.getChildList();
+					System.out.println("step " + stepCount);
+					for (IAtom a : atoms) {
+						System.out.println(a + " " + a.getPosition().getX(2) + " " + ((IAtomKinetic) a).getVelocity().getX(2));
+					}
+					throw new RuntimeException("oops");
 				}
+			}
+			if (false && box.getNMolecules(speciesB) > 0) {
+				IAtom a = box.getMoleculeList(speciesB).get(0).getChildList().get(1);
+				System.out.println("step " + stepCount + " " + a.getPosition().getX(2));
 			}
 			integratormd.doStep();
 			for (int i = 0; i < allAtoms.size(); i++) {
 				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > 40
 						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
-					throw new RuntimeException("step " + stepCount + " " + i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition() + " " + ((IAtomKinetic) allAtoms.get(i)).getVelocity());
+					IMolecule m = allAtoms.get(i).getParentGroup();
+					IAtomList atoms = m.getChildList();
+					System.out.println("step " + stepCount);
+					for (IAtom a : atoms) {
+						System.out.println(a + " " + a.getPosition().getX(2) + " " + ((IAtomKinetic) a).getVelocity().getX(2));
+					}
+					throw new RuntimeException("oops");
 				}
 			}
 		}
@@ -131,7 +152,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 		mcMove1 = new MyMCMove(this, random, space, -zFraction);
 		mcMove1.setMu(Kelvin.UNIT.toSim(-10000));
 		mcMove2 = new MyMCMove(this, random, space, +zFraction);
-		mcMove2.setMu(Kelvin.UNIT.toSim(-3333));
+		mcMove2.setMu(Kelvin.UNIT.toSim(-4419));
 		MCMoveManager moveManager = integratormc.getMoveManager();
 		moveManager.addMCMove(mcMove1);
 		moveManager.addMCMove(mcMove2);
@@ -140,7 +161,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 		mcMove3 = new MyMCMove(this, random, space, -zFraction);
 		mcMove3.setMu(Kelvin.UNIT.toSim(-10000));
 		mcMove4 = new MyMCMove(this, random, space, +zFraction);
-		mcMove4.setMu(Kelvin.UNIT.toSim(-3333));
+		mcMove4.setMu(Kelvin.UNIT.toSim(-4419));
 		moveManager.addMCMove(mcMove3);
 		moveManager.addMCMove(mcMove4);
 		mcMove3.setSpecies(speciesB);

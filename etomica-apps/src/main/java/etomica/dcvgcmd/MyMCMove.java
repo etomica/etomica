@@ -6,14 +6,18 @@ package etomica.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
+import etomica.molecule.MoleculeSetSinglet;
+import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
@@ -40,10 +44,11 @@ public class MyMCMove extends MCMoveInsertDelete {
 		energyMeter.setBox(p);
 	}
 
-	public void setSpecies(ISpecies s, double theta0, double epsilon, double temperature) {
+	public void setSpecies(ISpecies s, double temperature, IPotentialMolecular p1) {
 		super.setSpecies(s);
-		this.theta0 = theta0;
-		width = temperature / epsilon;
+		this.p1 = p1;
+		this.temperature = temperature;
+		resevoirMolecule = species.makeMolecule();
 	}
 
 	/**
@@ -54,13 +59,47 @@ public class MyMCMove extends MCMoveInsertDelete {
 		insert = (random.nextInt(2) == 0);
 		if (insert) {
 			uOld = 0.0;
-			if (!reservoir.isEmpty()) {
-				testMolecule = reservoir.remove(reservoir.size() - 1);
-			} else {
-				testMolecule = species.makeMolecule();
-				double theta = theta0 + random.nextGaussian() * width;
+
+			IAtomList atoms = resevoirMolecule.getChildList();
+			MoleculeSetSinglet singlet = new MoleculeSetSinglet(resevoirMolecule);
+			double u = p1.energy(singlet);
+			Vector dr = box.getSpace().makeVector();
+			double stepSize = 0.1;
+			for (int step = 0; step < 10; step++) {
+				nReservoirTrials++;
+				Vector r = atoms.get(random.nextInt(atoms.size() - 1)).getPosition();
+
+				dr.setRandomCube(random);
+				dr.TE(stepSize);
+				r.PE(dr);
+				double uNew = p1.energy(singlet);
+				if (uNew > u && random.nextDouble() > Math.exp(-(uNew - u) / temperature)) {
+					r.ME(dr);
+					continue;
+				}
+				nReservoirTrialsAccepted++;
+				if (nReservoirTrialsAccepted % 100000 == 0) {
+					System.out.println(nReservoirTrials + " trials, " + (nReservoirTrialsAccepted / (double) nReservoirTrials) + " accepted");
+				}
+				u = uNew;
 			}
-			box.addMolecule(testMolecule);
+
+			testMolecule = species.makeMolecule();
+			for (int i = 0; i < atoms.size(); i++) {
+				testMolecule.getChildList().get(i).getPosition().E(atoms.get(i).getPosition());
+			}
+			double u1 = random.nextDouble();
+			double u2 = 2 * Math.PI * random.nextDouble();
+			double u3 = 2 * Math.PI * random.nextDouble();
+			double s1 = Math.sqrt(u1);
+			double s2 = Math.sqrt(1 - u1);
+			RotationTensor3D tensor = new RotationTensor3D();
+			tensor.setQuaternions(new double[]{s1 * Math.sin(u2), s1 * Math.cos(u2),
+					s2 * Math.sin(u3), s2 * Math.cos(u3)});
+			for (IAtom a : testMolecule.getChildList()) {
+				tensor.transform(a.getPosition());
+			}
+
 			position.E(positionSource.randomPosition());
 			double z = position.getX(2);
 			double zBoundary = box.getBoundary().getBoxSize().getX(2);
@@ -75,6 +114,9 @@ public class MyMCMove extends MCMoveInsertDelete {
 			position.setX(2, z); //multiply z-coordinate by zFraction
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
+
+			box.addMolecule(testMolecule);
+
 		} else {//delete
 			if (activeAtoms.size() == 0) {
 				testMolecule = null;//added this line 09/19/02
@@ -93,6 +135,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		if (insert) {
 			energyMeter.setTarget(testMolecule);
 			uNew = energyMeter.getDataAsScalar();
+//			System.out.println("uNew "+uNew);
 		} else {
 			uNew = 0;
 		}
@@ -105,9 +148,21 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return a * Math.exp(b / temperature);
 	}
 
+	public void rejectNotify() {
+		if (insert) {
+			// rejected insertion - remove from box and return to reservoir
+			box.removeMolecule(testMolecule);
+			// test molecule is no longer in the simulation and should not be
+			// returned by affectedAtoms
+			testMolecule = null;
+		}
+	}
+
 	public void acceptNotify() {
-		super.acceptNotify();
 		if (!insert) {
+			// accepted deletion - remove from box and add to reservoir
+			box.removeMolecule(testMolecule);
+
 //			System.out.println("removed "+testMolecule.getType().getIndex()+" "+testMoleculeIndex);
 			activeAtoms.remove(testMoleculeIndex);
 			deltaN--;
@@ -150,7 +205,10 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private final AtomActionRandomizeVelocity randomizer;
 	private final IntegratorBox integrator;
 	protected int testMoleculeIndex;
-	protected double theta0, width;
+	protected double temperature;
+	protected IPotentialMolecular p1;
+	protected IMolecule resevoirMolecule;
+	public long nReservoirTrials, nReservoirTrialsAccepted;
 
 	/**
 	 * Returns the zFraction.

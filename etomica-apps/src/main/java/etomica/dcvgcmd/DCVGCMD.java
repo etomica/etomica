@@ -168,7 +168,7 @@ public class DCVGCMD extends Simulation {
         P2SoftSphericalTruncatedForceShifted p2MCH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2MCH2e, rc);
         P2SoftSphericalTruncatedForceShifted p2MCHesf = new P2SoftSphericalTruncatedForceShifted(space, p2MCHe, rc);
 
-/*        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propaneCH3});
+        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propaneCH3});
         potentialMaster.addPotential(p2CH3CH2sf, new AtomType[]{propaneCH3, propaneCH2});
         potentialMaster.addPotential(p2CH2CH2sf, new AtomType[]{propaneCH2, propaneCH2});
 
@@ -188,15 +188,15 @@ public class DCVGCMD extends Simulation {
 
         if (!membraneFixed) potentialMaster.addPotential(p2MMsf, new AtomType[]{atomTypeMembrane, atomTypeMembrane});
 
-        potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
+/*        potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
         potentialMaster.addPotential(p2MCH2sf, new AtomType[]{atomTypeMembrane, propaneCH2});
         potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propeneCH3});
         potentialMaster.addPotential(p2MCH2esf, new AtomType[]{atomTypeMembrane, propeneCH2});
         potentialMaster.addPotential(p2MCHesf, new AtomType[]{atomTypeMembrane, propeneCH});
 */
 
-        P2Harmonic p2BondCH3 = new P2Harmonic(space, 10000, 1.54);
-        P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 10000, 1.33);
+        P2Harmonic p2BondCH3 = new P2Harmonic(space, 1000000, 1.54);
+        P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 1000000, 1.33);
         PotentialGroup p1Propane = potentialMaster.makePotentialGroup(1);
         p1Propane.addPotential(p2BondCH3, new ApiIndexList(new int[][]{{0, 1}, {1, 2}}));
         PotentialGroup p1Propene = potentialMaster.makePotentialGroup(1);
@@ -219,16 +219,17 @@ public class DCVGCMD extends Simulation {
 
         potentialwall = new P1WCAWall(space, 2, sigma, epsilon);
         CriterionPositionWall criterionWall = new CriterionPositionWall(this);
-        criterionWall.setInteractionRange(potentialwall.getRange());
-        criterionWall.setNeighborRange(neighborRangeFacHalf * potentialwall.getRange());
+        double wallCut = potentialwall.getRange() + 0.01 * Lz;
+        criterionWall.setInteractionRange(wallCut);
+        criterionWall.setNeighborRange(neighborRangeFacHalf * wallCut);
         criterionWall.setWallDim(2);
         potentialMaster.addPotential(potentialwall, new AtomType[]{propane.getTypeByName("propaneCH2")});
         potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall, propaneCH2, criterionWall);
 
         potentialwall1 = new P1WCAWall(space, 2, sigma, epsilon);
         CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
-        criterionWall1.setInteractionRange(potentialwall1.getRange());
-        criterionWall1.setNeighborRange(neighborRangeFacHalf * potentialwall1.getRange());
+        criterionWall1.setInteractionRange(wallCut);
+        criterionWall1.setNeighborRange(neighborRangeFacHalf * wallCut);
         criterionWall1.setWallDim(2);
         potentialMaster.addPotential(potentialwall1, new AtomType[]{propene.getTypeByName("propeneCH")});
         potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall1, propeneCH, criterionWall1);
@@ -270,6 +271,10 @@ public class DCVGCMD extends Simulation {
         }
 
         MyMCMove[] moves = integratorDCV.mcMoves();
+        moves[0].setSpecies(propane, temperature, p1Propane);
+        moves[1].setSpecies(propane, temperature, p1Propane);
+        moves[2].setSpecies(propene, temperature, p1Propene);
+        moves[3].setSpecies(propene, temperature, p1Propene);
         meterFlux0 = new MeterFlux(moves[0], integratorDCV);
         meterFlux1 = new MeterFlux(moves[1], integratorDCV);
         meterFlux2 = new MeterFlux(moves[2], integratorDCV);
