@@ -76,34 +76,40 @@ public class DCVGCMDGraphic extends SimulationGraphic {
 		temperatureSlider.setRadioGroupPostAction(resetAction);
 
 		//Mu Slider Stuff
+		double muMin = -10000;
+		double muMax = 0;
 		Modifier muAMMod = new ModifierGeneral(sim.integratorDCV.mcMoves()[0], "mu");
 		Modifier muAPMod = new ModifierGeneral(sim.integratorDCV.mcMoves()[1], "mu");
 		Modifier muBMMod = new ModifierGeneral(sim.integratorDCV.mcMoves()[2], "mu");
 		Modifier muBPMod = new ModifierGeneral(sim.integratorDCV.mcMoves()[3], "mu");
 		DeviceSlider muAMSlider = new DeviceSlider(sim.getController(), muAMMod);
-		muAMSlider.setMinimum(-2500);
-		muAMSlider.setMaximum(2500);
+		muAMSlider.setMinimum(muMin);
+		muAMSlider.setMaximum(muMax);
 		muAMSlider.setShowValues(true);
 		muAMSlider.setNMajor(2);
 		muAMSlider.setPostAction(resetAction);
+		muAMSlider.setUnit(Kelvin.UNIT);
 		DeviceSlider muAPSlider = new DeviceSlider(sim.getController(), muAPMod);
-		muAPSlider.setMinimum(-2500);
-		muAPSlider.setMaximum(2500);
+		muAPSlider.setMinimum(muMin);
+		muAPSlider.setMaximum(muMax);
 		muAPSlider.setShowValues(true);
 		muAPSlider.setNMajor(2);
 		muAPSlider.setPostAction(resetAction);
+		muAPSlider.setUnit(Kelvin.UNIT);
 		DeviceSlider muBMSlider = new DeviceSlider(sim.getController(), muBMMod);
-		muBMSlider.setMinimum(-2500);
-		muBMSlider.setMaximum(2500);
+		muBMSlider.setMinimum(muMin);
+		muBMSlider.setMaximum(muMax);
 		muBMSlider.setShowValues(true);
 		muBMSlider.setNMajor(2);
 		muBMSlider.setPostAction(resetAction);
+		muBMSlider.setUnit(Kelvin.UNIT);
 		DeviceSlider muBPSlider = new DeviceSlider(sim.getController(), muBPMod);
-		muBPSlider.setMinimum(-2500);
-		muBPSlider.setMaximum(2500);
+		muBPSlider.setMinimum(muMin);
+		muBPSlider.setMaximum(muMax);
 		muBPSlider.setShowValues(true);
 		muBPSlider.setNMajor(2);
 		muBPSlider.setPostAction(resetAction);
+		muBPSlider.setUnit(Kelvin.UNIT);
 
 		//	TubePanel Slider stuff
 		//Modifier tubePanelMod = sim.integratorDCV.new tubePanelModifier(); 
@@ -176,11 +182,11 @@ public class DCVGCMDGraphic extends SimulationGraphic {
 		diameterHash.setDiameter(sim.propene.getTypeByName("propeneCH3"), 3.75);
 		diameterHash.setDiameter(sim.propene.getTypeByName("propeneCH2"), 3.675);
 		diameterHash.setDiameter(sim.propene.getTypeByName("propeneCH"), 3.73);
-		diameterHash.setDiameter(sim.membrane.getAtomType(0), 3.0);
+		diameterHash.setDiameter(sim.membrane.getAtomType(0), ((DCVGCMD)sim).sigma);
 
 		//panel for Mu's
 		JPanel muPanel = new JPanel(new GridBagLayout());
-		muPanel.setBorder(new TitledBorder(null, "Mu1 and Mu2", TitledBorder.CENTER, TitledBorder.TOP));
+		muPanel.setBorder(new TitledBorder(null, "Mu1 and Mu2 (K)", TitledBorder.CENTER, TitledBorder.TOP));
 		muPanel.add(muAMSlider.graphic(), vertGBC);
 		muPanel.add(muAPSlider.graphic(), vertGBC);
 		muPanel.add(muBMSlider.graphic(), vertGBC);

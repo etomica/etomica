@@ -42,6 +42,7 @@ import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Dual-control-volume grand-canonical molecular dynamics simulation.
+ * TraPPE propane and propene
  */
 public class DCVGCMD extends Simulation {
 
@@ -63,6 +64,8 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage accumulator2;
     public DataPump profile1pump, profile2pump;
     public Vector poreCenter;
+    public P2LennardJones p2MM;
+    public double sigma;
 
     //Constructor
     public DCVGCMD() {
@@ -109,7 +112,7 @@ public class DCVGCMD extends Simulation {
         box.getBoundary().setBoxSize(new Vector3D(Lxy, Lxy, Lz));
 
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
-        double sigma = 3.0;
+        sigma = 2.0;
         double epsilon = 119.8;
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
@@ -135,7 +138,7 @@ public class DCVGCMD extends Simulation {
         P2LennardJones p2CH2CHe = new P2LennardJones(space, (3.675 + 3.73) / 2, Math.sqrt(85 * 47));
         P2LennardJones p2CH2CH2e = new P2LennardJones(space, (3.95 + 3.675) / 2, Math.sqrt(85 * 46));
 
-        P2LennardJones p2MM = new P2LennardJones(space, sigma, epsilon);
+        p2MM = new P2LennardJones(space, sigma, epsilon);
         P2LennardJones p2MCH3 = new P2LennardJones(space, (sigma + 3.75) / 2, Math.sqrt(epsilon * 98));
         P2LennardJones p2MCH2 = new P2LennardJones(space, (sigma + 3.95) / 2, Math.sqrt(epsilon * 46));
         P2LennardJones p2MCH2e = new P2LennardJones(space, (sigma + 3.675) / 2, Math.sqrt(epsilon * 85));
@@ -177,11 +180,13 @@ public class DCVGCMD extends Simulation {
         potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propeneCH3});
 
         if (!membraneFixed) potentialMaster.addPotential(p2MMsf, new AtomType[]{atomTypeMembrane, atomTypeMembrane});
+/*
         potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
         potentialMaster.addPotential(p2MCH2sf, new AtomType[]{atomTypeMembrane, propaneCH2});
         potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propeneCH3});
         potentialMaster.addPotential(p2MCH2esf, new AtomType[]{atomTypeMembrane, propeneCH2});
         potentialMaster.addPotential(p2MCHesf, new AtomType[]{atomTypeMembrane, propeneCH});
+*/
 
         P2Harmonic p2BondCH3 = new P2Harmonic(space, 10000, 1.54);
         P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 10000, 1.33);
