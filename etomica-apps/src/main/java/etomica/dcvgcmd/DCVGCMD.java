@@ -115,7 +115,8 @@ public class DCVGCMD extends Simulation {
 
         box = this.makeBox(new BoundaryRectangularSlit(2, space));
         double Lxy = 40;
-        double Lz = 80;
+        double Lz = 100;
+        double zFraction = 0.15;
         box.getBoundary().setBoxSize(new Vector3D(Lxy, Lxy, Lz));
 
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
@@ -237,6 +238,7 @@ public class DCVGCMD extends Simulation {
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
                 propane, propene, box);
+        integratorDCV.zFraction = zFraction;
         final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
         final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
 

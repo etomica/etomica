@@ -36,7 +36,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 
 	IntegratorMC integratormc;
 	IntegratorMD integratormd;
-	double zFraction = 0.1;
+	public double zFraction = 0.1;
 	private MyMCMove mcMove1, mcMove2, mcMove3, mcMove4;
 	private ISpecies speciesA, speciesB;
 	private final PotentialMasterHybrid potentialMasterHybrid;
@@ -108,8 +108,9 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 				integratormd.reset();
 			}
 			IAtomList allAtoms = box.getLeafList();
+			double Lz = box.getBoundary().getBoxSize().getX(2);
 			for (int i = 0; i < allAtoms.size(); i++) {
-				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > 40
+				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > Lz / 2
 						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
 					IMolecule m = allAtoms.get(i).getParentGroup();
 					IAtomList atoms = m.getChildList();
@@ -126,7 +127,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			}
 			integratormd.doStep();
 			for (int i = 0; i < allAtoms.size(); i++) {
-				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > 40
+				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > Lz / 2
 						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
 					IMolecule m = allAtoms.get(i).getParentGroup();
 					IAtomList atoms = m.getChildList();
