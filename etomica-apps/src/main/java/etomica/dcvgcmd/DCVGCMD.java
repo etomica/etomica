@@ -6,6 +6,7 @@ package etomica.dcvgcmd;
 
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiIndexList;
@@ -17,12 +18,9 @@ import etomica.chem.elements.Hydrogen;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceGroup;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterProfileByVolume;
-import etomica.data.meter.MeterTemperature;
-import etomica.integrator.IntegratorListenerAction;
+import etomica.data.meter.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
@@ -64,7 +62,12 @@ public class DCVGCMD extends Simulation {
     public MeterProfileByVolume profile2;
     public AccumulatorAverage accumulator1;
     public AccumulatorAverage accumulator2;
-    public DataPump profile1pump, profile2pump;
+    public DataPumpListener profile1pump, profile2pump;
+    public MeterMoleculeTemperature temperature1;
+    public MeterMoleculeTemperature temperature2;
+    public MeterProfileByAtoms profileTemperature1;
+    public MeterProfileByAtoms profileTemperature2;
+    public DataPumpListener profile1TemperaturePump, profile2TemperaturePump;
     public Vector poreCenter;
     public P2LennardJones p2MM;
     public double sigma;
@@ -105,7 +108,7 @@ public class DCVGCMD extends Simulation {
                 .addAtom(propeneCH2, Vector.of(1.33 * Math.cos(Math.PI - thetaPropene), 1.33 * Math.sin(thetaPropene), 0))
                 .build();
 
-        boolean membraneFixed = true;
+        boolean membraneFixed = false;
         AtomType atomTypeMembrane = AtomType.simple("M", membraneFixed ? Double.POSITIVE_INFINITY : 12);
         membrane = SpeciesGeneral.monatomic(space, atomTypeMembrane, true);
 
@@ -116,7 +119,7 @@ public class DCVGCMD extends Simulation {
         box = this.makeBox(new BoundaryRectangularSlit(2, space));
         double Lxy = 40;
         double Lz = 100;
-        double zFraction = 0.15;
+        double zFraction = 0.1;
         box.getBoundary().setBoxSize(new Vector3D(Lxy, Lxy, Lz));
 
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
@@ -189,12 +192,14 @@ public class DCVGCMD extends Simulation {
 
         if (!membraneFixed) potentialMaster.addPotential(p2MMsf, new AtomType[]{atomTypeMembrane, atomTypeMembrane});
 
-/*        potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
+        potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
         potentialMaster.addPotential(p2MCH2sf, new AtomType[]{atomTypeMembrane, propaneCH2});
         potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propeneCH3});
         potentialMaster.addPotential(p2MCH2esf, new AtomType[]{atomTypeMembrane, propeneCH2});
         potentialMaster.addPotential(p2MCHesf, new AtomType[]{atomTypeMembrane, propeneCH});
-*/
+
+        P1HarmonicSite p1Membrane = new P1HarmonicSite(space);
+        p1Membrane.setSpringConstant(10000);
 
         P2Harmonic p2BondCH3 = new P2Harmonic(space, 1000000, 1.54);
         P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 1000000, 1.33);
@@ -272,6 +277,17 @@ public class DCVGCMD extends Simulation {
             realAtoms.get(i).getPosition().E(pretendAtoms.get(i).getPosition());
         }
 
+        if (!membraneFixed) {
+            AtomLeafAgentManager<Vector> siteManager = new AtomLeafAgentManager<>(iAtom -> {
+                Vector v = space.makeVector();
+                v.E(iAtom.getPosition());
+                return v;
+            }, box);
+            p1Membrane.setAtomAgentManager(box, siteManager);
+            potentialMaster.addPotential(p1Membrane, new AtomType[]{membrane.getLeafType()});
+            integratorDCV.setDoThermalizeMembrane(true, membrane, random);
+        }
+
         MyMCMove[] moves = integratorDCV.mcMoves();
         moves[0].setSpecies(propane, temperature, p1Propane);
         moves[1].setSpecies(propane, temperature, p1Propane);
@@ -303,12 +319,33 @@ public class DCVGCMD extends Simulation {
         profile2.setProfileDim(2);
 
         accumulator1 = new AccumulatorAverageFixed();
-        profile1pump = new DataPump(profile1, accumulator1);
-        integratorDCV.getEventManager().addListener(new IntegratorListenerAction(profile1pump));
+        profile1pump = new DataPumpListener(profile1, accumulator1);
+        integratorDCV.getEventManager().addListener(profile1pump);
 
         accumulator2 = new AccumulatorAverageFixed();
-        profile2pump = new DataPump(profile2, accumulator2);
-        integratorDCV.getEventManager().addListener(new IntegratorListenerAction(profile2pump));
+        profile2pump = new DataPumpListener(profile2, accumulator2);
+        integratorDCV.getEventManager().addListener(profile2pump);
+
+        temperature1 = new MeterMoleculeTemperature();
+        temperature2 = new MeterMoleculeTemperature();
+        temperature1.setBox(box);
+        temperature2.setBox(box);
+        profileTemperature1 = new MeterProfileByAtoms(space);
+        profileTemperature2 = new MeterProfileByAtoms(space);
+        profileTemperature1.setSpecies(propane);
+        profileTemperature2.setSpecies(propene);
+        profileTemperature1.setDataSource(temperature1);
+        profileTemperature1.setBox(box);
+        profileTemperature1.setProfileDim(2);
+        profileTemperature2.setDataSource(temperature2);
+        profileTemperature2.setBox(box);
+        profileTemperature2.setProfileDim(2);
+
+        profile1TemperaturePump = new DataPumpListener(profileTemperature1, null);
+        integratorDCV.getEventManager().addListener(profile1TemperaturePump);
+
+        profile2TemperaturePump = new DataPumpListener(profileTemperature2, null);
+        integratorDCV.getEventManager().addListener(profile2TemperaturePump);
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }

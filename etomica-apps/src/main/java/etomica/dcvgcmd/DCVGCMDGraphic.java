@@ -167,6 +167,19 @@ public class DCVGCMDGraphic extends SimulationGraphic {
 
 		profilePlot.getPlot().setColors(speciesColors);
 
+		DisplayPlotXChart temperaturePlot = new DisplayPlotXChart();
+		temperaturePlot.setUnit(Kelvin.UNIT);
+		temperaturePlot.setLabel("Temperature Profile");
+		temperaturePlot.getPlot().setTitle("Temperature Profile");
+		temperaturePlot.setLegend(new DataTag[]{sim.profileTemperature1.getTag()}, "Temperature (1)");
+		temperaturePlot.setLegend(new DataTag[]{sim.profileTemperature2.getTag()}, "Temperature (2)");
+		getPanel().tabbedPane.add("Temperature Profile", temperaturePlot.graphic());
+
+		sim.profile1TemperaturePump.setDataSink(temperaturePlot.getDataSet().makeDataSink());
+		sim.profile2TemperaturePump.setDataSink(temperaturePlot.getDataSet().makeDataSink());
+
+		temperaturePlot.getPlot().setColors(speciesColors);
+
 		//set color of molecules
 		ColorSchemeByType colorScheme = (ColorSchemeByType) (getDisplayBox(sim.box).getColorScheme());
 		colorScheme.setColor(sim.propane.getTypeByName("propaneCH3"), speciesColors[0]);

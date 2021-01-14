@@ -196,7 +196,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return deltaN;
 	}
 
-	private double zFraction, zPadding = 10;
+	private double zFraction, zPadding = 5;
 	private int deltaN = 0;
 	private final Vector position;
 	private boolean leftSide;

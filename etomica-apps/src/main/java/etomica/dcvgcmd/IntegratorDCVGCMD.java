@@ -10,6 +10,7 @@
  */
 package etomica.dcvgcmd;
 
+import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -19,6 +20,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
 import etomica.species.ISpecies;
@@ -38,9 +40,11 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	IntegratorMD integratormd;
 	public double zFraction = 0.1;
 	private MyMCMove mcMove1, mcMove2, mcMove3, mcMove4;
-	private ISpecies speciesA, speciesB;
+	private ISpecies speciesA, speciesB, speciesMembrane;
 	private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
+	private boolean thermalizeMembrane;
+	private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
 
 	public IntegratorDCVGCMD(PotentialMaster parent, double temperature,
 							 ISpecies species1, ISpecies species2, Box box) {
@@ -50,6 +54,12 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
 				? (PotentialMasterHybrid) parent : null;
 		setMDStepRepetitions(50);
+	}
+
+	public void setDoThermalizeMembrane(boolean doThermalizeMembrane, ISpecies speciesMembrane, IRandom random) {
+		this.thermalizeMembrane = doThermalizeMembrane;
+		this.speciesMembrane = speciesMembrane;
+		atomActionRandomizeVelocity = doThermalizeMembrane ? new AtomActionRandomizeVelocity(temperature, random) : null;
 	}
 
 	public void setMDStepRepetitions(int interval) {
@@ -84,6 +94,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 		if (potentialMasterHybrid != null) {
 			potentialMasterHybrid.setUseNbrLists(MDStepCount > 0);
 		}
+		double Lz = box.getBoundary().getBoxSize().getX(2);
 		if (MDStepCount == 0) {
 			MDStepCount = MDStepRepetitions;
 			mcMove1.setupActiveAtoms();
@@ -95,12 +106,22 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			}
 			IAtomList allAtoms = box.getLeafList();
 			for (int i = 0; i < allAtoms.size(); i++) {
-				if (allAtoms.get(i).getPosition().getX(2) < -40) {
+				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > Lz / 2) {
 					throw new RuntimeException(i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition());
 				}
 			}
 			potentialMasterHybrid.setUseNbrLists(true);
 			potentialMasterHybrid.getNeighborManager(box).reset();
+
+			if (thermalizeMembrane) {
+				IMoleculeList membranes = box.getMoleculeList(speciesMembrane);
+				atomActionRandomizeVelocity.setTemperature(temperature);
+				for (IMolecule molecule : membranes) {
+					IAtomKinetic atom = (IAtomKinetic) molecule.getChildList().get(0);
+					atomActionRandomizeVelocity.actionPerformed(atom);
+				}
+			}
+
 			integratormd.reset();
 		} else {
 			MDStepCount--;
@@ -108,7 +129,6 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 				integratormd.reset();
 			}
 			IAtomList allAtoms = box.getLeafList();
-			double Lz = box.getBoundary().getBoxSize().getX(2);
 			for (int i = 0; i < allAtoms.size(); i++) {
 				if (Math.abs(allAtoms.get(i).getPosition().getX(2)) > Lz / 2
 						|| Math.abs(((IAtomKinetic) allAtoms.get(i)).getVelocity().getX(2)) > 100) {
