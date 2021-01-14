@@ -104,8 +104,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 			double z = position.getX(2);
 			double zBoundary = box.getBoundary().getBoxSize().getX(2);
 			z += 0.5 * zBoundary;
-			z *= zFraction / 2;
-			z += zBoundary * zFraction / 2;
+			z *= zFraction;
+			z += zPadding;
 			if (leftSide) {
 				z = -0.5 * zBoundary + z;
 			} else {
@@ -180,7 +180,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public void setupActiveAtoms() {
 		activeAtoms.clear();
 		double zBoundary = box.getBoundary().getBoxSize().getX(2);
-		double zmin = leftSide ? -0.5 * zBoundary : (0.5 - zFraction) * zBoundary;
+		double zmin = leftSide ? (zPadding + -0.5 * zBoundary) : (-zPadding + (0.5 - zFraction) * zBoundary);
 		double zmax = zmin + zFraction * zBoundary;
 		int nMolecules = moleculeList.size();
 		for (int i = 0; i < nMolecules; i++) {
@@ -196,7 +196,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return deltaN;
 	}
 
-	private double zFraction;
+	private double zFraction, zPadding = 10;
 	private int deltaN = 0;
 	private final Vector position;
 	private boolean leftSide;
