@@ -445,7 +445,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         fNum += kxyz2.size() * numAtoms;
         this.nWaveVectors = this.kxyz2.size();
         uTotFS = fourierSum + fourierSum6;
-        ;
         uTot += uTotFS;
 
         if (debug && !first) {

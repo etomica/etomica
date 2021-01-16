@@ -10,7 +10,6 @@ import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
-import etomica.potential.PotentialMasterFasterer;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -54,7 +53,7 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
         source.setRandomNumberGenerator(random);
         moleculeSource = source;
         translationVector = space.makeVector();
-        setStepSizeMax(stepSizeMax);
+        setStepSizeMax(box.getBoundary().getBoxSize().getX(0) / 2);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
         perParticleFrequency = true;
@@ -85,6 +84,7 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
 
     public double getChi(double temperature) {
         uNew = potentialCompute.computeOneMolecule(molecule);
+//        System.out.println("translate "+molecule.getIndex()+" "+uOld+" => "+uNew);
         return Math.exp(-(uNew - uOld) / temperature);
     }
 
