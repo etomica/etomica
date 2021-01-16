@@ -41,6 +41,9 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
     public boolean doAllTruncationCorrection = true;
     public boolean doOneTruncationCorrection = false;
+    boolean first = true;
+    public long tAll, numAll;
+    public long numMC, tMC;
 
     public PotentialMasterFasterer(Simulation sim, Box box, BondingInfo bondingInfo) {
         space = box.getSpace();
@@ -153,6 +156,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij) {
+        numAll++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double[] u = {0};
@@ -195,11 +199,15 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
     @Override
     public double computeAll(boolean doForces) {
+        double[] uAtomOld = new double[uAtom.length];
+        boolean debug = false;
+        if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
         zeroArrays(doForces);
 
         IAtomList atoms = box.getLeafList();
         double u = 0;
         Boundary boundary = box.getBoundary();
+        long t1 = System.nanoTime();
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
@@ -218,12 +226,25 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
                 u += handleComputeAll(doForces, i, j, zero, dr, zero, pij);
             }
         }
+        tAll += System.nanoTime() - t1;
 
         double[] uCorrection = new double[1];
         double[] duCorrection = new double[1];
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         u += uCorrection[0];
         virialTot += duCorrection[0];
+
+        if (debug && uAtom.length == uAtomOld.length && !first) {
+            boolean success = true;
+            for (int i = 0; i < uAtom.length; i++) {
+                if (Math.abs(uAtom[i] - uAtomOld[i]) > 1e-9) {
+                    System.out.println("uAtom diff " + i + " " + uAtom[i] + " " + uAtomOld[i]);
+                    success = false;
+                }
+            }
+            if (!success) throw new RuntimeException("oops");
+        }
+        first = false;
 
         return u;
     }
@@ -245,6 +266,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     protected double handleComputeOne(Potential2Soft pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom) {
+        numMC++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double uij = pij.u(dr.squared());
@@ -284,6 +306,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         Potential2Soft[] ip = pairPotentials[iType];
         double u = 0;
         Boundary boundary = box.getBoundary();
+        long t1 = System.nanoTime();
         for (int j = 0; j < box.getLeafList().size(); j++) {
             if (i == j) continue;
             IAtom jAtom = box.getLeafList().get(j);
@@ -295,6 +318,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             boundary.nearestImage(dr);
             u += handleComputeOne(pij, zero, dr, zero, i, j);
         }
+        tMC += System.nanoTime() - t1;
         return u;
     }
 

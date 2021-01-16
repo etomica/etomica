@@ -8,13 +8,11 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterFasterer;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
-import etomica.util.Debug;
 
 public class PotentialMasterListFasterer extends PotentialMasterFasterer implements IntegratorListener {
 
@@ -50,6 +48,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.size();
 
+        long t1 = System.nanoTime();
         for (int i = 0; i < numAtoms; i++) {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
@@ -68,6 +67,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
                 uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
             }
         }
+        tAll += System.nanoTime() - t1;
 
         double[] uCorrection = new double[1];
         double[] duCorrection = new double[1];

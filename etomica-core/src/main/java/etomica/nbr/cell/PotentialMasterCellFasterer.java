@@ -55,6 +55,9 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
     }
 
     public double computeAll(boolean doForces) {
+        double[] uAtomOld = new double[uAtom.length];
+        boolean debug = false;
+        if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
         zeroArrays(doForces);
 
         IAtomList atoms = box.getLeafList();
@@ -65,6 +68,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         int[] cellOffsets = cellManager.getCellOffsets();
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
+        long t1 = System.nanoTime();
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
@@ -95,11 +99,24 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 }
             }
         }
+        tAll += System.nanoTime() - t1;
         double[] uCorrection = new double[1];
         double[] duCorrection = new double[1];
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         uTot += uCorrection[0];
         virialTot += duCorrection[0];
+
+        if (debug && uAtom.length == uAtomOld.length) {
+            boolean success = true;
+            for (int i = 0; i < uAtom.length; i++) {
+                if (Math.abs(uAtom[i] - uAtomOld[i]) > 1e-9) {
+                    System.out.println("uAtom diff " + i + " " + uAtom[i] + " " + uAtomOld[i]);
+                    success = false;
+                }
+            }
+            if (!success) throw new RuntimeException("oops");
+            System.out.println("success!");
+        }
 
         return uTot;
     }
@@ -121,6 +138,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         int iCell = atomCell[i];
         Vector jbo = boxOffsets[iCell];
         double u1 = 0;
+        long t1 = System.nanoTime();
         for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
             if (j != i) {
                 IAtom jAtom = atoms.get(j);
@@ -158,6 +176,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
             }
         }
+        tMC += System.nanoTime() - t1;
         return u1;
     }
 }
