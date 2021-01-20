@@ -112,7 +112,7 @@ public class TestN2MC extends Simulation {
         if (doEwald) {
             // 3.30703 gives rc=50
             // Cassandra with precision=1e-5 gives s~=3.4
-            double s = 2.5;
+            double s = 3;
             PotentialComputeEwaldFourier.EwaldParams p = ewald.getOptimalParams(s, 4);
             System.out.println("optimal: " + p);
 
@@ -261,7 +261,7 @@ public class TestN2MC extends Simulation {
 //        MeterPotentialEnergyFasterer energyMeter = new MeterPotentialEnergyFasterer(sim.box, sim.pcAggregate);
         MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 2 * numMolecules);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
         sim.integrator.getEventManager().addListener(energyPump);
 
         long t1 = System.nanoTime();
