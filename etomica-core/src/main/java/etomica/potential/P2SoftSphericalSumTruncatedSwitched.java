@@ -14,14 +14,14 @@ import etomica.units.dimensions.Length;
  * Wraps a soft-spherical potential to apply a truncation to it.  The energy
  * is switched from fully-on to 0 over a short range (i.e. from 0.95*rC to rC).
  */
-public class P2SoftSphericalTruncatedSwitchedSum extends P2SoftSphericalSum implements PotentialTruncated {
+public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum implements PotentialTruncated {
 
     protected double rCutoff, r2Cutoff;
     protected int taperOrder;
     protected double switchFac, r2Switch;
     protected double a, b, c;
 
-    public P2SoftSphericalTruncatedSwitchedSum(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+    public P2SoftSphericalSumTruncatedSwitched(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
         super(_space, potential);
         setTruncationRadius(truncationRadius);
         setTaperOrder(3);
@@ -168,7 +168,7 @@ public class P2SoftSphericalTruncatedSwitchedSum extends P2SoftSphericalSum impl
     }
 
     @Override
-    public double uInt(double rC) {
+    public double integral(double rC) {
         throw new RuntimeException("nope");
     }
 
@@ -198,7 +198,7 @@ public class P2SoftSphericalTruncatedSwitchedSum extends P2SoftSphericalSum impl
     public static void main(String[] args) {
         Space sp = Space3D.getInstance();
         P2LennardJones p = new P2LennardJones(sp);
-        P2SoftSphericalTruncatedSwitchedSum pt = new P2SoftSphericalTruncatedSwitchedSum(sp, 2, p);
+        P2SoftSphericalSumTruncatedSwitched pt = new P2SoftSphericalSumTruncatedSwitched(sp, 2, p);
         for (double x = 1.900001; x < 1.999999; x += 0.001) {
             System.out.println(x + " " + pt.getF(x) + " " + pt.getdFdr(x));
         }

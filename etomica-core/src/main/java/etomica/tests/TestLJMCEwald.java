@@ -22,7 +22,7 @@ import etomica.nbr.cell.PotentialMasterCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncatedSum;
+import etomica.potential.P2SoftSphericalSumTruncated;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeEwaldFourier;
 import etomica.potential.ewald.P2Ewald6Real;
@@ -72,7 +72,7 @@ public class TestLJMCEwald extends Simulation {
 
         P2Ewald6Real ewaldReal = new P2Ewald6Real(1, 1, 1, 1, ewaldParams.alpha);
         P2SoftSphere pCore12 = new P2SoftSphere(space, 1, 4, 12);
-        P2SoftSphericalTruncatedSum trunc = new P2SoftSphericalTruncatedSum(space, ewaldParams.rCut, ewaldReal, pCore12);
+        P2SoftSphericalSumTruncated trunc = new P2SoftSphericalSumTruncated(space, ewaldParams.rCut, ewaldReal, pCore12);
 
         AtomType leafType = species.getLeafType();
         pair.setPairPotential(leafType, leafType, trunc);

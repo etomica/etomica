@@ -11,19 +11,25 @@ import etomica.space.Space;
  * Wraps a soft-spherical potential to apply a truncation to it.  Energy and
  * its derivatives are set to zero at a specified cutoff.  (No accounting is
  * made of the infinite force existing at the cutoff point).  A shift is
- * applied so that the energy goes to 0 continuously at the cutoff.
+ * applied to both the energy and force  so that the they both go to 0
+ * continuously at the cutoff.
  */
-public class P2SoftSphericalTruncatedShiftedSum extends P2SoftSphericalTruncatedSum {
+public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumTruncated {
 
-    protected double shift;
+    protected double uShift, ufShift;
 
-    public P2SoftSphericalTruncatedShiftedSum(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+    public P2SoftSphericalSumTruncatedForceShifted(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
         super(_space, truncationRadius, potential);
     }
 
     public double u(double r2) {
         if (r2 > r2Cutoff) return 0;
-        return shift + uWrapped(r2);
+        return uShift + Math.sqrt(r2) * ufShift + uWrapped(r2);
+    }
+
+    public double du(double r2) {
+        if (r2 > r2Cutoff) return 0;
+        return Math.sqrt(r2) * ufShift + duWrapped(r2);
     }
 
     /**
@@ -31,16 +37,19 @@ public class P2SoftSphericalTruncatedShiftedSum extends P2SoftSphericalTruncated
      */
     public void setTruncationRadius(double rCut) {
         super.setTruncationRadius(rCut);
-        shift = -uWrapped(r2Cutoff);
+        uShift = -uWrapped(r2Cutoff);
+        ufShift = -duWrapped(r2Cutoff) / rCutoff;
+        uShift -= rCutoff * ufShift;
     }
 
     @Override
     public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
         double A = space.sphereArea(1.0);
         double D = space.D();
+        double integral = integralWrapped(rCutoff);
         double u = uWrapped(r2Cutoff);
-        double integral = uIntWrapped(rCutoff);
-        uCorrection[0] = integral - space.sphereVolume(rCutoff) * shift;
-        duCorrection[0] = -A * space.powerD(rCutoff) * u - D * integral;
+        double fsDU = -A * ufShift * space.powerD(rCutoff) * rCutoff / (D + 1);
+        uCorrection[0] = integral - space.sphereVolume(rCutoff) * uShift + fsDU;
+        duCorrection[0] = -A * space.powerD(rCutoff) * u - D * integral + fsDU;
     }
 }

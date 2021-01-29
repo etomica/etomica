@@ -18,11 +18,11 @@ import etomica.units.dimensions.Length;
  * pair correlations beyond the cutoff.  This class allows P2SoftSphericalSum3
  * to do all the work with the wrapped potential(s).
  */
-public class P2SoftSphericalTruncatedSum extends P2SoftSphericalSum implements PotentialTruncated {
+public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum implements PotentialTruncated {
 
     protected double rCutoff, r2Cutoff;
 
-    public P2SoftSphericalTruncatedSum(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+    public P2SoftSphericalSumTruncated(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
         super(_space, potential);
         setTruncationRadius(truncationRadius);
     }
@@ -63,7 +63,7 @@ public class P2SoftSphericalTruncatedSum extends P2SoftSphericalSum implements P
         return super.d2uWrapped(r2);
     }
 
-    public double uInt(double rC) {
+    public double integral(double rC) {
         throw new RuntimeException("nope");
     }
 
@@ -94,7 +94,7 @@ public class P2SoftSphericalTruncatedSum extends P2SoftSphericalSum implements P
         double A = space.sphereArea(1.0);
         double D = space.D();
         double u = uWrapped(r2Cutoff);
-        double integral = uIntWrapped(rCutoff);
+        double integral = integralWrapped(rCutoff);
         uCorrection[0] = integral;
         duCorrection[0] = (-A * space.powerD(rCutoff) * u - D * integral);
     }
