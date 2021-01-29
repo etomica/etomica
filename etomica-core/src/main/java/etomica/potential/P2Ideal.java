@@ -6,20 +6,20 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 
 /**
  * Ideal-gas two-body potential, which defines no interactions and zero energy
  * for all pairs given to it.
- * <p> 
- * Useful as a placeholder where a potential is expected but it is desired to 
+ * <p>
+ * Useful as a placeholder where a potential is expected but it is desired to
  * not have the atoms interact.
  */
-public class P2Ideal extends Potential2 implements Potential2Soft,
-        Potential2Spherical, PotentialHard {
+public class P2Ideal extends Potential2SoftSpherical implements
+        PotentialHard {
 
     public P2Ideal(Space space) {
         super(space);
@@ -27,6 +27,7 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
         zeroVector[0] = space.makeVector();
         zeroTensor = space.makeTensor();
     }
+
     /**
      * Does nothing.
      */
@@ -79,10 +80,23 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
         return 0;
     }
 
+    public void udu(double r2, double[] u, double[] du) {
+    }
+
     /**
      * Returns zero.
      */
     public double du(double r2) {
+        return 0;
+    }
+
+    @Override
+    public double d2u(double r2) {
+        return 0;
+    }
+
+    @Override
+    public double uInt(double rC) {
         return 0;
     }
 

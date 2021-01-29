@@ -39,7 +39,7 @@ public class VLESim extends Simulation {
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
     protected final Potential2SoftSpherical p2;
-    protected final P2SoftTruncated p2Truncated;
+    protected final P2SoftSphericalTruncated p2Truncated;
     protected double sigma;
     protected double temperature;
     protected double epsilon;
@@ -76,7 +76,7 @@ public class VLESim extends Simulation {
             ((PotentialMasterCell) potentialMaster).setCellRange(2);
         }
         p2 = params.approx ? new P2HeSimplified(space) : new P2HePCKLJS(space);
-        p2Truncated = new P2SoftTruncated(p2, range, space);
+        p2Truncated = new P2SoftSphericalTruncated(getSpace(), p2, range);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
