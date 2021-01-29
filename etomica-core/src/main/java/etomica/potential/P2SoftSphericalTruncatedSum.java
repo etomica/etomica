@@ -132,7 +132,7 @@ public class P2SoftSphericalTruncatedSum extends Potential2SoftSpherical
         double uSum = 0, integral = 0;
         for (Potential2SoftSpherical potential : potentials) {
             uSum += potential.u(r2Cutoff);
-            integral += potential.integral(r2Cutoff);
+            integral += potential.integral(rCutoff);
         }
         uCorrection[0] = integral;
         duCorrection[0] = (-A * space.powerD(rCutoff) * (uSum) - D * integral);
