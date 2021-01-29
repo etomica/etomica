@@ -5,38 +5,38 @@
 package etomica.potential;
 
 import etomica.atom.AtomType;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 
 
 /**
- * Wraps an array of soft-spherical potentials to apply a truncation.  Energy
- * and its derivatives are set to zero at a specified cutoff.  (No accounting
- * is made of the infinite force existing at the cutoff point).
+ * Wraps a soft-spherical potential(s) to apply a truncation to it.  Energy and
+ * its derivatives are set to zero at a specified cutoff.  (No accounting is
+ * made of the infinite force existing at the cutoff point).  Lrc potential
+ * is based on integration of energy from cutoff to infinity, assuming no
+ * pair correlations beyond the cutoff.  This class allows P2SoftSphericalSum3
+ * to do all the work with the wrapped potential(s).
  */
-public class P2SoftSphericalTruncatedSum extends Potential2SoftSpherical
-        implements PotentialTruncated {
+public class P2SoftSphericalTruncatedSum extends P2SoftSphericalSum implements PotentialTruncated {
 
-    protected final Potential2SoftSpherical[] potentials;
     protected double rCutoff, r2Cutoff;
 
-    public P2SoftSphericalTruncatedSum(Space _space, Potential2SoftSpherical[] potentials, double truncationRadius) {
-        super(_space);
-        this.potentials = potentials;
+    public P2SoftSphericalTruncatedSum(Space _space, Potential2SoftSpherical[] potential, double truncationRadius) {
+        this(_space, potential[0], potential.length > 1 ? potential[1] : null, potential.length > 2 ? potential[2] : null, truncationRadius);
+    }
+
+    public P2SoftSphericalTruncatedSum(Space _space, Potential2SoftSpherical potential1, double truncationRadius) {
+        this(_space, potential1, null, null, truncationRadius);
+    }
+
+    public P2SoftSphericalTruncatedSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, double truncationRadius) {
+        this(_space, potential1, potential2, null, truncationRadius);
+    }
+
+    public P2SoftSphericalTruncatedSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, Potential2SoftSpherical potential3, double truncationRadius) {
+        super(_space, potential1, potential2, potential3);
         setTruncationRadius(truncationRadius);
-    }
-
-    /**
-     * Returns the wrapped potential.
-     */
-    public Potential2SoftSpherical[] getWrappedPotentials() {
-        return potentials;
-    }
-
-    public void setBox(Box box) {
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -47,60 +47,36 @@ public class P2SoftSphericalTruncatedSum extends Potential2SoftSpherical
      */
     public double u(double r2) {
         if (r2 > r2Cutoff) return 0;
-        double sum = 0;
-        for (Potential2SoftSpherical potential : potentials) {
-            sum += potential.u(r2);
-        }
-        return sum;
+        return super.uWrapped(r2);
     }
 
     /**
      * Returns the derivative (r du/dr) of the wrapped potential if the separation
      * is less than the cutoff value
-     *
      * @param r2 the squared distance between the atoms
      */
     public double du(double r2) {
         if (r2 > r2Cutoff) return 0;
-        double sum = 0;
-        for (Potential2SoftSpherical potential : potentials) {
-            sum += potential.du(r2);
-        }
-        return sum;
+        return duWrapped(r2);
     }
 
     public void udu(double r2, double[] u, double[] du) {
         if (r2 > r2Cutoff) return;
-        for (Potential2SoftSpherical potential : potentials) {
-            potential.udu(r2, u, du);
-        }
+        super.uduWrapped(r2, u, du);
     }
 
     /**
      * Returns the 2nd derivative (r^2 d^2u/dr^2) of the wrapped potential if the separation
      * is less than the cutoff value
-     *
      * @param r2 the squared distance between the atoms
      */
     public double d2u(double r2) {
         if (r2 > r2Cutoff) return 0;
-        double sum = 0;
-        for (Potential2SoftSpherical potential : potentials) {
-            sum += potential.du(r2);
-        }
-        return sum;
+        return super.d2uWrapped(r2);
     }
 
-    /**
-     * Returns the value of uInt for the wrapped potential.
-     */
     public double uInt(double rC) {
-        double sum = 0;
-        for (Potential2SoftSpherical potential : potentials) {
-            sum += potential.uInt(rC);
-        }
-        return sum;
-
+        throw new RuntimeException("nope");
     }
 
     /**
@@ -115,7 +91,7 @@ public class P2SoftSphericalTruncatedSum extends Potential2SoftSpherical
      */
     public void setTruncationRadius(double rCut) {
         rCutoff = rCut;
-        r2Cutoff = rCut * rCut;
+        r2Cutoff = rCut*rCut;
     }
 
     /**
@@ -129,13 +105,10 @@ public class P2SoftSphericalTruncatedSum extends Potential2SoftSpherical
     public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
         double A = space.sphereArea(1.0);
         double D = space.D();
-        double uSum = 0, integral = 0;
-        for (Potential2SoftSpherical potential : potentials) {
-            uSum += potential.u(r2Cutoff);
-            integral += potential.integral(rCutoff);
-        }
+        double u = uWrapped(r2Cutoff);
+        double integral = uIntWrapped(rCutoff);
         uCorrection[0] = integral;
-        duCorrection[0] = (-A * space.powerD(rCutoff) * (uSum) - D * integral);
+        duCorrection[0] = (-A * space.powerD(rCutoff) * u - D * integral);
     }
 
     /**
@@ -151,14 +124,6 @@ public class P2SoftSphericalTruncatedSum extends Potential2SoftSpherical
      * exceeding the truncation radius.
      */
     public Potential0Lrc makeLrcPotential(AtomType[] types) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean getMakeLrc() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setMakeLrc(boolean newMakeLrc) {
         throw new UnsupportedOperationException();
     }
 }
