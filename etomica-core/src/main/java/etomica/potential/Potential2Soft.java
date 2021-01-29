@@ -33,6 +33,14 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical {
         du[0] += du(r2);
     }
 
+
+    /**
+     * The second derivative of the pair energy, times the square of the
+     * separation:  r^2 d^2u/dr^2.
+     */
+    double d2u(double r2);
+
+
     default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
 
     }

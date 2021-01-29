@@ -237,4 +237,8 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         u[0] *= F;
         du[0] = F * du[0] + r * u[0] * getdFdr(r);
     }
+
+    public double d2u(double r2) {
+        return 0;
+    }
 }

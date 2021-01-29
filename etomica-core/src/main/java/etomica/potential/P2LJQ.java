@@ -5,13 +5,13 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Lennard Jones molecule with a quadrupole.
@@ -232,26 +232,31 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     // return a Boltzmann-weighted orientational average of the energy
     // for the given distance
     public double u(double r2) {
-        double s2 = sigma2/r2;
-        double s6 = s2*s2*s2;
-        double r4 = r2*r2;
-        return epsilon4*s6*(s6 - 1.0) - (14.0/(5.0*temperature))*Q2*Q2/(r4*r4*r2);
+        double s2 = sigma2 / r2;
+        double s6 = s2 * s2 * s2;
+        double r4 = r2 * r2;
+        return epsilon4 * s6 * (s6 - 1.0) - (14.0 / (5.0 * temperature)) * Q2 * Q2 / (r4 * r4 * r2);
     }
-    
+
     public double du(double r2) {
         // should return a Boltzmann-weighted orientational average of du/dr
         throw new RuntimeException("please implement me");
     }
-    
+
+
+    public double d2u(double r2) {
+        throw new RuntimeException("please don't implement me");
+    }
+
     public double integral(double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
-        double rc = sigma/rC;
+        double rc = sigma / rC;
         double sigmaD = space.powerD(sigma);
-        double rc3 = rc*rc*rc;
-        double rc6 = rc3*rc3;
-        double rc12 = rc6*rc6;
+        double rc3 = rc * rc * rc;
+        double rc6 = rc3 * rc3;
+        double rc12 = rc6 * rc6;
         // LJ part
-        double uInt = 4.0*epsilon*sigmaD*A*(rc12/9 - rc6/3)/rc3;  //complete LRC is obtained by multiplying by N1*N2/V
+        double uInt = 4.0 * epsilon * sigmaD * A * (rc12 / 9 - rc6 / 3) / rc3;  //complete LRC is obtained by multiplying by N1*N2/V
         double r2 = rC;
         double r4 = r2*r2;
         return uInt - (7.0/(25.0*temperature))*Q2*Q2/(r4*r4*r2*rC);

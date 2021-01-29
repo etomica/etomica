@@ -3,19 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
+
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
-import etomica.units.dimensions.Angle;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Null;
+import etomica.units.dimensions.*;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 
@@ -236,26 +233,30 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
 	}
 
 	public double integral(double rc) {
-		return 0;
-	}
+        return 0;
+    }
 
-	public double u(double r2) {
-		return 0;
-	}
+    public double u(double r2) {
+        return 0;
+    }
 
     public double du(double r2) {
         return 0;
     }
 
-	public Vector[] gradient(IAtomList atoms) {
-		return null;
-	}
+    public double d2u(double r2) {
+        return 0;
+    }
 
-	public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-		return null;
-	}
+    public Vector[] gradient(IAtomList atoms) {
+        return null;
+    }
 
-	public double virial(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return null;
+    }
+
+    public double virial(IAtomList atoms) {
 		return 0;
 	}
 }

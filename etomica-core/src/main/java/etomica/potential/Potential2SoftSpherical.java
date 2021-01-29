@@ -30,17 +30,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     /**
-     * The derivative of the pair energy, times the separation r: r du/dr.
-     */
-    public abstract double du(double r2);
-        
-    /**
-     * The second derivative of the pair energy, times the square of the
-     * separation:  r^2 d^2u/dr^2.
-     */
-    public abstract double d2u(double r2);
-
-    /**
      * Energy of the pair as given by the u(double) method
      */
     public double energy(IAtomList atoms) {

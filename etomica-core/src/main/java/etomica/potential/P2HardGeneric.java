@@ -236,6 +236,11 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     }
 
     @Override
+    public double d2u(double r2) {
+        return 0;
+    }
+
+    @Override
     public double hyperVirial(IAtomList atoms) {
         return 0;
     }

@@ -230,5 +230,9 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         public double du(double r2) {
             throw new RuntimeException("nope");
         }
+
+        public double d2u(double r2) {
+            throw new RuntimeException("nope");
+        }
     }//end of P0lrc
 }

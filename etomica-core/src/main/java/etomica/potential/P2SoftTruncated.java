@@ -4,10 +4,10 @@
 
 package etomica.potential;
 
-import etomica.space.Boundary;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -112,13 +112,17 @@ public class P2SoftTruncated extends Potential2
     public double integral(double rC) {
         return wrappedPotential.integral(rC);
     }
-    
+
     public double u(double r2) {
         return wrappedPotential.u(r2);
     }
 
     public double du(double r2) {
         return wrappedPotential.du(r2);
+    }
+
+    public double d2u(double r2) {
+        return wrappedPotential.d2u(r2);
     }
 
     /**
@@ -247,6 +251,10 @@ public class P2SoftTruncated extends Potential2
         }
 
         public double du(double r2) {
+            throw new RuntimeException("nope");
+        }
+
+        public double d2u(double r2) {
             throw new RuntimeException("nope");
         }
     }//end of P0lrc
