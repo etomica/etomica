@@ -138,7 +138,7 @@ public class TestN2MC extends Simulation {
                 pNNt = new P2SoftSphericalTruncatedSum(space, new Potential2SoftSpherical[]{pNN12, pNN6, pNN1}, p.rCut);
             } else {
                 P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
-                pNNt = new P2SoftSphericalTruncatedSum2(space, pNNLJ, pNN1, p.rCut);
+                pNNt = new P2SoftSphericalTruncatedSum(space, pNNLJ, pNN1, p.rCut);
             }
 
             P2Ewald1Real pNM1 = new P2Ewald1Real(qN * qM, p.alpha);
@@ -155,7 +155,7 @@ public class TestN2MC extends Simulation {
                 P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
                 P2SoftSphericalTruncatedForceShifted pNN1sf = new P2SoftSphericalTruncatedForceShifted(space, new P2Electrostatic(space, qN, qN), rc);
 
-                pNNt = new P2SoftSphericalTruncatedSum2(space, pNNLJ, pNN1sf, rc);
+                pNNt = new P2SoftSphericalTruncatedSum(space, pNNLJ, pNN1sf, rc);
 
                 P2Electrostatic pNM1 = new P2Electrostatic(space, qN, qM);
                 pNMt = new P2SoftSphericalTruncatedForceShifted(space, pNM1, rc);
@@ -167,7 +167,7 @@ public class TestN2MC extends Simulation {
                 P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
                 P2SoftSphericalTruncated pNN1sf = new P2SoftSphericalTruncated(space, new P2Electrostatic(space, qN, qN), rc);
 
-                pNNt = new P2SoftSphericalTruncatedSum2(space, pNNLJ, pNN1sf, rc);
+                pNNt = new P2SoftSphericalTruncatedSum(space, pNNLJ, pNN1sf, rc);
 
                 P2Electrostatic pNM1 = new P2Electrostatic(space, qN, qM);
                 pNMt = new P2SoftSphericalTruncated(space, pNM1, rc);
