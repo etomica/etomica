@@ -72,7 +72,7 @@ public class TestLJMCEwald extends Simulation {
 
         P2Ewald6Real ewaldReal = new P2Ewald6Real(1, 1, 1, 1, ewaldParams.alpha);
         P2SoftSphere pCore12 = new P2SoftSphere(space, 1, 4, 12);
-        P2SoftSphericalTruncatedSum trunc = new P2SoftSphericalTruncatedSum(space, ewaldReal, pCore12, ewaldParams.rCut);
+        P2SoftSphericalTruncatedSum trunc = new P2SoftSphericalTruncatedSum(space, ewaldParams.rCut, ewaldReal, pCore12);
 
         AtomType leafType = species.getLeafType();
         pair.setPairPotential(leafType, leafType, trunc);

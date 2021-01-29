@@ -135,10 +135,10 @@ public class TestN2MC extends Simulation {
 
                 P2SoftSphere pNN12 = new P2SoftSphere(space, sigma, 4 * epsilon, 12);
                 P2Ewald6Real pNN6 = new P2Ewald6Real(sigma, epsilon, sigma, epsilon, p.alpha);
-                pNNt = new P2SoftSphericalTruncatedSum(space, new Potential2SoftSpherical[]{pNN12, pNN6, pNN1}, p.rCut);
+                pNNt = new P2SoftSphericalTruncatedSum(space, p.rCut, new Potential2SoftSpherical[]{pNN12, pNN6, pNN1});
             } else {
                 P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
-                pNNt = new P2SoftSphericalTruncatedSum(space, pNNLJ, pNN1, p.rCut);
+                pNNt = new P2SoftSphericalTruncatedSum(space, p.rCut, pNNLJ, pNN1);
             }
 
             P2Ewald1Real pNM1 = new P2Ewald1Real(qN * qM, p.alpha);
@@ -155,25 +155,25 @@ public class TestN2MC extends Simulation {
                 P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
                 P2SoftSphericalTruncatedForceShifted pNN1sf = new P2SoftSphericalTruncatedForceShifted(space, new P2Electrostatic(space, qN, qN), rc);
 
-                pNNt = new P2SoftSphericalTruncatedSum(space, pNNLJ, pNN1sf, rc);
+                pNNt = new P2SoftSphericalTruncatedSum(space, rc, pNNLJ, pNN1sf);
 
                 P2Electrostatic pNM1 = new P2Electrostatic(space, qN, qM);
-                pNMt = new P2SoftSphericalTruncatedForceShifted(space, pNM1, rc);
+                pNMt = new P2SoftSphericalTruncatedForceShiftedSum(space, rc, pNM1);
 
                 P2Electrostatic pMM1 = new P2Electrostatic(space, qM, qM);
-                pMMt = new P2SoftSphericalTruncatedForceShifted(space, pMM1, rc);
+                pMMt = new P2SoftSphericalTruncatedForceShiftedSum(space, rc, pMM1);
             } else {
                 // don't even need to worry about force-shifting because molecules can't escape the droplet
                 P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
-                P2SoftSphericalTruncated pNN1sf = new P2SoftSphericalTruncated(space, new P2Electrostatic(space, qN, qN), rc);
+                P2SoftSphericalTruncatedSum pNN1sf = new P2SoftSphericalTruncatedSum(space, rc, new P2Electrostatic(space, qN, qN));
 
-                pNNt = new P2SoftSphericalTruncatedSum(space, pNNLJ, pNN1sf, rc);
+                pNNt = new P2SoftSphericalTruncatedSum(space, rc, pNNLJ, pNN1sf);
 
                 P2Electrostatic pNM1 = new P2Electrostatic(space, qN, qM);
-                pNMt = new P2SoftSphericalTruncated(space, pNM1, rc);
+                pNMt = new P2SoftSphericalTruncatedSum(space, rc, pNM1);
 
                 P2Electrostatic pMM1 = new P2Electrostatic(space, qM, qM);
-                pMMt = new P2SoftSphericalTruncated(space, pMM1, rc);
+                pMMt = new P2SoftSphericalTruncatedSum(space, rc, pMM1);
             }
         } else {
             throw new RuntimeException("unknown truncation scheme");
