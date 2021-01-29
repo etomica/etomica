@@ -26,10 +26,14 @@ import etomica.units.dimensions.Length;
 
 public final class P2Morse extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double epsilon, double re, double a, TruncationFactory tf) {
+        return tf.make(new P2Morse(space, epsilon, re, a));
+    }
+
     public P2Morse(Space space) {
         this(space, 1.0, 1.0, 1.0);
     }
-    
+
     public P2Morse(Space space, double epsilon, double re, double a) {
         super(space);
         setEpsilon(epsilon);

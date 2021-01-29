@@ -4,27 +4,30 @@
 
 package etomica.potential;
 
-import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 
 /**
  * Yukawa interatomic potential.
- * 
+ *
  * U(r) = Vo * exp(-K * r) / r
- * 
+ *
  * where Vo is the potential's energy parameter and K is the characteristic distance (1/K is a measure for the screening length).
- * 
+ *
  * @author msellers
  *
  */
 
 public final class P2Yukawa extends Potential2SoftSpherical {
-	
-    public P2Yukawa(Space _space) {
+
+	public static Potential2Soft makeTruncated(Space space, double kappa, double vzero, TruncationFactory tf) {
+		return tf.make(new P2Yukawa(space, kappa, vzero));
+	}
+
+	public P2Yukawa(Space _space) {
 		this(_space, 1.0, 1.0);
 	}
-	
-	public P2Yukawa(Space _space, double kappa, double vzero){
+
+	public P2Yukawa(Space _space, double kappa, double vzero) {
 		super(_space);
 		setKappa(kappa);
 		setVZero(vzero);

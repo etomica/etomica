@@ -1,12 +1,19 @@
 package etomica.potential.ewald;
 
-import etomica.math.SpecialFunctions;
+import etomica.potential.Potential2Soft;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.TruncationFactory;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 import static etomica.math.SpecialFunctions.factorial;
 
 public class P2Ewald6Real extends Potential2SoftSpherical {
+
+    public static Potential2Soft makeTruncated(Space space, double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6, TruncationFactory tf) {
+        return tf.make(new P2Ewald6Real(sigmaI, epsilonI, sigmaJ, epsilonJ, alpha6));
+    }
+
     private final double alpha6Sq;
     private final double alpha66;
     private final double Bij;

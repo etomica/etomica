@@ -5,10 +5,10 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.space.Vector;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -117,7 +117,6 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
         final P2HePCKLJS p2 = new P2HePCKLJS(space);
         P2DiscreteFeynmanHibbs p2dfh = new P2DiscreteFeynmanHibbs(space, p2);
         P2EffectiveFeynmanHibbs p2efh = new P2EffectiveFeynmanHibbs(space, p2);
-        P2HeEmpericalQuantum p2eq = new P2HeEmpericalQuantum(space, p2, temperature);
         double heMass = 4.002602;
         p2dfh.setMass(heMass);
         p2dfh.setTemperature(temperature);
@@ -130,47 +129,6 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
             double uc = p2.u(r*r);
             double ud = p2dfh.u(r*r);
             double ue = p2efh.u(r*r);
-            double ueq = p2eq.u(r*r);
-            System.out.println(r+" "+Math.exp(-ueq/temperature));
         }
     }
-
-
-    public static final class P2HeEmpericalQuantum extends Potential2SoftSpherical {
-        private final P2HePCKLJS p2;
-        private final double temperature;
-        private final double temperatureK;
-
-        public P2HeEmpericalQuantum(Space space, P2HePCKLJS p2,
-                                    double temperature) {
-            super(space);
-            this.p2 = p2;
-            this.temperature = temperature;
-            this.temperatureK = Kelvin.UNIT.fromSim(temperature);;
-        }
-
-        public double u(double r2) {
-            double u = p2.u(r2);
-            double log10T = Math.log(temperatureK)/Math.log(10);
-            double a = log10T + 2.5;
-            double b = 10.5 + 0.8*log10T*(1 - log10T);
-            double r = Math.sqrt(r2);
-            double uQ = temperature*Math.exp(-a*r + b);
-            return u + uQ;
-        }
-
-        public double uInt(double rC) {
-            throw new RuntimeException("nope");
-        }
-
-        public double du(double r2) {
-            throw new RuntimeException("nope");
-        }
-
-        public double d2u(double r2) {
-            throw new RuntimeException("nope");
-        }
-    }
-
-    
 }

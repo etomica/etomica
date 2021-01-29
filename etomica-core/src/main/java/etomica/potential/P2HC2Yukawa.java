@@ -5,11 +5,10 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.box.Box;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard-Jones like potential.
@@ -21,19 +20,21 @@ import etomica.space.Space;
  * 			| infinity																		r <= sigma
  * U(r) =	| 
  * 			|(A1/r) * exp[-z1 * (r - sigma)] - (A2 * epsilon/r) * exp[-z2 * (r - sigma)]	r > sigma
- * 
+ *
  * 	LJ behavior parameters:	A1 = 1.6438 * sigma
  * 							z1 = 14.7 / sigma
  * 							A2 = 2.03 * sigma
  * 							z2 = 2.69 / sigma
- * 
+ *
  * @author msellers
  */
 
 public final class P2HC2Yukawa extends Potential2SoftSpherical {
 
+	public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, TruncationFactory tf) {
+		return tf.make(new P2HC2Yukawa(space, sigma, epsilon));
+	}
 
-	
 	public double d2u(double r2) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException();

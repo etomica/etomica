@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
@@ -15,18 +15,22 @@ import etomica.units.dimensions.Length;
  * Spherically symmetric potential of the form u(r) = D0*[(r0/r)^12 - 2*(r0/r)^6]
  * where D0 describes the van der Waals well depth [unit Kelvin ], 
  * and r0 is the van der Waals bond length [unit Amstrom ].
- * 
+ *
  * r0 = sigma; D0 = epsilon
  *
  * @author Tai Tan
  */
 
 public class P2LennardJonesDreiding extends Potential2SoftSpherical {
-	
-	public P2LennardJonesDreiding(Space space) {
+
+    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, TruncationFactory tf) {
+        return tf.make(new P2LennardJonesDreiding(space, sigma, epsilon));
+    }
+
+    public P2LennardJonesDreiding(Space space) {
         this(space, 1.0, 1.0);
     }
-	
+
     public P2LennardJonesDreiding(Space space, double sigma, double epsilon) {
         super(space);
         dr01 = space.makeVector();

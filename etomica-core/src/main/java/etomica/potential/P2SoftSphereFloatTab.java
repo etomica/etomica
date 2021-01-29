@@ -28,8 +28,15 @@ import etomica.space.Space;
  * are interpolated most efficiently because the interpolated function is
  * either very flat [x close to 0] or nearly linear [x close to 1].  Nearly odd
  * exponents are most difficult as x is nearly 1/2.
+ *
+ * This class will crash if asked about distances beyond the cutoff specified
+ * at construction.
  */
 public class P2SoftSphereFloatTab extends P2SoftSphere {
+
+    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, double nn, double rc, int ntab, TruncationFactory tf) {
+        return tf.make(new P2SoftSphereFloatTab(space, sigma, epsilon, nn, rc, ntab));
+    }
 
     public P2SoftSphereFloatTab(Space space, double sigma, double epsilon, double nn, double rc, int ntab) {
         super(space, sigma, epsilon, ((int) nn / 2) * 2);

@@ -13,9 +13,9 @@ import etomica.units.Hartree;
 import etomica.util.Constants;
 
 /**
- * 
+ *
  * Ab initio pair potential for helium from Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.   
- * 
+ *
  * Potential is speciously negative at separations less than 0.3 a0.
  * Second derivative (used for quadratic Feymann-Hibbs potential) goes through maximum at 0.2A~=0.4a0. 
  * We apply a hard core of 0.4 a0.
@@ -24,15 +24,19 @@ import etomica.util.Constants;
  */
 public class P2HePCKLJS extends Potential2SoftSpherical {
 
-	public P2HePCKLJS(Space space) {
-		this(space, 0);
-	}
+    public static Potential2Soft makeTruncated(Space space, double sigma, TruncationFactory tf) {
+        return tf.make(new P2HePCKLJS(space, sigma));
+    }
+
+    public P2HePCKLJS(Space space) {
+        this(space, 0);
+    }
 
     public P2HePCKLJS(Space space, double sigma) {
         super(space);
 
-        double W4 = 0.35322e-04/(alpha*alpha);
-        double AS3= 0.577235e-06/(alpha*alpha*alpha);
+        double W4 = 0.35322e-04 / (alpha * alpha);
+        double AS3 = 0.577235e-06 / (alpha * alpha * alpha);
         double polarizability = 1.38319217440;
 
         double K7 = 23.0/(4.0*Math.PI)*polarizability*polarizability/alpha;

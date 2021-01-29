@@ -28,6 +28,10 @@ import etomica.units.dimensions.Length;
  */
 public class P2SoftSphereFloat extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, int n, TruncationFactory tf) {
+        return tf.make(new P2SoftSphereFloat(space, sigma, epsilon, n));
+    }
+
     public P2SoftSphereFloat(Space space, double sigma, double epsilon, double n) {
 
         super(space);

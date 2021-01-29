@@ -10,24 +10,28 @@ import etomica.space.Space;
  * Dreiding potential.
  * 
  * U(r) = alpha * (R - Re)^2
- * 
- *  
+ *
+ *
  * where alpha is the potential's energy parameter, which equals 0.5*Ke (Ke = force constant)
  * 		 Re is the equilibrium bond radius
- * 
+ *
  * @author Tai Tan
  *
  */
 
 public class P2Dreiding extends Potential2SoftSpherical {
 
-	private double Re, alpha;
-    
+    public static Potential2Soft makeTruncated(Space space, double Re, double alpha, TruncationFactory tf) {
+        return tf.make(new P2Dreiding(space, Re, alpha));
+    }
+
+    private double Re, alpha;
+
     public P2Dreiding(Space space, double Re, double alpha) {
         super(space);
         setAlpha(alpha);
         setBondLength(Re);
-            }
+    }
  
 
     /**

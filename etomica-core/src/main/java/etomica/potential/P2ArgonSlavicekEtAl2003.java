@@ -8,22 +8,26 @@ import etomica.space3d.Space3D;
 
 /**
  * Ab initio pair potential for argon from Slavicek et al. (1993) JCP 119(4): 2102.  This is a true pair potential, rather than a pairwise-additive potential.
- * 
+ * <p>
  * In this class, only the pair potential is valid, not the gradients, etc.  I am unlikely to ever include those...
  *
  * @author Kate Shaul
  */
 public class P2ArgonSlavicekEtAl2003 extends Potential2SoftSpherical {
-    
-    public P2ArgonSlavicekEtAl2003(Space space) {
-        super(space);
-   
-    }
 
-    /**
-     * The energy u.
-     */
-    public double u(double r2) {
+	public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+		return tf.make(new P2ArgonSlavicekEtAl2003(space));
+	}
+
+	public P2ArgonSlavicekEtAl2003(Space space) {
+		super(space);
+
+	}
+
+	/**
+	 * The energy u.
+	 */
+	public double u(double r2) {
     	
     	double r = Math.sqrt(r2);
     

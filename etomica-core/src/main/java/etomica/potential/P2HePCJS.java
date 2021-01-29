@@ -19,6 +19,10 @@ import etomica.units.Kelvin;
  */
 public class P2HePCJS extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double sigma, TruncationFactory tf) {
+        return tf.make(new P2HePCJS(space, sigma));
+    }
+
     protected final int M_BO;
     protected final int I0_BO, I1_BO;
     protected final int N0_BO, N1_BO;

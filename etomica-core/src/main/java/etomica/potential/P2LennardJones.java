@@ -11,17 +11,21 @@ import etomica.units.dimensions.Length;
 /**
  * Lennard-Jones interatomic potential.
  * Spherically symmetric potential of the form u(r) = 4*epsilon*[(sigma/r)^12 - (sigma/r)^6]
- * where epsilon describes the strength of the pair interaction, 
+ * where epsilon describes the strength of the pair interaction,
  * and sigma is the atom size parameter.
  *
  * @author David Kofke
  */
 public class P2LennardJones extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, TruncationFactory tf) {
+        return tf.make(new P2LennardJones(space, sigma, epsilon));
+    }
+
     public P2LennardJones(Space space) {
         this(space, 1.0, 1.0);
     }
-    
+
     public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);

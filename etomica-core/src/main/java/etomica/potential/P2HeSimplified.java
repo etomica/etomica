@@ -17,7 +17,11 @@ import etomica.util.Constants;
  * @author Andrew Schultz
  */
 public class P2HeSimplified extends Potential2SoftSpherical {
-    
+
+    public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+        return tf.make(new P2HeSimplified(space));
+    }
+
     public P2HeSimplified(Space space) {
         super(space);
     }

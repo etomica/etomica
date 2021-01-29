@@ -13,6 +13,10 @@ import etomica.space.Space;
  */
 public class P2Electrostatic extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double q1, double q2, TruncationFactory tf) {
+        return tf.make(new P2Electrostatic(space, q1, q2));
+    }
+
     public P2Electrostatic(Space space) {
         super(space);
     }

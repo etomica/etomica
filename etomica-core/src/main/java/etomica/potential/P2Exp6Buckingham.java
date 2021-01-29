@@ -13,7 +13,7 @@ import etomica.units.dimensions.Length;
 
 /**
  * The Buckingham Exponential-6 atom-atom dispersion potential. Given formula:
- * 
+ *
  * U(r) = epsilon*alpha/(alpha-6)*[(6/alpha)exp(alpha*[1-r/rmax]-(rmax/r)^6]
  * where epsilon describes the strength of the pair interaction, 
  * alpha is the repulsive steepness of the potential
@@ -23,6 +23,10 @@ import etomica.units.dimensions.Length;
  */
 
 public class P2Exp6Buckingham extends Potential2SoftSpherical {
+
+    public static Potential2Soft makeTruncated(Space space, double epsilon, double alpha, double rm, double rmax, TruncationFactory tf) {
+        return tf.make(new P2Exp6Buckingham(space, epsilon, alpha, rm, rmax));
+    }
 
     public P2Exp6Buckingham(Space _space, double epsilon, double alpha, double rm, double rmax) {
         super(_space);

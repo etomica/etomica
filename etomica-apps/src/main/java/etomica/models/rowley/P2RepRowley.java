@@ -4,25 +4,31 @@
 
 package etomica.models.rowley;
 
+import etomica.potential.Potential2Soft;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.TruncationFactory;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 
 /**
  * Purely repulsive potential from Rowley et al (2006) used for interactions between satellite sites, X.
- * These fudge sites are used to represent a region of high electron density belonging to the oxygen atom of simple alcohols.    
- *
+ * These fudge sites are used to represent a region of high electron density belonging to the oxygen atom of simple alcohols.
+ * <p>
  * K.R. Schadel
  * May 2008
  */
 public final class P2RepRowley extends Potential2SoftSpherical {
 
-    public P2RepRowley (Space space) {
+    public static Potential2Soft makeTruncated(Space space, double BXX, double CXX, TruncationFactory tf) {
+        return tf.make(new P2RepRowley(space, BXX, CXX));
+    }
+
+    public P2RepRowley(Space space) {
         this(space, 1.0, 1.0);
     }
-    
-    public P2RepRowley (Space space, double BXX, double CXX) {
+
+    public P2RepRowley(Space space, double BXX, double CXX) {
         super(space);
         setBXX(BXX);
         setCXX(CXX);

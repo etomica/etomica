@@ -27,10 +27,14 @@ import etomica.util.Constants;
 
 public final class P2ModifiedMorse extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double epsilon, double re, double a, double z1, double z2, double coulombicCutoff, TruncationFactory tf) {
+        return tf.make(new P2ModifiedMorse(space, epsilon, re, a, z1, z2, coulombicCutoff));
+    }
+
     public P2ModifiedMorse(Space space) {
         this(space, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
     }
-    
+
     public P2ModifiedMorse(Space space, double epsilon, double re, double a, double z1, double z2, double coulombicCutoff) {
         super(space);
         setEpsilon(epsilon);

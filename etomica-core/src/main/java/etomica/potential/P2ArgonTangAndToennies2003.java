@@ -8,22 +8,26 @@ import etomica.space3d.Space3D;
 
 /**
  * Pair potential for argon from Tang and Toennies 2003.  This is a true pair potential, rather than a pairwise-additive potential.
- * 
+ * <p>
  * In this class, only the pair potential is valid, not the gradients, etc.  I am unlikely to ever include those...
  *
  * @author Kate Shaul
  */
 public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
-    
-    public P2ArgonTangAndToennies2003(Space space) {
-        super(space);
-   
-    }
 
-    /**
-     * The energy u.
-     */
-    public double u(double r2) {
+	public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+		return tf.make(new P2ArgonTangAndToennies2003(space));
+	}
+
+	public P2ArgonTangAndToennies2003(Space space) {
+		super(space);
+
+	}
+
+	/**
+	 * The energy u.
+	 */
+	public double u(double r2) {
     	
     	double r = Math.sqrt(r2);
     
