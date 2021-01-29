@@ -87,15 +87,15 @@ public class P2LJQQ extends Potential2SoftSpherical {
     private double Q2;
     protected double temperature;
 
-	public double du(double r2) {
-		return 0;
-	}
+    public double du(double r2) {
+        return 0;
+    }
 
-	public double d2u(double r2) {
-		return 0;
-	}
+    public double d2u(double r2) {
+        return 0;
+    }
 
-	public double uInt(double rC) {
-		return 0;
-	}
+    public double integral(double rC) {
+        return 0;
+    }
 }

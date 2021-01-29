@@ -61,10 +61,10 @@ public final class P2Yukawa extends Potential2SoftSpherical {
     /**
      * Integral from rC to infinity.
      */
-	public double uInt(double rC){
-		
-		return 0;
-	}
+    public double integral(double rC) {
+
+        return 0;
+    }
 
 	/**
 	 * Accessor methods for size and energy parameters.

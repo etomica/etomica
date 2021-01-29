@@ -65,9 +65,9 @@ public class P2Harmonic extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         return 0.0;
     }
 

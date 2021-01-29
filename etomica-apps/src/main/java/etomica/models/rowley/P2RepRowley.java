@@ -78,12 +78,12 @@ public final class P2RepRowley extends Potential2SoftSpherical {
      * by multiplying this quantity by the pair density nPairs/V, where nPairs is the number of pairs of atoms
      * affected by this potential, and V is the volume they occupy.
      */
-    public double uInt(double rC) {
-    	
-    	double A = space.sphereArea(1.0);
-    	
-        return A*BXX*Math.exp(-CXX*rC)*(rC*rC/CXX + 2*rC/(CXX*CXX) + 2/(CXX*CXX*CXX));  
-        
+    public double integral(double rC) {
+
+        double A = space.sphereArea(1.0);
+
+        return A * BXX * Math.exp(-CXX * rC) * (rC * rC / CXX + 2 * rC / (CXX * CXX) + 2 / (CXX * CXX * CXX));
+
     }
 
 

@@ -44,7 +44,7 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
     }
 
     @Override
-    public double uInt(double rC) {
+    public double integral(double rC) {
         return 0;
     }
 

@@ -29,7 +29,7 @@ public class P2ElectrostaticWithHardCore extends Potential2SoftSpherical {
         return -u(r2);
     }
 
-    public double uInt(double rc) {
+    public double integral(double rc) {
         // lie.  Nobody really wants to know it's infinity
         return 0;
     }

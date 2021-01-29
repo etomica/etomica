@@ -79,7 +79,7 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return r2*fac*(1-r2/epsilonSq)*dv;
     }
 
-    public double uInt(double rc) {
+    public double integral(double rc) {
         return 0;
     }
 

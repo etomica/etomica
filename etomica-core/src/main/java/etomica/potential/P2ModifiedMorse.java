@@ -112,19 +112,19 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
-    	double alpha = a*re;
+    public double integral(double rC) {
+        double alpha = a * re;
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
-        double rC2 = rC*rC;
-        double re2 = re*re;
-        double alpha2 = alpha*alpha;
-        double alpha3 = alpha*alpha*alpha;
-        double expTerm = Math.exp(-alpha*(-1+(rC/re)));
-        
+        double rC2 = rC * rC;
+        double re2 = re * re;
+        double alpha2 = alpha * alpha;
+        double alpha3 = alpha * alpha * alpha;
+        double expTerm = Math.exp(-alpha * (-1 + (rC / re)));
+
         System.out.println("Ahh!!!!  This has not been modified yet!!!");
-        return (-A/(4*alpha3))
+        return (-A / (4 * alpha3))
         		*(re*expTerm*epsilon*
         				(2*expTerm*alpha2*rC2 + 2*expTerm*alpha*re*rC	
         						+expTerm*re2 -8*alpha2*rC2 - 16*alpha*re*rC -16*re2));  

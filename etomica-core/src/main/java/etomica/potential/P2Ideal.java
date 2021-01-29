@@ -95,11 +95,6 @@ public class P2Ideal extends Potential2SoftSpherical implements
         return 0;
     }
 
-    @Override
-    public double uInt(double rC) {
-        return 0;
-    }
-
     /**
      * Returns zero.
      */

@@ -90,12 +90,12 @@ public class P2ArgonSlavicekEtAl2003 extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        
-        return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-    }
+	 * Integral used for corrections to potential truncation.
+	 */
+	public double integral(double rC) {
+
+		return 0;  //complete LRC is obtained by multiplying by N1*N2/V
+	}
     
     public static void main(String[] args) {
     	

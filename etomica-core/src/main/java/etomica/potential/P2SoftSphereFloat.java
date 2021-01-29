@@ -72,7 +72,7 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rC3 = rC * rC * rC;

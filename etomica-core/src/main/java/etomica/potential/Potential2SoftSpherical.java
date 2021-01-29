@@ -11,8 +11,6 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-import java.util.Arrays;
-
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
  * Subclasses must provide concrete definitions for the energy (method
@@ -41,17 +39,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * separation:  r^2 d^2u/dr^2.
      */
     public abstract double d2u(double r2);
-        
-    /**
-     * Integral of the potential, used to evaluate corrections for potential truncation.
-     * Specifically, this is the integral from rC (the argument) to infinity of
-     * u(r) A r^(D-1), where D is the spatial dimension, and A is the area of a unit
-     * sphere in D dimensions.  Normally, the long-range potential correction would be obtained
-     * by multiplying this quantity by the pair density nPairs/V, where nPairs is the number of pairs of atoms
-     * affected by this potential, and V is the volume they occupy.
-     */
-    public abstract double uInt(double rC);
-    
+
     /**
      * Energy of the pair as given by the u(double) method
      */
@@ -105,14 +93,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         }
         return gradient;
     }
-    
-    /**
-     * Same as uInt.
-     */
-    public double integral(double rC) {
-        return uInt(rC);
-    }
-    
+
     /**
      * Returns infinity.  May be overridden to define a finite-ranged potential.
      */

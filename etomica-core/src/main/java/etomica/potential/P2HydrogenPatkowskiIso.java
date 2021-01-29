@@ -340,7 +340,7 @@ public class P2HydrogenPatkowskiIso extends Potential2SoftSpherical {
         return r2d2udr2;
     }
 
-    public double uInt(double rC) {
+    public double integral(double rC) {
         // TODO Auto-generated method stub
         return 0;
     }

@@ -79,10 +79,10 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     }
 
     /**
-     * Returns the value of uInt for the wrapped potential.
+     * Returns the value of integral for the wrapped potential.
      */
-    public double uInt(double rC) {
-        return potential.uInt(rC);
+    public double integral(double rC) {
+        return potential.integral(rC);
     }
 
     /**

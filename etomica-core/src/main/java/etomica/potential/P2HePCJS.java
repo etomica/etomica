@@ -572,9 +572,11 @@ public class P2HePCJS extends Potential2SoftSpherical {
     public double d2u(double r2) { throw new MethodNotImplementedException(); }
 
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) { throw new MethodNotImplementedException(); }
+    public double integral(double rC) {
+        throw new MethodNotImplementedException();
+    }
 
     public static void main(String[] args){
         Space space = Space3D.getInstance();

@@ -87,7 +87,7 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) { // need long range correction!!!!
+    public double integral(double rC) { // need long range correction!!!!
         throw new MethodNotImplementedException("Integral for long-range correction for Exp-6 not yet implemented");
     }
 

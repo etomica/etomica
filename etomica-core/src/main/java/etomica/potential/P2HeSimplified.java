@@ -69,9 +69,9 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     }
 
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         double A = 4 * Math.PI;
         double sc = 1 / rC;
         double sc2 = sc * sc;

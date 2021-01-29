@@ -96,16 +96,16 @@ public class P2SoftSphericalSum extends Potential2SoftSpherical
         return d2u + potential3.d2u(r2);
     }
 
-    public double uInt(double rC) {
-        return uIntWrapped(rC);
+    public double integral(double rC) {
+        return integralWrapped(rC);
     }
 
-    public double uIntWrapped(double rC) {
-        double d2u = potential1.uInt(rC);
+    public double integralWrapped(double rC) {
+        double d2u = potential1.integral(rC);
         if (potential2 == null) return d2u;
-        d2u += potential2.uInt(rC);
+        d2u += potential2.integral(rC);
         if (potential3 == null) return d2u;
-        return d2u + potential3.uInt(rC);
+        return d2u + potential3.integral(rC);
     }
 
     /**
