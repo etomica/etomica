@@ -21,23 +21,12 @@ public class P2SoftSphericalSum extends Potential2SoftSpherical
 
     private final Potential2SoftSpherical potential1, potential2, potential3;
 
-    public P2SoftSphericalSum(Space _space, Potential2SoftSpherical[] potential) {
-        this(_space, potential[0], potential.length > 1 ? potential[1] : null, potential.length > 2 ? potential[2] : null);
-    }
-
-    public P2SoftSphericalSum(Space _space, Potential2SoftSpherical potential1) {
-        this(_space, potential1, null, null);
-    }
-
-    public P2SoftSphericalSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2) {
-        this(_space, potential1, potential2, null);
-    }
-
-    public P2SoftSphericalSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, Potential2SoftSpherical potential3) {
+    public P2SoftSphericalSum(Space _space, Potential2SoftSpherical... potential) {
         super(_space);
-        this.potential1 = potential1;
-        this.potential2 = potential2;
-        this.potential3 = potential3;
+        if (potential.length > 3) throw new RuntimeException("This class only handles up to 3 potentials");
+        this.potential1 = potential[0];
+        this.potential2 = potential.length > 1 ? potential[1] : null;
+        this.potential3 = potential.length > 2 ? potential[2] : null;
     }
 
     /**

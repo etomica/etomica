@@ -20,6 +20,6 @@ public class TruncationFactorySwitch implements TruncationFactory {
 
     @Override
     public Potential2Soft make(Potential2SoftSpherical... p2) {
-        return new P2SoftSphericalTruncatedSwitchedSum(space, p2, rc);
+        return new P2SoftSphericalTruncatedSwitchedSum(space, rc, p2);
     }
 }

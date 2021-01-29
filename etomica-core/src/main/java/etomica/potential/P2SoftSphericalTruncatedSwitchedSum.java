@@ -21,20 +21,8 @@ public class P2SoftSphericalTruncatedSwitchedSum extends P2SoftSphericalSum impl
     protected double switchFac, r2Switch;
     protected double a, b, c;
 
-    public P2SoftSphericalTruncatedSwitchedSum(Space _space, Potential2SoftSpherical[] potential, double truncationRadius) {
-        this(_space, potential[0], potential.length > 1 ? potential[1] : null, potential.length > 2 ? potential[2] : null, truncationRadius);
-    }
-
-    public P2SoftSphericalTruncatedSwitchedSum(Space _space, Potential2SoftSpherical potential1, double truncationRadius) {
-        this(_space, potential1, null, null, truncationRadius);
-    }
-
-    public P2SoftSphericalTruncatedSwitchedSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, double truncationRadius) {
-        this(_space, potential1, potential2, null, truncationRadius);
-    }
-
-    public P2SoftSphericalTruncatedSwitchedSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, Potential2SoftSpherical potential3, double truncationRadius) {
-        super(_space, potential1, potential2, potential3);
+    public P2SoftSphericalTruncatedSwitchedSum(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+        super(_space, potential);
         setTruncationRadius(truncationRadius);
         setTaperOrder(3);
         setSwitchFac(0.95);
@@ -210,7 +198,7 @@ public class P2SoftSphericalTruncatedSwitchedSum extends P2SoftSphericalSum impl
     public static void main(String[] args) {
         Space sp = Space3D.getInstance();
         P2LennardJones p = new P2LennardJones(sp);
-        P2SoftSphericalTruncatedSwitchedSum pt = new P2SoftSphericalTruncatedSwitchedSum(sp, p, 2);
+        P2SoftSphericalTruncatedSwitchedSum pt = new P2SoftSphericalTruncatedSwitchedSum(sp, 2, p);
         for (double x = 1.900001; x < 1.999999; x += 0.001) {
             System.out.println(x + " " + pt.getF(x) + " " + pt.getdFdr(x));
         }

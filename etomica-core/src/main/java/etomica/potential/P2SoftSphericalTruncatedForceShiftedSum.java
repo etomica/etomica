@@ -18,20 +18,8 @@ public class P2SoftSphericalTruncatedForceShiftedSum extends P2SoftSphericalTrun
 
     protected double uShift, ufShift;
 
-    public P2SoftSphericalTruncatedForceShiftedSum(Space _space, Potential2SoftSpherical[] potential, double truncationRadius) {
-        this(_space, potential[0], potential.length > 1 ? potential[1] : null, potential.length > 2 ? potential[2] : null, truncationRadius);
-    }
-
-    public P2SoftSphericalTruncatedForceShiftedSum(Space _space, Potential2SoftSpherical potential1, double truncationRadius) {
-        this(_space, potential1, null, null, truncationRadius);
-    }
-
-    public P2SoftSphericalTruncatedForceShiftedSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, double truncationRadius) {
-        this(_space, potential1, potential2, null, truncationRadius);
-    }
-
-    public P2SoftSphericalTruncatedForceShiftedSum(Space _space, Potential2SoftSpherical potential1, Potential2SoftSpherical potential2, Potential2SoftSpherical potential3, double truncationRadius) {
-        super(_space, potential1, potential2, potential3, truncationRadius);
+    public P2SoftSphericalTruncatedForceShiftedSum(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+        super(_space, truncationRadius, potential);
     }
 
     public double u(double r2) {
