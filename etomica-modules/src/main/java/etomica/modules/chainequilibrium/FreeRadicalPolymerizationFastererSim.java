@@ -56,7 +56,7 @@ public class FreeRadicalPolymerizationFastererSim extends Simulation implements 
 
         box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
 
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(this, box, 1, 3, BondingInfo.noBonding());
+        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 3, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
         potentialMaster = new PotentialComputePair(this, box, neighborManager);
 

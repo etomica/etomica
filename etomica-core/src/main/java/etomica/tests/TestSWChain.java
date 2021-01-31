@@ -69,7 +69,7 @@ public class TestSWChain extends Simulation {
         box = this.makeBox();
 
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(this);
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(this, box, 2, nbrRange, bondingInfo);
+        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, nbrRange, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
 

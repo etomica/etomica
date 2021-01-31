@@ -115,7 +115,7 @@ public class SamFasterer extends Simulation {
 
         positionDefinition = new MoleculePositionGeometricCenter(space);
         sigmaCH2 = 3.95;
-        potentialMaster = new PotentialMasterListFasterer(this, box, 2, 2.8 * sigmaCH2, potentialMasterBonding.getBondingInfo()); //List(this, 2.0);
+        potentialMaster = new PotentialMasterListFasterer(getSpeciesManager(), box, 2, 2.8 * sigmaCH2, potentialMasterBonding.getBondingInfo()); //List(this, 2.0);
         pcAggregate.add(potentialMaster);
 
         numXCells = 4;
@@ -248,7 +248,7 @@ public class SamFasterer extends Simulation {
         criterion3.setBox(box);
         P2Surface p2SurfaceTrunc = new P2Surface(space, p2SulfurSurfaceLJ, p2SurfaceBond, criterion3);
 
-        neighborManagerGeneral = new NeighborListManagerFasterer(this, box, 2, nbrCut, potentialMasterBonding.getBondingInfo());
+        neighborManagerGeneral = new NeighborListManagerFasterer(getSpeciesManager(), box, 2, nbrCut, potentialMasterBonding.getBondingInfo());
         potentialMasterGeneral = new PotentialComputePairGeneral(this, box, neighborManagerGeneral);
         potentialMasterGeneral.setPairPotential(speciesSurface.getLeafType(), typeS, p2SurfaceTrunc);
         pcAggregate.add(potentialMasterGeneral);

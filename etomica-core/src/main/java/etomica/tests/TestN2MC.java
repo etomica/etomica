@@ -79,7 +79,7 @@ public class TestN2MC extends Simulation {
 
         box = this.makeBox();
 
-        potentialMaster = cellListing ? new PotentialMasterCellFasterer(this, box, 3, BondingInfo.noBonding()) : new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
+        potentialMaster = cellListing ? new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding()) : new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
 
         boolean doEwald = (trunc == Truncation.EWALD || trunc == Truncation.EWALD1);
         ewald = doEwald ? new PotentialComputeEwaldFourier(this, box, BondingInfo.noBonding()) : null;

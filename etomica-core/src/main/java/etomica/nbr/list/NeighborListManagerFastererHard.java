@@ -11,8 +11,8 @@ import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialHard;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManagerHard;
-import etomica.simulation.Simulation;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 
 /**
  * Neighbor manager that that uses neighbor lists and also stores the state of
@@ -23,8 +23,8 @@ public class NeighborListManagerFastererHard extends NeighborListManagerFasterer
     public int[][] nbrState;
     private final NeighborIteratorListHard neighborIterator;
 
-    public NeighborListManagerFastererHard(Simulation sim, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
-        super(sim, box, cellRange, nbrRange, bondingInfo);
+    public NeighborListManagerFastererHard(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
+        super(sm, box, cellRange, nbrRange, bondingInfo);
         neighborIterator = new NeighborIteratorListHard(this, box);
     }
 

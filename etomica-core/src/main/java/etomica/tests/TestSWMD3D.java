@@ -52,7 +52,7 @@ public class TestSWMD3D extends Simulation {
 
         box = makeBox();
 
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(this, box, 1, 1.8, BondingInfo.noBonding());
+        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 1.8, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
 

@@ -60,7 +60,7 @@ public class AdsorptionFasterer extends Simulation {
 
         //construct box
         box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(this, box, 1, 2, BondingInfo.noBonding());
+        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 2, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair computePair = new PotentialComputePair(this, box, neighborManager);
 
@@ -73,7 +73,7 @@ public class AdsorptionFasterer extends Simulation {
         integratorMD.setThermostatInterval(50);
 
         integratorMD.setThermostat(IntegratorMDFasterer.ThermostatType.HYBRID_MC);
-        NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(this, box, 1, BondingInfo.noBonding());
+        NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(getSpeciesManager(), box, 1, BondingInfo.noBonding());
         PotentialComputePair computePairMC = new PotentialComputePair(this, box, neighborManagerMC);
         integratorMC = new IntegratorMCFasterer(computePairMC, random, 1.0, box);
         integratorMD.setIntegratorMC(integratorMC, 1);

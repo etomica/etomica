@@ -70,7 +70,7 @@ class EwaldSummationTest {
         box.setNMolecules(species, numofmolecules);
         box.getBoundary().setBoxSize(new Vector3D(boxlength, boxlength, boxlength));
 
-        pair = new PotentialMasterFasterer(sim, box, BondingInfo.noBonding());
+        pair = new PotentialMasterFasterer(sim.getSpeciesManager(), box, BondingInfo.noBonding());
 
         double alpha = 5.6 / boxlength;
         P2SoftSphericalTruncated p2hh = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QH, alpha), rCutRealES);
