@@ -28,7 +28,8 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.*;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Null;
 import etomica.virial.*;
 import etomica.virial.overlap.DataProcessorVirialOverlap;
@@ -82,6 +83,27 @@ public class SimulationVirialOverlap2 extends Simulation {
     public SimulationVirialOverlap2(Space aSpace, ISpecies species, int nMolecules,
                                     double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
         this(aSpace, new ISpecies[]{species}, new int[]{nMolecules}, temperature, refCluster, targetCluster);
+    }
+
+    /**
+     * This constructor will create your simulation class, but you may call
+     * set methods before using it.  When you are done calling set methods,
+     * you must call init() before using it.
+     */
+    public SimulationVirialOverlap2(Space aSpace, SpeciesManager sm, int nMolecules,
+                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+        super(aSpace, sm);
+        this.temperature = temperature;
+        this.species = new ISpecies[0];
+        this.nMolecules = new int[]{nMolecules};
+        valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
+        sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
+        meters = new MeterVirial[2];
+        integrators = new IntegratorMC[2];
+        dpVirialOverlap = new DataProcessorVirialOverlap[2];
+        box = new BoxCluster[2];
+        accumulators = new AccumulatorRatioAverageCovarianceFull[2];
+        extraTargetClusters = new ClusterAbstract[0];
     }
 
     /**
@@ -191,9 +213,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster();
         boolean doRotate = false;
         boolean multiAtomic = false;
-        for (int i=0; i<species.length; i++) {
+        for (int i = 0; i < species.length; i++) {
             addSpecies(species[i]);
-            ISpecies sp = species[i];
+        }
+        for (ISpecies sp : getSpeciesList()) {
             if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
                 doRotate = true;
             }
@@ -216,8 +239,8 @@ public class SimulationVirialOverlap2 extends Simulation {
             // integrator for iBox samples based on iBox cluster
             box[iBox] = new BoxCluster(sampleClusters[iBox], space, boxLengths[iBox]);
             addBox(box[iBox]);
-            for (int i = 0; i < species.length; i++) {
-                box[iBox].setNMolecules(species[i], nMolecules[i]);
+            for (ISpecies sp : getSpeciesList()) {
+                box[iBox].setNMolecules(sp, nMolecules[sp.getIndex()]);
             }
 
             integrators[iBox] = new IntegratorMC(this, potentialMaster, box[iBox]);
@@ -243,8 +266,8 @@ public class SimulationVirialOverlap2 extends Simulation {
                 if (doWiggle) {
                     // we can use the bending move if none of the molecules has more than 3 atoms
                     boolean doBend = true;
-                    for (int i = 0; i < species.length; i++) {
-                        if (box[iBox].getNMolecules(species[i]) > 0 && box[iBox].getMoleculeList(species[i]).get(0).getChildList().size() > 3) {
+                    for (ISpecies sp : getSpeciesList()) {
+                        if (box[iBox].getNMolecules(sp) > 0 && box[iBox].getMoleculeList(sp).get(0).getChildList().size() > 3) {
                             doBend = false;
                         }
                     }
