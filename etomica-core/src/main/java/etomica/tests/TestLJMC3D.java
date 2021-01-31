@@ -48,7 +48,7 @@ public class TestLJMC3D extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        potentialMaster = new PotentialMasterCellFasterer(this, box, 2, BondingInfo.noBonding());
+        potentialMaster = new PotentialMasterCellFasterer(this.getSpeciesManager(), box, 2, BondingInfo.noBonding());
         integrator = new IntegratorMCFasterer(potentialMaster, random, 1.1, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.275 * sigma);

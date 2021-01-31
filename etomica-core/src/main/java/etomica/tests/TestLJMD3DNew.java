@@ -47,7 +47,7 @@ public class TestLJMD3DNew extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        NeighborListManagerFasterer nbrManager = new NeighborListManagerFasterer(this, box, 2, 4, BondingInfo.noBonding());
+        NeighborListManagerFasterer nbrManager = new NeighborListManagerFasterer(this.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
         PotentialComputePair pairCompute = new PotentialComputePair(this, box, nbrManager);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(pairCompute, random, 0.01, 1.1, box);

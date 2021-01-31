@@ -42,7 +42,7 @@ public class TestLJMD3DBrute extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(this, box, BondingInfo.noBonding());
+        PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(this.getSpeciesManager(), box, BondingInfo.noBonding());
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(potentialMaster, random, 0.01, 1.1, box);
         box.setNMolecules(species, numAtoms);

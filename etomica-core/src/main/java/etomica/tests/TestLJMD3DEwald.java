@@ -55,7 +55,7 @@ public class TestLJMD3DEwald extends Simulation {
         ewaldFourier = new PotentialComputeEwaldFourier(this, box, BondingInfo.noBonding());
         PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 0);
         System.out.println(ewaldParams);
-        pair = new PotentialMasterListFasterer(this, box, 2, ewaldParams.rCut + 1, BondingInfo.noBonding());
+        pair = new PotentialMasterListFasterer(this.getSpeciesManager(), box, 2, ewaldParams.rCut + 1, BondingInfo.noBonding());
         PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair, ewaldFourier);
 //        PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair);
         integrator = new IntegratorVelocityVerletFasterer(aggregate, random, 0.01, 1.1, box);
