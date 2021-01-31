@@ -5,9 +5,7 @@
 package etomica.simulation;
 
 import etomica.action.controller.Controller;
-import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.IElement;
 import etomica.integrator.Integrator;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.meta.javadoc.KeepSimJavadoc;
@@ -19,7 +17,9 @@ import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -36,7 +36,7 @@ public class Simulation {
     private final Controller controller;
 
     private final List<Box> boxes;
-    private SpeciesManager speciesManager = null;
+    private SpeciesManager speciesManager;
     private final SpeciesManager.Builder smBuilder;
 
     /**
@@ -45,14 +45,20 @@ public class Simulation {
      * @param space the space used to construct Vectors etc.
      */
     public Simulation(Space space) {
+        this(space, null);
+    }
+
+    public Simulation(Space space, SpeciesManager speciesManager) {
         this.space = space;
         boxes = new ArrayList<>();
         seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         controller = new Controller();
-        this.smBuilder = SpeciesManager.builder();
+        this.speciesManager = speciesManager;
+        this.smBuilder = speciesManager == null ? SpeciesManager.builder() : null;
     }
+
 
     /**
      * @return the seeds that were used for the random number generator at
