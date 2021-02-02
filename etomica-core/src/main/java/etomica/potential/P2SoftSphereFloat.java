@@ -48,10 +48,12 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
         return epsilon * Math.pow(s2, 0.5 * n);
     }
 
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         double s2 = sigma2 / r2;
-        u[0] = epsilon * Math.pow(s2, 0.5 * n);
-        du[0] = -n * u[0];
+        double u = epsilon * Math.pow(s2, 0.5 * n);
+        u012[0] += u;
+        u012[1] += -n * u;
+        u012[2] += (n + 1) * n * u;
     }
 
     /**

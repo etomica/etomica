@@ -50,11 +50,12 @@ public class P2LennardJones extends Potential2SoftSpherical {
         return -epsilon48*s6*(s6 - 0.5);
     }
 
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         double s2 = sigmaSquared / r2;
         double s6 = s2 * s2 * s2;
-        u[0] += epsilon4 * s6 * (s6 - 1.0);
-        du[0] += -epsilon48 * s6 * (s6 - 0.5);
+        u012[0] += epsilon4 * s6 * (s6 - 1.0);
+        u012[1] += -epsilon48 * s6 * (s6 - 0.5);
+        u012[2] += epsilon624 * s6 * (s6 - _168div624);
     }
 
    /**

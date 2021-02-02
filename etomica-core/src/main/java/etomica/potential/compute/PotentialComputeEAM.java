@@ -268,16 +268,15 @@ public class PotentialComputeEAM implements PotentialCompute {
                 int j = jAtom.getLeafIndex();
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
-                double[] u = {0};
-                double[] du = {0};
+                double[] u012 = new double[3];
                 double r2 = rij.squared();
                 if (pij != null) {
-                    pij.udu(r2, u, du);
-                    double uij = u[0];
+                    pij.u012add(r2, u012);
+                    double uij = u012[0];
                     if (uij != 0) {
                         uAtom[finalI] += 0.5 * uij;
                         uAtom[j] += 0.5 * uij;
-                        double duij = du[0];
+                        double duij = u012[1];
                         virialTot += duij;
                         if (doForces) {
                             rij.TE(duij / r2);
@@ -287,17 +286,17 @@ public class PotentialComputeEAM implements PotentialCompute {
                         uTot[0] += uij;
                     }
 
-                    u[0] = du[0] = 0;
+                    u012[0] = u012[1] = u012[2];
                 }
                 if (irp != null && embeddingPotentials[jType] != null) {
                     // i contributes to j density
                     double irc = irp.getRange();
-                    u[0] = 0;
+                    u012[0] = 0;
                     if (r2 < irc * irc) {
                         // i contributes to j density
-                        irp.udu(r2, u, du);
-                        rhoSum[j] += u[0];
-                        rdrho.add(du[0]);
+                        irp.u012add(r2, u012);
+                        rhoSum[j] += u012[0];
+                        rdrho.add(u012[1]);
                     }
 
                     if (iType != jType) {
@@ -306,13 +305,13 @@ public class PotentialComputeEAM implements PotentialCompute {
                             double jrc = jrp.getRange();
                             if (r2 < jrc * jrc) {
                                 // j contributes to i density
-                                jrp.udu(r2, u, du);
-                                rdrho.add(du[0]);
-                                rhoSum[finalI] += u[0];
+                                jrp.u012add(r2, u012);
+                                rdrho.add(u012[1]);
+                                rhoSum[finalI] += u012[0];
                             }
                         }
                     } else {
-                        rhoSum[finalI] += u[0];
+                        rhoSum[finalI] += u012[0];
                     }
                 } else if (iType != jType) {
                     Potential2Soft jrp = rhoPotentials[jType];
@@ -320,9 +319,9 @@ public class PotentialComputeEAM implements PotentialCompute {
                         double jrc = jrp.getRange();
                         if (r2 < jrc * jrc) {
                             // j contributes to i density
-                            jrp.udu(r2, u, du);
-                            rdrho.add(du[0]);
-                            rhoSum[finalI] += u[0];
+                            jrp.u012add(r2, u012);
+                            rdrho.add(u012[1]);
+                            rhoSum[finalI] += u012[0];
                         }
                     }
                 }

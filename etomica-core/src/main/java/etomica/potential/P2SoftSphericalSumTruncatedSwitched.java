@@ -173,16 +173,17 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum impl
     }
 
     @Override
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         if (r2 > r2Cutoff) {
             return;
         }
 
-        double thisu = uWrapped(r2);
-        double thisdu = duWrapped(r2);
+        double[] thisU012 = new double[3];
+        uduWrapped(r2, thisU012);
         if (dr.squared() < r2Switch) {
-            u[0] += thisu;
-            du[0] += thisdu;
+            u012[0] += thisU012[0];
+            u012[1] += thisU012[1];
+            u012[2] += thisU012[2];
             return;
         }
 
@@ -191,8 +192,9 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum impl
         //           = F du + r u dF/dr
         double r = Math.sqrt(r2);
         double F = getF(r);
-        u[0] += F * thisu;
-        du[0] += F * thisdu + r * thisu * getdFdr(r);
+        u012[0] += F * thisU012[0];
+        u012[1] += F * thisU012[1] + r * thisU012[0] * getdFdr(r);
+        u012[2] += r2 * getd2Fdr2(r) * thisU012[0] + 2 * r * getdFdr(r) * thisU012[1] + getF(r) * thisU012[2];
     }
 
     public static void main(String[] args) {

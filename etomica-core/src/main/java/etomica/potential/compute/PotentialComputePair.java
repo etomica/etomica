@@ -223,15 +223,14 @@ public class PotentialComputePair implements PotentialCompute {
                 int j = jAtom.getLeafIndex();
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
-                double[] u = {0};
-                double[] du = {0};
+                double[] u012 = new double[3];
                 double r2 = rij.squared();
-                pij.udu(r2, u, du);
-                double uij = u[0];
+                pij.u012add(r2, u012);
+                double uij = u012[0];
                 if (uij == 0) return;
                 uAtom[finalI] += 0.5 * uij;
                 uAtom[j] += 0.5 * uij;
-                double duij = du[0];
+                double duij = u012[1];
                 virialTot += duij;
                 if (doForces) {
                     rij.TE(duij / r2);

@@ -238,14 +238,13 @@ public class PotentialMasterBonding implements PotentialCompute {
         dr.Ev1Mv2(rj, ri);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
-        double[] u = {0};
-        double[] du = {0};
-        potential.udu(r2, u, du);
-        double uij = u[0];
+        double[] u012 = new double[3];
+        potential.u012add(r2, u012);
+        double uij = u012[0];
         if (uij == 0) return 0;
 
         if (doForces) {
-            double duij = du[0];
+            double duij = u012[1];
             dr.TE(duij / r2);
             forces[iAtom.getLeafIndex()].PE(dr);
             forces[jAtom.getLeafIndex()].ME(dr);

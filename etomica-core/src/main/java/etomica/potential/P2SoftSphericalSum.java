@@ -72,16 +72,16 @@ public class P2SoftSphericalSum extends Potential2SoftSpherical
         return du + potential3.du(r2);
     }
 
-    public void udu(double r2, double[] u, double[] du) {
-        uduWrapped(r2, u, du);
+    public void u012add(double r2, double[] u012) {
+        uduWrapped(r2, u012);
     }
 
-    protected void uduWrapped(double r2, double[] u, double[] du) {
-        potential1.udu(r2, u, du);
+    protected void uduWrapped(double r2, double[] u012) {
+        potential1.u012add(r2, u012);
         if (potential2 == null) return;
-        potential2.udu(r2, u, du);
+        potential2.u012add(r2, u012);
         if (potential3 == null) return;
-        potential3.udu(r2, u, du);
+        potential3.u012add(r2, u012);
     }
 
     public double d2u(double r2) {

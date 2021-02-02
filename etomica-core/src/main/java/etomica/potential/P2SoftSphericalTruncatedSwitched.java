@@ -219,23 +219,29 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     }
 
     @Override
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         if (r2 > r2Cutoff) {
-            u[0] = du[0] = 0;
             return;
         }
 
-        u[0] = potential.u(r2);
-        du[0] = potential.du(r2);
-        if (dr.squared() < r2Switch) return;
+        double[] thisU012 = new double[3];
+        potential.u012add(r2, thisU012);
+
+        if (dr.squared() < r2Switch) {
+            u012[0] += thisU012[0];
+            u012[1] += thisU012[1];
+            u012[2] += thisU012[2];
+            return;
+        }
 
         // U = u F
         // r (dU/dr) = r F (du/dr) + r u dF/dr
         //           = F du + r u dF/dr
         double r = Math.sqrt(r2);
         double F = getF(r);
-        u[0] *= F;
-        du[0] = F * du[0] + r * u[0] * getdFdr(r);
+        u012[0] += thisU012[0] * F;
+        u012[1] += F * thisU012[1] + r * thisU012[0] * getdFdr(r);
+        u012[2] += Double.NaN;
     }
 
     public double d2u(double r2) {

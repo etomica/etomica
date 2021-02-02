@@ -43,13 +43,14 @@ public class P2Ewald6Real extends Potential2SoftSpherical {
     }
 
     @Override
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         double a2 = r2 * alpha6Sq;
-        double a4 = a2*a2;
-        double a6 = a4*a2;
+        double a4 = a2 * a2;
+        double a6 = a4 * a2;
         double e = Math.exp(-a2);
-        u[0] += -Bij*alpha66*(1+a2+a4/2)*e/a6;
-        du[0] += Bij*alpha66*(6 + 6*a2 + 3*a4 + a6)*e/a6;
+        u012[0] += -Bij * alpha66 * (1 + a2 + a4 / 2) * e / a6;
+        u012[1] += Bij * alpha66 * (6 + 6 * a2 + 3 * a4 + a6) * e / a6;
+        u012[2] += -Bij * alpha66 * (42 + 42 * a2 + 21 * a4 + (7 + 2 * a2) * a6) * e / a6;
     }
 
     @Override

@@ -80,7 +80,7 @@ public class P2Ideal extends Potential2SoftSpherical implements
         return 0;
     }
 
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
     }
 
     /**

@@ -48,9 +48,9 @@ public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum implements P
         return duWrapped(r2);
     }
 
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         if (r2 > r2Cutoff) return;
-        super.uduWrapped(r2, u, du);
+        super.uduWrapped(r2, u012);
     }
 
     /**

@@ -598,16 +598,16 @@ public class SamFasterer extends Simulation {
         @Override
         public double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2) {
             double r2 = dr12.squared();
-            double[] u = {0}, du = {0};
+            double[] u012 = new double[3];
             if (bondCriterion.accept(atom1, atom2)) {
-                p2Bond.udu(r2, u, du);
+                p2Bond.u012add(r2, u012);
             } else {
-                p2lj.udu(r2, u, du);
+                p2lj.u012add(r2, u012);
             }
-            if (du[0] == 0) return u[0];
-            f2.PEa1Tv1(-du[0] / r2, dr12);
-            f1.PEa1Tv1(du[0] / r2, dr12);
-            return u[0];
+            if (u012[1] == 0) return u012[0];
+            f2.PEa1Tv1(-u012[1] / r2, dr12);
+            f1.PEa1Tv1(u012[1] / r2, dr12);
+            return u012[0];
         }
 
         @Override

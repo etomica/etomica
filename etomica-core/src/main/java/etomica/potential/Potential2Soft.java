@@ -28,11 +28,11 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical {
      */
     public double du(double r2);
 
-    default void udu(double r2, double[] u, double[] du) {
-        u[0] += u(r2);
-        du[0] += du(r2);
+    default void u012add(double r2, double[] u012) {
+        u012[0] += u(r2);
+        u012[1] += du(r2);
+        u012[2] += d2u(r2);
     }
-
 
     /**
      * The second derivative of the pair energy, times the square of the

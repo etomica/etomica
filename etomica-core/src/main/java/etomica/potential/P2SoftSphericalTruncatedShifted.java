@@ -40,10 +40,10 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
         return (r2 < r2Cutoff) ? (potential.u(r2) - shift) : 0.0;
     }
 
-    public void udu(double r2, double[] u, double[] du) {
+    public void u012add(double r2, double[] u012) {
         if (r2 > r2Cutoff) return;
-        potential.udu(r2, u, du);
-        u[0] -= shift;
+        potential.u012add(r2, u012);
+        u012[0] -= shift;
     }
 
     /**

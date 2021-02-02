@@ -87,9 +87,11 @@ public class P2SoftSphereFloatTab extends P2SoftSphere {
         return super.u(r2) * rpInterp(r2);
     }
 
-    public void udu(double r2, double[] u, double[] du) {
-        u[0] = u(r2);
-        du[0] = -(n + nFloat) * u[0];
+    public void u012add(double r2, double[] u012) {
+        double u = u(r2);
+        u012[0] += u;
+        u012[1] += -(n + nFloat) * u;
+        u012[2] += (n + nFloat) * (n + nFloat + 1) * u;
     }
 
     /**

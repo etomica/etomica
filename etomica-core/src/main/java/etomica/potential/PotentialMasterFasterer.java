@@ -10,7 +10,6 @@ import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,7 +19,6 @@ import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class PotentialMasterFasterer implements etomica.potential.compute.PotentialCompute {
     protected final BondingInfo bondingInfo;
@@ -156,17 +154,16 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         numAll++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
-        double[] u = {0};
-        double[] du = {0};
+        double[] u012 = new double[3];
         double r2 = dr.squared();
-        pij.udu(r2, u, du);
-        double uij = u[0];
+        pij.u012add(r2, u012);
+        double uij = u012[0];
 //        double uij = pij.u(dr.squared());
         if (uij == 0) return 0;
 //        System.out.println(iAtom+" "+jAtom+" "+uij);
         uAtom[iAtom] += 0.5 * uij;
         uAtom[jAtom] += 0.5 * uij;
-        double duij = du[0];
+        double duij = u012[1];
         virialTot += duij;
         if (doForces) {
             dr.TE(duij / r2);
