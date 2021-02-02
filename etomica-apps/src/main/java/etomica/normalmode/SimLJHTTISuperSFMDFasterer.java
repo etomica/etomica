@@ -16,13 +16,14 @@ import etomica.data.IData;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.IntegratorMDFasterer;
+import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -39,21 +40,21 @@ import java.awt.*;
 import java.util.Arrays;
 
 
-public class SimLJHTTISuperSFMD extends Simulation {
+public class SimLJHTTISuperSFMDFasterer extends Simulation {
 
     public final CoordinateDefinition coordinateDefinition;
-    public IntegratorMD integrator;
+    public IntegratorMDFasterer integrator;
 
     public Box box;
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;
     public Primitive primitive;
-    public PotentialMasterList potentialMaster;
+    public PotentialMasterListFasterer potentialMaster;
     public Potential2SoftSpherical potential;
     public SpeciesGeneral species;
 
-    public SimLJHTTISuperSFMD(Space _space, int numAtoms, double density, double temperature, double rc, int[] seeds) {
+    public SimLJHTTISuperSFMDFasterer(Space _space, int numAtoms, double density, double temperature, double rc, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -61,16 +62,16 @@ public class SimLJHTTISuperSFMD extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterList(this, space);
-        potentialMaster.lrcMaster().setEnabled(false);
-
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.005, temperature, box);
+        potentialMaster = new PotentialMasterListFasterer(getSpeciesManager(), box, 2, 1.2 * rc, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
+
+        integrator = new IntegratorVelocityVerletFasterer(potentialMaster, getRandom(), 0.005, temperature, box);
         integrator.setIsothermal(true);
 
         primitive = new PrimitiveCubic(space, n * L);
@@ -85,15 +86,9 @@ public class SimLJHTTISuperSFMD extends Simulation {
         potential = new P2LennardJones(space, 1.0, 1.0);
         potential = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
         AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-
-        int cellRange = 2;
-        potentialMaster.setRange(1.2 * rc);
-        potentialMaster.setCellRange(cellRange);
+        potentialMaster.setPairPotential(sphereType, sphereType, potential);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
-
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
 
     /**
@@ -126,7 +121,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
         System.out.println(numSteps + " steps");
 
         //instantiate simulation
-        final SimLJHTTISuperSFMD sim = new SimLJHTTISuperSFMD(Space.getInstance(3), numAtoms, density, temperature, rc * Math.pow(density, -1.0 / 3.0), seeds);
+        final SimLJHTTISuperSFMDFasterer sim = new SimLJHTTISuperSFMDFasterer(Space.getInstance(3), numAtoms, density, temperature, rc * Math.pow(density, -1.0 / 3.0), seeds);
         if (seeds == null) {
             seeds = ((RandomMersenneTwister) sim.getRandom()).getSeedArray();
         }
@@ -172,7 +167,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
 
         // meter needs lattice energy, so make it now
         sim.integrator.reset();
-        MeterSolidDA meterSolid = new MeterSolidDA(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition, params.doD2);
+        MeterSolidHMA meterSolid = new MeterSolidHMA(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition, params.doD2);
         meterSolid.setTemperature(temperature);
         meterSolid.setPRes(temperature * bpharm);
         IData d = meterSolid.getData();
