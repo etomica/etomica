@@ -209,7 +209,7 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     @Override
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         zeroArrays(doForces);
 
         IAtomList atoms = box.getLeafList();
@@ -228,6 +228,7 @@ public class PotentialComputePair implements PotentialCompute {
                 pij.u012add(r2, u012);
                 double uij = u012[0];
                 if (uij == 0) return;
+                if (pc != null) pc.pairCompute(finalI, j, rij, u012);
                 uAtom[finalI] += 0.5 * uij;
                 uAtom[j] += 0.5 * uij;
                 double duij = u012[1];

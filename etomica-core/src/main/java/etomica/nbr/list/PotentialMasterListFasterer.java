@@ -11,6 +11,7 @@ import etomica.integrator.IntegratorListener;
 import etomica.potential.BondingInfo;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterFasterer;
+import etomica.potential.compute.PotentialCallback;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
@@ -41,7 +42,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         this.nbrManager.setDoDownNeighbors(doDown);
     }
 
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         zeroArrays(doForces);
 
         double uTot = 0;
@@ -63,7 +64,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
                 Potential2Soft pij = iPotentials[jType];
                 Vector rj = jAtom.getPosition();
                 Vector jbo = iNbrBoxOffsets[j];
-                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
+                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij, pc);
             }
         }
 

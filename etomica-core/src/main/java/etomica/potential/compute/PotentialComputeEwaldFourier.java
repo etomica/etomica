@@ -286,7 +286,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     }
 
     @Override
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         int numAtoms = box.getLeafList().size();
         virialTot = 0;
         double q2sum = 0;
@@ -296,7 +296,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
         for (int iType = 0; iType < atomCountByType.length; iType++) {
             int iNum = atomCountByType[iType];
-            if (iNum == 0) { continue; }
+            if (iNum == 0) {
+                continue;
+            }
             double qi = chargesByType[iType];
             q2sum += iNum * qi * qi;
             double Bii = B6[iType][iType];

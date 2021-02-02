@@ -10,6 +10,7 @@ import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
+import etomica.potential.compute.PotentialCallback;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -150,7 +151,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
     }
 
-    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij) {
+    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij, PotentialCallback pc) {
         numAll++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
@@ -160,6 +161,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         double uij = u012[0];
 //        double uij = pij.u(dr.squared());
         if (uij == 0) return 0;
+        if (pc != null) pc.pairCompute(iAtom, jAtom, dr, u012);
 //        System.out.println(iAtom+" "+jAtom+" "+uij);
         uAtom[iAtom] += 0.5 * uij;
         uAtom[jAtom] += 0.5 * uij;
@@ -192,7 +194,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     @Override
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         double[] uAtomOld = new double[uAtom.length];
         boolean debug = false;
         if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
@@ -217,7 +219,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
                 dr.Ev1Mv2(jAtom.getPosition(), ri);
                 boundary.nearestImage(dr);
-                u += handleComputeAll(doForces, i, j, zero, dr, zero, pij);
+                u += handleComputeAll(doForces, i, j, zero, dr, zero, pij, pc);
             }
         }
         tAll += System.nanoTime() - t1;

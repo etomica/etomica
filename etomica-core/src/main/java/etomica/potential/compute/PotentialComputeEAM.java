@@ -252,7 +252,7 @@ public class PotentialComputeEAM implements PotentialCompute {
     }
 
     @Override
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         zeroArrays(doForces);
         rdrho.clear();
 

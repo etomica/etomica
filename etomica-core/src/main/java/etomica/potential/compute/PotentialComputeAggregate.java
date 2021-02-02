@@ -55,7 +55,7 @@ public class PotentialComputeAggregate implements PotentialCompute {
     }
 
     @Override
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         double sum = 0;
         for (PotentialCompute potentialCompute : this.potentialComputes) {
             sum += potentialCompute.computeAll(doForces);

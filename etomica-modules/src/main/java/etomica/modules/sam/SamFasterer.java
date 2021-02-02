@@ -26,6 +26,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManagerFasterer;
 import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePairGeneral;
@@ -219,8 +220,8 @@ public class SamFasterer extends Simulation {
         p1SurfaceBond.setCellSize(sizeCellX, sizeCellZ);
         p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         PotentialComputeField computeField = new PotentialComputeField(this, box) {
-            public double computeAll(boolean doForces) {
-                double u = super.computeAll(doForces);
+            public double computeAll(boolean doForces, PotentialCallback pc) {
+                double u = super.computeAll(doForces, pc);
                 wallForce = 0;
                 for (Vector f : forces) {
                     wallForce += f.getX(1);

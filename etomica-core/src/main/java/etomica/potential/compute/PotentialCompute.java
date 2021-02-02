@@ -16,7 +16,11 @@ public interface PotentialCompute {
 
     void updateAtom(IAtom atom);
 
-    double computeAll(boolean doForces);
+    default double computeAll(boolean doForces) {
+        return computeAll(doForces, null);
+    }
+
+    double computeAll(boolean doForces, PotentialCallback pc);
 
     double computeOneOld(IAtom iAtom);
 

@@ -95,7 +95,7 @@ public class PotentialComputeField implements PotentialCompute {
     }
 
     @Override
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         zeroArrays(doForces);
         IAtomList atoms = box.getLeafList();
         double uTot = 0;

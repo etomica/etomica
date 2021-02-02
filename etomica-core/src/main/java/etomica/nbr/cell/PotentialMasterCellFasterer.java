@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.potential.BondingInfo;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterFasterer;
-import etomica.simulation.Simulation;
+import etomica.potential.compute.PotentialCallback;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
@@ -55,7 +55,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         cellManager.updateAtom(atom);
     }
 
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         double[] uAtomOld = new double[uAtom.length];
         boolean debug = false;
         if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
@@ -83,7 +83,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
                 if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
-                uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij);
+                uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
             }
             int iCell = atomCell[i];
             for (int cellOffset : cellOffsets) {
@@ -96,7 +96,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                     Potential2Soft pij = ip[jType];
                     if (pij == null) continue;
                     if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
-                    uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij);
+                    uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
                 }
             }
         }

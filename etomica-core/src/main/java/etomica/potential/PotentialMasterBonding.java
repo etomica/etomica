@@ -6,6 +6,7 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -90,7 +91,7 @@ public class PotentialMasterBonding implements PotentialCompute {
 
     }
 
-    public double computeAll(boolean doForces) {
+    public double computeAll(boolean doForces, PotentialCallback pc) {
         zeroArrays(doForces);
 
         double[] uTot = {0};
@@ -102,7 +103,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                     for (int[] pair : pairs) {
                         IAtom iAtom = molecule.getChildList().get(pair[0]);
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
-                        uTot[0] += handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces);
+                        uTot[0] += handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
                     }
                 }
             });
@@ -230,7 +231,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         return potential.u(costheta);
     }
 
-    private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, Potential2Soft potential, Vector[] forces) {
+    private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, Potential2Soft potential, Vector[] forces, PotentialCallback pc) {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector dr = Vector.d(ri.getD());
@@ -243,6 +244,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         double uij = u012[0];
         if (uij == 0) return 0;
 
+        if (pc != null) pc.pairCompute(iAtom.getLeafIndex(), jAtom.getLeafIndex(), dr, u012);
         if (doForces) {
             double duij = u012[1];
             dr.TE(duij / r2);
@@ -378,7 +380,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             for (int[] pair : pairs) {
                 IAtom iAtom = molecule.getChildList().get(pair[0]);
                 IAtom jAtom = molecule.getChildList().get(pair[1]);
-                u[0] += handleOneBondPair(false, boundary, iAtom, jAtom, potential, null);
+                u[0] += handleOneBondPair(false, boundary, iAtom, jAtom, potential, null, null);
             }
         });
 
