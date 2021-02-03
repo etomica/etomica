@@ -31,9 +31,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     private final Box box;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
-    protected double virialTot;
+    protected double virialTot = Double.NaN;
     protected boolean includeSelfOne = false;
-    protected double uTotSelf, uTotFS, uTotIntra, uOneFS;
+    protected double uTotSelf, uTotFS = Double.NaN, uTotIntra, uOneFS;
     protected Vector[] forces;
     protected final int[] atomCountByType;
     protected final Space space;
@@ -232,7 +232,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     }
 
     @Override
-    public double getOldEnergy() {
+    public double getLastEnergy() {
         return uTotSelf + uTotIntra + uTotFS;
     }
 

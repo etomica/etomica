@@ -12,7 +12,7 @@ public interface PotentialCompute {
 
     double getLastVirial();
 
-    double getOldEnergy();
+    double getLastEnergy();
 
     void updateAtom(IAtom atom);
 

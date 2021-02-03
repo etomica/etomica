@@ -27,6 +27,7 @@ public class PotentialComputeField implements PotentialCompute {
     protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
+    protected double energyTot = Double.NaN;
 
     public PotentialComputeField(Simulation sim, Box box) {
         ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
@@ -63,13 +64,8 @@ public class PotentialComputeField implements PotentialCompute {
     }
 
     @Override
-    public double getOldEnergy() {
-        double uTot = 0;
-        for (double iuAtom : uAtom) {
-            uTot += iuAtom;
-        }
-
-        return uTot;
+    public double getLastEnergy() {
+        return energyTot;
     }
 
     @Override
@@ -113,6 +109,7 @@ public class PotentialComputeField implements PotentialCompute {
             uAtom[i] = u;
             uTot += u;
         }
+        energyTot = uTot;
         return uTot;
     }
 

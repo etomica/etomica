@@ -73,7 +73,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         uTot += uCorrection[0];
         virialTot += duCorrection[0];
-
+        energyTot = uTot;
         return uTot;
     }
 

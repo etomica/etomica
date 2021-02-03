@@ -282,7 +282,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             if (thermostat == ThermostatType.HYBRID_MC) {
                 if (!Double.isNaN(oldEnergy)) {
                     // decide whether or not to go back to the old configuration
-                    double newPotentialEnergy = potentialCompute.getOldEnergy();
+                    double newPotentialEnergy = potentialCompute.getLastEnergy();
                     double newKineticEnergy = meterKE.getDataAsScalar();
 //                    System.out.println(newPotentialEnergy+" "+newKineticEnergy+" "+oldEnergy);
                     double energyDiff = newPotentialEnergy + newKineticEnergy - oldEnergy;
@@ -319,7 +319,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                         IAtom a = leafAtoms.get(i);
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
-                    oldPotentialEnergy = potentialCompute.getOldEnergy();
+                    oldPotentialEnergy = potentialCompute.getLastEnergy();
                     oldEnergy = oldPotentialEnergy;
                 }
 

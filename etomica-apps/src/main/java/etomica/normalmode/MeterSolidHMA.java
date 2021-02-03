@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
-import etomica.data.IDataSource;
+import etomica.data.IDataSourcePotential;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.compute.PotentialCallback;
@@ -19,7 +19,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterSolidHMA implements IDataSource, PotentialCallback {
+public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
     protected final int dim;
     protected final DataTag tag;
@@ -34,6 +34,7 @@ public class MeterSolidHMA implements IDataSource, PotentialCallback {
     protected final CoordinateDefinition coordinteDefinition;
     protected final Vector dr;
     protected double d2sum;
+    protected boolean callComputeAll = true;
 
     public MeterSolidHMA(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, boolean doD2) {
         this.coordinteDefinition = coordinateDefinition;
@@ -79,9 +80,14 @@ public class MeterSolidHMA implements IDataSource, PotentialCallback {
      */
     @Override
     public IData getData() {
-        PotentialCallback callback = doD2 ? this : null;
         d2sum = 0;
-        double uSum = potentialMaster.computeAll(true, callback);
+        double uSum;
+        if (callComputeAll) {
+            PotentialCallback callback = doD2 ? this : null;
+            uSum = potentialMaster.computeAll(true, callback);
+        } else {
+            uSum = potentialMaster.getLastEnergy();
+        }
         double[] x = data.getData();
         double V = box.getBoundary().volume();
         double rho = box.getMoleculeList().size() / V;
@@ -153,5 +159,25 @@ public class MeterSolidHMA implements IDataSource, PotentialCallback {
                 d2sum += der2 * (2 * dri.getX(i) * drj.getX(j) - dri.getX(i) * dri.getX(j) - drj.getX(i) * drj.getX(j));
             }
         }
+    }
+
+    @Override
+    public boolean needsForces() {
+        return true;
+    }
+
+    @Override
+    public boolean needsPairCallback() {
+        return doD2;
+    }
+
+    @Override
+    public PotentialCallback getPotentialCallback() {
+        return this;
+    }
+
+    @Override
+    public void doCallComputeAll(boolean callComputeAll) {
+        this.callComputeAll = callComputeAll;
     }
 }

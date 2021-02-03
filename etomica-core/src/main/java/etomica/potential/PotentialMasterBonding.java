@@ -24,6 +24,7 @@ public class PotentialMasterBonding implements PotentialCompute {
     private final Box box;
     private final Space space;
     private final FullBondingInfo bondingInfo;
+    protected double energyTot = Double.NaN;
 
     public PotentialMasterBonding(Simulation sim, Box box) {
         this(sim, box, new FullBondingInfo(sim));
@@ -82,8 +83,8 @@ public class PotentialMasterBonding implements PotentialCompute {
     }
 
     @Override
-    public double getOldEnergy() {
-        return computeAll(false);
+    public double getLastEnergy() {
+        return energyTot;
     }
 
     @Override
@@ -133,6 +134,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                 }
             });
         }
+        energyTot = uTot[0];
         return uTot[0];
     }
 

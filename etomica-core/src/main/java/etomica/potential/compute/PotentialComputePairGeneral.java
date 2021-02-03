@@ -34,7 +34,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
-    protected double virialTot;
+    protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
 
@@ -108,13 +108,8 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     }
 
     @Override
-    public double getOldEnergy() {
-        double uTot = 0;
-        for (double iuAtom : uAtom) {
-            uTot += iuAtom;
-        }
-
-        return uTot;
+    public double getLastEnergy() {
+        return energyTot;
     }
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotentialPair p12) {
@@ -180,7 +175,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 uAtom[j] += 0.5 * uij;
             });
         }
-
+        energyTot = uTot[0];
         return uTot[0];
     }
 

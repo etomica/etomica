@@ -30,7 +30,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
     protected Vector zero;
-    protected double virialTot;
+    protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
 
@@ -128,17 +128,8 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     @Override
-    public double getOldEnergy() {
-        double uTot = 0;
-        int numAtoms = box.getLeafList().size();
-        for (int i = 0; i < numAtoms; i++) {
-            uTot += uAtom[i];
-        }
-        double[] uCorrection = new double[1];
-        double[] duCorrection = new double[1];
-        this.computeAllTruncationCorrection(uCorrection, duCorrection);
-        uTot += uCorrection[0];
-        return uTot;
+    public double getLastEnergy() {
+        return energyTot;
     }
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
@@ -241,7 +232,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             if (!success) throw new RuntimeException("oops");
         }
         first = false;
-
+        energyTot = u;
         return u;
     }
 

@@ -45,7 +45,7 @@ public class PotentialComputeEAM implements PotentialCompute {
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged, rhoAtomsChanged;
     protected Vector zero;
-    protected double virialTot;
+    protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
 
@@ -181,16 +181,8 @@ public class PotentialComputeEAM implements PotentialCompute {
     }
 
     @Override
-    public double getOldEnergy() {
-        double uTot = 0;
-        for (double iuAtom : uAtom) {
-            uTot += iuAtom;
-        }
-        double[] uCorrection = new double[1];
-        double[] duCorrection = new double[1];
-        this.computeAllTruncationCorrection(uCorrection, duCorrection);
-        uTot += uCorrection[0];
-        return uTot;
+    public double getLastEnergy() {
+        return energyTot;
     }
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
@@ -383,7 +375,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         uTot[0] += uCorrection[0];
         virialTot += duCorrection[0];
-
+        energyTot = uTot[0];
         return uTot[0];
     }
 

@@ -43,8 +43,8 @@ public class PotentialComputeAggregate implements PotentialCompute {
     }
 
     @Override
-    public double getOldEnergy() {
-        return this.potentialComputes.stream().mapToDouble(PotentialCompute::getOldEnergy).sum();
+    public double getLastEnergy() {
+        return this.potentialComputes.stream().mapToDouble(PotentialCompute::getLastEnergy).sum();
     }
 
     @Override

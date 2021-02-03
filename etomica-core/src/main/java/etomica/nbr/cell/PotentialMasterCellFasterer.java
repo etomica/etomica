@@ -118,7 +118,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
             if (!success) throw new RuntimeException("oops");
             System.out.println("success!");
         }
-
+        energyTot = uTot;
         return uTot;
     }
 
