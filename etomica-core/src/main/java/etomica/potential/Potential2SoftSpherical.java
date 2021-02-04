@@ -46,17 +46,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         boundary.nearestImage(dr);
         return du(dr.squared());
     }
-    
-    /**
-     * Hypervirial of the pair as given by the du(double) and d2u(double) methods
-     */
-    public double hyperVirial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        return d2u(r2) + du(r2);
-    }
-    
+
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */

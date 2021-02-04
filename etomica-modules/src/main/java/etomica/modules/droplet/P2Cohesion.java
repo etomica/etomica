@@ -51,13 +51,6 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return super.gradient(atoms);
     }
 
-    public double hyperVirial(IAtomList atoms) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            return 0;
-        }
-        return super.hyperVirial(atoms);
-    }
-
     public double virial(IAtomList atoms) {
         if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
             return 0;

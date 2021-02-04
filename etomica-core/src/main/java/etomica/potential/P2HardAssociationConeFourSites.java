@@ -228,10 +228,6 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
         boundary = box.getBoundary();
     }
 
-	public double hyperVirial(IAtomList pair) {
-		return 0;
-	}
-
 	public double integral(double rc) {
         return 0;
     }

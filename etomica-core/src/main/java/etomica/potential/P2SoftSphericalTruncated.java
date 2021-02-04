@@ -164,10 +164,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             return duCorrection(nPairs()/box.getBoundary().volume());
         }
 
-        public double hyperVirial(IAtomList pair) {
-            return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
-        }
-
         public Vector[] gradient(IAtomList atoms) {
             return null;
         }

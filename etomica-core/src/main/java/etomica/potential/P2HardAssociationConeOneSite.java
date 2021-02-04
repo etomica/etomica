@@ -183,10 +183,6 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
         boundary = box.getBoundary();
     }
 
-	public double hyperVirial(IAtomList pair) {
-		return 0;
-	}
-
 	public double integral(double rC) {
 		double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension

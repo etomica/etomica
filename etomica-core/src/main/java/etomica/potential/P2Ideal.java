@@ -55,13 +55,6 @@ public class P2Ideal extends Potential2SoftSpherical implements
     /**
      * Returns zero.
      */
-    public double hyperVirial(IAtomList pair) {
-        return 0;
-    }
-
-    /**
-     * Returns zero.
-     */
     public double virial(IAtomList pair) {
         return 0;
     }

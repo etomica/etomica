@@ -186,11 +186,6 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     protected double switchFac, r2Switch;
 
     @Override
-    public double hyperVirial(IAtomList pair) {
-        return 0;
-    }
-
-    @Override
     public double integral(double rC) {
         return 0;
     }

@@ -181,11 +181,6 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-	public double hyperVirial(IAtomList pair) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	public double integral(double rc) {
 		// TODO Auto-generated method stub
 		return 0;

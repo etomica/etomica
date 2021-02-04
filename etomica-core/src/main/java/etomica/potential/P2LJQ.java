@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
-import etomica.exception.MethodNotImplementedException;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -211,10 +210,6 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
             throw new RuntimeException("oops "+v);
         }
         return gradient[1].dot(dr);
-    }
-
-    public double hyperVirial(IAtomList pair) {
-        throw new MethodNotImplementedException();
     }
 
     /**

@@ -98,14 +98,7 @@ public class P2SoftTruncated extends Potential2
         if (r2 > r2Cutoff) return gradient;
         return wrappedPotential.gradient(atoms, pressureTensor);
     }
-    
-    public double hyperVirial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        return (r2 < r2Cutoff) ? wrappedPotential.hyperVirial(atoms) : 0;
-    }
-    
+
     /**
      * Returns the value of uInt for the wrapped potential.
      */
@@ -185,10 +178,6 @@ public class P2SoftTruncated extends Potential2
 
         public double virial(IAtomList atoms) {
             return duCorrection(nPairs()/box.getBoundary().volume());
-        }
-
-        public double hyperVirial(IAtomList pair) {
-            return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
         }
 
         public Vector[] gradient(IAtomList atoms) {
