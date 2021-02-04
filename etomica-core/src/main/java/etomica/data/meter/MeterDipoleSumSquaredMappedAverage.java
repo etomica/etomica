@@ -4,9 +4,11 @@
 
 package etomica.data.meter;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
@@ -15,7 +17,10 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.potential.*;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationPhiSum;
+import etomica.potential.PotentialCalculationTorqueSum;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -32,7 +37,6 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 	protected final DataInfoDoubleArray dataInfo;
 	protected final DataTag tag;
 //	private IBoundary boundary;
-	protected PotentialCalculationEnergySum energySum;
 	protected PotentialCalculationTorqueSum torqueSum;
 	protected PotentialCalculationPhiSum secondDerivativeSum;
 	protected final Space space;
@@ -64,7 +68,6 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 //		r = space.makeVector();
 		vectorSum.setX(2, 1);
 		torqueSum = new PotentialCalculationTorqueSum();
-		energySum = new PotentialCalculationEnergySum();
 		secondDerivativeSum = new  PotentialCalculationPhiSum(space);
 		moleculeAgentManager  = new MoleculeAgentManager(sim,box,this);
 		torqueSum.setMoleculeAgentManager(moleculeAgentManager);

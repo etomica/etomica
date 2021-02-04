@@ -9,7 +9,10 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.*;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationPhiSumHeisenberg;
+import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -22,7 +25,6 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
     protected final Space space;
     protected final IPotentialAtomic p2;
     protected final IteratorDirective allAtoms;
-    protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected PotentialCalculationPhiSum secondDerivativeSum;
@@ -61,7 +63,6 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
-        energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);

@@ -27,7 +27,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     protected final Space space;
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective allAtoms;
-    protected PotentialCalculationEnergySum energySum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected etomica.spin.heisenberg.PotentialCalculationPhiSum secondDerivativeSum;
     protected PotentialCalculationPhiSumHeisenberg secondDerivativeSumIdeal;
@@ -100,7 +99,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
-        energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
 

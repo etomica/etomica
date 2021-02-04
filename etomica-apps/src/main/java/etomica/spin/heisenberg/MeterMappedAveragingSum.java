@@ -13,7 +13,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.Integrator;
 import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -32,7 +31,6 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
     protected final Space space;
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective allAtoms;
-    protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected PotentialCalculationPhiSum secondDerivativeSum;
@@ -68,7 +66,6 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
-        energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
 
