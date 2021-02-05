@@ -68,4 +68,6 @@ public interface IAtom {
      * alter the IAtom's position.
      */
     Vector getPosition();
+
+    void copyCoordinatesFrom(IAtom atom);
 }
