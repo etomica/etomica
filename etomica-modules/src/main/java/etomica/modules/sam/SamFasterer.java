@@ -250,7 +250,7 @@ public class SamFasterer extends Simulation {
         P2Surface p2SurfaceTrunc = new P2Surface(space, p2SulfurSurfaceLJ, p2SurfaceBond, criterion3);
 
         neighborManagerGeneral = new NeighborListManagerFasterer(getSpeciesManager(), box, 2, nbrCut, potentialMasterBonding.getBondingInfo());
-        potentialMasterGeneral = new PotentialComputePairGeneral(this, box, neighborManagerGeneral);
+        potentialMasterGeneral = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManagerGeneral);
         potentialMasterGeneral.setPairPotential(speciesSurface.getLeafType(), typeS, p2SurfaceTrunc);
         pcAggregate.add(potentialMasterGeneral);
         findTetherBonds();

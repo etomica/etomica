@@ -6,18 +6,15 @@ package etomica.potential.compute;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.box.BoxEventListener;
-import etomica.box.BoxMoleculeEvent;
+import etomica.box.*;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialPair;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
@@ -41,11 +38,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected final int[] atomCountByType;
     protected boolean duAtomMulti = false;
 
-    public PotentialComputePairGeneral(Simulation sim, Box box, NeighborManager neighborManager) {
+    public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        pairPotentials = new IPotentialPair[lastTypeIndex + 1][lastTypeIndex + 1];
+        int nAtomTypes = sm.getAtomTypeCount();
+        pairPotentials = new IPotentialPair[nAtomTypes][nAtomTypes];
         this.neighborManager = neighborManager;
         this.neighborManager.setPairPotentials(pairPotentials);
         this.neighborIterator = neighborManager.makeNeighborIterator();
@@ -56,13 +52,43 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         duAtom = new DoubleArrayList(16);
         forces = new Vector[0];
 
-        this.atomCountByType = new int[lastTypeIndex + 1];
+        this.atomCountByType = new int[nAtomTypes];
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {
                 for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
                     atomCountByType[atomType.getIndex()]++;
                 }
+
+                int newAtoms = e.getMolecule().getType().getLeafAtomCount();
+                int nowAtoms = box.getLeafList().size();
+                if (nowAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms - newAtoms);
+                    uAtom = uAtomNew;
+                } else {
+                    Arrays.fill(uAtom, nowAtoms - newAtoms, nowAtoms, 0);
+                }
+            }
+
+            @Override
+            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
+                int n = e.getCount();
+
+                int nowAtoms = box.getLeafList().size();
+                int newAtoms = e.getSpecies().getLeafAtomCount() * n;
+                if (nowAtoms + newAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms + newAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms);
+                    uAtom = uAtomNew;
+                }
+            }
+
+            @Override
+            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
+                int oldIndex = e.getIndex();
+                int newIndex = e.getAtom().getLeafIndex();
+                uAtom[newIndex] = uAtom[oldIndex];
             }
 
             @Override
@@ -173,6 +199,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 }
                 uAtom[finalI] += 0.5 * uij;
                 uAtom[j] += 0.5 * uij;
+                uTot[0] += uij;
             });
         }
         energyTot = uTot[0];
