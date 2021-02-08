@@ -7,7 +7,6 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -16,16 +15,17 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.IntegratorMCFasterer;
+import etomica.integrator.IntegratorManagerMC;
+import etomica.integrator.mcmove.MCMoveAtomFasterer;
+import etomica.integrator.mcmove.MCMoveAtomRotateFasterer;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.P2HardAssociationCone;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.NeighborManagerSimple;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -39,53 +39,54 @@ import java.awt.*;
  * <p>
  * Molecules interact with a hard sphere potential and a directional square well association.
  */
-public class GEMCWithRotation extends Simulation {
+public class GEMCWithRotationFasterer extends Simulation {
 
     public Box box1, box2;
-    public IntegratorGEMC integrator;
+    public IntegratorManagerMC integrator;
     public SpeciesGeneral species;
     public P2HardAssociationCone potential;
 
-    public GEMCWithRotation() {
+    public GEMCWithRotationFasterer() {
         this(Space3D.getInstance());
     }
 
-    public GEMCWithRotation(Space _space) {
+    public GEMCWithRotationFasterer(Space _space) {
         super(_space);
 
-        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false, true);
         addSpecies(species);
 
+        box1 = this.makeBox();
+        box2 = this.makeBox();
+
         double sigma = 1.2;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorGEMC(getRandom(), space);
-        integrator.setTemperature(0.420);
-        integrator.setEventInterval(400);
+        NeighborManagerSimple neighborManager1 = new NeighborManagerSimple(box1);
+        NeighborManagerSimple neighborManager2 = new NeighborManagerSimple(box2);
+        PotentialComputePairGeneral potentialMaster1 = new PotentialComputePairGeneral(getSpeciesManager(), box1, neighborManager1);
+        PotentialComputePairGeneral potentialMaster2 = new PotentialComputePairGeneral(getSpeciesManager(), box2, neighborManager2);
 
 //        getController().setSleepPeriod(1);
-        getController().addActivity(new ActivityIntegrate(integrator));
 
-        box1 = this.makeBox();
         box1.setNMolecules(species, 200);
 
-        IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster, box1);
+        IntegratorMCFasterer integratorMC1 = new IntegratorMCFasterer(this, potentialMaster1, box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
-        moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
-        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
-        integrator.addIntegrator(integratorMC1);
+        moveManager.addMCMove(new MCMoveAtomRotateFasterer(random, potentialMaster1, box1));
+        moveManager.addMCMove(new MCMoveAtomFasterer(random, potentialMaster1, box1));
 
-
-        box2 = this.makeBox();
         box2.setNMolecules(species, 200);
-        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster, box2);
+        IntegratorMCFasterer integratorMC2 = new IntegratorMCFasterer(this, potentialMaster2, box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
-        moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
-        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
-        // GEMC integrator adds volume and molecule exchange moves once
-        // it has 2 integrators
-        integrator.addIntegrator(integratorMC2);
+        moveManager.addMCMove(new MCMoveAtomRotateFasterer(random, potentialMaster2, box2));
+        moveManager.addMCMove(new MCMoveAtomFasterer(random, potentialMaster2, box2));
+
+        // GEMC integrator adds volume and molecule exchange moves
+        integrator = IntegratorGEMC.buildGEMC(integratorMC1, integratorMC2, getRandom(), space);
+        integrator.setTemperature(0.420);
+        integrator.setEventInterval(400);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         SpaceLattice lattice;
         if (space.D() == 2) {
@@ -101,7 +102,8 @@ public class GEMCWithRotation extends Simulation {
         potential.setSigma(sigma);
         potential.setWellCutoffFactor(1.5);
 
-        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster1.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
+        potentialMaster2.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
 
         integratorMC1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box1, space)));
         integratorMC2.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box2, space)));
@@ -114,7 +116,7 @@ public class GEMCWithRotation extends Simulation {
     public static void main(String[] args) {
 
         double sigma = 1.2;
-        final GEMCWithRotation sim = new GEMCWithRotation();
+        final GEMCWithRotationFasterer sim = new GEMCWithRotationFasterer();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         double conedia = sigma * sim.potential.getTheta();
         DisplayBoxCanvasG3DSys.OrientedSite[] os = new DisplayBoxCanvasG3DSys.OrientedSite[]{new DisplayBoxCanvasG3DSys.OrientedSite(sigma / 2, Color.BLUE, conedia)};

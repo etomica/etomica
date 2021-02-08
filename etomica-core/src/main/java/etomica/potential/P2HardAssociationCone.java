@@ -4,22 +4,24 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
 /**
- * Lennard-Jones potential with a square-well cone of attraction. 
+ * Lennard-Jones potential with a square-well cone of attraction.
  *
  * @author Jayant K. Singh
  */
 
-public class P2HardAssociationCone extends Potential2 {
-    private static final long serialVersionUID = 1L;
+public class P2HardAssociationCone implements IPotentialPair {
+
     public static boolean FLAG = false;
     private double wellcutoffFactor;
     private double wellCutoffSquared;
@@ -35,7 +37,6 @@ public class P2HardAssociationCone extends Potential2 {
     }
     
     public P2HardAssociationCone(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
-        super(space);
         dr = space.makeVector();
 
         setSigma(sigma);
@@ -175,12 +176,70 @@ public class P2HardAssociationCone extends Potential2 {
      * Accessor method for angle (in radians) describing width of cone.
      */
     public void setTheta(double t) {
-        ec2   = Math.cos(t);
-        ec2   = ec2*ec2;
+        ec2 = Math.cos(t);
+        ec2 = ec2 * ec2;
     }
-    public Dimension getThetaDimension() {return Angle.DIMENSION;}
+
+    public Dimension getThetaDimension() {
+        return Angle.DIMENSION;
+    }
 
     public void setBox(Box box) {
         boundary = box.getBoundary();
+    }
+
+    @Override
+    public int nBody() {
+        return 2;
+    }
+
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        double r2 = dr12.squared();
+        double eTot = 0.0;
+
+        // FLAG = false;
+        if (r2 > cutoffLJSquared) {
+            eTot = 0.0;
+        } else {
+            double s2 = sigmaSquared / r2;
+            double s6 = s2 * s2 * s2;
+            eTot = epsilon4 * s6 * (s6 - 1.0);
+        }
+
+        if (r2 < wellCutoffSquared) {
+            IAtomOriented a1 = (IAtomOriented) atom1;
+            IAtomOriented a2 = (IAtomOriented) atom2;
+            Vector e1 = a1.getOrientation().getDirection();
+            double er1 = e1.dot(dr);
+            // er1*er1/r2 is cos(theta)
+
+            if (er1 > 0.0 && er1 * er1 / r2 > ec2) {
+                Vector e2 = a2.getOrientation().getDirection();
+                double er2 = e2.dot(dr);
+                if (er2 < 0.0 && er2 * er2 / r2 > ec2) eTot -= wellEpsilon;
+            }
+        }
+        return eTot;
+    }
+
+    @Override
+    public Vector[][] gradientAndTorque(IAtomList atoms) {
+        return new Vector[0][];
+    }
+
+    @Override
+    public double virial(IAtomList atoms) {
+        return 0;
+    }
+
+    @Override
+    public Vector[] gradient(IAtomList atoms) {
+        return new Vector[0];
+    }
+
+    @Override
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return new Vector[0];
     }
 }
