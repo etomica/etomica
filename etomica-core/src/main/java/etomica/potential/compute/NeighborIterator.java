@@ -1,7 +1,6 @@
 package etomica.potential.compute;
 
 import etomica.atom.IAtom;
-import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.space.Vector;
 
 public interface NeighborIterator {
@@ -12,7 +11,7 @@ public interface NeighborIterator {
 
     void iterAllNeighbors(int iAtom, NeighborConsumer consumer);
 
-    default double iterAndSumAllNeighbors(IAtom atom1, NeighborIteratorCellFasterer.SuperNbrConsumer consumer) {
+    default double iterAndSumAllNeighbors(IAtom atom1, SuperNbrConsumer consumer) {
         return 0;
     }
 
@@ -21,5 +20,9 @@ public interface NeighborIterator {
      */
     interface NeighborConsumer {
         void accept(IAtom jAtom, Vector rij);
+    }
+
+    interface SuperNbrConsumer {
+        double accept(IAtom atom1, IAtom atom2, Vector rij);
     }
 }

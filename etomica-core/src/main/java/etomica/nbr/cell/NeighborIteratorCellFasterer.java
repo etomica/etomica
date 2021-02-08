@@ -104,10 +104,6 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         }
     }
 
-    public interface SuperNbrConsumer {
-        double accept(IAtom atom1, IAtom atom2, Vector rij);
-    }
-
     @Override
     public double iterAndSumAllNeighbors(IAtom atom1, SuperNbrConsumer consumer) {
         IAtomList atoms = box.getLeafList();

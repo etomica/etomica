@@ -60,6 +60,21 @@ public class NeighborManagerSimple implements NeighborManager {
                     consumer.accept(atoms.get(j), rij);
                 }
             }
+
+            @Override
+            public double iterAndSumAllNeighbors(IAtom atom1, SuperNbrConsumer consumer) {
+                IAtomList atoms = box.getLeafList();
+                Vector rij = box.getSpace().makeVector();
+                Vector ri = atom1.getPosition();
+                double sum = 0;
+                for (int j = 0; j < atoms.size(); j++) {
+                    if (j == atom1.getLeafIndex()) continue;
+                    rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
+                    box.getBoundary().nearestImage(rij);
+                    sum += consumer.accept(atom1, atoms.get(j), rij);
+                }
+                return sum;
+            }
         };
     }
 
