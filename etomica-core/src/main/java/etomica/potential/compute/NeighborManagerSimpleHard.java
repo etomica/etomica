@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential.compute;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -31,9 +32,79 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
 
     @Override
     public NeighborIterator makeNeighborIterator() {
-        return null;
-    }
+        return new NeighborIterator() {
+            @Override
+            public void iterUpNeighbors(int i, NeighborConsumer consumer) {
+                final NeighborConsumerHard consumerHard = consumer instanceof NeighborConsumerHard ? (NeighborConsumerHard) consumer : null;
+                IAtomList atoms = box.getLeafList();
+                Vector rij = box.getSpace().makeVector();
+                Vector ri = atoms.get(i).getPosition();
+                for (int j = i + 1; j < atoms.size(); j++) {
+                    rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
+                    box.getBoundary().nearestImage(rij);
+                    if (consumerHard == null) {
+                        // we're like just computing energy
+                        consumer.accept(atoms.get(j), rij);
+                    } else {
+                        consumerHard.accept(atoms.get(j), rij, stateHash[i].get(j));
+                    }
+                }
+            }
 
+            @Override
+            public void iterDownNeighbors(int i, NeighborConsumer consumer) {
+                final NeighborConsumerHard consumerHard = consumer instanceof NeighborConsumerHard ? (NeighborConsumerHard) consumer : null;
+                IAtomList atoms = box.getLeafList();
+                Vector rij = box.getSpace().makeVector();
+                Vector ri = atoms.get(i).getPosition();
+                for (int j = 0; j < i; j++) {
+                    rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
+                    box.getBoundary().nearestImage(rij);
+                    if (consumerHard == null) {
+                        // we're like just computing energy
+                        consumer.accept(atoms.get(j), rij);
+                    } else {
+                        consumerHard.accept(atoms.get(j), rij, stateHash[j].get(i));
+                    }
+                }
+            }
+
+            @Override
+            public void iterAllNeighbors(int i, NeighborConsumer consumer) {
+                final NeighborConsumerHard consumerHard = consumer instanceof NeighborConsumerHard ? (NeighborConsumerHard) consumer : null;
+                IAtomList atoms = box.getLeafList();
+                Vector rij = box.getSpace().makeVector();
+                Vector ri = atoms.get(i).getPosition();
+                for (int j = 0; j < atoms.size(); j++) {
+                    if (j == i) continue;
+                    rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
+                    box.getBoundary().nearestImage(rij);
+                    consumer.accept(atoms.get(j), rij);
+                    if (consumerHard == null) {
+                        // we're like just computing energy
+                        consumer.accept(atoms.get(j), rij);
+                    } else {
+                        consumerHard.accept(atoms.get(j), rij, stateHash[i].get(j));
+                    }
+                }
+            }
+
+            @Override
+            public double iterAndSumAllNeighbors(IAtom atom1, SuperNbrConsumer consumer) {
+                IAtomList atoms = box.getLeafList();
+                Vector rij = box.getSpace().makeVector();
+                Vector ri = atom1.getPosition();
+                double sum = 0;
+                for (int j = 0; j < atoms.size(); j++) {
+                    if (j == atom1.getLeafIndex()) continue;
+                    rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
+                    box.getBoundary().nearestImage(rij);
+                    sum += consumer.accept(atom1, atoms.get(j), rij);
+                }
+                return sum;
+            }
+        };
+    }
     @Override
     public void setPairPotentials(IPotentialAtomic[][] potentials) {
         pairPotentials = potentials;
