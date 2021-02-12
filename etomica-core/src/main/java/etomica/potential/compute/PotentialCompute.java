@@ -8,6 +8,12 @@ import etomica.space.Vector;
 public interface PotentialCompute {
     void init();
 
+    default boolean needForcesForVirial() {
+        return false;
+    }
+
+    ;
+
     Vector[] getForces();
 
     double getLastVirial();

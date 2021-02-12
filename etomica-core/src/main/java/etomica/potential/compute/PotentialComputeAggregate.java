@@ -28,6 +28,14 @@ public class PotentialComputeAggregate implements PotentialCompute {
     }
 
     @Override
+    public boolean needForcesForVirial() {
+        for (PotentialCompute pc : potentialComputes) {
+            if (pc.needForcesForVirial()) return true;
+        }
+        return false;
+    }
+
+    @Override
     public void init() {
         this.potentialComputes.forEach(PotentialCompute::init);
     }

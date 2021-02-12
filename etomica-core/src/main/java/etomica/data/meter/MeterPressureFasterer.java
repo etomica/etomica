@@ -43,7 +43,7 @@ public class MeterPressureFasterer extends DataSourceScalar implements IDataSour
      * ideal-gas contribution.
      */
     public double getDataAsScalar() {
-        if (callComputeAll) potentialCompute.computeAll(false);
+        if (callComputeAll) potentialCompute.computeAll(potentialCompute.needForcesForVirial());
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
         double vol = box.getBoundary().volume();
         return (box.getMoleculeList().size() / vol) * temperature

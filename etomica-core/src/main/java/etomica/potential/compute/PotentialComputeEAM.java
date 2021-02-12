@@ -166,6 +166,11 @@ public class PotentialComputeEAM implements PotentialCompute {
     }
 
     @Override
+    public boolean needForcesForVirial() {
+        return true;
+    }
+
+    @Override
     public void init() {
         this.neighborManager.init();
     }
