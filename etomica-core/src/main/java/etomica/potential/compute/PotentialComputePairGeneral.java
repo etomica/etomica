@@ -190,9 +190,12 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 IPotentialPair pij = ip[jType];
                 double uij;
                 if (doForces) {
+                    Vector fj = space.makeVector();
+                    fj.E(forces[j]);
                     uij = pij.udu(rij, iAtom, jAtom, forces[finalI], forces[j]);
                     if (uij == 0) return;
-                    virialTot -= forces[j].dot(rij);
+                    fj.ME(forces[j]);
+                    virialTot += fj.dot(rij);
                 } else {
                     uij = pij.u(rij, iAtom, jAtom);
                     if (uij == 0) return;
