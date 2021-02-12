@@ -10,7 +10,6 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
-import etomica.potential.PotentialMasterFasterer;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -50,7 +49,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
         translationVector = space.makeVector();
         oldPosition = space.makeVector();
-        setStepSizeMax(stepSizeMax);
+        setStepSizeMax(box.getBoundary().getBoxSize().getX(0));
         setStepSizeMin(0.0);
         setStepSize(stepSize);
         perParticleFrequency = true;

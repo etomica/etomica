@@ -53,7 +53,7 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
         ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
         translationVector = space.makeVector();
         oldPosition = space.makeVector();
-        setStepSizeMax(stepSizeMax);
+        setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
         perParticleFrequency = true;
@@ -102,6 +102,7 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
 
         // put it back, then compute old contributions to energy
         newOrientation.E(atom.getOrientation());
+        atom.getOrientation().E(oldOrientation);
 
         potentialCompute.updateAtom(atom);
         potentialCompute.computeOne(atom);
