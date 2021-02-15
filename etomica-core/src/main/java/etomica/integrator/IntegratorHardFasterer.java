@@ -15,6 +15,7 @@ import etomica.nbr.list.NeighborListManagerFasterer;
 import etomica.potential.*;
 import etomica.potential.compute.*;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.Int2IntHash;
 import etomica.util.random.IRandom;
 
@@ -24,8 +25,6 @@ import java.util.List;
 
 public class IntegratorHardFasterer extends IntegratorMDFasterer implements INeighborListListener {
 
-    protected final PotentialComputePair computePair;
-    protected final PotentialComputeField computeField;
     protected final NeighborManagerHard neighborManager;
     protected final PotentialMasterBonding.FullBondingInfo bondingInfo;
     protected double[] collisionTimes;
@@ -54,6 +53,79 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         return writeTiming ? System.nanoTime() : 0;
     }
 
+    public static IPotentialHard[][] extractHardPotentials(PotentialComputePair pcPair) {
+        Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
+        int n = softPotentials.length;
+        IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
+            }
+        }
+        return pairPotentials;
+    }
+
+    public static IPotentialHard[][] extractHardPotentials(PotentialMasterFasterer pcPair) {
+        Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
+        int n = softPotentials.length;
+        IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
+            }
+        }
+        return pairPotentials;
+    }
+
+    public static IPotentialHard[][] extractHardPotentials(PotentialComputePairGeneral pcPair) {
+        IPotentialPair[][] softPotentials = pcPair.getPairPotentials();
+        int n = softPotentials.length;
+        IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
+            }
+        }
+        return pairPotentials;
+    }
+
+    public static IPotentialHardField[] extractFieldPotentials(PotentialComputeField pcField) {
+        IPotentialField[] softFieldPotentials = pcField.getFieldPotentials();
+        int n = softFieldPotentials.length;
+        IPotentialHardField[] fieldPotentials = new IPotentialHardField[n];
+        for (int i = 0; i < n; i++) {
+            fieldPotentials[i] = (IPotentialHardField) softFieldPotentials[i];
+        }
+        return fieldPotentials;
+    }
+
+    private static PotentialCompute makeTotalCompute(Box box, IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IPotentialHardField[] fieldPotentials, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        int n = pairPotentials.length;
+        IPotentialPair[][] softPotentials = new IPotentialPair[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                softPotentials[i][j] = (IPotentialPair) pairPotentials[i][j];
+            }
+        }
+        List<PotentialCompute> computes = new ArrayList<>();
+        PotentialComputePairGeneral pcPair = new PotentialComputePairGeneral(softPotentials, box, neighborManager);
+        computes.add(pcPair);
+        if (fieldPotentials != null) {
+            PotentialComputeField pcField = new PotentialComputeField(fieldPotentials, box);
+            computes.add(pcField);
+        }
+        if (bondingInfo != null) {
+            PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box, bondingInfo);
+            computes.add(pmBonding);
+        }
+        if (computes.size() == 1) return pcPair;
+        PotentialCompute[] computesArray = computes.toArray(new PotentialCompute[0]);
+        return new PotentialComputeAggregate(computesArray);
+    }
+
     /**
      * Constructs integrator with a default for non-isothermal sampling.
      *
@@ -63,25 +135,28 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
      * @param temperature      used by thermostat and/or to initialize velocities
      * @param box
      */
-    public IntegratorHardFasterer(PotentialComputePair potentialCompute, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box) {
-        this(potentialCompute, neighborManager, random, timeStep, temperature, box, null);
+    public IntegratorHardFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box) {
+        this(pairPotentials, neighborManager, random, timeStep, temperature, box, null, null);
     }
 
-    public IntegratorHardFasterer(PotentialComputePair potentialCompute, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
-        this(potentialCompute, null, neighborManager, random, timeStep, temperature, box, bondingInfo);
+    public IntegratorHardFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        this(pairPotentials, null, neighborManager, random, timeStep, temperature, box, sm, bondingInfo);
     }
 
-    public IntegratorHardFasterer(PotentialComputePair potentialCompute, PotentialComputeField pcField, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
-        super(makeTotalCompute(potentialCompute, pcField), random, timeStep, temperature, box);
-        this.computePair = potentialCompute;
-        this.computeField = pcField;
+    public IntegratorHardFasterer(IPotentialHard[][] pairPotentials, IPotentialHardField[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        this(makeTotalCompute(box, pairPotentials, neighborManager, fieldPotentials, sm, bondingInfo), pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, bondingInfo);
+    }
+
+    public IntegratorHardFasterer(PotentialCompute pc, IPotentialHard[][] pairPotentials, IPotentialHardField[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        super(pc, random, timeStep, temperature, box);
+        this.pairPotentials = pairPotentials;
+        this.fieldPotentials = fieldPotentials;
         this.neighborManager = neighborManager;
         this.bondingInfo = bondingInfo;
         eventBinsFirstAtom = new int[10];
         collisionVector = new Vector[0];
         resizeArrays();
-        int n = potentialCompute.getPairPotentials().length;
-        pairPotentials = new IPotentialHard[n][n];
+        int n = pairPotentials.length;
         fieldPotentials = new IPotentialHardField[n];
         // we want to store enough collisions that we don't have to recompute them
         // before the neighbor update
@@ -140,7 +215,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             for (int i = 0; i < nAtoms; i++) {
                 collisionVector[i] = space.makeVector();
             }
-            if (computeField != null) {
+            if (fieldPotentials != null) {
                 fieldState = new int[nAtoms];
             }
         }
@@ -149,19 +224,6 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     public void reset() {
         super.reset();
         resizeArrays();
-        Potential2Soft[][] softPotentials = computePair.getPairPotentials();
-        int n = softPotentials.length;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
-            }
-        }
-        if (computeField != null) {
-            IPotentialField[] softFieldPotentials = computeField.getFieldPotentials();
-            for (int i = 0; i < n; i++) {
-                fieldPotentials[i] = (IPotentialHardField) softFieldPotentials[i];
-            }
-        }
         neighborManager.init();
 
         computeAllCollisions();

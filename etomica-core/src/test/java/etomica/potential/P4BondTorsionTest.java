@@ -33,7 +33,7 @@ class P4BondTorsionTest {
         sim.addSpecies(alkane);
         Box box = sim.makeBox();
         box.setNMolecules(alkane, 1);
-        pmBonding = new PotentialMasterBonding(sim, box);
+        pmBonding = new PotentialMasterBonding(sim.getSpeciesManager(), box);
         P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
         List<int[]> quads = new ArrayList<>();
         for (int i = 0; i < nSpheres - 3; i++) {

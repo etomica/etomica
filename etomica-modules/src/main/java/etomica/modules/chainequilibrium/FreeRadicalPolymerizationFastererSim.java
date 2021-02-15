@@ -69,11 +69,6 @@ public class FreeRadicalPolymerizationFastererSim extends Simulation implements 
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box);
-        integratorHard.setIsothermal(true);
-        integratorHard.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
-        integratorHard.setThermostatInterval(1);
-
         agentManager = new AtomLeafAgentManager<>(this, box);
         resetBonds();
 
@@ -85,6 +80,11 @@ public class FreeRadicalPolymerizationFastererSim extends Simulation implements 
         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
         potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
+
+        integratorHard = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box);
+        integratorHard.setIsothermal(true);
+        integratorHard.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
+        integratorHard.setThermostatInterval(1);
 
         getController().addActivity(new ActivityIntegrate(integratorHard, true));
     }

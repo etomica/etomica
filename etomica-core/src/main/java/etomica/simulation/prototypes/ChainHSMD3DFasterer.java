@@ -70,7 +70,7 @@ public class ChainHSMD3DFasterer extends Simulation {
         this.addSpecies(species);
 
         double neighborRangeFac = 1.6;
-        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(this);
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(getSpeciesManager());
         box = this.makeBox();
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, neighborRangeFac, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
@@ -78,8 +78,6 @@ public class ChainHSMD3DFasterer extends Simulation {
 
         int numAtoms = 108;
 
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1.0, box, bondingInfo);
-        integrator.setIsothermal(false);
 
         getController().addActivity(new ActivityIntegrate(integrator, true));
 
@@ -98,6 +96,9 @@ public class ChainHSMD3DFasterer extends Simulation {
         this.potential = P2HardSphere.makePotential(sigma);
         AtomType leafType = species.getAtomType(0);
         potentialMaster.setPairPotential(leafType, leafType, potential);
+
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
+        integrator.setIsothermal(false);
 
         MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
         meterRG.setBox(box);

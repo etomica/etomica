@@ -11,9 +11,8 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.potential.IPotentialField;
-import etomica.simulation.Simulation;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
@@ -29,10 +28,12 @@ public class PotentialComputeField implements PotentialCompute {
     protected final IntArrayList uAtomsChanged;
     protected double energyTot = Double.NaN;
 
-    public PotentialComputeField(Simulation sim, Box box) {
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        potentials = new IPotentialField[lastTypeIndex + 1];
+    public PotentialComputeField(SpeciesManager sm, Box box) {
+        this(new IPotentialField[sm.getAtomTypeCount()], box);
+    }
+
+    public PotentialComputeField(IPotentialField[] p1, Box box) {
+        potentials = p1;
         this.box = box;
         forces = new Vector[0];
         uAtom = new double[box.getLeafList().size()];

@@ -137,6 +137,10 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
     }
 
+    public Potential2Soft[][] getPairPotentials() {
+        return pairPotentials;
+    }
+
     @Override
     public void updateAtom(IAtom atom) {
 

@@ -57,9 +57,6 @@ public class HSMD2DFasterer extends Simulation {
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
 
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1, box);
-        integrator.setIsothermal(false);
-
         getController().setSleepPeriod(1);
         getController().addActivity(new ActivityIntegrate(integrator));
         AtomType leafType1 = species1.getLeafType();
@@ -73,6 +70,9 @@ public class HSMD2DFasterer extends Simulation {
         potentialMaster.setPairPotential(leafType1, leafType1, potential11);
         potentialMaster.setPairPotential(leafType1, leafType2, potential12);
         potentialMaster.setPairPotential(leafType2, leafType2, potential22);
+
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box);
+        integrator.setIsothermal(false);
 
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);

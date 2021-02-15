@@ -39,7 +39,7 @@ public class PotentialComputeFieldTest {
         Box box = sim.makeBox();
         box.getBoundary().setBoxSize(Vector.of(10, 10, 10));
         box.setNMolecules(species, 100);
-        PotentialComputeField pcOne = new PotentialComputeField(sim, box);
+        PotentialComputeField pcOne = new PotentialComputeField(sim.getSpeciesManager(), box);
         IPotentialField p1 = new IPotentialField() {
             @Override
             public double u(IAtom atom) {

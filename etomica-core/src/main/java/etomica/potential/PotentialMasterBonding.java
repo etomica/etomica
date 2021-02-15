@@ -8,12 +8,12 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 
 import java.util.*;
 
@@ -26,12 +26,12 @@ public class PotentialMasterBonding implements PotentialCompute {
     private final FullBondingInfo bondingInfo;
     protected double energyTot = Double.NaN;
 
-    public PotentialMasterBonding(Simulation sim, Box box) {
-        this(sim, box, new FullBondingInfo(sim));
+    public PotentialMasterBonding(SpeciesManager sm, Box box) {
+        this(sm, box, new FullBondingInfo(sm));
     }
 
-    public PotentialMasterBonding(Simulation sim, Box box, FullBondingInfo bondingInfo) {
-        speciesList = sim.getSpeciesList();
+    public PotentialMasterBonding(SpeciesManager sm, Box box, FullBondingInfo bondingInfo) {
+        speciesList = sm.getSpeciesList();
         this.box = box;
         this.space = box.getSpace();
         this.bondingInfo = bondingInfo;
@@ -456,15 +456,15 @@ public class PotentialMasterBonding implements PotentialCompute {
         public final Map<IPotentialBondTorsion, List<int[]>>[] bondedQuads;
         public final Map<IPotentialBondTorsion, int[][][]>[] bondedQuadPartners;
 
-        public FullBondingInfo(Simulation sim) {
-            bondedAtoms = new int[sim.getSpeciesCount()][][];
-            bondedPairs = new HashMap[sim.getSpeciesCount()];
-            bondedPairPartners = new HashMap[sim.getSpeciesCount()];
-            bondedTriplets = new HashMap[sim.getSpeciesCount()];
-            bondedTripletPartners = new HashMap[sim.getSpeciesCount()];
-            bondedQuads = new HashMap[sim.getSpeciesCount()];
-            bondedQuadPartners = new HashMap[sim.getSpeciesCount()];
-            for (int i = 0; i < sim.getSpeciesCount(); i++) {
+        public FullBondingInfo(SpeciesManager sm) {
+            bondedAtoms = new int[sm.getSpeciesCount()][][];
+            bondedPairs = new HashMap[sm.getSpeciesCount()];
+            bondedPairPartners = new HashMap[sm.getSpeciesCount()];
+            bondedTriplets = new HashMap[sm.getSpeciesCount()];
+            bondedTripletPartners = new HashMap[sm.getSpeciesCount()];
+            bondedQuads = new HashMap[sm.getSpeciesCount()];
+            bondedQuadPartners = new HashMap[sm.getSpeciesCount()];
+            for (int i = 0; i < sm.getSpeciesCount(); i++) {
                 bondedPairs[i] = new HashMap<>();
                 bondedPairPartners[i] = new HashMap<>();
                 bondedTriplets[i] = new HashMap<>();

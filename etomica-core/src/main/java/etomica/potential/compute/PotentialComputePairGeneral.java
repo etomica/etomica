@@ -39,9 +39,12 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected boolean duAtomMulti = false;
 
     public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
+        this(new IPotentialPair[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
+    }
+
+    public PotentialComputePairGeneral(IPotentialPair[][] p2, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
-        int nAtomTypes = sm.getAtomTypeCount();
-        pairPotentials = new IPotentialPair[nAtomTypes][nAtomTypes];
+        pairPotentials = p2;
         this.neighborManager = neighborManager;
         this.neighborManager.setPairPotentials(pairPotentials);
         this.neighborIterator = neighborManager.makeNeighborIterator();
@@ -52,7 +55,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         duAtom = new DoubleArrayList(16);
         forces = new Vector[0];
 
-        this.atomCountByType = new int[nAtomTypes];
+        this.atomCountByType = new int[p2.length];
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {
@@ -153,6 +156,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 .max().orElse(0);
 
         this.neighborManager.setPotentialRange(maxRange);
+    }
+
+    public IPotentialPair[][] getPairPotentials() {
+        return pairPotentials;
     }
 
     @Override

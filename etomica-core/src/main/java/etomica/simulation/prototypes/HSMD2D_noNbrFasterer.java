@@ -60,10 +60,7 @@ public class HSMD2D_noNbrFasterer extends Simulation {
 
         NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
-        PotentialComputeField pcField = new PotentialComputeField(this, box);
-
-        integrator = new IntegratorHardFasterer(potentialMaster, pcField, neighborManager, random, 0.05, 1, box, null);
-        integrator.setIsothermal(false);
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
 
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
         this.getController().addActivity(new ActivityIntegrate(integrator));
@@ -77,6 +74,7 @@ public class HSMD2D_noNbrFasterer extends Simulation {
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField), neighborManager, random, 0.05, 1, box, getSpeciesManager(), null);
         integrator.setIsothermal(true);
 
         meterPressure = new MeterPressureHardFasterer(integrator);

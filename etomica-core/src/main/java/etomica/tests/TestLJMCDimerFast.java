@@ -61,7 +61,7 @@ public class TestLJMCDimerFast extends Simulation {
         double sigma = 1.0;
         box = this.makeBox();
 
-        PotentialMasterBonding pmBond = new PotentialMasterBonding(this, box);
+        PotentialMasterBonding pmBond = new PotentialMasterBonding(getSpeciesManager(), box);
         P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
         List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
                 .mapToObj(i -> new int[]{i, i+1})

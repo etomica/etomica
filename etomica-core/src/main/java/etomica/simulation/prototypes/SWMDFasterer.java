@@ -53,11 +53,12 @@ public class SWMDFasterer extends Simulation {
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
 
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1, box);
-        integrator.setIsothermal(true);
         double lambda = 2;
         getController().addActivity(new ActivityIntegrate(integrator));
         potential = P2SquareWell.makePotential(1.0, lambda, 1.0);
+
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box);
+        integrator.setIsothermal(true);
 
         box.setNMolecules(species, 108);
 

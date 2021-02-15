@@ -111,7 +111,7 @@ public class SamFasterer extends Simulation {
         box.getBoundary().setBoxSize(dim);
 
         PotentialComputeAggregate pcAggregate = new PotentialComputeAggregate();
-        potentialMasterBonding = new PotentialMasterBonding(this, box);
+        potentialMasterBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         pcAggregate.add(potentialMasterBonding);
 
         positionDefinition = new MoleculePositionGeometricCenter(space);
@@ -219,7 +219,7 @@ public class SamFasterer extends Simulation {
         p1SurfaceBond.setB(0); // initially disabled
         p1SurfaceBond.setCellSize(sizeCellX, sizeCellZ);
         p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
-        PotentialComputeField computeField = new PotentialComputeField(this, box) {
+        PotentialComputeField computeField = new PotentialComputeField(getSpeciesManager(), box) {
             public double computeAll(boolean doForces, PotentialCallback pc) {
                 double u = super.computeAll(doForces, pc);
                 wallForce = 0;

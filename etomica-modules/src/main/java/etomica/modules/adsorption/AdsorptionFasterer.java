@@ -64,21 +64,9 @@ public class AdsorptionFasterer extends Simulation {
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair computePair = new PotentialComputePair(this, box, neighborManager);
 
-        PotentialComputeField computeWall = new PotentialComputeField(this, box);
-
-        //controller and integrator
-        integratorMD = new IntegratorHardFasterer(computePair, computeWall, neighborManager, random, 0.005, 1, box, null);
-        integratorMD.setTimeStep(0.005);
-        integratorMD.setIsothermal(true);
-        integratorMD.setThermostatInterval(50);
-
-        integratorMD.setThermostat(IntegratorMDFasterer.ThermostatType.HYBRID_MC);
+        PotentialComputeField computeWall = new PotentialComputeField(getSpeciesManager(), box);
         NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(getSpeciesManager(), box, 1, BondingInfo.noBonding());
         PotentialComputePair computePairMC = new PotentialComputePair(this, box, neighborManagerMC);
-        integratorMC = new IntegratorMCFasterer(computePairMC, random, 1.0, box);
-        integratorMD.setIntegratorMC(integratorMC, 1);
-
-        getController().addActivity(new ActivityIntegrate(integratorMD));
 
         double sigma = 1;
         double lambda = 1.5;
@@ -86,6 +74,36 @@ public class AdsorptionFasterer extends Simulation {
         double epsilonWF = 5.0;
 
         //potentials
+        p2AA = P2SquareWell.makePotential(sigma, lambda, epsilon);
+        computePair.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
+        p2AB = P2SquareWell.makePotential(sigma, lambda, epsilon);
+        computePair.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
+        p2BB = P2SquareWell.makePotential(sigma, lambda, epsilon);
+        computePair.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
+        computePairMC.setPairPotentials(computePair.getPairPotentials());
+
+        double L = 12 * sigma;
+        p1WallA = new P1WallFasterer(L, sigma, sigma / 2, epsilonWF);
+
+        p1WallB = new P1WallFasterer(L, sigma, sigma / 2, epsilonWF);
+
+        computeWall.setFieldPotential(speciesA.getLeafType(), p1WallA);
+        computeWall.setFieldPotential(speciesB.getLeafType(), p1WallB);
+
+        integratorMD = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(computePair), IntegratorHardFasterer.extractFieldPotentials(computeWall), neighborManager, random, 0.005, 1, box, getSpeciesManager(), null);
+        integratorMD.setTimeStep(0.005);
+        integratorMD.setIsothermal(true);
+        integratorMD.setThermostatInterval(50);
+
+        integratorMD.setThermostat(IntegratorMDFasterer.ThermostatType.HYBRID_MC);
+        integratorMC = new IntegratorMCFasterer(computePairMC, random, 1.0, box);
+        integratorMD.setIntegratorMC(integratorMC, 1);
+
+        p1WallA.setThermalize(integratorMD, 0.0, random);
+        p1WallB.setThermalize(integratorMD, 0.0, random);
+
+        getController().addActivity(new ActivityIntegrate(integratorMD));
+
         mcMoveIDA = new MyMCMoveFasterer(integratorMC, random, space, 0.1, sigma, 1);
         mcMoveIDA.setMu(-12);
         integratorMC.getMoveManager().addMCMove(mcMoveIDA);
@@ -98,25 +116,6 @@ public class AdsorptionFasterer extends Simulation {
         mcMoveIDB.setSpecies(speciesB);
         mcMoveIDB.setBox(box);
         integratorMC.getEventManager().addListener(mcMoveIDB);
-
-
-        p2AA = P2SquareWell.makePotential(sigma, lambda, epsilon);
-        computePair.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
-        p2AB = P2SquareWell.makePotential(sigma, lambda, epsilon);
-        computePair.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
-        p2BB = P2SquareWell.makePotential(sigma, lambda, epsilon);
-        computePair.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
-        computePairMC.setPairPotentials(computePair.getPairPotentials());
-
-        double L = 12 * sigma;
-        p1WallA = new P1WallFasterer(L, sigma, sigma / 2, epsilonWF);
-        p1WallA.setThermalize(integratorMD, 0.0, random);
-
-        p1WallB = new P1WallFasterer(L, sigma, sigma / 2, epsilonWF);
-        p1WallB.setThermalize(integratorMD, 0.0, random);
-
-        computeWall.setFieldPotential(speciesA.getLeafType(), p1WallA);
-        computeWall.setFieldPotential(speciesB.getLeafType(), p1WallB);
 
         Vector dim = space.makeVector();
         dim.E(8 * sigma);

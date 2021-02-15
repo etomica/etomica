@@ -33,7 +33,7 @@ class P3BondAngleTest {
         sim.addSpecies(alkane);
         Box box = sim.makeBox();
         box.setNMolecules(alkane, 1);
-        pmBonding = new PotentialMasterBonding(sim, box);
+        pmBonding = new PotentialMasterBonding(sim.getSpeciesManager(), box);
         P3BondAngle p3 = new P3BondAngle(space);
         p3.setAngle(Math.PI * 114.0 / 180.0);
         p3.setEpsilon(Kelvin.UNIT.toSim(62500));

@@ -95,16 +95,16 @@ public class HSMD3DFasterer extends Simulation {
 
         int numAtoms = params.nAtoms;
 
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1, box);
-        integrator.setIsothermal(false);
-
-        ActivityIntegrate ai2 = new ActivityIntegrate(integrator);
-        getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
-
         potential = new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY}, true);
         AtomType leafType = species.getLeafType();
 
         potentialMaster.setPairPotential(leafType, leafType, potential);
+
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box);
+        integrator.setIsothermal(false);
+
+        ActivityIntegrate ai2 = new ActivityIntegrate(integrator);
+        getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
 
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);

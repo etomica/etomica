@@ -68,7 +68,7 @@ public class TestSWChain extends Simulation {
         addSpecies(species);
         box = this.makeBox();
 
-        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(this);
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(getSpeciesManager());
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, nbrRange, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
@@ -82,12 +82,13 @@ public class TestSWChain extends Simulation {
 
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1.0, box, bondingInfo);
-        integrator.setTimeStep(timeStep);
-        integrator.setIsothermal(true);
 
         P2HardGeneric potential = P2SquareWell.makePotential(sigma, sqwLambda, epsilon);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
+
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
+        integrator.setTimeStep(timeStep);
+        integrator.setIsothermal(true);
 
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
         box.setNMolecules(species, numMolecules);

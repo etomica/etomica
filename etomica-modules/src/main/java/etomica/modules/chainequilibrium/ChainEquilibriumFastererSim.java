@@ -22,7 +22,7 @@ import etomica.molecule.IMolecule;
 import etomica.nbr.list.NeighborListManagerFastererHard;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2HardGeneric;
-import etomica.potential.compute.PotentialComputePair;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -31,7 +31,7 @@ import etomica.units.Kelvin;
 
 public class ChainEquilibriumFastererSim extends Simulation implements AgentSource<IAtom[]> {
 
-    public final PotentialComputePair potentialMaster;
+    public final PotentialComputePairGeneral potentialMaster;
     public final ConfigurationLatticeRandom config;
     public IntegratorHardFasterer integratorHard;
     public java.awt.Component display;
@@ -60,7 +60,7 @@ public class ChainEquilibriumFastererSim extends Simulation implements AgentSour
 
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 3, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
-        potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
 
         double diameter = 1.0;
         double lambda = 2.0;
@@ -72,11 +72,6 @@ public class ChainEquilibriumFastererSim extends Simulation implements AgentSour
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box);
-        integratorHard.setIsothermal(true);
-        integratorHard.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
-        integratorHard.setThermostatInterval(1);
-
         agentManager = new AtomLeafAgentManager<>(this, box);
 
         //potentials
@@ -87,6 +82,11 @@ public class ChainEquilibriumFastererSim extends Simulation implements AgentSour
         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), ABbonded);
         potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
+
+        integratorHard = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box);
+        integratorHard.setIsothermal(true);
+        integratorHard.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
+        integratorHard.setThermostatInterval(1);
 
         // **** Setting Up the thermometer Meter *****
 

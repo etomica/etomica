@@ -53,13 +53,15 @@ public class TestHSMD3D extends Simulation {
         double sigma = 1.0;
         // makes eta = 0.35
         double l = 14.4573 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        integrator = new IntegratorHardFasterer(potentialMaster, neighborManager, random, 0.01, 1.0, box);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
 
         potentialMaster.setPairPotential(type1, type1, P2HardSphere.makePotential(sigma));
         potentialMaster.setPairPotential(type1, type2, P2HardSphere.makePotential(sigma));
         potentialMaster.setPairPotential(type2, type2, P2HardSphere.makePotential(sigma));
+
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box);
+
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
