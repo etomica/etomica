@@ -11,7 +11,6 @@ import etomica.integrator.IntegratorListener;
 import etomica.potential.BondingInfo;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
-import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
@@ -130,9 +129,9 @@ public class NeighborCellManagerFasterer implements NeighborManager {
     }
 
     private int iCell(int ax, int ay, int az) {
-        return (az % numCells[2])
-                + (ay % numCells[1]) * numCells[2]
-                + (ax % numCells[0]) * numCells[1] * numCells[2];
+        return (az % numCells[2]) * numCells[0] * numCells[1]
+                + (ay % numCells[1]) * numCells[0]
+                + (ax % numCells[0]);
     }
 
     protected int wrappedIndex(int i, int nc) {
@@ -307,9 +306,9 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         }
 
         boxHalf.Ea1Tv1(0.5, bs);
-        jump[0] = numCells[1] * numCells[2];
-        jump[1] = numCells[2];
-        jump[2] = 1;
+        jump[0] = 1;
+        jump[1] = numCells[0];
+        jump[2] = numCells[1] * numCells[0];
         for (int i = 0; i < cellLastAtom.length; i++) {
             cellLastAtom[i] = -1;
         }
