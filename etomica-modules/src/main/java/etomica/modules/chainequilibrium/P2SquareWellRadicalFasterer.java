@@ -136,7 +136,8 @@ public class P2SquareWellRadicalFasterer extends P2HardGeneric {
         return super.collisionTime(atom1, atom2, r12, v12, collisionState);
     }
 
-    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial) {
+    @Override
+    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
         int newState = oldState + (core ? -1 : +1);
         if (areBonded(atom1, atom2)) {
             //atoms are bonded to each other -- there is no escape (Mu Ha Ha Ha!)

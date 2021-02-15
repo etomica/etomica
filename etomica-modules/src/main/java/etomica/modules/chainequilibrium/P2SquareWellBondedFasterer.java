@@ -7,7 +7,9 @@ package etomica.modules.chainequilibrium;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.potential.IPotentialPair;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Vector;
 
@@ -29,7 +31,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public class P2SquareWellBondedFasterer extends P2HardGeneric {
+public class P2SquareWellBondedFasterer extends P2HardGeneric implements IPotentialPair {
 
     protected final AtomLeafAgentManager<IAtom[]> agentManager;
     protected Box box;
@@ -283,6 +285,11 @@ public class P2SquareWellBondedFasterer extends P2HardGeneric {
     }
 
     protected final RingResult ringResult;
+
+    @Override
+    public Vector[][] gradientAndTorque(IAtomList atoms) {
+        return new Vector[0][];
+    }
 
     protected static class RingResult {
         public IAtom linker;

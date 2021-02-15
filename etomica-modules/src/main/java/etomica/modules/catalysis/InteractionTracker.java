@@ -16,7 +16,7 @@ import etomica.species.ISpecies;
 public class InteractionTracker implements CollisionListener, AgentSource<InteractionTracker.CatalysisAgent> {
 
     public InteractionTracker(Box box, ISpecies speciesSurface) {
-        agentManager = new AtomLeafAgentManager<CatalysisAgent>(this, box);
+        agentManager = new AtomLeafAgentManager<>(this, box);
         this.speciesSurface = speciesSurface;
     }
     

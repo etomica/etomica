@@ -152,7 +152,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         }
         double ke = bij * bij * reducedMass / (2.0 * rCollision2);
         du[0] = 0;
-        int newState = decideBump(atom1, atom2, oldState, core, ke, reducedMass, bij, r2, du, virial);
+        int newState = decideBump(atom1, atom2, oldState, core, ke, reducedMass, bij, r2, du, virial, falseTime);
         double lastCollisionVirialr2 = virial[0] / r2;
         Vector dp = Vector.d(v12.getD());
         //dp is the change in momentum due to collision
@@ -179,7 +179,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
      * @param virial      (out parameter) virial; used to compute momentum change and pressure
      * @return the new state of the pair
      */
-    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial) {
+    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
         int newState = oldState + (core ? -1 : +1);
         double uJump = getEnergyForState(newState) - getEnergyForState(oldState);
         if (ke < uJump) {
