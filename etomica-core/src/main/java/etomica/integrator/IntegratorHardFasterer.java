@@ -129,7 +129,6 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     /**
      * Constructs integrator with a default for non-isothermal sampling.
      *
-     * @param potentialCompute PotentialMaster instance used to compute the energy and forces
      * @param random           random number generator used for initial velocities and some thermostats
      * @param timeStep         time step for integration
      * @param temperature      used by thermostat and/or to initialize velocities
@@ -263,7 +262,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                     }
                 });
             }
-            if (fieldPotentials[iAtom.getType().getIndex()] != null) {
+            if (fieldPotentials != null && fieldPotentials[iAtom.getType().getIndex()] != null) {
                 fieldState[i] = fieldPotentials[iAtom.getType().getIndex()].getState(iAtom);
             }
         }
@@ -474,6 +473,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state);
             tCollision += nanoTime() - t1ct;
             if (time < 0) {
+                potential.collisionTime(iAtom, jjAtom, rij, dv, state);
                 throw new RuntimeException("Negative up collision time between " + i + " and " + j + " at " + time);
             }
             if (time < tCheck[0]) {
@@ -523,7 +523,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             });
         }
 
-        IPotentialHardField pField = fieldPotentials[iType];
+        IPotentialHardField pField = fieldPotentials != null ? fieldPotentials[iType] : null;
         if (pField != null) {
             Vector rfalse = iAtom.getPosition();
             Vector r = Vector.d(rfalse.getD());
