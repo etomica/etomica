@@ -44,48 +44,6 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         cellNextAtom = atomCell = cellOffsets = wrapMap = cellLastAtom = new int[0];
         this.isPureAtoms = sm.isPureAtoms();
         this.bondingInfo = bondingInfo;
-
-        box.getEventManager().addListener(new BoxEventListener() {
-            @Override
-            public void boxMoleculeAdded(BoxMoleculeEvent e) {
-                if (cellNextAtom.length == 0) return;
-                int numAtoms = box.getLeafList().size();
-                if (cellNextAtom.length < numAtoms) {
-                    cellNextAtom = Arrays.copyOf(cellNextAtom, numAtoms);
-                    atomCell = Arrays.copyOf(atomCell, numAtoms);
-                }
-                for (IAtom atom : e.getMolecule().getChildList()) {
-                    int i = atom.getLeafIndex();
-                    cellNextAtom[i] = -1;
-                    atomCell[i] = -1;
-                    updateAtom(atom);
-                }
-            }
-
-            @Override
-            public void boxMoleculeRemoved(BoxMoleculeEvent e) {
-                for (IAtom atom : e.getMolecule().getChildList()) {
-                    removeAtom(atom);
-                }
-            }
-
-            @Override
-            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
-                int oldIndex = e.getIndex();
-                int newIndex = e.getAtom().getLeafIndex();
-                moveAtomIndex(oldIndex, newIndex);
-            }
-
-            @Override
-            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
-                if (cellNextAtom.length == 0) return;
-                int numAtoms = box.getLeafList().size() + e.getSpecies().getLeafAtomCount() * e.getCount();
-                if (cellNextAtom.length < numAtoms) {
-                    cellNextAtom = Arrays.copyOf(cellNextAtom, numAtoms);
-                    atomCell = Arrays.copyOf(atomCell, numAtoms);
-                }
-            }
-        });
     }
 
     public int cellForCoord(Vector r) {
@@ -146,9 +104,57 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         return new NeighborIteratorCellFasterer(this, bondingInfo, isPureAtoms, box);
     }
 
+    protected void addBoxListener() {
+        box.getEventManager().addListener(new BoxEventListener() {
+            @Override
+            public void boxMoleculeAdded(BoxMoleculeEvent e) {
+                if (cellNextAtom.length == 0) return;
+                int numAtoms = box.getLeafList().size();
+                if (cellNextAtom.length < numAtoms) {
+                    cellNextAtom = Arrays.copyOf(cellNextAtom, numAtoms);
+                    atomCell = Arrays.copyOf(atomCell, numAtoms);
+                }
+                for (IAtom atom : e.getMolecule().getChildList()) {
+                    int i = atom.getLeafIndex();
+                    cellNextAtom[i] = -1;
+                    atomCell[i] = -1;
+                    updateAtom(atom);
+                }
+            }
+
+            @Override
+            public void boxMoleculeRemoved(BoxMoleculeEvent e) {
+                for (IAtom atom : e.getMolecule().getChildList()) {
+                    removeAtom(atom);
+                }
+            }
+
+            @Override
+            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
+                if (numCells[0] == 0) return;
+                int oldIndex = e.getIndex();
+                int newIndex = e.getAtom().getLeafIndex();
+                moveAtomIndex(oldIndex, newIndex);
+            }
+
+            @Override
+            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
+                if (cellNextAtom.length == 0) return;
+                int numAtoms = box.getLeafList().size() + e.getSpecies().getLeafAtomCount() * e.getCount();
+                if (cellNextAtom.length < numAtoms) {
+                    cellNextAtom = Arrays.copyOf(cellNextAtom, numAtoms);
+                    atomCell = Arrays.copyOf(atomCell, numAtoms);
+                }
+            }
+        });
+    }
+
     public void init() {
         if (range == 0) {
             throw new RuntimeException("Need a range for init");
+        }
+        if (numCells[0] == 0) {
+            addBoxListener();
         }
         double minCellSize = range / cellRange;
         int totalCells = 1;
@@ -330,7 +336,9 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         }
     }
 
-    public void removeAtom(IAtom atom) {
+    // only called from our box listener
+    protected void removeAtom(IAtom atom) {
+        if (numCells[0] == 0) return;
         int iAtom = atom.getLeafIndex();
         int oldCell = atomCell[iAtom];
         if (oldCell > -1) {
@@ -381,7 +389,8 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         cellLastAtom[cellNum] = iAtom;
     }
 
-    public void moveAtomIndex(int oldIndex, int newIndex) {
+    // only called from our box listener
+    protected void moveAtomIndex(int oldIndex, int newIndex) {
         if (oldIndex == newIndex) return;
         int cell = atomCell[oldIndex];
         // later we will try to remove this same "old" atom.  mark it as already removed.
