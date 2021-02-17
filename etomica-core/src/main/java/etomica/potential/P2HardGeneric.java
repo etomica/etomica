@@ -86,7 +86,10 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         double r2 = r12.squared();
         double[] cd2 = collisionDistances2;
         for (int i = 0; i < cd2.length; i++) {
-            if (cd2[i] > r2) return i;
+            if (cd2[i] > r2) {
+                if (i == 0 && fixOverlap) return cd2.length > 1 ? 1 : -1;
+                return i;
+            }
         }
         return -1;
     }
