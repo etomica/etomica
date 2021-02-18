@@ -25,6 +25,7 @@ public class NeighborListManagerFastererHard extends NeighborListManagerFasterer
 
     public NeighborListManagerFastererHard(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         super(sm, box, cellRange, nbrRange, bondingInfo);
+        setDoDownNeighbors(true);
         neighborIterator = new NeighborIteratorListHard(this, box);
     }
 
