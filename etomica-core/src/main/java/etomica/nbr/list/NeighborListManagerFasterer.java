@@ -10,7 +10,6 @@ import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -261,6 +260,10 @@ public class NeighborListManagerFasterer implements NeighborManager {
         dr.PE(jbo);
         double r2 = dr.squared();
         if (r2 > rc2) return 0;
+        return addAsNbrPair(i, j, iAtom, jAtom, jbo, iPotentials, dr);
+    }
+
+    protected int addAsNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, Vector jbo, IPotentialAtomic[] iPotentials, Vector dr) {
         if (numAtomNbrsUp[i] >= maxNab) return 1;
         nbrs[i][numAtomNbrsUp[i]] = j;
         nbrBoxOffsets[i][numAtomNbrsUp[i]] = jbo;

@@ -4,7 +4,6 @@
 package etomica.nbr.list;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
@@ -47,22 +46,10 @@ public class NeighborListManagerFastererHard extends NeighborListManagerFasterer
     }
 
     @Override
-    protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
-        // we need to override this whole method so we can grab and store the pair state for neighbors
-        if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
-
-        if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) return 0;
-
-        Vector dr = space.makeVector();
-        Vector ri = iAtom.getPosition();
-        Vector rj = jAtom.getPosition();
-        dr.Ev1Mv2(rj, ri);
-        dr.PE(jbo);
-        double r2 = dr.squared();
-        if (r2 > rc2) return 0;
+    protected int addAsNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, Vector jbo, IPotentialAtomic[] iPotentials, Vector dr) {
         if (numAtomNbrsUp[i] >= maxNab) return 1;
         nbrs[i][numAtomNbrsUp[i]] = j;
-        int state = ((IPotentialHard) iPotentials[jAtom.getType().getIndex()]).getState((IAtomKinetic) iAtom, (IAtomKinetic) jAtom, dr);
+        int state = ((IPotentialHard) iPotentials[jAtom.getType().getIndex()]).getState(iAtom, jAtom, dr);
         nbrState[i][numAtomNbrsUp[i]] = state;
         nbrBoxOffsets[i][numAtomNbrsUp[i]] = jbo;
         numAtomNbrsUp[i]++;
