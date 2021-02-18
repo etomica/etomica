@@ -131,7 +131,6 @@ public class NeighborCellManagerFasterer implements NeighborManager {
 
             @Override
             public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
-                if (numCells[0] == 0) return;
                 int oldIndex = e.getIndex();
                 int newIndex = e.getAtom().getLeafIndex();
                 moveAtomIndex(oldIndex, newIndex);
@@ -338,7 +337,6 @@ public class NeighborCellManagerFasterer implements NeighborManager {
 
     // only called from our box listener
     protected void removeAtom(IAtom atom) {
-        if (numCells[0] == 0) return;
         int iAtom = atom.getLeafIndex();
         int oldCell = atomCell[iAtom];
         if (oldCell > -1) {

@@ -666,6 +666,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                 IPotentialHardField pHard = fieldPotentials[cAtom.getType().getIndex()];
                 Vector r = collisionVector[c];
                 fieldState[c] = pHard.bump(cAtom, fieldState[c], collisionVector[c], tcol - tBase, du);
+//                System.out.println("bump "+c+" at "+tcol+" state "+oldState+" => "+fieldState[c]);
                 tBump += nanoTime() - t1b;
 
                 double dE = du[0];

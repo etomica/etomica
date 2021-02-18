@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -82,9 +83,9 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     /**
      * Returns the state of the pair of atoms (atom1 and atom2) at distance r12
      */
-    public int getState(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12) {
+    public int getState(IAtom atom1, IAtom atom2, Vector r12) {
         double r2 = r12.squared();
-        double[] cd2 = collisionDistances2;
+        double[] cd2 = getCollisionDistances2(atom1, atom2);
         for (int i = 0; i < cd2.length; i++) {
             if (cd2[i] > r2) {
                 if (i == 0 && fixOverlap) return cd2.length > 1 ? 1 : -1;
@@ -94,12 +95,20 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         return -1;
     }
 
+    // subclasses can override this method to have different distances for special atom pairs
+    protected double[] getCollisionDistances2(IAtom atom1, IAtom atom2) {
+        return collisionDistances2;
+    }
+
     public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
+        return collisionTime(r12, v12, collisionState, getCollisionDistances2(atom1, atom2));
+    }
+
+    protected double collisionTime(Vector r12, Vector v12, int collisionState, double[] cd2) {
 
         double bij = r12.dot(v12);
         double time = Double.POSITIVE_INFINITY;
 
-        double[] cd2 = collisionDistances2;
         if (collisionState < 0) collisionState = cd2.length;
         if (bij < 0.0) {
             if (collisionState != 0) {
@@ -107,12 +116,13 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
                 // moving together
                 double v2 = v12.squared();
                 double discriminant = bij * bij - v2 * (r2 - cd2[collisionState - 1]);
+                if (fixOverlap && r2 < cd2[0]) {
+                    // overlapped collide now
+                    return 0.001 * Math.sqrt(r2 / v2);
+                }
                 if (discriminant > 0) {
                     // hit
                     time = (-bij - Math.sqrt(discriminant)) / v2;
-                } else if (fixOverlap && r2 < cd2[0]) {
-                    // overlapped collide now
-                    return 0.001 * Math.sqrt(r2 / v2);
                 } else if (collisionState < cd2.length) {
                     // miss, look for escape
                     double discr = bij * bij - v2 * (r2 - cd2[collisionState]);
@@ -135,7 +145,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         double rm0 = atom1.getType().rm();
         double rm1 = atom2.getType().rm();
         double reducedMass = 1.0 / (rm0 + rm1);
-        double[] cd2 = collisionDistances2;
+        double[] cd2 = getCollisionDistances2(atom1, atom2);
         boolean core;
         double rCollision2;
         if (oldState < 0) oldState = cd2.length;
@@ -164,7 +174,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         atom2.getVelocity().PEa1Tv1(-rm1, dp);
         atom1.getPosition().PEa1Tv1(-falseTime * rm0, dp);
         atom2.getPosition().PEa1Tv1(falseTime * rm1, dp);
-        return newState < collisionDistances2.length ? newState : -1;
+        return newState < cd2.length ? newState : -1;
     }
 
     /**
@@ -184,7 +194,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
      */
     protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
         int newState = oldState + (core ? -1 : +1);
-        double uJump = getEnergyForState(newState) - getEnergyForState(oldState);
+        double uJump = getEnergyForState(atom1, atom2, newState) - getEnergyForState(atom1, atom2, oldState);
         if (ke < uJump) {
             // not enough ke; bounce off core
             virial[0] = 2.0 * reducedMass * bij;
@@ -231,6 +241,15 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     @Override
     public double getEnergyForState(int state) {
         return state < 0 || state >= energies.length ? 0 : energies[state];
+    }
+
+    protected double[] getEnergies(IAtom atom1, IAtom atom2) {
+        return energies;
+    }
+
+    public double getEnergyForState(IAtom atom1, IAtom atom2, int state) {
+        double[] u = getEnergies(atom1, atom2);
+        return state < 0 || state >= u.length ? 0 : u[state];
     }
 
     @Override

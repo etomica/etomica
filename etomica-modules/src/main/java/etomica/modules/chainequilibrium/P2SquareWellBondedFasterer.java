@@ -203,20 +203,8 @@ public class P2SquareWellBondedFasterer extends P2HardGeneric implements IPotent
         }
     }
 
-    public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
-
-        double bij = r12.dot(v12);
-
-        if (collisionState < 0) collisionState = 2;
-        double r2 = r12.squared();
-        if (bij < 0.0 && r2 < collisionDistances2[1] && !areBonded(atom1, atom2)) {
-            // overlapped collide now
-            return 0.001 * Math.sqrt(r2 / v12.squared());
-        }
-        return super.collisionTime(atom1, atom2, r12, v12, collisionState);
-    }
-
-    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial) {
+    @Override
+    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
         int newState = oldState + (core ? -1 : +1);
         boolean bonded = areBonded(atom1, atom2);
         boolean canBond = !bonded && bij < 0 && !full(atom1) && !full(atom2);
@@ -245,7 +233,7 @@ public class P2SquareWellBondedFasterer extends P2HardGeneric implements IPotent
                 }
             }
         }
-        double uJump = (canBond || bonded) ? (getEnergyForState(newState) - getEnergyForState(oldState)) : Double.POSITIVE_INFINITY;
+        double uJump = (canBond || bonded) ? (getEnergyForState(atom1, atom2, newState) - getEnergyForState(atom1, atom2, oldState)) : Double.POSITIVE_INFINITY;
         if (ke < uJump) {
             // not enough ke; bounce off core
             virial[0] = 2.0 * reducedMass * bij;
@@ -298,9 +286,9 @@ public class P2SquareWellBondedFasterer extends P2HardGeneric implements IPotent
     }
 
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
-        int s = getState((IAtomKinetic) atom1, (IAtomKinetic) atom2, dr12);
+        int s = getState(atom1, atom2, dr12);
         if (areBonded(atom1, atom2)) {
-            return getEnergyForState(s);
+            return getEnergyForState(atom1, atom2, s);
         }
         return (0 <= s && s < 2) ? Double.POSITIVE_INFINITY : 0;
     }

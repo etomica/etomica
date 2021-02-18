@@ -8,7 +8,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.P2HardGeneric;
-import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 
@@ -122,20 +121,6 @@ public class P2SquareWellRadicalFasterer extends P2HardGeneric {
         agentManager.getAgent(b)[j] = b;
     }
 
-
-    public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
-
-        double bij = r12.dot(v12);
-
-        if (collisionState < 0) collisionState = 2;
-        double r2 = r12.squared();
-        if (bij < 0.0 && r2 < collisionDistances2[1] && !areBonded(atom1, atom2)) {
-            // overlapped collide now
-            return 0.001 * Math.sqrt(r2 / v12.squared());
-        }
-        return super.collisionTime(atom1, atom2, r12, v12, collisionState);
-    }
-
     @Override
     protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
         int newState = oldState + (core ? -1 : +1);
@@ -151,7 +136,7 @@ public class P2SquareWellRadicalFasterer extends P2HardGeneric {
             boolean radical2 = isRadical(atom2);
             boolean empty1 = isEmpty(atom1);
             boolean empty2 = isEmpty(atom2);
-            double uJump = getEnergyForState(newState) - getEnergyForState(oldState);
+            double uJump = getEnergyForState(atom1, atom2, newState) - getEnergyForState(atom1, atom2, oldState);
             if (!radical1 && !radical2) {
                 virial[0] = 2.0 * reducedMass * bij;
                 newState = oldState;

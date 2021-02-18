@@ -69,8 +69,7 @@ public class FreeRadicalPolymerizationFastererGraphic extends SimulationGraphic 
         AASlider.setPostAction(resetAction);
         BSlider.setPostAction(resetAction);
 
-        DeviceBox solventThermoFrac = new DeviceBox();
-        solventThermoFrac.setController(sim.getController());
+        DeviceBox solventThermoFrac = new DeviceBox(sim.getController());
         solventThermoFrac.setModifier(new ModifierGeneral(new P2HardGeneric[]{sim.p2AA, sim.p2AB, sim.p2BB}, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
@@ -235,8 +234,7 @@ public class FreeRadicalPolymerizationFastererGraphic extends SimulationGraphic 
         }
 
 
-        DeviceBox combinationProbabilityBox = new DeviceBox();
-        combinationProbabilityBox.setController(sim.getController());
+        DeviceBox combinationProbabilityBox = new DeviceBox(sim.getController());
         combinationProbabilityBox.setLabel("combination probability");
         combinationProbabilityBox.setModifier(new ModifierGeneral(new Object[]{sim.p2BB, sim.p2AB}, "combinationProbability"));
         combinationProbabilityBox.setPrecision(1);
@@ -294,9 +292,8 @@ public class FreeRadicalPolymerizationFastererGraphic extends SimulationGraphic 
         JPanel conversionPanel = new JPanel(new GridBagLayout());
         conversionPanel.add(conversionPlot.graphic(), vertGBC);
 
-        DeviceBox conversionHistoryLength = new DeviceBox();
+        DeviceBox conversionHistoryLength = new DeviceBox(sim.getController());
         conversionHistoryLength.setInteger(true);
-        conversionHistoryLength.setController(sim.getController());
         conversionHistoryLength.setModifier(new Modifier() {
 
             public Dimension getDimension() {

@@ -6,10 +6,14 @@ package etomica.modules.colloid;
 
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.*;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.nbr.*;
@@ -171,13 +175,17 @@ public class ColloidSim extends Simulation {
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
 
+    public IntegratorBox getIntegrator() {
+        return integrator;
+    }
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
         ColloidSim sim = new ColloidSim();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
-    
+
     public void setNumGraft(int newNumGraft) {
         if (nGraft == newNumGraft) return;
         configuration.setNGraft(newNumGraft);

@@ -10,7 +10,6 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P2HardGeneric;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -33,11 +32,7 @@ public class P2SquareWellSurfaceFasterer extends P2HardGeneric {
     protected final AtomLeafAgentManager<CatalysisAgent> agentManager;
     protected int minRadicalSites;
 
-    public P2SquareWellSurfaceFasterer(Space space, AtomLeafAgentManager<CatalysisAgent> agentManager) {
-        this(space, agentManager, 1.0, 2.0, 1.0, 3);
-    }
-
-    public P2SquareWellSurfaceFasterer(Space space, AtomLeafAgentManager<CatalysisAgent> agentManager, double coreDiameter, double lambda, double epsilon, int minRadicalSites) {
+    public P2SquareWellSurfaceFasterer(AtomLeafAgentManager<CatalysisAgent> agentManager, double coreDiameter, double lambda, double epsilon, int minRadicalSites) {
         super(new double[]{coreDiameter, coreDiameter * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon});
         this.agentManager = agentManager;
         setCoreDiameter(coreDiameter);

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.space.Vector;
 
@@ -17,7 +18,7 @@ public interface IPotentialHard extends IPotentialAtomic {
     /**
      * Returns the state of the pair of atoms (atom1 and atom2) at distance r12
      */
-    int getState(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12);
+    int getState(IAtom atom1, IAtom atom2, Vector r12);
 
     /**
      * Returns the pair energy for the given state

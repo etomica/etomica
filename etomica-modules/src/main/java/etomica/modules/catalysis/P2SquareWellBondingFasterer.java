@@ -12,7 +12,6 @@ import etomica.box.Box;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -40,7 +39,7 @@ public class P2SquareWellBondingFasterer extends P2HardGeneric {
     protected double epsilonBonding;
     protected final double minOCOr2;
 
-    public P2SquareWellBondingFasterer(Space space, AtomLeafAgentManager<CatalysisAgent> agentManager, double coreDiameter, double lambda, double epsilon,
+    public P2SquareWellBondingFasterer(AtomLeafAgentManager<CatalysisAgent> agentManager, double coreDiameter, double lambda, double epsilon,
                                        int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOCOr) {
         super(new double[]{coreDiameter, coreDiameter * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon});
         this.agentManager = agentManager;
@@ -146,31 +145,28 @@ public class P2SquareWellBondingFasterer extends P2HardGeneric {
         }
     }
 
-    /**
-     * Computes next time of collision of two square-well atoms, assuming free-flight kinematics.
-     * Collision may occur when cores collides, or when wells first encounter each other on
-     * approach, or when they edge of the wells are reached as atoms diverge.
-     */
-    public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
-        double bij = r12.dot(v12);
-
-        if (bij < 0.0 && collisionState == -1) {
-            CatalysisAgent agent0 = agentManager.getAgent(atom1);
-            CatalysisAgent agent1 = agentManager.getAgent(atom2);
-            if (!agent0.isRadical && !agent1.isRadical && agent0.bondedAtom1 == agent1.bondedAtom1) {
-                //OCO
-                // Outside wells; look for collision at well
-                double r2 = r12.squared();
-                double v2 = v12.squared();
-                double discr = bij * bij - v2 * (r2 - minOCOr2);
-                double time = Double.POSITIVE_INFINITY;
-                if (discr > 0) {
-                    time = (-bij - Math.sqrt(discr)) / v2;
-                }
-                return time;
-            }
+    @Override
+    protected double[] getEnergies(IAtom atom1, IAtom atom2) {
+        CatalysisAgent agent0 = agentManager.getAgent(atom1);
+        CatalysisAgent agent1 = agentManager.getAgent(atom2);
+        if (!agent0.isRadical && !agent1.isRadical && agent0.bondedAtom1 == agent1.bondedAtom1) {
+            //OCO
+            // Outside wells; look for collision at well
+            return new double[]{Double.POSITIVE_INFINITY};
         }
-        return super.collisionTime(atom1, atom2, r12, v12, collisionState);
+        return energies;
+    }
+
+    @Override
+    protected double[] getCollisionDistances2(IAtom atom1, IAtom atom2) {
+        CatalysisAgent agent0 = agentManager.getAgent(atom1);
+        CatalysisAgent agent1 = agentManager.getAgent(atom2);
+        if (!agent0.isRadical && !agent1.isRadical && agent0.bondedAtom1 == agent1.bondedAtom1) {
+            //OCO
+            // Outside wells; look for collision at well
+            return new double[]{minOCOr2};
+        }
+        return collisionDistances2;
     }
 
     public double energy(IAtomList pair) {
@@ -188,8 +184,8 @@ public class P2SquareWellBondingFasterer extends P2HardGeneric {
     }
 
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
-        int s = getState((IAtomKinetic) atom1, (IAtomKinetic) atom2, dr12);
-        if (s != 1) return getEnergyForState(s);
+        int s = getState(atom1, atom2, dr12);
+        if (s != 1) return getEnergyForState(atom1, atom2, s);
         CatalysisAgent agent0 = agentManager.getAgent(atom1);
         return agent0.bondedAtom1 == atom1 || agent0.bondedAtom2 == atom1 ? -epsilonBonding : -epsilon;
     }

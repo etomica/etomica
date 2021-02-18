@@ -13,8 +13,13 @@ public class P1HardFieldGeneric implements IPotentialHardField {
     protected int fieldDimension;
     protected double[] collisionPositions;
     protected double[] energies;
+    protected final boolean fixOverlap;
 
     public P1HardFieldGeneric(int fieldDimension, double[] collisionPositions, double[] energies) {
+        this(fieldDimension, collisionPositions, energies, false);
+    }
+
+    public P1HardFieldGeneric(int fieldDimension, double[] collisionPositions, double[] energies, boolean fixOverlap) {
         if (collisionPositions.length < 2) {
             throw new IllegalArgumentException("Need at least two positions");
         }
@@ -24,6 +29,7 @@ public class P1HardFieldGeneric implements IPotentialHardField {
         this.fieldDimension = fieldDimension;
         this.collisionPositions = collisionPositions;
         this.energies = energies;
+        this.fixOverlap = fixOverlap;
     }
 
     public void setCollisionPosition(int i, double p) {
@@ -45,12 +51,16 @@ public class P1HardFieldGeneric implements IPotentialHardField {
 
     public int getState(IAtomKinetic atom) {
         double x = atom.getPosition().getX(fieldDimension);
-        if (x < collisionPositions[0]) throw new RuntimeException("state unknown");
+        if (x < collisionPositions[0]) {
+            if (fixOverlap) return 0;
+            throw new RuntimeException("state unknown r=" + x + " for " + atom);
+        }
         for (int i = 1; i < collisionPositions.length; i++) {
             if (x < collisionPositions[i]) {
                 return i - 1;
             }
         }
+        if (fixOverlap) return collisionPositions.length - 2;
         throw new RuntimeException("state unknown");
     }
 
@@ -89,6 +99,10 @@ public class P1HardFieldGeneric implements IPotentialHardField {
         double vx = v.getX(fieldDimension);
         int i = state + (vx > 0 ? +1 : 0);
         double wallx = collisionPositions[i];
-        return (wallx - r.getX(fieldDimension)) / vx;
+        double t = (wallx - r.getX(fieldDimension)) / vx;
+        if (fixOverlap && t < 0) {
+            return -0.001 * t;
+        }
+        return t;
     }
 }

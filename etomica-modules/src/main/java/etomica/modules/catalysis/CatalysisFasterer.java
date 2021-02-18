@@ -90,7 +90,7 @@ public class CatalysisFasterer extends Simulation {
 
         int minOSites = 2, minCSites = 2;
 
-        potentialOO = new P2SquareWellBondingFasterer(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(200), Kelvin.UNIT.toSim(400), 7.4);
+        potentialOO = new P2SquareWellBondingFasterer(interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(200), Kelvin.UNIT.toSim(400), 7.4);
         potentialMaster.setPairPotential(speciesO.getLeafType(), speciesO.getLeafType(), potentialOO);
 
         potentialCO = new P2SquareWellBondingCOFasterer(space, interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaC), 1.1, Math.sqrt(epsilonC * epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(7500), 7.4);
@@ -100,10 +100,10 @@ public class CatalysisFasterer extends Simulation {
         potentialCC = P2SquareWell.makePotential(sigmaC, 1.3, epsilonC);
         potentialMaster.setPairPotential(speciesC.getLeafType(), speciesC.getLeafType(), potentialCC);
 
-        potentialOS = new P2SquareWellSurfaceFasterer(space, interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaS), 1.3, epsilonOS, minOSites);
+        potentialOS = new P2SquareWellSurfaceFasterer(interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaS), 1.3, epsilonOS, minOSites);
         potentialMaster.setPairPotential(speciesO.getLeafType(), speciesSurface.getLeafType(), potentialOS);
 
-        potentialCS = new P2SquareWellSurfaceFasterer(space, interactionTracker.getAgentManager(), 0.5 * (sigmaC + sigmaS), 1.3, epsilonCS, minCSites);
+        potentialCS = new P2SquareWellSurfaceFasterer(interactionTracker.getAgentManager(), 0.5 * (sigmaC + sigmaS), 1.3, epsilonCS, minCSites);
         potentialMaster.setPairPotential(speciesC.getLeafType(), speciesSurface.getLeafType(), potentialCS);
 
         potentialCO.setCSPotential(potentialCS);
