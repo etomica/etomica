@@ -25,6 +25,10 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         this.nbrManager.setPairPotentials(this.pairPotentials);
     }
 
+    public NeighborListManagerFasterer getNeighborManager() {
+        return nbrManager;
+    }
+
     public void init() {
         this.nbrManager.init();
     }
