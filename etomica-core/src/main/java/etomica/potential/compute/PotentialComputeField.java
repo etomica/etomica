@@ -6,7 +6,7 @@ package etomica.potential.compute;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
+import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
@@ -39,6 +39,46 @@ public class PotentialComputeField implements PotentialCompute {
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
+
+        box.getEventManager().addListener(new BoxEventListener() {
+            @Override
+            public void boxMoleculeAdded(BoxMoleculeEvent e) {
+                int newAtoms = e.getMolecule().getType().getLeafAtomCount();
+                int nowAtoms = box.getLeafList().size();
+                if (nowAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms - newAtoms);
+                    uAtom = uAtomNew;
+                } else {
+                    Arrays.fill(uAtom, nowAtoms - newAtoms, nowAtoms, 0);
+                }
+            }
+
+            @Override
+            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
+                int n = e.getCount();
+
+                int nowAtoms = box.getLeafList().size();
+                int newAtoms = e.getSpecies().getLeafAtomCount() * n;
+                if (nowAtoms + newAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms + newAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms);
+                    uAtom = uAtomNew;
+                }
+            }
+
+            @Override
+            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
+                int oldIndex = e.getIndex();
+                int newIndex = e.getAtom().getLeafIndex();
+                uAtom[newIndex] = uAtom[oldIndex];
+            }
+
+            @Override
+            public void boxMoleculeRemoved(BoxMoleculeEvent e) {
+            }
+        });
+
     }
 
     public void setFieldPotential(AtomType atomType, IPotentialField p) {
