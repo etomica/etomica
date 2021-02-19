@@ -11,13 +11,16 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Argon;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.MoleculeArrayList;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -31,13 +34,13 @@ import etomica.units.Kelvin;
  *
  * @author Andrew Schultz
  */
-public class DropletAtomic extends Simulation {
+public class DropletAtomicFasterer extends Simulation {
 
     public final SpeciesGeneral species;
     public final Box box;
-    public final IntegratorVelocityVerlet integrator;
+    public final IntegratorVelocityVerletFasterer integrator;
 
-    public final PotentialMasterList potentialMaster;
+    public final PotentialMasterListFasterer potentialMaster;
     public final P2LennardJones p2LJ;
     public final P2SoftSphericalTruncatedShifted p2LJt;
     public final P1Smash p1Smash;
@@ -47,7 +50,7 @@ public class DropletAtomic extends Simulation {
     protected double density;
     protected double sigma;
 
-    public DropletAtomic() {
+    public DropletAtomicFasterer() {
         super(Space3D.getInstance());
         //species
         species = SpeciesGeneral.monatomic(space, AtomType.element(Argon.INSTANCE), true);
@@ -62,10 +65,12 @@ public class DropletAtomic extends Simulation {
         xDropAxis = 1;
         density = 0.6;
 
-        potentialMaster = new PotentialMasterList(this, sigma * pRange * 1.5, space);
+        potentialMaster = new PotentialMasterListFasterer(getSpeciesManager(), box, 2, sigma * pRange * 1.5, BondingInfo.noBonding());
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+        PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         //controller and integrator
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerletFasterer(this, pcAgg, box);
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(5000);
@@ -79,30 +84,27 @@ public class DropletAtomic extends Simulation {
         p2LJ.setEpsilon(Kelvin.UNIT.toSim(118));
         p2LJ.setSigma(sigma);
         p2LJt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, sigma * pRange);
-        potentialMaster.addPotential(p2LJt, new AtomType[]{leafType, leafType});
+        potentialMaster.setPairPotential(leafType, leafType, p2LJt);
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(4);
-        potentialMaster.addPotential(p1Smash, new AtomType[]{leafType});
-
+        pcField.setFieldPotential(leafType, p1Smash);
 
         makeDropShape();
-
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        DropletAtomic sim = new DropletAtomic();
+        DropletAtomicFasterer sim = new DropletAtomicFasterer();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
-    
+
     public void makeDropShape() {
         box.setNMolecules(species, nNominalAtoms);
 
         BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(density/(sigma*sigma*sigma));
+        inflater.setTargetDensity(density / (sigma * sigma * sigma));
         inflater.actionPerformed();
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
@@ -111,23 +113,22 @@ public class DropletAtomic extends Simulation {
         IAtomList leafList = box.getLeafList();
         Vector v = space.makeVector();
         Vector dim = box.getBoundary().getBoxSize();
-        double dropRadiusSq = 0.25*dropRadius*dropRadius*dim.getX(0)*dim.getX(0);
+        double dropRadiusSq = 0.25 * dropRadius * dropRadius * dim.getX(0) * dim.getX(0);
         int ambientCount = 0;
         MoleculeArrayList outerMolecules = new MoleculeArrayList();
-        for (int i = 0; i<leafList.size(); i++) {
+        for (int i = 0; i < leafList.size(); i++) {
             v.E(leafList.get(i).getPosition());
-            v.setX(0, v.getX(0)/xDropAxis);
+            v.setX(0, v.getX(0) / xDropAxis);
             if (v.squared() > dropRadiusSq) {
                 ambientCount++;
                 if (ambientCount == 20) {
                     ambientCount = 0;
-                }
-                else {
+                } else {
                     outerMolecules.add(leafList.get(i).getParentGroup());
                 }
             }
         }
-        for (int i = 0; i<outerMolecules.size(); i++) {
+        for (int i = 0; i < outerMolecules.size(); i++) {
             box.removeMolecule(outerMolecules.get(i));
         }
     }
