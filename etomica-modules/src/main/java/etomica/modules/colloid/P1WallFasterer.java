@@ -31,7 +31,6 @@ public class P1WallFasterer extends P1HardFieldGeneric {
             double by = bondAtom.getPosition().getX(1);
             by += falseTime * bondAtom.getVelocity().getX(1);
             if (r.getX(fieldDimension) * by < 0) {
-                System.out.println("trying to let " + idx + " move through the wall at " + r.getX(fieldDimension));
                 // opposite sides of the box.  ignore this collision so that this atom can go back
                 du[0] = 0;
                 return (r.getX(fieldDimension) > 0) ? 0 : collisionPositions.length - 2;

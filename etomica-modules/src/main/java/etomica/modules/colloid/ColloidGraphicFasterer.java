@@ -403,9 +403,7 @@ public class ColloidGraphicFasterer extends SimulationGraphic {
         }
 
         public void actionPerformed() {
-            System.out.println("nGraft " + nGraft);
             sim.setNumGraft(nGraft);
-            System.out.println("nGraft " + nGraft + " done");
             int n = sim.box.getLeafList().size();
             sim.integrator.setThermostatInterval((1000 + (n - 1)) / n);
             getDisplayBox(sim.box).repaint();
