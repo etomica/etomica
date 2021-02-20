@@ -75,7 +75,7 @@ public class P2HSPolymer extends PotentialMolecular {
 
     @Override
     public void setBox(Box box) {
-        if (!box.getLeafList().getAtoms().isEmpty()) {
+        if (!box.getLeafList().isEmpty()) {
             for (int i = 0; i < box.getLeafList().size(); i++) {
                 IAtom atom = box.getLeafList().get(i);
                 if (!box.getBoundary().getShape().contains(atom.getPosition())) {

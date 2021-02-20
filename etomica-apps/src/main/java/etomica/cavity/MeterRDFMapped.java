@@ -218,7 +218,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         if (elapsedTime < 0) throw new RuntimeException("you should have called reset");
 
         final double[] y = data.getData();
-        int N = integratorHard.getBox().getLeafList().getAtoms().size();
+        int N = integratorHard.getBox().getLeafList().size();
         double V = integratorHard.getBox().getBoundary().volume();
         IData rData = xDataSource.getData();
         double dx = rData.getValue(2) - rData.getValue(1);

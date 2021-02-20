@@ -101,7 +101,7 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
 //        System.out.println("uOld: " + uOld);
         for (int i = 0; i < nBody; i++) {
             IMolecule mol = box.getMoleculeList().get(i);
-            List<IAtom> atoms = mol.getChildList().getAtoms();
+            List<IAtom> atoms = mol.getChildList();
             List<Vector3D> old = new ArrayList<>();
             Vector oldCOM = space.makeVector();
             oldCOM.E(molCOM.position(mol));
@@ -202,7 +202,7 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
 
         for (int i = 0; i < box.getMoleculeList().size(); i++) {
             IMolecule mol = box.getMoleculeList().get(i);
-            List<IAtom> atoms = mol.getChildList().getAtoms();
+            List<IAtom> atoms = mol.getChildList();
             List<Vector3D> old = oldPos.get(i);
 
             for (int j = 0; j < nBead; j++) {
