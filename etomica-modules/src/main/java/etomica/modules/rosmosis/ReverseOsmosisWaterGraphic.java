@@ -95,10 +95,10 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         //combo box to select potentials
-        sigBox = new DeviceBox();
-        epsBox = new DeviceBox();
-        massBox = new DeviceBox();
-        tetherBox = new DeviceBox();
+        sigBox = new DeviceBox(sim.getController());
+        epsBox = new DeviceBox(sim.getController());
+        massBox = new DeviceBox(sim.getController());
+        tetherBox = new DeviceBox(sim.getController());
         membraneThicknessSlider = new DeviceSlider(sim.getController());
         membraneWidthSlider = new DeviceSlider(sim.getController());
         soluteChargeSlider = new DeviceSlider(sim.getController());
@@ -248,10 +248,6 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         tetherBox.setModifier(tetherModifier);
         tetherBox.setLabel("Tether Constant (" + eUnit.symbol() + ")");
         tetherBox.setPostAction(resetDataAction);
-        sigBox.setController(sim.getController());
-        epsBox.setController(sim.getController());
-        massBox.setController(sim.getController());
-        tetherBox.setController(sim.getController());
         membraneThicknessSlider.setLabel("Membrane Thickness");
         membraneThicknessSlider.setShowBorder(true);
         membraneThicknessSlider.setMinimum(1);
