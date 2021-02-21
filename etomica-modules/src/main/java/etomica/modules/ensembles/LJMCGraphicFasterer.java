@@ -232,6 +232,7 @@ public class LJMCGraphicFasterer extends SimulationGraphic {
 
         DisplayTextBox vBox = new DisplayTextBox();
         vBox.setLabel("Volume");
+        sim.setvBox(vBox);
         MeterVolume meterVolume = new MeterVolume();
         meterVolume.setBox(sim.box);
         DataPumpListener vPump = new DataPumpListener(meterVolume, vBox, 100);
@@ -239,6 +240,8 @@ public class LJMCGraphicFasterer extends SimulationGraphic {
 
         DisplayTextBox nBox = new DisplayTextBox();
         nBox.setLabel("N");
+        nBox.setIntegerDisplay(true);
+        sim.setnBox(nBox);
         MeterNMolecules meterN = new MeterNMolecules();
         meterN.setBox(sim.box);
         DataPumpListener nPump = new DataPumpListener(meterN, nBox, 100);

@@ -9,6 +9,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.graphics.DisplayTextBox;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveInsertDeleteFasterer;
@@ -27,6 +28,8 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 
+import java.awt.*;
+
 public class LJMCFasterer extends Simulation {
 
     public final SpeciesGeneral species;
@@ -36,6 +39,9 @@ public class LJMCFasterer extends Simulation {
     public final MCMoveAtomFasterer mcMoveAtom;
     public final MCMoveVolumeFasterer mcMoveVolume;
     public final MCMoveInsertDeleteFasterer mcMoveID;
+    protected DisplayTextBox vBox;
+    protected DisplayTextBox nBox;
+    private final Color gray = new Color(242,242,242);
 
     public LJMCFasterer(Space _space) {
         super(_space);
@@ -77,6 +83,11 @@ public class LJMCFasterer extends Simulation {
                 vScale = (2. * random.nextDouble() - 1.) * stepSize;
                 vNew = vOld * Math.exp(vScale); //Step in ln(V)
                 double L = Math.pow(vNew, 1.0 / space.D());
+                if (L < 6.05 || (box.getLeafList().size() / vNew < 0.00011 && L > 48) || L > 148) {
+                    vBox.setBackground(Color.PINK);
+                } else {
+                    vBox.setBackground(gray);
+                }
                 if (L < 6 || (box.getLeafList().size() / vNew < 0.0001 && L > 50) || L > 150) return false;
                 double rScale = Math.exp(vScale / D);
                 inflate.setScale(rScale);
@@ -95,11 +106,24 @@ public class LJMCFasterer extends Simulation {
                     uNew = 0;
                     return;
                 }
+                if (moleculeList.size() >= 998) {
+                    nBox.setBackground(Color.PINK);
+                } else {
+                    nBox.setBackground(gray);
+                }
                 super.acceptNotify();
             }
         };
         mcMoveID.setSpecies(species);
     }
+
+    public void setvBox(DisplayTextBox vBox) {
+        this.vBox = vBox;
+    }
+    public void setnBox(DisplayTextBox nBox) {
+        this.nBox = nBox;
+    }
+
 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
