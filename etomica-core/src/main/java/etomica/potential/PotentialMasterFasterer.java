@@ -314,14 +314,14 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     @Override
-    public double computeOneMolecule(IMolecule molecule) {
+    public double computeManyAtoms(IAtom... atoms) {
         duAtomMulti = true;
         uAtomsChanged.clear();
         duAtom.setAll(0);
         duAtom.ensureCapacity(box.getLeafList().size());
         double u = 0;
 
-        for (IAtom atom : molecule.getChildList()) {
+        for (IAtom atom : atoms) {
             uAtomsChanged.add(atom.getLeafIndex());
             u += computeOneInternal(atom);
             u += computeOneTruncationCorrection(atom.getLeafIndex());

@@ -1,5 +1,6 @@
 package etomica.potential.compute;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
@@ -34,7 +35,11 @@ public interface PotentialCompute {
 
     double computeOne(IAtom iAtom);
 
-    double computeOneMolecule(IMolecule molecule);
+    default double computeOneMolecule(IMolecule molecule) {
+        return computeManyAtoms(((AtomArrayList) molecule.getChildList()).toArray());
+    }
+
+    double computeManyAtoms(IAtom... atoms);
 
     void processAtomU(double fac);
 

@@ -98,6 +98,11 @@ public class PotentialComputeAggregate implements PotentialCompute {
     }
 
     @Override
+    public double computeManyAtoms(IAtom... atoms) {
+        return this.potentialComputes.stream().mapToDouble(c -> c.computeManyAtoms(atoms)).sum();
+    }
+
+    @Override
     public double computeOneMolecule(IMolecule molecule) {
         return this.potentialComputes.stream().mapToDouble(c -> c.computeOneMolecule(molecule)).sum();
     }

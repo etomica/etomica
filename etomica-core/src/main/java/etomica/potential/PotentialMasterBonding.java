@@ -371,8 +371,14 @@ public class PotentialMasterBonding implements PotentialCompute {
         return u[0];
     }
 
+    @Override
     public double computeOneMolecule(IMolecule molecule) {
         return computeOneMolecule(box.getBoundary(), molecule, bondingInfo);
+    }
+
+    @Override
+    public double computeManyAtoms(IAtom... atoms) {
+        throw new RuntimeException("Can't compute bonding for many atoms");
     }
 
     public static double computeOneMolecule(Boundary boundary, IMolecule molecule, FullBondingInfo bondingInfo) {

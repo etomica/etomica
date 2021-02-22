@@ -1,5 +1,6 @@
 package etomica.potential.compute;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -603,7 +604,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         didOld = true;
         Arrays.fill(dsFac, 0);
         for (int i = 0; i < dsFacB.length; i++) Arrays.fill(dsFacB[i], 0);
-        return computeOneMoleculeInternal(molecule, true);
+        return computeManyAtomsInternal(true, ((AtomArrayList) molecule.getChildList()).toArray());
     }
 
     @Override
@@ -615,9 +616,16 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     @Override
     public double computeOneMolecule(IMolecule molecule) {
+        double u = computeManyAtoms(((AtomArrayList) molecule.getChildList()).toArray());
+        u += computeFourierIntramolecular(molecule, false);
+        return u;
+    }
+
+    @Override
+    public double computeManyAtoms(IAtom... atoms) {
         if (!didOld) return 0;
         didOld = false;
-        return computeOneMoleculeInternal(molecule, false);
+        return computeManyAtomsInternal(false, atoms);
     }
 
     private double computeOneInternal(IAtom atom, boolean oldEnergy) {
@@ -737,7 +745,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         return uOne;
     }
 
-    private double computeOneMoleculeInternal(IMolecule molecule, boolean oldEnergy) {
+    private double computeManyAtomsInternal(boolean oldEnergy, IAtom... atoms) {
 
         double q2sum = 0;
         double sumBij = 0;
@@ -746,7 +754,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         int[] typesRemoved = new int[atomCountByType.length];
 
         if (includeSelfOne) {
-            for (IAtom atom : molecule.getChildList()) {
+            for (IAtom atom : atoms) {
                 int iType = atom.getType().getIndex();
                 double qi = chargesByType[iType];
                 q2sum += qi * qi;
@@ -778,8 +786,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             }
         }
 
-        uOne += computeFourierIntramolecular(molecule, false);
-
         Vector bs = box.getBoundary().getBoxSize();
         int kxMax = (int) (0.5 * bs.getX(0) / PI * kCut);
         // cube instead of sphere, so conservatively big
@@ -802,7 +808,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         // See Allen & Tildesley for more details
         // https://dx.doi.org/10.1093/oso/9780198803195.001.0001
         // https://github.com/Allen-Tildesley/examples/blob/master/ewald_module.f90
-        IAtomList atoms = molecule.getChildList();
         for (int a = 0; a < 3; a++) {
             double fac = 2.0 * PI / bs.getX(a);
             for (IAtom atom : atoms) {
@@ -826,7 +831,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             }
         }
 
-        numMC += kxyz2.size() * molecule.getChildList().size();
+        numMC += kxyz2.size() * atoms.length;
         long t1 = System.nanoTime();
 
         double fourierSum = 0;
@@ -836,7 +841,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             int iky = this.ik.getInt(ik * 3 + 1);
             int ikz = this.ik.getInt(ik * 3 + 2);
 
-            for (IAtom atom : molecule.getChildList()) {
+            for (IAtom atom : atoms) {
                 int iAtom = atom.getLeafIndex();
                 int iType = atom.getType().getIndex();
                 double qi = chargesByType[iType];

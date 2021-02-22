@@ -10,6 +10,7 @@ import etomica.box.*;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCellFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
@@ -280,19 +281,47 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     @Override
-    public double computeOneMolecule(IMolecule molecule) {
+    public double computeManyAtoms(IAtom... atoms) {
+        return computeManyAtoms(true, atoms);
+    }
+
+    protected double computeIntraAtoms(IAtom... atoms) {
+        BondingInfo bondingInfo = neighborManager.getBondingInfo();
+        double uIntra = 0;
+        for (int i = 0; i < atoms.length; i++) {
+            IAtom atom1 = atoms[i];
+            for (int j = i + 1; j < atoms.length; j++) {
+                IAtom atom2 = atoms[j];
+                if (bondingInfo.skipBondedPair(false, atom1, atom2)) continue;
+                Potential2Soft pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
+                if (pij == null) return 0;
+                Vector rij = space.makeVector();
+                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                box.getBoundary().nearestImage(rij);
+                double uij = pij.u(rij.squared());
+                duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
+                duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
+                uIntra += uij;
+            }
+        }
+        return uIntra;
+    }
+
+    protected double computeManyAtoms(boolean doInternal, IAtom... atoms) {
         duAtomMulti = true;
         uAtomsChanged.clear();
         duAtom.setAll(0);
         duAtom.ensureCapacity(box.getLeafList().size());
         double u = 0;
 
-        for (IAtom atom : molecule.getChildList()) {
+        for (IAtom atom : atoms) {
             uAtomsChanged.add(atom.getLeafIndex());
 
             u += computeOneInternal(atom);
             u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
+
+        u -= computeIntraAtoms(atoms);
 
         return u;
     }
