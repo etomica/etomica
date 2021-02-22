@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
@@ -19,7 +19,6 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected final DataTag xTag, tag, errTag;
     protected double[][] blockSumX;
     protected long[] nBlockSamplesX;
-    protected final IntegratorMD integrator;
     protected long nSample = 0;
     protected boolean enabled;
     protected int interval;
@@ -27,10 +26,9 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected int nP, dim;
     protected double volume, temperature, dt;
 
-    public AccumulatorPTensor(IntegratorMD integrator, double dt) {
-        this.integrator = integrator;
+    public AccumulatorPTensor(Box box, double dt) {
         this.dt = dt;
-        this.nP = integrator.getBox().getSpace().D() == 2 ? 1 : 3;
+        this.nP = box.getSpace().D() == 2 ? 1 : 3;
         tag = new DataTag();
         errTag = new DataTag();
         xTag = new DataTag();
@@ -38,9 +36,9 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         blockSumX = new double[60][nP];
         sumP2 = new double[60];
         sumP4 = new double[60];
-        volume = integrator.getBox().getBoundary().volume();
+        volume = box.getBoundary().volume();
         temperature = 1;
-        dim = integrator.getBox().getSpace().D();
+        dim = box.getSpace().D();
         reset();
     }
 

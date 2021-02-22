@@ -6,7 +6,6 @@ package etomica.modules.glass;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
@@ -27,13 +26,13 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
     protected double[] lastSampleX, firstSampleX;
     protected double[] blockSumX;
     protected double[] corSumX;
-    protected final IntegratorMD integrator;
+    protected final TimeSource timeSource;
     protected long step0;
     protected boolean enabled;
     protected int minInterval;
 
-    public DataSourceBlockAvgCor(IntegratorMD integrator) {
-        this.integrator = integrator;
+    public DataSourceBlockAvgCor(TimeSource timeSource) {
+        this.timeSource = timeSource;
         blockSumX = x2Sum = xSum = firstSampleX = corSumX = lastSampleX = new double[0];
         nSamplesCorX = new long[0];
         tTag = new DataTag();
@@ -46,7 +45,7 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
     }
 
     public void resetStep0() {
-        step0 = integrator.getStepCount();
+        step0 = timeSource.getStepCount();
         reallocate(0);
     }
 
@@ -67,7 +66,7 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
         corPDataInfo.addTag(corPTag);
         double[] t = tData.getData();
         if (t.length > 0) {
-            double dt = integrator.getTimeStep();
+            double dt = timeSource.getTimeStep();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -115,8 +114,8 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
     public void putData(IData inputData) {
         if (!enabled) return;
         double x = inputData.getValue(0);
-        if (blockSumX.length == 0) step0 = integrator.getStepCount() - (1L << minInterval);
-        long step = integrator.getStepCount() - step0;
+        if (blockSumX.length == 0) step0 = timeSource.getStepCount() - (1L << minInterval);
+        long step = timeSource.getStepCount() - step0;
         if (blockSumX.length == 0) reallocate(1);
         for (int i = minInterval; step >= 1L << i; i++) {
             x = processData(i, step, x);

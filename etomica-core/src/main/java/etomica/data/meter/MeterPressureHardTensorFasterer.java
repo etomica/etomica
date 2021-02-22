@@ -13,14 +13,15 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
-import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorHardFasterer;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
-public class MeterPressureHardTensor implements IDataSource, IntegratorHard.CollisionListener {
-    
-    public MeterPressureHardTensor(Space space) {
+public class MeterPressureHardTensorFasterer implements IDataSource, IntegratorHardFasterer.CollisionListener {
+
+    public MeterPressureHardTensorFasterer(Space space) {
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pressure tensor", Pressure.dimension(space.D()), space);
         v = space.makeTensor();
@@ -32,13 +33,14 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-    
+
     public DataTag getTag() {
         return tag;
     }
-    
+
     public IData getData() {
-        if (box == null || integratorHard == null) throw new IllegalStateException("must call setBox and integrator before using meter");
+        if (box == null || integratorHard == null)
+            throw new IllegalStateException("must call setBox and integrator before using meter");
         double t = integratorHard.getCurrentTime();
         data.x.E(0);
         data.x.PEa1Tt1(-1 / ((t - t0)), virialSum);
@@ -52,24 +54,25 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         // velocities
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+        for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
+            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
             v.Ev1v2(a.getVelocity(), a.getVelocity());
             v.TE((a.getType().rm()));
             data.x.PE(v);
         }
 
         data.x.TE(1.0 / box.getBoundary().volume());
-    
+
         return data;
     }
-    
-    public void collisionAction(IntegratorHard.Agent agent) {
-        Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
-        virialSum.PE(lcvt);
+
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector dv, double virial) {
+        v.Ev1v2(r12, r12);
+        v.TE(virial / r12.squared());
+        virialSum.PE(v);
     }
-    
-    public void setIntegrator(IntegratorHard newIntegrator) {
+
+    public void setIntegrator(IntegratorHardFasterer newIntegrator) {
         if (newIntegrator == integratorHard) {
             return;
         }
@@ -84,14 +87,14 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         box = integratorHard.getBox();
         integratorHard.addCollisionListener(this);
     }
-    
-    public IntegratorHard getIntegrator() {
+
+    public IntegratorHardFasterer getIntegrator() {
         return integratorHard;
     }
 
     private double t0;
     private final Tensor v;
-    private IntegratorHard integratorHard;
+    private IntegratorHardFasterer integratorHard;
     private Box box;
     private final Tensor virialSum;
     private final DataTensor data;
