@@ -661,7 +661,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
                 long t1data = nanoTime();
                 for (IntegratorHardFasterer.CollisionListener listener : this.collisionListeners) {
-                    listener.pairCollision(cAtom, partnerAtom, dr, dv, virial[0]);
+                    listener.pairCollision(cAtom, partnerAtom, dr, dv, virial[0], tcol - tBase);
                 }
                 tData += nanoTime() - t1data;
                 collisionCount++;
@@ -801,7 +801,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     }
 
     public interface CollisionListener {
-        void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial);
+        void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision);
 
         default void fieldCollision(IAtomKinetic atom, Vector r) {
         }

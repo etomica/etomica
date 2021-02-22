@@ -85,7 +85,7 @@ public class AtomHardStressCollector implements IntegratorHard.CollisionListener
     }
 
     @Override
-    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial) {
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision) {
         if (velIncluded) {
             final int l = stress[0].length;
             for (int i = 0; i < stress.length; i++) {

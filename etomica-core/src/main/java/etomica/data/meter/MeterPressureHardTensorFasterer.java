@@ -66,7 +66,7 @@ public class MeterPressureHardTensorFasterer implements IDataSource, IntegratorH
         return data;
     }
 
-    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector dv, double virial) {
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector dv, double virial, double tCollision) {
         v.Ev1v2(r12, r12);
         v.TE(virial / r12.squared());
         virialSum.PE(v);
