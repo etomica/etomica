@@ -111,23 +111,21 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
 
         if (collisionState < 0) collisionState = cd2.length;
         if (bij < 0.0) {
-            if (collisionState != 0) {
-                double r2 = r12.squared();
-                // moving together
-                double v2 = v12.squared();
-                double discriminant = bij * bij - v2 * (r2 - cd2[collisionState - 1]);
-                if (fixOverlap && r2 < cd2[0]) {
-                    // overlapped collide now
-                    return 0.001 * Math.sqrt(r2 / v2);
-                }
-                if (discriminant > 0) {
-                    // hit
-                    time = (-bij - Math.sqrt(discriminant)) / v2;
-                } else if (collisionState < cd2.length) {
-                    // miss, look for escape
-                    double discr = bij * bij - v2 * (r2 - cd2[collisionState]);
-                    time = (-bij + Math.sqrt(discr)) / v2;
-                }
+            double r2 = r12.squared();
+            // moving together
+            double v2 = v12.squared();
+            double discriminant = collisionState == 0 ? -1 : bij * bij - v2 * (r2 - cd2[collisionState - 1]);
+            if (fixOverlap && r2 < cd2[0]) {
+                // overlapped collide now
+                return 0.001 * Math.sqrt(r2 / v2);
+            }
+            if (discriminant > 0) {
+                // hit
+                time = (-bij - Math.sqrt(discriminant)) / v2;
+            } else if (collisionState < cd2.length) {
+                // miss, look for escape
+                double discr = bij * bij - v2 * (r2 - cd2[collisionState]);
+                time = (-bij + Math.sqrt(discr)) / v2;
             }
         } else if (collisionState < cd2.length) {
             // moving away, look for escape
