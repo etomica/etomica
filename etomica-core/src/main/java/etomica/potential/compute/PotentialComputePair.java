@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.integrator.IntegratorListener;
-import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
@@ -251,16 +250,6 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     @Override
-    public double computeOneOldMolecule(IMolecule molecule) {
-        double u = 0;
-        for (IAtom atom : molecule.getChildList()) {
-            u += uAtom[atom.getLeafIndex()] * 2;
-            u += this.computeOneTruncationCorrection(atom.getLeafIndex());
-        }
-        return u;
-    }
-
-    @Override
     public double computeOne(IAtom iAtom) {
         this.duAtomMulti = false;
         int i = iAtom.getLeafIndex();
@@ -281,6 +270,19 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     @Override
+    public double computeManyAtomsOld(IAtom... atoms) {
+        double u = 0;
+        for (IAtom atom : atoms) {
+            u += uAtom[atom.getLeafIndex()] * 2;
+            u += this.computeOneTruncationCorrection(atom.getLeafIndex());
+        }
+
+        u -= computeIntraAtoms(atoms);
+
+        return u;
+    }
+
+    @Override
     public double computeManyAtoms(IAtom... atoms) {
         return computeManyAtoms(true, atoms);
     }
@@ -294,7 +296,7 @@ public class PotentialComputePair implements PotentialCompute {
                 IAtom atom2 = atoms[j];
                 if (bondingInfo.skipBondedPair(false, atom1, atom2)) continue;
                 Potential2Soft pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
-                if (pij == null) return 0;
+                if (pij == null) continue;
                 Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 box.getBoundary().nearestImage(rij);
@@ -321,7 +323,9 @@ public class PotentialComputePair implements PotentialCompute {
             u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
 
-        u -= computeIntraAtoms(atoms);
+        if (doInternal) {
+            u -= computeIntraAtoms(atoms);
+        }
 
         return u;
     }

@@ -377,6 +377,11 @@ public class PotentialMasterBonding implements PotentialCompute {
     }
 
     @Override
+    public double computeManyAtomsOld(IAtom... atoms) {
+        throw new RuntimeException("Can't compute bonding for many atoms");
+    }
+
+    @Override
     public double computeManyAtoms(IAtom... atoms) {
         throw new RuntimeException("Can't compute bonding for many atoms");
     }

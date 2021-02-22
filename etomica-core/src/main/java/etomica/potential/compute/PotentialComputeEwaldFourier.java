@@ -604,7 +604,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         didOld = true;
         Arrays.fill(dsFac, 0);
         for (int i = 0; i < dsFacB.length; i++) Arrays.fill(dsFacB[i], 0);
-        return computeManyAtomsInternal(true, ((AtomArrayList) molecule.getChildList()).toArray());
+        double u = computeManyAtomsInternal(true, ((AtomArrayList) molecule.getChildList()).toArray());
+        u += computeFourierIntramolecular(molecule, false);
+        return u;
     }
 
     @Override
@@ -619,6 +621,14 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         double u = computeManyAtoms(((AtomArrayList) molecule.getChildList()).toArray());
         u += computeFourierIntramolecular(molecule, false);
         return u;
+    }
+
+    @Override
+    public double computeManyAtomsOld(IAtom... atoms) {
+        didOld = true;
+        Arrays.fill(dsFac, 0);
+        for (int i = 0; i < dsFacB.length; i++) Arrays.fill(dsFacB[i], 0);
+        return computeManyAtomsInternal(true, atoms);
     }
 
     @Override

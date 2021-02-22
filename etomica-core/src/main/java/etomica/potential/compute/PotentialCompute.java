@@ -31,13 +31,17 @@ public interface PotentialCompute {
 
     double computeOneOld(IAtom iAtom);
 
-    double computeOneOldMolecule(IMolecule molecule);
+    default double computeOneOldMolecule(IMolecule molecule) {
+        return computeManyAtomsOld(((AtomArrayList) molecule.getChildList()).toArray());
+    }
 
     double computeOne(IAtom iAtom);
 
     default double computeOneMolecule(IMolecule molecule) {
         return computeManyAtoms(((AtomArrayList) molecule.getChildList()).toArray());
     }
+
+    double computeManyAtomsOld(IAtom... atoms);
 
     double computeManyAtoms(IAtom... atoms);
 

@@ -439,6 +439,11 @@ public class PotentialComputeEAM implements PotentialCompute {
     }
 
     @Override
+    public double computeManyAtomsOld(IAtom... atoms) {
+        throw new RuntimeException("EAM can't handle many atoms");
+    }
+
+    @Override
     public double computeManyAtoms(IAtom... atoms) {
         throw new RuntimeException("EAM can't handle many atoms");
     }

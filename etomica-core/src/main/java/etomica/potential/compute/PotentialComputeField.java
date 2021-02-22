@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.molecule.IMolecule;
 import etomica.potential.IPotentialField;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -160,15 +159,6 @@ public class PotentialComputeField implements PotentialCompute {
     }
 
     @Override
-    public double computeOneOldMolecule(IMolecule molecule) {
-        double u = 0;
-        for (IAtom atom : molecule.getChildList()) {
-            u += uAtom[atom.getLeafIndex()];
-        }
-        return u;
-    }
-
-    @Override
     public double computeOne(IAtom iAtom) {
         IAtomList atoms = box.getLeafList();
         uAtomsChanged.clear();
@@ -185,6 +175,15 @@ public class PotentialComputeField implements PotentialCompute {
         uAtomsChanged.add(iAtom.getLeafIndex());
         double u = ip.u(iAtom);
         duAtom.add(u);
+        return u;
+    }
+
+    @Override
+    public double computeManyAtomsOld(IAtom... atoms) {
+        double u = 0;
+        for (IAtom atom : atoms) {
+            u += uAtom[atom.getLeafIndex()];
+        }
         return u;
     }
 

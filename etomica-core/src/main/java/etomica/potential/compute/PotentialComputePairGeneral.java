@@ -8,8 +8,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.integrator.IntegratorListener;
-import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCellFasterer;
+import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialPair;
 import etomica.space.Space;
@@ -227,11 +227,12 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     }
 
     @Override
-    public double computeOneOldMolecule(IMolecule molecule) {
+    public double computeManyAtomsOld(IAtom... atoms) {
         double u = 0;
-        for (IAtom atom : molecule.getChildList()) {
+        for (IAtom atom : atoms) {
             u += uAtom[atom.getLeafIndex()] * 2;
         }
+        u -= computeIntraAtoms(atoms);
         return u;
     }
 
@@ -267,8 +268,33 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             u += computeOneInternal(atom);
         }
 
+        u -= computeIntraAtoms(atoms);
+
         return u;
     }
+
+    protected double computeIntraAtoms(IAtom... atoms) {
+        BondingInfo bondingInfo = neighborManager.getBondingInfo();
+        double uIntra = 0;
+        for (int i = 0; i < atoms.length; i++) {
+            IAtom atom1 = atoms[i];
+            for (int j = i + 1; j < atoms.length; j++) {
+                IAtom atom2 = atoms[j];
+                if (bondingInfo.skipBondedPair(false, atom1, atom2)) continue;
+                IPotentialPair pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
+                if (pij == null) continue;
+                Vector rij = space.makeVector();
+                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                box.getBoundary().nearestImage(rij);
+                double uij = pij.u(rij, atom1, atom2);
+                duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
+                duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
+                uIntra += uij;
+            }
+        }
+        return uIntra;
+    }
+
 
     @Override
     public void processAtomU(double fac) {
