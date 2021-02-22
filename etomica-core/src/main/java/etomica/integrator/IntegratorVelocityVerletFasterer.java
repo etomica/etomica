@@ -61,6 +61,7 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
         eventManager.forceComputed();
 
         //Finish integration step
+        currentKineticEnergy = 0;
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
@@ -69,6 +70,7 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
                 System.out.println("second " + a + " v=" + velocity + ", f=" + forces[iLeaf]);
             }
             velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);  //p += f(new)*dt/2
+            currentKineticEnergy += 0.5 * a.getType().getMass() * velocity.squared();
         }
 
         if (isothermal) {
