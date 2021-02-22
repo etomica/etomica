@@ -214,7 +214,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         int s = box.getLeafList().size();
         if (s == 0) s = 1;
         int printInterval = 4000000 / s;
-        if (stepCount >= lastTimingPrint + printInterval) {
+        if (writeTiming && stepCount >= lastTimingPrint + printInterval) {
             double scale = box.getLeafList().size() * printInterval;
             System.out.printf("time/step: %3.1f %3.1f  update: %3.1f  collect: %3.1f  up: %3.1f  down: %3.1f  ctime: %3.1f  add: %3.1f  next: %3.1f  delete: %3.1f  bump: %3.1f  data: %3.1f  adv: %3.1f\n",
                     tSteps / scale, tNotStep / scale, tUpdate / scale, tCollect / scale, tUp / scale, tDown / scale, tCollision / scale, tAdd / scale, tNext / scale, tDelete / scale, tBump / scale, tData / scale, tAdvance / scale);
