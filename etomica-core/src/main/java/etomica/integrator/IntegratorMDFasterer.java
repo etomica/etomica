@@ -42,6 +42,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
     protected double currentTime;
     protected boolean thermostatting = false;
     protected boolean thermostatNoDrift = false;
+    protected boolean alwaysScaleMomenta = false;
     protected double oldEnergy = Double.NaN, oldPotentialEnergy = Double.NaN;
     protected long nRejected = 0, nAccepted = 0;
     protected AtomLeafAgentManager<Vector> oldPositionAgentManager = null;
@@ -117,6 +118,10 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
             oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
+        if (thermostat == ThermostatType.HYBRID_MC && isothermal) {
+            oldPotentialEnergy = currentPotentialEnergy;
+            oldEnergy = currentKineticEnergy + oldPotentialEnergy;
+        }
     }
 
     protected void doStepInternal() {
@@ -176,6 +181,10 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
      * @throws RuntimeException if HYBRID_MC thermostat is not enabled or if isothermal is false
      */
     public void setIntegratorMC(IntegratorMCFasterer integratorMC, int mcSteps) {
+        if (integratorMC == null) {
+            this.integratorMC = integratorMC;
+            return;
+        }
         if (thermostat != ThermostatType.HYBRID_MC || !isothermal) {
             throw new RuntimeException("integratorMC only works with HYBRID MC thermostat");
         }
@@ -207,6 +216,22 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
      */
     public boolean isThermostatNoDrift() {
         return thermostatNoDrift;
+    }
+
+    /**
+     * Configure thermostat to always scale randomized momenta to match the set
+     * temperature
+     */
+    public void setAlwaysScaleRandomizedMomenta(boolean alwaysScale) {
+        alwaysScaleMomenta = alwaysScale;
+    }
+
+    /**
+     * Returns true if the thermostat is set to always scale randomized momenta
+     * to match the set temperature
+     */
+    public boolean getAlwaysScaleRandomizedMomenta() {
+        return alwaysScaleMomenta;
     }
 
     /**
@@ -282,10 +307,12 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             if (thermostat == ThermostatType.HYBRID_MC) {
                 if (!Double.isNaN(oldEnergy)) {
                     // decide whether or not to go back to the old configuration
-                    double newPotentialEnergy = potentialCompute.getLastEnergy();
-                    double newKineticEnergy = meterKE.getDataAsScalar();
+                    double newPotentialEnergy = currentPotentialEnergy;
+                    double newKineticEnergy = currentKineticEnergy;
 //                    System.out.println(newPotentialEnergy+" "+newKineticEnergy+" "+oldEnergy);
                     double energyDiff = newPotentialEnergy + newKineticEnergy - oldEnergy;
+//                    System.out.println("energy "+oldEnergy+" => "+(newPotentialEnergy+newKineticEnergy));
+//                    System.out.println("PE "+oldPotentialEnergy+" => "+newPotentialEnergy);
 //                    System.out.println(energyDiff+" "+Math.exp(-energyDiff/temperature));
                     if (energyDiff > 0 && Math.exp(-energyDiff / temperature) < random.nextDouble()) {
                         // energy increased and we are rejecting the trajectory
@@ -319,8 +346,8 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                         IAtom a = leafAtoms.get(i);
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
-                    oldPotentialEnergy = potentialCompute.getLastEnergy();
-                    oldEnergy = oldPotentialEnergy;
+                    // we're still inside reset, which will compute oldEnergy
+                    oldEnergy = 0;
                 }
 
                 if (initialized && integratorMC != null) {
@@ -338,6 +365,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
+                    currentKineticEnergy = meterKE.getDataAsScalar();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
                 } else if (rejected) {
@@ -467,6 +495,12 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
         int nLeaf = leafList.size();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
+        }
+        if (alwaysScaleMomenta) {
+            if (thermostatNoDrift) {
+                shiftMomenta();
+            }
+            scaleMomenta();
         }
     }
 
