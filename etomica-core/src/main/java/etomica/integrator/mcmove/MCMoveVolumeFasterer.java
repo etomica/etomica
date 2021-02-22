@@ -8,6 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
+import etomica.integrator.IntegratorBoxFasterer;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
 import etomica.potential.compute.PotentialCompute;
@@ -23,7 +24,7 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveVolumeFasterer extends MCMoveBoxStep {
 
-    protected final PotentialCompute potentialCompute;
+    protected final IntegratorBoxFasterer integrator;
     protected double pressure;
     protected BoxInflate inflate;
     protected final int D;
@@ -34,17 +35,14 @@ public class MCMoveVolumeFasterer extends MCMoveBoxStep {
     protected double biasOld, uOld, hOld, vNew, vScale, hNew;
     protected double uNew = Double.NaN;
 
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space           the governing space for the simulation
-     */
-    public MCMoveVolumeFasterer(PotentialCompute potentialMaster, IRandom random,
-                                Space space, double pressure) {
+    public MCMoveVolumeFasterer(IntegratorBoxFasterer integrator, IRandom random,
+                                double pressure) {
         super(null);
+        this.integrator = integrator;
         this.random = random;
+        Space space = integrator.getBox().getSpace();
         this.D = space.D();
         inflate = new BoxInflate(space);
-        this.potentialCompute = potentialMaster;
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
@@ -70,7 +68,7 @@ public class MCMoveVolumeFasterer extends MCMoveBoxStep {
 
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
-        uOld = potentialCompute.computeAll(false);
+        uOld = integrator.getPotentialEnergy();
         hOld = uOld + pressure * vOld;
         biasOld = vBias.f(vOld);
         vScale = (2. * random.nextDouble() - 1.) * stepSize;
@@ -79,6 +77,7 @@ public class MCMoveVolumeFasterer extends MCMoveBoxStep {
         inflate.setScale(rScale);
         //cells+neighbords get updated here
         inflate.actionPerformed();
+        PotentialCompute potentialCompute = integrator.getPotentialCompute();
         potentialCompute.init();
         uNew = potentialCompute.computeAll(false);
         hNew = uNew + pressure * vNew;
@@ -96,6 +95,7 @@ public class MCMoveVolumeFasterer extends MCMoveBoxStep {
 
     public void rejectNotify() {
         inflate.undo();
+        PotentialCompute potentialCompute = integrator.getPotentialCompute();
         potentialCompute.init();
         potentialCompute.computeAll(false);
     }

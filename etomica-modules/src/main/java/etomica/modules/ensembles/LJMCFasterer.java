@@ -21,6 +21,7 @@ import etomica.nbr.cell.PotentialMasterCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -74,10 +75,10 @@ public class LJMCFasterer extends Simulation {
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMaxAdjustInterval(50000);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMinAdjustStep(1.05);
 
-        mcMoveVolume = new MCMoveVolumeFasterer(potentialMaster, random, space, 1) {
+        mcMoveVolume = new MCMoveVolumeFasterer(integrator, random, 1) {
             public boolean doTrial() {
                 double vOld = box.getBoundary().volume();
-                uOld = potentialCompute.computeAll(false);
+                uOld = integrator.getPotentialEnergy();
                 hOld = uOld + pressure * vOld;
                 biasOld = vBias.f(vOld);
                 vScale = (2. * random.nextDouble() - 1.) * stepSize;
@@ -92,6 +93,7 @@ public class LJMCFasterer extends Simulation {
                 double rScale = Math.exp(vScale / D);
                 inflate.setScale(rScale);
                 inflate.actionPerformed();
+                PotentialCompute potentialCompute = integrator.getPotentialCompute();
                 potentialCompute.init();
                 uNew = potentialCompute.computeAll(false);
                 hNew = uNew + pressure * vNew;
