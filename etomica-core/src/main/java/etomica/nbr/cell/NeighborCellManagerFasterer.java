@@ -46,6 +46,11 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         this.bondingInfo = bondingInfo;
     }
 
+    @Override
+    public BondingInfo getBondingInfo() {
+        return bondingInfo;
+    }
+
     public int cellForCoord(Vector r) {
         int cellNum = 0;
         Vector bs = box.getBoundary().getBoxSize();

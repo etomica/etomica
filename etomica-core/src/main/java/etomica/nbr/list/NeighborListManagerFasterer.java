@@ -58,6 +58,11 @@ public class NeighborListManagerFasterer implements NeighborManager {
         listeners = new ArrayList<>();
     }
 
+    @Override
+    public BondingInfo getBondingInfo() {
+        return bondingInfo;
+    }
+
     public void addListener(INeighborListListener newListener) {
         listeners.add(newListener);
     }

@@ -8,6 +8,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
+import etomica.potential.BondingInfo;
 import etomica.space.Vector;
 
 /**
@@ -19,6 +20,12 @@ public class NeighborManagerSimple implements NeighborManager {
 
     public NeighborManagerSimple(Box box) {
         this.box = box;
+    }
+
+    @Override
+    // this whole class assumes no bonding
+    public BondingInfo getBondingInfo() {
+        return BondingInfo.noBonding();
     }
 
     @Override
