@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.integrator;
 
-import etomica.atom.AtomArrayList;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.box.BoxMoleculeEvent;
 import etomica.molecule.IMolecule;
@@ -172,6 +169,37 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         if (pcPair == null) return pcField;
         if (pcField == null) return pcPair;
         return new PotentialComputeAggregate(pcField, pcPair);
+    }
+
+    public void setPairPotential(AtomType type1, AtomType type2, IPotentialHard p2) {
+        pairPotentials[type1.getIndex()][type2.getIndex()] = p2;
+        if (potentialCompute instanceof PotentialComputeAggregate) {
+            for (PotentialCompute pc : ((PotentialComputeAggregate) potentialCompute).getPotentialComputes()) {
+                if (pc instanceof PotentialComputePair) {
+                    ((PotentialComputePair) pc).setPairPotential(type1, type2, (Potential2Soft) p2);
+                } else if (pc instanceof PotentialComputePairGeneral) {
+                    ((PotentialComputePairGeneral) pc).setPairPotential(type1, type2, (Potential2Soft) p2);
+                }
+            }
+        } else if (potentialCompute instanceof PotentialComputePair) {
+            ((PotentialComputePair) potentialCompute).setPairPotential(type1, type2, (Potential2Soft) p2);
+        } else if (potentialCompute instanceof PotentialComputePairGeneral) {
+            ((PotentialComputePairGeneral) potentialCompute).setPairPotential(type1, type2, (Potential2Soft) p2);
+        }
+    }
+
+    public void setFieldPotential(AtomType type, IPotentialHardField pField) {
+        fieldPotentials[type.getIndex()] = pField;
+        if (potentialCompute instanceof PotentialComputeAggregate) {
+            for (PotentialCompute pc : ((PotentialComputeAggregate) potentialCompute).getPotentialComputes()) {
+                if (pc instanceof PotentialComputeField) {
+                    ((PotentialComputeField) pc).setFieldPotential(type, pField);
+                }
+            }
+        } else if (potentialCompute instanceof PotentialComputeField) {
+            ((PotentialComputeField) potentialCompute).setFieldPotential(type, pField);
+        }
+
     }
 
     public void setCollisionUpdateInterval(int newInterval) {

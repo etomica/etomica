@@ -23,6 +23,10 @@ public class PotentialComputeAggregate implements PotentialCompute {
         this.add(computes);
     }
 
+    public List<PotentialCompute> getPotentialComputes() {
+        return potentialComputes;
+    }
+
     public void add(PotentialCompute... compute) {
         this.potentialComputes.addAll(Arrays.asList(compute));
     }
