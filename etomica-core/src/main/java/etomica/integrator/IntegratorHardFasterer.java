@@ -184,6 +184,10 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         collisionListeners.add(newListener);
     }
 
+    public void removeCollisionListener(CollisionListener oldListener) {
+        collisionListeners.remove(oldListener);
+    }
+
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         tMax = collisionUpdateInterval * timeStep;
