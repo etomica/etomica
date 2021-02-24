@@ -84,4 +84,42 @@ public class NeighborIteratorListHard implements NeighborIterator {
     public void iterAllNeighbors(int iAtom, NeighborConsumer consumer) {
         throw new UnsupportedOperationException();
     }
+
+    public double iterAndSumAllNeighbors(IAtom atom1, SuperNbrConsumer consumer) {
+        IAtomList atoms = box.getLeafList();
+        int iAtom = atom1.getLeafIndex();
+        Vector ri = atom1.getPosition();
+        int iNumNbrs = nbrManager.numAtomNbrsUp[iAtom];
+        int[] iNbrs = nbrManager.nbrs[iAtom];
+        Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[iAtom];
+        double sum = 0;
+
+        for (int j = 0; j < iNumNbrs; j++) {
+            int jAtom = iNbrs[j];
+            IAtom atom2 = atoms.get(jAtom);
+            Vector rj = atom2.getPosition();
+            Vector jbo = iNbrBoxOffsets[j];
+            Vector rij = space.makeVector();
+            rij.Ev1Mv2(rj, ri);
+            rij.PE(jbo);
+            sum += consumer.accept(atom1, atom2, rij);
+        }
+
+        iNumNbrs = nbrManager.numAtomNbrsDn[iAtom];
+        iNbrs = nbrManager.nbrs[iAtom];
+        int maxNbrs = iNbrs.length;
+
+        for (int j = maxNbrs - 1; j > maxNbrs - 1 - iNumNbrs; j--) {
+            int jAtom = iNbrs[j];
+            IAtom atom2 = atoms.get(jAtom);
+            Vector rj = atom2.getPosition();
+            Vector jbo = iNbrBoxOffsets[j];
+            Vector rij = space.makeVector();
+            rij.Ev1Mv2(rj, ri);
+            rij.ME(jbo);
+            sum += consumer.accept(atom1, atom2, rij);
+        }
+
+        return sum;
+    }
 }
