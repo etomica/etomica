@@ -7,8 +7,6 @@ package etomica.integrator;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.meta.annotations.IgnoreProperty;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMasterFasterer;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
@@ -63,9 +61,7 @@ public abstract class IntegratorBoxFasterer extends Integrator {
         currentPotentialEnergy = potentialCompute.computeAll(false);
         if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
             System.err.println("overlap in configuration for " + box + " when resetting integrator");
-            PotentialCalculationEnergySum.debug = true;
             potentialCompute.computeAll(false);
-            PotentialCalculationEnergySum.debug = false;
             throw new ConfigurationOverlapException(box);
         }
     }
