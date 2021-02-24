@@ -130,8 +130,7 @@ public class GlassProdFasterer {
         if (sim.integrator instanceof IntegratorVelocityVerletFasterer) {
             pTensorMeter = new MeterPressureTensorFasterer(sim.integrator.getPotentialCompute(), sim.box, sim.integrator.getTemperature());
         } else {
-            pTensorMeter = new MeterPressureHardTensorFasterer(sim.getSpace());
-            ((MeterPressureHardTensorFasterer) pTensorMeter).setIntegrator((IntegratorHardFasterer) sim.integrator);
+            pTensorMeter = new MeterPressureHardTensorFasterer((IntegratorHardFasterer) sim.integrator);
         }
 
         //Viscosity

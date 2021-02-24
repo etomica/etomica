@@ -21,7 +21,24 @@ import etomica.units.dimensions.Pressure;
 
 public class MeterPressureHardTensorFasterer implements IDataSource, IntegratorHardFasterer.CollisionListener {
 
-    public MeterPressureHardTensorFasterer(Space space) {
+    private double t0;
+    protected final Tensor v;
+    protected final IntegratorHardFasterer integratorHard;
+    private final Tensor virialSum;
+    private final DataTensor data;
+    private final IDataInfo dataInfo;
+    protected final DataTag tag;
+    protected final boolean justVirial;
+
+    public MeterPressureHardTensorFasterer(IntegratorHardFasterer integrator) {
+        this(integrator, false);
+    }
+
+    public MeterPressureHardTensorFasterer(IntegratorHardFasterer integrator, boolean justVirial) {
+        this.integratorHard = integrator;
+        integratorHard.addCollisionListener(this);
+        this.justVirial = justVirial;
+        Space space = integrator.getBox().getSpace();
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pressure tensor", Pressure.dimension(space.D()), space);
         v = space.makeTensor();
@@ -39,19 +56,22 @@ public class MeterPressureHardTensorFasterer implements IDataSource, IntegratorH
     }
 
     public IData getData() {
-        if (box == null || integratorHard == null)
-            throw new IllegalStateException("must call setBox and integrator before using meter");
         double t = integratorHard.getCurrentTime();
         data.x.E(0);
         data.x.PEa1Tt1(-1 / ((t - t0)), virialSum);
         virialSum.E(0);
         t0 = t;
 
+        if (justVirial) {
+            return data;
+        }
+
         //We're using the instantaneous velocity tensor with the average virial tensor
         //not quite right, but (so long as you need averages) it doesn't really matter
         // if you want more "correct" properties (have both be an average), then you'll
         // need to compute a correction in collisionAction based on the old and new
         // velocities
+        Box box = integratorHard.getBox();
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
@@ -72,32 +92,7 @@ public class MeterPressureHardTensorFasterer implements IDataSource, IntegratorH
         virialSum.PE(v);
     }
 
-    public void setIntegrator(IntegratorHardFasterer newIntegrator) {
-        if (newIntegrator == integratorHard) {
-            return;
-        }
-        if (integratorHard != null) {
-            integratorHard.removeCollisionListener(this);
-        }
-        if (newIntegrator == null) {
-            box = null;
-            return;
-        }
-        integratorHard = newIntegrator;
-        box = integratorHard.getBox();
-        integratorHard.addCollisionListener(this);
-    }
-
     public IntegratorHardFasterer getIntegrator() {
         return integratorHard;
     }
-
-    private double t0;
-    private final Tensor v;
-    private IntegratorHardFasterer integratorHard;
-    private Box box;
-    private final Tensor virialSum;
-    private final DataTensor data;
-    private final IDataInfo dataInfo;
-    protected final DataTag tag;
 }

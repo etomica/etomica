@@ -511,8 +511,7 @@ public class GlassGraphicFasterer extends SimulationGraphic {
         if (sim.integrator instanceof IntegratorVelocityVerletFasterer) {
             pMeter = new MeterPressureTensorFasterer(sim.integrator.getPotentialCompute(), sim.box, sim.integrator.getTemperature());
         } else {
-            pMeter = new MeterPressureHardTensorFasterer(space);
-            ((MeterPressureHardTensorFasterer) pMeter).setIntegrator((IntegratorHardFasterer) sim.integrator);
+            pMeter = new MeterPressureHardTensorFasterer((IntegratorHardFasterer) sim.integrator);
         }
         DataFork pTensorFork = new DataFork();
         DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
