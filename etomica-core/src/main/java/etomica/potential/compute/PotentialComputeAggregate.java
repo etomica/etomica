@@ -70,7 +70,7 @@ public class PotentialComputeAggregate implements PotentialCompute {
     public double computeAll(boolean doForces, PotentialCallback pc) {
         double sum = 0;
         for (PotentialCompute potentialCompute : this.potentialComputes) {
-            sum += potentialCompute.computeAll(doForces);
+            sum += potentialCompute.computeAll(doForces, pc);
         }
         if (doForces) {
             Vector[] forces = potentialComputes.get(0).getForces();
