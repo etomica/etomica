@@ -117,12 +117,6 @@ public class InterfacialSWFasterer extends Simulation {
                 }
                 return super.collisionTime(r12, v12, collisionState, cd2);
             }
-
-            @Override
-            protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
-                System.out.println(atom1.getLeafIndex() + " " + atom2.getLeafIndex() + " " + r2 + " " + bij);
-                return super.decideBump(atom1, atom2, oldState, core, ke, reducedMass, bij, r2, du, virial, falseTime);
-            }
         };
 
         List<int[]> bonds = new ArrayList<>();

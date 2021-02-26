@@ -75,7 +75,7 @@ public class InterfacialSWGraphicFasterer extends SimulationGraphic {
         colorScheme.setColor(sim.leafType, Color.RED);
         colorScheme.setColor(sim.headType, new Color(190, 0, 190));
         colorScheme.setColor(sim.tailType, Color.BLUE);
-        colorScheme.setColor(sim.ghostType, new Color(0f, 1f, 0f, 0.5f));
+        colorScheme.setColor(sim.ghostType, new Color(1f, 0.8f, 0f, 0.3f));
 
         DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
         diameterHash.setDiameter(sim.ghostType, 0);
