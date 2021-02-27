@@ -412,14 +412,14 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             dv.Ev1Mv2(jjAtom.getVelocity(), iVelocity);
             rij.PEa1Tv1(falseTime, dv);
             long t1 = nanoTime();
-            double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state);
+            double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
             tCollision += nanoTime() - t1;
             if (time < 0) {
                 System.out.println("computed col down " + i + " with " + j + " at " + time);
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(jAtom.getPosition(), iAtom.getPosition());
                 System.out.println("dr " + rij + " " + Math.sqrt(rij.squared()) + " bij " + rij.dot(dv) + " state " + state);
-                potential.collisionTime(iAtom, jjAtom, rij, dv, state);
+                potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
                 throw new RuntimeException("negative!");
             }
 
@@ -502,10 +502,10 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             rij.PEa1Tv1(falseTime, dv);
             long t1ct = nanoTime();
             int j = jAtom.getLeafIndex();
-            double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state);
+            double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
             tCollision += nanoTime() - t1ct;
             if (time < 0) {
-                potential.collisionTime(iAtom, jjAtom, rij, dv, state);
+                potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
                 throw new RuntimeException("Negative up collision time between " + i + " and " + j + " at " + time);
             }
             if (time < tCheck[0]) {
@@ -684,7 +684,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                 double dE = du[0];
                 currentPotentialEnergy += dE;
                 currentKineticEnergy -= dE;
-//            System.out.printf("%6d %3d %3d %7.3e %3.1f %2d %2d % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), tcol, Math.sqrt(dr.squared()), oldState, newState, dr.dot(dv), virial[0]/(dr.dot(dv)));
+//                System.out.printf("%6d %3d %3d %7.3e %3.1f %2d %2d % f % f\n", collisionCount, Math.min(c, cPartner), Math.max(c, cPartner), tcol, Math.sqrt(dr.squared()), oldState, newState, dr.dot(dv), virial[0] / (dr.dot(dv)));
 //            System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
 
                 long t1data = nanoTime();
@@ -697,19 +697,20 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             } else {
                 IPotentialHardField pHard = fieldPotentials[cAtom.getType().getIndex()];
                 Vector r = collisionVector[c];
-                fieldState[c] = pHard.bump(cAtom, fieldState[c], collisionVector[c], tcol - tBase, du);
+                Vector deltaP = space.makeVector();
+                fieldState[c] = pHard.bump(cAtom, fieldState[c], collisionVector[c], tcol - tBase, deltaP, du);
 //                System.out.println("bump "+c+" at "+tcol+" state "+oldState+" => "+fieldState[c]);
                 tBump += nanoTime() - t1b;
 
                 double dE = du[0];
                 currentPotentialEnergy += dE;
                 currentKineticEnergy -= dE;
-//            System.out.printf("%6d %3d %3d %7.3e %3.1f %2d %2d % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), tcol, Math.sqrt(dr.squared()), oldState, newState, dr.dot(dv), virial[0]/(dr.dot(dv)));
+//                    System.out.printf("%6d %3d %7.3e %2d %2d\n", collisionCount, c, tcol, oldState, fieldState[c]);
 //            System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
 
                 long t1data = nanoTime();
                 for (IntegratorHardFasterer.CollisionListener listener : this.collisionListeners) {
-                    listener.fieldCollision(cAtom, r);
+                    listener.fieldCollision(cAtom, r, deltaP, tcol - tBase);
                 }
                 tData += nanoTime() - t1data;
                 collisionCount++;

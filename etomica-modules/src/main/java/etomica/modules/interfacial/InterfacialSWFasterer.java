@@ -197,7 +197,7 @@ public class InterfacialSWFasterer extends Simulation {
         }
 
         @Override
-        public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
+        public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState, double falseTime) {
             return Double.POSITIVE_INFINITY;
         }
     }

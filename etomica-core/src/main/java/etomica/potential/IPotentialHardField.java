@@ -47,7 +47,7 @@ public interface IPotentialHardField extends IPotentialField {
      * @param du        the change in energy from this collision
      * @return the new state of the atom
      */
-    int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, double[] du);
+    int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du);
 
     default int nBody() {
         return 1;

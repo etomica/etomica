@@ -28,16 +28,17 @@ public interface IPotentialHard extends IPotentialAtomic {
     /**
      * Computes the collision time for a given atom pair.
      *
-     * @param atom1 the first atom
-     * @param atom2 the second atom
-     * @param r12   the position vector between the atoms (r2 - r1)
-     * @param v12   the velocity difference between the atoms (v2 - v1)
-     * @param state the current state of the pair (overlapped, in well, etc).
-     *              the numbering scheme of states is an implementation
-     *              detail of the potential class, returned by getState or bump.
+     * @param atom1     the first atom
+     * @param atom2     the second atom
+     * @param r12       the position vector between the atoms (r2 - r1)
+     * @param v12       the velocity difference between the atoms (v2 - v1)
+     * @param state     the current state of the pair (overlapped, in well, etc).
+     *                  the numbering scheme of states is an implementation
+     *                  detail of the potential class, returned by getState or bump.
+     * @param falseTime false-positioning time of the integration
      * @return the next collision time for a pair of atoms.
      */
-    double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int state);
+    double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int state, double falseTime);
 
     /**
      * Handles the collision between a pair of atoms.  The atom positions and velocities

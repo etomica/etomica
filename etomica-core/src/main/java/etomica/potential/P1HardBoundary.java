@@ -25,7 +25,6 @@ import etomica.util.Debug;
  */
 public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardField {
 
-    private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
     private final Vector work;
     private int[] pixPosition;
@@ -99,7 +98,7 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
     }
 
     @Override
-    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, double[] du) {
+    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {
         Vector v = atom.getVelocity();
         Vector dimensions = boundary.getBoxSize();
         double delmin = Double.MAX_VALUE;
@@ -120,6 +119,9 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
             System.out.println(atom + " " + work + " " + dimensions);
             System.out.println("stop that");
         }
+        deltaP.E(0);
+        deltaP.setX(imin, -2 * v.getX(imin));
+        deltaP.TE(atom.getType().getMass());
         v.setX(imin, -v.getX(imin));
         // dv = 2*NewVelocity
         double newP = atom.getPosition().getX(imin) - falseTime * v.getX(imin) * 2.0;

@@ -100,7 +100,7 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         return collisionDistances2;
     }
 
-    public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState) {
+    public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState, double falseTime) {
         return collisionTime(r12, v12, collisionState, getCollisionDistances2(atom1, atom2));
     }
 

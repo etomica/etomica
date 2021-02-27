@@ -21,7 +21,6 @@ import etomica.space.Vector;
  
 public class P1MagicWall extends Potential1 implements PotentialHard {
     
-    private static final long serialVersionUID = 1L;
     protected final PotentialMasterList potentialMaster;
     protected NeighborListManager neighborManager;
     protected final Vector dr, dv;

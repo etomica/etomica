@@ -23,7 +23,7 @@ public class P1WallFasterer extends P1HardFieldGeneric {
         chainLength = newChainLength;
     }
 
-    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, double[] du) {
+    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {
         int idx = atom.getParentGroup().getIndex();
         int childIdx1 = idx % chainLength;
         if (childIdx1 > 0) {
@@ -33,9 +33,10 @@ public class P1WallFasterer extends P1HardFieldGeneric {
             if (r.getX(fieldDimension) * by < 0) {
                 // opposite sides of the box.  ignore this collision so that this atom can go back
                 du[0] = 0;
+                deltaP.E(0);
                 return (r.getX(fieldDimension) > 0) ? 0 : collisionPositions.length - 2;
             }
         }
-        return super.bump(atom, oldState, r, falseTime, du);
+        return super.bump(atom, oldState, r, falseTime, deltaP, du);
     }
 }

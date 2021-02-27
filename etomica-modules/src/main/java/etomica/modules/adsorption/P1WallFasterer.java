@@ -54,8 +54,8 @@ public class P1WallFasterer extends P1HardFieldGeneric {
         return -energies[0];
     }
 
-    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, double[] du) {
-        int newState = super.bump(atom, oldState, r, falseTime, du);
+    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {
+        int newState = super.bump(atom, oldState, r, falseTime, deltaP, du);
         if (r.getX(fieldDimension) < (collisionPositions[0] + collisionPositions[1]) / 2 && random.nextDouble() < pThermalize) {
             Vector v = atom.getVelocity();
             Vector vOld = Vector.d(v.getD());
@@ -65,7 +65,6 @@ public class P1WallFasterer extends P1HardFieldGeneric {
             v.setX(fieldDimension, Math.abs(v.getX(fieldDimension)));
             vOld.ME(v);
             atom.getPosition().PEa1Tv1(falseTime, vOld);
-            System.out.println("thermalized " + atom.getLeafIndex());
         }
         return newState;
     }

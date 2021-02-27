@@ -61,7 +61,7 @@ public class P1HardFieldGeneric implements IPotentialHardField {
             }
         }
         if (fixOverlap) return collisionPositions.length - 2;
-        throw new RuntimeException("state unknown");
+        throw new RuntimeException("state unknown " + atom + " at " + x);
     }
 
     public double u(IAtom atom) {
@@ -75,7 +75,7 @@ public class P1HardFieldGeneric implements IPotentialHardField {
     public void setBox(Box box) {
     }
 
-    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, double[] du) {
+    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {
         double v = atom.getVelocity().getX(fieldDimension);
         int newState = oldState + (v > 0 ? +1 : -1);
         double uJump = getEnergyForState(newState) - getEnergyForState(oldState);
@@ -88,7 +88,10 @@ public class P1HardFieldGeneric implements IPotentialHardField {
             newState = oldState;
             vNew = -v;
         }
+        deltaP.Ea1Tv1(-1, atom.getVelocity());
         atom.getVelocity().setX(fieldDimension, vNew);
+        deltaP.PE(atom.getVelocity());
+        deltaP.TE(m);
         Vector p = atom.getPosition();
         double x = p.getX(fieldDimension);
         p.setX(fieldDimension, x + (v - vNew) * falseTime);
