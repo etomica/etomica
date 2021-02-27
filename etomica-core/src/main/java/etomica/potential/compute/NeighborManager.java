@@ -1,6 +1,7 @@
 package etomica.potential.compute;
 
 import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
@@ -22,4 +23,6 @@ public interface NeighborManager {
     IntegratorListener makeIntegratorListener();
 
     void updateAtom(IAtom atom);
+
+    Box getBox();
 }

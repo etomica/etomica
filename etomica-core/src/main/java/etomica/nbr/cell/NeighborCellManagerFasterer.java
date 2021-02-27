@@ -46,6 +46,10 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         this.bondingInfo = bondingInfo;
     }
 
+    public Box getBox() {
+        return box;
+    }
+
     @Override
     public BondingInfo getBondingInfo() {
         return bondingInfo;
@@ -362,7 +366,7 @@ public class NeighborCellManagerFasterer implements NeighborManager {
         int cellNum = 0;
         final Vector bs = box.getBoundary().getBoxSize();
         Vector r = atom.getPosition();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < r.getD(); i++) {
             double x = (r.getX(i) + boxHalf.getX(i)) / bs.getX(i);
             int y = ((int) (cellRange + x * (numCells[i] - 2 * cellRange)));
             if (y == numCells[i] - cellRange) y--;

@@ -22,6 +22,10 @@ public class NeighborManagerSimple implements NeighborManager {
         this.box = box;
     }
 
+    public Box getBox() {
+        return box;
+    }
+
     @Override
     // this whole class assumes no bonding
     public BondingInfo getBondingInfo() {

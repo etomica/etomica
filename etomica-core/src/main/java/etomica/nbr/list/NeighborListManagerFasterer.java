@@ -58,6 +58,14 @@ public class NeighborListManagerFasterer implements NeighborManager {
         listeners = new ArrayList<>();
     }
 
+    public NeighborCellManagerFasterer getCellManager() {
+        return cellManager;
+    }
+
+    public Box getBox() {
+        return box;
+    }
+
     @Override
     public BondingInfo getBondingInfo() {
         return bondingInfo;
