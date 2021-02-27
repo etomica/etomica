@@ -70,7 +70,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     private long lastTimingPrint = 0;
 
     private long nanoTime() {
-        return writeTiming ? nanoTime() : 0;
+        return writeTiming ? System.nanoTime() : 0;
     }
 
     public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Box box) {
