@@ -59,11 +59,28 @@ public class NeighborListManagerFastererHard extends NeighborListManagerFasterer
     @Override
     public void setPairState(int i, int j, int state) {
         // a collision happened
+        boolean found = false;
         for (int ii = 0; ii < numAtomNbrsUp[i]; ii++) {
             if (nbrs[i][ii] == j) {
                 nbrState[i][ii] = state;
+                found = true;
                 break;
             }
+        }
+        if (!found) {
+            for (int ii = 0; ii < numAtomNbrsUp[j]; ii++) {
+                if (nbrs[j][ii] == i) {
+                    nbrState[j][ii] = state;
+                    break;
+                }
+            }
+            for (int jj = maxNab - 1; jj > maxNab - 1 - numAtomNbrsDn[i]; jj--) {
+                if (nbrs[i][jj] == j) {
+                    nbrState[i][jj] = state;
+                    break;
+                }
+            }
+            return;
         }
         for (int jj = maxNab - 1; jj > maxNab - 1 - numAtomNbrsDn[j]; jj--) {
             if (nbrs[j][jj] == i) {
