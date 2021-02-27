@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.materialfracture;
+
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure2D;
 
 /**

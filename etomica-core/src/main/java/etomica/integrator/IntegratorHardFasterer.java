@@ -832,7 +832,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     public interface CollisionListener {
         void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision);
 
-        default void fieldCollision(IAtomKinetic atom, Vector r) {
+        default void fieldCollision(IAtomKinetic atom, Vector r, Vector deltaP, double tCollision) {
         }
     }
 
