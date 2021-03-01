@@ -9,14 +9,14 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMCFasterer;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
@@ -29,22 +29,20 @@ import etomica.species.SpeciesGeneral;
  *
  * @author Andrew Schultz
  */
-public class MultiharmonicMC extends Simulation {
+public class MultiharmonicMCFasterer extends Simulation {
 
     protected final SpeciesGeneral species;
     protected final Box boxA, boxB;
     protected final P1Harmonic potentialA, potentialB;
-    protected final IntegratorMC integratorA, integratorB;
+    protected final IntegratorMCFasterer integratorA, integratorB;
     protected final IntegratorOverlap integratorOS;
-    
+
     protected final MeterMBAR meterOverlapA, meterOverlapB;
-    public MultiharmonicMC() {
+
+    public MultiharmonicMCFasterer() {
         super(Space1D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
-        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
-
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxA.getBoundary().setBoxSize(new Vector1D(6.0));
         boxA.setNMolecules(species, 10);
@@ -52,23 +50,32 @@ public class MultiharmonicMC extends Simulation {
         boxB.getBoundary().setBoxSize(new Vector1D(6.0));
         boxB.setNMolecules(species, 10);
 
-        integratorA = new IntegratorMC(this, potentialMasterA, boxA);
+        PotentialComputeField potentialMasterA = new PotentialComputeField(getSpeciesManager(), boxA);
+        PotentialComputeField potentialMasterAinB = new PotentialComputeField(getSpeciesManager(), boxB);
+        PotentialComputeField potentialMasterB = new PotentialComputeField(getSpeciesManager(), boxB);
+        PotentialComputeField potentialMasterBinA = new PotentialComputeField(getSpeciesManager(), boxA);
+        potentialMasterAinB.init();
+        potentialMasterBinA.init();
+
+        integratorA = new IntegratorMCFasterer(potentialMasterA, random, 1.0, boxA);
         integratorA.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorA, potentialA, random));
-        potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+        potentialMasterA.setFieldPotential(species.getLeafType(), potentialA);
+        potentialMasterAinB.setFieldPotential(species.getLeafType(), potentialA);
 
-        integratorB = new IntegratorMC(this, potentialMasterB, boxB);
+        integratorB = new IntegratorMCFasterer(potentialMasterB, random, 1.0, boxB);
         integratorB.setTemperature(1.0);
         potentialB = new P1Harmonic(space);
-        integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorA, potentialB, random));
-        potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
+        integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorB, potentialB, random));
+        potentialMasterB.setFieldPotential(species.getLeafType(), potentialB);
+        potentialMasterBinA.setFieldPotential(species.getLeafType(), potentialB);
 
 
-        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA, boxA);
-        MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(potentialMasterA, boxB);
-        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB, boxA);
-        MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(potentialMasterB, boxB);
+        MeterPotentialEnergyFromIntegratorFasterer meterPEAinA = new MeterPotentialEnergyFromIntegratorFasterer(integratorA);
+        MeterPotentialEnergyFasterer meterPEAinB = new MeterPotentialEnergyFasterer(potentialMasterAinB);
+        MeterPotentialEnergyFasterer meterPEBinA = new MeterPotentialEnergyFasterer(potentialMasterBinA);
+        MeterPotentialEnergyFromIntegratorFasterer meterPEBinB = new MeterPotentialEnergyFromIntegratorFasterer(integratorB);
         meterOverlapA = new MeterMBAR(new DataSourceScalar[]{meterPEAinA, meterPEBinA}, 1.0);
         meterOverlapA.setNumAlpha(15);
         meterOverlapA.setAlpha(new double[]{1}, new double[]{5});

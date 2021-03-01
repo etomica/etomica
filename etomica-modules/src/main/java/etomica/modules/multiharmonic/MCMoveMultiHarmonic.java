@@ -4,10 +4,13 @@
 
 package etomica.modules.multiharmonic;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.P1Harmonic;
 import etomica.space.Vector;
@@ -17,18 +20,31 @@ import etomica.util.random.IRandom;
  * MCMove which moves all atoms.  New coordinates are taken from a Gaussian
  * distribution with width and center taken to match the P1Harmonic that
  * governs the atom's potential.  All moves are accepted.
- * 
+ *
  * @author Andrew Schultz
  */
 public class MCMoveMultiHarmonic extends MCMoveBox {
 
-    public MCMoveMultiHarmonic(P1Harmonic p1, IRandom random) {
+    public MCMoveMultiHarmonic(IntegratorMC integratorMC, P1Harmonic p1, IRandom random) {
         super(null);
+        this.integratorMC = integratorMC;
+        this.integratorMCFasterer = null;
         this.p1 = p1;
         iterator = new AtomIteratorLeafAtoms();
         this.random = random;
+        uNew = Double.NaN;
     }
-    
+
+    public MCMoveMultiHarmonic(IntegratorMCFasterer integratorMC, P1Harmonic p1, IRandom random) {
+        super(null);
+        this.integratorMCFasterer = integratorMC;
+        this.integratorMC = null;
+        this.p1 = p1;
+        iterator = new AtomIteratorLeafAtoms();
+        this.random = random;
+        uNew = Double.NaN;
+    }
+
     public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(box);
@@ -46,17 +62,17 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
     }
 
     public boolean doTrial() {
-        uOld = uNew;
+        uOld = integratorMC != null ? integratorMC.getPotentialEnergy() : integratorMCFasterer.getPotentialEnergy();
         double s = p1.getSpringConstant();
+        double sqrtS = Math.sqrt(s);
         Vector x0 = p1.getX0();
         IAtomList atoms = box.getLeafList();
         uNew = 0;
-        double sqrtS = Math.sqrt(s);
-        for (int i = 0; i<atoms.size(); i++) {
-            Vector p = atoms.get(i).getPosition();
-            for (int j=0; j<p.getD(); j++) {
-                double r = random.nextGaussian()/sqrtS;
-                uNew += 0.5*r*r*s;
+        for (IAtom atom : atoms) {
+            Vector p = atom.getPosition();
+            for (int j = 0; j < p.getD(); j++) {
+                double r = random.nextGaussian() / sqrtS;
+                uNew += 0.5 * r * r * s;
                 p.setX(j, r);
             }
             p.PE(x0);
@@ -72,7 +88,8 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         throw new RuntimeException("oops");
     }
 
-    private static final long serialVersionUID = 1L;
+    protected final IntegratorMC integratorMC;
+    protected final IntegratorMCFasterer integratorMCFasterer;
     protected final P1Harmonic p1;
     protected final AtomIteratorLeafAtoms iterator;
     protected final IRandom random;
