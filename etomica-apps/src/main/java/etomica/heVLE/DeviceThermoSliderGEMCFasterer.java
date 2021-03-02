@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
-import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorBoxFasterer;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.modifier.Modifier;
 import etomica.units.Unit;
@@ -29,13 +29,13 @@ import java.awt.event.ActionListener;
  *
  * @author Andrew Schultz
  */
-public class DeviceThermoSliderGEMC extends Device {
+public class DeviceThermoSliderGEMCFasterer extends Device {
 
     private JPanel temperaturePanel;  // main panel for thermo device PRIVATE
     private DeviceSlider temperatureSlider; // Do not make make accessible
     private JRadioButton buttonAdiabatic;   // Do not make make accessible
     private JRadioButton buttonIsothermal;  // Do not make make accessible
-    protected IntegratorBox integrator1, integrator2;
+    protected IntegratorBoxFasterer integrator1, integrator2;
     protected IntegratorManagerMC integrator3;
 
     private final int DEFAULT_MIN_TEMPERATURE = 0;
@@ -49,7 +49,7 @@ public class DeviceThermoSliderGEMC extends Device {
     };
 
 
-    public DeviceThermoSliderGEMC(Controller cont, IntegratorBox integratorBox1, IntegratorBox integratorBox2, IntegratorManagerMC integratorManagerMC) {
+    public DeviceThermoSliderGEMCFasterer(Controller cont, IntegratorBoxFasterer integratorBox1, IntegratorBoxFasterer integratorBox2, IntegratorManagerMC integratorManagerMC) {
         super(cont);
         integrator1 = integratorBox1;
         integrator2 = integratorBox2;
@@ -95,13 +95,13 @@ public class DeviceThermoSliderGEMC extends Device {
         thermalGroup.add(buttonAdiabatic);
         thermalGroup.add(buttonIsothermal);
 
-        addRadioGroupActionListener(actionListen);
         if (integrator1.isIsothermal()) {
             setIsothermal();
         } else {
             setAdiabatic();
         }
 
+        addRadioGroupActionListener(actionListen);
 
         // Tie the isothermal/adiabatic setting to the selectable status of
         // temperature slider
