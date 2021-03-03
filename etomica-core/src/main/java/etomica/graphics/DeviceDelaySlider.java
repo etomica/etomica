@@ -80,7 +80,6 @@ public class DeviceDelaySlider {
 	    public void setValue(double d) {
 			double delayMultiplier = maxSleep / Math.pow(10.0, delayExponent);
 			double sleep = Math.pow(d, delayExponent) * delayMultiplier;
-			System.out.println(sleep);
 			controller.setSleepPeriod(sleep);
 		}
 

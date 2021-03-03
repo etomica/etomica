@@ -705,7 +705,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                 double dE = du[0];
                 currentPotentialEnergy += dE;
                 currentKineticEnergy -= dE;
-//                    System.out.printf("%6d %3d %7.3e %2d %2d\n", collisionCount, c, tcol, oldState, fieldState[c]);
+//                System.out.printf("%6d %3d %7.3e %2d %2d\n", collisionCount, c, tcol, oldState, fieldState[c]);
 //            System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
 
                 long t1data = nanoTime();
