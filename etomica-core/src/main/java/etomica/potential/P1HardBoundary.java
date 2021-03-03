@@ -25,7 +25,7 @@ import etomica.util.Debug;
  */
 public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardField {
 
-    private double collisionRadius = 0.0;
+    protected double collisionRadius = 0.0;
     private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
