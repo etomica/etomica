@@ -78,7 +78,7 @@ public class SimTarget extends Simulation {
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
 
         integrator.setIsothermal(false);
         double timeStep = 0.4;

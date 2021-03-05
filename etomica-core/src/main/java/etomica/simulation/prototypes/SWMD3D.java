@@ -7,7 +7,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -46,7 +45,7 @@ public class SWMD3D extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);

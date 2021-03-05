@@ -57,7 +57,7 @@ public class TestSWMD3DSlow extends Simulation {
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborRangeFac * sigma);
         box = makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         AtomType type1 = species.getLeafType();

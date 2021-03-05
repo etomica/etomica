@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +17,17 @@ import java.util.List;
 /**
  * Custom DMD integrator that handles hybrid simulations with
  * insertion/deletions.
- *  
+ *
  * @author Andrew Schultz
  */
 public class IntegratorHardMDMC extends IntegratorHard {
     protected List<IAction> thermostatActions;
 
-    public IntegratorHardMDMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        super(sim, potentialMaster, box);
+    public IntegratorHardMDMC(IRandom random, PotentialMaster potentialMaster, Box box) {
+        super(random, potentialMaster, box);
         thermostatActions = new ArrayList<>();
     }
-    
+
     public void addThermostatAction(IAction a) {
         thermostatActions.add(a);
     }

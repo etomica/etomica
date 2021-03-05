@@ -65,7 +65,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHard(this, potentialMaster, box);
+        integratorHard = new IntegratorHard(random, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);

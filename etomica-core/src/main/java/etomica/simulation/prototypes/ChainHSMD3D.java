@@ -17,7 +17,10 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.meter.MeterRadiusGyration;
-import etomica.graphics.*;
+import etomica.graphics.ColorSchemeRandomByMolecule;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
@@ -70,7 +73,7 @@ public class ChainHSMD3D extends Simulation {
         potentialMaster.setRange(neighborRangeFac);
 
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

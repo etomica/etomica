@@ -70,7 +70,7 @@ public class SimCalcS extends Simulation {
         box = this.makeBox(bdry);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(0.04);
         integrator.setTemperature(1.0);
 

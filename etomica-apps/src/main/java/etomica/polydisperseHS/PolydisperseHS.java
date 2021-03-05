@@ -7,7 +7,6 @@ package etomica.polydisperseHS;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -15,7 +14,10 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -128,7 +130,7 @@ public class PolydisperseHS extends Simulation {
 
         potentialMaster = useNeighborLists ? new PotentialMasterList(this, potential.getRange() * neighborRangeFac, space) : new PotentialMasterMonatomic(this);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(params.timestep);
 

@@ -14,7 +14,6 @@ import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
-import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.TreeLinker;
@@ -73,8 +72,8 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         return writeTiming ? System.nanoTime() : 0;
     }
 
-    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
+    public IntegratorHard(IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, random, 0.05, 1.0, box);
     }
 
     public IntegratorHard(PotentialMaster potentialMaster, IRandom random,

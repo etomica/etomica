@@ -56,7 +56,7 @@ public class Adsorption extends Simulation {
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
 
         //controller and integrator
-        integratorMD = new IntegratorHard(this, potentialMaster, box);
+        integratorMD = new IntegratorHard(random, potentialMaster, box);
         integratorMD.setTimeStep(0.005);
         integratorMD.setIsothermal(true);
         integratorMD.setThermostatInterval(50);

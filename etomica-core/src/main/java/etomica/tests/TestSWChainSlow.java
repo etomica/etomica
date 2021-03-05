@@ -69,7 +69,7 @@ public class TestSWChainSlow extends Simulation {
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         potentialMaster.setCellRange(2);

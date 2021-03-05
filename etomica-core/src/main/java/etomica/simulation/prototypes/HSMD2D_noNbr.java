@@ -7,7 +7,6 @@ package etomica.simulation.prototypes;
 import etomica.action.IAction;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -59,7 +58,7 @@ public class HSMD2D_noNbr extends Simulation {
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setIsothermal(false);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 64);

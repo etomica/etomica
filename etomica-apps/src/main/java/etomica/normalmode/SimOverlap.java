@@ -14,9 +14,9 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
@@ -100,7 +100,7 @@ public class SimOverlap extends Simulation {
         boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        integratorTarget = new IntegratorHard(this, potentialMasterTarget, boxTarget);
+        integratorTarget = new IntegratorHard(random, potentialMasterTarget, boxTarget);
         // needs to be irrational so that configurations don't repeat in 1D with 2 atoms
         integratorTarget.setTimeStep(Math.PI);
         integratorTarget.setTemperature(1.0);

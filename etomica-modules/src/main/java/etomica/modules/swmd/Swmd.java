@@ -5,7 +5,6 @@
 package etomica.modules.swmd;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -53,7 +52,7 @@ public class Swmd extends Simulation {
 
         //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(1.0);
         integrator.setTemperature(Kelvin.UNIT.toSim(300));
         integrator.setIsothermal(false);
