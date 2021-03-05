@@ -57,7 +57,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         species = SpeciesN2.create(false);
         addSpecies(species);
 
-        BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+        BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(getSpeciesManager(), null, space);
         BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
 
         double ratio = 1.631;

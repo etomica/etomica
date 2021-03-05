@@ -49,7 +49,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      *            if null, specifies use of atom type's position definition
      */
     public PotentialMasterListMolecular(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
-        this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim, positionDefinition, _space), _space);
+        this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim.getSpeciesManager(), positionDefinition, _space), _space);
     }
 
     public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, Space _space) {

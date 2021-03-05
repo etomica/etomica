@@ -14,8 +14,8 @@ import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.lattice.CellLattice;
 import etomica.molecule.*;
-import etomica.simulation.Simulation;
 import etomica.space.*;
+import etomica.species.SpeciesManager;
 import etomica.util.Debug;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -23,8 +23,8 @@ import etomica.util.IListener;
 /**
  * Class that defines and manages construction and use of lattice of cells 
  * for cell-based neighbor listing.
- * 
- * 
+ *
+ *
  * @author Tai Boon Tan
  *
  */
@@ -33,31 +33,29 @@ import etomica.util.IListener;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEventListener, MoleculeAgentManager.MoleculeAgentSource, java.io.Serializable {
+public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEventListener, MoleculeAgentManager.MoleculeAgentSource<CellMolecular> {
 
-    private static final long serialVersionUID = 1L;
-    protected final Simulation sim;
     protected final CellLattice lattice;
     protected final IMoleculePositionDefinition positionDefinition;
     protected final Box box;
     protected int cellRange = 2;
     protected double range;
-    protected final MoleculeAgentManager agentManager;
+    protected final MoleculeAgentManager<CellMolecular> agentManager;
     protected boolean doApplyPBC;
     protected final Vector v;
     protected final int[] numCells;
     protected IMoleculePositionDefinition moleculeSite;
     protected Space space;
-    
+
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManagerMolecular(Simulation sim, Box box, double potentialRange, Space _space) {
-        this(sim, box, potentialRange, null, _space);
+    public NeighborCellManagerMolecular(SpeciesManager sm, Box box, double potentialRange, Space _space) {
+        this(sm, box, potentialRange, null, _space);
     }
-    
+
     /**
      * Construct manager for neighbor cells in the given box.  The number
      * of cells in each dimension is given by nCells.  Position definition is
@@ -65,17 +63,16 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManagerMolecular(Simulation sim, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
+    public NeighborCellManagerMolecular(SpeciesManager sm, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
-        this.sim = sim;
         this.space = space;
         numCells = new int[space.D()];
 
         lattice = new CellLattice(space, box.getBoundary().getBoxSize(), CellMolecular.FACTORY);
         setPotentialRange(potentialRange);
         v = space.makeVector();
-        agentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
+        agentManager = new MoleculeAgentManager<>(sm, box, this);
         doApplyPBC = false;
         moleculeSite = new MoleculePositionGeometricCenter(space);
     }
@@ -212,7 +209,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
     }
     
     public CellMolecular getCell(IMolecule molecule) {
-        return (CellMolecular)agentManager.getAgent(molecule);
+        return agentManager.getAgent(molecule);
     }
 
     /**
@@ -242,13 +239,13 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
      * Returns the cell containing the given atom.  The atom is added to the
      * cell's atom list.
      */
-    public Object makeAgent(IMolecule molecule) {
+    public CellMolecular makeAgent(IMolecule molecule) {
         Vector position = moleculeSite.position(molecule);
         v.E(position);
         if (doApplyPBC) {
             v.PE(box.getBoundary().centralImage(position));
         }
-        CellMolecular moleculeCell = (CellMolecular)lattice.site(v);
+        CellMolecular moleculeCell = (CellMolecular) lattice.site(v);
         moleculeCell.addMolecule(molecule);
 //        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
 //            System.out.println("assigning new "+atom+" at "+position+" to "+atomCell);
@@ -259,8 +256,8 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Object cell, IMolecule molecule) {
-        ((CellMolecular)cell).removeMolecule(molecule);
+    public void releaseAgent(CellMolecular cell, IMolecule molecule) {
+        cell.removeMolecule(molecule);
     }
     
     private static class MyMCMoveListener implements IListener, java.io.Serializable {
@@ -284,9 +281,6 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
                 MCMove move = ((MCMoveEvent)evt).getMCMove();
                 AtomIterator iterator = move.affectedAtoms(box);
                 iterator.reset();
-                if(iterator == null){
-                	throw new RuntimeException("<NeighborCellManagerMolecular> MoleculeIterator!!!!!!!!!!!!");
-                }
                 for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
                 	if(atom.getIndex() == 1);
                     updateCell(atom.getParentGroup());

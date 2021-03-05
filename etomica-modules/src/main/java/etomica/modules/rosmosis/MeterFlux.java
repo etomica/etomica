@@ -15,10 +15,10 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.units.dimensions.*;
 
 /**
@@ -27,7 +27,7 @@ import etomica.units.dimensions.*;
  * next time, then the meter counts that as a crossing.  Each boundary can have
  * a coefficient, such that flow into one region through boundaries on either
  * side can be considered "positive" flux.
- * 
+ *
  * If an IntegratorMD is used, flux will be given in terms of crossings per
  * area per time.  Otherwise, flux will be given in terms of crossings per
  * area per step.
@@ -36,17 +36,17 @@ import etomica.units.dimensions.*;
  */
 public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
 
-    public MeterFlux(Simulation sim, Space _space) {
-        this.sim = sim;
-    	this.space = _space;
+    public MeterFlux(SpeciesManager sm, Space _space) {
+        this.sm = sm;
+        this.space = _space;
         data = new DataDouble();
         dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
-                Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,0}));
+                Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1, -1, 0}));
         tag = new DataTag();
         boundaries = new double[0];
         positionDefinition = new MoleculePositionGeometricCenter(space);
     }
-    
+
     public void setBoundaries(int newDim, double[] newBoundaries, int[] newBoundaryCoefficients) {
         dim = newDim;
         boundaries = newBoundaries;
@@ -64,7 +64,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
     public void setSpecies(ISpecies[] newSpecies) {
         species = newSpecies;
         if (box != null) {
-            agentManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, this);
+            agentManager = new MoleculeAgentManager<>(sm, box, this);
         }
     }
     
@@ -86,7 +86,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
             }
         }
         if (species != null) {
-            agentManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, this);
+            agentManager = new MoleculeAgentManager<>(sm, box, this);
         }
     }
     
@@ -186,7 +186,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
         /* do nothing */
     }
 
-    protected final Simulation sim;
+    protected final SpeciesManager sm;
     protected final DataDouble data;
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;

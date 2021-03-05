@@ -8,11 +8,10 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 
 import static etomica.potential.PotentialMasterBonding.FullBondingInfo;
 
@@ -23,15 +22,14 @@ public class PotentialMoleculeIntra implements IPotentialMolecular {
     protected Boundary boundary;
     protected final Potential2Soft[][] atomPotentials;
 
-    public PotentialMoleculeIntra(Simulation sim, FullBondingInfo bondingInfo) {
+    public PotentialMoleculeIntra(Space space, SpeciesManager sm, FullBondingInfo bondingInfo) {
         this.bondingInfo = bondingInfo;
-        this.space = sim.getSpace();
+        this.space = space;
         // the species we apply to might be purely atomic.  so long as our
         // BondingInfo is nonBonding, it won't matter
-        isPureAtoms = sim.getSpeciesList().stream().allMatch(s -> s.getLeafAtomCount() == 1);
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        atomPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
+        isPureAtoms = sm.isPureAtoms();
+        int numAtomTypes = sm.getAtomTypeCount();
+        atomPotentials = new Potential2Soft[numAtomTypes][numAtomTypes];
     }
 
     @Override

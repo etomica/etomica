@@ -245,7 +245,7 @@ public class SamFasterer extends Simulation {
         p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
         p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         potentialMaster.setPairPotential(speciesSurface.getLeafType(), typeS, p2SulfurSurfaceLJ);
-        criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
+        criterion3 = new CriterionTether3(getSpeciesManager(), species, speciesSurface.getLeafType());
         criterion3.setBox(box);
         P2Surface p2SurfaceTrunc = new P2Surface(space, p2SulfurSurfaceLJ, p2SurfaceBond, criterion3);
 

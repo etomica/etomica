@@ -65,7 +65,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
-        BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, new MoleculePositionGeometricCenter(space), space);
+        BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(getSpeciesManager(), new MoleculePositionGeometricCenter(space), space);
         bASCellManagerMolecular.setRange(3.5);//association range=2.1-3.5
         System.out.println("numAtom=" +numMolceules);
         System.out.println("temperature = "+temperatureK+" K");
