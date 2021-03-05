@@ -10,11 +10,14 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorHardFasterer;
+import etomica.integrator.IntegratorMDFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P1HardMovingBoundary;
-import etomica.potential.*;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.compute.NeighborManagerSimpleHard;
+import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -22,33 +25,32 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
  */
-public class PistonCylinder extends Simulation {
-    
-    private static final long serialVersionUID = 1L;
+public class PistonCylinderFasterer extends Simulation {
+
     private final int INIT_NUM_MOLECULES = 100;
-    public IntegratorHardPiston integrator;
+    public IntegratorHardPistonFasterer integrator;
     public P1HardMovingBoundary pistonPotential;
     public SpeciesGeneral species;
     public Box box;
-    public P2HardWrapper potentialWrapper;
-    public P1HardBoundary wallPotential;
 
     public double lambda;
     public ConfigurationLattice config;
 
-    public PistonCylinder(int D) {
+    public PistonCylinderFasterer(int D) {
         super(Space.getInstance(D));
+        setRandom(new RandomMersenneTwister(2));
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
+
         lambda = 2.0;
         double sigma = 4.0;
-        box = this.makeBox(new BoundaryPistonCylinder(space));
+        box = this.makeBox(new BoundaryPistonCylinderFasterer(space));
         box.setNMolecules(species, INIT_NUM_MOLECULES);
         Vector newDim;
         if (space.D() == 2) {
@@ -62,44 +64,45 @@ public class PistonCylinder extends Simulation {
         box.getBoundary().setBoxSize(newDim);
         config.initializeCoordinates(box);
 
-        P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, 31.875, true);
-        potentialWrapper = new P2HardWrapper(space, potentialSW);
-        potentialMaster.addPotential(potentialWrapper, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
+        PotentialComputePairGeneral potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
 
-        wallPotential = new P1HardBoundary(space, true);
-        wallPotential.setCollisionRadius(sigma * 0.5); //potential.getCoreDiameter()*0.5);
-        potentialMaster.addPotential(wallPotential, new AtomType[]{species.getLeafType()});
-        wallPotential.setActive(0, true, true);  // left wall
-        wallPotential.setActive(0, false, true); // right wall
-        if (D == 3) {
-            wallPotential.setActive(1, true, true); // top wall
-            wallPotential.setActive(1, false, false); // bottom wall
-            wallPotential.setActive(2, true, true);  // front wall
-            wallPotential.setActive(2, false, true); // back wall
-        } else {
-            wallPotential.setActive(1, true, false); // top wall
-            wallPotential.setActive(1, false, true); // bottom wall
-        }
+        P2HardGeneric potentialSW = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -31.875}, true);
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potentialSW);
 
-        pistonPotential = new P1HardMovingBoundary(space, box.getBoundary(), 1, 400, true);
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+
+        pistonPotential = new P1HardMovingBoundary(box, 1, 400);
         pistonPotential.setCollisionRadius(sigma * 0.5);
+        pistonPotential.setActive(0, true, true);  // left wall
+        pistonPotential.setActive(0, false, true); // right wall
         if (D == 3) {
+            pistonPotential.setActive(1, true, true); // bottom wall
+            pistonPotential.setActive(1, false, false); // top wall
+            pistonPotential.setActive(2, true, true);  // front wall
+            pistonPotential.setActive(2, false, true); // back wall
+
             pistonPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1) * 0.5);
             pistonPotential.setWallVelocity(-0.5);
             pistonPotential.setPressure(-Bar.UNIT.toSim(1.0));
         } else {
+            pistonPotential.setActive(1, true, false); // top wall
+            pistonPotential.setActive(1, false, true); // bottom wall
+
             pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1) * 0.5);
             pistonPotential.setWallVelocity(0.5);
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }
         pistonPotential.setThickness(1.0);
-        potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
-        ((BoundaryPistonCylinder) box.getBoundary()).setPistonPotential(pistonPotential);
+        pcField.setFieldPotential(species.getLeafType(), pistonPotential);
+//        potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
+        ((BoundaryPistonCylinderFasterer) box.getBoundary()).setPistonPotential(pistonPotential);
 
-        integrator = new IntegratorHardPiston(random, potentialMaster, pistonPotential, box);
+        integrator = new IntegratorHardPistonFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField),
+                neighborManager, random, 1.0, 1.0, box, pistonPotential);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
         getController().addActivity(new ActivityIntegrate(integrator, true));
 
