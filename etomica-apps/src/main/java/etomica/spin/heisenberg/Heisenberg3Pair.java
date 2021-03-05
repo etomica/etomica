@@ -69,7 +69,7 @@ public class Heisenberg3Pair extends Simulation {
         box.setNMolecules(spins, numAtoms);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this, null, box);
+        integrator = new IntegratorMC(this.getRandom(), null, box);
         mcMove = new MCMoveRotate3Pair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);

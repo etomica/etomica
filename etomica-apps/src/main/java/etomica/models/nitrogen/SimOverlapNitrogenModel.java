@@ -119,7 +119,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         mcMoveVolume.setBox(boxTarget);
         mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
 
-        integratorTarget = new IntegratorMC(this, potentialMasterTarget, boxTarget);
+        integratorTarget = new IntegratorMC(this.getRandom(), potentialMasterTarget, boxTarget);
         integratorTarget.getMoveManager().addMCMove(move);
         integratorTarget.getMoveManager().addMCMove(rotate);
         integratorTarget.getMoveManager().addMCMove(mcMoveVolume);

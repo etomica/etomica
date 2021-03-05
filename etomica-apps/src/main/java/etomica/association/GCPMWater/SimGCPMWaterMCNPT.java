@@ -3,7 +3,6 @@ package etomica.association.GCPMWater;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -90,7 +89,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
 	    mcMoveVolume.setPressure(pressure);
 	    box = new Box(space);
         addBox(box);
-        integrator = new IntegratorMC(this, potentialMaster,box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
         Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
 

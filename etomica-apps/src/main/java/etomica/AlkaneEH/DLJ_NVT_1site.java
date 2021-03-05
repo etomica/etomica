@@ -5,7 +5,6 @@
 package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -106,7 +105,7 @@ public class DLJ_NVT_1site extends Simulation {
         potentialMaster.lrcMaster().addPotential(pRF.makeP0());
 
         // integrator from potential master
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         // add mc move
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);

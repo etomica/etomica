@@ -77,7 +77,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         System.out.println("temperature = " + temperature);
         System.out.println("numSteps = " + numSteps);
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
         mcMoveAtomMonomer = new MCMoveAtomMonomer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
         mcMoveAtomDimer = new MCMoveAtomDimer(random, potentialMaster, space);

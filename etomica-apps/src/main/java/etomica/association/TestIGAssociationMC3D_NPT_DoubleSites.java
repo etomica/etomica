@@ -79,7 +79,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         System.out.println("numSteps = " + numSteps);
         System.out.println("maximum chain length= " + maxChainLength);
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
         mcMoveAtomMonomer = new MCMoveAtomMonomer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
         mcMoveAtomMonomer.setMaxLength(maxChainLength);

@@ -107,7 +107,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         double boxLength = Math.pow(volume, 1.0 / 3.0);
 
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
         mcMoveMoleculeMonomer = new MCMoveMoleculeMonomer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
         mcMoveMoleculeSmer = new MCMoveMoleculeSmer(random, potentialMaster, space);

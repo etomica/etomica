@@ -3,7 +3,6 @@ package etomica.association.GCPMWater;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -84,7 +83,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
 	    mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster,random, space);
 	    box = new Box(space);
         addBox(box);
-        integrator = new IntegratorMC(this, potentialMaster,box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
 
 /*        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);

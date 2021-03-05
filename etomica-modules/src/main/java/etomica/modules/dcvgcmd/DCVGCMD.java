@@ -182,7 +182,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
                 species1, species2, box);
         final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
+        final IntegratorMC integratorMC = new IntegratorMC(this.getRandom(), potentialMaster, box);
 
         potentialMaster.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());

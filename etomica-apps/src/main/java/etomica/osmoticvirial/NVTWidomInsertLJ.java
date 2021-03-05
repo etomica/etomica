@@ -1,7 +1,6 @@
 package etomica.osmoticvirial;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -61,7 +60,7 @@ public class NVTWidomInsertLJ extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temp);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);

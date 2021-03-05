@@ -2,7 +2,6 @@ package etomica.starpolymer;
 
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -73,7 +72,7 @@ public class StarPolymerMC extends Simulation {
             potentialMaster = new PotentialMaster();
         }
 
-        integratorMC = new IntegratorMC(this, potentialMaster, box);
+        integratorMC = new IntegratorMC(this.getRandom(), potentialMaster, box);
 //            MCMoveAtom atomMove = new MCMoveAtom(random, potentialMaster, space);
 //            integratorMC.getMoveManager().addMCMove(atomMove);
 //            ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);

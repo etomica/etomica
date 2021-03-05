@@ -54,7 +54,7 @@ public class TestLJGCMC3DSlowerer extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(1.1);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2 * sigma);

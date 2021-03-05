@@ -71,7 +71,7 @@ public class HessianDB extends Simulation {
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
         box = this.makeBox(boundary);
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         box.setNMolecules(species, numAtoms);
 
         primitive = new PrimitiveCubic(space, n * L);

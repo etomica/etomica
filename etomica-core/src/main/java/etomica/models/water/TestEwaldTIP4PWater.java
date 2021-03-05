@@ -5,7 +5,6 @@
 package etomica.models.water;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
@@ -68,7 +67,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         box.getBoundary().setBoxSize(Vector.of(new double[]{25, 25, 25}));
         box.setNMolecules(species, 125);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
 
         MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(this, potentialMaster, space);

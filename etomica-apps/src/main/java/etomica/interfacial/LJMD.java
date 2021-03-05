@@ -105,7 +105,7 @@ public class LJMD extends Simulation {
         }
 
         if (mcSteps > 0 && hybridInterval > 0) {
-            IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
+            IntegratorMC integratorMC = new IntegratorMC(this.getRandom(), potentialMaster, box);
             integratorMC.setTemperature(temperature);
             mcMove = new MCMoveAtomNbr(random, potentialMaster, space);
             mcMove.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));

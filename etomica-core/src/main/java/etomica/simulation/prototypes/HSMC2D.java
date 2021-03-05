@@ -50,7 +50,7 @@ public class HSMC2D extends Simulation {
 
         box = this.makeBox();
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 20);

@@ -61,7 +61,7 @@ public class TestLJMCDimerSlowRigid extends Simulation {
         box = this.makeBox();
         PotentialMaster potentialMaster = cellListing ? new PotentialMasterCell(this, 3, this.getSpace()) : new PotentialMaster();
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
 

@@ -88,7 +88,7 @@ public class LJMC3DDimer extends Simulation {
         P22CLJmuQ p2 = new P22CLJmuQ(space, 3.0058, 3.56379, 51.8037, 31.5550, mu, Q, 0.4847 / (0.4847 + 0.6461));
         potentialMaster.addPotential(p2, new ISpecies[]{species, species});
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(params.temperatureK));
 
         MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(potentialMaster, random, space, 1, box.getBoundary().getBoxSize().getX(0) / 2);

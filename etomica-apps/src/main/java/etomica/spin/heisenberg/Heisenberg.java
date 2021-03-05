@@ -84,7 +84,7 @@ public class Heisenberg extends Simulation {
         config.initializeCoordinates(box);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         mcMove = new MCMoveRotate(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);

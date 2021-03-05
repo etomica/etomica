@@ -5,7 +5,6 @@
 package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -71,7 +70,7 @@ public class CH4NVT extends Simulation {
         box.setNMolecules(speciesCH4, numberMolecules);
         box.getBoundary().setBoxSize(Vector.of(new double[]{boxSize, boxSize, boxSize}));
         potentialMaster = new PotentialMaster();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
 
         //CH4 potential
         double sigmaH = 3.31;// "middle point of CH bond"

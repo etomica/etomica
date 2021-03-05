@@ -73,7 +73,7 @@ public class TestN2MCSlow extends Simulation {
         double rc = 49.9999;
         potentialMaster = cellListing ? new PotentialMasterCell(this, rc, space) : new PotentialMaster();
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperatureK));
 
         translateMove = new MCMoveMolecule(potentialMaster, random, space, 0.2, 50);

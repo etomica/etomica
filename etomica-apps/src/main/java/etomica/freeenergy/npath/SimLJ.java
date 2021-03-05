@@ -5,7 +5,6 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -70,7 +69,7 @@ public class SimLJ extends Simulation {
         potentialMasterCell = new PotentialMasterCell(this, rc, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMasterCell, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));

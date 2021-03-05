@@ -94,8 +94,8 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         box1 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box1);
-        box1.setNMolecules(species1,numAtoms/2);
-        integrator1 = new IntegratorMC(this, potentialMaster, box1);
+        box1.setNMolecules(species1, numAtoms / 2);
+        integrator1 = new IntegratorMC(this.getRandom(), potentialMaster, box1);
         MCMoveManager moveManager = integrator1.getMoveManager();
         if(vf != 0) {
             mcMoveInsertDelete1.setSpecies(species2);
@@ -107,8 +107,8 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         box2 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box2);
-        box2.setNMolecules(species1,numAtoms - (numAtoms/2));
-        integrator2 = new IntegratorMC(this, potentialMaster, box2);
+        box2.setNMolecules(species1, numAtoms - (numAtoms / 2));
+        integrator2 = new IntegratorMC(this.getRandom(), potentialMaster, box2);
         moveManager = integrator2.getMoveManager();
         if(vf != 0) {
             mcMoveInsertDelete2.setSpecies(species2);

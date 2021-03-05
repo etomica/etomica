@@ -55,7 +55,7 @@ public class SoftSphere3d extends Simulation {
 
         potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
 
 

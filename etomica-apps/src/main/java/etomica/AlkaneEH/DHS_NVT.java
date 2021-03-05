@@ -5,7 +5,6 @@
 package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -104,7 +103,7 @@ public class DHS_NVT extends Simulation {
         P2MoleculeTruncated p2TruncatedDHS = new P2MoleculeTruncated(pTarget, truncation, space, positionDefinition);
         potentialMaster.addPotential(p2TruncatedDHS, new ISpecies[]{species, species});
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 

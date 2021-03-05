@@ -68,7 +68,7 @@ public class GEMCWithRotation extends Simulation {
         box1 = this.makeBox();
         box1.setNMolecules(species, 200);
 
-        IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster, box1);
+        IntegratorMC integratorMC1 = new IntegratorMC(this.getRandom(), potentialMaster, box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
@@ -78,7 +78,7 @@ public class GEMCWithRotation extends Simulation {
 
         box2 = this.makeBox();
         box2.setNMolecules(species, 200);
-        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster, box2);
+        IntegratorMC integratorMC2 = new IntegratorMC(this.getRandom(), potentialMaster, box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));

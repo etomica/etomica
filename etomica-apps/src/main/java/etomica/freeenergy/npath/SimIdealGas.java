@@ -5,7 +5,6 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -66,7 +65,7 @@ public class SimIdealGas extends Simulation {
         potentialMasterCell = new PotentialMasterCell(this, 3, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMasterCell, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
         Vector offset = space.makeVector();

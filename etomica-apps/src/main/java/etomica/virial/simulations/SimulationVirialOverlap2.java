@@ -243,7 +243,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 box[iBox].setNMolecules(sp, nMolecules[sp.getIndex()]);
             }
 
-            integrators[iBox] = new IntegratorMC(this, potentialMaster, box[iBox]);
+            integrators[iBox] = new IntegratorMC(this.getRandom(), potentialMaster, box[iBox]);
             integrators[iBox].setTemperature(temperature);
             integrators[iBox].getMoveManager().setEquilibrating(true);
 
