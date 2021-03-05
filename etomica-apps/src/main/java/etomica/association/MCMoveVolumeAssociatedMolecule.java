@@ -23,7 +23,6 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.MoleculeIterator;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -64,10 +63,10 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
 	protected MoleculeChildAtomAction moveMoleculeAction;
 	protected final SpeciesManager sm;
 
-    public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster,
-                                          Space _space) {
-		this(sim.getSpeciesManager(), potentialMaster, sim.getRandom(), _space, 1.0);
-    }
+    public MCMoveVolumeAssociatedMolecule(SpeciesManager sm, PotentialMaster potentialMaster, IRandom random,
+										  Space _space) {
+		this(sm, potentialMaster, random, _space, 1.0);
+	}
 
 	/**
 	 * @param potentialMaster an appropriate PotentialMaster instance for calculating energies

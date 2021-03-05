@@ -7,7 +7,6 @@ package etomica.integrator.mcmove;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -20,10 +19,6 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveWiggleAceticAcid(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-    	this(potentialMaster,sim.getRandom(), 0.1, _space);
-    }
-    
     public MCMoveWiggleAceticAcid(PotentialMaster potentialMaster,
                                   IRandom random, double stepSize, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);

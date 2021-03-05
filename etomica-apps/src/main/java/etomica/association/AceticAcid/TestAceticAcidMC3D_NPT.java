@@ -122,7 +122,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         mcMoveMoleculeSmer.setAssociationManager(associationManager, associationHelper);
         mcMoveMoleculeRotate.setAssociationManager(associationManager, associationHelper);
         mcMoveBiasUB.setAssociationManager(associationManager, associationHelper);
-        mcMoveVolume = new MCMoveVolumeAssociatedMolecule(this, potentialMaster, space);//volume change move
+        mcMoveVolume = new MCMoveVolumeAssociatedMolecule(getSpeciesManager(), potentialMaster, random, space);//volume change move
         mcMoveVolume.setPressure(pressure);
         mcMoveVolume.setAssociationManager(associationManager, associationHelper);
 
