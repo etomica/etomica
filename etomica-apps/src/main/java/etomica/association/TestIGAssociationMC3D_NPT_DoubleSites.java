@@ -6,7 +6,6 @@ package etomica.association;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
@@ -82,9 +81,9 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
-        mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+        mcMoveAtomMonomer = new MCMoveAtomMonomer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
         mcMoveAtomMonomer.setMaxLength(maxChainLength);
-        mcMoveAtomSmer = new MCMoveAtomSmer(this, potentialMaster, space);
+        mcMoveAtomSmer = new MCMoveAtomSmer(random, potentialMaster, space);
         mcMoveAtomSmer.setMaxLength(maxChainLength);
         mcMoveRotate = new MCMoveRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
         mcMoveRotate.setMaxLength(maxChainLength);
@@ -132,9 +131,9 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         potential.setInnerWellCutoffFactor(0.8);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential.getRange());
-        mcMoveSmer = new MCMoveSmer(this, potentialMaster, space, potential);
-        mcMoveSmerRotate = new MCMoveSmerRotate(this, potentialMaster, space, potential);
-        mcMoveVolume = new MCMoveVolumeAssociated(this, potentialMaster, space);
+        mcMoveSmer = new MCMoveSmer(random, potentialMaster, space, potential);
+        mcMoveSmerRotate = new MCMoveSmerRotate(random, potentialMaster, space, potential);
+        mcMoveVolume = new MCMoveVolumeAssociated(random, potentialMaster, space);
         //MCMoveVolumeAssociated.dodebug =false;
         mcMoveVolume.setAssociationManager(associationManagerOriented);
         mcMoveSmer.setAssociationManager(associationManagerOriented);

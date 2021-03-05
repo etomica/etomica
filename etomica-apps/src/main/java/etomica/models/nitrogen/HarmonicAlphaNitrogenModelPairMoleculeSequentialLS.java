@@ -57,27 +57,27 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 //		System.out.println("nCell: " + nCell);
 
 		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 
-		Boundary boundary = new BoundaryRectangularPeriodicSwitch(space);
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
+        Boundary boundary = new BoundaryRectangularPeriodicSwitch(space);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
 
-		int[] nCells = new int[]{1, 1, 1};
-		boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
-		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
+        int[] nCells = new int[]{1, 1, 1};
+        boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
+        Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
 //		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 
-		this.rC = rC;
+        this.rC = rC;
 
-		potential = new P2Nitrogen(space, rC);
-		potential.setEnablePBC(false);
-		potential.setBox(box);
+        potential = new P2Nitrogen(space, rC);
+        potential.setEnablePBC(false);
+        potential.setBox(box);
 
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 

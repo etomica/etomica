@@ -9,7 +9,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -19,18 +18,17 @@ public class MCMoveAtomMonomer extends MCMoveAtom {
 	protected final AtomArrayList smerList;
 	protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
-	
-	
 
-	public MCMoveAtomMonomer(Simulation sim, PotentialMaster potentialMaster,
-                             Space _space) {
-		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
+
+	public MCMoveAtomMonomer(IRandom random, PotentialMaster potentialMaster,
+							 Space _space) {
+		this(potentialMaster, random, _space, 1.0, 15.0, false);
 	}
 
 
 	public MCMoveAtomMonomer(PotentialMaster potentialMaster, IRandom random,
-                             Space _space, double stepSize, double stepSizeMax,
-                             boolean fixOverlap) {
+							 Space _space, double stepSize, double stepSizeMax,
+							 boolean fixOverlap) {
 		super(random, potentialMaster, _space, stepSize, stepSizeMax,
 				fixOverlap);
 		this.smerList = new AtomArrayList();

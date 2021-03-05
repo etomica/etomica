@@ -80,7 +80,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
         primitive = new PrimitiveHexagonal(space, (nC[0]) * a, nC[2] * c);
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         coordinateDef.setIsBeta();
         coordinateDef.setOrientationVectorBeta(space);
         coordinateDef.initializeCoordinates(nCells);

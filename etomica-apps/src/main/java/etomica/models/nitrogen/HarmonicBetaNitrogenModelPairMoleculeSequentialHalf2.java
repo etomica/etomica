@@ -56,26 +56,26 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simula
 
 		Vector[] boxDim = new Vector[3];
 		boxDim[0] = Vector.of(new double[]{nCell * aDim, 0, 0});
-		boxDim[1] = Vector.of(new double[]{-nCell * aDim * Math.cos(Degree.UNIT.toSim(60)), nCell * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = Vector.of(new double[]{0, 0, nCell * cDim});
+        boxDim[1] = Vector.of(new double[]{-nCell * aDim * Math.cos(Degree.UNIT.toSim(60)), nCell * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nCell * cDim});
 
-		int[] nCells = new int[]{division, division, division};
-		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		Primitive primitive = new PrimitiveHexagonal(space, (nCell / division) * aDim, (nCell / division) * cDim);
+        int[] nCells = new int[]{division, division, division};
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        Primitive primitive = new PrimitiveHexagonal(space, (nCell / division) * aDim, (nCell / division) * cDim);
 
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBeta();
-		coordinateDef.setOrientationVectorBeta(space);
-		coordinateDef.initializeCoordinates(nCells);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsBeta();
+        coordinateDef.setOrientationVectorBeta(space);
+        coordinateDef.initializeCoordinates(nCells);
 //		System.out.println("density: " + density);
 //		System.exit(1);
-		double[] u = new double[20];
-		if (true) {
-			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-			double[][] param = parameters.getParameter(density);
+        double[] u = new double[20];
+        if (true) {
+            BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+            double[][] param = parameters.getParameter(density);
 
 			int kParam = 0;
 			for (int i = 0; i < param.length; i++) {

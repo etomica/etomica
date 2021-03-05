@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -77,7 +76,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 
         primitive = new PrimitiveHexagonal(space, (nC[0]) * a, nC[2] * c);
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         coordinateDef.setIsGamma();
         coordinateDef.setOrientationVectorGamma(space);
         coordinateDef.initializeCoordinates(nCells);

@@ -70,7 +70,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         Primitive primitive = new PrimitiveTetragonal(space, nCell * a, nCell * c);
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         coordinateDef.setIsGamma();
         coordinateDef.setOrientationVectorGamma(space);
         coordinateDef.initializeCoordinates(nCells);
@@ -125,7 +125,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation {
         Basis basisBCC = new BasisCubicBcc();
         Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         coordinateDef.setIsGamma();
         coordinateDef.setOrientationVectorGamma(space);
         coordinateDef.initializeCoordinates(nCells);

@@ -27,6 +27,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Pressure;
 import etomica.util.random.IRandom;
@@ -39,51 +40,50 @@ import java.io.IOException;
  *
  * @author Hye Min Kim
  */
-public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements MoleculeAgentSource, MCMoveMolecular {
-    
-    private static final long serialVersionUID = 2L;
-    protected double pressure;
-    private MeterPotentialEnergy energyMeter;
-    private final int D;
-    private IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
-    protected final MoleculeIteratorAllMolecules moleculeIterator;
-    protected final Vector r;
-    protected final Vector dr, dr2;
-    private transient double uOld, hOld, vNew, vScale, hNew;
+public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements MoleculeAgentSource<MCMoveVolumeAssociatedMolecule.Agent>, MCMoveMolecular {
+
+	protected double pressure;
+	private MeterPotentialEnergy energyMeter;
+	private final int D;
+	private IRandom random;
+	protected final AtomIteratorLeafAtoms affectedAtomIterator;
+	protected final MoleculeIteratorAllMolecules moleculeIterator;
+	protected final Vector r;
+	protected final Vector dr, dr2;
+	private transient double uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
     protected AssociationManagerMolecule associationManager;
     protected int numAssociatedMolecules;
-    protected int numMer;
-    protected MoleculeAgentManager moleculeAgentManager;
-    protected final MoleculeArrayList smerList;
+	protected int numMer;
+	protected MoleculeAgentManager<Agent> moleculeAgentManager;
+	protected final MoleculeArrayList smerList;
     public static boolean dodebug;
     protected FileWriter fileWriter;
     protected IAssociationHelperMolecule associationHelper;
     protected Vector groupTranslationVector;
-    protected MoleculeChildAtomAction moveMoleculeAction;
-    protected final Simulation sim;
+	protected MoleculeChildAtomAction moveMoleculeAction;
+	protected final SpeciesManager sm;
 
     public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster,
                                           Space _space) {
-        this(sim, potentialMaster, sim.getRandom(), _space, 1.0);
+		this(sim.getSpeciesManager(), potentialMaster, sim.getRandom(), _space, 1.0);
     }
-    
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
-     */
-    public MCMoveVolumeAssociatedMolecule(Simulation sim, PotentialMaster potentialMaster, IRandom random,
-                                          Space _space, double pressure) {
-        super(potentialMaster);
-        this.random = random;
-        this.sim = sim;
-        smerList = new MoleculeArrayList();
-        this.D = _space.D();
-        r = _space.makeVector();
-        this.dr = _space.makeVector();
-        this.dr2 = _space.makeVector();
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
+
+	/**
+	 * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
+	 * @param _space          the governing space for the simulation
+	 */
+	public MCMoveVolumeAssociatedMolecule(SpeciesManager sm, PotentialMaster potentialMaster, IRandom random,
+										  Space _space, double pressure) {
+		super(potentialMaster);
+		this.random = random;
+		this.sm = sm;
+		smerList = new MoleculeArrayList();
+		this.D = _space.D();
+		r = _space.makeVector();
+		this.dr = _space.makeVector();
+		this.dr2 = _space.makeVector();
+		energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
@@ -97,13 +97,13 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     }
     
     public void setBox(Box p) {
-        super.setBox(p);
-        energyMeter.setBox(p);
-        affectedAtomIterator.setBox(p);
-        moleculeIterator.setBox(p);
-		moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
-        
-    }
+		super.setBox(p);
+		energyMeter.setBox(p);
+		affectedAtomIterator.setBox(p);
+		moleculeIterator.setBox(p);
+		moleculeAgentManager = new MoleculeAgentManager<>(sm, box, this);
+
+	}
     
     public void setAssociationManager(AssociationManagerMolecule associationManager, IAssociationHelperMolecule associationHelper) {
     	this.associationManager = associationManager;
@@ -318,30 +318,39 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     
     public AtomIterator affectedAtoms() {
         return affectedAtomIterator;
-    }
-    
-    public Vector positionDefinition(IMolecule molecule){
-    	return molecule.getChildList().get(SpeciesAceticAcid.indexC).getPosition();
-    }
+	}
 
-    public void setPressure(double p) {pressure = p;}
-    public final double getPressure() {return pressure;}
-    public Dimension getPressureDimension() {return Pressure.DIMENSION;}
+	public Vector positionDefinition(IMolecule molecule) {
+		return molecule.getChildList().get(SpeciesAceticAcid.indexC).getPosition();
+	}
+
+	public void setPressure(double p) {
+		pressure = p;
+	}
+
+	public final double getPressure() {
+		return pressure;
+	}
+
+	public Dimension getPressureDimension() {
+		return Pressure.DIMENSION;
+	}
 
 
-	public Object makeAgent(IMolecule a) {
+	public Agent makeAgent(IMolecule a) {
 		return new Agent();
 	}
 
-	public void releaseAgent(Object agent, IMolecule molecule) {
-		
+	public void releaseAgent(Agent agent, IMolecule molecule) {
+
 	}
+
 	public static class Agent {
 		public int nMolecules;//number of molecules in the smer
 		public IMolecule nextMolecule;
 	}
 
-    public MoleculeIterator affectedMolecules(Box box) {
+	public MoleculeIterator affectedMolecules(Box box) {
 		return moleculeIterator;
 	}
 

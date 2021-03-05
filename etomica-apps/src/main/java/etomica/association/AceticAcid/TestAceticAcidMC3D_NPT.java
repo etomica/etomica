@@ -6,7 +6,6 @@ package etomica.association.AceticAcid;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.association.*;
 import etomica.atom.AtomType;
@@ -63,7 +62,6 @@ import java.io.File;
  */
 public class TestAceticAcidMC3D_NPT extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveMoleculeMonomer mcMoveMoleculeMonomer;
     public MCMoveMoleculeSmer mcMoveMoleculeSmer;
@@ -111,13 +109,13 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
-        mcMoveMoleculeMonomer = new MCMoveMoleculeMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
-        mcMoveMoleculeSmer = new MCMoveMoleculeSmer(this, potentialMaster, space);
+        mcMoveMoleculeMonomer = new MCMoveMoleculeMonomer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+        mcMoveMoleculeSmer = new MCMoveMoleculeSmer(random, potentialMaster, space);
         mcMoveMoleculeRotate = new MCMoveMoleculeRotateAssociated(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate;
         bv = new BiasVolumeAceticAcid(space, random, box);
         bv.setBox(box);
 
-        associationManager = new AssociationManagerMolecule(this, box, cellAgentManager, bv, 4.2);//check the association within the range 4.2A, maximum distance of association = 4.2A
+        associationManager = new AssociationManagerMolecule(getSpeciesManager(), box, cellAgentManager, bv, 4.2);//check the association within the range 4.2A, maximum distance of association = 4.2A
         associationHelper = new AssociationHelperMolecule(space, box, associationManager);
         mcMoveBiasUB = new MCMoveBiasUBMolecule(potentialMaster, bv, random, space);
         mcMoveMoleculeMonomer.setAssociationManager(associationManager, associationHelper);

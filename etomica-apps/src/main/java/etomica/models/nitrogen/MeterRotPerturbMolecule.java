@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Null;
 
@@ -25,14 +24,13 @@ import etomica.units.dimensions.Null;
  */
 public class MeterRotPerturbMolecule extends DataSourceScalar {
 
-	private static final long serialVersionUID = 1L;
 	protected final MeterPotentialEnergy meterPotentialMeasured;
 	protected final MeterPotentialEnergyFromIntegrator meterPotentialSampled;
     protected final Box secondaryBox;
     protected double latticeEnergy;
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
-    public MeterRotPerturbMolecule(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+    public MeterRotPerturbMolecule(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
 		super("Scaled Energy unit", Null.DIMENSION);
 		this.primaryCoordDef = coordinateDef;
 
@@ -41,9 +39,9 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 
 		secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
 
-		secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
+		secondaryCoordDef = new CoordinateDefinitionNitrogen(sim.getSpeciesManager(), secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), sim.getSpace());
 		secondaryCoordDef.setIsBeta();
-		secondaryCoordDef.setOrientationVectorBeta(space);
+		secondaryCoordDef.setOrientationVectorBeta(sim.getSpace());
 		secondaryCoordDef.initializeCoordinates(new int[]{1, 1, 1});
 
 		meterPotentialMeasured = new MeterPotentialEnergy(potentialMaster);

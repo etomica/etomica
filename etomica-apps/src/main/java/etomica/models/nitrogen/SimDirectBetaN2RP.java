@@ -70,7 +70,7 @@ public class SimDirectBetaN2RP extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
-        coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
+        coordinateDefTarg = new CoordinateDefinitionNitrogen(getSpeciesManager(), boxTarg, primitive, basis, space);
         coordinateDefTarg.setIsBeta();
         coordinateDefTarg.setOrientationVectorBeta(space);
         coordinateDefTarg.initializeCoordinates(nCells);

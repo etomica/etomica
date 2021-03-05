@@ -4,6 +4,7 @@
 
 package etomica.models.nitrogen;
 
+import etomica.action.AtomActionTransformed;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
@@ -23,7 +24,6 @@ import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.molecule.*;
 import etomica.normalmode.BasisBigCell;
-import etomica.action.AtomActionTransformed;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -97,8 +97,8 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
         }
         this.u = u;
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-        coordinateDef.setIsBetaLatticeSum();
+		coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+		coordinateDef.setIsBetaLatticeSum();
         coordinateDef.setIsDoLatticeSum();
         coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
         coordinateDef.initializeCoordinates(new int[]{1, 1, 1});
@@ -152,25 +152,25 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 
     }
 	
-	public double getEnergy (double[] u){
+	public double getEnergy (double[] u) {
 
 		double param[][] = new double[4][5];
-		for(int i=0; i<4; i++){
-			for(int j=0; j<5; j++){
-				param[i][j] = u[i*5+j];
-					
-			}	
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 5; j++) {
+				param[i][j] = u[i * 5 + j];
+
+			}
 		}
-		
-		CoordinateDefinitionNitrogen coordDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+
+		CoordinateDefinitionNitrogen coordDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
 		coordDef.setIsBetaLatticeSum();
 		coordDef.setIsDoLatticeSum();
 		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
-		coordDef.initializeCoordinates(new int[]{1,1,1});
-		
+		coordDef.initializeCoordinates(new int[]{1, 1, 1});
+
 		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
-				data.x = potential.energy((IMoleculeList)obj);
+				data.x = potential.energy((IMoleculeList) obj);
 				return data;
 			}
 			public IDataInfo getDataInfo() {

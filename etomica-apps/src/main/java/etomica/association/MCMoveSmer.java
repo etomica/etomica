@@ -13,10 +13,8 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.IPotentialAtomic;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -36,28 +34,28 @@ public class MCMoveSmer extends MCMoveBoxStep {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
-    protected boolean fixOverlap;
-    protected final IRandom random;
-    protected Space space;
-    protected final PotentialMasterCell potentialMaster;
-    protected final Vector dr;
-    protected final IPotentialAtomic trimerPotential;
-    protected final AtomArrayList smerList;
-    protected final AtomArrayList newSmerList;
-    protected AssociationManager associationManager;
+	protected boolean fixOverlap;
+	protected final IRandom random;
+	protected Space space;
+	protected final PotentialMasterCell potentialMaster;
+	protected final Vector dr;
+	protected final IPotentialAtomic trimerPotential;
+	protected final AtomArrayList smerList;
+	protected final AtomArrayList newSmerList;
+	protected AssociationManager associationManager;
 
-    public MCMoveSmer(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
-    }
-    
-    public MCMoveSmer(PotentialMasterCell potentialMaster, IRandom random,
-                      Space _space, double stepSize, double stepSizeMax,
-                      boolean fixOverlap, IPotentialAtomic TrimerPotential) {
-        super(potentialMaster);
-        this.smerList = new AtomArrayList();
-        this.newSmerList = new AtomArrayList();
-        this.affectedAtomIterator = new AtomIteratorArrayListSimple(smerList);
-        this.potentialMaster = potentialMaster;
+	public MCMoveSmer(IRandom random, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
+		this(potentialMaster, random, _space, 1.0, 15.0, false, dimerPotential);
+	}
+
+	public MCMoveSmer(PotentialMasterCell potentialMaster, IRandom random,
+					  Space _space, double stepSize, double stepSizeMax,
+					  boolean fixOverlap, IPotentialAtomic TrimerPotential) {
+		super(potentialMaster);
+		this.smerList = new AtomArrayList();
+		this.newSmerList = new AtomArrayList();
+		this.affectedAtomIterator = new AtomIteratorArrayListSimple(smerList);
+		this.potentialMaster = potentialMaster;
         this.dr = _space.makeVector();
         this.random = random;
         this.space = _space;

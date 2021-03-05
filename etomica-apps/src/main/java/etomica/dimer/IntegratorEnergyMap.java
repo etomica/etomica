@@ -4,14 +4,11 @@
 
 package etomica.dimer;
 
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 import java.io.IOException;
@@ -23,7 +20,7 @@ public class IntegratorEnergyMap extends IntegratorBox {
     public MeterPotentialEnergy energy;
     String fileTail;
 
-    public IntegratorEnergyMap(Simulation aSim, PotentialMaster potentialMaster,
+    public IntegratorEnergyMap(PotentialMaster potentialMaster,
                                IAtom aAdatom, String aFileTail,
                                Box box) {
         super(potentialMaster, 1.0, box);

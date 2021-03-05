@@ -4,16 +4,15 @@
 
 package etomica.normalmode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import etomica.action.IAction;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
-import etomica.space.Space;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Custom DMD integrator that handles hybrid simulations with
@@ -26,7 +25,7 @@ public class IntegratorHardMDMC extends IntegratorHard {
 
     public IntegratorHardMDMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
         super(sim, potentialMaster, box);
-        thermostatActions = new ArrayList<IAction>();
+        thermostatActions = new ArrayList<>();
     }
     
     public void addThermostatAction(IAction a) {

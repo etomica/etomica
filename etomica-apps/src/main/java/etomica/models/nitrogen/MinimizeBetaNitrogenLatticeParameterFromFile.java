@@ -72,7 +72,7 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 
 		primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
 
-		coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDefinition = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
 		coordinateDefinition.setIsBeta();
 		coordinateDefinition.setOrientationVectorBeta(space);
 		coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

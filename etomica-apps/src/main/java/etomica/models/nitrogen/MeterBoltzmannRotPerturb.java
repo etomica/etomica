@@ -5,7 +5,10 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
@@ -13,7 +16,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Null;
 
@@ -25,9 +27,9 @@ import etomica.units.dimensions.Null;
  * @author Tai Boon Tan
  */
 public class MeterBoltzmannRotPerturb implements IDataSource {
-    
+
     public MeterBoltzmannRotPerturb(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species,
-                                    Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+                                    Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.primaryCoordDef = coordinateDef;
 
         Box realBox = coordinateDef.getBox();
@@ -35,9 +37,9 @@ public class MeterBoltzmannRotPerturb implements IDataSource {
 
         secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
 
-        secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
+        secondaryCoordDef = new CoordinateDefinitionNitrogen(sim.getSpeciesManager(), secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), sim.getSpace());
         secondaryCoordDef.setIsBeta();
-        secondaryCoordDef.setOrientationVectorBeta(space);
+        secondaryCoordDef.setOrientationVectorBeta(sim.getSpace());
         secondaryCoordDef.initializeCoordinates(new int[]{1, 1, 1});
 
         meterPotentialMeasured = new MeterPotentialEnergy(potentialMaster);

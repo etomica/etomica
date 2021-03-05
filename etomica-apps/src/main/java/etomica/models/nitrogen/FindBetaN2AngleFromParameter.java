@@ -49,27 +49,27 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		
 		Box box = new Box(space);
 		addBox(box);
-		box.setNMolecules(species, nC*nC*nC*2);		
-		int [] nCells = new int[]{1,1,1};
-		
-		Vector[] boxDim = new Vector[3];
-		boxDim[0] = Vector.of(new double[]{nC * a, 0, 0});
-		boxDim[1] = Vector.of(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = Vector.of(new double[]{0, 0, nC * c});
-		
-		Primitive primitive = new PrimitiveHexagonal(space, (nC)*a, nC*c);
-		
-		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBeta();
-		coordinateDef.setOrientationVectorBeta(space);
-		coordinateDef.initializeCoordinates(nCells);
+        box.setNMolecules(species, nC * nC * nC * 2);
+        int[] nCells = new int[]{1, 1, 1};
 
-		double[] u = new double[20];
-		
-		int kParam=0;
-		for (int i=0; i<param.length;i++){
-			for (int j=0; j<param[0].length;j++){
-				u[kParam]=param[i][j];
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = Vector.of(new double[]{nC * a, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nC * c});
+
+        Primitive primitive = new PrimitiveHexagonal(space, (nC) * a, nC * c);
+
+        CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsBeta();
+        coordinateDef.setOrientationVectorBeta(space);
+        coordinateDef.initializeCoordinates(nCells);
+
+        double[] u = new double[20];
+
+        int kParam = 0;
+        for (int i = 0; i < param.length; i++) {
+            for (int j = 0; j < param[0].length; j++) {
+                u[kParam] = param[i][j];
 				kParam++;
 			}	
 		}

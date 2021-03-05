@@ -55,28 +55,28 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
         
         Box box = new Box(space);
 		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		Box ghostBox = new Box(space);
-		addBox(ghostBox);
-		ghostBox.setNMolecules(ghostSpecies, 1);
-		
-		Primitive primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
+		box.setNMolecules(species, numMolecule);
 
-    	BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
-		double[][] param = parameters.getParameter(density);
-		
-		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBetaLatticeSum();
-		coordinateDef.setIsDoLatticeSum();
-		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
-		coordinateDef.initializeCoordinates(new int[]{1,1,1});
-	
-		final P2Nitrogen potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
-		potential.setEnablePBC(false);
-		
-		FunctionData<Object> function = new FunctionData<Object>() {
+        Box ghostBox = new Box(space);
+        addBox(ghostBox);
+        ghostBox.setNMolecules(ghostSpecies, 1);
+
+        Primitive primitive = new PrimitiveTriclinic(space, aDim, 2 * aDim, cDim, Math.PI * (90 / 180.0), Math.PI * (90 / 180.0), Math.PI * (120 / 180.0));
+
+        BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
+        double[][] param = parameters.getParameter(density);
+
+        CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsBetaLatticeSum();
+        coordinateDef.setIsDoLatticeSum();
+        coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
+        coordinateDef.initializeCoordinates(new int[]{1, 1, 1});
+
+        final P2Nitrogen potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
+        potential.setEnablePBC(false);
+
+        FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
 				data.x = potential.energy((IMoleculeList)obj);
 				return data;

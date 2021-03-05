@@ -58,26 +58,26 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 
 		Vector[] boxDim = new Vector[3];
 		boxDim[0] = Vector.of(nC * aDim, 0, 0);
-		boxDim[1] = Vector.of(-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0);
-		boxDim[2] = Vector.of(0, 0, nC * cDim);
+        boxDim[1] = Vector.of(-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0);
+        boxDim[2] = Vector.of(0, 0, nC * cDim);
 
-		int[] nCells = new int[]{1, 1, 1};
-		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
+        int[] nCells = new int[]{1, 1, 1};
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space, 0);
-		coordinateDef.setIsBeta();
-		coordinateDef.setOrientationVectorBeta(space);
-		coordinateDef.initializeCoordinates(nCells);
-		double rCScale = 0.475;
-		double rC = aDim * nC * rCScale;
-		System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space, 0);
+        coordinateDef.setIsBeta();
+        coordinateDef.setOrientationVectorBeta(space);
+        coordinateDef.initializeCoordinates(nCells);
+        double rCScale = 0.475;
+        double rC = aDim * nC * rCScale;
+        System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
 
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
 
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 

@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -84,7 +83,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         coordinateDef.setIsBetaHCP();
         coordinateDef.setOrientationVectorBeta(space);
         coordinateDef.initializeCoordinates(nCells);
@@ -188,7 +187,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy) / numMolecules);
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
-        meter = new MeterTargetRPMolecule(potentialMaster, species, space, this, coordinateDef, pRotConstraint);
+        meter = new MeterTargetRPMolecule(potentialMaster, species, this, coordinateDef, pRotConstraint);
         meter.setDoScaling(doScaling);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));

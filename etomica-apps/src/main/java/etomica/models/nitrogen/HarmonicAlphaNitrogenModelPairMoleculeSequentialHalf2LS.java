@@ -58,27 +58,27 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 
 		int division = 2;
 		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
 
-		Boundary boundary = new BoundaryRectangularPeriodicSwitch(space);
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
+        Boundary boundary = new BoundaryRectangularPeriodicSwitch(space);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
 
-		int[] nCells = new int[]{division, division, division};
-		boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
-		Primitive primitive = new PrimitiveCubic(space, (nCell / division) * unitCellLength);
+        int[] nCells = new int[]{division, division, division};
+        boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
+        Primitive primitive = new PrimitiveCubic(space, (nCell / division) * unitCellLength);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
 //		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 
-		potential = new P2Nitrogen(space, rC);
-		potential.setEnablePBC(false);
-		potential.setBox(box);
+        potential = new P2Nitrogen(space, rC);
+        potential.setEnablePBC(false);
+        potential.setBox(box);
 
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
 		int nSites = 2 * nCell + 1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];

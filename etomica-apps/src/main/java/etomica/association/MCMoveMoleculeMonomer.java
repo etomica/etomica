@@ -7,14 +7,13 @@ package etomica.association;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo molecule-displacement trial move for monomer molecules
- * 
+ *
  * @author Hye Min Kim
  */
 public class MCMoveMoleculeMonomer extends MCMoveMolecule {
@@ -23,16 +22,16 @@ public class MCMoveMoleculeMonomer extends MCMoveMolecule {
 	protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 	protected IAssociationHelperMolecule associationHelper;
-	
-	
-	public MCMoveMoleculeMonomer(Simulation sim, PotentialMaster potentialMaster,
-                                 Space _space) {
-		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
+
+
+	public MCMoveMoleculeMonomer(IRandom random, PotentialMaster potentialMaster,
+								 Space _space) {
+		this(potentialMaster, random, _space, 1.0, 15.0);
 	}
 
 
 	public MCMoveMoleculeMonomer(PotentialMaster potentialMaster, IRandom random,
-                                 Space _space, double stepSize, double stepSizeMax) {
+								 Space _space, double stepSize, double stepSizeMax) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax);
 		this.smerList = new MoleculeArrayList();
 		this.dr = _space.makeVector();

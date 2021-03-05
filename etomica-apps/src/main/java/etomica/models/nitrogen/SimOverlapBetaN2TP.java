@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -82,7 +81,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         if (isBeta) {
             coordinateDef.setIsBeta();
         }

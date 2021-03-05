@@ -58,27 +58,27 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
 
-		boxDim = new Vector[3];
-		boxDim[0] = Vector.of(new double[]{nC[0] * aDim, 0, 0});
-		boxDim[1] = Vector.of(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = Vector.of(new double[]{0, 0, nC[2] * cDim});
-		boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
+        boxDim = new Vector[3];
+        boxDim[0] = Vector.of(new double[]{nC[0] * aDim, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nC[2] * cDim});
+        boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
 
-		primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
+        primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
 
-		coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDefinition.setIsGamma();
-		coordinateDefinition.setOrientationVectorGamma(space);
-		coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
-		double rC = box.getBoundary().getBoxSize().getX(0) * 0.475;
-		//System.out.println("rC: " + rC);
+        coordinateDefinition = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDefinition.setIsGamma();
+        coordinateDefinition.setOrientationVectorGamma(space);
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
+        double rC = box.getBoundary().getBoxSize().getX(0) * 0.475;
+        //System.out.println("rC: " + rC);
 
-		P2Nitrogen potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
+        P2Nitrogen potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
 
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
 		meterPotential = new MeterPotentialEnergy(potentialMaster, box);
 	}

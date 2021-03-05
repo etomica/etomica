@@ -19,12 +19,12 @@ import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.molecule.MoleculeArrayList;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
+import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
 
@@ -37,10 +37,8 @@ import java.io.Serializable;
  *
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
-        implements Serializable {
+public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule {
 
-    private static final long serialVersionUID = 1L;
     protected final RotationTensor3D rotationTensor;
     protected final Tensor[] xzOrientationTensor;
     protected final Tensor[] yOrientationTensor;
@@ -62,14 +60,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     protected MoleculeChildAtomAction atomGroupActionTranslate;
     protected IRandom random;
 
-    public CoordinateDefinitionNitrogen(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
-        this(sim, box, primitive, basis, _space, 2);
+    public CoordinateDefinitionNitrogen(SpeciesManager sm, Box box, Primitive primitive, Basis basis, Space _space) {
+        this(sm, box, primitive, basis, _space, 2);
 
     }
 
-    public CoordinateDefinitionNitrogen(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space, int rotDim) {
+    public CoordinateDefinitionNitrogen(SpeciesManager sm, Box box, Primitive primitive, Basis basis, Space _space, int rotDim) {
 
-        super(sim, box, primitive, rotDim, basis, _space);
+        super(sm, box, primitive, rotDim, basis, _space);
         /*
          * having rotDim is to have separate coordinateDim
          * for the with and without rotational dof of
@@ -100,7 +98,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         axis = space.makeVector();
         orientVector = space.makeVector();
 
-        orientationManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new OrientationAgentSource());
+        orientationManager = new MoleculeAgentManager<>(sm, box, new OrientationAgentSource());
         atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
 
         translateBy = new AtomActionTranslateBy(space);
@@ -331,7 +329,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         initNominalU(cells[totalCells - 1].molecules);
 
-        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sm, box, new MoleculeSiteSource(space, positionDefinition));
         siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
     }
 
@@ -394,8 +392,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         }
 
-        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager<>(sm, box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
 
     }
 
@@ -420,7 +418,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         }
 
-        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sm, box, new MoleculeSiteSource(space, positionDefinition));
         siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
 
     }
@@ -747,7 +745,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             orientationManager.setAgent(molecule, orientation);
 
         }
-        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sm, box, new MoleculeSiteSource(space, positionDefinition));
         siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
     }
 

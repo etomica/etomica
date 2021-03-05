@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.association.*;
 import etomica.atom.AtomType;
@@ -80,8 +79,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
-        mcMoveAtomMonomer = new MCMoveAtomMonomer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
-        mcMoveAtomDimer = new MCMoveAtomDimer(this, potentialMaster, space);
+        mcMoveAtomMonomer = new MCMoveAtomMonomer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+        mcMoveAtomDimer = new MCMoveAtomDimer(random, potentialMaster, space);
         mcMoveRotate = new MCMoveRotate(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate;
         BiasVolumeSphereOriented bvso = new BiasVolumeSphereOriented(space, random);
         bvso.setTheta(Degree.UNIT.toSim(27.0));
@@ -119,9 +118,9 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         potential = new P2HardAssociationCone(space, sigma, epsilon, truncationRadius, wellConstant);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential.getRange());
-        mcMoveDimer = new MCMoveDimer(this, potentialMaster, space, potential);
-        mcMoveDimerRotate = new MCMoveDimerRotate(this, potentialMaster, space, potential);
-        mcMoveVolume = new MCMoveVolumeAssociated(this, potentialMaster, space);
+        mcMoveDimer = new MCMoveDimer(random, potentialMaster, space, potential);
+        mcMoveDimerRotate = new MCMoveDimerRotate(random, potentialMaster, space, potential);
+        mcMoveVolume = new MCMoveVolumeAssociated(random, potentialMaster, space);
         mcMoveVolume.setAssociationManager(associationManagerOriented);
         mcMoveDimer.setAssociationManager(associationManagerOriented);
         mcMoveDimerRotate.setAssociationManager(associationManagerOriented);

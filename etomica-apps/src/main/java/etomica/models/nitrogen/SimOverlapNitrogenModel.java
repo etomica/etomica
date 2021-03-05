@@ -84,7 +84,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
-        CoordinateDefinitionNitrogen coordDefTarget = new CoordinateDefinitionNitrogen(this, boxTarget, primitive, basis, space);
+        CoordinateDefinitionNitrogen coordDefTarget = new CoordinateDefinitionNitrogen(getSpeciesManager(), boxTarget, primitive, basis, space);
         coordDefTarget.setIsAlpha();
         coordDefTarget.setOrientationVectorAlpha(space);
         coordDefTarget.initializeCoordinates(nCells);
@@ -141,7 +141,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         integratorHarmonic.getMoveManager().addMCMove(moveHarmonic);
         integrators[0] = integratorHarmonic;
 
-        CoordinateDefinitionNitrogen coordDefHarmonic = new CoordinateDefinitionNitrogen(this, boxHarmonic, primitive, basis, space);
+        CoordinateDefinitionNitrogen coordDefHarmonic = new CoordinateDefinitionNitrogen(getSpeciesManager(), boxHarmonic, primitive, basis, space);
         coordDefHarmonic.setIsAlpha();
         coordDefHarmonic.setOrientationVectorAlpha(space);
         coordDefHarmonic.initializeCoordinates(nCells);

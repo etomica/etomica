@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.action.BoxInflateAnisotropic;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -119,7 +118,7 @@ public class HSDimerNPT extends Simulation {
 
         Basis basis = new BasisBigCell(space, unitBasis, new int[]{nC[0], nC[1], nC[2]});
 
-        coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionHSDimer(getSpeciesManager(), box, primitive, basis, space);
         Vector[][] axes = new Vector[1][3];
         int[] iaxis = new int[]{2, 0, 1};
         for (int i = 0; i < 3; i++) {
@@ -134,7 +133,7 @@ public class HSDimerNPT extends Simulation {
         coordinateDefinition.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         latticeBox.setNMolecules(species, numMolecules);
-        CoordinateDefinitionHSDimer coordinateDefinitionLattice = new CoordinateDefinitionHSDimer(this, latticeBox, primitive, basis, space);
+        CoordinateDefinitionHSDimer coordinateDefinitionLattice = new CoordinateDefinitionHSDimer(getSpeciesManager(), latticeBox, primitive, basis, space);
         coordinateDefinitionLattice.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinitionLattice.initializeCoordinates(new int[]{1, 1, 1});
 

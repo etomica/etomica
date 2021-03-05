@@ -52,25 +52,25 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
+        ConformationNitrogen conformation = new ConformationNitrogen(space);
 
-		Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
+        Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
 
-		int[] nCells = new int[]{1, 1, 1};
-		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
+        int[] nCells = new int[]{1, 1, 1};
+        Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
-		double rCScale = 0.475;
-		double rC = box.getBoundary().getBoxSize().getX(0) * rCScale;
-		System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
+        double rCScale = 0.475;
+        double rC = box.getBoundary().getBoxSize().getX(0) * rCScale;
+        System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
 
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
 
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 

@@ -18,7 +18,7 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.MoleculeIterator;
 import etomica.nbr.cell.molecule.Mpi1ACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
-import etomica.simulation.Simulation;
+import etomica.species.SpeciesManager;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -45,9 +45,9 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
     private final MoleculeArrayList associatedMolecules = new MoleculeArrayList();
     private final IListener mcMoveListener;
 
-    public AssociationManagerMolecule(Simulation sim, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
+	public AssociationManagerMolecule(SpeciesManager sm, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
 		this.box = box;
-		agentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
+		agentManager = new MoleculeAgentManager(sm, box, this);
 		associationDefinition = definition;
 		this.neighborIterator = new Mpi1ACell(3, range, cellAgentManager);
 		mcMoveListener = cellAgentManager.getAgent(box).makeMCMoveListener();

@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -66,7 +65,7 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         Primitive primitive = new PrimitiveCubic(space, nC * a);
 
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
         coordinateDef.setIsAlpha();
         coordinateDef.setOrientationVectorAlpha(space);
         coordinateDef.initializeCoordinates(nCells);

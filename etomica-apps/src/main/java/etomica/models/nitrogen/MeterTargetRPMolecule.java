@@ -5,7 +5,10 @@
 package etomica.models.nitrogen;
 
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -13,7 +16,6 @@ import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
@@ -52,8 +54,8 @@ public class MeterTargetRPMolecule implements IDataSource {
     protected boolean doScaling = true;
 	private Vector[][] initMolecOrientation;
 	protected PRotConstraint pRotConstraint;
-    
-    public MeterTargetRPMolecule(PotentialMaster potentialMasterSampled, ISpecies species, Space space, Simulation sim,
+
+    public MeterTargetRPMolecule(PotentialMaster potentialMasterSampled, ISpecies species, Simulation sim,
                                  CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
         this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;
@@ -70,7 +72,7 @@ public class MeterTargetRPMolecule implements IDataSource {
          * initializing the initial orientation of the molecule
          */
         for (int i = 0; i < numMolec; i++) {
-            initMolecOrientation[i] = space.makeVectorArray(3);
+            initMolecOrientation[i] = sim.getSpace().makeVectorArray(3);
             initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().get(i));
         }
 

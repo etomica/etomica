@@ -12,7 +12,6 @@ import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -47,10 +46,10 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public static boolean dodebug;
     protected FileWriter fileWriter;
 
-    public MCMoveVolumeAssociated(Simulation sim, PotentialMaster potentialMaster,
-                                  Space _space) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0);
-    }
+    public MCMoveVolumeAssociated(IRandom random, PotentialMaster potentialMaster,
+								  Space _space) {
+		this(potentialMaster, random, _space, 1.0);
+	}
     
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies

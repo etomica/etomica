@@ -5,7 +5,6 @@
 package etomica.association;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -120,9 +119,9 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         potential = new P2HardAssociationCone(space, sigma, epsilon, truncationRadius, wellConstant);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potential.getRange());
-        mcMoveDimer = new MCMoveDimer(this, potentialMaster, space, potential);
-        mcMoveDimerRotate = new MCMoveDimerRotate(this, potentialMaster, space, potential);
-        mcMoveVolume = new MCMoveVolumeAssociated(this, potentialMaster, space);
+        mcMoveDimer = new MCMoveDimer(random, potentialMaster, space, potential);
+        mcMoveDimerRotate = new MCMoveDimerRotate(random, potentialMaster, space, potential);
+        mcMoveVolume = new MCMoveVolumeAssociated(random, potentialMaster, space);
         mcMoveVolume.setAssociationManager(associationManagerOriented);
         mcMoveDimer.setAssociationManager(associationManagerOriented);
         mcMoveDimerRotate.setAssociationManager(associationManagerOriented);

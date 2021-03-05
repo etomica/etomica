@@ -5,7 +5,6 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -79,7 +78,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         int[] nCells = new int[]{1, 1, 1};
         Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
-        CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
+        CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(getSpeciesManager(), boxTarg, primitive, basis, space);
         coordinateDefTarg.setIsBetaHCP();
         coordinateDefTarg.setOrientationVectorBeta(space);
         coordinateDefTarg.initializeCoordinates(nCells);

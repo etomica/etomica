@@ -12,10 +12,8 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.IPotentialAtomic;
-import etomica.simulation.Simulation;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -47,10 +45,10 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected final Vector r0;
     protected AssociationManager associationManager;
 
-    public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
+    public MCMoveDimerRotate(IRandom random, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
+        this(potentialMaster, random, _space, 1.0, Math.PI, false, dimerPotential);
     }
-    
+
     public MCMoveDimerRotate(PotentialMasterCell potentialMaster, IRandom random,
                              Space _space, double stepSize, double stepSizeMax,
                              boolean fixOverlap, IPotentialAtomic dimerPotential) {

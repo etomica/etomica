@@ -75,27 +75,27 @@ public class SimulationGammaNitrogenModel extends Simulation{
 
         potentialMaster = new PotentialMaster();
 
-		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
-		box = this.makeBox(boundary);
-		box.setNMolecules(species, numMolecule);
-		int[] nCells = new int[]{1, 1, 1};
-		primitive = new PrimitiveTetragonal(space, nCell * a, nCell * c);
+        Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
+        int[] nCells = new int[]{1, 1, 1};
+        primitive = new PrimitiveTetragonal(space, nCell * a, nCell * c);
 
-		double volume = nCell * a * nCell * a * nCell * c;
-		System.out.println("density: " + numMolecule / volume);
-		//System.exit(1);
+        double volume = nCell * a * nCell * a * nCell * c;
+        System.out.println("density: " + numMolecule / volume);
+        //System.exit(1);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsGamma();
-		coordinateDef.setOrientationVectorGamma(space);
-		coordinateDef.initializeCoordinates(nCells);
+        coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
+        coordinateDef.setIsGamma();
+        coordinateDef.setOrientationVectorGamma(space);
+        coordinateDef.initializeCoordinates(nCells);
 
-		double[] u = new double[coordinateDef.getCoordinateDim()];
-		for (int i = 3; i < coordinateDef.getCoordinateDim(); i += 5) {
-			u[i] = 0.00001;
-			u[i + 1] = 0.0;
-		}
-		coordinateDef.setToU(coordinateDef.getBox().getMoleculeList(), u);
+        double[] u = new double[coordinateDef.getCoordinateDim()];
+        for (int i = 3; i < coordinateDef.getCoordinateDim(); i += 5) {
+            u[i] = 0.00001;
+            u[i + 1] = 0.0;
+        }
+        coordinateDef.setToU(coordinateDef.getBox().getMoleculeList(), u);
 
 		double[] devi = coordinateDef.calcU(coordinateDef.getBox().getMoleculeList());
 		for (int i = 0; i < devi.length; i++) {

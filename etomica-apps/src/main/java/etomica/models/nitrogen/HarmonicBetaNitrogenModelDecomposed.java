@@ -78,7 +78,7 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 		box = this.makeBox(boundary);
 		box.setNMolecules(species, numMolecule);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
 		coordinateDef.setIsBeta();
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);

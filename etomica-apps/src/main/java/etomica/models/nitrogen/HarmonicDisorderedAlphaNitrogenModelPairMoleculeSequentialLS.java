@@ -68,7 +68,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 		boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
 		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
 		coordinateDef.setOrientationVectorAlpha(space);
 		coordinateDef.initializeCoordinates(nCells);

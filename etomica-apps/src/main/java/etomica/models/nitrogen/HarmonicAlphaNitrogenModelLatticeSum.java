@@ -22,8 +22,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.units.dimensions.Energy;
 import etomica.units.Joule;
+import etomica.units.dimensions.Energy;
 
 
 /**
@@ -55,25 +55,25 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		
 		Box box = new Box(space);
 		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
+		box.setNMolecules(species, numMolecule);
+
 		Box ghostBox = new Box(space);
 		addBox(ghostBox);
 		ghostBox.setNMolecules(ghostSpecies, 1);
-		
-		int [] nCells = new int[]{1,1,1};
-		Primitive primitive = new PrimitiveCubic(space, nCell*unitCellLength);
-	
-		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+
+		int[] nCells = new int[]{1, 1, 1};
+		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
+
+		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(getSpeciesManager(), box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
 		coordinateDef.setOrientationVectorAlpha(space);
 		coordinateDef.setIsDoLatticeSum();
 		coordinateDef.initializeCoordinates(nCells);
-		
+
 		double rCScale = 0.475;
 		//double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
 		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
+
 		final P2Nitrogen potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		potential.setEnablePBC(false);
