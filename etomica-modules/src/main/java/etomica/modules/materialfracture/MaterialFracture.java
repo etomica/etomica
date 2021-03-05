@@ -5,7 +5,6 @@
 package etomica.modules.materialfracture;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -47,7 +46,7 @@ public class MaterialFracture extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster();
         box = this.makeBox(new BoundaryRectangularSlit(0, space));
         box.getBoundary().setBoxSize(Vector.of(new double[]{90, 30}));
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.05, 1.0, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
         integrator.setTimeStep(0.007);

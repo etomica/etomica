@@ -74,7 +74,7 @@ public class TestLJMCDimerFast extends Simulation {
                 : new PotentialMasterFasterer(this.getSpeciesManager(), box, bi);
 
         PotentialCompute compute = PotentialCompute.aggregate(pmBond, potentialMaster);
-        integrator = new IntegratorMCFasterer(this, compute, box);
+        integrator = new IntegratorMCFasterer(compute, this.getRandom(), 1.0, box);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
 

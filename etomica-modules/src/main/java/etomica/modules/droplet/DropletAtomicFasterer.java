@@ -70,7 +70,7 @@ public class DropletAtomicFasterer extends Simulation {
         PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         //controller and integrator
-        integrator = new IntegratorVelocityVerletFasterer(this, pcAgg, box);
+        integrator = new IntegratorVelocityVerletFasterer(pcAgg, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(5000);

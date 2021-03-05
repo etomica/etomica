@@ -62,7 +62,7 @@ public class MaterialFractureFasterer extends Simulation {
         PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         box.getBoundary().setBoxSize(Vector.of(new double[]{90, 30}));
-        integrator = new IntegratorVelocityVerletFasterer(this, pcAgg, box);
+        integrator = new IntegratorVelocityVerletFasterer(pcAgg, this.getRandom(), 0.05, 1.0, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
         integrator.setTimeStep(0.007);

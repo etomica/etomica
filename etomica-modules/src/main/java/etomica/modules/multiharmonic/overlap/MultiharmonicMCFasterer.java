@@ -54,7 +54,7 @@ public class MultiharmonicMCFasterer extends Simulation {
         integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorA, potentialA, random));
         potentialMasterA.setFieldPotential(species.getLeafType(), potentialA);
 
-        integratorB = new IntegratorMCFasterer(this, potentialMasterB, boxB);
+        integratorB = new IntegratorMCFasterer(potentialMasterB, this.getRandom(), 1.0, boxB);
         integratorB.setTemperature(1.0);
         potentialB = new P1Harmonic(space);
         integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorB, potentialB, random));

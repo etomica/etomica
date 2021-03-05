@@ -244,7 +244,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
                 propane, propene, box);
         integratorDCV.zFraction = zFraction;
-        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         final IntegratorMC integratorMC = new IntegratorMC(this.getRandom(), potentialMaster, box);
 
         potentialMaster.setRange(3.95 * neighborRangeFac);

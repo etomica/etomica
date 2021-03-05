@@ -140,8 +140,8 @@ public class DCVGCMDFasterer extends Simulation {
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMDFasterer(pcAggMC, temperature,
                 species1, species2, box);
-        final IntegratorVelocityVerletFasterer integratorMD = new IntegratorVelocityVerletFasterer(this, pcAggMD, box);
-        final IntegratorMCFasterer integratorMC = new IntegratorMCFasterer(this, pcAggMC, box);
+        final IntegratorVelocityVerletFasterer integratorMD = new IntegratorVelocityVerletFasterer(pcAggMD, this.getRandom(), 0.05, 1.0, box);
+        final IntegratorMCFasterer integratorMC = new IntegratorMCFasterer(pcAggMC, this.getRandom(), 1.0, box);
 
         getController().addActivity(new ActivityIntegrate(integratorDCV));
 

@@ -51,7 +51,7 @@ public class HSMC2DFasterer extends Simulation {
 
         box = this.makeBox();
         PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        integrator = new IntegratorMCFasterer(potentialMaster, this.getRandom(), 1.0, box);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 20);

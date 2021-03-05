@@ -89,7 +89,7 @@ public class LJMC3DDimerFasterer extends Simulation {
         P22CLJmuQAtomic p2 = new P22CLJmuQAtomic(space, 3.0058, 3.56379, 51.8037, 31.5550, mu, Q, 0.4847, 0.6461);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2);
 
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        integrator = new IntegratorMCFasterer(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(params.temperatureK));
 
         MCMoveAtomFasterer mcMoveMolecule = new MCMoveAtomFasterer(random, potentialMaster, box);

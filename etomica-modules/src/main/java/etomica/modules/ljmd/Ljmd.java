@@ -44,7 +44,7 @@ public class Ljmd extends Simulation {
 
         //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);

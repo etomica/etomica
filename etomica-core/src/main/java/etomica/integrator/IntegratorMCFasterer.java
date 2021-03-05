@@ -7,7 +7,6 @@ package etomica.integrator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.*;
 import etomica.potential.compute.PotentialCompute;
-import etomica.simulation.Simulation;
 import etomica.util.EventManager;
 import etomica.util.random.IRandom;
 
@@ -30,15 +29,6 @@ public class IntegratorMCFasterer extends IntegratorBoxFasterer {
     private final MCMoveEvent trialEvent, trialFailedEvent;
     private final MCMoveEvent acceptedEvent, rejectedEvent;
     protected MCMoveManager moveManager;
-
-    /**
-     * @param sim             Simulation where this integrator is used
-     * @param potentialCompute PotentialMaster instance used by moves to calculate the energy
-     */
-
-    public IntegratorMCFasterer(Simulation sim, PotentialCompute potentialCompute, Box box) {
-        this(potentialCompute, sim.getRandom(), 1.0, box);
-    }
 
     /**
      * @param potentialCompute PotentialMaster instance used by moves to calculate the energy

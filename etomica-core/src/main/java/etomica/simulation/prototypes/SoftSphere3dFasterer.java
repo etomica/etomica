@@ -55,7 +55,7 @@ public class SoftSphere3dFasterer extends Simulation {
 
         box = this.makeBox();
         potentialMaster = new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        integrator = new IntegratorMCFasterer(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(temperature);
 
 

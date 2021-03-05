@@ -13,7 +13,6 @@ import etomica.box.Box;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -33,10 +32,6 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     protected AtomLeafAgentManager<Agent> agentManager;
     private AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
-    }
-    
     public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random,
                             double timeStep, double temperature, Box box) {
         super(potentialMaster,random,timeStep,temperature, box);

@@ -87,7 +87,7 @@ public class LjMd3D extends Simulation {
         }
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
-        integrator = new IntegratorVelocityVerlet(this, potentialMasterList, box);
+        integrator = new IntegratorVelocityVerlet(potentialMasterList, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);

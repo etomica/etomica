@@ -5,7 +5,6 @@
 package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -107,7 +106,7 @@ public class ZeoliteSimulation extends Simulation {
 
 
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);

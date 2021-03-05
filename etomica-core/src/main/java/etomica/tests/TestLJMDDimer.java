@@ -63,7 +63,7 @@ public class TestLJMDDimer extends Simulation {
         PotentialMaster potentialMaster = nbrListing ? new PotentialMasterList(this, 4, this.getSpace()) : new PotentialMaster();
         double sigma = 1.0;
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.005);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);

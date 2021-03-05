@@ -5,7 +5,6 @@
 package etomica.eam;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -84,7 +83,7 @@ public class EFSTungsten extends Simulation {
 
         potentialMaster = new PotentialMasterList(this, space);
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
         integrator.setThermostatInterval(100);

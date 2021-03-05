@@ -52,7 +52,7 @@ public class Multiharmonic extends Simulation {
         double x0 = 0;
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);

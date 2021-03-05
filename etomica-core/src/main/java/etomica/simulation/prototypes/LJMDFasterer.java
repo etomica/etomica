@@ -50,7 +50,7 @@ public class LJMDFasterer extends Simulation {
         PotentialMasterFasterer potentialMaster = useNbrLists ? new PotentialMasterListFasterer(getSpeciesManager(), box, 2, rc + 1, BondingInfo.noBonding())
                 : new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
         double sigma = 1.0;
-        integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerletFasterer(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.02);
         getController().setSleepPeriod(1);
         getController().addActivity(new ActivityIntegrate(integrator));

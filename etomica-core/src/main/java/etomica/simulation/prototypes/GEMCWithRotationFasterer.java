@@ -69,14 +69,14 @@ public class GEMCWithRotationFasterer extends Simulation {
 
         box1.setNMolecules(species, 200);
 
-        IntegratorMCFasterer integratorMC1 = new IntegratorMCFasterer(this, potentialMaster1, box1);
+        IntegratorMCFasterer integratorMC1 = new IntegratorMCFasterer(potentialMaster1, this.getRandom(), 1.0, box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveAtomRotateFasterer(random, potentialMaster1, box1));
         moveManager.addMCMove(new MCMoveAtomFasterer(random, potentialMaster1, box1));
 
         box2.setNMolecules(species, 200);
-        IntegratorMCFasterer integratorMC2 = new IntegratorMCFasterer(this, potentialMaster2, box2);
+        IntegratorMCFasterer integratorMC2 = new IntegratorMCFasterer(potentialMaster2, this.getRandom(), 1.0, box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveAtomRotateFasterer(random, potentialMaster2, box2));

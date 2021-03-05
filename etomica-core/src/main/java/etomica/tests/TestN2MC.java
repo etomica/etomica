@@ -90,7 +90,7 @@ public class TestN2MC extends Simulation {
             pcAggregate = new PotentialComputeAggregate(potentialMaster);
         }
 
-        integrator = new IntegratorMCFasterer(this, pcAggregate, box);
+        integrator = new IntegratorMCFasterer(pcAggregate, this.getRandom(), 1.0, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperatureK));
 
         translateMove = new MCMoveMoleculeFasterer(random, pcAggregate, box);

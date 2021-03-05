@@ -47,7 +47,7 @@ public class LJMD3D extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         double sigma = 1.0;
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.02);
         getController().setSleepPeriod(1);
         getController().addActivity(new ActivityIntegrate(integrator));

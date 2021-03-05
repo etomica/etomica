@@ -55,7 +55,7 @@ public class TestLJGCMC3D extends Simulation {
         PotentialMasterCellFasterer potentialMaster = new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding());
         potentialMaster.doOneTruncationCorrection = true;
         double sigma = 1.0;
-        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        integrator = new IntegratorMCFasterer(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(1.1);
         mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.2 * sigma);

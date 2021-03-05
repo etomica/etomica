@@ -213,7 +213,7 @@ public class SimDimerLJadatom extends Simulation{
     }
 
     public void enableMolecularDynamics(long maxSteps) {
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integratorMD = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integratorMD.setTimeStep(0.01);
         integratorMD.setTemperature(0.1);
         integratorMD.setThermostatInterval(100);
