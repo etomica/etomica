@@ -4,8 +4,8 @@
 
 package etomica.atom;
 
-import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.IndexMap;
 
 import java.util.Objects;
@@ -24,14 +24,14 @@ public final class AtomTypeAgentManager<E> {
 
     private final AgentSource<E> agentSource;
     private final IndexMap<E> agents;
-    protected Simulation sim;
+    protected SpeciesManager sm;
 
-    public AtomTypeAgentManager(AgentSource<E> source, Simulation sim) {
+    public AtomTypeAgentManager(AgentSource<E> source, SpeciesManager sm) {
         this.agentSource = Objects.requireNonNull(source);
-        this.sim = Objects.requireNonNull(sim);
+        this.sm = Objects.requireNonNull(sm);
         this.agents = new IndexMap<>();
 
-        for (ISpecies species : sim.getSpeciesList()) {
+        for (ISpecies species : sm.getSpeciesList()) {
             for (AtomType atomType : species.getUniqueAtomTypes()) {
                 this.agents.put(atomType.getIndex(), agentSource.makeAgent(atomType));
             }
@@ -75,8 +75,8 @@ public final class AtomTypeAgentManager<E> {
      * Releases its agents.
      */
     public void dispose() {
-        for (int i = 0; i < sim.getSpeciesCount(); i++) {
-            releaseAgents(sim.getSpecies(i));
+        for (int i = 0; i < sm.getSpeciesCount(); i++) {
+            releaseAgents(sm.getSpecies(i));
         }
     }
 

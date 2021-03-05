@@ -41,7 +41,7 @@ public class Droplet extends Simulation {
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         int numAtoms = 2000;
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         //controller and integrator
         integrator = new IntegratorDroplet(this, potentialMaster, box);

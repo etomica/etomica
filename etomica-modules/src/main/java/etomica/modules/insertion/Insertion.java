@@ -43,7 +43,7 @@ public class Insertion extends Simulation {
         ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesGhost);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager()); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
 

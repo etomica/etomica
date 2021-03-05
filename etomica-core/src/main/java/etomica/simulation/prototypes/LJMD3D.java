@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -45,7 +44,7 @@ public class LJMD3D extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);

@@ -39,7 +39,7 @@ public class SimCalcS extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
 
         Potential potential = new P2HardSphere(space, 1.0, false);

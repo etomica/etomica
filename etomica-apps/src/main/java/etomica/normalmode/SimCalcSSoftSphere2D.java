@@ -5,7 +5,6 @@
 package etomica.normalmode;
 
 import etomica.action.PDBWriter;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -56,7 +55,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
         Vector[] dimension = space.makeVectorArray(2);

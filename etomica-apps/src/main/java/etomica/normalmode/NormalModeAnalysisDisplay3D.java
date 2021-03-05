@@ -74,7 +74,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         AtomType sphereType = species.getLeafType();
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         meterPE = new MeterPotentialEnergy(potentialMaster, box);
 

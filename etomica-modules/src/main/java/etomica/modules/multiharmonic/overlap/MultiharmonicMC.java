@@ -40,8 +40,8 @@ public class MultiharmonicMC extends Simulation {
         super(Space1D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        potentialMasterA = new PotentialMasterMonatomic(this);
-        potentialMasterB = new PotentialMasterMonatomic(this);
+        potentialMasterA = new PotentialMasterMonatomic(getSpeciesManager());
+        potentialMasterB = new PotentialMasterMonatomic(getSpeciesManager());
 
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxA.getBoundary().setBoxSize(new Vector1D(6.0));

@@ -95,7 +95,7 @@ public class SimOverlapLJModule {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
 
-        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);
+        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim.getSpeciesManager());
         IntegratorBox[] integrators = new IntegratorBox[2];
 
         NormalModes normalModes = new NormalModesFromFile(filename, space.D());

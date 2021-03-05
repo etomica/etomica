@@ -128,7 +128,7 @@ public class PolydisperseHS extends Simulation {
 
         boolean useNeighborLists = true;
 
-        potentialMaster = useNeighborLists ? new PotentialMasterList(this, potential.getRange() * neighborRangeFac, space) : new PotentialMasterMonatomic(this);
+        potentialMaster = useNeighborLists ? new PotentialMasterList(this, potential.getRange() * neighborRangeFac, space) : new PotentialMasterMonatomic(getSpeciesManager());
 
         integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setIsothermal(false);

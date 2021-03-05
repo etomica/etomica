@@ -8,7 +8,6 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -76,7 +75,7 @@ public class SimDimerLJadatom extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(this.getSpeciesManager());
 
         //SIMULATION BOX
         box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));

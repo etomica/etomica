@@ -56,7 +56,7 @@ public class SimTarget extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this));
+        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(getSpeciesManager()));
 
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomType sphereType = species.getLeafType();

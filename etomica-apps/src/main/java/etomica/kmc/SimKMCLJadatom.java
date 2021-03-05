@@ -5,7 +5,6 @@
 package etomica.kmc;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -64,7 +63,7 @@ public class SimKMCLJadatom extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         //SIMULATION BOX
         box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));

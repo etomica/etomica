@@ -7,8 +7,8 @@ package etomica.potential;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
-import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.Arrays;
 
 /**
@@ -19,7 +19,7 @@ import etomica.util.Arrays;
  * applies to any given pair of leaf atoms, but more than one 1-body potential
  * may apply to any atom.  PotentialGroups are not created to hold the leaf
  * potentials.  Calling addPotential with an ISpecies array will fail.
- * 
+ *
  * @author Andrew Schultz
  */
 public class PotentialMasterMonatomic extends PotentialMaster implements AtomTypeAgentManager.AgentSource<PotentialArrayByType> {
@@ -28,14 +28,14 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
     protected final AtomSetSinglet atomSetSinglet;
     protected final AtomPair atomPair;
     protected IPotential[] allPotentials = new IPotential[0];
-    
-    public PotentialMasterMonatomic(Simulation sim) {
+
+    public PotentialMasterMonatomic(SpeciesManager sm) {
         super();
-        potentialAgentManager = new AtomTypeAgentManager<>(this, sim);
+        potentialAgentManager = new AtomTypeAgentManager<>(this, sm);
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();
     }
-    
+
     public void addPotential(IPotentialMolecular potential, ISpecies[] species) {
         throw new RuntimeException("Probably not the method you really wanted to call");
     }

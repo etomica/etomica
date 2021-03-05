@@ -5,7 +5,6 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -73,7 +72,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this);
+        PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(getSpeciesManager());
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
         meters = new IDataSource[2];

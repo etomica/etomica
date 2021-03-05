@@ -153,7 +153,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
         p1Harmonic.setSpringConstant(spring);
         p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
-        potentialMasterHarmonic = new PotentialMasterMonatomic(this);
+        potentialMasterHarmonic = new PotentialMasterMonatomic(getSpeciesManager());
         potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
 
         MeterPotentialEnergyComposite meterPEComposite = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy);

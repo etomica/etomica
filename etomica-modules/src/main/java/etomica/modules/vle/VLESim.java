@@ -11,16 +11,11 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.mcmove.MCMoveMoleculeExchangeVLE;
-import etomica.integrator.mcmove.MCMoveVolumeExchangeVLE;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveRotate;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LJQ;
@@ -76,7 +71,7 @@ public class VLESim extends Simulation {
         config.initializeCoordinates(boxVapor);
 
         final double range = 15.0;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         if (doNBR) {
             potentialMaster = new PotentialMasterCell(this, range, space);
             ((PotentialMasterCell) potentialMaster).setCellRange(2);

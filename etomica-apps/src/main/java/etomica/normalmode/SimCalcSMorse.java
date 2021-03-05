@@ -5,7 +5,6 @@
 package etomica.normalmode;
 
 import etomica.action.PDBWriter;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -44,7 +43,7 @@ public class SimCalcSMorse extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);

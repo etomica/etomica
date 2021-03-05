@@ -81,7 +81,7 @@ public class SimBennet extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
+        potentialMasterMonatomic = new PotentialMasterMonatomic(getSpeciesManager());
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         primitive = new PrimitiveCubic(space, L);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));

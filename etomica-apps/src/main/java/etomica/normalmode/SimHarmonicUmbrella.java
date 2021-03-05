@@ -5,7 +5,6 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -85,7 +84,7 @@ public class SimHarmonicUmbrella extends Simulation {
 
         int D = space.D();
 
-        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
+        potentialMasterMonatomic = new PotentialMasterMonatomic(getSpeciesManager());
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         primitive = new PrimitiveCubic(space, L);

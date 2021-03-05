@@ -47,7 +47,7 @@ public class SimCalcSLJ extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         potentialMaster.lrcMaster().setEnabled(false);
 
         if (space.D() == 1) {

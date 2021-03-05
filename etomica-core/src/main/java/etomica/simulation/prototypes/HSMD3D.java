@@ -83,7 +83,7 @@ public class HSMD3D extends Simulation {
 
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, sigma * neighborRangeFac, space) : new PotentialMasterMonatomic(this);
+        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, sigma * neighborRangeFac, space) : new PotentialMasterMonatomic(getSpeciesManager());
 
         int numAtoms = params.nAtoms;
 

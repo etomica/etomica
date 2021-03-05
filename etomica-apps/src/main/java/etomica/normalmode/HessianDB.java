@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -67,7 +66,7 @@ public class HessianDB extends Simulation {
          * Creating new basis
          */
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);

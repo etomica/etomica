@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -50,7 +49,7 @@ public class HSMC2D extends Simulation {
         addSpecies(species2);
 
         box = this.makeBox();
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         integrator = new IntegratorMC(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         getController().addActivity(new ActivityIntegrate(integrator));

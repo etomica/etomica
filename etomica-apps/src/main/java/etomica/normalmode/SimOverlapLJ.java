@@ -64,7 +64,7 @@ public class SimOverlapLJ extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(getSpeciesManager());
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];

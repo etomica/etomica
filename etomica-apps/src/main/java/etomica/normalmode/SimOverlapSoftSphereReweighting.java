@@ -75,7 +75,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMasterTarget = new PotentialMasterMonatomic(this);
+        potentialMasterTarget = new PotentialMasterMonatomic(getSpeciesManager());
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
         meters = new IDataSource[2];

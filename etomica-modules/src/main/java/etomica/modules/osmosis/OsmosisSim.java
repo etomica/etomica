@@ -60,7 +60,7 @@ public class OsmosisSim extends Simulation {
         speciesSolute = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolute);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         potentialAA = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAA, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
         potentialBB = new P2HardSphere(space, sigma, true);

@@ -5,18 +5,17 @@
 package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.mcmove.MCMoveMoleculeExchangeVLE;
-import etomica.integrator.mcmove.MCMoveVolumeExchangeVLE;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveMoleculeExchangeVLE;
+import etomica.integrator.mcmove.MCMoveVolumeExchangeVLE;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.cell.NeighborCellManager;
@@ -63,7 +62,7 @@ public class SWVLESim extends Simulation {
         config.initializeCoordinates(boxVapor);
 
         final double range = 1.5;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         if (doNBR) {
             potentialMaster = new PotentialMasterCell(this, range, space);
             ((PotentialMasterCell) potentialMaster).setCellRange(2);

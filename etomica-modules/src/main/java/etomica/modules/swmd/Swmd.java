@@ -43,7 +43,7 @@ public class Swmd extends Simulation {
         ((ElementSimple) species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
         addSpecies(species);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager()); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
 

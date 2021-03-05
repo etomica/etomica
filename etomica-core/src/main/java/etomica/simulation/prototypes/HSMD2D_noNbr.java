@@ -54,7 +54,7 @@ public class HSMD2D_noNbr extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));

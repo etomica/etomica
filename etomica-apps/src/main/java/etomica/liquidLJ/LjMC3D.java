@@ -5,7 +5,6 @@
 package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
@@ -241,7 +240,7 @@ public class LjMC3D extends Simulation {
         for (int i=1; i<cutoffs.length; i++) {
             cutoffs[i] = cutoffs[i-1]*1.2;
         }
-        PotentialMasterMonatomic potentialMasterLongCut = new PotentialMasterMonatomic(sim);
+        PotentialMasterMonatomic potentialMasterLongCut = new PotentialMasterMonatomic(sim.getSpeciesManager());
         AtomType leafType = sim.species.getLeafType();
         potentialMasterLongCut.addPotential(sim.potential, new AtomType[]{leafType, leafType});
         
@@ -280,7 +279,7 @@ public class LjMC3D extends Simulation {
         if (nCutoffs-1 >= nrcMax) nCutoffsLS=0;
         else if (nCutoffsLS-1>nrcMax) nCutoffsLS=1+nrcMax;
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
+        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
         Potential2SoftSphericalLSMulti pLS = null;
         AccumulatorAverageCovariance accPULS = null;
         AccumulatorAverageCovariance accPULSBlocks = new AccumulatorAverageCovariance(1, true);

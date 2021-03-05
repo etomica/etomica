@@ -54,7 +54,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         double diameter = 1.0;
 

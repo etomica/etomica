@@ -6,7 +6,6 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -54,7 +53,7 @@ public class SoftSphere3d extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);

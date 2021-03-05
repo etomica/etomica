@@ -312,7 +312,7 @@ public class SimLJHTTISuper extends Simulation {
         }
 
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
+        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
         Potential2SoftSphericalLSMultiLat pLS = null;
         PotentialMasterMonatomic potentialMasterLJLS = null;
         Potential2SoftSphericalLSMultiLat pLJLS = null;
@@ -337,7 +337,7 @@ public class SimLJHTTISuper extends Simulation {
             d = meterSolidLS.getData();
 
             if (params.ss) {
-                potentialMasterLJLS = new PotentialMasterMonatomic(sim);
+                potentialMasterLJLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
                 pLJLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, p2LJ, sim.coordinateDefinition);
                 potentialMasterLJLS.addPotential(pLJLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 if (bpharmLJ.length < cutoffsLS.length) {

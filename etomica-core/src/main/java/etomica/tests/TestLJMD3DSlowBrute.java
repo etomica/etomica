@@ -43,7 +43,7 @@ public class TestLJMD3DSlowBrute extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.01, 1.1, box);
