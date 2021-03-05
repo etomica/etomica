@@ -107,8 +107,8 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
             super.calculate(atom, neighborIterator, pc, direction);
             if (pMap == null) return;
             pair.atom0 = atom;
-            for (int i = 0; i < simulation.getSpeciesCount(); i++) {
-                ISpecies s = simulation.getSpecies(i);
+            for (int i = 0; i < sm.getSpeciesCount(); i++) {
+                ISpecies s = sm.getSpecies(i);
                 if (cellSpecies.contains(s)) {
                     // we already handled these interactions with the cell lists
                     continue;

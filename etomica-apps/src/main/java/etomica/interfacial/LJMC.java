@@ -70,7 +70,7 @@ public class LJMC extends Simulation {
         config.initializeCoordinates(box);
         double Lxy = config.getLxy();
 
-        potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
+        potentialMasterCell = new PotentialMasterCell(this, 5.49925);
         potentialMasterCell.setCellRange(2);
         integrator = new IntegratorMC(this.getRandom(), potentialMasterCell, box);
         integrator.setTemperature(temperature);

@@ -55,7 +55,7 @@ public class AshtonWildingLJ extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);

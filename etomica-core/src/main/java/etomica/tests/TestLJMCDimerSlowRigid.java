@@ -59,13 +59,13 @@ public class TestLJMCDimerSlowRigid extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMaster potentialMaster = cellListing ? new PotentialMasterCell(this, 3, this.getSpace()) : new PotentialMaster();
+        PotentialMaster potentialMaster = cellListing ? new PotentialMasterCell(this, 3) : new PotentialMaster();
 
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
 
-        integrator.getMoveManager().addMCMove(new MCMoveMolecule(this, potentialMaster, this.getSpace()));
+        integrator.getMoveManager().addMCMove(new MCMoveMolecule(potentialMaster, this.getRandom(), this.getSpace()));
 
         box.setNMolecules(species, totalAtoms / moleculeSize);
         new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();

@@ -115,7 +115,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMasterTarget, getRandom(), space);
         rotate.setBox(boxTarget);
 
-        MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMasterTarget, space);
+        MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMasterTarget, this.getRandom(), space, 1.0);
         mcMoveVolume.setBox(boxTarget);
         mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
 

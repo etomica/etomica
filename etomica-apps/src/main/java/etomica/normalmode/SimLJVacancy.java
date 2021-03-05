@@ -85,7 +85,7 @@ public class SimLJVacancy extends Simulation {
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
 
 
-        potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster = new PotentialMasterCell(this, rc);
         potentialMaster.setCellRange(2);
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);

@@ -5,7 +5,6 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -163,7 +162,7 @@ public class SimFe extends Simulation {
         if (swapDistance > lMin / 4) swapDistance = lMin / 4;
         if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 2) swapDistance = 2;
-        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, swapDistance, space);
+        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, swapDistance);
         potentialMasterCell.setCellRange(2);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
         if (swap) {

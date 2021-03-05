@@ -67,7 +67,7 @@ public class StarPolymerMC extends Simulation {
         boolean useNbrs = false;
         if (l < 30) useNbrs = false;
         if (useNbrs) {
-            potentialMaster = new PotentialMasterCell(this, Math.sqrt(2), space);
+            potentialMaster = new PotentialMasterCell(this, Math.sqrt(2));
         } else {
             potentialMaster = new PotentialMaster();
         }

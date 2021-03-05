@@ -64,7 +64,7 @@ public class LJNPT extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster = new PotentialMasterCell(this, rc);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
 

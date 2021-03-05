@@ -8,8 +8,8 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.potential.*;
-import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,16 +22,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     protected final NeighborCriterion[][] criteria;
     protected final List<NeighborCriterion>[] criteria1Body;
     private final PotentialArray[] intraPotentials;
-    protected final Simulation simulation;
 
-    public PotentialMasterNbr(Simulation sim) {
+    public PotentialMasterNbr(SpeciesManager sm) {
         super();
-        simulation = sim;
-        int numAtomTypes = 0;
-        if (sim.getSpeciesCount() > 0) {
-            ISpecies lastSpecies = sim.getSpecies(sim.getSpeciesCount() - 1);
-            numAtomTypes = lastSpecies.getAtomType(lastSpecies.getUniqueAtomTypeCount() - 1).getIndex() + 1;
-        }
+        int numAtomTypes = sm.getAtomTypeCount();
         rangedPotentials = new IPotentialAtomic[numAtomTypes][numAtomTypes];
         criteria = new NeighborCriterion[numAtomTypes][numAtomTypes];
 
@@ -44,7 +38,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
 
         potentials0body = new ArrayList<IPotentialAtomic>();
 
-        intraPotentials = new PotentialArray[sim.getSpeciesList().size()];
+        intraPotentials = new PotentialArray[sm.getSpeciesCount()];
         for (int i = 0; i < intraPotentials.length; i++) {
             intraPotentials[i] = new PotentialArray();
         }

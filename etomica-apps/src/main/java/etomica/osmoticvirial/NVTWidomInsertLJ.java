@@ -40,7 +40,7 @@ public class NVTWidomInsertLJ extends Simulation {
 
     public NVTWidomInsertLJ(int numAtoms, double temp, double density, double sigma2, double epsilon2, boolean computez2){
         super(Space3D.getInstance());
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
 
         double sigma1 = 1.0;
         double epsilon1 = 1.0;

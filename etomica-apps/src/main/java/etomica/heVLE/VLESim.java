@@ -72,7 +72,7 @@ public class VLESim extends Simulation {
         final double range = 10.0;
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this.getSpeciesManager());
         if (doNBR) {
-            potentialMaster = new PotentialMasterCell(this, range, space);
+            potentialMaster = new PotentialMasterCell(this, range);
             ((PotentialMasterCell) potentialMaster).setCellRange(2);
         }
         p2 = params.approx ? new P2HeSimplified(space) : new P2HePCKLJS(space);

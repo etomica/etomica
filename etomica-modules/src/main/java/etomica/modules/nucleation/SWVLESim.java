@@ -64,7 +64,7 @@ public class SWVLESim extends Simulation {
         final double range = 1.5;
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         if (doNBR) {
-            potentialMaster = new PotentialMasterCell(this, range, space);
+            potentialMaster = new PotentialMasterCell(this, range);
             ((PotentialMasterCell) potentialMaster).setCellRange(2);
         }
         p2 = new P2SquareWell(space, 1.0, 1.5, 1.0, false);

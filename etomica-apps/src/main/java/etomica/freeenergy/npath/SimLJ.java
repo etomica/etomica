@@ -66,7 +66,7 @@ public class SimLJ extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potentialMasterCell = new PotentialMasterCell(this, rc, space);
+        potentialMasterCell = new PotentialMasterCell(this, rc);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
         integrator = new IntegratorMC(this.getRandom(), potentialMasterCell, box);

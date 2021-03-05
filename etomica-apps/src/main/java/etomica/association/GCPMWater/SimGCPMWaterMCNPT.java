@@ -75,23 +75,23 @@ public class SimGCPMWaterMCNPT extends Simulation {
         System.out.println("numSteps = "+numSteps+" steps");
         System.out.println("initial density = "+densityMolLiter+" mol/L" +"\n");
 
-    	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
+        CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT, Liter.UNIT}, new double[]{1, -1});
         double density = rhoUnit.toSim(densityMolLiter);
         double pressure = Bar.UNIT.toSim(pressureBar);
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-        double volume = 1/(density/numMolceules);
-        double boxLength = Math.pow(volume, 1.0/3.0);      
+        double volume = 1 / (density / numMolceules);
+        double boxLength = Math.pow(volume, 1.0 / 3.0);
 
 
-	    mcMoveMolecule = new MCMoveMolecule(potentialMaster,random, space,10.0,15.0);
-	    mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster,random, space);
-	    mcMoveVolume = new MCMoveVolume(this,potentialMaster,space);//volume change
-	    mcMoveVolume.setPressure(pressure);
-	    box = new Box(space);
+        mcMoveMolecule = new MCMoveMolecule(potentialMaster, random, space, 10.0, 15.0);
+        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+        mcMoveVolume = new MCMoveVolume(potentialMaster, this.getRandom(), space, 1.0);
+        mcMoveVolume.setPressure(pressure);
+        box = new Box(space);
         addBox(box);
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(temperature);
-        Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
+        Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT, Mole.UNIT}, new double[]{1.0, -1.0});
 
 /*        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);

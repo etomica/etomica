@@ -60,7 +60,7 @@ public class LjMC3D extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potentialMasterCell = new PotentialMasterCell(this, rcShort, space);
+        potentialMasterCell = new PotentialMasterCell(this, rcShort);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
         integrator = new IntegratorMC(this.getRandom(), potentialMasterCell, box);

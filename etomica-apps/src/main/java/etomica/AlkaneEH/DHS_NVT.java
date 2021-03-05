@@ -104,7 +104,7 @@ public class DHS_NVT extends Simulation {
         potentialMaster.addPotential(p2TruncatedDHS, new ISpecies[]{species, species});
 
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
-        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);
+        moveMolecule = new MCMoveMolecule(potentialMaster, this.getRandom(), space);
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));

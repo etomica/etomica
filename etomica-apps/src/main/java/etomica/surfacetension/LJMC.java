@@ -5,7 +5,6 @@
 package etomica.surfacetension;
 
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
@@ -53,7 +52,7 @@ public class LJMC extends Simulation {
         addSpecies(species);
 
         double rc = 4.0;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster = new PotentialMasterCell(this, rc);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
 

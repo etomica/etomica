@@ -11,7 +11,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -23,8 +22,7 @@ import etomica.util.random.IRandom;
  * @author Andrew Schultz
  */
 public class MCMoveBoxSize extends MCMoveBoxStep {
-    
-    private static final long serialVersionUID = 2L;
+
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
@@ -33,18 +31,13 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected final Vector boxScale;
 
-    private transient double uOld, lScale;
-    private transient int dim1, dim2;
-    private transient double uNew = Double.NaN;
+    private double uOld, lScale;
+    private int dim1, dim2;
+    private double uNew = Double.NaN;
 
-    public MCMoveBoxSize(Simulation sim, PotentialMaster potentialMaster,
-                         Space _space) {
-        this(potentialMaster, sim.getRandom(), _space);
-    }
-    
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
+     * @param space           the governing space for the simulation
      */
     public MCMoveBoxSize(PotentialMaster potentialMaster, IRandom random,
                          Space space) {

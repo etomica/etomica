@@ -44,7 +44,7 @@ public class TestLJMC3DSlowerer extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.1, box);

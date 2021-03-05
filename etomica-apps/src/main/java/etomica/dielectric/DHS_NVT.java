@@ -118,8 +118,8 @@ protected final SpeciesGeneral species;
         // integrator from potential master
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
 // add mc move
-        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);        // stepSize:1.0, stepSizeMax:15.0
-        rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
+        moveMolecule = new MCMoveMolecule(potentialMaster, this.getRandom(), space);        // stepSize:1.0, stepSizeMax:15.0
+		rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
 

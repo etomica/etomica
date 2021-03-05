@@ -71,7 +71,7 @@ public class TestN2MCSlow extends Simulation {
         box = this.makeBox();
 
         double rc = 49.9999;
-        potentialMaster = cellListing ? new PotentialMasterCell(this, rc, space) : new PotentialMaster();
+        potentialMaster = cellListing ? new PotentialMasterCell(this, rc) : new PotentialMaster();
 
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperatureK));

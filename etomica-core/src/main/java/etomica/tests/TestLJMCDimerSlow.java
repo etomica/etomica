@@ -62,7 +62,7 @@ public class TestLJMCDimerSlow extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMaster potentialMaster = cellListing ? new PotentialMasterCell(this, 3, this.getSpace()) : new PotentialMaster();
+        PotentialMaster potentialMaster = cellListing ? new PotentialMasterCell(this, 3) : new PotentialMaster();
 
         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(moleculeSize);

@@ -124,7 +124,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
 
-		MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMaster, space);
+		MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, this.getRandom(), space, 1.0);
 		mcMoveVolume.setBox(box);
 		pressure *= 1e9;
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(pressure));

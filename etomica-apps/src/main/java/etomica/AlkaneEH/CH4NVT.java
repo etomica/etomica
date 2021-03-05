@@ -97,7 +97,7 @@ public class CH4NVT extends Simulation {
 
         //add potential to potential master
         potentialMaster.addPotential(pCH4, new ISpecies[]{speciesCH4, speciesCH4});
-        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
+        moveMolecule = new MCMoveMolecule(potentialMaster, this.getRandom(), space);
         rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));

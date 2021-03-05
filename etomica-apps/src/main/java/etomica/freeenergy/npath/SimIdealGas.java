@@ -62,7 +62,7 @@ public class SimIdealGas extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potentialMasterCell = new PotentialMasterCell(this, 3, space);
+        potentialMasterCell = new PotentialMasterCell(this, 3);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
         integrator = new IntegratorMC(this.getRandom(), potentialMasterCell, box);

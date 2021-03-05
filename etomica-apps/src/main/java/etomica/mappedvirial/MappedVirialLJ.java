@@ -5,7 +5,6 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -52,7 +51,7 @@ public class MappedVirialLJ extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc);
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator

@@ -59,7 +59,7 @@ public class LJMC3D extends Simulation {
         addSpecies(species);
 
         double rc = 3;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster = new PotentialMasterCell(this, rc);
 
         Box box = new Box(space);
         addBox(box);

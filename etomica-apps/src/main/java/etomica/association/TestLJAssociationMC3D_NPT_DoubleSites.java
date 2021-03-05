@@ -69,7 +69,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);//Species in which molecules are made of a single atom of type OrientedSphere
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
 
         double sigma = 1.0;
         //setRandom(new RandomNumberGenerator(3));
