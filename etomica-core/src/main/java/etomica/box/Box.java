@@ -316,19 +316,7 @@ public class Box {
      * @param species the added species
      */
     public void addSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[]) Arrays.addObject(moleculeLists, new MoleculeArrayList());
-        allMoleculeList.setMoleculeLists(moleculeLists);
-    }
-
-    /**
-     * Notifies the Box that a Species has been removed.  This method should
-     * only be called by the simulation.  This triggers the removal of all
-     * molecules of the given species from this box.
-     *
-     * @param species the removed species
-     */
-    public void removeSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[]) Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
+        moleculeLists = Arrays.addObject(moleculeLists, new MoleculeArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
