@@ -20,8 +20,8 @@ public class P1HardBoundaryOsmosis extends P1HardBoundary {
     }
 
     @Override
-    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state) {
-        double t = super.collisionTime(atom, r, v, state);
+    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state, double falseTime) {
+        double t = super.collisionTime(atom, r, v, state, falseTime);
         double x = r.getX(0);
         double vx = v.getX(0);
         double t0 = x * vx < 0 ? (-(x - Math.signum(x) * collisionRadius) / vx) : Double.POSITIVE_INFINITY;

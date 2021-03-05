@@ -30,7 +30,7 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
     private int[] pixPosition;
     private int[] thickness;
     private int nominalThickness = 1;
-    private boolean ignoreOverlap;
+    protected boolean ignoreOverlap;
     private double lastVirial;
     private int lastCollisionDim;
     private final Tensor lastVirialTensor;
@@ -67,7 +67,7 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
     }
 
     @Override
-    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state) {
+    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state, double falseTime) {
         Vector dimensions = boundary.getBoxSize();
         double tmin = Double.POSITIVE_INFINITY;
         for (int i = r.getD() - 1; i >= 0; i--) {

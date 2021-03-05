@@ -98,7 +98,7 @@ public class P1HardFieldGeneric implements IPotentialHardField {
         return newState;
     }
 
-    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state) {
+    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state, double falseTime) {
         double vx = v.getX(fieldDimension);
         int i = state + (vx > 0 ? +1 : 0);
         double wallx = collisionPositions[i];

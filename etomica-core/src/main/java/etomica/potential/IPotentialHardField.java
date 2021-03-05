@@ -27,13 +27,14 @@ public interface IPotentialHardField extends IPotentialField {
     /**
      * Computes the collision time for a given atom.
      *
-     * @param atom  the atom
-     * @param state the current state of the atom (overlapped, in well, etc).
-     *              the numbering scheme of states is an implementation
-     *              detail of the potential class, returned by getState or bump.
+     * @param atom      the atom
+     * @param state     the current state of the atom (overlapped, in well, etc).
+     *                  the numbering scheme of states is an implementation
+     *                  detail of the potential class, returned by getState or bump.
+     * @param falseTime
      * @return the next collision time for a pair of atoms.
      */
-    double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state);
+    double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state, double falseTime);
 
     /**
      * Handles the collision between a pair of atoms.  The atom positions and velocities

@@ -563,7 +563,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             Vector v = iAtom.getVelocity();
             r.PEa1Tv1(falseTime, v);
             long t1ct = nanoTime();
-            double time = pField.collisionTime(iAtom, r, v, fieldState[i]);
+            double time = pField.collisionTime(iAtom, r, v, fieldState[i], falseTime);
             tCollision += nanoTime() - t1ct;
             if (time < 0) {
                 throw new RuntimeException("Negative up collision time between " + i + " and wall at " + time);
@@ -659,7 +659,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             double tcol = collisionTimes[c];
             if (tcol > tBase + timeStep) break;
             if (tcol < tBase - 1e-12) {
-                throw new RuntimeException("nope");
+                throw new RuntimeException("nope " + c + " " + collisionPartners[c] + " " + tcol + " " + tBase);
             }
             int cPartner = collisionPartners[c];
             int oldState = collisionOldState[c];
