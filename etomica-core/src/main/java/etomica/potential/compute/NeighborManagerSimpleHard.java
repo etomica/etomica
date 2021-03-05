@@ -23,11 +23,9 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
 
     public Int2IntHash[] stateHash;
     protected IPotentialAtomic[][] pairPotentials;
-    protected boolean warningPrinted;
 
     public NeighborManagerSimpleHard(Box box) {
         super(box);
-        reset();
     }
 
     @Override
@@ -40,6 +38,8 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
                 Vector rij = box.getSpace().makeVector();
                 Vector ri = atoms.get(i).getPosition();
                 for (int j = i + 1; j < atoms.size(); j++) {
+                    if (pairPotentials[atoms.get(i).getType().getIndex()][atoms.get(j).getType().getIndex()] == null)
+                        continue;
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
                     if (consumerHard == null) {
@@ -58,6 +58,8 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
                 Vector rij = box.getSpace().makeVector();
                 Vector ri = atoms.get(i).getPosition();
                 for (int j = 0; j < i; j++) {
+                    if (pairPotentials[atoms.get(i).getType().getIndex()][atoms.get(j).getType().getIndex()] == null)
+                        continue;
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
                     if (consumerHard == null) {
@@ -77,6 +79,8 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
                 Vector ri = atoms.get(i).getPosition();
                 for (int j = 0; j < atoms.size(); j++) {
                     if (j == i) continue;
+                    if (pairPotentials[atoms.get(i).getType().getIndex()][atoms.get(j).getType().getIndex()] == null)
+                        continue;
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
                     consumer.accept(atoms.get(j), rij);
@@ -97,6 +101,7 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
                 double sum = 0;
                 for (int j = 0; j < atoms.size(); j++) {
                     if (j == atom1.getLeafIndex()) continue;
+                    if (pairPotentials[atom1.getType().getIndex()][atoms.get(j).getType().getIndex()] == null) continue;
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
                     sum += consumer.accept(atom1, atoms.get(j), rij);
@@ -105,6 +110,7 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
             }
         };
     }
+
     @Override
     public void setPairPotentials(IPotentialAtomic[][] potentials) {
         pairPotentials = potentials;
@@ -126,11 +132,13 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
             IPotentialAtomic[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
             for (int j = i + 1; j < stateHash.length; j++) {
                 IAtomKinetic jAtom = (IAtomKinetic) atoms.get(j);
+                IPotentialHard p2 = (IPotentialHard) iPotentials[jAtom.getType().getIndex()];
+                if (p2 == null) continue;
                 Vector rj = jAtom.getPosition();
                 Vector dr = Vector.d(ri.getD());
                 dr.Ev1Mv2(rj, ri);
                 box.getBoundary().nearestImage(dr);
-                int state = ((IPotentialHard) iPotentials[jAtom.getType().getIndex()]).getState(iAtom, jAtom, dr);
+                int state = p2.getState(iAtom, jAtom, dr);
                 if (state >= 0) stateHash[i].put(j, state);
             }
         }
