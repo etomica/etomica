@@ -82,7 +82,7 @@ public class TestN2MC extends Simulation {
         potentialMaster = cellListing ? new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding()) : new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
 
         boolean doEwald = (trunc == Truncation.EWALD || trunc == Truncation.EWALD1);
-        ewald = doEwald ? new PotentialComputeEwaldFourier(this, box, BondingInfo.noBonding()) : null;
+        ewald = doEwald ? new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding()) : null;
 
         if (doEwald) {
             pcAggregate = new PotentialComputeAggregate(potentialMaster, ewald);

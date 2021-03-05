@@ -51,7 +51,7 @@ public class SWMDFasterer extends Simulation {
         box = this.makeBox();
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, 2.5, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         double lambda = 2;
         getController().addActivity(new ActivityIntegrate(integrator));

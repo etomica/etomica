@@ -91,7 +91,7 @@ public class HSMD3DFasterer extends Simulation {
         if (params.useNeighborLists) {
             ((NeighborListManagerFastererHard) neighborManager).setDoDownNeighbors(true);
         }
-        potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         int numAtoms = params.nAtoms;
 

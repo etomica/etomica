@@ -12,19 +12,16 @@ import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class PotentialComputePair implements PotentialCompute {
-    private final List<ISpecies> speciesList;
     private final NeighborIterator neighborIterator;
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
@@ -44,12 +41,10 @@ public class PotentialComputePair implements PotentialCompute {
     public boolean doAllTruncationCorrection = true;
     public boolean doOneTruncationCorrection = false;
 
-    public PotentialComputePair(Simulation sim, Box box, NeighborManager neighborManager) {
+    public PotentialComputePair(SpeciesManager sm, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        pairPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
-        this.speciesList = sim.getSpeciesList();
+        int numAtomTypes = sm.getAtomTypeCount();
+        pairPotentials = new Potential2Soft[numAtomTypes][numAtomTypes];
         this.neighborManager = neighborManager;
         this.neighborManager.setPairPotentials(pairPotentials);
         this.neighborIterator = neighborManager.makeNeighborIterator();
@@ -61,7 +56,7 @@ public class PotentialComputePair implements PotentialCompute {
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
 
-        this.atomCountByType = new int[lastTypeIndex + 1];
+        this.atomCountByType = new int[numAtomTypes];
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {

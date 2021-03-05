@@ -15,10 +15,9 @@ import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialEmbedding;
 import etomica.potential.Potential2Soft;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
@@ -55,13 +54,12 @@ public class PotentialComputeEAM implements PotentialCompute {
     public boolean doAllTruncationCorrection = true;
     public boolean doOneTruncationCorrection = false;
 
-    public PotentialComputeEAM(Simulation sim, Box box, NeighborManager neighborManager) {
+    public PotentialComputeEAM(SpeciesManager sm, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        pairPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
-        rhoPotentials = new Potential2Soft[lastTypeIndex + 1];
-        embeddingPotentials = new IPotentialEmbedding[lastTypeIndex + 1];
+        int typeCount = sm.getAtomTypeCount();
+        pairPotentials = new Potential2Soft[typeCount][typeCount];
+        rhoPotentials = new Potential2Soft[typeCount];
+        embeddingPotentials = new IPotentialEmbedding[typeCount];
         this.neighborManager = neighborManager;
         this.neighborManager.setPairPotentials(pairPotentials);
         this.neighborIterator = neighborManager.makeNeighborIterator();
@@ -76,7 +74,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
 
-        this.atomCountByType = new int[lastTypeIndex + 1];
+        this.atomCountByType = new int[typeCount];
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {

@@ -84,7 +84,7 @@ public class ColloidSimFasterer extends Simulation {
                 return super.checkNbrPair(i, j, iAtom, jAtom, rc2, jbo, iPotentials);
             }
         };
-        potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         int nColloid = 1;
         chainLength = 50;

@@ -74,7 +74,7 @@ public class ChainHSMD3DFasterer extends Simulation {
         box = this.makeBox();
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, neighborRangeFac, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         int numAtoms = 108;
 

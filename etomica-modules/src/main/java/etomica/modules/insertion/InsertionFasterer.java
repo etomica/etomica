@@ -53,7 +53,7 @@ public class InsertionFasterer extends Simulation {
         //controller and integrator
         box = this.makeBox();
         NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
-        PotentialComputePair potentialCompute = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialCompute = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         //instantiate several potentials for selection in combo-box
         p2sqw = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);

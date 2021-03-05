@@ -83,7 +83,7 @@ class EwaldSummationTest {
         pair.setPairPotential(oType, oType, p2oo);
         pair.init();
 
-        fourier = new PotentialComputeEwaldFourier(sim, box, BondingInfo.noBonding());
+        fourier = new PotentialComputeEwaldFourier(sim.getSpeciesManager(), box, BondingInfo.noBonding());
         fourier.setAlpha(alpha);
         fourier.setCharge(hType, P2WaterSPCE.QH);
         fourier.setCharge(oType, P2WaterSPCE.QO);

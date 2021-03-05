@@ -17,12 +17,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.meter.MeterPressureFromIntegratorFasterer;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.nbr.list.NeighborListManagerFasterer;
-import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -48,7 +46,7 @@ public class TestLJMD3DNew extends Simulation {
 
         box = this.makeBox();
         NeighborListManagerFasterer nbrManager = new NeighborListManagerFasterer(this.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
-        PotentialComputePair pairCompute = new PotentialComputePair(this, box, nbrManager);
+        PotentialComputePair pairCompute = new PotentialComputePair(getSpeciesManager(), box, nbrManager);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(pairCompute, random, 0.01, 1.1, box);
         box.setNMolecules(species, numAtoms);

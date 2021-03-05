@@ -71,7 +71,7 @@ public class TestSWChain extends Simulation {
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(getSpeciesManager());
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, nbrRange, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         P2HardGeneric p2Bond = new P2HardGeneric(new double[]{sigma - bondFactor, sigma + bondFactor, 2 * (sigma + bondFactor)}, new double[]{Double.POSITIVE_INFINITY, 0, Double.POSITIVE_INFINITY});
         List<int[]> bondedIndices = new ArrayList<>();

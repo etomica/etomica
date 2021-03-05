@@ -58,7 +58,7 @@ public class FreeRadicalPolymerizationFastererSim extends Simulation implements 
 
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 3, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
-        potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         double diameter = 1.0;
         double lambda = 2.0;

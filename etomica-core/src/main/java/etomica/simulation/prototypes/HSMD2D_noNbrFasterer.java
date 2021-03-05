@@ -59,7 +59,7 @@ public class HSMD2D_noNbrFasterer extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
 
         NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
 
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));

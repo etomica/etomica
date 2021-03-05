@@ -72,8 +72,8 @@ public class SimGlassFasterer extends Simulation {
                 ? new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, 2.99, BondingInfo.noBonding())
                 : new NeighborListManagerFasterer(getSpeciesManager(), box, 2, 2.99, BondingInfo.noBonding());
         NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(getSpeciesManager(), box, 2, BondingInfo.noBonding());
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
-        PotentialComputePair potentialMasterMC = new PotentialComputePair(this, box, neighborManagerMC);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        PotentialComputePair potentialMasterMC = new PotentialComputePair(getSpeciesManager(), box, neighborManagerMC);
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
             sigmaB = 0.88;

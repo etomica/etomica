@@ -200,6 +200,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 int j = jAtom.getLeafIndex();
                 int jType = jAtom.getType().getIndex();
                 IPotentialPair pij = ip[jType];
+                if (pij == null) return;
                 double uij;
                 if (doForces) {
                     Vector fj = space.makeVector();

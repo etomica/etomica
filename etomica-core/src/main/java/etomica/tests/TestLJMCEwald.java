@@ -56,8 +56,8 @@ public class TestLJMCEwald extends Simulation {
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
 
-        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(this, box, BondingInfo.noBonding());
-        PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 38.5/30.4);
+        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 38.5 / 30.4);
         System.out.println(ewaldParams);
         PotentialMasterCellFasterer pair = new PotentialMasterCellFasterer(this.getSpeciesManager(), box, 2, BondingInfo.noBonding());
         PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair, ewaldFourier);

@@ -71,7 +71,7 @@ public class InterfacialSWFasterer extends Simulation {
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, pRange, pmBonding.getBondingInfo());
 //        NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         //species and potentials
         leafType = species.getLeafType();

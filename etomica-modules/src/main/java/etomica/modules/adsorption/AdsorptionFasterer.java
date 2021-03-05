@@ -62,11 +62,11 @@ public class AdsorptionFasterer extends Simulation {
         box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 2, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair computePair = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair computePair = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         PotentialComputeField computeWall = new PotentialComputeField(getSpeciesManager(), box);
         NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(getSpeciesManager(), box, 1, BondingInfo.noBonding());
-        PotentialComputePair computePairMC = new PotentialComputePair(this, box, neighborManagerMC);
+        PotentialComputePair computePairMC = new PotentialComputePair(getSpeciesManager(), box, neighborManagerMC);
 
         double sigma = 1;
         double lambda = 1.5;

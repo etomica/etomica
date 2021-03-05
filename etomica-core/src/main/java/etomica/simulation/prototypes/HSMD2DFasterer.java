@@ -55,7 +55,7 @@ public class HSMD2DFasterer extends Simulation {
         double neighborRangeFac = 1.6;
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, neighborRangeFac * sigma, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         getController().setSleepPeriod(1);
         getController().addActivity(new ActivityIntegrate(integrator));

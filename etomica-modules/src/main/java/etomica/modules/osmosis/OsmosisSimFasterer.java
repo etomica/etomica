@@ -67,7 +67,7 @@ public class OsmosisSimFasterer extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
 
         NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         P2HardGeneric potential = P2HardSphere.makePotential(sigma);
         potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolvent.getLeafType(), potential);
         potentialMaster.setPairPotential(speciesSolute.getLeafType(), speciesSolvent.getLeafType(), potential);

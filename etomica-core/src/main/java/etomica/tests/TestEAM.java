@@ -48,7 +48,7 @@ public class TestEAM extends Simulation {
         box = this.makeBox();
         NeighborListManagerFasterer nbrs = new NeighborListManagerFasterer(this.getSpeciesManager(), box, 2, 7.2, BondingInfo.noBonding());
         nbrs.setDoDownNeighbors(true);
-        PotentialComputeEAM potentialMaster = new PotentialComputeEAM(this, box, nbrs);
+        PotentialComputeEAM potentialMaster = new PotentialComputeEAM(getSpeciesManager(), box, nbrs);
         potentialMaster.doAllTruncationCorrection = false;
         integrator = new IntegratorVelocityVerletFasterer(potentialMaster, random, 0.001, temperature, box);
         integrator.setIsothermal(true);

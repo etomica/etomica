@@ -12,11 +12,11 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.Complex;
 import etomica.molecule.IMolecule;
 import etomica.potential.BondingInfo;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
@@ -119,7 +119,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
     }
 
-    public PotentialComputeEwaldFourier(Simulation sim, Box box, BondingInfo bondingInfo) {
+    public PotentialComputeEwaldFourier(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
         this.box = box;
         this.space = box.getSpace();
         this.bondingInfo = bondingInfo;
@@ -127,11 +127,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         this.uAtomsChanged = new IntArrayList(16);
         this.forces = new Vector[0];
 
-        ISpecies species = sim.getSpecies(sim.getSpeciesCount() - 1);
-        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        int numAtomTypes = lastTypeIndex + 1;
+        int numAtomTypes = sm.getAtomTypeCount();
         this.atomCountByType = new int[numAtomTypes];
-        for (ISpecies s : sim.getSpeciesList()) {
+        for (ISpecies s : sm.getSpeciesList()) {
             int nMols = box.getNMolecules(s);
             for (AtomType type : s.getAtomTypes()) {
                 atomCountByType[type.getIndex()] += nMols;

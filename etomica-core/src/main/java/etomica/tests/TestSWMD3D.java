@@ -54,7 +54,7 @@ public class TestSWMD3D extends Simulation {
 
         NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 1.8, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
-        PotentialComputePair potentialMaster = new PotentialComputePair(this, box, neighborManager);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         double sigma = 1.0;
         // makes eta = 0.35
