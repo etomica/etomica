@@ -5,7 +5,6 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -40,7 +39,7 @@ public class SingleDipole {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
 //        integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcAtom calcer = new OrientationCalcAtom();

@@ -4,13 +4,13 @@
 
 package etomica.nbr.molecule;
 
-import etomica.species.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesAgentManager;
 import etomica.util.Arrays;
 
 /**
@@ -40,8 +40,8 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster {
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
         this.boxAgentManager = boxAgentManager;
-        rangedAgentManager = new SpeciesAgentManager<>(speciesAgentSource, sim);
-        speciesAgentManager = new SpeciesAgentManager<>(speciesAgentSource, sim);
+        rangedAgentManager = new SpeciesAgentManager<>(speciesAgentSource, sim.getSpeciesManager());
+        speciesAgentManager = new SpeciesAgentManager<>(speciesAgentSource, sim.getSpeciesManager());
     }
 
     public PotentialGroup makePotentialGroup(int nBody) {

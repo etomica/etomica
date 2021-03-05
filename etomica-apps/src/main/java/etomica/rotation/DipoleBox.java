@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -55,7 +54,7 @@ public class DipoleBox extends Simulation {
         }
         PotentialMaster potentialMaster = new PotentialMaster();
         int maxIterations = 20;
-        integrator = new IntegratorRigidIterative(this, potentialMaster, dt, 1, box);
+        integrator = new IntegratorRigidIterative(getSpeciesManager(), random, potentialMaster, dt, 1, box);
         integrator.setTemperature(1);
         integrator.setIsothermal(false);
         integrator.printInterval = 1;

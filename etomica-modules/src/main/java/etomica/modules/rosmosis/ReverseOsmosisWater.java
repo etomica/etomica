@@ -222,7 +222,7 @@ public class ReverseOsmosisWater extends Simulation {
         configMembrane.initializeCoordinates(box);
 
         //controller and integrator
-        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
+        integrator = new IntegratorRigidIterative(getSpeciesManager(), random, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
         integrator.setTimeStep(0.004);

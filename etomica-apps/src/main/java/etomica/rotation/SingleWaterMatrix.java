@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -50,7 +49,7 @@ public class SingleWaterMatrix {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.0008;
         int maxIterations = 20;
-        final IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, box);
+        final IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());

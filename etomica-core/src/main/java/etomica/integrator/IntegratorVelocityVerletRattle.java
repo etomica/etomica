@@ -12,9 +12,9 @@ import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -31,13 +31,13 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     private static final long serialVersionUID = 1L;
     protected final Vector dv;
 
-    public IntegratorVelocityVerletRattle(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, box);
+    public IntegratorVelocityVerletRattle(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(sm, potentialMaster, random, 0.05, 1.0, box);
     }
-    
-    public IntegratorVelocityVerletRattle(Simulation sim, PotentialMaster potentialMaster, IRandom random,
+
+    public IntegratorVelocityVerletRattle(SpeciesManager sm, PotentialMaster potentialMaster, IRandom random,
                                           double timeStep, double temperature, Box box) {
-        super(sim, potentialMaster,random,timeStep,temperature, box);
+        super(sm, potentialMaster, random, timeStep, temperature, box);
         dv = space.makeVector();
     }
 

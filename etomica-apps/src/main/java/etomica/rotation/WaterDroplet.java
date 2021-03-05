@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
@@ -52,7 +51,7 @@ public class WaterDroplet {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
         integrator.setIsothermal(true);

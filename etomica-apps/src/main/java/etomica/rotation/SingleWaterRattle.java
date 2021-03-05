@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -51,7 +50,7 @@ public class SingleWaterRattle {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 0.0008;
         int maxIterations = 400;
-        final IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, box);
+        final IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);

@@ -34,42 +34,41 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
 import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesManager;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 import java.awt.*;
 import java.io.Serializable;
 
-public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements SpeciesAgentManager.AgentSource<IntegratorVelocityVerletQuaternion.MyTypeAgent>, MoleculeAgentSource<IntegratorVelocityVerletQuaternion.MoleculeAgent> {
 
-    private static final long serialVersionUID = 2L;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
     protected final Vector xWork;
-    protected final SpeciesAgentManager typeAgentManager;
+    protected final SpeciesAgentManager<MyTypeAgent> typeAgentManager;
     protected final Vector angularVelocity;
     protected final double[] quatVelocity, tempQuat;
     protected final MoleculePositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
     protected final MoleculeChildAtomAction translator;
-    protected final Simulation sim;
     private final IteratorDirective allAtoms;
     public int printInterval;
     protected PotentialCalculationForceSum forceSum;
     protected AtomLeafAgentManager<Vector> leafAgentManager;
-    protected MoleculeAgentManager moleculeAgentManager;
+    protected MoleculeAgentManager<MoleculeAgent> moleculeAgentManager;
 
-    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(sim, potentialMaster, 0.05, 1.0, box);
+    public IntegratorVelocityVerletQuaternion(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(sm, random, potentialMaster, 0.05, 1.0, box);
     }
-    
-    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster,
+
+    public IntegratorVelocityVerletQuaternion(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster,
                                               double timeStep, double temperature, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
-        this.sim = sim;
+        super(potentialMaster, random, timeStep, temperature, box);
         forceSum = new PotentialCalculationForcePressureSum(this.space);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
@@ -80,7 +79,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         workTensor = this.space.makeTensor();
         rotationTensor = (RotationTensor3D)this.space.makeRotationTensor();
         xWork = this.space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim);
+        typeAgentManager = new SpeciesAgentManager<>(this, sm);
         angularVelocity = this.space.makeVector();
         quatVelocity = new double[4];
         tempQuat = new double[4];
@@ -89,7 +88,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
         leafAgentManager = new AtomLeafAgentManager<>(a -> this.space.makeVector(), box);
-        moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), this.box, this);
+        moleculeAgentManager = new MoleculeAgentManager<>(sm, this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }
 
@@ -111,7 +110,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             configFile.initializeCoordinates(box);
         }
         PotentialMaster potentialMaster = new PotentialMaster();
-        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, box);
+        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval / interval, 1, box);
         integrator.printInterval = interval;
         integrator.setOrientationCalc(species, new OrientationCalcWater3P(sim.getSpace()));
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
@@ -539,17 +538,18 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
     }
 
-    public final Object makeAgent(IMolecule a) {
+    public final MoleculeAgent makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }
-    
-    public void releaseAgent(Object agent, IMolecule atom) {}
 
-    public Object makeAgent(ISpecies type) {
+    public void releaseAgent(MoleculeAgent agent, IMolecule atom) {
+    }
+
+    public MyTypeAgent makeAgent(ISpecies type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, ISpecies type) {
+    public void releaseAgent(MyTypeAgent agent, ISpecies type) {
     }
 
     public static class MoleculeAgent implements Serializable {  //need public so to use with instanceof

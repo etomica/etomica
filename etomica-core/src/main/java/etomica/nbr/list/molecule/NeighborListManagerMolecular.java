@@ -37,7 +37,7 @@ import java.io.Serializable;
  * @author taitan
  *
  */
-public class NeighborListManagerMolecular implements IntegratorListener, MoleculeAgentManager.MoleculeAgentSource, Serializable {
+public class NeighborListManagerMolecular implements IntegratorListener, MoleculeAgentManager.MoleculeAgentSource<MoleculeNeighborLists>, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -54,8 +54,8 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         cellNbrIterator = new MpiAACell(space.D(), range, box);
         cell1ANbrIterator = new Mpi1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
 
-        agentManager2Body = new MoleculeAgentManager(potentialMasterList.getSimulation().getSpeciesManager(), box, this);
-        agentManager1Body = new MoleculeAgentManager(potentialMasterList.getSimulation().getSpeciesManager(), box, new MoleculePotential1ListSource(potentialMasterList));
+        agentManager2Body = new MoleculeAgentManager<>(potentialMasterList.getSimulation().getSpeciesManager(), box, this);
+        agentManager1Body = new MoleculeAgentManager<>(potentialMasterList.getSimulation().getSpeciesManager(), box, new MoleculePotential1ListSource(potentialMasterList));
         initialized = false;
         doApplyPBC = true;
         moleculeSetSinglet = new MoleculeSetSinglet();
@@ -77,8 +77,8 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
             IMolecule molecule = moleculeList.get(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(molecule.getType()).getPotentials();
 
-            ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).setCapacity(potentials.length);
-            ((MoleculePotentialList)agentManager1Body.getAgent(molecule)).setCapacity(potentials.length);
+            agentManager2Body.getAgent(molecule).setCapacity(potentials.length);
+            agentManager1Body.getAgent(molecule).setCapacity(potentials.length);
         }
     }
 
@@ -231,7 +231,7 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         for (int j=0; j<nMolecule; j++) {
             IMolecule molecule = moleculeList.get(j);
             final NeighborCriterionMolecular[] criterion = getCriterion(molecule.getType());
-            ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).clearNbrs();
+            agentManager2Body.getAgent(molecule).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(molecule);
             }
@@ -245,7 +245,7 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                     continue;
                 }
                 moleculeSetSinglet.mol = molecule;
-                ((MoleculePotentialList)agentManager1Body.getAgent(molecule)).setIsInteracting(criteria[i].accept(moleculeSetSinglet),i);
+                agentManager1Body.getAgent(molecule).setIsInteracting(criteria[i].accept(moleculeSetSinglet), i);
             }
         }
         
@@ -269,8 +269,8 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule0)).addUpNbr(molecule1,i);
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule1)).addDownNbr(molecule0,
+                    agentManager2Body.getAgent(molecule0).addUpNbr(molecule1, i);
+                    agentManager2Body.getAgent(molecule1).addDownNbr(molecule0,
                             potentialMaster.getRangedPotentials(molecule1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -310,8 +310,8 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule0)).addUpNbr(molecule1,i);
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule1)).addDownNbr(molecule0,
+                    agentManager2Body.getAgent(molecule0).addUpNbr(molecule1, i);
+                    agentManager2Body.getAgent(molecule1).addDownNbr(molecule0,
                             potentialMaster.getRangedPotentials(molecule1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -353,11 +353,11 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
     }
     
     public IMoleculeList[] getUpList(IMolecule molecule) {
-        return ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).getUpList();
+        return agentManager2Body.getAgent(molecule).getUpList();
     }
 
     public IMoleculeList[] getDownList(IMolecule molecule) {
-        return ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).getDownList();
+        return agentManager2Body.getAgent(molecule).getDownList();
     }
 
     public MoleculePotentialList getPotential1BodyList(IMolecule molecule) {
@@ -372,7 +372,7 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
     public NeighborListEventManagerMolecular getEventManager() {
         return eventManager;
     }
-    
+
     private static final long serialVersionUID = 1L;
     private int updateInterval;
     private int iieCount;
@@ -382,17 +382,17 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
     protected final PotentialMasterListMolecular potentialMaster;
     private BoxImposePbc pbcEnforcer;
     private boolean quiet;
-    protected final MoleculeAgentManager agentManager2Body;
-    protected final MoleculeAgentManager agentManager1Body;
+    protected final MoleculeAgentManager<MoleculeNeighborLists> agentManager2Body;
+    protected final MoleculeAgentManager<MoleculePotentialList> agentManager1Body;
     private NeighborListEventManagerMolecular eventManager;
     protected Box box;
     private NeighborCriterionMolecular[] oldCriteria;
     protected boolean initialized;
     protected boolean doApplyPBC;
 
-    public Object makeAgent(IMolecule molecule) {
+    public MoleculeNeighborLists makeAgent(IMolecule molecule) {
         if (initialized) {
-            Object oldAgent = agentManager2Body.getAgent(molecule);
+            MoleculeNeighborLists oldAgent = agentManager2Body.getAgent(molecule);
             if (oldAgent != null) {
                 // NeighborCellManager got notified first and we already made the
                 // agent (and found the neighbors!).  Return that now.
@@ -404,18 +404,17 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         lists.setCapacity(potentials.length);
         return lists;
     }
-    
-    public void releaseAgent(Object agent, IMolecule molecule) {
+
+    public void releaseAgent(MoleculeNeighborLists agent, IMolecule molecule) {
         // we need to remove this atom from the neighbor lists of its neighbors.
-        MoleculeNeighborLists nbrLists = (MoleculeNeighborLists)agent;
-        IMoleculeList[] upDnLists = nbrLists.getUpList();
-        for (int i=0; i<upDnLists.length; i++) {
+        IMoleculeList[] upDnLists = agent.getUpList();
+        for (int i = 0; i < upDnLists.length; i++) {
             int nNbrs = upDnLists[i].size();
-            for (int j=0; j<nNbrs; j++) {
+            for (int j = 0; j < nNbrs; j++) {
                 IMolecule jMolecule = upDnLists[i].get(j);
-                MoleculeNeighborLists jNbrLists = (MoleculeNeighborLists)agentManager2Body.getAgent(jMolecule);
+                MoleculeNeighborLists jNbrLists = (MoleculeNeighborLists) agentManager2Body.getAgent(jMolecule);
                 MoleculeArrayList[] jDnLists = jNbrLists.downList;
-                for (int k=0; k<jDnLists.length; k++) {
+                for (int k = 0; k < jDnLists.length; k++) {
                     int idx = jDnLists[k].indexOf(molecule);
                     if (idx > -1) {
                         jDnLists[k].removeAndReplace(idx);
@@ -423,7 +422,7 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                 }
             }
         }
-        upDnLists = nbrLists.getDownList();
+        upDnLists = agent.getDownList();
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].size();
             for (int j=0; j<nNbrs; j++) {
@@ -438,22 +437,23 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                 }
             }
         }
-        nbrLists.clearNbrs();
+        agent.clearNbrs();
     }
 
-    public static class MoleculePotential1ListSource implements MoleculeAgentManager.MoleculeAgentSource, java.io.Serializable {
-        private static final long serialVersionUID = 2L;
+    public static class MoleculePotential1ListSource implements MoleculeAgentManager.MoleculeAgentSource<MoleculePotentialList> {
         protected final PotentialMasterListMolecular potentialMaster;
 
         public MoleculePotential1ListSource(PotentialMasterListMolecular potentialMaster) {
             this.potentialMaster = potentialMaster;
         }
-        
-        public void releaseAgent(Object obj, IMolecule molecule) {}
-        public Object makeAgent(IMolecule molecule) {
+
+        public void releaseAgent(MoleculePotentialList obj, IMolecule molecule) {
+        }
+
+        public MoleculePotentialList makeAgent(IMolecule molecule) {
             MoleculePotentialList lists = new MoleculePotentialList();
             IPotential[] potentials = potentialMaster.getRangedPotentials(molecule.getType()).getPotentials();
-            
+
             lists.setCapacity(potentials.length);
             return lists;
         }

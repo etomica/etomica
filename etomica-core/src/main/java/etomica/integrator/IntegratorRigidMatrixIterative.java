@@ -16,7 +16,6 @@ import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -26,18 +25,20 @@ import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
+import etomica.species.SpeciesManager;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator implementation of Omelyan's leapfrog integrator for rotational
  * motion.  Molecular Simulation, 22 (1999) 213-236.
- * 
+ *
  * @author Andrew Schultz
  */
-public class IntegratorRigidMatrixIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorRigidMatrixIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource<OrientationCalc>, MoleculeAgentSource<IntegratorRigidIterative.MoleculeAgent> {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationTorqueSum torqueSum;
@@ -46,7 +47,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
     protected final Tensor workTensor;
     protected final RotationTensor3D rotationTensor;
     protected final Vector xWork, yWork;
-    protected final SpeciesAgentManager typeAgentManager;
+    protected final SpeciesAgentManager<OrientationCalc> typeAgentManager;
     protected final Vector tempAngularVelocity;
     protected final MoleculePositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
@@ -58,19 +59,17 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
     protected final RotationTensor3D axesTensor;
     protected final RotationTensor3D tempAxesTensor;
     protected final Tensor omegaTensor;
-    protected final Simulation sim;
-    
+
     protected AtomLeafAgentManager<Vector> forces;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(sim, potentialMaster, 0.05, 1.0, box);
+    public IntegratorRigidMatrixIterative(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(sm, random, potentialMaster, 0.05, 1.0, box);
     }
-    
-    public IntegratorRigidMatrixIterative(Simulation sim, PotentialMaster potentialMaster,
+
+    public IntegratorRigidMatrixIterative(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster,
                                           double timeStep, double temperature, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
-        this.sim = sim;
+        super(potentialMaster, random, timeStep, temperature, box);
         torqueSum = new PotentialCalculationTorqueSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
@@ -82,7 +81,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
         rotationTensor = (RotationTensor3D)this.space.makeRotationTensor();
         xWork = this.space.makeVector();
         yWork = this.space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim);
+        typeAgentManager = new SpeciesAgentManager<>(this, sm);
         tempAngularVelocity = this.space.makeVector();
         tempOrientation = new OrientationFull3D(this.space);
         atomPositionCOM = new MoleculePositionCOM(this.space);
@@ -94,10 +93,10 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
         axesTensor = (RotationTensor3D)this.space.makeRotationTensor();
         tempAxesTensor = (RotationTensor3D)this.space.makeRotationTensor();
         omegaTensor = this.space.makeTensor();
-        meterKE = new MeterKineticEnergyRigid(space, sim);
+        meterKE = new MeterKineticEnergyRigid(space, sm);
 
         forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), this.box, this);
+        moleculeAgentManager = new MoleculeAgentManager<IntegratorRigidIterative.MoleculeAgent>(sm, this.box, this);
         torqueSum.setAgentManager(forces);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
         ((MeterKineticEnergyRigid)meterKE).setBox(box);
@@ -667,18 +666,20 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
     
 //--------------------------------------------------------------
 
-    public final Object makeAgent(IMolecule a) {
+    public final IntegratorRigidIterative.MoleculeAgent makeAgent(IMolecule a) {
         return new IntegratorRigidIterative.MoleculeAgent(space);
     }
-    
-    public void releaseAgent(Object agent, IMolecule molecule) {}
 
-    public Object makeAgent(ISpecies type) {
+    public void releaseAgent(IntegratorRigidIterative.MoleculeAgent agent, IMolecule molecule) {
+    }
+
+    public OrientationCalc makeAgent(ISpecies type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, ISpecies type) {}
-    
+    public void releaseAgent(OrientationCalc agent, ISpecies type) {
+    }
+
     public static class BoxImposePbcMolecule implements IAction {
         public BoxImposePbcMolecule(Box box, Space space) {
             this.box = box;
