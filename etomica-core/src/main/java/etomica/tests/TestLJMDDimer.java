@@ -128,7 +128,7 @@ public class TestLJMDDimer extends Simulation {
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
-        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
+        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom()));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

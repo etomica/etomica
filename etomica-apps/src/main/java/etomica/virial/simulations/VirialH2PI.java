@@ -8,7 +8,10 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.*;
+import etomica.atom.AtomHydrogen;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIndexList;
@@ -43,8 +46,8 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.*;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -636,17 +639,17 @@ public class VirialH2PI {
 				displayBox1.setPixelUnit(new Pixel(300.0/vSize));
 				displayBox0.setShowBoundary(false);
 				displayBox1.setShowBoundary(false);
-				((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-				((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+				((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+				((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
 				AtomType type = species.getAtomType(0);
-				DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-				diameterManager.setDiameter(type, 0.02+1.0/nBeads);
+				DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
+				diameterManager.setDiameter(type, 0.02 + 1.0 / nBeads);
 				displayBox1.setDiameterHash(diameterManager);
-				ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+				ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
 				displayBox0.setColorScheme(colorScheme);
-				colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+				colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
 				displayBox1.setColorScheme(colorScheme);
 				simGraphic.makeAndDisplayFrame();
 

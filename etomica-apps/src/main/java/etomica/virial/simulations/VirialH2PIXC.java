@@ -32,8 +32,8 @@ import etomica.species.SpeciesGeneral;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -220,9 +220,9 @@ public class VirialH2PIXC {
 			//            pair.atom1 = leafList.getAtom(0);
 			//            ((DisplayBoxCanvasG3DSys)displayBox.canvas).makeBond(pair, null);
 
-			DiameterHashByType diameterManager = (DiameterHashByType)displayBox.getDiameterHash();
-			diameterManager.setDiameter(type, 1.0/nSpheres);
-			ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
+			DiameterHashByType diameterManager = (DiameterHashByType) displayBox.getDiameterHash();
+			diameterManager.setDiameter(type, 1.0 / nSpheres);
+			ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom());
 			displayBox.setColorScheme(colorScheme);
 			simGraphic.makeAndDisplayFrame();
 

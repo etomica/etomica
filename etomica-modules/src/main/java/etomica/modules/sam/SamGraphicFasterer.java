@@ -117,7 +117,7 @@ public class SamGraphicFasterer extends SimulationGraphic {
 
         DisplayTimerFasterer timer = new DisplayTimerFasterer(sim.integrator);
         add(timer);
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, 3);
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, 3);
         DisplayTextBox temperatureDisplay = new DisplayTextBox();
         temperatureDisplay.setUnit(Kelvin.UNIT);
         DataPump pump = new DataPump(thermometer, temperatureDisplay);

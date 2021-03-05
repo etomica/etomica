@@ -22,10 +22,7 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Volume;
+import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 import etomica.virial.*;
 import etomica.virial.GUI.models.ModelSelectedSpecies;
@@ -529,12 +526,12 @@ sim.getController().runActivityBlocking(ai);
         displayBox1.setShowBoundary(false);
         ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
         ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-        
-        
-        ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
-        displayBox0.setColorScheme(colorScheme);
-        colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
-        displayBox1.setColorScheme(colorScheme);
+
+
+		ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
+		displayBox0.setColorScheme(colorScheme);
+		colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
+		displayBox1.setColorScheme(colorScheme);
         simGraphic.makeAndDisplayFrame();
 
         sim.integratorOS.setNumSubSteps(1000);

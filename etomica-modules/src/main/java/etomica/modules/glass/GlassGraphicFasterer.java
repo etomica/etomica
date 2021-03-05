@@ -87,7 +87,7 @@ public class GlassGraphicFasterer extends SimulationGraphic {
         DisplayBox dbox;
         DisplayBoxCanvasGlass canvas;
         DisplayCanvas c;
-        dbox = new DisplayBox(sim, sim.box);
+        dbox = new DisplayBox(sim.getController(), sim.box);
         if (sim.getSpace().D() == 2) {
             c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         } else {

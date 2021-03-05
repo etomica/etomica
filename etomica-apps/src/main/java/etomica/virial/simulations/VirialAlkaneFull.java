@@ -303,9 +303,9 @@ public class VirialAlkaneFull {
             diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
             diameterManager.setDiameter(typeCH3, 0.2 * sigmaCH3);
             displayBox1.setDiameterHash(diameterManager);
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
 
 

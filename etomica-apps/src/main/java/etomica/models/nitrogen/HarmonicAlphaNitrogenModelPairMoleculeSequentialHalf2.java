@@ -291,17 +291,17 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 	
 		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(test, SimulationGraphic.TABBED_PANE);
-			simGraphic.add(new DisplayBox(test, test.box));
+			simGraphic.add(new DisplayBox(test.getController(), test.box));
 			simGraphic.getDisplayBox(test.box).setPixelUnit(new Pixel(10));
-			
+
 			DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(test.species.getTypeByName("N"), 3.1);
 			diameter.setDiameter(test.species.getTypeByName("P"), 0.0);
 
 			simGraphic.getDisplayBox(test.box).setDiameterHash(diameter);
-			
-	
-		    simGraphic.makeAndDisplayFrame("Alpha Crystal Structure");
+
+
+			simGraphic.makeAndDisplayFrame("Alpha Crystal Structure");
 		    return;
 		}
 		

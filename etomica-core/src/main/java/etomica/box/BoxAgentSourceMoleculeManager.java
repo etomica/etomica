@@ -7,7 +7,7 @@ package etomica.box;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.simulation.Simulation;
+import etomica.species.SpeciesManager;
 
 /**
  * BoxAgentSource that creates an MoleculeAgentManager.
@@ -16,20 +16,19 @@ import etomica.simulation.Simulation;
 public class BoxAgentSourceMoleculeManager<E> implements BoxAgentSource<MoleculeAgentManager<E>> {
 
     private final MoleculeAgentSource<E> moleculeAgentSource;
-    protected Simulation sim;
+    protected SpeciesManager sm;
 
     /**
      * @param moleculeAgentSource object that makes the molecule agents
-     * @param sim the governing simulation
      */
-    public BoxAgentSourceMoleculeManager(MoleculeAgentSource<E> moleculeAgentSource, Simulation sim) {
+    public BoxAgentSourceMoleculeManager(MoleculeAgentSource<E> moleculeAgentSource, SpeciesManager sm) {
         super();
-        this.sim = sim;
+        this.sm = sm;
         this.moleculeAgentSource = moleculeAgentSource;
     }
 
     public MoleculeAgentManager<E> makeAgent(Box box) {
-        return new MoleculeAgentManager<>(sim.getSpeciesManager(), box, moleculeAgentSource);
+        return new MoleculeAgentManager<>(sm, box, moleculeAgentSource);
     }
 
     public void releaseAgent(MoleculeAgentManager<E> agent) {

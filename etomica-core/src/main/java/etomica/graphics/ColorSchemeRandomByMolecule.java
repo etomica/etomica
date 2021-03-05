@@ -9,21 +9,21 @@ import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.simulation.Simulation;
+import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
 
 import java.awt.*;
 
 public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource<Color> {
 
-    public ColorSchemeRandomByMolecule(Simulation sim, Box box, IRandom random) {
+    public ColorSchemeRandomByMolecule(SpeciesManager sm, Box box, IRandom random) {
         super();
         this.random = random;
-        agentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
+        agentManager = new MoleculeAgentManager<>(sm, box, this);
     }
 
     public Color getAtomColor(IAtom a) {
-        return (Color) agentManager.getAgent(a.getParentGroup());
+        return agentManager.getAgent(a.getParentGroup());
     }
 
     public Color makeAgent(IMolecule a) {

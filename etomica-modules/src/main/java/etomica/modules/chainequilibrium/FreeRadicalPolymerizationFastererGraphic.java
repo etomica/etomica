@@ -80,7 +80,7 @@ public class FreeRadicalPolymerizationFastererGraphic extends SimulationGraphic 
         DataSourceCountTimeFasterer timer = new DataSourceCountTimeFasterer(sim.integratorHard);
 
         DataFork tFork = new DataFork();
-        final DataPump tPump = new DataPump(new MeterTemperature(sim, sim.box, space.D()), tFork);
+        final DataPump tPump = new DataPump(new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D()), tFork);
         tFork.addDataSink(tBox);
         add(tBox);
         dataStreamPumps.add(tPump);

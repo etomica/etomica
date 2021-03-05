@@ -8,7 +8,6 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationChainLinear;
@@ -20,22 +19,19 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.*;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
-
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -124,7 +120,7 @@ public class TestLJMCDimerSlowRigid extends Simulation {
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
-        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
+        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom()));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

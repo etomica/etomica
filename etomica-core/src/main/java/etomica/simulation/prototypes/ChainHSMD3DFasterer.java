@@ -124,7 +124,7 @@ public class ChainHSMD3DFasterer extends Simulation {
                 ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).makeBond(new AtomPair(atom1, atom2), null);
             }
         }
-        ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
+        ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom());
         simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));

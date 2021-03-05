@@ -5,7 +5,6 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -25,11 +24,11 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.DipoleSource;
@@ -295,8 +294,8 @@ public class TIP4P_NVT extends Simulation {
         //AEE
         DipoleSourceTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceTIP4PWater(space);
 
-        MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box, sim, dipoleStrength, temperature, sim.potentialMaster);
-        AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
+         MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
+         AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
 
         if (aEE) {
             if (difInterval) {
@@ -307,7 +306,6 @@ public class TIP4P_NVT extends Simulation {
             System.out.println("SampleArInterval " + sampleAtInterval);
             System.out.println("BlockNumber " + (steps / sampleAtInterval / samplePerBlock));
 
-            AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box, sim, dipoleStrength, temperature, sim.potentialMaster);
             AEEMeter.setDipoleSource(dipoleSourceTIP4PWater);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);

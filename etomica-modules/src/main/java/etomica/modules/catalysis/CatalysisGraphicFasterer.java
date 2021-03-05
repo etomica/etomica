@@ -104,7 +104,7 @@ public class CatalysisGraphicFasterer extends SimulationGraphic {
         colorScheme.setFullBondColor(sim.speciesC.getLeafType(), Color.YELLOW);
         getDisplayBox(sim.box).setColorScheme(colorScheme);
 
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         final DataPumpListener temperaturePump = new DataPumpListener(thermometer, temperatureHistory);
         sim.integrator.getEventManager().addListener(temperaturePump);

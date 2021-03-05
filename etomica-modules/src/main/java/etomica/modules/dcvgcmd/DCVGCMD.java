@@ -192,7 +192,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
 
-        thermometer = new MeterTemperature(this, box, space.D());
+        thermometer = new MeterTemperature(getSpeciesManager(), box, space.D());
 
         integratorMD.setMeterTemperature(thermometer);
         //integrator.setSleepPeriod(1);

@@ -31,8 +31,8 @@ import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -472,7 +472,7 @@ public class VirialHePIXCEven {
             
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox.getDiameterHash();
             diameterManager.setDiameter(type, 1.0/nBeads);
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom());
             displayBox.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 

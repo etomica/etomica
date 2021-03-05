@@ -4,23 +4,13 @@
 
 package etomica.virial.simulations;
 
-import java.awt.*;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.graphics.ColorSchemeRandomByMolecule;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2Spherical;
@@ -28,25 +18,17 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.CompoundUnit;
+import etomica.units.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.dimensions.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.dimensions.Volume;
+import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * SW simulation using Mayer sampling to evaluate cluster integrals
@@ -122,9 +104,9 @@ public class VirialSW {
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 

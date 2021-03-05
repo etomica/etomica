@@ -26,7 +26,7 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
     protected final Bond[] bonds;
 
     public DisplayBoxCanvas3DGlass(DisplayBox _box, Space _space, Controller controller, ConfigurationStorage configStorage) {
-        super(null, _box, _space, controller);
+        super(_box, _space, controller);
         dr = _space.makeVector();
         this.configStorage = configStorage;
         configIndex = 100;

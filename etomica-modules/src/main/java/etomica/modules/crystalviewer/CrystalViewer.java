@@ -4,39 +4,27 @@
 
 package etomica.modules.crystalviewer;
 
-import javax.swing.JTabbedPane;
-
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.LatticeCubicBcc;
-import etomica.lattice.LatticeCubicDiamond;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.LatticeCubicSimple;
-import etomica.lattice.LatticeHcp;
-import etomica.lattice.LatticePlane;
-import etomica.lattice.crystal.BasisMonatomic;
-import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.lattice.*;
+import etomica.lattice.crystal.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
+import javax.swing.*;
+
 
 public class CrystalViewer extends SimulationPanel {
-    
-	final static String APP_NAME = "Crystal Viewer";
+
+    final static String APP_NAME = "Crystal Viewer";
     protected final Simulation sim;
 
     protected SpeciesGeneral species;
@@ -81,7 +69,7 @@ public class CrystalViewer extends SimulationPanel {
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
 
-        displayBox = new DisplayBox(sim, box);
+        displayBox = new DisplayBox(sim.getController(), box);
         displayBox.setPixelUnit(new Pixel(20));
         displayBox.setResizeOnNewBox(false);
 

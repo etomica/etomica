@@ -192,7 +192,7 @@ public class GlassProdFasterer {
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 5);
             sim.integrator.getEventManager().addListener(pumpPE);
 
-            MeterTemperature tMeter = new MeterTemperature(sim, sim.box, params.D);
+            MeterTemperature tMeter = new MeterTemperature(sim.getSpeciesManager(), sim.box, params.D);
             tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
             DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
             tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});

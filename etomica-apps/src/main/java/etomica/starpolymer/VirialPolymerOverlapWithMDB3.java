@@ -223,8 +223,8 @@ public class VirialPolymerOverlapWithMDB3 {
             simGraphic.getDisplayBox(targetBox).setLabel("Target-System Sampling");
 //            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
 
-            ColorScheme colorScheme0 = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
-            ColorScheme colorScheme1 = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            ColorScheme colorScheme0 = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
+            ColorScheme colorScheme1 = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
 
             displayBox0.setColorScheme(colorScheme0);
             displayBox1.setColorScheme(colorScheme1);
@@ -234,7 +234,7 @@ public class VirialPolymerOverlapWithMDB3 {
             sim.integratorOS.setNumSubSteps(1000);
 
             sim.initRefPref(null, 1000, false);
-    sim.equilibrate(null, 2000, false);
+            sim.equilibrate(null, 2000, false);
     sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {

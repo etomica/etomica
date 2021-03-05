@@ -10,10 +10,6 @@ import etomica.action.SimulationRestart;
 import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
-import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.*;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
@@ -179,7 +175,7 @@ public class SimulationGraphic implements SimulationContainer {
             Box box = integrator instanceof IntegratorBox ? ((IntegratorBox) integrator).getBox() : ((IntegratorBoxFasterer) integrator).getBox();
             if (boxList.contains(box)) return;
             boxList.add(box);
-            final DisplayBox display = new DisplayBox(simulation, box);
+            final DisplayBox display = new DisplayBox(simulation.getController(), box);
             add(display);
 
             /* For G3DSys: panel is invisible until set visible here.

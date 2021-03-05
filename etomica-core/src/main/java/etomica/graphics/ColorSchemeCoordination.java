@@ -4,23 +4,22 @@
 
 package etomica.graphics;
 
-import java.awt.Color;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
+import java.awt.*;
+
 public class ColorSchemeCoordination extends ColorSchemeCollectiveAgent {
-    
-    public ColorSchemeCoordination(Simulation sim, PotentialMasterList potentialMaster, Box box) {
+
+    public ColorSchemeCoordination(PotentialMasterList potentialMaster, Box box) {
         super(box);
 
         leafList = box.getLeafList();
         nbrManager = potentialMaster.getNeighborManager(box);
-        colors = new Color[]{Color.WHITE,Color.MAGENTA, Color.RED, Color.ORANGE,Color.GRAY,Color.GREEN,Color.BLUE,Color.WHITE};
+        colors = new Color[]{Color.WHITE, Color.MAGENTA, Color.RED, Color.ORANGE, Color.GRAY, Color.GREEN, Color.BLUE, Color.WHITE};
     }
     
     public void colorAllAtoms() {

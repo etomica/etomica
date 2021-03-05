@@ -5,7 +5,6 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -215,8 +214,8 @@ public class DLJ_NVT_1site extends Simulation {
         MeterDipoleSumSquaredMappedAverage AEEMeter =  null;
    		AccumulatorAverageCovariance AEEAccumulator = null;
    		if(aEE){
-         AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box,sim, dipoleStrength,temperature,sim.potentialMaster);
-		AEEMeter.setDipoleSource(dipoleSourceDLJ);
+         AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
+            AEEMeter.setDipoleSource(dipoleSourceDLJ);
          AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
 		DataPump AEEPump = new DataPump(AEEMeter,AEEAccumulator);
 		IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);

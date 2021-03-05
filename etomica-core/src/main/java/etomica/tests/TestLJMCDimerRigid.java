@@ -22,7 +22,10 @@ import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
-import etomica.potential.*;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.potential.PotentialMasterFasterer;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
@@ -107,7 +110,7 @@ public class TestLJMCDimerRigid extends Simulation {
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
-        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
+        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom()));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

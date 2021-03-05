@@ -148,7 +148,7 @@ public class DCVGCMDFasterer extends Simulation {
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
 
-        thermometer = new MeterTemperature(this, box, space.D());
+        thermometer = new MeterTemperature(getSpeciesManager(), box, space.D());
 
         integratorMD.setMeterTemperature(thermometer);
         integratorMD.setTimeStep(0.005);

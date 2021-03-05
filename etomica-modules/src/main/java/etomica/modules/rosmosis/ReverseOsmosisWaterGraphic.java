@@ -313,7 +313,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
         thermometer.setKineticEnergyMeter(new MeterKineticEnergyFromIntegrator(sim.integrator));
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);

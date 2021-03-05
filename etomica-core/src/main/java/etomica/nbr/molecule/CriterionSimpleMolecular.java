@@ -34,8 +34,8 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim), sim);
-        moleculeSite = new MoleculePositionGeometricCenter(_space);
+		boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim.getSpeciesManager()), sim);
+		moleculeSite = new MoleculePositionGeometricCenter(_space);
 	}
 	
 	public void setMoleculePosition(IMoleculePositionDefinition positionDefinition){
