@@ -7,7 +7,6 @@ package etomica.starpolymer;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
@@ -123,9 +122,9 @@ public class VirialPolymerOverlapWithMD {
         ((MCMoveStepTracker) sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
 //        sim.integrators[1].getMoveManager().setFrequency();
 
-        MCMoveClusterConformationMDTest mcMove = new MCMoveClusterConformationMDTest(sim, space, temperature, f, l, true, true);
+        MCMoveClusterConformationMDTest mcMove = new MCMoveClusterConformationMDTest(sim.getRandom(), space, temperature, f, l, true, true);
         System.exit(0);
-        MCMoveClusterConformationMDTest mcMove2 = new MCMoveClusterConformationMDTest(sim, space, temperature, f, l, true, false);
+        MCMoveClusterConformationMDTest mcMove2 = new MCMoveClusterConformationMDTest(sim.getRandom(), space, temperature, f, l, true, false);
         mcMove2.setConformationsList(mcMove.getConformationsList());
 
         sim.integrators[0].getMoveManager().addMCMove(mcMove);

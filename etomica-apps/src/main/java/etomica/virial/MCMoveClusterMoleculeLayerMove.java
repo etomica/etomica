@@ -6,13 +6,13 @@ package etomica.virial;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Monte Carlo molecule-displacement from 1 layer to the other layer trial move for cluster integrals.
- * 
+ *
  * copied and modified from MCMoveClusterMolecule class
  * for virial coefficients calculation of phenanthrene and anthracene 
  * for n = 4 , the molecules tend to form either 2 layers or 3 layers structures 
@@ -21,19 +21,20 @@ import etomica.space.Space;
  * date : april 27 2011
  */
 public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
-    private static final long serialVersionUID = 1L;
-    protected final Vector vector1 , vector2 , crossVector; //crossVector = vector1 * vector2
-    public MCMoveClusterMoleculeLayerMove(Simulation sim, Space _space) {
-    	super (sim.getRandom(), _space, 1.0); //superclass parameter stepsize
-    	
-    	vector1     =  space.makeVector(); // Initialize 
-    	vector2     =  space.makeVector();// Initialize 
-    	crossVector =  space.makeVector(); // Initialize 
+
+    protected final Vector vector1, vector2, crossVector; //crossVector = vector1 * vector2
+
+    public MCMoveClusterMoleculeLayerMove(IRandom random, Space _space) {
+        super(random, _space, 1.0); //superclass parameter stepsize
+
+        vector1 = space.makeVector(); // Initialize
+        vector2 = space.makeVector();// Initialize
+        crossVector = space.makeVector(); // Initialize
     }
-      
+
     public boolean doTrial() {
-    	if(box.getMoleculeList().size()==1) return false;
-        
+        if (box.getMoleculeList().size() == 1) return false;
+
         molecule = moleculeSource.getMolecule();
         while (molecule.getIndex() == 0) {
             molecule = moleculeSource.getMolecule();// keep on picking up molecules randomly if picking up the molecule in the origin

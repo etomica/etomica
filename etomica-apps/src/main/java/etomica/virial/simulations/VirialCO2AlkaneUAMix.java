@@ -285,10 +285,10 @@ public static void main(String[] args) {
         else {
         	System.out.println("not c2, add wiggle move!");
         	for (int i=0; i<2; i++) {
-        		wiggleMove[i] = new MCMoveClusterWiggleMulti(sim, sim.integrators[i].getPotentialMaster(), targetCluster.pointCount(), space);
-        		wiggleMove[i].setSpecies(sim.getSpecies(1));//alkane species
-        		sim.integrators[i].getMoveManager().addMCMove(wiggleMove[i]);
-    	    }
+                wiggleMove[i] = new MCMoveClusterWiggleMulti(sim.getRandom(), sim.integrators[i].getPotentialMaster(), targetCluster.pointCount(), space);
+                wiggleMove[i].setSpecies(sim.getSpecies(1));//alkane species
+                sim.integrators[i].getMoveManager().addMCMove(wiggleMove[i]);
+            }
         }
         
         sim.integratorOS.setNumSubSteps(1000);

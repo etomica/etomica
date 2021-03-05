@@ -8,7 +8,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -204,8 +203,8 @@ public class VirialPolymerOverlapMC {
         potentialGroup2.addPotential(new P2WCA(space), nonBoundedIndexList);
         potentialMaster.addPotential(potentialGroup2, new ISpecies[]{species});
 
-        MCMoveClusterBondLength mcBond = new MCMoveClusterBondLength(sim, potentialMaster, f, space);
-        MCMoveClusterBondLength mcBond2 = new MCMoveClusterBondLength(sim, potentialMaster, f, space);
+        MCMoveClusterBondLength mcBond = new MCMoveClusterBondLength(sim.getRandom(), potentialMaster, f, space);
+        MCMoveClusterBondLength mcBond2 = new MCMoveClusterBondLength(sim.getRandom(), potentialMaster, f, space);
         sim.integrators[0].getMoveManager().addMCMove(mcBond);
         sim.integrators[1].getMoveManager().addMCMove(mcBond2);
         ((MCMoveStepTracker) mcBond2.getTracker()).setNoisyAdjustment(true);

@@ -620,9 +620,9 @@ public class Wertheim2SiteAceticAcid {
         sim.integrators[1].getMoveManager().addMCMove(torsionMoves1[1]);//target system
 
         MCMoveClusterWiggleAceticAcid[] wiggle = new MCMoveClusterWiggleAceticAcid[2];
-        wiggle[0] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
+        wiggle[0] = new MCMoveClusterWiggleAceticAcid(sim.getRandom(), sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[0].getMoveManager().addMCMove(wiggle[0]);//reference system
-        wiggle[1] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
+        wiggle[1] = new MCMoveClusterWiggleAceticAcid(sim.getRandom(), sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[1].getMoveManager().addMCMove(wiggle[1]);//target system
 
         Box referenceBox = sim.box[0];

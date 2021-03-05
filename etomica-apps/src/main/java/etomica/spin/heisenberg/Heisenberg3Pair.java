@@ -142,7 +142,7 @@ public class Heisenberg3Pair extends Simulation {
         MeterMappedAveragingVSum3Pair AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum3Pair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential,nMax);
+            AEEMeter = new MeterMappedAveragingVSum3Pair(sim.box, temperature, interactionS, dipoleMagnitude, sim.potential, nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);

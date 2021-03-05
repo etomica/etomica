@@ -193,7 +193,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingCV CVMeter = null;
         AccumulatorAverageCovariance CVAccumulator = null;
         if (doCV) {
-            CVMeter = new MeterMappedAveragingCV(sim, temperature, interactionS, sim.potentialMaster);
+            CVMeter = new MeterMappedAveragingCV(sim.box, temperature, interactionS, sim.potentialMaster);
             CVAccumulator = new AccumulatorAverageCovariance(samplePerBlock);
             DataPumpListener CVPump = new DataPumpListener(CVMeter, CVAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(CVPump);
@@ -214,7 +214,7 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageFixed FEMapAccumulator = null;
 
         if (doMappingE) {
-            FEMap = new MeterMappedAveragingFreeEnergy(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
+            FEMap = new MeterMappedAveragingFreeEnergy(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
             FEMapAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener FEMapPump = new DataPumpListener(FEMap, FEMapAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(FEMapPump);
@@ -240,7 +240,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingVSum AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
+            AEEMeter = new MeterMappedAveragingVSum(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPumpListener AEEListener = new DataPumpListener(AEEMeter, AEEAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
@@ -253,7 +253,7 @@ public class Heisenberg extends Simulation {
 
         if (doCorrelation) {
 
-            CorrelationMeter = new MeterMappedAveragingCorrelation(sim, temperature, interactionS, sim.potentialMaster, formula);
+            CorrelationMeter = new MeterMappedAveragingCorrelation(sim.box, temperature, interactionS, sim.potentialMaster, formula);
             CorrelationAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener CorrelationPump = new DataPumpListener(CorrelationMeter, CorrelationAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(CorrelationPump);

@@ -213,9 +213,9 @@ public class VirialAceticAcidFlex {
         sim.integrators[1].getMoveManager().addMCMove(torsionMoves1[1]);//target system
 
         MCMoveClusterWiggleAceticAcid[] wiggle = new MCMoveClusterWiggleAceticAcid[2];
-        wiggle[0] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
+        wiggle[0] = new MCMoveClusterWiggleAceticAcid(sim.getRandom(), sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[0].getMoveManager().addMCMove(wiggle[0]);//reference system
-        wiggle[1] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
+        wiggle[1] = new MCMoveClusterWiggleAceticAcid(sim.getRandom(), sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[1].getMoveManager().addMCMove(wiggle[1]);//target system
         MCMoveClusterAngleBendAceticAcid wiggle2Ref = new MCMoveClusterAngleBendAceticAcid(sim.integrators[1].getPotentialMaster(), sim.getRandom(), 0.01, space);
         MCMoveClusterAngleBendAceticAcid wiggle2Target = new MCMoveClusterAngleBendAceticAcid(sim.integrators[1].getPotentialMaster(), sim.getRandom(), 0.01, space);

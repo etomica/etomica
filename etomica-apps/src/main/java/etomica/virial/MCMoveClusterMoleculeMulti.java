@@ -8,7 +8,6 @@ import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -26,10 +25,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     protected int[] constraintMap;
     protected int startMolecule;
 
-    public MCMoveClusterMoleculeMulti(Simulation sim, Space _space) {
-    	this(null, sim.getRandom(), _space, 1.0);
+    public MCMoveClusterMoleculeMulti(IRandom random, Space _space) {
+        this(null, random, _space, 1.0);
     }
-    
+
     public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
                                       IRandom random, Space _space, double stepSize) {
         super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);

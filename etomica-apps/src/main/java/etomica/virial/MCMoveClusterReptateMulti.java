@@ -12,7 +12,6 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
@@ -27,22 +26,21 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveClusterReptateMulti extends MCMoveBox {
 
-    private static final long serialVersionUID = 2L;
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
-    public MCMoveClusterReptateMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
-    	this(potentialMaster, sim.getRandom(), nAtoms);
+    public MCMoveClusterReptateMulti(IRandom random, PotentialMaster potentialMaster, int nAtoms) {
+        this(potentialMaster, random, nAtoms);
         setBondLength(1.0);
     }
-    
+
     public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;
         selectedMolecules = new IMolecule[nAtoms];
         oldPositions = new Vector3D[nAtoms];
-        for (int i=0; i<nAtoms; i++) {
+        for (int i = 0; i < nAtoms; i++) {
             oldPositions[i] = new Vector3D();
         }
         forward = new boolean[nAtoms];

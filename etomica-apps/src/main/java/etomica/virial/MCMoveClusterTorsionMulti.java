@@ -13,7 +13,6 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -35,9 +34,9 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
-    public MCMoveClusterTorsionMulti(Simulation sim, PotentialMaster potentialMaster, Space space,
+    public MCMoveClusterTorsionMulti(IRandom random, PotentialMaster potentialMaster, Space space,
                                      P4BondTorsion torsionPotential) {
-    	this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
+        this(potentialMaster, space, random, 1.0, torsionPotential, 20);
         setBondLength(1.0);
     }
     

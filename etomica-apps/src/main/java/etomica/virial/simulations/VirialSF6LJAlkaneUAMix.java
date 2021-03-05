@@ -422,7 +422,7 @@ public static void main(String[] args) {
 
         for (int i=0; i<2; i++) {
 
-        wiggleMove[i] = new MCMoveClusterWiggleMulti(sim, sim.integrators[i].getPotentialMaster(), targetCluster.pointCount(), space);
+        wiggleMove[i] = new MCMoveClusterWiggleMulti(sim.getRandom(), sim.integrators[i].getPotentialMaster(), targetCluster.pointCount(), space);
 
         wiggleMove[i].setSpecies(sim.getSpecies(1));//alkane species
 

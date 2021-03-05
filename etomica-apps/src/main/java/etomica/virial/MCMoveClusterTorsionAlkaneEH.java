@@ -13,7 +13,6 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -23,23 +22,23 @@ import etomica.util.random.IRandom;
 /**
  * MC move for alkane-TraPPE-EH torsion
  * pick up carbons in the box only, but move update all the atoms(carbons and hydrogens)
- * 
+ *
  * @author shu
  * Feb 2013
  */
 public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterTorsionAlkaneEH(Simulation sim, PotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
-    this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
+    public MCMoveClusterTorsionAlkaneEH(IRandom random, PotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
+        this(potentialMaster, space, random, 1.0, torsionPotential, 20);
         setBondLength(1.0);
     }
 
     public MCMoveClusterTorsionAlkaneEH(PotentialMaster potentialMaster, Space space,
                                         IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
-    	super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
-        ((MCMoveStepTracker)getTracker()).setTunable(false);
-        probabilityBins = new double[nBins+1];
+        super(potentialMaster, random, space, stepSize, Double.POSITIVE_INFINITY);
+        ((MCMoveStepTracker) getTracker()).setTunable(false);
+        probabilityBins = new double[nBins + 1];
         binSize = new double[nBins];
-        probabilityReverseMap = new int[nBins+1];
+        probabilityReverseMap = new int[nBins + 1];
         this.torsionPotential = torsionPotential;
         setStepSizeMax(Math.PI);
         energyMeter = new MeterPotentialEnergy(potential);

@@ -155,10 +155,10 @@ public class VirialN2AlkaneUARigid {
         else {
         	System.out.println("not ethane, add wiggle move to alkane !");
         	for (int i=0; i<2; i++) {
-        		wiggleMove[i] = new MCMoveClusterWiggleMulti(sim, sim.integrators[i].getPotentialMaster(), targetCluster.pointCount(), space);
-        		wiggleMove[i].setSpecies(sim.getSpecies(1));
-        		sim.integrators[i].getMoveManager().addMCMove(wiggleMove[i]);
-        	}
+                wiggleMove[i] = new MCMoveClusterWiggleMulti(sim.getRandom(), sim.integrators[i].getPotentialMaster(), targetCluster.pointCount(), space);
+                wiggleMove[i].setSpecies(sim.getSpecies(1));
+                sim.integrators[i].getMoveManager().addMCMove(wiggleMove[i]);
+            }
        
         }
         

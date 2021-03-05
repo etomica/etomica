@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -32,8 +31,8 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveWiggle extends MCMoveMolecule {
 
-    public MCMoveWiggle(Simulation sim, PotentialMaster potentialMaster, int armLength, Space _space) {
-        this(potentialMaster, sim.getRandom(), 1.0, armLength, _space);
+    public MCMoveWiggle(IRandom random, PotentialMaster potentialMaster, int armLength, Space _space) {
+        this(potentialMaster, random, 1.0, armLength, _space);
     }
 
     public MCMoveWiggle(PotentialMaster potentialMaster,

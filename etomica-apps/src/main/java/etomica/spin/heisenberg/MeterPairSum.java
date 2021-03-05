@@ -5,7 +5,6 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -28,10 +27,10 @@ public class MeterPairSum extends DataSourceScalar {
     //TODO debug only
     protected PotentialCalculationSumquare Ans;
 
-    public MeterPairSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
+    public MeterPairSum(Box box, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
         super("anything", Null.DIMENSION);
         this.box = box;
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         this.potentialMaster = potentialMaster;
         J = interactionS;

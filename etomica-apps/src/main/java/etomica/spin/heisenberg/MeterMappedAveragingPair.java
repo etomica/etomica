@@ -16,7 +16,6 @@ import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationPhiSumHeisenberg;
 import etomica.potential.PotentialCalculationTorqueSum;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -43,7 +42,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveragingPair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2, int nMax) {
+    public MeterMappedAveragingPair(Box box, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 10;
         data = new DataDoubleArray(nValues);
@@ -53,7 +52,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
         this.box = box;
         this.p2 = p2;
 
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         J = interactionS;
         bt = 1 / temperature;

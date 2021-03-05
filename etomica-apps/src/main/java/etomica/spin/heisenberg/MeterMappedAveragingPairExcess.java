@@ -16,7 +16,6 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationPhiSumHeisenberg;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -47,7 +46,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
     private final P2Spin p2Spin;
     protected final PotentialCalculationHeisenberg ans;
 
-    public MeterMappedAveragingPairExcess(AtomPair pair, final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, P2Spin p2Spin, int nMax) {
+    public MeterMappedAveragingPairExcess(AtomPair pair, Box box, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, P2Spin p2Spin, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         this.pair = pair;
         this.p2Spin = p2Spin;
@@ -57,7 +56,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         this.potentialMaster = potentialMaster;
         J = interactionS;

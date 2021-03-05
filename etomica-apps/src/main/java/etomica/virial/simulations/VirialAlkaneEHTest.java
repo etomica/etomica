@@ -35,8 +35,8 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.*;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -297,9 +297,9 @@ public class VirialAlkaneEHTest {
         /////////////////////////////////// rotateCH3 ////////////////////////////////
         /////////////////////////////////// rotateCH3 ////////////////////////////////           
         System.out.println("----- add rotateCH3 MC move for all types of alkanes-----");
-        rotateCH3Move[0] = new MCMoveClusterRotateCH3(sim, sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
+        rotateCH3Move[0] = new MCMoveClusterRotateCH3(sim.getRandom(), sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
         sim.integrators[0].getMoveManager().addMCMove(rotateCH3Move[0]);//reference system
-        rotateCH3Move[1] = new MCMoveClusterRotateCH3(sim, sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
+        rotateCH3Move[1] = new MCMoveClusterRotateCH3(sim.getRandom(), sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
         sim.integrators[1].getMoveManager().addMCMove(rotateCH3Move[1]);//target system
         
         if (nSpheres > 2) {
@@ -353,10 +353,10 @@ public class VirialAlkaneEHTest {
             
             /////////////////////////////////// wiggle ////////////////////////////////
             /////////////////////////////////// wiggle ////////////////////////////////           
-            System.out.println("n>2, add wiggle MC move!");  
-            wiggleMove[0] = new MCMoveClusterWiggleAlkaneEH(sim,sim.integrators[1].getPotentialMaster(),  targetCluster.pointCount(), space);
+            System.out.println("n>2, add wiggle MC move!");
+            wiggleMove[0] = new MCMoveClusterWiggleAlkaneEH(sim.getRandom(), sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
             sim.integrators[0].getMoveManager().addMCMove(wiggleMove[0]);//reference system
-            wiggleMove[1] = new MCMoveClusterWiggleAlkaneEH(sim,sim.integrators[1].getPotentialMaster(),  targetCluster.pointCount(), space);
+            wiggleMove[1] = new MCMoveClusterWiggleAlkaneEH(sim.getRandom(), sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
             sim.integrators[1].getMoveManager().addMCMove(wiggleMove[1]);//target system
         }
           

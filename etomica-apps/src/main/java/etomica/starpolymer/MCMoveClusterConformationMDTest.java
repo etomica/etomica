@@ -12,9 +12,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
+import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 import etomica.virial.MCMoveClusterMolecule;
-import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +29,9 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
     private StarPolymerMD simMD;
 
 
-    public MCMoveClusterConformationMDTest(SimulationVirialOverlap2 sim, Space _space, double temperature, int f, int l,
+    public MCMoveClusterConformationMDTest(IRandom random, Space _space, double temperature, int f, int l,
                                            boolean useNbrs, boolean doCollecting) {
-        super(sim, _space);
+        super(random, _space);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
         molCOM = new MoleculePositionCOM(_space);

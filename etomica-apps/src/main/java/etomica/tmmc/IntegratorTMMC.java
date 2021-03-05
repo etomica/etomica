@@ -10,7 +10,6 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.random.IRandom;
 
 /**
@@ -19,11 +18,11 @@ import etomica.util.random.IRandom;
  * @author David Kofke
  */
 public class IntegratorTMMC extends IntegratorMC {
-    
-    public IntegratorTMMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 1.0, box);
+
+    public IntegratorTMMC(IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, random, 1.0, box);
     }
-    
+
     public IntegratorTMMC(PotentialMaster potentialMaster, IRandom random, double temperature, Box box) {
         super(potentialMaster, random, temperature, box);
         setWeightUpdateInterval(1000000); //10^6

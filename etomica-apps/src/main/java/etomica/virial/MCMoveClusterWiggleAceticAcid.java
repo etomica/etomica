@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -28,20 +27,20 @@ import etomica.util.random.IRandom;
  * neighbors.  If a middle Atom has a bond angle too close to 180 degrees
  * (such that rotation does nothing) the Atom is not moved at all.
  * In each doTrial, wiggle moves are attempted on all molecules in the box. 
- * 
+ *
  * @author Andrew Schultz
  */
 public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleAceticAcid(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-    	this(potentialMaster,sim.getRandom(), 0.1, _space);//0.1 rad wiggle move
+    public MCMoveClusterWiggleAceticAcid(IRandom random, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, random, 0.1, _space);//0.1 rad wiggle move
     }
-    
+
     public MCMoveClusterWiggleAceticAcid(PotentialMaster potentialMaster,
                                          IRandom random, double stepSize, Space _space) {
-        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
+        super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
         this.space = _space;
-        bondedAtoms = new int[]{1,-1,1,-1,3};//0(Ch3) and 2(dBO) are bonded to 1 (C), 4(H) is bonded to 3 (O)
+        bondedAtoms = new int[]{1, -1, 1, -1, 3};//0(Ch3) and 2(dBO) are bonded to 1 (C), 4(H) is bonded to 3 (O)
         setStepSizeMax(Math.PI);
         energyMeter = new MeterPotentialEnergy(potential);
         work1 = _space.makeVector();

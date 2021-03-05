@@ -15,7 +15,6 @@ import etomica.integrator.Integrator;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -45,7 +44,7 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveragingSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
+    public MeterMappedAveragingSum(Box box, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 2;
         data = new DataDoubleArray(nValues);
@@ -53,7 +52,7 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         this.potentialMaster = potentialMaster;
         J = interactionS;

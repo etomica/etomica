@@ -141,13 +141,13 @@ public class SimulationVirial extends Simulation {
                 integrator.getMoveManager().addMCMove(mcMoveRotate);
             }
         } else {
-            mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(random, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
             if (doWiggle) {
-                mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
+                mcMoveWiggle = new MCMoveClusterWiggleMulti(random, potentialMaster, nMolecules, space);
                 integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
+                mcMoveReptate = new MCMoveClusterReptateMulti(random, potentialMaster, nMolecules - 1);
                 integrator.getMoveManager().addMCMove(mcMoveReptate);
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);

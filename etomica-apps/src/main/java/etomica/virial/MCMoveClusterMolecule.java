@@ -5,7 +5,6 @@
 package etomica.virial;
 
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
 
@@ -13,20 +12,18 @@ import etomica.util.random.IRandom;
  * Standard Monte Carlo molecule-displacement trial move for cluster integrals.
  */
 public class MCMoveClusterMolecule extends MCMoveMolecule {
-    
-    private static final long serialVersionUID = 1L;
 
-    public MCMoveClusterMolecule(Simulation sim, Space _space) {
-    	this(sim.getRandom(), _space, 1.0);
+    public MCMoveClusterMolecule(IRandom random, Space _space) {
+        this(random, _space, 1.0);
     }
-    
+
     public MCMoveClusterMolecule(IRandom random, Space _space, double stepSize) {
-        super(null, random,_space, stepSize, Double.POSITIVE_INFINITY);
+        super(null, random, _space, stepSize, Double.POSITIVE_INFINITY);
     }
-    
+
     public boolean doTrial() {
-        if(box.getMoleculeList().size()==1) return false;
-        
+        if (box.getMoleculeList().size() == 1) return false;
+
         molecule = moleculeSource.getMolecule();
         while (molecule.getIndex() == 0) {
             molecule = moleculeSource.getMolecule();

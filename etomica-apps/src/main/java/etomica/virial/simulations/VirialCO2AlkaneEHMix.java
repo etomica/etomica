@@ -376,7 +376,7 @@ public class VirialCO2AlkaneEHMix {
         System.out.println("----- add rotateCH3 MC move for all types of alkanes-----");
         
         for ( int j = 0; j<2;j++){//reference system and target system
-            rotateCH3Move[j] = new MCMoveClusterRotateCH3(sim, sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
+            rotateCH3Move[j] = new MCMoveClusterRotateCH3(sim.getRandom(), sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
             rotateCH3Move[j].setSpecies(sim.getSpecies(1));// always add to alkane
             sim.integrators[j].getMoveManager().addMCMove(rotateCH3Move[j]);
         }
@@ -433,10 +433,10 @@ public class VirialCO2AlkaneEHMix {
             /////////////////////////////////// wiggle ////////////////////////////////
             /////////////////////////////////// wiggle ////////////////////////////////           
             System.out.println("n>2, add wiggle MC move!");  
-            for ( int j = 0; j<2;j++){//reference system and target system
-            	wiggleMove[j] = new MCMoveClusterWiggleAlkaneEH(sim,sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
-            	wiggleMove[j].setSpecies(sim.getSpecies(1));// always add to alkane
-            	sim.integrators[j].getMoveManager().addMCMove(wiggleMove[j]);
+            for ( int j = 0; j<2;j++) {//reference system and target system
+                wiggleMove[j] = new MCMoveClusterWiggleAlkaneEH(sim.getRandom(), sim.integrators[1].getPotentialMaster(), targetCluster.pointCount(), space);
+                wiggleMove[j].setSpecies(sim.getSpecies(1));// always add to alkane
+                sim.integrators[j].getMoveManager().addMCMove(wiggleMove[j]);
             }
 
         }
