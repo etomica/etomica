@@ -26,7 +26,6 @@ import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
-import etomica.species.SpeciesGeneral;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -98,7 +97,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
         meterKE = new MeterKineticEnergyRigid(space, sim);
 
         forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
+        moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), this.box, this);
         torqueSum.setAgentManager(forces);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
         ((MeterKineticEnergyRigid)meterKE).setBox(box);

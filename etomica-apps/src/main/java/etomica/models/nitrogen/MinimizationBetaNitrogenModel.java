@@ -196,7 +196,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
         };
         
-        MoleculeAgentManager molAgentManager = new MoleculeAgentManager(sim, sim.box, molAgentSource);
+        MoleculeAgentManager molAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), sim.box, molAgentSource);
         pcForce.setMoleculeAgentManager(molAgentManager);
         double[] d = new double[16];
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);

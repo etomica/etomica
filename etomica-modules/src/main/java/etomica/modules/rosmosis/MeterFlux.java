@@ -7,8 +7,8 @@ package etomica.modules.rosmosis;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSource;
 import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -64,7 +64,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
     public void setSpecies(ISpecies[] newSpecies) {
         species = newSpecies;
         if (box != null) {
-            agentManager = new MoleculeAgentManager<>(sim, box, this);
+            agentManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, this);
         }
     }
     
@@ -86,7 +86,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
             }
         }
         if (species != null) {
-            agentManager = new MoleculeAgentManager<>(sim, box, this);
+            agentManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, this);
         }
     }
     

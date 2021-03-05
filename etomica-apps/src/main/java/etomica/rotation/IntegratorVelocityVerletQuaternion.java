@@ -89,7 +89,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
         leafAgentManager = new AtomLeafAgentManager<>(a -> this.space.makeVector(), box);
-        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
+        moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), this.box, this);
         forceSum.setAgentManager(leafAgentManager);
     }
 

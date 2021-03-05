@@ -29,7 +29,7 @@ public class BoxAgentSourceMoleculeManager<E> implements BoxAgentSource<Molecule
     }
 
     public MoleculeAgentManager<E> makeAgent(Box box) {
-        return new MoleculeAgentManager<>(sim, box, moleculeAgentSource);
+        return new MoleculeAgentManager<>(sim.getSpeciesManager(), box, moleculeAgentSource);
     }
 
     public void releaseAgent(MoleculeAgentManager<E> agent) {

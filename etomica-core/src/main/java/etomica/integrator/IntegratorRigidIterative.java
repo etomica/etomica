@@ -7,7 +7,6 @@ package etomica.integrator;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
@@ -18,7 +17,10 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
-import etomica.models.water.*;
+import etomica.models.water.DipoleSourceWater;
+import etomica.models.water.OrientationCalcWater3P;
+import etomica.models.water.P2WaterSPCSoft;
+import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.potential.*;
@@ -96,7 +98,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         meterKE = new MeterKineticEnergyRigid(space, sim);
 
         leafAgentManager = new AtomLeafAgentManager<>(this, box);
-        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
+        moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
         ((MeterKineticEnergyRigid)meterKE).setBox(box);

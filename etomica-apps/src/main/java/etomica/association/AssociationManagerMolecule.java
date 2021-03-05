@@ -46,13 +46,13 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
     private final IListener mcMoveListener;
 
     public AssociationManagerMolecule(Simulation sim, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
-    	this.box = box;
-    	agentManager = new MoleculeAgentManager(sim,box,this);
-        associationDefinition = definition;
-        this.neighborIterator = new Mpi1ACell(3,range,cellAgentManager);
-        mcMoveListener = cellAgentManager.getAgent(box).makeMCMoveListener(); 
-        cellAgentManager.getAgent(box).setDoApplyPBC(true);
-    }
+		this.box = box;
+		agentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
+		associationDefinition = definition;
+		this.neighborIterator = new Mpi1ACell(3, range, cellAgentManager);
+		mcMoveListener = cellAgentManager.getAgent(box).makeMCMoveListener();
+		cellAgentManager.getAgent(box).setDoApplyPBC(true);
+	}
     
     public AssociationDefinitionMolecule getAssociationDefinition() {
     	return associationDefinition;

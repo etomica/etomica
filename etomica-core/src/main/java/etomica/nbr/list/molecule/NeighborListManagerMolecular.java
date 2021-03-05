@@ -53,9 +53,9 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         potentialMaster = potentialMasterList;
         cellNbrIterator = new MpiAACell(space.D(), range, box);
         cell1ANbrIterator = new Mpi1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
-        
-        agentManager2Body = new MoleculeAgentManager(potentialMasterList.getSimulation(), box, this);
-        agentManager1Body = new MoleculeAgentManager(potentialMasterList.getSimulation(), box, new MoleculePotential1ListSource(potentialMasterList));
+
+        agentManager2Body = new MoleculeAgentManager(potentialMasterList.getSimulation().getSpeciesManager(), box, this);
+        agentManager1Body = new MoleculeAgentManager(potentialMasterList.getSimulation().getSpeciesManager(), box, new MoleculePotential1ListSource(potentialMasterList));
         initialized = false;
         doApplyPBC = true;
         moleculeSetSinglet = new MoleculeSetSinglet();

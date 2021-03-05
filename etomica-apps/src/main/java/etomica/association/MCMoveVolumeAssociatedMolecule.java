@@ -101,7 +101,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
         moleculeIterator.setBox(p);
-        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
+		moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
         
     }
     

@@ -68,8 +68,8 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 //		r = space.makeVector();
 		vectorSum.setX(2, 1);
 		torqueSum = new PotentialCalculationTorqueSum();
-		secondDerivativeSum = new  PotentialCalculationPhiSum(space);
-		moleculeAgentManager  = new MoleculeAgentManager(sim,box,this);
+		secondDerivativeSum = new PotentialCalculationPhiSum(space);
+		moleculeAgentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
 		torqueSum.setMoleculeAgentManager(moleculeAgentManager);
 		allAtoms = new IteratorDirective();
 		dr = space.makeVector();

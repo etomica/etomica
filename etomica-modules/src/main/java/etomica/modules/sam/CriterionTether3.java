@@ -42,7 +42,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
             if (box != null) {
                 bondManager.dispose();
             }
-            bondManager = new MoleculeAgentManager(sim, newBox, this);
+            bondManager = new MoleculeAgentManager(sim.getSpeciesManager(), newBox, this);
         }
         box = newBox;
         polymerList = box.getMoleculeList(polymerSpecies);

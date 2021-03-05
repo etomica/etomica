@@ -75,7 +75,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
         lattice = new CellLattice(space, box.getBoundary().getBoxSize(), CellMolecular.FACTORY);
         setPotentialRange(potentialRange);
         v = space.makeVector();
-        agentManager = new MoleculeAgentManager(sim, box, this);
+        agentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
         doApplyPBC = false;
         moleculeSite = new MoleculePositionGeometricCenter(space);
     }

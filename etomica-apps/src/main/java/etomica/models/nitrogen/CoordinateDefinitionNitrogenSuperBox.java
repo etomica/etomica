@@ -4,6 +4,7 @@
 
 package etomica.models.nitrogen;
 
+import etomica.action.AtomActionTransformed;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
@@ -11,10 +12,12 @@ import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.molecule.*;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
+import etomica.molecule.MoleculeArrayList;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.action.AtomActionTransformed;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -55,9 +58,9 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     		yOrientationTensor[i] = space.makeTensor();
     	}
     	axis = space.makeVector();
-    	
-        orientationManager = new MoleculeAgentManager(sim, box, new OrientationAgentSource());
-        atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
+
+		orientationManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, new OrientationAgentSource());
+		atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
         random = new RandomNumberGenerator();
     }
 
@@ -205,19 +208,19 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
                 if (iCell > -1) {
                     initNominalU(cells[iCell].molecules);
                 }
-                // new cell
-                iCell++;
-                currentList = new MoleculeArrayList(basisSize);
-                cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
-                cells[iCell].cellPosition.E(position);
-            }
-            currentList.add(molecule);
-        }
-        initNominalU(cells[totalCells-1].molecules);
+				// new cell
+				iCell++;
+				currentList = new MoleculeArrayList(basisSize);
+				cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
+				cells[iCell].cellPosition.E(position);
+			}
+			currentList.add(molecule);
+		}
+		initNominalU(cells[totalCells - 1].molecules);
 
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
-    }
+		moleculeSiteManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+		siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
+	}
     
     public void setGammaPositionAndOrientation(IMoleculeList molecules){
     	
@@ -264,20 +267,20 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	    	orientation[2].normalize();
     	    	
     	    }
-    	    
-    	    orientation[1].E(orientation[2]);
-    	    orientation[1].XE(orientation[0]);
-    	    orientation[1].normalize();
-    	    
-    	    orientationManager.setAgent(molecule, orientation);
-    	    moleculeSiteManager.setAgent(molecule, positionDefinition.position(molecule));
-    	   
-    	}
-    	
-    	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
 
-    }
+			orientation[1].E(orientation[2]);
+			orientation[1].XE(orientation[0]);
+			orientation[1].normalize();
+
+			orientationManager.setAgent(molecule, orientation);
+			moleculeSiteManager.setAgent(molecule, positionDefinition.position(molecule));
+
+		}
+
+		moleculeSiteManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+		siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
+
+	}
     
     public void setConfiguration(Configuration configuration){
         this.configuration = configuration;

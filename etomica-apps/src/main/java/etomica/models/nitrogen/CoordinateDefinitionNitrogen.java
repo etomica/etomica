@@ -25,7 +25,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
-import etomica.species.SpeciesGeneral;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
 
@@ -101,7 +100,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         axis = space.makeVector();
         orientVector = space.makeVector();
 
-        orientationManager = new MoleculeAgentManager<>(sim, box, new OrientationAgentSource());
+        orientationManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new OrientationAgentSource());
         atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
 
         translateBy = new AtomActionTranslateBy(space);
@@ -332,8 +331,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         initNominalU(cells[totalCells - 1].molecules);
 
-        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
     }
 
     /*
@@ -395,7 +394,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         }
 
-        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
         siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
 
     }
@@ -421,8 +420,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         }
 
-        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
 
     }
 
@@ -748,8 +747,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             orientationManager.setAgent(molecule, orientation);
 
         }
-        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
     }
 
     public void setIsGamma() {

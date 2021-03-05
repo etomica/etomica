@@ -14,25 +14,25 @@ import etomica.util.random.IRandom;
 
 import java.awt.*;
 
-public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource {
-    
+public class ColorSchemeRandomByMolecule extends ColorScheme implements MoleculeAgentSource<Color> {
+
     public ColorSchemeRandomByMolecule(Simulation sim, Box box, IRandom random) {
-    	super();
+        super();
         this.random = random;
-        agentManager = new MoleculeAgentManager(sim, box, this);
+        agentManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, this);
     }
-    
+
     public Color getAtomColor(IAtom a) {
-        return (Color)agentManager.getAgent(a.getParentGroup());
+        return (Color) agentManager.getAgent(a.getParentGroup());
     }
 
-    public Object makeAgent(IMolecule a) {
-        return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
+    public Color makeAgent(IMolecule a) {
+        return new Color((float) random.nextDouble(), (float) random.nextDouble(), (float) random.nextDouble());
     }
-    
-    public void releaseAgent(Object agent, IMolecule atom) {}
 
-    private static final long serialVersionUID = 2L;
-    private final MoleculeAgentManager agentManager;
+    public void releaseAgent(Color agent, IMolecule atom) {
+    }
+
+    private final MoleculeAgentManager<Color> agentManager;
     private final IRandom random;
 }

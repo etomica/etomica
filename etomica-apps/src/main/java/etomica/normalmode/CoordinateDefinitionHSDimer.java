@@ -13,7 +13,10 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.nitrogen.AtomActionTransformed;
-import etomica.molecule.*;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeArrayList;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -133,12 +136,12 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
                 cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
-                        
+
             currentList.add(molecule);
         }
 
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
     }
     
     public void setConfiguration(Configuration configuration){

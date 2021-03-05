@@ -46,7 +46,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     
     public void initializeCoordinates(int[] nCells) {
         super.initializeCoordinates(nCells);
-        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sim.getSpeciesManager(), box, new MoleculeSiteSource(space, positionDefinition));
     }
 
     public double[] calcU(IMoleculeList molecules) {
