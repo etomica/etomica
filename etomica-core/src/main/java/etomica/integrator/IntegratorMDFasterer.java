@@ -14,7 +14,6 @@ import etomica.box.*;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
@@ -104,16 +103,8 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
     }
 
     public void reset() {
-        ConfigurationOverlapException overlapException = null;
-        try {
-            super.reset();
-        } catch (ConfigurationOverlapException e) {
-            overlapException = e;
-        }
+        super.reset();
         currentKineticEnergy = meterKE.getDataAsScalar();
-        if (overlapException != null) {
-            throw overlapException;
-        }
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
             oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
