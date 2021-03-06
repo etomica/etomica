@@ -559,10 +559,10 @@ public class PistonCylinderGraphicFasterer extends SimulationGraphic {
         lamBox.setModifier(lamModifier);
         massBox.setModifier(massModifier);
         massBox.setUnit(mUnit);
-        sigBox.setPostAction(dataResetAction);
+        sigBox.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.reset(), dataResetAction}));
         massBox.setPostAction(dataResetAction);
-        epsBox.setPostAction(dataResetAction);
-        lamBox.setPostAction(dataResetAction);
+        epsBox.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.reset(), dataResetAction}));
+        lamBox.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.reset(), dataResetAction}));
 
         pressureSlider.setUnit(pUnit);
         pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure (" + pUnit.symbol() + ")", TitledBorder.CENTER, TitledBorder.TOP));
