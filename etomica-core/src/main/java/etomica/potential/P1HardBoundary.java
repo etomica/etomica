@@ -145,6 +145,7 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
     }
 
     public double u(IAtom atom) {
+        if (ignoreOverlap) return 0;
         Vector dimensions = boundary.getBoxSize();
         Vector pos = atom.getPosition();
         for (int i = 0; i < work.getD(); i++) {
