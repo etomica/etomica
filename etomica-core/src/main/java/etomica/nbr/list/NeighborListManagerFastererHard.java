@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialHard;
-import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborIteratorHard;
 import etomica.potential.compute.NeighborManagerHard;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -29,7 +29,7 @@ public class NeighborListManagerFastererHard extends NeighborListManagerFasterer
     }
 
     @Override
-    public NeighborIterator makeNeighborIterator() {
+    public NeighborIteratorHard makeNeighborIterator() {
         return this.neighborIterator;
     }
 

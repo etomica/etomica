@@ -8,6 +8,8 @@ package etomica.potential.compute;
  */
 public interface NeighborManagerHard extends NeighborManager {
 
+    NeighborIteratorHard makeNeighborIterator();
+
     /**
      * Updates the state of pair of atoms i and j.
      */

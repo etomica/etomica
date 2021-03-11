@@ -18,7 +18,7 @@ import etomica.util.Debug;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NeighborListManagerFasterer implements NeighborManager {
+public class NeighborListManagerFasterer implements NeighborManager, NeighborManager.NeighborEventSource {
     private final NeighborCellManagerFasterer cellManager;
     private IPotentialAtomic[][] pairPotentials;
     protected final Box box;
@@ -37,7 +37,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
     private boolean onlyUpNbrs = true;
     protected int maxNab;
     private Vector[] oldAtomPositions;
-    private final List<INeighborListListener> listeners;
+    private final List<INeighborListener> listeners;
     private int numUnsafe = -1;
 
     public NeighborListManagerFasterer(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
@@ -71,7 +71,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
         return bondingInfo;
     }
 
-    public void addListener(INeighborListListener newListener) {
+    public void addListener(INeighborListener newListener) {
         listeners.add(newListener);
     }
 
@@ -324,7 +324,7 @@ public class NeighborListManagerFasterer implements NeighborManager {
     }
 
     private void fireNeighborUpdateEvent() {
-        for (INeighborListListener l : listeners) {
+        for (INeighborListener l : listeners) {
             l.neighborListNeighborsUpdated();
         }
     }

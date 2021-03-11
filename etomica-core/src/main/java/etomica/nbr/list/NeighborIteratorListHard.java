@@ -4,7 +4,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.compute.NeighborConsumerHard;
-import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborIteratorHard;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -12,7 +12,7 @@ import etomica.space.Vector;
  * Neighbor iterator that uses neighbor lists and can pass the pair state to
  * the callback for hard MD.
  */
-public class NeighborIteratorListHard implements NeighborIterator {
+public class NeighborIteratorListHard implements NeighborIteratorHard {
     private final NeighborListManagerFastererHard nbrManager;
     private final Box box;
     private final Space space;
@@ -21,6 +21,11 @@ public class NeighborIteratorListHard implements NeighborIterator {
         this.nbrManager = nbrManager;
         this.box = box;
         this.space = box.getSpace();
+    }
+
+    @Override
+    public void iterUpNeighbors(int iAtom, NeighborConsumerHard consumer, double falseTime) {
+        iterUpNeighbors(iAtom, consumer);
     }
 
     @Override
@@ -52,6 +57,11 @@ public class NeighborIteratorListHard implements NeighborIterator {
     }
 
     @Override
+    public void iterDownNeighbors(int iAtom, NeighborConsumerHard consumer, double falseTime) {
+        iterDownNeighbors(iAtom, consumer);
+    }
+
+    @Override
     public void iterDownNeighbors(int iAtom, NeighborConsumer consumer) {
         final NeighborConsumerHard consumerHard = consumer instanceof NeighborConsumerHard ? (NeighborConsumerHard) consumer : null;
         IAtomList atoms = box.getLeafList();
@@ -78,6 +88,11 @@ public class NeighborIteratorListHard implements NeighborIterator {
                 consumerHard.accept(atom2, rij, iState[j]);
             }
         }
+    }
+
+    @Override
+    public void iterAllNeighbors(int iAtom, NeighborConsumerHard consumer, double falseTime) {
+        iterAllNeighbors(iAtom, consumer);
     }
 
     @Override

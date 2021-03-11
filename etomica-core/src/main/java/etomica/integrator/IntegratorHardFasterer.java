@@ -7,7 +7,7 @@ import etomica.atom.*;
 import etomica.box.Box;
 import etomica.box.BoxMoleculeEvent;
 import etomica.molecule.IMolecule;
-import etomica.nbr.list.INeighborListListener;
+import etomica.nbr.list.INeighborListener;
 import etomica.nbr.list.NeighborListManagerFasterer;
 import etomica.potential.*;
 import etomica.potential.compute.*;
@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class IntegratorHardFasterer extends IntegratorMDFasterer implements INeighborListListener {
+public class IntegratorHardFasterer extends IntegratorMDFasterer implements INeighborListener {
 
     protected final NeighborManagerHard neighborManager;
     protected final PotentialMasterBonding.FullBondingInfo bondingInfo;
-    protected double[] collisionTimes;
+    protected double[] collisionTimes, nullCollisionTimes;
     protected int[] collisionPartners;
     protected IPotentialHard[] collisionPotentials;
     protected Vector[] collisionVector;
@@ -32,10 +32,11 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     protected int[] collisionOldState;
     protected final IPotentialHard[][] pairPotentials;
     protected final IPotentialHardField[] fieldPotentials;
+    protected final double[] maxSigma;
     protected double tBase, tMax;
     protected int collisionUpdateInterval, collisionUpdateCountdown;
-    protected long collisionCount;
-    protected final NeighborIterator neighborIterator;
+    protected long collisionCount, intervalCollisionCount;
+    protected final NeighborIteratorHard neighborIterator;
     protected final List<CollisionListener> collisionListeners;
     private int lastBin = 0;
     private Int2IntHash[] bondState;
@@ -151,16 +152,22 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         this.bondingInfo = bondingInfo;
         eventBinsFirstAtom = new int[10];
         collisionVector = new Vector[0];
+        maxSigma = new double[pairPotentials.length];
         resizeArrays();
-        int n = pairPotentials.length;
-        fieldPotentials = new IPotentialHardField[n];
         // we want to store enough collisions that we don't have to recompute them
         // before the neighbor update
         collisionUpdateInterval = 5;
         tMax = collisionUpdateInterval * timeStep;
         neighborIterator = neighborManager.makeNeighborIterator();
-        if (neighborManager instanceof NeighborListManagerFasterer) {
-            ((NeighborListManagerFasterer) neighborManager).addListener(this);
+        if (neighborManager instanceof NeighborManager.NeighborEventSource) {
+            ((NeighborManager.NeighborEventSource) neighborManager).addListener(this);
+        } else {
+            for (int i = 0; i < box.getSpace().D(); i++) {
+                if (box.getBoundary().getPeriodicity(i)) {
+                    nullCollisionTimes = new double[box.getLeafList().size()];
+                    break;
+                }
+            }
         }
         collisionListeners = new ArrayList<>(0);
     }
@@ -208,6 +215,10 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         if (initialized) reset();
     }
 
+    public void setMaxCollisionDiameter(AtomType atomType, double maxSigma) {
+        this.maxSigma[atomType.getIndex()] = maxSigma;
+    }
+
     public void addCollisionListener(CollisionListener newListener) {
         collisionListeners.add(newListener);
     }
@@ -249,10 +260,14 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             if (fieldPotentials != null) {
                 fieldState = new int[nAtoms];
             }
+            if (nullCollisionTimes != null) {
+                nullCollisionTimes = new double[nAtoms];
+            }
         }
     }
 
     public void reset() {
+        if (verbose) System.out.println("resetting integrator");
         super.reset();
         resizeArrays();
         neighborManager.init();
@@ -269,9 +284,11 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             return;
         }
 
+        tBase = 0;
         IAtomList atoms = box.getLeafList();
         for (IAtom atom : atoms) {
             IAtomKinetic iAtom = (IAtomKinetic) atom;
+            computeNullCollisionTime(iAtom, 0);
             int i = iAtom.getLeafIndex();
             if (bondingInfo != null) {
 
@@ -299,7 +316,6 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             }
         }
 
-        tBase = 0;
         lastBin = 0;
         Arrays.fill(eventBinsFirstAtom, -1);
         Arrays.fill(collisionTimes, Double.POSITIVE_INFINITY);
@@ -400,6 +416,22 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         tDelete += nanoTime() - t1;
     }
 
+    protected void computeNullCollisionTime(IAtomKinetic atom, double falseTime) {
+        if (nullCollisionTimes == null) return;
+        Vector v = atom.getVelocity();
+        Vector dim = box.getBoundary().getBoxSize();
+        double tmin = Double.POSITIVE_INFINITY;
+        double d2 = 2.0 * maxSigma[atom.getType().getIndex()];
+        int D = dim.getD();
+        // 4*(L/4 - sigma/2) = L - 2sigma
+        for (int i = 0; i < D; i++) {
+            double t = (dim.getX(i) - d2) / v.getX(i);
+            t = Math.abs(t);
+            tmin = Math.min(tmin, t);
+        }
+        nullCollisionTimes[atom.getLeafIndex()] = tBase + falseTime + 0.25 * tmin;
+    }
+
     protected void collisionTimeDown(IAtomKinetic iAtom, double falseTime) {
         long t1cd = nanoTime();
         Vector iVelocity = iAtom.getVelocity();
@@ -410,7 +442,9 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             IAtomKinetic jjAtom = (IAtomKinetic) jAtom;
             Vector dv = space.makeVector();
             dv.Ev1Mv2(jjAtom.getVelocity(), iVelocity);
-            rij.PEa1Tv1(falseTime, dv);
+            if (neighborManager instanceof NeighborListManagerFasterer) {
+                rij.PEa1Tv1(falseTime, dv);
+            }
             long t1 = nanoTime();
             double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
             tCollision += nanoTime() - t1;
@@ -419,6 +453,11 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(jAtom.getPosition(), iAtom.getPosition());
                 System.out.println("dr " + rij + " " + Math.sqrt(rij.squared()) + " bij " + rij.dot(dv) + " state " + state);
+                System.out.println(j + " thought it would collide at " + collisionTimes[j] + " with " + collisionPartners[j]);
+                if (nullCollisionTimes != null) {
+                    System.out.println(i + " null time: " + nullCollisionTimes[i]);
+                    System.out.println(j + " null time: " + nullCollisionTimes[j]);
+                }
                 potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
                 throw new RuntimeException("negative!");
             }
@@ -459,7 +498,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
             }
         };
-        neighborIterator.iterDownNeighbors(iAtom.getLeafIndex(), ncDown);
+        neighborIterator.iterDownNeighbors(iAtom.getLeafIndex(), ncDown, falseTime);
 
         if (bondingInfo != null) {
             IMolecule parentMolecule = iAtom.getParentGroup();
@@ -499,12 +538,23 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             IAtomKinetic jjAtom = (IAtomKinetic) jAtom;
             Vector dv = space.makeVector();
             dv.Ev1Mv2(jjAtom.getVelocity(), iVelocity);
-            rij.PEa1Tv1(falseTime, dv);
+            if (neighborManager instanceof NeighborListManagerFasterer) {
+                rij.PEa1Tv1(falseTime, dv);
+            }
             long t1ct = nanoTime();
             int j = jAtom.getLeafIndex();
             double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
             tCollision += nanoTime() - t1ct;
             if (time < 0) {
+                System.out.println("computed col up " + i + " with " + j + " at " + time);
+                Vector r1 = box.getSpace().makeVector();
+                r1.E(iAtom.getPosition());
+                r1.PEa1Tv1(falseTime, iAtom.getVelocity());
+                System.out.println(iAtom + " " + iAtom.getPosition() + " " + r1);
+                r1.E(jAtom.getPosition());
+                r1.PEa1Tv1(falseTime, jjAtom.getVelocity());
+                System.out.println(jAtom + " " + jAtom.getPosition() + " " + r1);
+                System.out.println("dr " + rij + " " + Math.sqrt(rij.squared()) + " dv " + dv + " bij " + rij.dot(dv) + " state " + state);
                 potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
                 throw new RuntimeException("Negative up collision time between " + i + " and " + j + " at " + time);
             }
@@ -533,7 +583,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
             }
         };
-        neighborIterator.iterUpNeighbors(i, up);
+        neighborIterator.iterUpNeighbors(i, up, falseTime);
 
         if (bondingInfo != null) {
             IMolecule parentMolecule = iAtom.getParentGroup();
@@ -582,6 +632,14 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         }
 
         collisionTimes[i] += tBase + falseTime;
+
+        if (nullCollisionTimes != null && nullCollisionTimes[i] < collisionTimes[i]) {
+            // revert to null collision
+            collisionTimes[i] = nullCollisionTimes[i];
+            collisionPartners[i] = -2;
+            collisionPotentials[i] = null;
+        }
+
         long t1 = nanoTime();
         int b = (int) (collisionTimes[i] / tMax * eventBinsFirstAtom.length);
 
@@ -604,6 +662,8 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
     protected void updatePair(IAtomKinetic atom1, IAtomKinetic atom2, double falseTime) {
         long t1 = nanoTime();
         AtomArrayList downColliders = new AtomArrayList(0);
+        computeNullCollisionTime(atom1, falseTime);
+        computeNullCollisionTime(atom2, falseTime);
         collectDownColliders(atom1, downColliders);
         collectDownColliders(atom2, downColliders);
         tCollect += nanoTime() - t1;
@@ -621,6 +681,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
     protected void updateAtom(IAtomKinetic atom, double falseTime) {
         long t1 = nanoTime();
+        computeNullCollisionTime(atom, falseTime);
         AtomArrayList downColliders = new AtomArrayList(0);
         collectDownColliders(atom, downColliders);
         tCollect += nanoTime() - t1;
@@ -642,10 +703,16 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
         collisionUpdateCountdown--;
         if (collisionUpdateCountdown == 0) {
-            collisionUpdateInterval++;
-            if (verbose) System.out.println("interval => " + collisionUpdateInterval);
-            tMax = collisionUpdateInterval * timeStep;
-            if (verbose) System.out.println(tMax / eventBinsFirstAtom.length + " time per bin");
+            double n = 1 + box.getLeafList().size();
+            boolean forcedUpdates = neighborManager instanceof NeighborManager.NeighborEventSource;
+            //System.out.println(intervalCollisionCount+" "+n);
+            if (forcedUpdates || intervalCollisionCount / n < 20.0) {
+                collisionUpdateInterval++;
+                if (verbose) System.out.println("interval => " + collisionUpdateInterval);
+                tMax = collisionUpdateInterval * timeStep;
+                if (verbose) System.out.println(tMax / eventBinsFirstAtom.length + " time per bin");
+            }
+            intervalCollisionCount = 0;
             computeAllCollisions();
         }
 
@@ -684,17 +751,16 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                 double dE = du[0];
                 currentPotentialEnergy += dE;
                 currentKineticEnergy -= dE;
-//                System.out.printf("%6d %3d %3d %7.3e %3.1f %2d %2d % f % f\n", collisionCount, Math.min(c, cPartner), Math.max(c, cPartner), tcol, Math.sqrt(dr.squared()), oldState, newState, dr.dot(dv), virial[0] / (dr.dot(dv)));
-//            System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
+//                System.out.printf("%6d %3d %3d %7.3e %3.2f %2d %2d % f % f\n", collisionCount, Math.min(c, cPartner), Math.max(c, cPartner), tcol, Math.sqrt(dr.squared()), oldState, newState, dr.dot(dv), virial[0] / (dr.dot(dv)));
+//                System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
 
                 long t1data = nanoTime();
                 for (IntegratorHardFasterer.CollisionListener listener : this.collisionListeners) {
                     listener.pairCollision(cAtom, partnerAtom, dr, dv, virial[0], tcol - tBase);
                 }
                 tData += nanoTime() - t1data;
-                collisionCount++;
                 updatePair(cAtom, partnerAtom, tcol - tBase);
-            } else {
+            } else if (cPartner == -1) {
                 IPotentialHardField pHard = fieldPotentials[cAtom.getType().getIndex()];
                 Vector r = collisionVector[c];
                 Vector deltaP = space.makeVector();
@@ -713,10 +779,14 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
                     listener.fieldCollision(cAtom, r, deltaP, tcol - tBase);
                 }
                 tData += nanoTime() - t1data;
-                collisionCount++;
                 updateAtom(cAtom, tcol - tBase);
-
+            } else if (cPartner == -2) {
+                // null potential collision
+//                System.out.printf("%6d %3d %7.3e (null)\n", collisionCount, c, tcol);
+                updateAtom(cAtom, tcol - tBase);
             }
+            collisionCount++;
+            intervalCollisionCount++;
         }
         tBase += timeStep;
 //        System.out.println("advancing "+timeStep+" for "+stepCount);

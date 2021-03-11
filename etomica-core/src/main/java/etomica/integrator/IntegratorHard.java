@@ -11,7 +11,7 @@ import etomica.box.BoxMoleculeEvent;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterHybrid;
-import etomica.nbr.list.INeighborListListener;
+import etomica.nbr.list.INeighborListener;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.space.Vector;
@@ -33,9 +33,8 @@ import java.util.Map;
  * atoms and stored in an Agent.
  *
  * @author David Kofke
- *
  */
-public class IntegratorHard extends IntegratorMD implements INeighborListListener, AgentSource<IntegratorHard.Agent> {
+public class IntegratorHard extends IntegratorMD implements INeighborListener, AgentSource<IntegratorHard.Agent> {
 
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.Direction.DOWN);

@@ -4,7 +4,7 @@
 
 package etomica.nbr.list;
 
-public interface INeighborListListener {
+public interface INeighborListener {
 
     public void neighborListNeighborsUpdated();
 }

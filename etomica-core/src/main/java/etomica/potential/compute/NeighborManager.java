@@ -3,6 +3,7 @@ package etomica.potential.compute;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorListener;
+import etomica.nbr.list.INeighborListener;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
 
@@ -25,4 +26,8 @@ public interface NeighborManager {
     void updateAtom(IAtom atom);
 
     Box getBox();
+
+    interface NeighborEventSource {
+        void addListener(INeighborListener listener);
+    }
 }
