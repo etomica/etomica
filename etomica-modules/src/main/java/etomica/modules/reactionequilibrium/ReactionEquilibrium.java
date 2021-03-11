@@ -44,7 +44,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public MeterDimerFraction meterDimerFraction;
 
     public IAtom[] agents;
-    private AtomLeafAgentManager<IAtom> agentManager = null;
+    private AtomLeafAgentManager<IAtom> agentManager;
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
