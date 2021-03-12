@@ -43,7 +43,6 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 
@@ -66,7 +65,6 @@ public class TestN2MC extends Simulation {
 
     public TestN2MC(int numMolecules, double temperatureK, boolean cellListing, Truncation trunc, boolean droplet) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
 
         AtomType typeN = AtomType.element(Nitrogen.INSTANCE);
         AtomType typeM = AtomType.simple("M", 0);

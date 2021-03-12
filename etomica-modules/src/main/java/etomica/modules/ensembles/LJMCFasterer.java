@@ -27,7 +27,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 
@@ -46,7 +45,6 @@ public class LJMCFasterer extends Simulation {
 
     public LJMCFasterer(Space _space) {
         super(_space);
-        setRandom(new RandomMersenneTwister(2));
         //species
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);

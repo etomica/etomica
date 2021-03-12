@@ -30,7 +30,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.io.File;
 
@@ -50,7 +49,6 @@ public class LjMC3D extends Simulation {
 
     public LjMC3D(int numAtoms, double temperature, double density, double rcShort) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         box = this.makeBox();

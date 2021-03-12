@@ -21,7 +21,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 public class Insertion extends Simulation {
     
@@ -34,7 +33,6 @@ public class Insertion extends Simulation {
     
     public Insertion(Space _space) {
         super(_space);
-        setRandom(new RandomMersenneTwister(2));
 
         // species
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1

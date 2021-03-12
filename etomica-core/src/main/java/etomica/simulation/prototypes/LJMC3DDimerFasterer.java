@@ -39,7 +39,6 @@ import etomica.units.Debye;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simple Simulation for Monte Carlo simulation of Lennard-Jonesium.  Interactions are
@@ -65,7 +64,6 @@ public class LJMC3DDimerFasterer extends Simulation {
      */
     public LJMC3DDimerFasterer(SimParams params) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(2));
 
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .addAtom(new AtomTypeOriented(new ElementSimple("A"), Vector.of(1, 0, 0)), Vector.of(0, 0, 0))

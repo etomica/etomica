@@ -28,7 +28,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simulation for Adsorption module.
@@ -50,7 +49,6 @@ public class AdsorptionFasterer extends Simulation {
 
     public AdsorptionFasterer() {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
 
         //species
         speciesA = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple(this)), true);

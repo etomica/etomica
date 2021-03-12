@@ -28,7 +28,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Grand Canonical Lennard-Jones Monte Carlo simulation in 3D.
@@ -46,7 +45,6 @@ public class TestLJGCMC3DSlowerer extends Simulation {
 
     public TestLJGCMC3DSlowerer(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
 
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);

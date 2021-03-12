@@ -26,7 +26,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Colloid simulation.  Design by Alberto Striolo.
@@ -54,7 +53,6 @@ public class ColloidSimFasterer extends Simulation {
 
     public ColloidSimFasterer() {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(2));
         //species
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);

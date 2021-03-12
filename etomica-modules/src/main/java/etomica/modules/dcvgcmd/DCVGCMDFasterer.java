@@ -34,7 +34,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Dual-control-volume grand-canonical molecular dynamics simulation.
@@ -70,7 +69,6 @@ public class DCVGCMDFasterer extends Simulation {
     private DCVGCMDFasterer(Space _space) {
         //Instantiate classes
         super(_space);
-        setRandom(new RandomMersenneTwister(2));
 
         species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);

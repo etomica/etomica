@@ -27,7 +27,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 public class SWVLESimFasterer extends Simulation {
 
@@ -42,7 +41,6 @@ public class SWVLESimFasterer extends Simulation {
 
     public SWVLESimFasterer(int D) {
         super(Space.getInstance(D));
-        setRandom(new RandomMersenneTwister(5));
         boolean doNBR = true;
         int initNumMolecules = 400;
         temperature = 1;

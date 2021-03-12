@@ -29,7 +29,6 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 
@@ -53,8 +52,6 @@ public class OsmosisSimFasterer extends Simulation {
 
     public OsmosisSimFasterer(Space _space) {
         super(_space);
-
-        setRandom(new RandomMersenneTwister(2));
 
         final double sigma = 1.0;
 

@@ -26,7 +26,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
-import etomica.util.random.RandomMersenneTwister;
 
 public class FreeRadicalPolymerizationFastererSim extends Simulation implements AgentSource<IAtom[]> {
 
@@ -48,7 +47,6 @@ public class FreeRadicalPolymerizationFastererSim extends Simulation implements 
 
     public FreeRadicalPolymerizationFastererSim(Space space) {
         super(space);
-        setRandom(new RandomMersenneTwister(1));
         speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);

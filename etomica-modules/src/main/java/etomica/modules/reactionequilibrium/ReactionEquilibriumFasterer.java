@@ -26,7 +26,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 public class ReactionEquilibriumFasterer extends Simulation implements AgentSource<IAtom> {
 
@@ -47,7 +46,6 @@ public class ReactionEquilibriumFasterer extends Simulation implements AgentSour
 
     public ReactionEquilibriumFasterer() {
         super(Space2D.getInstance());
-        setRandom(new RandomMersenneTwister(2));
 
         speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);

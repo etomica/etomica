@@ -25,7 +25,6 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
@@ -43,7 +42,6 @@ public class PistonCylinderFasterer extends Simulation {
 
     public PistonCylinderFasterer(int D) {
         super(Space.getInstance(D));
-        setRandom(new RandomMersenneTwister(2));
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
