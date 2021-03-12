@@ -35,7 +35,6 @@ import etomica.units.Kelvin;
  */
 public class ReverseOsmosisWater extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public SpeciesGeneral speciesSolvent;
     public SpeciesGeneral speciesSodium, speciesChlorine, speciesMembrane;
     public Box box;

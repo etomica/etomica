@@ -9,6 +9,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
@@ -19,12 +20,12 @@ import etomica.species.ISpecies;
 
 /**
  * Potential for a harmonic tether.
- * 
+ * <p>
  * U = 0.5 eps r^2
- * 
+ *
  * @author Andrew Schultz
  */
-public class P1Tether extends Potential1 implements AgentSource<Vector>, PotentialSoft {
+public class P1Tether extends Potential1 implements AgentSource<Vector>, PotentialSoft, IPotentialField {
 
     public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);
@@ -33,20 +34,30 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
         work = _space.makeVector();
         gradient = new Vector[]{work};
     }
-    
+
     public void setEpsilon(double newEpsilon) {
         epsilon = newEpsilon;
     }
-    
+
     public double getEpsilon() {
         return epsilon;
     }
 
+    public double u(IAtom atom) {
+        return 0.5 * epsilon * atom.getPosition().Mv1Squared(agentManager.getAgent(atom));
+    }
+
     public double energy(IAtomList atoms) {
-        IAtom atom = atoms.get(0);
+        return u(atoms.get(0));
+    }
+
+    public double udu(IAtom atom, Vector f) {
         work.E(atom.getPosition());
         work.ME(agentManager.getAgent(atom));
-        return 0.5 * epsilon * work.squared();
+        double x2 = work.squared();
+        work.TE(epsilon);
+        f.ME(work);
+        return 0.5 * epsilon * x2;
     }
 
     public Vector[] gradient(IAtomList atoms) {
