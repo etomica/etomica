@@ -47,8 +47,8 @@ public class ReactionEquilibriumFasterer extends Simulation implements AgentSour
     public ReactionEquilibriumFasterer() {
         super(Space2D.getInstance());
 
-        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
-        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simple("A", 12), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simple("B", 12), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 

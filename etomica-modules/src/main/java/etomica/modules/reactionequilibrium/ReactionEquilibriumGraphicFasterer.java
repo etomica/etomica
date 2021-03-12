@@ -42,7 +42,7 @@ import java.awt.*;
 public class ReactionEquilibriumGraphicFasterer extends SimulationGraphic {
 
 	private static final String APP_NAME = "Reaction Equilibrium";
-	private static final int REPAINT_INTERVAL = 10;
+	private static final int REPAINT_INTERVAL = 1;
 	protected final ReactionEquilibriumFasterer sim;
 	protected boolean initializing;
 	protected AccumulatorAverage densityAccum;
@@ -58,13 +58,11 @@ public class ReactionEquilibriumGraphicFasterer extends SimulationGraphic {
 
 		resetAction = getController().getSimRestart().getDataResetAction();
 
-		sim.integratorHard1.setTimeStep(1);
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
 		getDisplayBox(sim.box).setPixelUnit(new Pixel(5));
 
 		temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard1);
-		sim.integratorHard1.getEventManager().addListener(new IntegratorListenerAction(this.getPaintAction(sim.box)));
 		temperatureSelect.setUnit(Kelvin.UNIT);
 		temperatureSelect.setMaximum(2500);
 		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
@@ -290,8 +288,6 @@ public class ReactionEquilibriumGraphicFasterer extends SimulationGraphic {
 
 		//************* Lay out components ****************//
 
-		getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
-
 		//panel for the species editors
 		JPanel speciesEditors = new JPanel(new GridLayout(0, 1));
 		speciesEditors.add(AEditor);
@@ -338,6 +334,7 @@ public class ReactionEquilibriumGraphicFasterer extends SimulationGraphic {
 		//top panel for control, temperature, potential adjustment
 		add(temperatureSelect);
 		getPanel().controlPanel.add(sliderPanel, vertGBC);
+		getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 		add(plot);
 		add(table);
 		add(tBox);
