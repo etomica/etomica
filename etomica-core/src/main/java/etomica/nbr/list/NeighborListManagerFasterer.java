@@ -164,7 +164,7 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
         }
         for (int i = 0; i < boxNumAtoms; i++) {
             Vector ri = atoms.get(i).getPosition();
-            box.getBoundary().nearestImage(ri);
+            ri.PE(box.getBoundary().centralImage(ri));
             oldAtomPositions[i].E(ri);
         }
 
