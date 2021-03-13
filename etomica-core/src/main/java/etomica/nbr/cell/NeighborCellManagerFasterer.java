@@ -293,11 +293,13 @@ public class NeighborCellManagerFasterer implements NeighborManager {
             }
         }
 
-        this.allCellOffsets = Stream.of(
-//                IntStream.of(0),
-                IntStream.of(cellOffsets),
-                IntStream.of(cellOffsets).map(offset -> offset * -1)
-        ).flatMapToInt(s -> s).toArray();
+        if (allCellOffsets.length < 2 * numCellOffsets) {
+            allCellOffsets = new int[2 * numCellOffsets];
+        }
+        System.arraycopy(cellOffsets, 0, allCellOffsets, 0, numCellOffsets);
+        for (int i = 0; i < numCellOffsets; i++) {
+            allCellOffsets[numCellOffsets + i] = -cellOffsets[i];
+        }
 
         assignCellAll();
     }
