@@ -13,7 +13,7 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
         return tf.make(new P2Ewald1Real(qiqj, alpha));
     }
 
-    private final double qiqj;
+    private double qiqj;
     private final double alpha;
 
     private static final double SQRT_PI = Math.sqrt(Math.PI);
@@ -24,20 +24,28 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
         this.alpha = alpha;
     }
 
+    public void setQiQj(double newQQ) {
+        qiqj = newQQ;
+    }
+
+    public double getQiQj() {
+        return qiqj;
+    }
+
     @Override
     public double du(double r2) {
         double r = Math.sqrt(r2);
-        return -qiqj * (2 * SQRT_PI * Math.exp(-alpha*alpha*r2) *alpha + erfc(alpha*r)/r);
+        return -qiqj * (2 * SQRT_PI * Math.exp(-alpha * alpha * r2) * alpha + erfc(alpha * r) / r);
     }
 
     @Override
     public void u012add(double r2, double[] u012) {
         double r = Math.sqrt(r2);
         double u = qiqj * erfc(alpha * r) / r;
-        double du = -qiqj * 2 * SQRT_PI * Math.exp(-alpha * alpha * r2) * alpha;
+        double derfc = -qiqj * 2 / SQRT_PI * Math.exp(-alpha * alpha * r2) * alpha;
         u012[0] += u;
-        u012[1] += du;
-        u012[2] += du * (1 - alpha * alpha * 2 * r) - u;
+        u012[1] += derfc - u;
+        u012[2] += -derfc * (2 + alpha * alpha * 2 * r) + 2 * u;
     }
 
     @Override
