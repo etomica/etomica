@@ -88,7 +88,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
 
     private void setArraySizes(int numAtoms, int numKVectors, int[] dimKVectors) {
-        if (numAtoms > sFacAtom.length) {
+        if (numAtoms * 2 > sFacAtom.length) {
             sFacAtom = new double[numAtoms * 2];
 
             forces = new Vector[numAtoms];
@@ -96,22 +96,22 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
 
         for (int i = 0; i < eik.length; i++) {
-            if (dimKVectors[i] * numAtoms > eik[i].length) {
+            if (2 * dimKVectors[i] * numAtoms > eik[i].length) {
                 eik[i] = new double[numAtoms * dimKVectors[i] * 2];
             }
         }
 
-        if (numKVectors > sFac.length) {
-            sFac = new double[numKVectors*2];
+        if (numKVectors * 2 > sFac.length) {
+            sFac = new double[numKVectors * 2];
 
             for (int j = 0; j < sFacB.length; j++) {
-                sFacB[j] = new double[numKVectors*2];
+                sFacB[j] = new double[numKVectors * 2];
             }
 
-            dsFac = new double[numKVectors*2];
+            dsFac = new double[numKVectors * 2];
 
             for (int j = 0; j < dsFacB.length; j++) {
-                dsFacB[j] = new double[numKVectors*2];
+                dsFacB[j] = new double[numKVectors * 2];
             }
 
             fExp = new double[numKVectors];
@@ -354,6 +354,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         // https://github.com/Allen-Tildesley/examples/blob/master/ewald_module.f90
         IAtomList atoms = box.getLeafList();
         for (int a=0; a<3; a++) {
+            if (nkTot == 0) break;
             double fac = 2.0* PI / bs.getX(a);
             for (int iAtom=0; iAtom<numAtoms; iAtom++) {
                 int idx = iAtom*nk[a];
