@@ -207,7 +207,8 @@ public class Box {
                 IAtom movedAtom = leafList.get(leafIndex);
                 int movedLeafIndex = movedAtom.getLeafIndex();
                 movedAtom.setLeafIndex(leafIndex);
-                eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
+                if (movedAtom.getParentGroup() != molecule)
+                    eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
             }
         }
         leafList.maybeTrimToSize();
