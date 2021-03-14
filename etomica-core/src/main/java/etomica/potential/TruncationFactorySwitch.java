@@ -12,14 +12,22 @@ public class TruncationFactorySwitch implements TruncationFactory {
 
     protected final Space space;
     protected final double rc;
+    protected final double switchFac;
 
     public TruncationFactorySwitch(Space space, double rc) {
+        this(space, rc, 0.95);
+    }
+
+    public TruncationFactorySwitch(Space space, double rc, double switchFac) {
         this.space = space;
         this.rc = rc;
+        this.switchFac = switchFac;
     }
 
     @Override
-    public Potential2Soft make(Potential2SoftSpherical... p2) {
-        return new P2SoftSphericalSumTruncatedSwitched(space, rc, p2);
+    public P2SoftSphericalSumTruncatedSwitched make(Potential2SoftSpherical... p2) {
+        P2SoftSphericalSumTruncatedSwitched pTrunc = new P2SoftSphericalSumTruncatedSwitched(space, rc, p2);
+        pTrunc.setSwitchFac(switchFac);
+        return pTrunc;
     }
 }
