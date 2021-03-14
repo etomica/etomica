@@ -497,6 +497,13 @@ public class PotentialMasterBonding implements PotentialCompute {
             int speciesIndex = species.getIndex();
             if (bondedAtoms[speciesIndex] == null) {
                 bondedAtoms[speciesIndex] = new int[species.getLeafAtomCount()][0];
+            } else if (bondedAtoms[speciesIndex].length < species.getLeafAtomCount()) {
+                // only handles mutable linear chains
+                int oldLength = bondedAtoms[speciesIndex].length;
+                bondedAtoms[speciesIndex] = Arrays.copyOf(bondedAtoms[speciesIndex], species.getLeafAtomCount());
+                for (int i = oldLength; i < species.getLeafAtomCount(); i++) {
+                    bondedAtoms[speciesIndex][i] = new int[0];
+                }
             }
             int[][] speciesAtoms = bondedAtoms[speciesIndex];
             int[][][] partners = new int[species.getLeafAtomCount()][0][0];
@@ -516,9 +523,6 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         public void setBondingPotentialPair(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
-            if (bondedPairs[speciesIndex].containsKey(potential)) {
-                throw new RuntimeException("Attempting to add the same bonding potential twice");
-            }
 
             int[][][] partners = handledIndices(species, bondedIndices);
             bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
@@ -527,9 +531,6 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         public void setBondingPotentialTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
-            if (bondedTriplets[speciesIndex].containsKey(potential)) {
-                throw new RuntimeException("Attempting to add the same bonding potential twice");
-            }
 
             int[][][] partners = handledIndices(species, bondedIndices);
             bondedTriplets[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
@@ -538,9 +539,6 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
-            if (bondedQuads[speciesIndex].containsKey(potential)) {
-                throw new RuntimeException("Attempting to add the same bonding potential twice");
-            }
 
             int[][][] partners = handledIndices(species, bondedIndices);
             bondedQuadPartners[speciesIndex].put(potential, partners);
