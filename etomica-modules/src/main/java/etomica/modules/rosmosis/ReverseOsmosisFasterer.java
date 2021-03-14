@@ -17,7 +17,6 @@ import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -29,7 +28,7 @@ import etomica.units.Kelvin;
  *
  * @author Andrew Schultz
  */
-public class ReverseOsmosisFasterer extends Simulation {
+public class ReverseOsmosisFasterer extends Simulation implements MeterOsmoticPressureFasterer.WallForceSource {
 
     public SpeciesGeneral speciesSolvent, speciesSolute, speciesMembrane;
     public Box box;
@@ -144,18 +143,11 @@ public class ReverseOsmosisFasterer extends Simulation {
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
 
-    public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-        if (args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    space = Space3D.getInstance();
-                }
-            } catch (NumberFormatException e) {
-            }
-        }
+    public double getWallForce() {
+        return wallForce;
+    }
 
+    public static void main(String[] args) {
         ReverseOsmosisFasterer sim = new ReverseOsmosisFasterer();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main

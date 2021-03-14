@@ -4,6 +4,7 @@
 
 package etomica.modules.rosmosis;
 
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -28,16 +29,17 @@ import etomica.units.dimensions.Pressure;
  */
 public class MeterOsmoticPressureFasterer implements IDataSource {
 
-    public MeterOsmoticPressureFasterer(ReverseOsmosisFasterer sim) {
-        this.sim = sim;
+    public MeterOsmoticPressureFasterer(WallForceSource wfs, Box box) {
+        this.wfs = wfs;
+        this.box = box;
         data = new DataDouble();
         dataInfo = new DataInfoDouble("osmotic pressure", Pressure.DIMENSION);
         tag = new DataTag();
     }
 
     public IData getData() {
-        Vector dimensions = sim.box.getBoundary().getBoxSize();
-        data.x = -sim.wallForce / (dimensions.getX(1) * dimensions.getX(2));
+        Vector dimensions = box.getBoundary().getBoxSize();
+        data.x = -wfs.getWallForce() / (dimensions.getX(1) * dimensions.getX(2));
         return data;
     }
 
@@ -49,8 +51,13 @@ public class MeterOsmoticPressureFasterer implements IDataSource {
         return tag;
     }
 
-    protected final ReverseOsmosisFasterer sim;
+    protected final WallForceSource wfs;
+    protected final Box box;
     protected DataDouble data;
     protected DataInfoDouble dataInfo;
     protected DataTag tag;
+
+    public interface WallForceSource {
+        double getWallForce();
+    }
 }

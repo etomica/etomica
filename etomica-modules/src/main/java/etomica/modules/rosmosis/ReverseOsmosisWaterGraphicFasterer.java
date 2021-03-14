@@ -5,6 +5,7 @@
 package etomica.modules.rosmosis;
 
 import etomica.action.IAction;
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -15,17 +16,16 @@ import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.models.water.P2WaterSPC;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
+import etomica.potential.ewald.P2Ewald1Real;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Quantity;
-import etomica.units.systems.MKS;
+import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
  *
  * @author Andrew Schultz
  */
-public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
+public class ReverseOsmosisWaterGraphicFasterer extends SimulationGraphic {
 
     private final static String APP_NAME = "Osmosis";
     private final static int REPAINT_INTERVAL = 2;
@@ -46,14 +46,12 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
     protected DeviceSlider solventChamberDensitySlider, soluteChamberDensitySlider;
     protected DeviceSlider soluteMoleFractionSlider;
     protected DeviceBox sigBox, epsBox, massBox, tetherBox;
-    protected DeviceSlider membraneThicknessSlider;
-    protected double epsilonSolute, massSolute, sigmaSolute;
-    protected double epsilonSolvent, massSolvent, sigmaSolvent;
-    protected double epsilonMembrane, massMembrane, sigmaMembrane;
+    protected DeviceSlider membraneThicknessSlider, membraneWidthSlider;
+    protected DeviceSlider soluteChargeSlider;
     protected Unit eUnit, dUnit, pUnit;
-    protected ReverseOsmosisFasterer sim;
+    protected ReverseOsmosisWaterFasterer sim;
 
-    public ReverseOsmosisGraphicFasterer(final ReverseOsmosisFasterer simulation) {
+    public ReverseOsmosisWaterGraphicFasterer(final ReverseOsmosisWaterFasterer simulation) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -65,44 +63,16 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
 
         this.sim = simulation;
 
-        getController().getSimRestart().setConfiguration(sim.configMembrane);
-
         Unit tUnit = Kelvin.UNIT;
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
-        epsilonSolute = sim.potential11.getEpsilon();
-        massSolute = sim.speciesSolute.getLeafType().getMass();
-        sigmaSolute = sim.potential11.getSigma();
-        epsilonSolvent = sim.potential22.getEpsilon();
-        massSolvent = sim.speciesSolvent.getLeafType().getMass();
-        sigmaSolvent = sim.potential22.getSigma();
-        epsilonMembrane = sim.potentialMM.getEpsilon();
-        massMembrane = sim.speciesMembrane.getLeafType().getMass();
-        sigmaMembrane = sim.potentialMM.getSigma();
 
-        DiameterHashByType diameterManager = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
-        diameterManager.setDiameter(sim.speciesSolute.getLeafType(), sigmaSolute);
-        diameterManager.setDiameter(sim.speciesSolvent.getLeafType(), sigmaSolvent);
-        diameterManager.setDiameter(sim.speciesMembrane.getLeafType(), sigmaMembrane);
+        dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
+        pUnit = Bar.UNIT;
 
-        if (sim.getSpace().D() == 2) {
-            dUnit = new UnitRatio(Mole.UNIT,
-                    new MKS().area());
-            Unit[] units = new Unit[]{Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
-            double[] exponents = new double[]{1.0, 1.0};
-            pUnit = new CompoundUnit(units, exponents);
-        } else {
-            dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
-            pUnit = Bar.UNIT;
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(40 / sim.box.getBoundary().getBoxSize().getX(1)));
 
-        }
-
-
-        if (sim.getSpace().D() == 2) {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(400 / sim.box.getBoundary().getBoxSize().getX(1)));
-        } else {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(40 / sim.box.getBoundary().getBoxSize().getX(1)));
-        }
+        ((SimulationRestart) getController().getReinitButton().getAction()).setConfiguration(sim.configMembrane);
 
         sim.getController().setSleepPeriod(0);
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
@@ -113,6 +83,8 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         massBox = new DeviceBox(sim.getController());
         tetherBox = new DeviceBox(sim.getController());
         membraneThicknessSlider = new DeviceSlider(sim.getController());
+        membraneWidthSlider = new DeviceSlider(sim.getController());
+        soluteChargeSlider = new DeviceSlider(sim.getController());
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
@@ -136,25 +108,23 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         tempSlider.setRadioGroupPostAction(resetDataAction);
 
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
-        solventChamberDensitySlider = new DeviceSlider(sim.getController()/*, modifier*/);
+        solventChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
         solventChamberDensitySlider.setPrecision(1);
-        solventChamberDensitySlider.setMaximum(30);
+        solventChamberDensitySlider.setMaximum(80);
         solventChamberDensitySlider.setNMajor(3);
         solventChamberDensitySlider.setShowValues(true);
         solventChamberDensitySlider.setUnit(dUnit);
-        solventChamberDensitySlider.setModifier(modifier);
         solventChamberDensitySlider.doUpdate();
         solventChamberDensitySlider.setShowBorder(true);
         solventChamberDensitySlider.setLabel("Solvent Density (mol/L)");
 
         modifier = new ModifierGeneral(sim.configMembrane, "solutionChamberDensity");
-        soluteChamberDensitySlider = new DeviceSlider(sim.getController()/*, modifier*/);
+        soluteChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);
         soluteChamberDensitySlider.setPrecision(1);
-        soluteChamberDensitySlider.setMaximum(30);
+        soluteChamberDensitySlider.setMaximum(80);
         soluteChamberDensitySlider.setNMajor(3);
         soluteChamberDensitySlider.setShowValues(true);
         soluteChamberDensitySlider.setUnit(dUnit);
-        soluteChamberDensitySlider.setModifier(modifier);
         soluteChamberDensitySlider.doUpdate();
         soluteChamberDensitySlider.setShowBorder(true);
         soluteChamberDensitySlider.setLabel("Solution Density (mol/L)");
@@ -189,22 +159,21 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         parameterPanel.add(tetherBox.graphic());
         potentialPanel.add(parameterPanel, vertGBC);
         potentialPanel.add(membraneThicknessSlider.graphic(), vertGBC);
+        potentialPanel.add(membraneWidthSlider.graphic(), vertGBC);
 
-        //
-        // Tabbed pane for state, potential, controls pages
-        //
-        JTabbedPane setupPanel = new JTabbedPane();
-        setupPanel.add(statePanel, "State");
-        setupPanel.add(potentialPanel, "Membrane");
-        setupPanel.add(configPanel, "Configuration");
-
-
+        // inline class to make water's OO potential look like a P2LennardJones
+        DiameterHashByType diameterManager = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
+        diameterManager.setDiameter(sim.speciesMembrane.getLeafType(), sim.potentialMM.getSigma());
+        diameterManager.setDiameter(sim.speciesSodium.getLeafType(), sim.potentialLJNaNa.getSigma());
+        diameterManager.setDiameter(sim.speciesChlorine.getLeafType(), sim.potentialLJClCl.getSigma());
+        diameterManager.setDiameter(sim.speciesSolvent.getTypeByName("O"), sim.potentialLJOO.getSigma());
         ModifierAtomDiameter sigMembraneModifier = new ModifierAtomDiameter(sim.speciesMembrane, sim.potentialMM,
-                new SpeciesGeneral[]{sim.speciesSolute, sim.speciesSolvent}, new P2LennardJones[]{sim.potentialM1, sim.potentialM2},
-                diameterManager);
-        ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialMM, new P2LennardJones[]{sim.potential11, sim.potential22},
-                new P2LennardJones[]{sim.potentialM1, sim.potentialM2});
-        ModifierGeneral massModifier = new ModifierGeneral(sim.speciesSolute.getLeafType().getElement(), "mass");
+                new P2LennardJones[]{sim.potentialMO, sim.potentialMNa, sim.potentialMCl},
+                new P2LennardJones[]{sim.potentialLJOO, sim.potentialLJNaNa, sim.potentialLJClCl}, diameterManager);
+        ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialMM,
+                new P2LennardJones[]{sim.potentialMO, sim.potentialMNa, sim.potentialMCl},
+                new P2LennardJones[]{sim.potentialLJOO, sim.potentialLJNaNa, sim.potentialLJClCl});
+        ModifierGeneral massModifier = new ModifierGeneral(sim.speciesMembrane.getLeafType().getElement(), "mass");
         ModifierGeneral tetherModifier = new ModifierGeneral(sim.potentialTether, "epsilon");
         Modifier membraneThicknessModifier = new Modifier() {
             public Dimension getDimension() {
@@ -221,6 +190,23 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
 
             public void setValue(double newValue) {
                 sim.configMembrane.setNumMembraneLayers((int) newValue);
+            }
+        };
+        Modifier membraneWidthModifier = new Modifier() {
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "membrane width";
+            }
+
+            public double getValue() {
+                return sim.configMembrane.getMembraneWidth();
+            }
+
+            public void setValue(double newValue) {
+                sim.configMembrane.setMembraneWidth((int) newValue);
             }
         };
         sigBox.setModifier(sigMembraneModifier);
@@ -241,9 +227,43 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         membraneThicknessSlider.setMinimum(1);
         membraneThicknessSlider.setMaximum(4);
         membraneThicknessSlider.setModifier(membraneThicknessModifier);
+        membraneWidthSlider.setLabel("Membrane Width");
+        membraneWidthSlider.setShowBorder(true);
+        membraneWidthSlider.setMinimum(2);
+        membraneWidthSlider.setMaximum(4);
+        membraneWidthSlider.setModifier(membraneWidthModifier);
+
+        ModifierSoluteCharge soluteChargeModifier = new ModifierSoluteCharge(sim.potentialQNaNa, sim.potentialQClCl,
+                sim.potentialQNaCl, new P2Ewald1Real[]{sim.potentialQHNa, sim.potentialQONa},
+                new P2Ewald1Real[]{sim.potentialQHCl, sim.potentialQOCl});
+        soluteChargeSlider.setLabel("Solute Charge");
+        soluteChargeSlider.setShowBorder(true);
+        soluteChargeSlider.setMinimum(0);
+        soluteChargeSlider.setMaximum(2);
+        soluteChargeSlider.setUnit(Electron.UNIT);
+        soluteChargeSlider.setModifier(soluteChargeModifier);
+        soluteChargeSlider.setPostAction(resetDataAction);
+
+        JPanel solutePanel = new JPanel(new GridBagLayout());
+        solutePanel.add(soluteChargeSlider.graphic(), vertGBC);
+
+        //
+        // Tabbed pane for state, potential, controls pages
+        //
+        JTabbedPane setupPanel = new JTabbedPane();
+        setupPanel.add(statePanel, "State");
+        setupPanel.add(potentialPanel, "Membrane");
+        setupPanel.add(configPanel, "Configuration");
+        setupPanel.add(solutePanel, "Solute");
 
         IAction neighborRangeReset = new IAction() {
             public void actionPerformed() {
+//                ((PotentialMasterList)sim.integrator.getPotential()).reset();
+//                double nbrRange = ((PotentialMasterList)sim.integrator.getPotential()).getMaxPotentialRange();
+//                nbrRange *= 1.2;
+//                ((PotentialMasterList)sim.integrator.getPotential()).setRange(nbrRange);
+//                ((PotentialMasterList)sim.integrator.getPotential()).reset();
+
                 resetDataAction.actionPerformed();
                 try {
                     sim.integrator.reset();
@@ -256,15 +276,18 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = (ColorSchemeByType) getDisplayBox(sim.box).getColorScheme();
-        colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.RED);
-        colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.BLUE);
-        colorScheme.setColor(sim.speciesMembrane.getLeafType(), Color.WHITE);
+        colorScheme.setColor(sim.speciesSodium.getLeafType(), Color.BLUE);
+        colorScheme.setColor(sim.speciesChlorine.getLeafType(), Color.GREEN);
+        colorScheme.setColor(sim.speciesSolvent.getTypeByName("O"), Color.RED);
+        colorScheme.setColor(sim.speciesSolvent.getTypeByName("H"), Color.WHITE);
+        colorScheme.setColor(sim.speciesMembrane.getLeafType(), Color.CYAN);
 
         //meters and displays
 
         //add meter and display for current kinetic temperature
 
         MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
+        thermometer.setKineticEnergyMeter(new MeterKineticEnergyFromIntegratorFasterer(sim.integrator));
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
         IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
@@ -317,7 +340,7 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         meterFlux.setBoundaries(0, new double[]{-0.25 * xLength, 0.25 * xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);
         meterFlux.setBox(sim.box);
-        meterFlux.setSpecies(new ISpecies[]{sim.speciesSolute, sim.speciesSolvent});
+        meterFlux.setSpecies(new ISpecies[]{sim.speciesSodium, sim.speciesChlorine, sim.speciesSolvent});
         AccumulatorHistory fluxHistory = new AccumulatorHistory(new HistoryCollapsingAverage(20));
         fluxHistory.setTimeDataSource(meterCycles);
         DataPump fluxPump = new DataPump(meterFlux, fluxHistory);
@@ -336,33 +359,47 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         pressureFork.addDataSink(pressureHistory);
         pressureHistory.setTimeDataSource(meterCycles);
 
-        MeterNMolecules densitySolute = new MeterNMolecules();
+        MeterNMolecules densitySodium = new MeterNMolecules();
+        MeterNMolecules densityChlorine = new MeterNMolecules();
         MeterNMolecules densitySolvent = new MeterNMolecules();
-        densitySolute.setBox(sim.box);
+        densitySodium.setBox(sim.box);
+        densityChlorine.setBox(sim.box);
         densitySolvent.setBox(sim.box);
-        densitySolute.setSpecies(sim.speciesSolute);
+        densitySodium.setSpecies(sim.speciesSodium);
+        densityChlorine.setSpecies(sim.speciesChlorine);
         densitySolvent.setSpecies(sim.speciesSolvent);
-        MeterProfileByVolume meterProfileSolute = new MeterProfileByVolume(sim.getSpace());
+        MeterProfileByVolume meterProfileSodium = new MeterProfileByVolume(sim.getSpace());
+        MeterProfileByVolume meterProfileChlorine = new MeterProfileByVolume(sim.getSpace());
         MeterProfileByVolume meterProfileSolvent = new MeterProfileByVolume(sim.getSpace());
-        meterProfileSolute.setBox(sim.box);
-        meterProfileSolute.setDataSource(densitySolute);
+        meterProfileSodium.setBox(sim.box);
+        meterProfileSodium.setDataSource(densitySodium);
+        meterProfileChlorine.setBox(sim.box);
+        meterProfileChlorine.setDataSource(densityChlorine);
         meterProfileSolvent.setBox(sim.box);
         meterProfileSolvent.setDataSource(densitySolvent);
-        meterProfileSolute.setProfileDim(0);
+        meterProfileSodium.setProfileDim(0);
+        meterProfileChlorine.setProfileDim(0);
         meterProfileSolvent.setProfileDim(0);
-        AccumulatorAverageFixed profSoluteAvg = new AccumulatorAverageFixed(10);
-        profSoluteAvg.setPushInterval(10);
-        DataPump profPumpSolute = new DataPump(meterProfileSolute, profSoluteAvg);
-        IntegratorListenerAction profPumpSoluteListener = new IntegratorListenerAction(profPumpSolute);
-        sim.integrator.getEventManager().addListener(profPumpSoluteListener);
-        profPumpSoluteListener.setInterval(2);
+        AccumulatorAverageFixed profSodiumAvg = new AccumulatorAverageFixed(10);
+        profSodiumAvg.setPushInterval(10);
+        DataPump profPumpSodium = new DataPump(meterProfileSodium, profSodiumAvg);
+        IntegratorListenerAction profPumpSodiumListener = new IntegratorListenerAction(profPumpSodium);
+        sim.integrator.getEventManager().addListener(profPumpSodiumListener);
+        profPumpSodiumListener.setInterval(2);
+        AccumulatorAverageFixed profChlorineAvg = new AccumulatorAverageFixed(10);
+        profChlorineAvg.setPushInterval(10);
+        DataPump profPumpChlorine = new DataPump(meterProfileChlorine, profChlorineAvg);
+        IntegratorListenerAction profPumpChlorineListener = new IntegratorListenerAction(profPumpChlorine);
+        sim.integrator.getEventManager().addListener(profPumpChlorineListener);
+        profPumpChlorineListener.setInterval(2);
         AccumulatorAverageFixed profSolventAvg = new AccumulatorAverageFixed(10);
         profSolventAvg.setPushInterval(10);
         DataPump profPumpSolvent = new DataPump(meterProfileSolvent, profSolventAvg);
         IntegratorListenerAction profPumpSolventListener = new IntegratorListenerAction(profPumpSolvent);
         sim.integrator.getEventManager().addListener(profPumpSolventListener);
         profPumpSolventListener.setInterval(2);
-        dataStreamPumps.add(profPumpSolute);
+        dataStreamPumps.add(profPumpSodium);
+        dataStreamPumps.add(profPumpChlorine);
         dataStreamPumps.add(profPumpSolvent);
 
         final DisplayPlotXChart ePlot = new DisplayPlotXChart();
@@ -370,7 +407,7 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
-        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+//        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
 
         ePlot.getPlot().setTitle("Energy History (J/mol)");
@@ -379,9 +416,12 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         ePlot.setXUnit(Picosecond.UNIT);
 
         final DisplayPlotXChart profPlot = new DisplayPlotXChart();
-        profSoluteAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
-                new AccumulatorAverage.StatType[]{profSoluteAvg.AVERAGE});
-        profPlot.setLegend(new DataTag[]{meterProfileSolute.getTag()}, "Solute");
+        profSodiumAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
+                new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
+        profPlot.setLegend(new DataTag[]{meterProfileSodium.getTag()}, "Sodium");
+        profChlorineAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
+                new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
+        profPlot.setLegend(new DataTag[]{meterProfileChlorine.getTag()}, "Chlorine");
         profSolventAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
                 new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
         profPlot.setLegend(new DataTag[]{meterProfileSolvent.getTag()}, "Solvent");
@@ -399,7 +439,6 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         final DisplayPlotXChart fluxPlot = new DisplayPlotXChart();
         fluxHistory.setDataSink(fluxPlot.getDataSet().makeDataSink());
         fluxPlot.setLabel("Flux");
-//        fluxPlot.setUnit(Bar.UNIT);
 
 //        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
 //        pMeter.setIntegrator(sim.integrator);
@@ -490,8 +529,8 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         this.getController().getResetAveragesButton().setPostAction(resetAction);
         IAction reconfigAction = new IAction() {
             public void actionPerformed() {
-                resetDataAction.actionPerformed();
                 sim.configMembrane.initializeCoordinates(sim.box);
+                resetDataAction.actionPerformed();
                 resetAction.actionPerformed();
             }
         };
@@ -499,8 +538,14 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         soluteChamberDensitySlider.setPostAction(reconfigAction);
         soluteMoleFractionSlider.setPostAction(reconfigAction);
         membraneThicknessSlider.setPostAction(reconfigAction);
+        membraneWidthSlider.setPostAction(reconfigAction);
+
+        soluteChamberDensitySlider.setValue(16);
+        solventChamberDensitySlider.setValue(16);
 
         getPanel().controlPanel.add(setupPanel, vertGBC);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
+        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
         add(ePlot);
         add(profPlot);
@@ -508,7 +553,6 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         add(fluxPlot);
         add(displayCycles);
         add(tBox);
-//    	add(pDisplay);
         add(peDisplay);
         add(pressureDisplay);
     }
@@ -516,51 +560,29 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
     protected static class ModifierAtomDiameter implements Modifier {
 
         public ModifierAtomDiameter(SpeciesGeneral species, P2LennardJones potential,
-                                    SpeciesGeneral[] otherSpecies, P2LennardJones[] otherPotentials, DiameterHashByType diameterManager) {
+                                    P2LennardJones[] crossPotentials, P2LennardJones[] otherPurePotentials, DiameterHashByType diameterManager) {
             this.species = species;
-            this.otherSpecies = otherSpecies;
             this.potential = potential;
-            this.otherPotentials = otherPotentials;
+            this.crossPotentials = crossPotentials;
+            this.otherPurePotentials = otherPurePotentials;
             this.diameterHash = diameterManager;
         }
 
         public void setValue(double d) {
-            if (d > 4.0) {
+            if (d > 4.5) {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
-            //assume one type of atom
+
             diameterHash.setDiameter(species.getLeafType(), d);
-            double oldSigma = potential.getSigma();
             potential.setSigma(d);
-            for (int i = 0; i < otherPotentials.length; i++) {
-                double oldMixSigma = otherPotentials[i].getSigma();
-                otherPotentials[i].setSigma(oldMixSigma + 0.5 * (d - oldSigma));
+            for (int i = 0; i < crossPotentials.length; i++) {
+                double otherSigma = otherPurePotentials[i].getSigma();
+                crossPotentials[i].setSigma(0.5 * (d + otherSigma));
             }
-//            new BoxImposePbc(sim.box).actionPerformed();
-//            if (sim.potentialWrapper.getWrappedPotential() instanceof P2Ideal) {
-//                // 0 is OK, but we need to have a sane number of cells
-//                ((PotentialMasterList)sim.integrator.getPotential()).setRange(2.0);
-//            }
-//            else if (sim.potentialWrapper.getWrappedPotential() instanceof P2HardSphere) {
-//                ((PotentialMasterList)sim.integrator.getPotential()).setRange(potentialHS.getRange()*1.4);
-//            }
-//            else { //SW
-//                ((PotentialMasterList)sim.integrator.getPotential()).setRange(potentialSW.getRange()*1.2);
-//            }
-//            ((PotentialMasterList)sim.integrator.getPotential()).reset();
-//            try {
-//                integrator.reset();
-//            }
-//            catch (ConfigurationOverlapException e){
-            // can happen when increasing diameter
-//            }
-//            getDisplayBox(integrator.getBox()).repaint();
-//            sim.config.setBoundaryPadding(sigma);
         }
 
         public double getValue() {
             return potential.getSigma();
-
         }
 
         public Dimension getDimension() {
@@ -576,9 +598,9 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         }
 
         protected final SpeciesGeneral species;
-        protected final SpeciesGeneral[] otherSpecies;
         protected final P2LennardJones potential;
-        protected final P2LennardJones[] otherPotentials;
+        protected final P2LennardJones[] crossPotentials;
+        protected final P2LennardJones[] otherPurePotentials;
         protected final DiameterHashByType diameterHash;
     }
 
@@ -617,6 +639,47 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
         protected final P2LennardJones[] mixPotentials;
     }
 
+    protected static class ModifierSoluteCharge implements Modifier {
+
+        public ModifierSoluteCharge(P2Ewald1Real pSolutePP, P2Ewald1Real pSoluteMM,
+                                    P2Ewald1Real pSolutePM,
+                                    P2Ewald1Real[] mixPotentialsP, P2Ewald1Real[] mixPotentialsM) {
+            this.pSolutePP = pSolutePP;
+            this.pSoluteMM = pSoluteMM;
+            this.pSolutePM = pSolutePM;
+            this.mixPotentialsP = mixPotentialsP;
+            this.mixPotentialsM = mixPotentialsM;
+        }
+
+        public void setValue(double newCharge) {
+            double qq = newCharge * newCharge;
+            pSolutePP.setQiQj(qq);
+            pSolutePM.setQiQj(-qq);
+            pSoluteMM.setQiQj(qq);
+            double chargeH = P2WaterSPC.chargeH;
+            double chargeO = P2WaterSPC.chargeO;
+            mixPotentialsP[0].setQiQj(chargeH * newCharge);
+            mixPotentialsP[1].setQiQj(chargeO * newCharge);
+            mixPotentialsM[0].setQiQj(-chargeH * newCharge);
+            mixPotentialsM[1].setQiQj(-chargeO * newCharge);
+        }
+
+        public double getValue() {
+            return Math.sqrt(pSolutePP.getQiQj());
+        }
+
+        public Dimension getDimension() {
+            return Charge.DIMENSION;
+        }
+
+        public String getLabel() {
+            return "Charge";
+        }
+
+        protected final P2Ewald1Real pSolutePP, pSoluteMM, pSolutePM;
+        protected final P2Ewald1Real[] mixPotentialsP, mixPotentialsM;
+    }
+
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
         public DataSinkExcludeOverlap(Box box) {
@@ -639,7 +702,7 @@ public class ReverseOsmosisGraphicFasterer extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        ReverseOsmosisGraphicFasterer reverseOsmosisGraphic = new ReverseOsmosisGraphicFasterer(new ReverseOsmosisFasterer());
+        ReverseOsmosisWaterGraphicFasterer reverseOsmosisGraphic = new ReverseOsmosisWaterGraphicFasterer(new ReverseOsmosisWaterFasterer());
         SimulationGraphic.makeAndDisplayFrame
                 (reverseOsmosisGraphic.getPanel(), APP_NAME);
     }
