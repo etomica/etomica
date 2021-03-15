@@ -24,10 +24,10 @@ public abstract class Boundary {
 
     protected final Polytope shape;
     protected final Space space;
-    private final Vector center;
     protected Box box;
     protected BoundaryEvent inflateEvent;
     protected BoundaryEventManager eventManager;
+    protected final Tensor hInv;
 
     /**
      * Subclasses must invoke this constructor and provide a Space instance that
@@ -37,11 +37,11 @@ public abstract class Boundary {
     public Boundary(Space space, Polytope shape) {
         this.space = space;
         this.shape = shape;
-        double zip[] = new double[space.D()];
-        for (int i = 0; i < space.D(); i++) zip[i] = 0.0;
-        center = Vector.of(zip);
         eventManager = new BoundaryEventManager();
+        hInv = space.makeTensor();
     }
+
+    public abstract boolean isRectangular();
 
     /**
      * @return the boundary's Box.  Might be null if the boundary is not
@@ -76,13 +76,6 @@ public abstract class Boundary {
      */
     public double volume() {
         return shape.getVolume();
-    }
-
-    /**
-     * @return the center point (origin) of the boundary
-     */
-    public Vector getCenter() {
-        return center;
     }
 
     /**
@@ -156,6 +149,10 @@ public abstract class Boundary {
      * @param v the box's new size
      */
     public abstract void setBoxSize(Vector v);
+
+    public Tensor getHInv() {
+        return hInv;
+    }
 
     /**
      * Returns the vector that defines the edge of this boundary for the given

@@ -194,7 +194,6 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         Vector[] boxOffsets = cellManager.getBoxOffsets();
         int[] atomCell = cellManager.getAtomCell();
         int[] cellNextAtom = cellManager.getCellNextAtom();
-//        int[] cellOffsets = cellManager.getCellOffsets();
         int[] allCellOffsets = cellManager.allCellOffsets;
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
@@ -202,7 +201,9 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
         int iCell = atomCell[iAtom];
 
         for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
-            if (j == iAtom) { continue; }
+            if (j == iAtom) {
+                continue;
+            }
             IAtom atom2 = atoms.get(j);
             if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) {
                 continue;
@@ -212,7 +213,8 @@ public class NeighborIteratorCellFasterer implements NeighborIterator {
             consumer.accept(atom2, rij);
         }
 
-        for (int cellOffset : allCellOffsets) {
+        for (int ico = 0; ico < 2 * cellManager.numCellOffsets; ico++) {
+            int cellOffset = allCellOffsets[ico];
             int jCell = iCell + cellOffset;
             Vector jbo = boxOffsets[jCell];
             jCell = wrapMap[jCell];
