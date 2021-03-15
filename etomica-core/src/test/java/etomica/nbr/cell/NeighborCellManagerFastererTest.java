@@ -104,7 +104,7 @@ class NeighborCellManagerFastererTest {
                 nSuccessTotal += nSuccess;
                 nSeenTotal += nSeen;
             }
-            if (true) {
+            if (false) {
                 System.out.println(n + " final ratio: " + nSeenTotal / (double) nSuccessTotal);
             }
         }
@@ -211,9 +211,9 @@ class NeighborCellManagerFastererTest {
                 boundary.setEdgeVector(0, Vector.of(20, 0, 0));
                 boundary.setEdgeVector(1, Vector.of(Lyx, Lyy, 0));
                 boundary.setEdgeVector(2, Vector.of(Lzx, Lzy, Lzz));
-                ncmSlanty.init();
                 r1.E(0);
                 r2.E(0);
+                ncmSlanty.init();
                 for (int j = 0; j < 1000; j++) {
                     r1.E(ps.randomPosition());
 //                    System.out.println("r1 "+r1);
@@ -252,7 +252,7 @@ class NeighborCellManagerFastererTest {
                 nSuccessTotal += nSuccess;
                 nSeenTotal += nSeen;
             }
-            if (true) {
+            if (false) {
                 System.out.println(n + " final ratio: " + nSeenTotal / (double) nSuccessTotal);
             }
         }
