@@ -845,14 +845,14 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
         super.scaleMomenta();
         // super.scaleMomenta alters the velocities, so we need to
         // recalculate collision times
-        computeAllCollisions();
+        if (!initialized) computeAllCollisions();
     }
 
     protected void randomizeTotalKE() {
         super.randomizeTotalKE();
         // super.randomizeMomenta alters the velocities, so we need to
         // recalculate collision times
-        computeAllCollisions();
+        if (!initialized) computeAllCollisions();
     }
 
     protected void randomizeMomentum(IAtomKinetic atom) {
