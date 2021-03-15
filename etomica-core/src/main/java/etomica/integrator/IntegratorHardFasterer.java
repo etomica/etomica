@@ -217,6 +217,9 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
     public void setMaxCollisionDiameter(AtomType atomType, double maxSigma) {
         this.maxSigma[atomType.getIndex()] = maxSigma;
+        if (nullCollisionTimes == null) {
+            nullCollisionTimes = new double[box.getLeafList().size()];
+        }
     }
 
     public void addCollisionListener(CollisionListener newListener) {
