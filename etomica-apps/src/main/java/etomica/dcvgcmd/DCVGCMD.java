@@ -80,6 +80,13 @@ public class DCVGCMD extends Simulation {
         //Instantiate classes
         super(_space);
 
+        double temperature = Kelvin.UNIT.toSim(500);
+        boolean membraneFixed = false;
+        sigma = 5.0;
+        double epsilon = 300;
+        double springConstant = 500; //for membrane-atom tether potential
+        double k12 = 1; //multiplier for propene CH and CH2 interaction with membrane atoms
+
         double massC = Carbon.INSTANCE.getMass();
         double massH = Hydrogen.INSTANCE.getMass();
         ElementSimple CH3 = new ElementSimple("CH3", massC + 3 * massH);
@@ -106,7 +113,6 @@ public class DCVGCMD extends Simulation {
                 .addAtom(propeneCH2, Vector.of(1.33 * Math.cos(Math.PI - thetaPropene), 1.33 * Math.sin(thetaPropene), 0))
                 .build();
 
-        boolean membraneFixed = false;
         AtomType atomTypeMembrane = AtomType.simple("M", membraneFixed ? Double.POSITIVE_INFINITY : 12);
         membrane = SpeciesGeneral.monatomic(space, atomTypeMembrane, true);
 
@@ -121,10 +127,6 @@ public class DCVGCMD extends Simulation {
         box.getBoundary().setBoxSize(new Vector3D(Lxy, Lxy, Lz));
 
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
-        sigma = 2.0;
-        double epsilon = 119.8;
-        //Default.makeLJDefaults();
-        //Default.BOX_SIZE = 14.0;
 
         double neighborRangeFac = 1.2;
         potentialMaster.setCellRange(1);
@@ -150,8 +152,8 @@ public class DCVGCMD extends Simulation {
         p2MM = new P2LennardJones(space, sigma, epsilon);
         P2LennardJones p2MCH3 = new P2LennardJones(space, (sigma + 3.75) / 2, Math.sqrt(epsilon * 98));
         P2LennardJones p2MCH2 = new P2LennardJones(space, (sigma + 3.95) / 2, Math.sqrt(epsilon * 46));
-        P2LennardJones p2MCH2e = new P2LennardJones(space, (sigma + 3.675) / 2, Math.sqrt(epsilon * 85));
-        P2LennardJones p2MCHe = new P2LennardJones(space, (sigma + 3.73) / 2, Math.sqrt(epsilon * 47));
+        P2LennardJones p2MCH2e = new P2LennardJones(space, (sigma + 3.675) / 2, k12*Math.sqrt(epsilon * 85));
+        P2LennardJones p2MCHe = new P2LennardJones(space, (sigma + 3.73) / 2, k12*Math.sqrt(epsilon * 47));
 
         P2SoftSphericalTruncatedForceShifted p2CH3CH3sf = new P2SoftSphericalTruncatedForceShifted(space, p2CH3CH3, rc);
         P2SoftSphericalTruncatedForceShifted p2CH3CH2sf = new P2SoftSphericalTruncatedForceShifted(space, p2CH3CH2, rc);
@@ -197,7 +199,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.addPotential(p2MCHesf, new AtomType[]{atomTypeMembrane, propeneCH});
 
         P1HarmonicSite p1Membrane = new P1HarmonicSite(space);
-        p1Membrane.setSpringConstant(10000);
+        p1Membrane.setSpringConstant(springConstant);
 
         P2Harmonic p2BondCH3 = new P2Harmonic(space, 1000000, 1.54);
         P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 1000000, 1.33);
@@ -238,7 +240,6 @@ public class DCVGCMD extends Simulation {
         potentialMaster.addPotential(potentialwall1, new AtomType[]{propene.getTypeByName("propeneCH")});
         potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall1, propeneCH, criterionWall1);
 
-        double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
                 propane, propene, box);
         integratorDCV.zFraction = zFraction;
