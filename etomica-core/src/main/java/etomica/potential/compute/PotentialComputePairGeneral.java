@@ -38,6 +38,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected final int[] atomCountByType;
     protected boolean duAtomMulti = false;
 
+    public boolean first = true;
+    public boolean doAllTruncationCorrection = true;
+    public boolean doOneTruncationCorrection = false;
+
     public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
         this(new IPotentialPair[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
     }
@@ -187,6 +191,9 @@ public class PotentialComputePairGeneral implements PotentialCompute {
 
     @Override
     public double computeAll(boolean doForces, PotentialCallback pc) {
+        double[] uAtomOld = new double[uAtom.length];
+        boolean debug = false;
+        if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
         zeroArrays(doForces);
 
         IAtomList atoms = box.getLeafList();
@@ -218,13 +225,34 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 uTot[0] += uij;
             });
         }
+
+        double[] uCorrection = new double[1];
+        double[] duCorrection = new double[1];
+        computeAllTruncationCorrection(uCorrection, duCorrection);
+        uTot[0] += uCorrection[0];
+        virialTot += duCorrection[0];
+
+        if (debug && uAtom.length == uAtomOld.length && !first) {
+            boolean success = true;
+            for (int i = 0; i < uAtom.length; i++) {
+                if (Math.abs(uAtom[i] - uAtomOld[i]) > 1e-9) {
+                    if (success) System.out.println("box " + box);
+                    System.out.println("uAtom diff " + i + " " + uAtom[i] + " " + uAtomOld[i]);
+                    success = false;
+                }
+            }
+            if (!success) throw new RuntimeException("oops");
+        }
+        first = false;
         energyTot = uTot[0];
         return uTot[0];
     }
 
     @Override
     public double computeOneOld(IAtom iAtom) {
-        return uAtom[iAtom.getLeafIndex()] * 2;
+        double u = this.computeOneTruncationCorrection(iAtom.getLeafIndex());
+        u += uAtom[iAtom.getLeafIndex()] * 2;
+        return u;
     }
 
     @Override
@@ -232,6 +260,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         double u = 0;
         for (IAtom atom : atoms) {
             u += uAtom[atom.getLeafIndex()] * 2;
+            u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
         u -= computeIntraAtoms(atoms);
         return u;
@@ -248,7 +277,9 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         duAtom.clear();
         duAtom.ensureCapacity(atoms.size());
         duAtom.add(0);
-        return this.computeOneInternal(iAtom);
+        double u = this.computeOneInternal(iAtom);
+        u += this.computeOneTruncationCorrection(iAtom.getLeafIndex());
+        return u;
     }
 
     protected double computeOneInternal(IAtom iAtom) {
@@ -267,6 +298,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             uAtomsChanged.add(atom.getLeafIndex());
 
             u += computeOneInternal(atom);
+            u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
 
         u -= computeIntraAtoms(atoms);
@@ -313,5 +345,57 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     @Override
     public IntegratorListener makeIntegratorListener() {
         return this.neighborManager.makeIntegratorListener();
+    }
+
+
+    public void computeAllTruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        if (!doAllTruncationCorrection) {
+            return;
+        }
+        double uCor = 0;
+        double duCor = 0;
+        for (int i = 0; i < atomCountByType.length; i++) {
+            for (int j = i; j < atomCountByType.length; j++) {
+                IPotentialPair p = pairPotentials[i][j];
+                if (p == null) continue;
+                int numPairs;
+                if (j == i) {
+                    numPairs = atomCountByType[i] * (atomCountByType[j] - 1) / 2;
+                } else {
+                    numPairs = atomCountByType[i] * atomCountByType[j];
+                }
+                double pairDensity = numPairs / box.getBoundary().volume();
+
+                double[] u = new double[1];
+                double[] du = new double[1];
+                p.u01TruncationCorrection(u, du);
+                uCor += pairDensity * u[0];
+                duCor += pairDensity * du[0];
+
+            }
+        }
+        uCorrection[0] = uCor;
+        duCorrection[0] = duCor;
+    }
+
+
+    public double computeOneTruncationCorrection(int iAtom) {
+        if (!doOneTruncationCorrection) {
+            return 0;
+        }
+        int iType = box.getLeafList().get(iAtom).getType().getIndex();
+        double uCorrection = 0;
+        for (int j = 0; j < atomCountByType.length; j++) {
+            IPotentialPair p = pairPotentials[iType][j];
+            double pairDensity;
+            if (iType == j) {
+                pairDensity = (atomCountByType[j] - 1) / box.getBoundary().volume();
+            } else {
+                pairDensity = atomCountByType[j] / box.getBoundary().volume();
+            }
+            double integral = p.integral(p.getRange());
+            uCorrection += pairDensity * integral;
+        }
+        return uCorrection;
     }
 }
