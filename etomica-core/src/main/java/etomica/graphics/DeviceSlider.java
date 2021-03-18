@@ -479,17 +479,18 @@ public class DeviceSlider extends Device {
         private CompletableFuture<Void> actionFuture = null;
          public void stateChanged(ChangeEvent evt) {
              double newValue = slider.getDecimalSliderValue();
-             if(modifyAction != null) {
-                 modifyAction.setValueForAction(unit.toSim(newValue));
+             ModifyAction modifyActionLocal = modifyAction;
+             if (modifyActionLocal != null) {
+                 modifyActionLocal.setValueForAction(unit.toSim(newValue));
 
                  if (actionFuture != null) {
                      actionFuture.cancel(false);
                  }
                  actionFuture = doAction(() -> {
-                     if (unit.toSim(newValue) == modifyAction.getValue()) {
+                     if (modifyActionLocal != modifyAction || unit.toSim(newValue) == modifyActionLocal.getValue()) {
                          return;
                      }
-                     modifyAction.setValueForAction(unit.toSim(newValue));
+                     modifyActionLocal.setValueForAction(unit.toSim(newValue));
                      targetAction.actionPerformed();
                  });
                  this.actionFuture.whenComplete((res, ex) -> {
@@ -500,7 +501,7 @@ public class DeviceSlider extends Device {
                          //slider position fires an event that brings us back here.
                          //null-out modifyAction to prevent recursion!
                          // new value is the old value!
-                         double oldValue = unit.fromSim(modifyAction.getValue());
+                         double oldValue = unit.fromSim(modifyActionLocal.getValue());
                          SwingUtilities.invokeLater(() -> {
                              slider.setDecimalSliderValue(oldValue);
                          });
