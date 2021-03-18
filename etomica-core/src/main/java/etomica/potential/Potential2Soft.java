@@ -17,11 +17,6 @@ import etomica.space.Vector;
 public interface Potential2Soft extends PotentialSoft, Potential2Spherical, IPotentialPair {
 
     /**
-     * Integral used to evaluate correction to truncation of potential.
-     */
-    double integral(double rC);
-
-    /**
      * The derivative of the pair energy, times the separation r: r du/dr.
      */
     double du(double r2);
@@ -37,11 +32,6 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical, IPot
      * separation:  r^2 d^2u/dr^2.
      */
     double d2u(double r2);
-
-
-    default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
-
-    }
 
     default double u(Vector dr12, IAtom atom1, IAtom atom2) {
         return u(dr12.squared());

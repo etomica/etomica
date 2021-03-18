@@ -52,4 +52,15 @@ public interface IPotentialPair extends IPotentialTorque {
         t2.PE(gt[1][1]);
         return u;
     }
+
+    /**
+     * Integral used to evaluate correction to truncation of potential.
+     */
+    default double integral(double rC) {
+        return 0;
+    }
+
+    default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+
+    }
 }
