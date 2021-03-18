@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.Boundary;
@@ -25,7 +26,6 @@ import etomica.units.dimensions.Length;
 public class P2SoftTruncated extends Potential2
                implements PotentialTruncated, Potential2Soft {
 
-    private static final long serialVersionUID = 1L;
     protected final Vector dr;
     protected final Potential2Soft wrappedPotential;
     protected final Vector[] gradient;
@@ -59,10 +59,27 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.energy(atoms) : 0;
+    }
+
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        return dr12.squared() < r2Cutoff ? wrappedPotential.u(dr12, atom1, atom2) : 0;
+    }
+
+    @Override
+    public double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2) {
+        if (dr12.squared() > r2Cutoff) return 0;
+        return wrappedPotential.udu(dr12, atom1, atom2, f1, f2);
+    }
+
+    @Override
+    public double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
+        if (dr12.squared() > r2Cutoff) return 0;
+        return wrappedPotential.uduTorque(dr12, atom1, atom2, f1, f2, t1, t2);
     }
 
     /**
@@ -70,7 +87,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.virial(atoms) : 0;
@@ -143,7 +160,19 @@ public class P2SoftTruncated extends Potential2
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public Dimension getTruncationRadiusDimension() {return Length.DIMENSION;}
+    public Dimension getTruncationRadiusDimension() {
+        return Length.DIMENSION;
+    }
+
+    @Override
+    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        double A = space.sphereArea(1.0);
+        double D = space.D();
+        double u = wrappedPotential.u(r2Cutoff);
+        double integral = wrappedPotential.integral(rCutoff);
+        uCorrection[0] = integral;
+        duCorrection[0] = (-A * space.powerD(rCutoff) * u - D * integral);
+    }
 
     /**
      * Returns the zero-body potential that evaluates the contribution to the

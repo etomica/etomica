@@ -4,6 +4,7 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -238,9 +239,129 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         throw new RuntimeException("please implement me");
     }
 
-
     public double d2u(double r2) {
         throw new RuntimeException("please don't implement me");
+    }
+
+    protected double calculateEnergy(double r2) {
+        if (r2 < hsdiasq) {
+            return Double.POSITIVE_INFINITY;
+        }
+        double s2 = 1 / r2;
+        double s6 = s2 * s2 * s2;
+        return 4 * s6 * (s6 - 1.0);
+    }
+
+    protected double calculateDU(double r2) {
+        if (r2 < hsdiasq) {
+            return Double.POSITIVE_INFINITY;
+        }
+        double s2 = 1 / r2;
+        double s6 = s2 * s2 * s2;
+        return -4 * s6 * (12 * s6 - 6) * s2;
+    }
+
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+
+        IAtomOriented a1 = (IAtomOriented) atom1;
+        IAtomOriented a2 = (IAtomOriented) atom2;
+
+        // LJ contribution
+        double ener = epsilon * calculateEnergy(dr12.squared() / sigma2);
+
+        if (Q2 != 0.0 && !Double.isInfinite(ener)) {
+
+            double r2 = dr12.squared();
+            double r = Math.sqrt(r2);
+
+            // cos1 and sin1 are the cosine and sine of the angle (theta1)
+            // between v1 and v12
+            double cos1 = a1.getOrientation().getDirection().dot(dr12) / r;
+            // cos2 and sin2 are the cosine and sine of the angle (theta2)
+            // between v2 and v12
+            double cos2 = a2.getOrientation().getDirection().dot(dr12) / r;
+            // cos12sin1sin2 is the cosine of phi12, the angle between the
+            // projections of v1 and v2 onto the plane perpendicular to v12
+            // between the molecules multiplied by sin1 and sin2
+
+            // temp = sin1*sin2*cos(phi12) - 4*cos1*cos2
+            // cos(phi12) = v1 dot v2 - (v1 dot dr) * (v1 dot dr) / (sqrt(1-(v1 dot dr)^2)sqrt(1-(v2 dot dr)^2)
+            // [ do some algebra!]
+            // temp = v1 dot v2 - 5*cos1*cos2
+            double dot = a1.getOrientation().getDirection().dot(a2.getOrientation().getDirection());
+            double temp = dot - 5 * cos1 * cos2;
+
+            double uqq = (3.0 * Q2) / (4.0 * r2 * r2 * r);
+            double uQuad = (uqq) * (1.0 - 5.0 * (cos1 * cos1 + cos2 * cos2 + 3 * cos1 * cos1 * cos2 * cos2) + 2 * (temp * temp));
+            ener += uQuad;
+        }
+        return ener;
+    }
+
+    @Override
+    public double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2) {
+        IAtomOriented a1 = (IAtomOriented) atom1;
+        IAtomOriented a2 = (IAtomOriented) atom2;
+
+        // LJ contribution
+
+        double r2 = dr12.squared();
+        double ener = epsilon * calculateEnergy(r2 / sigma2);
+        double du = epsilon * calculateDU(r2 / sigma2) / sigma2;
+        f1.PEa1Tv1(du, dr12);
+        f2.PEa1Tv1(-du, dr12);
+
+        if (Q2 != 0.0 && !Double.isInfinite(ener)) {
+
+            r2 = dr12.squared();
+            double r = Math.sqrt(r2);
+
+            // cos1 and sin1 are the cosine and sine of the angle (theta1)
+            // between v1 and v12
+            double cos1 = a1.getOrientation().getDirection().dot(dr12) / r;
+            Vector dcos1dr12 = Vector.d(3);
+            dcos1dr12.Ea1Tv1(1 / r, a1.getOrientation().getDirection());
+            dcos1dr12.PEa1Tv1(-cos1 / r2, dr12);
+
+            // cos2 and sin2 are the cosine and sine of the angle (theta2)
+            // between v2 and v12
+            double cos2 = a2.getOrientation().getDirection().dot(dr12) / r;
+            Vector dcos2dr12 = Vector.d(3);
+            dcos2dr12.Ea1Tv1(1 / r, a2.getOrientation().getDirection());
+            dcos2dr12.PEa1Tv1(-cos2 / r2, dr12);
+
+            // cos12sin1sin2 is the cosine of phi12, the angle between the
+            // projections of v1 and v2 onto the plane perpendicular to v12
+            // between the molecules multiplied by sin1 and sin2
+
+            // temp = sin1*sin2*cos(phi12) - 4*cos1*cos2
+            // cos(phi12) = v1 dot v2 - (v1 dot dr) * (v1 dot dr) / (sqrt(1-(v1 dot dr)^2)sqrt(1-(v2 dot dr)^2)
+            // [ do some algebra!]
+            // temp = v1 dot v2 - 5*cos1*cos2
+            double dot = a1.getOrientation().getDirection().dot(a2.getOrientation().getDirection());
+            double temp = dot - 5 * cos1 * cos2;
+            Vector dtempdr12 = Vector.d(3);
+            dtempdr12.Ea1Tv1(-5 * cos1, dcos2dr12);
+            dtempdr12.PEa1Tv1(-5 * cos2, dcos1dr12);
+
+            double uqq = (3.0 * Q2) / (4.0 * r2 * r2 * r);
+            double rduqqdr = -5 * uqq;
+            Vector duqqdr12 = Vector.d(3);
+            duqqdr12.Ea1Tv1(rduqqdr / r2, dr12);
+            double uQuad = (uqq) * (1.0 - 5.0 * (cos1 * cos1 + cos2 * cos2 + 3 * cos1 * cos1 * cos2 * cos2) + 2 * (temp * temp));
+            Vector duQuaddr12 = Vector.d(3);
+            duQuaddr12.Ea1Tv1(uQuad / uqq, duqqdr12);
+            duQuaddr12.PEa1Tv1(-5 * 2 * uqq * cos1, dcos1dr12);
+            duQuaddr12.PEa1Tv1(-5 * 2 * uqq * cos2, dcos2dr12);
+            duQuaddr12.PEa1Tv1(-5 * 3 * 2 * uqq * cos1 * cos2 * cos2, dcos1dr12);
+            duQuaddr12.PEa1Tv1(-5 * 3 * 2 * uqq * cos1 * cos1 * cos2, dcos2dr12);
+            duQuaddr12.PEa1Tv1(2 * 2 * uqq * temp, dtempdr12);
+            ener += uQuad;
+            f1.PE(duQuaddr12);
+            f2.ME(duQuaddr12);
+        }
+        return ener;
     }
 
     public double integral(double rC) {
