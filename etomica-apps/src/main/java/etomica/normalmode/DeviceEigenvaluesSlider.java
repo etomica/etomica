@@ -8,7 +8,6 @@ import etomica.action.IAction;
 import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -63,35 +62,35 @@ public class DeviceEigenvaluesSlider extends Device {
 
 		ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxChangeSetOneEval);
 
+
+		//using all eigenvalues or individual radio button
+		ButtonGroup eValGroup = new ButtonGroup();
+		buttonAllEVal = new JRadioButton("All Normal Modes");
+		buttonOneEVal = new JRadioButton("One Normal Mode");
+		eValGroup.add(buttonAllEVal);
+		eValGroup.add(buttonOneEVal);
+
 		addRadioGroupActionListener(actionListen);
 
 		if (this.integrator.isOneEVal()) {
 			setOneEVal();
 
-		}
-		else {
+		} else {
 			setAllEVal();
 		}
 
 
-		//using all eigenvalues or individual radio button
-		ButtonGroup eValGroup = new ButtonGroup();
-		buttonAllEVal = new JRadioButton("All Normal Modes");
-        buttonOneEVal = new JRadioButton("One Normal Mode");
-        eValGroup.add(buttonAllEVal);
-        eValGroup.add(buttonOneEVal);
+		//eigenvalues selector
+		eValNumSlider.setShowValues(true);
+		eValNumSlider.setEditValues(true);
+		eValNumSlider.setMinimum(DEFAULT_MIN_nEIGENVECTORS);
+		eValNumSlider.setMaximum(DEFAULT_MAX_nEIGENVECTORS);
+		eValNumSlider.setNMajor(6);
+		eValNumSlider.setValue(0);
+		eValNumSlider.getSlider().setEnabled(false);
+		eValNumSlider.getTextField().setEnabled(false);
 
-        //eigenvalues selector
-        eValNumSlider.setShowValues(true);
-        eValNumSlider.setEditValues(true);
-        eValNumSlider.setMinimum(DEFAULT_MIN_nEIGENVECTORS);
-        eValNumSlider.setMaximum(DEFAULT_MAX_nEIGENVECTORS);
-        eValNumSlider.setNMajor(6);
-        eValNumSlider.setValue(0);
-        eValNumSlider.getSlider().setEnabled(false);
-        eValNumSlider.getTextField().setEnabled(false);
-
-        // Tie the "all eigenvalues"/"one eigenvalue" setting to the selectable status of
+		// Tie the "all eigenvalues"/"one eigenvalue" setting to the selectable status of
         // eigenvalues slider
         ToggleButtonListener myListener = new ToggleButtonListener();
         buttonAllEVal.setSelected(true);

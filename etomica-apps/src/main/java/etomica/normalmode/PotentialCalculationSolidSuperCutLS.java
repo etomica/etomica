@@ -5,8 +5,7 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
-import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
-import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
+import etomica.normalmode.Potential2SoftSphericalLSMultiLat.ReturnValue;
 import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
 

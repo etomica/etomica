@@ -56,7 +56,7 @@ public final class EtomicaModuleInfo {
             mod("Self-Assembled Monolayer", "No description yet", etomica.modules.sam.SamGraphic.class),
             mod("Statistics", "No description yet", etomica.modules.statistics.StatisticsMCGraphic.class, "-moduleNum 1"),
             mod("Statistics Part 2", "No description yet", etomica.modules.statistics.StatisticsMCGraphic.class, "-moduleNum 2"),
-            mod("VLE", "No description yet", etomica.modules.vle.VLE.class),
+            mod("VLE", "No description yet", etomica.modules.vle.VLEFasterer.class),
             mod("B2 fit (for VLE)", "No description yet", etomica.modules.vle.B2Fit.class),
     };
 }

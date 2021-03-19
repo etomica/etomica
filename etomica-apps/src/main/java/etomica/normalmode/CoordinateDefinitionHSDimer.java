@@ -12,7 +12,6 @@ import etomica.config.IConformationOriented;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.models.nitrogen.AtomActionTransformed;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;

@@ -24,7 +24,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.liquidLJ.DataProcessorReweight;
 import etomica.liquidLJ.DataProcessorReweightRatio;
-import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.ValueCache;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;

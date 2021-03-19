@@ -7,7 +7,6 @@ package etomica.modules.glass;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.*;
