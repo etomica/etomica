@@ -140,11 +140,7 @@ public class PistonCylinderGraphicFasterer extends SimulationGraphic {
      */
     public void init() {
 
-        final IAction dataResetAction = new IAction() {
-            public void actionPerformed() {
-                getController().getResetAveragesButton().press();
-            }
-        };
+        final IAction dataResetAction = getController().getResetAveragesButton().getAction();
 
         displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType());
