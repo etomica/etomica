@@ -7,6 +7,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.ShakeListener.BondConstraints;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Boundary;
@@ -16,7 +17,7 @@ import etomica.species.SpeciesManager;
 
 import java.util.Arrays;
 
-public class ShakeListener implements IntegratorListenerMD {
+public class RattleListener implements IntegratorListenerMD {
 
     protected final IntegratorMDFasterer integrator;
     protected Vector[][] drOld;
@@ -28,7 +29,7 @@ public class ShakeListener implements IntegratorListenerMD {
     protected boolean[][] moved;
     protected boolean ready = false;
 
-    public ShakeListener(SpeciesManager sm, SpeciesAgentManager<BondConstraints> agentManager, IntegratorMDFasterer integrator) {
+    public RattleListener(SpeciesManager sm, SpeciesAgentManager<BondConstraints> agentManager, IntegratorMDFasterer integrator) {
         this.integrator = integrator;
         this.agentManager = agentManager;
         nBonds = new int[sm.getSpeciesCount()];
@@ -146,8 +147,8 @@ public class ShakeListener implements IntegratorListenerMD {
                     if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
                         continue;
                     }
-                    IAtom atom1 = childList.get(iAtom1);
-                    IAtom atom2 = childList.get(iAtom2);
+                    IAtomKinetic atom1 = (IAtomKinetic) childList.get(iAtom1);
+                    IAtomKinetic atom2 = (IAtomKinetic) childList.get(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
                     //                    if (i==0) System.out.println(iter+" old dr "+Math.sqrt(dr.squared())+" vs "+bondLengths[j]);
@@ -171,6 +172,11 @@ public class ShakeListener implements IntegratorListenerMD {
                         double gab = diffSq / (2.0 * rMass * drDotDrOld);
                         atom2.getPosition().PEa1Tv1(gab / mass2, drOld[i][j]);
                         atom1.getPosition().PEa1Tv1(-gab / mass1, drOld[i][j]);
+
+                        gab /= integrator.getTimeStep();
+
+                        atom2.getVelocity().PEa1Tv1(gab / mass2, drOld[i][j]);
+                        atom1.getVelocity().PEa1Tv1(-gab / mass1, drOld[i][j]);
 
                         moved[1][iAtom1] = true;
                         moved[1][iAtom2] = true;
@@ -212,35 +218,77 @@ public class ShakeListener implements IntegratorListenerMD {
             }
             bondConstraints.redistributeForces(molecule, forces);
         }
-        for (int i = 0; i < box.getLeafList().size(); i++) {
-            IAtomKinetic a = (IAtomKinetic) box.getLeafList().get(i);
-            a.getVelocity().Ev1Mv2(a.getPosition(), rOld[i]);
-            a.getVelocity().TE(1.0 / integrator.timeStep);
-        }
-        ready = false;
     }
 
-    public static class BondConstraints {
-        public final int[][] bondedAtoms;
-        public final double[] bondLengths;
-
-        public BondConstraints(int[][] bondedAtoms, double[] bondLengths) {
-            if (bondedAtoms.length != bondLengths.length) {
-                throw new IllegalArgumentException("different number of bonded pairs and lengths");
+    @Override
+    public void preThermostat(IntegratorEvent e) {
+        /*
+         * Rattle Part II
+         */
+        if (!ready) return;
+        int numIterations = 0;
+        Box box = integrator.getBox();
+        IMoleculeList molecules = box.getMoleculeList();
+        Vector dr = box.getSpace().makeVector();
+        Vector dv = box.getSpace().makeVector();
+        for (int i = 0; i < molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
+            BondConstraints bondConstraints = agentManager.getAgent(molecule.getType());
+            if (bondConstraints == null) {
+                continue;
             }
-            this.bondedAtoms = bondedAtoms;
-            this.bondLengths = bondLengths;
+
+            IAtomList childList = molecule.getChildList();
+            int[][] bondedAtoms = bondConstraints.bondedAtoms;
+            Boundary boundary = box.getBoundary();
+            double[] bondLengths = bondConstraints.bondLengths;
+
+            for (int j = 0; j < childList.size(); j++) {
+                moved[1][j] = true;
+            }
+
+            for (int iter = 0; iter < maxIterations; iter++) {
+                numIterations++;
+                boolean success = true;
+                for (int j = 0; j < childList.size(); j++) {
+                    moved[0][j] = moved[1][j];
+                    moved[1][j] = false;
+                }
+                for (int j = 0; j < bondConstraints.bondedAtoms.length; j++) {
+                    int iAtom1 = bondedAtoms[j][0];
+                    int iAtom2 = bondedAtoms[j][1];
+                    if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
+                        continue;
+                    }
+                    IAtomKinetic atom1 = (IAtomKinetic) childList.get(iAtom1);
+                    IAtomKinetic atom2 = (IAtomKinetic) childList.get(iAtom2);
+                    dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                    boundary.nearestImage(dr);
+                    dv.Ev1Mv2(atom2.getVelocity(), atom1.getVelocity());
+                    double drdotdv = dr.dot(dv);
+                    double mass1 = atom1.getType().getMass();
+                    double mass2 = atom2.getType().getMass();
+                    double bl2 = bondLengths[j] * bondLengths[j];
+                    double g = -drdotdv / ((1.0 / mass1 + 1.0 / mass2) * bl2);
+                    if (Math.abs(g) > shakeTol) {
+                        dr.TE(g);
+
+                        atom2.getVelocity().PEa1Tv1(1.0 / (mass2), dr);
+                        atom1.getVelocity().PEa1Tv1(-1.0 / (mass1), dr);
+
+                        moved[1][iAtom1] = true;
+                        moved[1][iAtom2] = true;
+                        success = false;
+                    }
+                }
+                if (success) {
+                    break;
+                }
+                if (iter == maxIterations - 1) {
+                    System.err.println("failed to converge in rattle for molecule " + i);
+                }
+            }
         }
 
-        // redistribute forces to constrained atoms
-        // do nothing by default, allow subclasses to override
-        public void redistributeForces(IMolecule molecule, Vector[] forces) {
-        }
-
-        // fix atom positions that may have been omitted from constraints
-        // do nothing by default, allow subclasses to override
-        public void relaxMolecule(IMolecule molecule) {
-        }
     }
-
 }
