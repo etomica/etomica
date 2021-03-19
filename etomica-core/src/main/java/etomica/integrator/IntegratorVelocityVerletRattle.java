@@ -28,7 +28,6 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShake {
 
-    private static final long serialVersionUID = 1L;
     protected final Vector dv;
 
     public IntegratorVelocityVerletRattle(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster, Box box) {
@@ -51,7 +50,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         int numIterations = 0;
         for (int i = 0; i<molecules.size(); i++) {
             IMolecule molecule = molecules.get(i);
-            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            BondConstraints bondConstraints = shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 numBondedMolecules++;
                 IAtomList childList = molecule.getChildList();
@@ -165,7 +164,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 
         for (int i = 0; i<molecules.size(); i++) {
             IMolecule molecule = molecules.get(i);
-            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            BondConstraints bondConstraints = shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
             }
@@ -178,7 +177,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 
         for (int i = 0; i<molecules.size(); i++) {
             IMolecule molecule = molecules.get(i);
-            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            BondConstraints bondConstraints = shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
             }
@@ -205,7 +204,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
          */
         for (int i = 0; i<molecules.size(); i++) {
             IMolecule molecule = molecules.get(i);
-            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            BondConstraints bondConstraints = shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
             }
