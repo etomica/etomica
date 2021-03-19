@@ -257,13 +257,10 @@ public class VLEFasterer extends SimulationGraphic {
         fork.addDataSink(historyPressureVapor);
         historyPressureVapor.setPushInterval(1);
 
-        thermoSlider.setPostAction(new ActionGroupSeries(new IAction[]{resetMCMoves, new IAction() {
-            @Override
-            public void actionPerformed() {
-                meterPressureLiquid.setTemperature(sim.integratorLiquid.getTemperature());
-                meterPressureVapor.setTemperature(sim.integratorVapor.getTemperature());
-            }
-        }}));
+        thermoSlider.setPostAction(new ActionGroupSeries(resetMCMoves, () -> {
+            meterPressureLiquid.setTemperature(sim.integratorLiquid.getTemperature());
+            meterPressureVapor.setTemperature(sim.integratorVapor.getTemperature());
+        }));
 
         DisplayPlotXChart plotHistoryPressure = new DisplayPlotXChart();
         plotHistoryPressure.setLabel("Pressure History");

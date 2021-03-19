@@ -88,12 +88,7 @@ public class ReactionEquilibriumGraphicFasterer extends SimulationGraphic {
 		MassEditor AMassEditor = new MassEditor(sim.getController(), sim.speciesA, "Red");
 		MassEditor BMassEditor = new MassEditor(sim.getController(), sim.speciesB, "Black");
 
-		ActionGroupSeries fullResetAction = new ActionGroupSeries(new IAction[]{resetAction, new IAction() {
-			@Override
-			public void actionPerformed() {
-				sim.integratorHard1.reset();
-			}
-		}});
+		ActionGroupSeries fullResetAction = new ActionGroupSeries(resetAction, () -> sim.integratorHard1.reset());
 
 		//sliders to adjust potentials well depth
 		int eMin = 0;

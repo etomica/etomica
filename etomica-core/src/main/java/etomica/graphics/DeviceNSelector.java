@@ -37,7 +37,7 @@ public class DeviceNSelector extends DeviceSlider {
     public void setResetAction(IAction newResetAction) {
         resetAction = newResetAction;
         if (modifyAction != null) {
-            targetAction = new ActionGroupSeries(new IAction[]{modifyAction,resetAction});
+            targetAction = new ActionGroupSeries(modifyAction, resetAction);
         }
     }
 
@@ -74,7 +74,7 @@ public class DeviceNSelector extends DeviceSlider {
     public void setModifier(Modifier newModifier) {
         super.setModifier(newModifier);
         if (resetAction != null) {
-            targetAction = new ActionGroupSeries(new IAction[]{modifyAction,resetAction});
+            targetAction = new ActionGroupSeries(modifyAction, resetAction);
         }
     }
     

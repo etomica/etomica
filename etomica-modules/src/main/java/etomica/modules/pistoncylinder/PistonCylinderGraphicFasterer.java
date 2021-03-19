@@ -519,8 +519,8 @@ public class PistonCylinderGraphicFasterer extends SimulationGraphic {
         pc.integrator.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
         tempSlider.setUnit(tUnit);
         tempSlider.setModifier(new ModifierGeneral(pc.integrator, "temperature"));
-        tempSlider.setSliderPostAction(new ActionGroupSeries(new IAction[]{
-                new IntegratorReset(pc.integrator, true), dataResetAction}));
+        tempSlider.setSliderPostAction(new ActionGroupSeries(
+                new IntegratorReset(pc.integrator, true), dataResetAction));
         tempSlider.setRadioGroupPostAction(dataResetAction);
 
         potentialSW = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon}, true);
@@ -559,10 +559,10 @@ public class PistonCylinderGraphicFasterer extends SimulationGraphic {
         lamBox.setModifier(lamModifier);
         massBox.setModifier(massModifier);
         massBox.setUnit(mUnit);
-        sigBox.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.reset(), dataResetAction}));
+        sigBox.setPostAction(new ActionGroupSeries(() -> pc.integrator.reset(), dataResetAction));
         massBox.setPostAction(dataResetAction);
-        epsBox.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.reset(), dataResetAction}));
-        lamBox.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.reset(), dataResetAction}));
+        epsBox.setPostAction(new ActionGroupSeries(() -> pc.integrator.reset(), dataResetAction));
+        lamBox.setPostAction(new ActionGroupSeries(() -> pc.integrator.reset(), dataResetAction));
 
         pressureSlider.setUnit(pUnit);
         pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure (" + pUnit.symbol() + ")", TitledBorder.CENTER, TitledBorder.TOP));
@@ -570,7 +570,7 @@ public class PistonCylinderGraphicFasterer extends SimulationGraphic {
         double p = pUnit.toSim(pressureSlider.getValue());
         pistonPotential.setPressure(D == 3 ? -p : p);
         pressureSlider.setModifier(new ModifierPistonPressureFasterer(space, pistonPotential, pDim));
-        pressureSlider.setPostAction(new ActionGroupSeries(new IAction[]{() -> pc.integrator.pistonUpdateRequested(), dataResetAction}));
+        pressureSlider.setPostAction(new ActionGroupSeries(() -> pc.integrator.pistonUpdateRequested(), dataResetAction));
         pressureSlider.getSlider().setEnabled(!pistonPotential.isStationary());
         pressureSlider.getTextField().setEnabled(!pistonPotential.isStationary());
 
@@ -593,8 +593,8 @@ public class PistonCylinderGraphicFasterer extends SimulationGraphic {
             densityBox.setLabel("Set Density (" + dUnit.symbol() + ")");
             densityBox.setUnit(dUnit);
             densityBox.setModifier(new ModifierPistonDensity());
-            densityBox.setPostAction(new ActionGroupSeries(new IAction[]{new IntegratorReset(pc.integrator, true),
-                    getPaintAction(pc.box), dataResetAction}));
+            densityBox.setPostAction(new ActionGroupSeries(new IntegratorReset(pc.integrator, true),
+                    getPaintAction(pc.box), dataResetAction));
         }
 
         //  data panel

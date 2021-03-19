@@ -186,14 +186,12 @@ public class DCVGCMDGraphicFasterer extends SimulationGraphic {
 		SimulationRestart simRestart = (SimulationRestart) getController().getReinitButton().getAction();
 		simRestart.setConfiguration(sim.config);
 		ActionGroupSeries reinitActions = new ActionGroupSeries();
-		reinitActions.addAction(new IAction() {
-			public void actionPerformed() {
-				sim.box.setNMolecules(sim.species1, 20);
-				sim.box.setNMolecules(sim.species2, 20);
-				meterAPump.actionPerformed();
-				meterBPump.actionPerformed();
-				tpump.actionPerformed();
-			}
+		reinitActions.addAction(() -> {
+			sim.box.setNMolecules(sim.species1, 20);
+			sim.box.setNMolecules(sim.species2, 20);
+			meterAPump.actionPerformed();
+			meterBPump.actionPerformed();
+			tpump.actionPerformed();
 		});
 		reinitActions.addAction(simRestart);
 
