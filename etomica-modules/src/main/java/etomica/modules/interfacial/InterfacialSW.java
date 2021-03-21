@@ -68,7 +68,7 @@ public class InterfacialSW extends Simulation {
 
         //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         if (space.D() == 2) {
             integrator.setTemperature(0.4);
             N = 300;

@@ -13,6 +13,7 @@ import etomica.data.histogram.HistogramExpanding;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryComplete;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -66,10 +67,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         this.sim = simulation;
 
 
-        final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxA);
+        final MeterPotentialEnergyFromIntegrator meterPEAinA = new MeterPotentialEnergyFromIntegrator(sim.integratorA);
         final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxB);
         final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxA);
-        final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxB);
+        final MeterPotentialEnergyFromIntegrator meterPEBinB = new MeterPotentialEnergyFromIntegrator(sim.integratorB);
 
         final int na = 11;
         final MeterOverlap meterOverlapA = new MeterOverlap(meterPEAinA, meterPEBinA, 1.0, true);

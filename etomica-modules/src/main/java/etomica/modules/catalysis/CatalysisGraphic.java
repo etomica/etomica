@@ -96,19 +96,19 @@ public class CatalysisGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim.interactionTracker.getAgentManager());
-        colorScheme.setColor(sim.speciesO.getLeafType(),java.awt.Color.RED);
-        colorScheme.setColor(sim.speciesC.getLeafType(),java.awt.Color.BLUE);
-        colorScheme.setColor(sim.speciesSurface.getLeafType(),Color.GRAY);
-        colorScheme.setRadicalColor(sim.speciesO.getLeafType(),Color.PINK);
-        colorScheme.setRadicalColor(sim.speciesC.getLeafType(),Color.CYAN);
-        colorScheme.setFullBondColor(sim.speciesC.getLeafType(),Color.YELLOW);
+        colorScheme.setColor(sim.speciesO.getLeafType(), java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesC.getLeafType(), java.awt.Color.BLUE);
+        colorScheme.setColor(sim.speciesSurface.getLeafType(), Color.GRAY);
+        colorScheme.setRadicalColor(sim.speciesO.getLeafType(), Color.PINK);
+        colorScheme.setRadicalColor(sim.speciesC.getLeafType(), Color.CYAN);
+        colorScheme.setFullBondColor(sim.speciesC.getLeafType(), Color.YELLOW);
         getDisplayBox(sim.box).setColorScheme(colorScheme);
-		
-		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
+
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureHistory);
+        final DataPumpListener temperaturePump = new DataPumpListener(thermometer, temperatureHistory);
         sim.integrator.getEventManager().addListener(temperaturePump);
-		dataStreamPumps.add(temperaturePump);
+        dataStreamPumps.add(temperaturePump);
         DisplayPlotXChart temperatureHistoryPlot = new DisplayPlotXChart();
         temperatureHistory.setDataSink(temperatureHistoryPlot.getDataSet().makeDataSink());
         temperatureHistoryPlot.setLabel("Temperature");

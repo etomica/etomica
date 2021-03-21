@@ -15,7 +15,6 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -25,23 +24,23 @@ import etomica.util.random.IRandom;
  * An MC Move for cluster simulations that bends the bond angle for 3-atom
  * molecule.  The COM is not moved and both end atoms are moved by the same
  * amount such that the move does not alter the orientation of the molecule.
- * 
+ *
  * @author Andrew Schultz
  */
 public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
-    public MCMoveClusterAngleBend(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-    	this(potentialMaster,sim.getRandom(), 1.0, _space);
+    public MCMoveClusterAngleBend(IRandom random, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, random, 1.0, _space);
     }
-    
+
     public MCMoveClusterAngleBend(PotentialMaster potentialMaster,
                                   IRandom random, double stepSize, Space _space) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
         moleculeSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
-        setStepSizeMax(Math.PI/2);
+        ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
+        setStepSizeMax(Math.PI / 2);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
         perParticleFrequency = true;

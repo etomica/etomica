@@ -95,10 +95,10 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         //combo box to select potentials
-        sigBox = new DeviceBox();
-        epsBox = new DeviceBox();
-        massBox = new DeviceBox();
-        tetherBox = new DeviceBox();
+        sigBox = new DeviceBox(sim.getController());
+        epsBox = new DeviceBox(sim.getController());
+        massBox = new DeviceBox(sim.getController());
+        tetherBox = new DeviceBox(sim.getController());
         membraneThicknessSlider = new DeviceSlider(sim.getController());
         membraneWidthSlider = new DeviceSlider(sim.getController());
         soluteChargeSlider = new DeviceSlider(sim.getController());
@@ -248,10 +248,6 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         tetherBox.setModifier(tetherModifier);
         tetherBox.setLabel("Tether Constant (" + eUnit.symbol() + ")");
         tetherBox.setPostAction(resetDataAction);
-        sigBox.setController(sim.getController());
-        epsBox.setController(sim.getController());
-        massBox.setController(sim.getController());
-        tetherBox.setController(sim.getController());
         membraneThicknessSlider.setLabel("Membrane Thickness");
         membraneThicknessSlider.setShowBorder(true);
         membraneThicknessSlider.setMinimum(1);
@@ -317,7 +313,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
         thermometer.setKineticEnergyMeter(new MeterKineticEnergyFromIntegrator(sim.integrator));
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
@@ -367,7 +363,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         kePumpListener.setInterval(10);
         dataStreamPumps.add(kePump);
 
-        MeterFlux meterFlux = new MeterFlux(sim, space);
+        MeterFlux meterFlux = new MeterFlux(sim.getSpeciesManager(), space);
         double xLength = sim.box.getBoundary().getBoxSize().getX(0);
         meterFlux.setBoundaries(0, new double[]{-0.25 * xLength, 0.25 * xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);

@@ -12,8 +12,8 @@ import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator for DMD with a piston (P1HardMovingBoundary)
@@ -24,10 +24,10 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster
      * @param potentialMaster Potential between piston and every atom in the box
      */
-    public IntegratorHardPiston(Simulation sim,
+    public IntegratorHardPiston(IRandom random,
                                 PotentialMaster potentialMaster,
                                 P1HardMovingBoundary potentialWrapper, Box box) {
-        super(sim, potentialMaster, box);
+        super(random, potentialMaster, box);
         setTimeStep(1.0);
         pistonPotential = potentialWrapper;
         atomSetSinglet = new AtomSetSinglet();

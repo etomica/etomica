@@ -6,7 +6,6 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
@@ -58,18 +57,18 @@ public class GEMCWithRotation extends Simulation {
         addSpecies(species);
 
         double sigma = 1.2;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         integrator = new IntegratorGEMC(getRandom(), space);
         integrator.setTemperature(0.420);
         integrator.setEventInterval(400);
 
-        getController().setSleepPeriod(1);
+//        getController().setSleepPeriod(1);
         getController().addActivity(new ActivityIntegrate(integrator));
 
         box1 = this.makeBox();
         box1.setNMolecules(species, 200);
 
-        IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster, box1);
+        IntegratorMC integratorMC1 = new IntegratorMC(this.getRandom(), potentialMaster, box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
@@ -79,7 +78,7 @@ public class GEMCWithRotation extends Simulation {
 
         box2 = this.makeBox();
         box2.setNMolecules(species, 200);
-        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster, box2);
+        IntegratorMC integratorMC2 = new IntegratorMC(this.getRandom(), potentialMaster, box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));

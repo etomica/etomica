@@ -5,7 +5,6 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -117,10 +116,10 @@ protected final SpeciesGeneral species;
         potentialMaster.addPotential(pTarget, new ISpecies[]{species, species});
 
         // integrator from potential master
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
 // add mc move
-        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);        // stepSize:1.0, stepSizeMax:15.0
-        rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
+        moveMolecule = new MCMoveMolecule(potentialMaster, this.getRandom(), space);        // stepSize:1.0, stepSizeMax:15.0
+		rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
 
@@ -226,20 +225,20 @@ protected final SpeciesGeneral species;
 		MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 		AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
 		DataPump energyPump = new DataPump(energyMeter, energyAccumulator);
-        energyAccumulator.setBlockSize(50);
-        IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
+		energyAccumulator.setBlockSize(50);
+		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 		sim.integrator.getEventManager().addListener(energyListener);
 
-        //AEE
-        DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space,dipoleStrength);// add reaction field potential
-		MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box,sim, dipoleStrength,temperature,sim.potentialMaster);
+		//AEE
+		DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space, dipoleStrength);// add reaction field potential
+		MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
 		AEEMeter.setDipoleSource(dipoleDHS);
-		AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
-		DataPump AEEPump = new DataPump(AEEMeter,AEEAccumulator);
+		AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
+		DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
 		IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
 
 
-        //TODO
+		//TODO
 		AEEListener.setInterval(sampleAtInterval);//TODO
 //		AEEListener.setInterval(1);
 		//TODO

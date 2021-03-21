@@ -31,7 +31,6 @@ import etomica.species.SpeciesGeneral;
  */
 public class Adsorption extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public final SpeciesGeneral speciesA, speciesB;
     public final Box box;
     public final IntegratorHard integratorMD;
@@ -57,10 +56,10 @@ public class Adsorption extends Simulation {
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
 
         //controller and integrator
-        integratorMD = new IntegratorHard(this, potentialMaster, box);
+        integratorMD = new IntegratorHard(random, potentialMaster, box);
         integratorMD.setTimeStep(0.005);
         integratorMD.setIsothermal(true);
-        integratorMD.setThermostatInterval(10000);
+        integratorMD.setThermostatInterval(50);
 
         integratorMC = new IntegratorMC(potentialMaster, random, 2, box);
         integratorMC.setTemperature(1);

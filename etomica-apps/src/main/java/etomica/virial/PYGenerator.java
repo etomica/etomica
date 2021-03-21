@@ -4,43 +4,25 @@
 
 package etomica.virial;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import etomica.graph.iterators.DefaultIterator;
 import etomica.graph.iterators.filters.IsomorphismFilter;
 import etomica.graph.iterators.filters.PropertyFilter;
-import etomica.graph.model.BitmapFactory;
-import etomica.graph.model.Coefficient;
-import etomica.graph.model.Edge;
-import etomica.graph.model.Graph;
-import etomica.graph.model.GraphFactory;
-import etomica.graph.model.GraphIterator;
-import etomica.graph.model.GraphList;
-import etomica.graph.model.Metadata;
+import etomica.graph.model.*;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
-import etomica.graph.operations.AllIsomorphs;
+import etomica.graph.operations.*;
 import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
-import etomica.graph.operations.GraphOp;
-import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.IsoFree.IsoFreeParams;
-import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
-import etomica.graph.operations.MulScalar;
-import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.SplitOneBiconnected;
 import etomica.graph.operations.SplitOneBiconnected.SplitOneParametersBC;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.Property;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.integralequation.IEGenerator;
+
+import java.util.*;
 
 public class PYGenerator extends IEGenerator {
 

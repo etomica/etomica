@@ -12,8 +12,10 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.*;
-import etomica.simulation.Simulation;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationPhiSumHeisenberg;
+import etomica.potential.PotentialCalculationTorqueSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -25,7 +27,6 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
     protected final Space space;
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective allAtoms;
-    protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected etomica.spin.heisenberg.PotentialCalculationPhiSum secondDerivativeSum;
@@ -41,7 +42,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, int nMax) {
+    public MeterMappedAveraging(Box box, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 5;
         data = new DataDoubleArray(nValues);
@@ -49,7 +50,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         this.potentialMaster = potentialMaster;
         J = interactionS;
@@ -63,7 +64,6 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
-        energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);

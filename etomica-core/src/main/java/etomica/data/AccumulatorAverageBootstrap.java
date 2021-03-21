@@ -799,6 +799,20 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         rawData3 = new double[1 << maxNumBlocks];
         rawDataBlockSize = 0;
         nRawData = 0;
+        if (histogramSinks != null) {
+            for (int i = 0; i < histogramSinks.size(); i++) {
+                initHistogram(i, histogramSinks.get(i));
+                if (histogramSinks.get(i) != null) {
+                    IData histogramData = histograms.get(i);
+                    histogramSinks.get(i).putData(histogramData);
+                }
+            }
+        }
+        if (histogramList != null) {
+            for (Histogram h : histogramList) {
+                h.reset();
+            }
+        }
     }
 
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {

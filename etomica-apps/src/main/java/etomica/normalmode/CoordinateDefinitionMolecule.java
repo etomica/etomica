@@ -11,9 +11,9 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 
 import java.io.Serializable;
 
@@ -22,23 +22,22 @@ import java.io.Serializable;
  * space.D values of u to be real space displacements of the molecule center of
  * mass from its nominal position. Subclasses should add additional u values for
  * intramolecular degrees of freedom.
- * 
+ *
  * @author Andrew Schultz
  */
-public class CoordinateDefinitionMolecule extends CoordinateDefinition
-        implements Serializable {
+public class CoordinateDefinitionMolecule extends CoordinateDefinition {
 
-    public CoordinateDefinitionMolecule(Simulation sim, Box box, Primitive primitive, int orientationDim, Space space) {
-        this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
+    public CoordinateDefinitionMolecule(SpeciesManager sm, Box box, Primitive primitive, int orientationDim, Space space) {
+        this(sm, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
-    
-    public CoordinateDefinitionMolecule(Simulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
-        super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
-        this.sim = sim;
+
+    public CoordinateDefinitionMolecule(SpeciesManager sm, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
+        super(box, (space.D() + orientationDim) * basis.getScaledCoordinates().length, primitive, basis, space);
+        this.sm = sm;
         work1 = space.makeVector();
         inflate = new BoxInflate(space);
         inflate.setBox(box);
-       
+
         u = new double[coordinateDim];
         setPositionDefinition(new MoleculePositionGeometricCenter(space));
         rScale = 1.0;
@@ -46,7 +45,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     
     public void initializeCoordinates(int[] nCells) {
         super.initializeCoordinates(nCells);
-        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sm, box, new MoleculeSiteSource(space, positionDefinition));
     }
 
     public double[] calcU(IMoleculeList molecules) {
@@ -116,8 +115,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     	this.initVolume = initV;
     }
     
-    private static final long serialVersionUID = 1L;
-    protected final Simulation sim;
+    protected final SpeciesManager sm;
     protected MoleculeAgentManager<Vector> moleculeSiteManager;
     protected final Vector work1;
     protected final double[] u;

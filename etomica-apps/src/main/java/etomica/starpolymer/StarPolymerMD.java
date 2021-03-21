@@ -14,7 +14,10 @@ import etomica.data.meter.MeterRadiusGyration;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.*;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
@@ -65,7 +68,7 @@ public class StarPolymerMD extends Simulation {
         } else {
             potentialMaster = new PotentialMaster();
         }
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integratorMD = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integratorMD.setTimeStep(tStep);
         integratorMD.setTemperature(temperature);
         integratorMD.setIsothermal(true);

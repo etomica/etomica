@@ -49,7 +49,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      *            if null, specifies use of atom type's position definition
      */
     public PotentialMasterListMolecular(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
-        this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim, positionDefinition, _space), _space);
+        this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim.getSpeciesManager(), positionDefinition, _space), _space);
     }
 
     public PotentialMasterListMolecular(Simulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, Space _space) {
@@ -166,11 +166,11 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         // (since recomputeCriteriaRange will bail in that case)
         NeighborCriterionMolecular criterion;
         if (species.length == 2) {
-            CriterionSimpleMolecular rangedCriterion = new CriterionSimpleMolecular(getSimulation(), space, potential.getRange(), 0.0);
+            CriterionSimpleMolecular rangedCriterion = new CriterionSimpleMolecular(simulation, space, potential.getRange(), 0.0);
             criterion = new CriterionSpeciesPair(rangedCriterion, species[0], species[1]);
          
             if (species[0] == species[1]) {
-                criterion = new CriterionSimpleMolecular(getSimulation(), space, potential.getRange(), 0.0);
+                criterion = new CriterionSimpleMolecular(simulation, space, potential.getRange(), 0.0);
             }
         } else if(species.length == 1){
         	criterion = new CriterionSpecies(new CriterionAllMolecular(), species[0]);

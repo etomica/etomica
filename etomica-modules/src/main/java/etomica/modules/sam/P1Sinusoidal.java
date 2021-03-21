@@ -8,12 +8,12 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IPotential;
-import etomica.potential.PotentialSoft;
+import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class P1Sinusoidal implements IPotential, PotentialSoft {
+public class P1Sinusoidal implements IPotential, IPotentialField {
 
     public P1Sinusoidal(Space space) {
         this.space = space;
@@ -21,7 +21,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         this.offset = space.makeVector();
         r = space.makeVector();
         waveVectors = new Vector[3];
-        setCellSize(1,1);
+        setCellSize(1, 1);
         gradient = new Vector[1];
         gradient[0] = space.makeVector();
     }

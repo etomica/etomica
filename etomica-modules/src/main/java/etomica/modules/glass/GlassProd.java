@@ -139,7 +139,7 @@ public class GlassProd {
         //Viscosity
         DataFork pTensorFork = new DataFork();
         int dn = 1;
-        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.integrator, dn*sim.integrator.getTimeStep());
+        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.box, dn * sim.integrator.getTimeStep());
         pTensorAccumVisc.setEnabled(true);
         pTensorFork.addDataSink(pTensorAccumVisc);
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
@@ -195,7 +195,7 @@ public class GlassProd {
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 5);
             sim.integrator.getEventManager().addListener(pumpPE);
 
-            MeterTemperature tMeter = new MeterTemperature(sim, sim.box, params.D);
+            MeterTemperature tMeter = new MeterTemperature(sim.getSpeciesManager(), sim.box, params.D);
             tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
             DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
             tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(),  new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
@@ -225,14 +225,14 @@ public class GlassProd {
         DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
         configStorageMSD.addListener(meterMSDB);
 
-        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
+        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.timeSource);
         dsCorMSD.setMinInterval(3);
         meterMSD.addMSDSink(dsCorMSD);
         dsCorMSD.setEnabled(true);
-        DataSourceBlockAvgCor dsCorP = new DataSourceBlockAvgCor(sim.integrator);
+        DataSourceBlockAvgCor dsCorP = new DataSourceBlockAvgCor(sim.timeSource);
         pFork.addDataSink(dsCorP);
         dsCorP.setEnabled(true);
-        DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
+        DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.timeSource);
         pFork.addDataSink(dsMSDcorP);
         meterMSD.addMSDSink(dsMSDcorP);
         dsMSDcorP.setEnabled(true);
@@ -324,7 +324,7 @@ public class GlassProd {
 
         AtomStressSource stressSource = null;
         if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
-            AtomHardStressCollector ahsc = new AtomHardStressCollector((IntegratorHard) sim.integrator);
+            AtomHardStressCollector ahsc = new AtomHardStressCollector(sim.timeSource);
             ((IntegratorHard) sim.integrator).addCollisionListener(ahsc);
             stressSource = ahsc;
         } else {

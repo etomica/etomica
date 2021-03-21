@@ -270,17 +270,6 @@ public class SimLJHTTISuperSFMD extends Simulation {
             System.out.print(String.format("Cvraw: % 21.15e  %10.4e  % 6.3f\n", avgCv / numAtoms, errCv / numAtoms, corCv));
 //            System.out.print(String.format("Cvc0:  % 21.15e  %10.4e  % 6.3f\n", avgRawData.getValue(6) / numAtoms, errCvc / numAtoms, corCvc));
             System.out.print(String.format("Cvc:   % 21.15e  %10.4e  % 6.3f\n", avgCvc / numAtoms, errCvc / numAtoms, corCvc));
-
-            y = avgDadv2 * numAtoms;
-            ey = errDadv2 * numAtoms;
-            double avgCvc2 = avgRawData.getValue(7) - y * y;
-            coru2u = covData.getValue(4 * n + 7) / Math.sqrt(covData.getValue(4 * n + 4) * covData.getValue(7 * n + 7));
-            double errCvc2 = Math.sqrt(errRawData.getValue(7) * errRawData.getValue(7) + 4 * y * y * ey * ey - 4 * y * ey * errRawData.getValue(7) * coru2u);
-            double corCvc2 = corRawData.getValue(7);
-
-//            System.out.print(String.format("Cvcraw:% 21.15e  %10.4e  % 6.3f\n", avgRawData.getValue(7) / numAtoms, errRawData.getValue(7) / numAtoms, corCvc2));
-            System.out.print(String.format("Cvc:   % 21.15e  %10.4e  % 6.3f\n", avgCvc2 / numAtoms, errCvc2 / numAtoms, corCvc2));
-
         }
 
         System.out.println();

@@ -56,7 +56,7 @@ public class WaterDropletRattle {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 100;
-        IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, box);
+        IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, box);
         double lOH = ConformationWater3P.bondLengthOH;
         double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWater3P.angleHOH)));
         integrator.setBondConstraints(species, new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});

@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -60,7 +59,7 @@ public class LJMC3D extends Simulation {
         addSpecies(species);
 
         double rc = 3;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster = new PotentialMasterCell(this, rc);
 
         Box box = new Box(space);
         addBox(box);
@@ -76,7 +75,7 @@ public class LJMC3D extends Simulation {
         AtomType atomType = species.getLeafType();
         potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(params.temperature);
 
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);

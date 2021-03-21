@@ -56,7 +56,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
 
         h = space.makeTensor();
         hCopy = space.makeTensor();
-        hInv = space.makeTensor();
 
         temp1 = space.makeVector();
         temp2 = space.makeVector();
@@ -81,25 +80,33 @@ public class BoundaryDeformablePeriodic extends Boundary {
         }
         return vectors;
     }
-	
+
     //used only by constructor
     private static Polytope makeShape(Space space, Vector[] vex) {
-        switch(space.D()) {
-            case 2: return new Parallelogram(space, vex[0], vex[1]);
-            case 3: return new Parallelepiped(space, vex[0], vex[1], vex[2]);
-            default: throw new IllegalArgumentException("BoundaryDeformablePeriodic not appropriate to given space");
+        switch (space.D()) {
+            case 2:
+                return new Parallelogram(space, vex[0], vex[1]);
+            case 3:
+                return new Parallelepiped(space, vex[0], vex[1], vex[2]);
+            default:
+                throw new IllegalArgumentException("BoundaryDeformablePeriodic not appropriate to given space");
         }
+    }
+
+    @Override
+    public boolean isRectangular() {
+        return false;
     }
 
     /**
      * Returns the length of the sides of a rectangular box oriented in the lab
      * frame and in which the boundary is inscribed.
      */
-	public Vector getBoxSize() {
+    public Vector getBoxSize() {
         Vector[] vertices = shape.getVertices();
         temp1.E(vertices[0]);
         temp2.E(vertices[0]);
-        for(int i=1; i<vertices.length; i++) {
+        for (int i = 1; i < vertices.length; i++) {
             for (int j=0; j<space.D(); j++) {
                 temp1.setX(j,Math.min(vertices[i].getX(j),temp1.getX(j)));
                 temp2.setX(j,Math.max(vertices[i].getX(j),temp2.getX(j)));
@@ -432,7 +439,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private double volume;
     private Tensor h;
     private Tensor hCopy;
-    private final Tensor hInv;
     private final Vector[] edgeVectors;
     private final Vector temp1;
     private final Vector temp2;

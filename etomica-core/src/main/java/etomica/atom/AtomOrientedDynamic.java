@@ -13,7 +13,6 @@ import etomica.space3d.OrientationFull3D;
 public class AtomOrientedDynamic extends AtomLeafDynamic implements
         IAtomOrientedKinetic {
 
-    private static final long serialVersionUID = 1L;
     protected final IOrientation iOrientation;
     protected final Vector angularVelocity;
 
@@ -43,5 +42,11 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
 
     public IOrientation getOrientation() {
         return iOrientation;
+    }
+
+    public void copyCoordinatesFrom(IAtom atom) {
+        super.copyCoordinatesFrom(atom);
+        iOrientation.E(((IAtomOriented) atom).getOrientation());
+        angularVelocity.E(((IAtomOrientedKinetic) atom).getAngularVelocity());
     }
 }

@@ -3,18 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
+
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.dimensions.Angle;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Null;
+import etomica.space.Vector;
+import etomica.units.dimensions.*;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 
@@ -186,10 +183,6 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
         boundary = box.getBoundary();
     }
 
-	public double hyperVirial(IAtomList pair) {
-		return 0;
-	}
-
 	public double integral(double rC) {
 		double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
@@ -203,25 +196,31 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
 	}
 
 
-	public double u(double r2) {
-		double s2 = sigmaSquared/r2;
-        double s6 = s2*s2*s2;
-		return epsilon4*s6*(s6 - 1.0);
-	}
+    public double u(double r2) {
+        double s2 = sigmaSquared / r2;
+        double s6 = s2 * s2 * s2;
+        return epsilon4 * s6 * (s6 - 1.0);
+    }
 
+    @Override
     public double du(double r2) {
         return 0;
     }
 
-	public Vector[] gradient(IAtomList atoms) {
-		return null;
-	}
+    @Override
+    public double d2u(double r2) {
+        return 0;
+    }
 
-	public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-		return null;
-	}
+    public Vector[] gradient(IAtomList atoms) {
+        return null;
+    }
 
-	public double virial(IAtomList atoms) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return null;
+    }
+
+    public double virial(IAtomList atoms) {
 		return 0;
 	}
 }

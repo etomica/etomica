@@ -55,17 +55,19 @@ public class ConfigurationSAM implements Configuration {
     public void initializeCoordinates(Box box) {
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
-        potentialMaster.getNbrCellManager(pretendBox).setDoApplyPBC(true);
-        potentialMaster.getNeighborManager(pretendBox).setDoApplyPBC(false);
+        if (potentialMaster != null) {
+            potentialMaster.getNbrCellManager(pretendBox).setDoApplyPBC(true);
+            potentialMaster.getNeighborManager(pretendBox).setDoApplyPBC(false);
+        }
         box.setNMolecules(speciesMolecules, 0);
         box.setNMolecules(speciesSurface, 0);
-        int nMolecules = nCellsX*nCellsZ*basisMolecules.getScaledCoordinates().length;
+        int nMolecules = nCellsX * nCellsZ * basisMolecules.getScaledCoordinates().length;
         pretendBox.setNMolecules(speciesMolecules, nMolecules);
-        
+
         Vector dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
-        dim.setX(0, nCellsX*cellSizeX);
-        dim.setX(2, nCellsZ*cellSizeZ);
+        dim.setX(0, nCellsX * cellSizeX);
+        dim.setX(2, nCellsZ * cellSizeZ);
         double boxLengthY = dim.getX(1);
         box.getBoundary().setBoxSize(dim);
         pretendBox.getBoundary().setBoxSize(dim);

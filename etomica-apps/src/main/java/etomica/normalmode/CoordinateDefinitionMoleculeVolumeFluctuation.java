@@ -11,36 +11,33 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-
-import java.io.Serializable;
+import etomica.species.SpeciesManager;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
  * space.D values of u to be real space displacements of the molecule center of
  * mass from its nominal position. Subclasses should add additional u values for
  * intramolecular degrees of freedom.
- * 
+ * <p>
  * with an extra degree of freedom for volume fluctuation
- * 
+ *
  * @author Andrew Schultz & Tai Boon Tan
  */
-public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDefinition
-        implements Serializable {
+public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDefinition {
 
-    public CoordinateDefinitionMoleculeVolumeFluctuation(Simulation sim, Box box, Primitive primitive, int orientationDim, Space space) {
-        this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
+    public CoordinateDefinitionMoleculeVolumeFluctuation(SpeciesManager sm, Box box, Primitive primitive, int orientationDim, Space space) {
+        this(sm, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
-    
-    public CoordinateDefinitionMoleculeVolumeFluctuation(Simulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
-        super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+1), primitive, basis, space);
-        this.sim = sim;
+
+    public CoordinateDefinitionMoleculeVolumeFluctuation(SpeciesManager sm, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
+        super(box, ((space.D() + orientationDim) * basis.getScaledCoordinates().length + 1), primitive, basis, space);
+        this.sm = sm;
         work1 = space.makeVector();
         inflate = new BoxInflate(space);
         inflate.setBox(box);
-        
+
         u = new double[coordinateDim];
         setPositionDefinition(new MoleculePositionGeometricCenter(space));
         rScale = 1.0;
@@ -48,7 +45,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     
     public void initializeCoordinates(int[] nCells) {
         super.initializeCoordinates(nCells);
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sm, box, new MoleculeSiteSource(space, positionDefinition));
     }
 
     public double[] calcU(IMoleculeList molecules) {
@@ -132,7 +129,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     }
     
     public Vector getLatticePosition(IMolecule molecule) {
-        return (Vector)moleculeSiteManager.getAgent(molecule);
+        return moleculeSiteManager.getAgent(molecule);
     }
     
     public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
@@ -143,14 +140,13 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     public IMoleculePositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
-    
-    public void setInitVolume(Vector initV){
-    	this.initVolume = initV;
+
+    public void setInitVolume(Vector initV) {
+        this.initVolume = initV;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected final Simulation sim;
-    protected MoleculeAgentManager moleculeSiteManager;
+
+    protected final SpeciesManager sm;
+    protected MoleculeAgentManager<Vector> moleculeSiteManager;
     protected final Vector work1;
     protected final double[] u;
     protected IMoleculePositionDefinition positionDefinition;
@@ -158,24 +154,24 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     protected Vector initVolume;
     protected final BoxInflate inflate;
 
-    protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
-        
+    protected static class MoleculeSiteSource implements MoleculeAgentSource<Vector> {
+
         public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition) {
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
 
-        public Object makeAgent(IMolecule molecule) {
+        public Vector makeAgent(IMolecule molecule) {
             Vector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));
             return vector;
         }
-        public void releaseAgent(Object agent, IMolecule molecule) {
+
+        public void releaseAgent(Vector agent, IMolecule molecule) {
             //nothing to do
         }
 
         private final Space space;
         protected final IMoleculePositionDefinition positionDefinition;
-        private static final long serialVersionUID = 1L;
     }
 }

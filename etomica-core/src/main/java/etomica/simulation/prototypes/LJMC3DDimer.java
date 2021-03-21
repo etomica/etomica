@@ -6,7 +6,6 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -89,10 +88,10 @@ public class LJMC3DDimer extends Simulation {
         P22CLJmuQ p2 = new P22CLJmuQ(space, 3.0058, 3.56379, 51.8037, 31.5550, mu, Q, 0.4847 / (0.4847 + 0.6461));
         potentialMaster.addPotential(p2, new ISpecies[]{species, species});
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(params.temperatureK));
 
-        MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(potentialMaster, random, space, 1, 1);
+        MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(potentialMaster, random, space, 1, box.getBoundary().getBoxSize().getX(0) / 2);
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
 
         MCMoveRotateMolecule3D mcMoveRotate = new MCMoveRotateMolecule3D(potentialMaster, random, space);
@@ -120,6 +119,7 @@ public class LJMC3DDimer extends Simulation {
         int interval = 10;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
+        if (blockSize == 0) blockSize = 1;
 
         System.out.println("Lennard-Jones Monte Carlo simulation");
         System.out.println("N: " + params.numAtoms);
@@ -151,12 +151,20 @@ public class LJMC3DDimer extends Simulation {
         long t2 = System.currentTimeMillis();
 
         DataGroup dataPE = (DataGroup) acc.getData();
-        int numAtoms = sim.getBox(0).getLeafList().size();
+        int numAtoms = sim.getBox(0).getNMolecules(sim.species());
         double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
         double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
         double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
 
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
+
+        DataGroup dataP = (DataGroup) accp.getData();
+        double avgP = dataP.getValue(accp.AVERAGE.index);
+        double errP = dataP.getValue(accp.ERROR.index);
+        double corP = dataP.getValue(accp.BLOCK_CORRELATION.index);
+
+        System.out.println("pressure avg: " + avgP + "  err: " + errP + "  cor: " + corP);
+
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 

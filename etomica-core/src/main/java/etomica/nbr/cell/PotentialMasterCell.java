@@ -13,8 +13,8 @@ import etomica.molecule.IMoleculeList;
 import etomica.nbr.*;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.Debug;
 
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.List;
  */
 public class PotentialMasterCell extends PotentialMasterNbr {
 
+    protected final SpeciesManager sm;
     private double range;
     private int cellRange;
     private final BoxAgentSourceCellManager cellManagerSource;
@@ -37,27 +38,27 @@ public class PotentialMasterCell extends PotentialMasterNbr {
      * Creates PotentialMasterCell with default (1.0) range.  Range
      * should be set manually via setRange method.
      */
-    public PotentialMasterCell(Simulation sim, Space _space) {
-        this(sim, 1.0, _space);
+    public PotentialMasterCell(Simulation sim) {
+        this(sim, 1.0);
     }
 
     /**
      * Constructs with null AtomPositionDefinition, which indicates the position
      * definition given with each atom's AtomType should be used.
      *
-     * @param _space the governing Space
-     * @param range  the neighbor distance.  May be changed after construction.
+     * @param range the neighbor distance.  May be changed after construction.
      */
-    public PotentialMasterCell(Simulation sim, double range, Space _space) {
+    public PotentialMasterCell(Simulation sim, double range) {
         this(sim, range, new BoxAgentSourceCellManager(null, range));
     }
 
     public PotentialMasterCell(Simulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
-        super(sim);
+        super(sim.getSpeciesManager());
+        this.sm = sim.getSpeciesManager();
         this.range = range;
         this.cellManagerSource = boxAgentSource;
         this.neighborCellManagers = new BoxAgentManager<>(boxAgentSource, sim);
-        this.neighborIterators = new BoxAgentManager<NeighborIterator>(sim, box -> new NeighborIteratorCell(neighborCellManagers.getAgent(box)));
+        this.neighborIterators = new BoxAgentManager<>(sim, box -> new NeighborIteratorCell(neighborCellManagers.getAgent(box)));
         setRange(range);
     }
 
@@ -140,11 +141,11 @@ public class PotentialMasterCell extends PotentialMasterNbr {
         for (int i = 0; i < atoms.size(); i++) {
             calculate(atoms.get(i), neighborIterators.getAgent(box), pc, IteratorDirective.Direction.UP);
         }
-        for (int i = 0; i < simulation.getSpeciesCount(); i++) {
-            PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(i));
+        for (int i = 0; i < sm.getSpeciesCount(); i++) {
+            PotentialArray intraPotentialArray = getIntraPotentials(sm.getSpecies(i));
             IPotential[] intraPotentials = intraPotentialArray.getPotentials();
             if (intraPotentials.length > 0) {
-                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
+                IMoleculeList moleculeList = box.getMoleculeList(sm.getSpecies(i));
                 for (int j = 0; j < moleculeList.size(); j++) {
                     for (IPotential intraPotential : intraPotentials) {
                         ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);

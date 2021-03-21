@@ -17,7 +17,7 @@ import etomica.species.SpeciesGeneral;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
-import etomica.virial.simulations.VirialLJ;
+import etomica.virial.simulations.VirialLJD;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -35,7 +35,7 @@ public class BenchSimVirialLJ {
 
     @Setup(Level.Iteration)
     public void setUp() {
-        VirialLJ.VirialLJParam params = new VirialLJ.VirialLJParam();
+        VirialLJD.VirialLJParam params = new VirialLJD.VirialLJParam();
         params.nPoints = 4;
         params.temperature = 1;
         params.numSteps = 10000000L;
@@ -64,7 +64,7 @@ public class BenchSimVirialLJ {
         new Runner(opts).run();
     }
 
-    public static SimulationVirialOverlap2 setupVirial(VirialLJ.VirialLJParam params) {
+    public static SimulationVirialOverlap2 setupVirial(VirialLJD.VirialLJParam params) {
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
         long steps = params.numSteps;

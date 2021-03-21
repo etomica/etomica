@@ -13,6 +13,7 @@ import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -43,6 +44,14 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         dimensionsHalf = space.makeVector();
         indexIterator = new IndexIteratorRectangular(space.D());
         updateDimensions();
+    }
+
+    public boolean isRectangular() {
+        return false;
+    }
+
+    public Tensor getHInv() {
+        return null;
     }
 
     public boolean getPeriodicity(int i) {

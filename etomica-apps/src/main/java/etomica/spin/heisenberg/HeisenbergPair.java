@@ -66,7 +66,7 @@ public class HeisenbergPair extends Simulation {
         box.setNMolecules(spins, numAtoms);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this, null, box);
+        integrator = new IntegratorMC(this.getRandom(), null, box);
         mcMove = new MCMoveRotatePair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);
@@ -140,7 +140,7 @@ public class HeisenbergPair extends Simulation {
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
 //            AEEMeter = new MeterMappedAveragingPair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
-            AEEMeter = new MeterMappedAveragingVSumPair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential,nMax);
+            AEEMeter = new MeterMappedAveragingVSumPair(sim.box, temperature, interactionS, dipoleMagnitude, sim.potential, nMax);
 
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);

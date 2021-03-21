@@ -5,7 +5,6 @@
 package etomica.modules.insertion;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -22,7 +21,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.util.random.RandomMersenneTwister;
 
 public class Insertion extends Simulation {
     
@@ -35,7 +33,6 @@ public class Insertion extends Simulation {
     
     public Insertion(Space _space) {
         super(_space);
-        setRandom(new RandomMersenneTwister(2));
 
         // species
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
@@ -44,7 +41,7 @@ public class Insertion extends Simulation {
         ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesGhost);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager()); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
 
@@ -53,7 +50,7 @@ public class Insertion extends Simulation {
 
         //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(0.2);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(false);
@@ -83,16 +80,21 @@ public class Insertion extends Simulation {
 
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
-    
+
+    public IntegratorHard getIntegrator() {
+        return integrator;
+    }
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     space = Space3D.getInstance();
                 }
-            } catch(NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+            }
         }
             
         Insertion sim = new Insertion(space);

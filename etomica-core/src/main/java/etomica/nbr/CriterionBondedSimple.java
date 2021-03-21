@@ -27,8 +27,7 @@ public class CriterionBondedSimple extends CriterionAdapter {
     // always enforce intramolecularity
     public boolean accept(IAtom atom1, IAtom atom2) {
         int diff = atom1.getIndex() - atom2.getIndex();
-        if (isBonded != (diff == 1 || diff == -1) 
-                || (atom1.getParentGroup() != atom2.getParentGroup())) {
+        if (isBonded != ((diff == 1 || diff == -1) && (atom1.getParentGroup() == atom2.getParentGroup()))) {
             return false;
         }
         return subCriterion.accept(atom1, atom2);

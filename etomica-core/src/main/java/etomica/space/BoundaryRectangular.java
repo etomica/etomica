@@ -73,11 +73,17 @@ public abstract class BoundaryRectangular extends Boundary {
         }
     }
 
+    @Override
+    public boolean isRectangular() {
+        return true;
+    }
+
     /**
      * Returns a vector with elements equal to the lengths of the edges of
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
+    @Override
     public Vector getBoxSize() {
         return dimensions;
     }
@@ -87,6 +93,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * copied, so manipulation of the given vector has no subsequent effect
      * on this Boundary instance.
      */
+    @Override
     public void setBoxSize(Vector v) {
         dimensions.E(v);
         updateDimensions();
@@ -98,6 +105,7 @@ public abstract class BoundaryRectangular extends Boundary {
         ((Rectangular) shape).setEdgeLengths(dimensions);
         for (int i = 0; i < space.D(); i++) {
             edgeVectors[i].setX(i, dimensions.getX(i));
+            hInv.setComponent(i, i, 1.0 / dimensions.getX(i));
         }
     }
 
@@ -105,10 +113,12 @@ public abstract class BoundaryRectangular extends Boundary {
      * Returns the "volume" of the rectangular region defined by this Boundary.
      * For a 2D and 1D spaces, this volume is actually an area and length, respectively.
      */
+    @Override
     public double volume() {
         return shape.getVolume();
     }
 
+    @Override
     public Vector getEdgeVector(int d) {
         return edgeVectors[d];
     }
@@ -118,6 +128,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * The returned array is of dimension [(2*nShells+1)^D][D], where D
      * is the dimension of the space.
      */
+    @Override
     public double[][] imageOrigins(int nShells) {
         Vector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;

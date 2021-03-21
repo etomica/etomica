@@ -67,7 +67,7 @@ public class TestSnapshots {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            integrator = new IntegratorHard(this, pm, box());
+            integrator = new IntegratorHard(random, pm, box());
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 

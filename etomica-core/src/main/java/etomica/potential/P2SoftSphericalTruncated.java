@@ -64,6 +64,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         return (r2 < r2Cutoff) ? potential.du(r2) : 0.0;
     }
 
+    public void u012add(double r2, double[] u012) {
+        if (r2 > r2Cutoff) return;
+        potential.u012add(r2, u012);
+    }
+
     /**
      * Returns the 2nd derivative (r^2 d^2u/dr^2) of the wrapped potential if the separation
      * is less than the cutoff value
@@ -74,10 +79,10 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     }
 
     /**
-     * Returns the value of uInt for the wrapped potential.
+     * Returns the value of integral for the wrapped potential.
      */
-    public double uInt(double rC) {
-        return potential.uInt(rC);
+    public double integral(double rC) {
+        return potential.integral(rC);
     }
 
     /**
@@ -101,7 +106,16 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     public double getRange() {
         return rCutoff;
     }
-    
+
+    @Override
+    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        double A = space.sphereArea(1.0);
+        double D = space.D();
+        double integral = potential.integral(rCutoff);
+        uCorrection[0] = integral;
+        duCorrection[0] = (-A * space.powerD(rCutoff) * potential.u(r2Cutoff) - D * integral);
+    }
+
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
@@ -148,10 +162,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
 
         public double virial(IAtomList atoms) {
             return duCorrection(nPairs()/box.getBoundary().volume());
-        }
-
-        public double hyperVirial(IAtomList pair) {
-            return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
         }
 
         public Vector[] gradient(IAtomList atoms) {
@@ -214,6 +224,10 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         }
 
         public double du(double r2) {
+            throw new RuntimeException("nope");
+        }
+
+        public double d2u(double r2) {
             throw new RuntimeException("nope");
         }
     }//end of P0lrc

@@ -71,7 +71,7 @@ public class Catalysis extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
 
         //controller and integrator
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(0.005);
         integrator.setTemperature(Kelvin.UNIT.toSim(600));
         integrator.setIsothermal(true);

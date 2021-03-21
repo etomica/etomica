@@ -38,7 +38,6 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Dual-control-volume grand-canonical molecular dynamics simulation.
@@ -88,8 +87,6 @@ public class DCVGCMD extends Simulation {
         double springConstant = 500; //for membrane-atom tether potential
         double k12 = 1; //multiplier for propene CH and CH2 interaction with membrane atoms
 
-
-        setRandom(new RandomMersenneTwister(1));
         double massC = Carbon.INSTANCE.getMass();
         double massH = Hydrogen.INSTANCE.getMass();
         ElementSimple CH3 = new ElementSimple("CH3", massC + 3 * massH);
@@ -246,8 +243,8 @@ public class DCVGCMD extends Simulation {
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
                 propane, propene, box);
         integratorDCV.zFraction = zFraction;
-        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
+        final IntegratorMC integratorMC = new IntegratorMC(this.getRandom(), potentialMaster, box);
 
         potentialMaster.setRange(3.95 * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
@@ -257,7 +254,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
 
-        thermometer = new MeterTemperature(this, box, space.D());
+        thermometer = new MeterTemperature(getSpeciesManager(), box, space.D());
 
         integratorMD.setMeterTemperature(thermometer);
         //integrator.setSleepPeriod(1);

@@ -13,7 +13,6 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -23,23 +22,23 @@ import etomica.util.random.IRandom;
 /**
  * MC move for alkane-TraPPE-EH torsion
  * pick up carbons in the box only, but move update all the atoms(carbons and hydrogens)
- * 
+ *
  * @author shu
  * Feb 2013
  */
 public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterTorsionAlkaneEH(Simulation sim, PotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
-    this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
+    public MCMoveClusterTorsionAlkaneEH(IRandom random, PotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
+        this(potentialMaster, space, random, 1.0, torsionPotential, 20);
         setBondLength(1.0);
     }
 
     public MCMoveClusterTorsionAlkaneEH(PotentialMaster potentialMaster, Space space,
                                         IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
-    	super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
-        ((MCMoveStepTracker)getTracker()).setTunable(false);
-        probabilityBins = new double[nBins+1];
+        super(potentialMaster, random, space, stepSize, Double.POSITIVE_INFINITY);
+        ((MCMoveStepTracker) getTracker()).setTunable(false);
+        probabilityBins = new double[nBins + 1];
         binSize = new double[nBins];
-        probabilityReverseMap = new int[nBins+1];
+        probabilityReverseMap = new int[nBins + 1];
         this.torsionPotential = torsionPotential;
         setStepSizeMax(Math.PI);
         energyMeter = new MeterPotentialEnergy(potential);
@@ -61,15 +60,15 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
         int nSubBins = 100;
         double beta = 1.0/temperature;
         // numerically integrate P = exp(-beta U) from cosphi=1 to cosphi=-1 (0 to pi radians)
-        double totP = 0.5 * Math.exp(-beta*torsionPotential.energyAtAngle(1));
+        double totP = 0.5 * Math.exp(-beta * torsionPotential.u(1));
         for (int i=1; i<nSubBins * nBins; i++) {
-            double cosphi = Math.cos((Math.PI*i)/(nSubBins*nBins));
-            double u = torsionPotential.energyAtAngle(cosphi);
+            double cosphi = Math.cos((Math.PI * i) / (nSubBins * nBins));
+            double u = torsionPotential.u(cosphi);
             totP +=  Math.exp(-beta*u);
          
         }
-        
-        totP += 0.5 * Math.exp(-beta * torsionPotential.energyAtAngle(-1));
+
+        totP += 0.5 * Math.exp(-beta * torsionPotential.u(-1));
         // pPerBin is the amount of probability allocated to each bin.
         double pPerBin = totP / nBins;
         double thisBinP = 0;
@@ -93,9 +92,9 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
         // interpolate to find approximate when the sum is equal to pPerBin.
         // Call that the bin boundary and then begin summing for the next bin.
         for (int i=1; i<nSubBins * nBins + 1; i++) {
-            double cosphi = Math.cos((Math.PI*i)/(nSubBins*nBins));
-            double u = torsionPotential.energyAtAngle(cosphi);
-            double thisP = Math.exp(-beta*u);
+            double cosphi = Math.cos((Math.PI * i) / (nSubBins * nBins));
+            double u = torsionPotential.u(cosphi);
+            double thisP = Math.exp(-beta * u);
             double newP = 0.5 * (previousP + thisP);
             newTot += newP;
             

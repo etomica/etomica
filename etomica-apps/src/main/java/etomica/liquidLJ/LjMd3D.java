@@ -6,7 +6,6 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -88,7 +87,7 @@ public class LjMd3D extends Simulation {
         }
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
-        integrator = new IntegratorVelocityVerlet(this, potentialMasterList, box);
+        integrator = new IntegratorVelocityVerlet(potentialMasterList, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
@@ -117,13 +116,13 @@ public class LjMd3D extends Simulation {
             System.out.println("long rc: " + rc);
         }
 //        potentialMasterCell = new PotentialMasterCell(this, rc, space);
-        potentialMasterLong = new PotentialMasterMonatomic(this);
+        potentialMasterLong = new PotentialMasterMonatomic(getSpeciesManager());
 
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, rc);
 
         potentialMasterLong.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
 
-        potentialMasterLongCut = new PotentialMasterMonatomic(this);
+        potentialMasterLongCut = new PotentialMasterMonatomic(getSpeciesManager());
 
         potentialMasterLongCut.addPotential(potential, new AtomType[]{leafType, leafType});
 

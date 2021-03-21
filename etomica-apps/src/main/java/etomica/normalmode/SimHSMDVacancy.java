@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -89,7 +88,7 @@ public class SimHSMDVacancy extends Simulation {
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorHardMDMC(this, potentialMasterList, box);
+        integrator = new IntegratorHardMDMC(random, potentialMasterList, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);

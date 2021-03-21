@@ -7,7 +7,6 @@ package etomica.integrator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.*;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.EventManager;
 import etomica.util.random.IRandom;
 
@@ -36,8 +35,8 @@ public class IntegratorMC extends IntegratorBox {
      * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
      */
 
-    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 1.0, box);
+    public IntegratorMC(IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, random, 1.0, box);
     }
 
     /**

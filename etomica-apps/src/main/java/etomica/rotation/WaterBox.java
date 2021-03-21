@@ -5,14 +5,16 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.models.water.*;
+import etomica.models.water.DipoleSourceWater;
+import etomica.models.water.OrientationCalcWater3P;
+import etomica.models.water.P2WaterSPCSoft;
+import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
 import etomica.potential.P2ReactionFieldDipole;
@@ -48,7 +50,7 @@ public class WaterBox {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.004;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());

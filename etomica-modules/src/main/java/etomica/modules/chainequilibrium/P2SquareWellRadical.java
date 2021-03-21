@@ -24,12 +24,12 @@ import etomica.util.random.IRandom;
  */
 public class P2SquareWellRadical extends P2SquareWell {
 
-    protected final AtomLeafAgentManager agentManager;
+    protected final AtomLeafAgentManager<IAtom[]> agentManager;
     protected final IRandom random;
     protected double combinationProbability;
     protected double solventThermoFrac;
 
-    public P2SquareWellRadical(Space space, AtomLeafAgentManager aam,
+    public P2SquareWellRadical(Space space, AtomLeafAgentManager<IAtom[]> aam,
                                double coreDiameter, double lambda, double epsilon, IRandom random) {
         super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
@@ -61,7 +61,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * it has only one unreacted site).
      */
     protected boolean isRadical(IAtom a) {
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtom[] nbrs = agentManager.getAgent(a);
         for(int i=0; i < nbrs.length-1; ++i){
             if (nbrs[i] == null) {
                 return false;
@@ -71,14 +71,14 @@ public class P2SquareWellRadical extends P2SquareWell {
     }
 
     protected boolean isEmpty(IAtom a) {
-        return ((IAtom[])agentManager.getAgent(a))[0] == null;
+        return agentManager.getAgent(a)[0] == null;
     }
 
     /**
      * This will tell you what the lowest open space is in atom a
      */
     protected int lowest(IAtom a){
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtom[] nbrs = agentManager.getAgent(a);
         int j = nbrs.length;
         for(int i=0; i != j; ++i){
             if (nbrs[i] == null) {
@@ -92,7 +92,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * This function tells you if two atoms are bonded
      */
     protected boolean areBonded(IAtom a, IAtom b){
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtom[] nbrs = agentManager.getAgent(a);
         int j = nbrs.length;
         for(int i=0; i != j; ++i){
             if (nbrs[i] == b){		
@@ -105,22 +105,22 @@ public class P2SquareWellRadical extends P2SquareWell {
     /**
      * this function will bond atoms a & b together
      */
-    protected void bond(IAtom a, IAtom b){
+    protected void bond(IAtom a, IAtom b) {
         int i = lowest(a);
         int j = lowest(b);
-        ((IAtom[])agentManager.getAgent(a))[i] = b;
-        ((IAtom[])agentManager.getAgent(b))[j] = a;
+        agentManager.getAgent(a)[i] = b;
+        agentManager.getAgent(b)[j] = a;
     }
 
     /**
      * this function will makes a and b unreactive by setting both to be bonded
      * to themselves (a-a, b-b).
      */
-    protected void disproportionate(IAtom a, IAtom b){
+    protected void disproportionate(IAtom a, IAtom b) {
         int i = lowest(a);
         int j = lowest(b);
-        ((IAtom[])agentManager.getAgent(a))[i] = a;
-        ((IAtom[])agentManager.getAgent(b))[j] = b;
+        agentManager.getAgent(a)[i] = a;
+        agentManager.getAgent(b)[j] = b;
     }
 
     /**

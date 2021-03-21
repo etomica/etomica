@@ -15,7 +15,6 @@ import etomica.box.Box;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -36,22 +35,22 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
     double chi = 0.0;
     double p1, p2, p3, p4;
     double c0, c2, c3, c4;
-    
-    static final double GEAR0 = 251./720.;
-    static final double GEAR2 = 11./12.;
-    static final double GEAR3 = 1./3.;
-    static final double GEAR4 = 1./24.;
+
+    static final double GEAR0 = 251. / 720.;
+    static final double GEAR2 = 11. / 12.;
+    static final double GEAR3 = 1. / 3.;
+    static final double GEAR4 = 1. / 24.;
 
     protected AtomLeafAgentManager<IntegratorGear4.Agent> agentManager;
     protected AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
+    public IntegratorGear4(IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, random, 0.05, 1.0, box);
     }
-    
+
     public IntegratorGear4(PotentialMaster potentialMaster, IRandom random,
                            double timeStep, double temperature, Box box) {
-        super(potentialMaster,random,timeStep,temperature, box);
+        super(potentialMaster, random, timeStep, temperature, box);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC

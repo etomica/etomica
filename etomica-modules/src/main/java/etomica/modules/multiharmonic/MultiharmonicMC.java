@@ -4,8 +4,6 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.action.SimulationDataAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -31,7 +29,6 @@ import etomica.species.SpeciesGeneral;
  */
 public class MultiharmonicMC extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     MeterPotentialEnergy meterEnergy;
     AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
@@ -42,19 +39,18 @@ public class MultiharmonicMC extends Simulation {
     MeterFreeEnergy meter;
     AccumulatorAverageCollapsing accumulator;
     DataPump dataPump, dataPumpEnergy;
-    SimulationDataAction resetAccumulators;
     DataSourceCountSteps stepCounter;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
-        integrator.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
+        integrator.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integrator, potentialA, random));
         potentialMaster.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
         box.setNMolecules(species, 10);

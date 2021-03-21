@@ -7,7 +7,6 @@ package etomica.modules.glass;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.*;
@@ -87,7 +86,7 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayBox dbox;
         DisplayBoxCanvasGlass canvas;
         DisplayCanvas c;
-        dbox = new DisplayBox(sim, sim.box);
+        dbox = new DisplayBox(sim.getController(), sim.box);
         if (sim.getSpace().D() == 2) {
             c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         } else {
@@ -436,7 +435,7 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setLabel("Number Density");
 
-        AccumulatorPTensor pTensorAccum = new AccumulatorPTensor(sim.integrator, sim.integrator.getTimeStep());
+        AccumulatorPTensor pTensorAccum = new AccumulatorPTensor(sim.box, sim.integrator.getTimeStep());
 
         AccumulatorHistory energyHistory, peHistory;
         final AccumulatorAverageCollapsing peAccumulator;
@@ -570,31 +569,31 @@ public class GlassGraphic extends SimulationGraphic {
         DataProcessorErrorBar pAutoCorErr = new DataProcessorErrorBar("err+");
         dpAutocor.getAvgErrFork().addDataSink(pAutoCorErr);
 
-        DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
+        DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.timeSource);
         pFork.addDataSink(dsMSDcorP);
-        DataSourceBlockAvgCor dsCorP = new DataSourceBlockAvgCor(sim.integrator);
+        DataSourceBlockAvgCor dsCorP = new DataSourceBlockAvgCor(sim.timeSource);
         pFork.addDataSink(dsCorP);
 
-        DataSourceBlockAvgCor dsCorKE = new DataSourceBlockAvgCor(sim.integrator);
+        DataSourceBlockAvgCor dsCorKE = new DataSourceBlockAvgCor(sim.timeSource);
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
             DataPumpListener kePump = new DataPumpListener(keMeter, dsCorKE, 1 << 3);
             sim.integrator.getEventManager().addListener(kePump);
             dsCorKE.setMinInterval(3);
         }
-        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
+        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.timeSource);
         dsCorMSD.setMinInterval(3);
 
-        DataSourceHisogram dsHistogramP = new DataSourceHisogram(sim.integrator);
+        DataSourceHisogram dsHistogramP = new DataSourceHisogram(sim.timeSource);
         pFork.addDataSink(dsHistogramP);
 
-        DataSourcePMSDHistory dsPMSDhistory = new DataSourcePMSDHistory(sim.integrator);
+        DataSourcePMSDHistory dsPMSDhistory = new DataSourcePMSDHistory(sim.timeSource);
         pFork.addDataSink(dsPMSDhistory);
 
         DataSourceMSDcorP dsMSDcorU;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
             // disabled.  U is not differently correlated than P
-            dsMSDcorU = new DataSourceMSDcorP(sim.integrator, log2peInterval);
+            dsMSDcorU = new DataSourceMSDcorP(sim.timeSource, log2peInterval);
             peFork.addDataSink(dsMSDcorU);
         } else {
             dsMSDcorU = null;
@@ -1515,7 +1514,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotHistogramP.setDoLegend(false);
         plotHistogramP.getPlot().setYLog(true);
 
-        DataSourceHistogramMSD dsHistogramMSD = new DataSourceHistogramMSD(sim.integrator);
+        DataSourceHistogramMSD dsHistogramMSD = new DataSourceHistogramMSD(sim.timeSource);
         meterMSD.addMSDSink(dsHistogramMSD);
         DisplayPlotXChart plotHistogramMSD = new DisplayPlotXChart();
         DataPumpListener pumpHistogramMSD = new DataPumpListener(dsHistogramMSD, plotHistogramMSD.getDataSet().makeDataSink(), 1000);
@@ -1673,7 +1672,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         AtomStressSource stressSource = null;
         if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
-            AtomHardStressCollector ahsc = new AtomHardStressCollector((IntegratorHard) sim.integrator);
+            AtomHardStressCollector ahsc = new AtomHardStressCollector(sim.timeSource);
             ((IntegratorHard) sim.integrator).addCollisionListener(ahsc);
             stressSource = ahsc;
         } else {

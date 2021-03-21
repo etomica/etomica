@@ -10,22 +10,27 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.config.ConformationLinear;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.config.ConfigurationLatticeRandom;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.*;
+import etomica.potential.P2SquareWell;
+import etomica.potential.P2Tether;
+import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.*;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesGeneralMutable;
 import etomica.units.Kelvin;
 
 public class SelfAssemblySim extends Simulation {
@@ -95,7 +100,7 @@ public class SelfAssemblySim extends Simulation {
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHard(this, potentialMaster, box);
+        integratorHard = new IntegratorHard(random, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);

@@ -5,7 +5,6 @@
 package etomica.modules.osmosis;
 
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -41,7 +40,6 @@ public class OsmosisSim extends Simulation {
 
     protected final static int initialSolute = 10;
     protected final static int initialSolvent = 50;
-    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesGeneral speciesSolvent,speciesSolute;
     public Box box;
@@ -62,7 +60,7 @@ public class OsmosisSim extends Simulation {
         speciesSolute = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolute);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         potentialAA = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAA, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
         potentialBB = new P2HardSphere(space, sigma, true);
@@ -96,7 +94,7 @@ public class OsmosisSim extends Simulation {
         box.setNMolecules(speciesSolvent, initialSolvent);
         box.setNMolecules(speciesSolute, initialSolute);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1.0), space);

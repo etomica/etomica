@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -31,8 +30,8 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveBondLength extends MCMoveMolecule {
 
-    public MCMoveBondLength(Simulation sim, PotentialMaster potentialMaster, int armLength, Space _space) {
-        this(potentialMaster, sim.getRandom(), 1.0, armLength, _space);
+    public MCMoveBondLength(IRandom random, PotentialMaster potentialMaster, int armLength, Space _space) {
+        this(potentialMaster, random, 1.0, armLength, _space);
     }
 
     public MCMoveBondLength(PotentialMaster potentialMaster,

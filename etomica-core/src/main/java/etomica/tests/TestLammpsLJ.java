@@ -79,7 +79,7 @@ public class TestLammpsLJ extends Simulation {
 
 //        pm.getNeighborManager(box).setUpdateInterval(2);
 
-        integrator = new IntegratorVelocityVerlet(this, pm, box);
+        integrator = new IntegratorVelocityVerlet(pm, this.getRandom(), 0.05, 1.0, box);
         integrator.setIsothermal(false);
         integrator.setTemperature(1.44);
         integrator.setTimeStep(0.005);

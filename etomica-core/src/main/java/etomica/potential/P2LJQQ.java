@@ -19,7 +19,11 @@ import etomica.space.Space;
  * QQ is orientation independent 
  * the potential is already sphericalization
  */
-public class P2LJQQ extends Potential2SoftSpherical  {
+public class P2LJQQ extends Potential2SoftSpherical {
+
+    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, double momentSquared, TruncationFactory tf) {
+        return tf.make(new P2LJQQ(space, sigma, epsilon, momentSquared));
+    }
 
     public P2LJQQ(Space space) {
         this(space, 1, 1, 1);
@@ -83,15 +87,15 @@ public class P2LJQQ extends Potential2SoftSpherical  {
     private double Q2;
     protected double temperature;
 
-	public double du(double r2) {
-		return 0;
-	}
+    public double du(double r2) {
+        return 0;
+    }
 
-	public double d2u(double r2) {
-		return 0;
-	}
+    public double d2u(double r2) {
+        return 0;
+    }
 
-	public double uInt(double rC) {
-		return 0;
-	}
+    public double integral(double rC) {
+        return 0;
+    }
 }

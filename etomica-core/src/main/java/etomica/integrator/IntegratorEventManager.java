@@ -88,5 +88,16 @@ public class IntegratorEventManager {
         }
         eventing = false;
     }
+
+    public void preThermostat() {
+        eventing = true;
+        for (IntegratorListener l : listeners) {
+            if (l instanceof IntegratorListenerMD) {
+                ((IntegratorListenerMD) l).preThermostat(event);
+            }
+        }
+        eventing = false;
+    }
+
 }
 

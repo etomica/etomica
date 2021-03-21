@@ -7,34 +7,49 @@ package etomica.modules.droplet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.potential.PotentialSoft;
+import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Gravity-like potential that pushes the molecules toward the center.
  */
-public class P1Smash implements PotentialSoft {
+public class P1Smash implements IPotentialField {
 
     public P1Smash(Space space) {
         gradient = new Vector[1];
         gradient[0] = space.makeVector();
         g = 1;
     }
-    
-    public void setBox(Box newBox) {}
-    
+
+    public void setBox(Box newBox) {
+    }
+
     public int nBody() {
         return 1;
     }
-    
+
     public void setG(double newG) {
         g = newG;
     }
-    
+
     public double getG() {
         return g;
+    }
+
+    public double u(IAtom atom) {
+        return Math.abs(atom.getPosition().getX(2)) * g;
+    }
+
+    /**
+     * Computes the force (and adds it to f) for IAtom atom and returns the
+     * energy due to the field.
+     */
+    public double udu(IAtom atom, Vector f) {
+        double z = atom.getPosition().getX(2);
+        f.setX(2, f.getX(2) - g * Math.signum(z));
+        return Math.abs(z) * g;
     }
 
     public double virial(IAtomList atoms) {

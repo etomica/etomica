@@ -4,8 +4,6 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.action.SimulationDataAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -35,7 +33,6 @@ import etomica.species.SpeciesGeneral;
  */
 public class Multiharmonic extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     MeterEnergy meterEnergy;
     AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
@@ -46,17 +43,16 @@ public class Multiharmonic extends Simulation {
     MeterFreeEnergy meter;
     AccumulatorAverageCollapsing accumulator;
     DataPump dataPump, dataPumpEnergy;
-    SimulationDataAction resetAccumulators;
     DataSourceCountTime timeCounter;
     public Multiharmonic() {
         super(Space1D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         double x0 = 0;
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);

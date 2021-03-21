@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -23,24 +22,24 @@ import etomica.util.random.IRandom;
  * Monte Carlo CH3 rotation for cluster integrals(Alkane TraPPE-EH).
  * 1.pick up a CH3 group randomly(2 choices)
  * 2.rotate HHH plane (perpendicular to C0-C1 or C[n-2]-C[n-1]) to a random angle from -60 to 60 degree
- * 
+ *
  * @author shu
  * Feb 2013
  */
 public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
-    public MCMoveClusterRotateCH3(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
-    	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
+    public MCMoveClusterRotateCH3(IRandom random, PotentialMaster potentialMaster, int nAtoms, Space _space) {
+        this(potentialMaster, random, 1.0, nAtoms, _space);
     }
-    
+
     public MCMoveClusterRotateCH3(PotentialMaster potentialMaster,
                                   IRandom random, double stepSize, int nAtoms, Space _space) {
-        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
+        super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
         this.space = _space;
-        setStepSizeMax(Math.PI/3);
+        setStepSizeMax(Math.PI / 3);
         energyMeter = new MeterPotentialEnergy(potential);
         axis = space.makeVector();
-        rotateTensor = (RotationTensor3D)(space.makeRotationTensor());
+        rotateTensor = (RotationTensor3D) (space.makeRotationTensor());
 
     }
 

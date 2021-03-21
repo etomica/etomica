@@ -19,7 +19,6 @@ import etomica.space.Space;
  */
 public final class SimulationRestart implements IAction {
 
-    private static final long serialVersionUID = 1L;
     protected Configuration configuration;
     protected boolean ignoreOverlap;
     protected SimulationDataAction accumulatorAction;

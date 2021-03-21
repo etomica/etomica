@@ -5,19 +5,18 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
+import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
-import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * 1-D potential that has a WCA form in the Z direction.
  */
 
-public class P1WCAWall extends Potential1 implements PotentialSoft {
+public class P1WCAWall extends Potential1 implements IPotentialField {
 
-    private static final long serialVersionUID = 1L;
     protected final Vector[] gradient;
     protected double sigma, sigma2;
     protected double epsilon;

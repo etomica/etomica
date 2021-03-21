@@ -90,9 +90,8 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
     }
 
     private double t0;
-    private Tensor v;
+    private final Tensor v;
     private IntegratorHard integratorHard;
-    private String name;
     private Box box;
     private final Tensor virialSum;
     private final DataTensor data;

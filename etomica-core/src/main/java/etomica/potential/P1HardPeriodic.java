@@ -6,9 +6,9 @@ package etomica.potential;
 
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * pseudo-potential for a "collision" time to update colliders for periodic boundaries
@@ -55,6 +55,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         double tmin = Double.POSITIVE_INFINITY;
         double d2 = 2.0*sigma;
         int D = dim.getD();
+        // 4*(L/4 - sigma/2) = L - 2sigma
         for(int i=0; i<D; i++) {
             double t = (dim.getX(i)-d2)/v.getX(i);
             t = (t < 0) ? -t : t;//abs

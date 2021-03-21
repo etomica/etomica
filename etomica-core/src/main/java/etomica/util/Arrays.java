@@ -35,6 +35,12 @@ public final class Arrays {
 		return objects;
 	}
 
+	public static int[] addInt(int[] ints, int x) {
+		ints = copyOf(ints, ints.length + 1);
+		ints[ints.length-1] = x;
+		return ints;
+	}
+
     /**
      * Returns an array formed by removing the given object from the given array.  
      * New array is one element smaller than given array,

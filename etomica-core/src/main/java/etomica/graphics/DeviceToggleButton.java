@@ -40,7 +40,7 @@ public class DeviceToggleButton extends DeviceButton {
 
     public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
         toggleAction = new ActionToggle(modifier, trueText, falseText);
-        setAction(new ActionGroupSeries(new IAction[] { toggleAction, relabelButton }));
+        setAction(new ActionGroupSeries(toggleAction, relabelButton));
         button.setText(modifier.getBoolean() ? trueText : falseText);
     }
 

@@ -5,7 +5,6 @@
 package etomica.modules.droplet;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
@@ -34,7 +33,6 @@ import etomica.units.Kelvin;
  */
 public class DropletAtomic extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public final SpeciesGeneral species;
     public final Box box;
     public final IntegratorVelocityVerlet integrator;
@@ -67,7 +65,7 @@ public class DropletAtomic extends Simulation {
         potentialMaster = new PotentialMasterList(this, sigma * pRange * 1.5, space);
 
         //controller and integrator
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(5000);

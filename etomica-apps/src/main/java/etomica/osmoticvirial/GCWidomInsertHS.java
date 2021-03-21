@@ -63,9 +63,9 @@ public class GCWidomInsertHS extends Simulation {
         box = new Box(new BoundaryRectangularPeriodic(space, 4 * sigma1), space);
         addBox(box);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);

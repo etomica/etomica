@@ -12,7 +12,6 @@ import etomica.data.*;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -116,7 +115,7 @@ public class SamGraphic extends SimulationGraphic {
         
         DisplayTimer timer = new DisplayTimer(sim.integrator);
         add(timer);
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, 3);
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, 3);
         DisplayTextBox temperatureDisplay = new DisplayTextBox();
         temperatureDisplay.setUnit(Kelvin.UNIT);
         DataPump pump = new DataPump(thermometer, temperatureDisplay);

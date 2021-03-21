@@ -269,7 +269,7 @@ public class ProtonDisorderGenerator extends Simulation {
 
         if (isGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
-            final DisplayBox display = new DisplayBox(sim, sim.box);
+            final DisplayBox display = new DisplayBox(sim.getController(), sim.box);
             simGraphic.add(display);
             ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.GREEN);
             ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("O"), Color.RED);

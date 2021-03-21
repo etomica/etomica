@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -36,23 +35,24 @@ import etomica.util.random.IRandom;
  *   && if ( j!= (n-2), update 2H on (j+1) // j==1 or else
  *   && if ( j!= 1, update 2H on (j-1) // j==(n-1) or else
  *   ********************************
- * 
+ *
  * @author shu
  *
  */
 
 public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterWiggleAlkaneEH(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
-        this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
+    public MCMoveClusterWiggleAlkaneEH(IRandom random, PotentialMaster potentialMaster, int nAtoms, Space _space) {
+        this(potentialMaster, random, 1.0, nAtoms, _space);
 
     }
-  
+
     /**
      * Constructor for MCMoveAtomMulti.
+     *
      * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
+     * @param nAtoms           number of atoms to move in a trial.  Number of atoms in
+     *                         box should be at least one greater than this value (greater
+     *                         because first atom is never moved)
      */
 
     public MCMoveClusterWiggleAlkaneEH(PotentialMaster potentialMaster, IRandom random, double stepSize, int nAtoms, Space _space) {

@@ -32,7 +32,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     
 
     public PotentialMasterHybrid(Simulation sim, double range, Space _space) {
-        super(sim);
+        super(sim.getSpeciesManager());
         // TODO !! make them share stuff
         potentialMasterList = new PotentialMasterList(sim, range, _space);
         BoxAgentSourceCellManager cellManagerSource = new BoxAgentSourceCellManager(null, range) {

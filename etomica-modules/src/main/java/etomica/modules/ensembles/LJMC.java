@@ -42,7 +42,7 @@ public class LJMC extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, 2.5, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, 2.5);
         potentialMaster.setCellRange(2);
         int N = 200;  //number of atoms
 

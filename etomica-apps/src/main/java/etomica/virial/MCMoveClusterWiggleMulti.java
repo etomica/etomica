@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -28,18 +27,18 @@ import etomica.util.random.IRandom;
  * neighbors.  If a middle Atom has a bond angle too close to 180 degrees
  * (such that rotation does nothing) the Atom is not moved at all.
  * In each doTrial, wiggle moves are attempted on all molecules in the box. 
- * 
+ *
  * @author Andrew Schultz
  */
 public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
-    	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
+    public MCMoveClusterWiggleMulti(IRandom random, PotentialMaster potentialMaster, int nAtoms, Space _space) {
+        this(potentialMaster, random, 1.0, nAtoms, _space);
     }
-    
+
     public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster,
-            IRandom random, double stepSize, int nAtoms, Space _space) {
-        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
+                                    IRandom random, double stepSize, int nAtoms, Space _space) {
+        super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI);
         energyMeter = new MeterPotentialEnergy(potential);
