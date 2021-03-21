@@ -136,12 +136,4 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	public void setN(int n) {
 		this.n = n;
 	}
-
-	public static class Applet extends javax.swing.JApplet{
-
-		public void init(){
-
-		}
-	}
-	
 }

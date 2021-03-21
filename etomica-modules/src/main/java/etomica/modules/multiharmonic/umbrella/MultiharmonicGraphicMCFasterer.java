@@ -9,10 +9,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.math.function.Function;
@@ -23,8 +19,6 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
-import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
-import etomica.virial.overlap.DataSourceVirialOverlap;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -351,141 +345,4 @@ public class MultiharmonicGraphicMCFasterer extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
     }
 
-    public static class DataSourceAlphaChi implements IDataSource, DataSourceIndependent {
-        protected DataFunction chiData;
-        protected DataDoubleArray alphaData;
-        protected DataSourceVirialOverlap dsvo;
-        protected final DataTag chiTag, alphaTag;
-        protected DataInfoFunction chiInfo;
-        protected DataInfoDoubleArray alphaInfo;
-        protected final double errFac;
-
-        public DataSourceAlphaChi(DataSourceVirialOverlap dsvo, double errFac) {
-            this.dsvo = dsvo;
-            chiTag = new DataTag();
-            alphaTag = new DataTag();
-            this.errFac = errFac;
-        }
-
-        public IData getData() {
-            if (chiData == null || chiData.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
-                chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
-                alphaData = new DataDoubleArray(chiData.getLength());
-                chiInfo = new DataInfoFunction("chi", Null.DIMENSION, this);
-                alphaInfo = new DataInfoDoubleArray("alpha", Null.DIMENSION, new int[]{chiData.getLength()});
-            }
-            double[] chi = chiData.getData();
-            for (int i = 0; i < chi.length; i++) {
-                chi[i] = dsvo.getAverage(i) + errFac * dsvo.getError(i);
-                if (chi[i] < dsvo.getAverage(i) * 0.01) {
-                    chi[i] = dsvo.getAverage(i) * 0.01;
-                }
-            }
-            return chiData;
-        }
-
-        public DataTag getTag() {
-            return chiTag;
-        }
-
-        public IDataInfo getDataInfo() {
-            if (chiInfo == null || chiInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
-                chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
-                alphaData = new DataDoubleArray(chiData.getLength());
-                chiInfo = new DataInfoFunction("chi", Null.DIMENSION, this);
-            }
-            return chiInfo;
-        }
-
-        public DataDoubleArray getIndependentData(int j) {
-            double[] alpha = alphaData.getData();
-            AccumulatorVirialOverlapSingleAverage acc = dsvo.getAccumulators()[0];
-            for (int i = 0; i < alpha.length; i++) {
-                alpha[i] = acc.getBennetBias(i);
-            }
-            return alphaData;
-        }
-
-        public DataInfoDoubleArray getIndependentDataInfo(int i) {
-            if (alphaInfo == null || alphaInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
-                alphaInfo = new DataInfoDoubleArray("alpha", Null.DIMENSION, new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
-            }
-            return alphaInfo;
-        }
-
-        public int getIndependentArrayDimension() {
-            return 1;
-        }
-
-        public DataTag getIndependentTag() {
-            return alphaTag;
-        }
-    }
-
-    public static class DataSourceAlphaAlpha implements IDataSource, DataSourceIndependent {
-        protected DataFunction chiData;
-        protected DataDoubleArray alphaData;
-        protected DataSourceVirialOverlap dsvo;
-        protected final DataTag chiTag, alphaTag;
-        protected DataInfoFunction chiInfo;
-        protected DataInfoDoubleArray alphaInfo;
-
-        public DataSourceAlphaAlpha(DataSourceVirialOverlap dsvo) {
-            this.dsvo = dsvo;
-            chiTag = new DataTag();
-            alphaTag = new DataTag();
-        }
-
-        public IData getData() {
-            if (chiData == null || chiData.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
-                chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
-                alphaData = new DataDoubleArray(chiData.getLength());
-                chiInfo = new DataInfoFunction("alpha", Null.DIMENSION, this);
-                alphaInfo = new DataInfoDoubleArray("alpha", Null.DIMENSION, new int[]{chiData.getLength()});
-            }
-            double[] chi = chiData.getData();
-            AccumulatorVirialOverlapSingleAverage acc = dsvo.getAccumulators()[0];
-            for (int i = 0; i < chi.length; i++) {
-                chi[i] = acc.getBennetBias(i);
-            }
-            return chiData;
-        }
-
-        public DataTag getTag() {
-            return chiTag;
-        }
-
-        public IDataInfo getDataInfo() {
-            if (chiInfo == null || chiInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
-                chiData = new DataFunction(new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
-                alphaData = new DataDoubleArray(chiData.getLength());
-                chiInfo = new DataInfoFunction("alpha", Null.DIMENSION, this);
-            }
-            return chiInfo;
-        }
-
-        public DataDoubleArray getIndependentData(int j) {
-            double[] alpha = alphaData.getData();
-            AccumulatorVirialOverlapSingleAverage acc = dsvo.getAccumulators()[0];
-            for (int i = 0; i < alpha.length; i++) {
-                alpha[i] = acc.getBennetBias(i);
-            }
-            return alphaData;
-        }
-
-        public DataInfoDoubleArray getIndependentDataInfo(int i) {
-            if (alphaInfo == null || alphaInfo.getLength() != dsvo.getAccumulators()[0].getNBennetPoints()) {
-                alphaInfo = new DataInfoDoubleArray("alpha", Null.DIMENSION, new int[]{dsvo.getAccumulators()[0].getNBennetPoints()});
-            }
-            return alphaInfo;
-        }
-
-        public int getIndependentArrayDimension() {
-            return 1;
-        }
-
-        public DataTag getIndependentTag() {
-            return alphaTag;
-        }
-    }
 }

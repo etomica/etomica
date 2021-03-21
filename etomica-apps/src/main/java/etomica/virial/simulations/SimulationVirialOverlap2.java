@@ -68,7 +68,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected boolean initialized;
     protected boolean doWiggle;
     protected ClusterAbstract[] extraTargetClusters;
-    protected DataPumpListener[] accumulatorPumps;
+    public DataPumpListener[] accumulatorPumps;
     protected long blockSize;
     protected int numAlpha = 1;
     protected HistogramSimple targHist;

@@ -38,7 +38,7 @@ import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
-import etomica.virial.simulations.ShapeParser.ShapeData;
+import etomica.virial.ShapeParser.ShapeData;
 
 import javax.swing.*;
 import java.awt.*;

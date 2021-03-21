@@ -33,7 +33,6 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected PotentialCalculationPhiSum secondDerivativeSum;
-    protected PotentialCalculationVSum vSum;
     protected double temperature;
     protected double J;
     protected double mu;
