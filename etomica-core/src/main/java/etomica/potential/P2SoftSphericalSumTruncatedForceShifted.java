@@ -22,19 +22,30 @@ public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumT
         super(_space, truncationRadius, potential);
     }
 
+    @Override
     public double u(double r2) {
         if (r2 > r2Cutoff) return 0;
         return uShift + Math.sqrt(r2) * ufShift + uWrapped(r2);
     }
 
+    @Override
     public double du(double r2) {
         if (r2 > r2Cutoff) return 0;
         return Math.sqrt(r2) * ufShift + duWrapped(r2);
     }
 
+    public void u012add(double r2, double[] u012) {
+        if (r2 > r2Cutoff) return;
+        super.uduWrapped(r2, u012);
+        double r = Math.sqrt(r2);
+        u012[0] += uShift + r*ufShift;
+        u012[1] += r*ufShift;
+    }
+
     /**
      * Mutator method for the radial cutoff distance.
      */
+    @Override
     public void setTruncationRadius(double rCut) {
         super.setTruncationRadius(rCut);
         uShift = -uWrapped(r2Cutoff);
