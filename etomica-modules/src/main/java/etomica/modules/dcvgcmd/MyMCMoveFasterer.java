@@ -5,7 +5,6 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.box.Box;
 import etomica.integrator.IntegratorBoxFasterer;
 import etomica.integrator.mcmove.MCMoveInsertDeleteFasterer;
 import etomica.molecule.IMolecule;
@@ -32,10 +31,6 @@ public class MyMCMoveFasterer extends MCMoveInsertDeleteFasterer {
 		this.integrator = integrator;
 		randomizer = new AtomActionRandomizeVelocity(0, random);
 		activeMolecules = new MoleculeArrayList();
-	}
-
-	public void setBox(Box p) {
-		super.setBox(p);
 	}
 
 	/**
