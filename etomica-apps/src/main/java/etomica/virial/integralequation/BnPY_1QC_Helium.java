@@ -11,7 +11,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.virial.PercusYevick1QC;
 
 /**
  * 

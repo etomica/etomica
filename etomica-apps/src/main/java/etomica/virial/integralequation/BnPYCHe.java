@@ -10,7 +10,6 @@ import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.PercusYevick;
 
 /**
  * 

@@ -18,13 +18,18 @@ import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
+import etomica.virial.IntSet;
 import etomica.virial.IntSet.PropertyBin;
+import etomica.virial.MayerEHardSphere;
+import etomica.virial.MayerFunction;
+import etomica.virial.MeterVirialEBinMultiThreaded;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.*;
 import etomica.virial.simulations.SimulationVirial;
 import etomica.virial.simulations.hardsphere.VirialHSBinMultiThreaded.DooDad;
+import etomica.virial.wheatley.ClusterWheatleyExtendSW;
 
 import java.io.File;
 import java.io.IOException;
@@ -365,7 +370,7 @@ public class VirialSQWBinMultiThreaded {
 
             System.out.println("thread "+iThread+", "+steps+" steps");
             
-            final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams, false, mySeeds);
+            final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams, false, mySeeds);
             int[] randSeed = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
             if (randSeed == null) {
                 System.out.println(iThread+" Random seed: "+((RandomMersenneTwister)sim.getRandom()).getSeed());

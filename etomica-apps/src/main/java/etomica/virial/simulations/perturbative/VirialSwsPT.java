@@ -29,10 +29,11 @@ import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
-import etomica.virial.cluster.VirialDiagrams;
-import etomica.virial.cluster.VirialDiagramsPT;
+import etomica.virial.ConfigurationClusterMove;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.MayerSphericalPTAtt;
+import etomica.virial.cluster.*;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import javax.swing.*;

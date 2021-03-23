@@ -23,8 +23,14 @@ import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
+import etomica.virial.MayerHSMixture;
+import etomica.virial.MeterVirialBD;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChainMix;
+import etomica.virial.mcmove.MCMoveClusterAtomHSTreeMix;
+import etomica.virial.mcmove.MCMoveClusterAtomInBox;
 import etomica.virial.simulations.SimulationVirial;
+import etomica.virial.wheatley.ClusterWheatleyHS;
 
 import javax.swing.*;
 import java.awt.*;

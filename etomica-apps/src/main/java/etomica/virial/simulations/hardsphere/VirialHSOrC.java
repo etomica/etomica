@@ -21,8 +21,15 @@ import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
+import etomica.virial.CalcFFT;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterBonds;
+import etomica.virial.cluster.ClusterSum;
+import etomica.virial.mcmove.MCMoveClusterAtomDiscrete;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.wheatley.ClusterWheatleyHS;
 
 import java.awt.*;
 import java.util.ArrayList;

@@ -5,7 +5,6 @@
 package etomica.virial.integralequation;
 
 import etomica.math.numerical.SineTransform;
-import etomica.virial.OrnsteinZernike;
 
 
 /**

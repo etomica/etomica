@@ -37,8 +37,15 @@ import etomica.species.SpeciesPolyhedron;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralAtomic;
+import etomica.virial.MeterVirialBD;
+import etomica.virial.ShapeParser;
 import etomica.virial.ShapeParser.ShapeData;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterPolyhedraChain;
+import etomica.virial.mcmove.MCMoveClusterPolyhedraTree;
+import etomica.virial.wheatley.ClusterWheatleyHS;
 
 import javax.swing.*;
 import java.awt.*;
@@ -163,7 +170,7 @@ public class VirialPolyhedra2 {
 
         System.out.println(steps+" steps");
 
-        final SimulationVirial sim = new SimulationVirial(space, allSpecies, new int[]{nPoints}, 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
+        final SimulationVirial sim = new SimulationVirial(space, allSpecies, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);

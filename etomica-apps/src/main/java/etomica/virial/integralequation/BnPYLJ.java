@@ -7,7 +7,6 @@ package etomica.virial.integralequation;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.virial.PercusYevick;
 
 /**
  * 

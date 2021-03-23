@@ -31,7 +31,14 @@ import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Null;
-import etomica.virial.*;
+import etomica.virial.BoxCluster;
+import etomica.virial.ConfigurationCluster;
+import etomica.virial.CoordinatePairSet;
+import etomica.virial.MeterVirial;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.cluster.ClusterWeightAbs;
+import etomica.virial.mcmove.*;
 import etomica.virial.overlap.DataProcessorVirialOverlap;
 import etomica.virial.overlap.DataVirialOverlap;
 

@@ -18,12 +18,20 @@ import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
+import etomica.virial.IntSet;
 import etomica.virial.IntSet.PropertyBin;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.MeterVirialBDBinMultiThreaded;
 import etomica.virial.MeterVirialBDBinMultiThreaded.MyData;
-import etomica.virial.cluster.Standard;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.mcmove.MCMoveClusterAtomHSRing;
+import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
 import etomica.virial.simulations.SimulationVirial;
+import etomica.virial.wheatley.ClusterWheatley;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyPartitionScreening;
 
 import java.io.File;
 import java.io.IOException;
@@ -349,8 +357,7 @@ public class VirialHSBinMultiThreaded {
         protected final boolean doReweight;
         protected final int[] mySeeds;
         public MeterVirialBDBinMultiThreaded meter;
-        protected final boolean doWheatley;
-        
+
         public SimulationWorker(int iThread, int nPtsTabulated, int nPoints, MayerFunction fRef,
                                 MayerFunction fRefPos, int ref, double vhs, double chainFrac, double ringFrac,
                                 long steps, Space space, String runName, double tRatio,
@@ -374,21 +381,12 @@ public class VirialHSBinMultiThreaded {
             this.totalCount = totalCount;
             this.doReweight = doReweight;
             this.mySeeds = mySeeds;
-            this.doWheatley = doWheatley;
         }
         
         public void run() {
             long t1 = System.currentTimeMillis();
             final ClusterWheatley targetCluster;
-            if (doWheatley) {
-                targetCluster = nPtsTabulated > 0 ? new ClusterWheatleyPartitionScreening(nPoints, fRef, nPtsTabulated) : new ClusterWheatleyHS(nPoints, fRef);
-            }
-            else {
-                VirialDiagrams v = new VirialDiagrams(nPoints, false, false);
-                v.setDoReeHoover(true);
-                v.setDoShortcut(true);
-                targetCluster = v.makeVirialClusterHS(v.getMSMCGraphs(true,false), fRef);
-            }
+            targetCluster = nPtsTabulated > 0 ? new ClusterWheatleyPartitionScreening(nPoints, fRef, nPtsTabulated) : new ClusterWheatleyHS(nPoints, fRef);
             targetCluster.setTemperature(1.0);
             
             ClusterAbstract refCluster = null;
@@ -511,7 +509,7 @@ public class VirialHSBinMultiThreaded {
                     return pv;
                 }
             };
-            meter = new MeterVirialBDBinMultiThreaded(targetCluster, sim.getRandom(), doWheatley ? (nPoints<6 ? pod : (nPoints<12 ? pefcliqueEF : pefclique2)) : pod0, totalCount, allMyData, iThread, doReweight);
+            meter = new MeterVirialBDBinMultiThreaded(targetCluster, sim.getRandom(), nPoints<6 ? pod : (nPoints<12 ? pefcliqueEF : pefclique2), totalCount, allMyData, iThread, doReweight);
             meter.setBox(sim.box);
             if (w>=0) {
                 meter.setWeight(w);

@@ -30,8 +30,14 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterChainHS;
+import etomica.virial.cluster.ClusterDifference;
 import etomica.virial.cluster.Standard;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyMultibodyDerivatives;
 
 import java.awt.*;
 import java.util.Arrays;

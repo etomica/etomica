@@ -14,7 +14,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.MCMoveClusterMolecule;
+import etomica.virial.mcmove.MCMoveClusterMolecule;
 
 import java.util.ArrayList;
 import java.util.List;

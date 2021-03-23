@@ -19,10 +19,16 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.MayerEHardSphere;
+import etomica.virial.MayerFunction;
+import etomica.virial.MeterVirialSWWE;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.mcmove.MCMoveClusterAtomHSRing;
+import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
 import etomica.virial.simulations.SimulationVirial;
 import etomica.virial.simulations.hardsphere.VirialHS.VirialHSParam;
+import etomica.virial.wheatley.ClusterWheatleyExtendSW;
 
 
 public class VirialSWWE {
@@ -162,7 +168,7 @@ public class VirialSWWE {
         
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
         
-        final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
+        final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
         MeterVirialSWWE meter = new MeterVirialSWWE(targetCluster);
         meter.setBox(sim.box);
         sim.setMeter(meter);

@@ -15,11 +15,11 @@ import etomica.space.Space;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerHSMixture;
+import etomica.virial.mcmove.MCMoveClusterAtomMulti;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.wheatley.ClusterWheatleyHS;
 
 import javax.swing.*;
 import java.awt.*;

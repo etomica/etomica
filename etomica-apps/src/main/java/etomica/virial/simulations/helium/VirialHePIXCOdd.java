@@ -32,7 +32,9 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterRingPartialRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingScale;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 /**
@@ -246,7 +248,7 @@ public class VirialHePIXCOdd {
                 weights[2] = 1.0;
                 weights[3] = 1.0;
     		} else {
-    			clusters[0] = new ClusterBondsNonAdditive(3, new int[1][0][0], new int[][]{{},{},{},{0}}); 
+    			clusters[0] = new ClusterBondsNonAdditive(3, new int[1][0][0], new int[][]{{},{},{},{0}});
     			weights[0] = 1.0;
     		}
             

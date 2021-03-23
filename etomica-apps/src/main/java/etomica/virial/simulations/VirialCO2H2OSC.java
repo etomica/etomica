@@ -34,7 +34,12 @@ import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterCoupledAtomFlipped;
 import etomica.virial.cluster.Standard;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyMultibodyMix;
+import etomica.virial.wheatley.ClusterWheatleySoftMix;
 
 import java.awt.*;
 import java.util.Arrays;

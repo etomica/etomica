@@ -35,7 +35,12 @@ import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
+import etomica.virial.MayerEGeneral;
+import etomica.virial.MayerFunction;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterRingPartialRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingScale;
 import etomica.virial.simulations.SimulationVirial;
 
 import javax.swing.*;

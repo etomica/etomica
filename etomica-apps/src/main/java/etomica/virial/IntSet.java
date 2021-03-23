@@ -7,7 +7,7 @@ package etomica.virial;
 import java.util.Arrays;
 
 /**
- * An IntSet holds an array of integers and can act as a has key.
+ * An IntSet holds an array of integers and can act as a hash key.
  * 
  * @author Andrew Schultz
  */

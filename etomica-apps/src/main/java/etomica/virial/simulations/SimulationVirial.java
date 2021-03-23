@@ -11,14 +11,18 @@ import etomica.atom.AtomTypeOriented;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
+import etomica.virial.BoxCluster;
+import etomica.virial.ConfigurationCluster;
+import etomica.virial.MeterVirial;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.mcmove.*;
 
 /**
  * Generic simulation using Mayer sampling to evaluate cluster integrals
@@ -39,7 +43,6 @@ public class SimulationVirial extends Simulation {
     public MCMoveBoxStep mcMoveTranslate;
     public MCMoveBoxStep mcMoveRotate;
     public MCMoveBoxStep mcMoveWiggle;
-    public MCMoveBox mcMoveReptate;
     public double temperature;
     public boolean doWiggle;
     public int[] newSeeds;
@@ -132,8 +135,6 @@ public class SimulationVirial extends Simulation {
             if (doWiggle) {
                 mcMoveWiggle = new MCMoveClusterWiggleMulti(random, potentialMaster, nMolecules, space);
                 integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                mcMoveReptate = new MCMoveClusterReptateMulti(random, potentialMaster, nMolecules - 1);
-                integrator.getMoveManager().addMCMove(mcMoveReptate);
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }

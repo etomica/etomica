@@ -28,8 +28,16 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
+import etomica.virial.CoordinatePairSet;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterChainHS;
 import etomica.virial.cluster.Standard;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import java.awt.*;
 

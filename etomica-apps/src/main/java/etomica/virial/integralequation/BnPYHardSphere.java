@@ -4,8 +4,6 @@
 
 package etomica.virial.integralequation;
 
-import etomica.virial.PercusYevick;
-
 /**
  *
  * This is just a main method for PercusYevick.java...

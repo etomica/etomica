@@ -29,8 +29,15 @@ import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneral;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMixBD;
 
 import java.awt.*;
 import java.util.Arrays;

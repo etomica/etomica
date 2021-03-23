@@ -39,9 +39,12 @@ import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.MayerGeneral;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterTorsionMulti;
 
 import javax.swing.*;
 import java.awt.*;

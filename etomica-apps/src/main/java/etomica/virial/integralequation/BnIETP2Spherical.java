@@ -9,7 +9,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.virial.PercusYevick;
 
 /**
  * 
@@ -218,7 +217,7 @@ public static void main(String[] args) {
 		
 		double[] B;
         if (PercusYevick) {
-			etomica.virial.PercusYevick py = new PercusYevick();
+			etomica.virial.integralequation.PercusYevick py = new PercusYevick();
 			py.setRoute(compressibilityRoute);
 
 			if (!compressibilityRoute && QFH) {

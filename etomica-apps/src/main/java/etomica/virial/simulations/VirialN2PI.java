@@ -5,7 +5,10 @@ package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.*;
+import etomica.atom.AtomHydrogen;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -29,6 +32,11 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+import etomica.virial.mcmove.MCMoveClusterRingRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingRegrowOrientation;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyMultibody;
+import etomica.virial.wheatley.ClusterWheatleySoft;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -16,7 +16,7 @@ import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.MCMoveClusterMolecule;
+import etomica.virial.mcmove.MCMoveClusterMolecule;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the

@@ -25,9 +25,11 @@ import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.integralequation.PYGenerator;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.util.Set;

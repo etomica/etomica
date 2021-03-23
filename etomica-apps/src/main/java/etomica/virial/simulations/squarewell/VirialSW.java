@@ -24,7 +24,11 @@ import etomica.units.dimensions.*;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.*;
+import etomica.virial.MayerEHardSphere;
+import etomica.virial.MayerESpherical;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 

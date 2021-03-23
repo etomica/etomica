@@ -4,16 +4,11 @@
 
 package etomica.virial;
 
-import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.Argon;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.IPotentialMolecular;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesGeneral;
+import etomica.virial.cluster.ClusterSumMultibody;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
@@ -136,7 +131,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                         }
                         u33 = una[3][groupID];
                         if (debugme) {
-                            System.out.println("3 "+groupID+" "+ClusterSumMultibody.m2s(moleculeList)+" "+una[3][groupID]);
+                            System.out.println("3 "+groupID+" "+ ClusterSumMultibody.m2s(moleculeList)+" "+una[3][groupID]);
                         }
                         groupID++;
                         moleculeList.remove(2);

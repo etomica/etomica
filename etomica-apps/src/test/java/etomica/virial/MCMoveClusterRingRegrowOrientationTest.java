@@ -11,6 +11,9 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.mcmove.MCMoveClusterRingRegrowOrientation;
 import org.junit.jupiter.api.Test;
 
 class MCMoveClusterRingRegrowOrientationTest {

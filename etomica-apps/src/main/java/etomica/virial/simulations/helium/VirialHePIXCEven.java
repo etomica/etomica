@@ -40,6 +40,10 @@ import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
 import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterRingPartialRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingScale;
 import etomica.virial.simulations.SimulationVirial;
 
 import javax.swing.*;
@@ -249,7 +253,7 @@ public class VirialHePIXCEven {
             };
         }
 
-        ClusterSum refCluster; ClusterAbstract targetCluster; ClusterWeight samplingCluster; 
+        ClusterSum refCluster; ClusterAbstract targetCluster; ClusterWeight samplingCluster;
         ClusterBonds[] clusters = new ClusterBonds[1];
         ClusterBonds[] clustersAdd = new ClusterBonds[1];
     	double[] weights = new double[1];
@@ -409,7 +413,7 @@ public class VirialHePIXCEven {
             ring = ringMove;
         }
         else {
-            MCMoveClusterRingRegrow ringMove; 
+            MCMoveClusterRingRegrow ringMove;
             ringMove = new MCMoveClusterRingRegrow(sim.getRandom(), space, atoms);
             ringMove.setEnergyFactor(energyFac);
             int numCBMCTrials = nBeads/40+10;

@@ -41,8 +41,9 @@ import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
 import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
-import etomica.virial.cluster.Standard;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterRingRegrow;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import javax.swing.*;
