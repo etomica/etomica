@@ -451,9 +451,6 @@ public class PotentialMasterBonding implements PotentialCompute {
     }
 
     public double computeOneOldMolecule(IMolecule molecule) {
-        if (!bondingInfo.isOnlyRigidMolecules) {
-            throw new RuntimeException();
-        }
         return computeOneMolecule(molecule);
     }
 
