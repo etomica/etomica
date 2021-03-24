@@ -61,6 +61,10 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq, boolean graphics){
 
         super(Space3D.getInstance());
+        species1 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
+        addSpecies(species1);
+        addSpecies(species2);
 //      setRandom(new RandomMersenneTwister(1));
 //      PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         PotentialMaster potentialMaster;
@@ -75,11 +79,6 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
-
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
-        addSpecies(species1);
-        addSpecies(species2);
 
         box = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box);
