@@ -8,6 +8,7 @@ import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.*;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
@@ -41,6 +42,7 @@ public class VirialHSMixtureL {
             params.cff = 4;
             params.D = 3;
             params.targetL = 2;
+            params.targetAcceptance = 0.2;
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
@@ -53,9 +55,11 @@ public class VirialHSMixtureL {
         nonAdd[0][1] = nonAdd[1][0] = params.nonAdd;
         final int D = params.D;
         final double refFrac = params.refFrac;
+        final double targetAcceptance = params.targetAcceptance;
         System.out.println("Number of points: " + nPoints);
         System.out.println("Dimensions: " + D);
         System.out.println("nonAdd: " + params.nonAdd);
+        System.out.println("targetAcceptance: " + targetAcceptance);
         Space space = Space.getInstance(D);
 
         int nBig = nPoints - nSmall;
@@ -103,10 +107,11 @@ public class VirialHSMixtureL {
         ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[0]).setDoImposePBC(true);
         ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[1]).setStartAtom(0);
         ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[1]).setDoImposePBC(true);
-        MCMoveClusterAtomMulti targetBigMove = new MCMoveClusterAtomMulti(sim.getRandom(), space);
-        targetBigMove.setStepSize(params.targetL / 2);
-        targetBigMove.setStepSizeMin(params.targetL / 2);
-        sim.integrators[1].getMoveManager().addMCMove(targetBigMove);
+        //MCMoveClusterAtomMulti targetBigMove = new MCMoveClusterAtomMulti(sim.getRandom(), space);
+        //targetBigMove.setStepSize(params.targetL / 2);
+        //targetBigMove.setStepSizeMin(params.targetL / 2);
+        //sim.integrators[1].getMoveManager().addMCMove(targetBigMove);
+        ((MCMoveStepTracker) sim.mcMoveTranslate[1].getTracker()).setAcceptanceTarget(targetAcceptance);
 
         int subSteps = 1000;
         sim.integratorOS.setNumSubSteps(subSteps);
@@ -194,7 +199,7 @@ public class VirialHSMixtureL {
         }
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
-        System.out.println("MC Move target big step acceptance " + targetBigMove.getTracker().acceptanceProbability() + " (" + targetBigMove.getStepSize() + ")");
+        //System.out.println("MC Move target big step acceptance " + targetBigMove.getTracker().acceptanceProbability() + " (" + targetBigMove.getStepSize() + ")");
 
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
@@ -221,6 +226,7 @@ public class VirialHSMixtureL {
         public double nonAdd = 0;
         public int D = 3;
         public double refFrac = -1;
+        public double targetAcceptance = 0.2;
         public boolean writeRefPref = false;
     }
 
