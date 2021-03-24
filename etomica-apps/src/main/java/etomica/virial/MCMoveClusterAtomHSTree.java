@@ -95,26 +95,37 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 } else {
                     continue;
                 }
-                if ((coordinatedMask & (1<<nbr2)) != 0) {
+                if ((coordinatedMask & (1 << nbr2)) != 0) {
                     // already inserted nbr2, move along
                     continue;
                 }
                 // insert nbr2 around nbr
                 Vector pos = leafAtoms.get(nbr2).getPosition();
-
-                pos.setRandomInSphere(random);
-                double sig = getSigma(nbr, nbr2);
-                if (sig < 0) {
-                    // we want to force the position to be in the well (between 1 and sigma)
-                    sig = -sig;
-                    while (pos.squared() < 1 / (sig * sig)) {
-                        pos.setRandomInSphere(random);
+                boolean insideBox = false;
+                while(!insideBox) {
+                    pos.setRandomInSphere(random);
+                    double sig = getSigma(nbr, nbr2);
+                    if (sig < 0) {
+                        // we want to force the position to be in the well (between 1 and sigma)
+                        sig = -sig;
+                        while (pos.squared() < 1 / (sig * sig)) {
+                            pos.setRandomInSphere(random);
+                        }
+                    }
+                    pos.TE(sig);
+                    insideBox = true;
+                    for (int i = 0; i < pos.getD(); i++) {
+                        if (Math.abs(pos.getX(i)) > box.getBoundary().getBoxSize().getX(i)/2) {
+                            insideBox = false;
+                            break;
+                        }
+                    }
+                    if (insideBox) {
+                        pos.PE(leafAtoms.get(nbr).getPosition());
+                        inserted[numInserted] = nbr2;
+                        numInserted++;
                     }
                 }
-                pos.TE(sig);
-                pos.PE(leafAtoms.get(nbr).getPosition());
-                inserted[numInserted] = nbr2;
-                numInserted++;
             }
         }
 
