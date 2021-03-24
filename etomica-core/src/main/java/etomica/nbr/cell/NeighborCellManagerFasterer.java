@@ -183,8 +183,7 @@ public class NeighborCellManagerFasterer implements NeighborManager {
                 // we need the box to be at least the size of a cell.
                 // when rc>L/2, we'll end up doing a lattice sum
                 if (bs.getX(i) < minCellSize) {
-                    System.err.println("box not big enough to accomodate even 1 cell (" + bs.getX(i) + " < " + minCellSize + ")");
-                    System.exit(1);
+                    throw new RuntimeException("box not big enough to accomodate even 1 cell (" + bs.getX(i) + " < " + minCellSize + ")");
                 }
                 // include cellRange of padding on each side of the box
                 numCells[i] = ((int) Math.floor(bs.getX(i) / minCellSize));
