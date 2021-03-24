@@ -6,19 +6,16 @@ package etomica.liquidLJ;
 
 import etomica.action.WriteConfigurationBinary;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential0Lrc;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.potential.*;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -29,7 +26,7 @@ import java.io.File;
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
  
-public class LjMd3Dv2y {
+public class LjMd3Dv2yFasterer {
     
     public static void main(String[] args) {
 
@@ -56,13 +53,12 @@ public class LjMd3Dv2y {
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = false;
-            params.numAtoms = 250;
+            params.numAtoms = 500;
             params.steps = 200000;
             params.v2 = 0;
             params.rcShort = 2.5; //*Math.pow(params.v2, 1.0/6.0);
             params.y = 1.5;
             params.hybridInterval = 20;
-            params.nrcMax = 1;
         }
 
         final int numAtoms = params.numAtoms;
@@ -95,7 +91,7 @@ public class LjMd3Dv2y {
     	}
 
     	double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final LjMd3D sim = new LjMd3D(numAtoms, temperature, density, Double.NaN, tStep, rcShort, 0.494*L, hybridInterval, null, ss);
+        final LjMd3DFasterer sim = new LjMd3DFasterer(numAtoms, temperature, density, Double.NaN, tStep, rcShort, 0.494*L, hybridInterval, null, ss);
 
         String configFilename;
         if (useRho) {
@@ -123,7 +119,7 @@ public class LjMd3Dv2y {
 	                    tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms, rho0);
 	                    inConfigFile = new File(tmpConfigFilename+".pos");
 	                    if (inConfigFile.exists()) {
-	                        System.out.println(String.format("bringing configuration from rho=%4.2f",rho0));
+	                        System.out.printf("bringing configuration from rho=%4.2f\n",rho0);
 	                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
 	                        configFile.initializeCoordinates(sim.box);
 	                        break;
@@ -160,7 +156,7 @@ public class LjMd3Dv2y {
 	                    tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y0);
 	                    inConfigFile = new File(tmpConfigFilename+".pos");
 	                    if (inConfigFile.exists()) {
-	                        System.out.println(String.format("bringing configuration from y=%4.2f",y0));
+	                        System.out.printf("bringing configuration from y=%4.2f\n",y0);
 	                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
 	                        configFile.initializeCoordinates(sim.box);
 	                        break;
@@ -170,7 +166,7 @@ public class LjMd3Dv2y {
 	        }
         }
 
-        sim.potentialMasterList.getNeighborManager(sim.box).reset();
+        sim.potentialMasterList.init();
 
         if (!graphics) {
             long eqSteps = steps/10;
@@ -194,8 +190,7 @@ public class LjMd3Dv2y {
             return;
         }
         
-        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList, sim.box);
-        long bs = steps/(longInterval*nAccBlocks);
+        final MeterPotentialEnergyFromIntegratorFasterer meterEnergyFast = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
 
         double rcMax = 0.494*L;
         double fac = 1.2;
@@ -206,7 +201,7 @@ public class LjMd3Dv2y {
         for (int i=1; i<cutoffs.length; i++) {
             cutoffs[i] = cutoffs[i-1]*1.2;
         }
-        MeterPotentialEnergyCutoff meterEnergyCut = new MeterPotentialEnergyCutoff(sim.potentialMasterLongCut, sim.getSpace(), cutoffs);
+        MeterPotentialEnergyCutoffFasterer meterEnergyCut = new MeterPotentialEnergyCutoffFasterer(sim.potentialMasterLongCut, sim.getSpace(), cutoffs);
         meterEnergyCut.setBox(sim.box);
         final double[] uFacCut = new double[cutoffs.length];
         IData uCut = meterEnergyCut.getData();
@@ -217,21 +212,21 @@ public class LjMd3Dv2y {
 
         final ValueCache energyFastCache = new ValueCache(meterEnergyFast, sim.integrator);
 
-        final MeterPUCut meterPU = new MeterPUCut(sim.getSpace(), cutoffs);
-        meterPU.setBox(sim.box);
-        meterPU.setPotentialMaster(sim.potentialMasterLongCut);
-        meterPU.setTemperature(temperature);
+        final MeterPUCutFasterer meterPU;
 
         P2LennardJones p2LJ = null;
 
         if (params.v2 == 0 && !useRho) {
-            PotentialMasterMonatomic potentialMasterLJ = new PotentialMasterMonatomic(sim.getSpeciesManager());
+            PotentialMasterFasterer potentialMasterLJ = new PotentialMasterFasterer(sim.getSpeciesManager(), sim.box, BondingInfo.noBonding());
             p2LJ = new P2LennardJones(sim.getSpace());
-            potentialMasterLJ.addPotential(p2LJ, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
-            meterPU.setPotentialMasterDADv2(potentialMasterLJ);
+            potentialMasterLJ.setPairPotential(sim.species().getLeafType(), sim.species.getLeafType(), p2LJ);
+            meterPU = new MeterPUCutFasterer(sim.box, sim.potentialMasterLongCut, potentialMasterLJ, temperature, cutoffs);
+        }
+        else {
+            meterPU = new MeterPUCutFasterer(sim.box, sim.potentialMasterLongCut, temperature, cutoffs);
         }
 
-        bs = steps/(longInterval*nAccBlocks);
+        long bs = steps/(longInterval*nAccBlocks);
 
         DataProcessorReweight puReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCut, sim.box, nCutoffs);
         DataPumpListener pumpPU = new DataPumpListener(meterPU, puReweight, longInterval);
@@ -250,10 +245,8 @@ public class LjMd3Dv2y {
         if (nCutoffs-1 >= nrcMax) nCutoffsLS=0;
         else if (nCutoffsLS-1>nrcMax) nCutoffsLS=1+nrcMax;
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
-        Potential2SoftSphericalLSMulti pLS = null;
-        PotentialMasterMonatomic potentialMasterLJLS = null;
-        Potential2SoftSphericalLSMulti pLJLS = null;
+        PotentialMasterCellFasterer potentialMasterLS;
+        PotentialMasterCellFasterer potentialMasterLJLS;
         AccumulatorAverageCovariance accPULS = null;
         AccumulatorAverageCovariance accPULSBlocks = new AccumulatorAverageCovariance(1, true);
         double[] uFacCutLS = null;
@@ -262,19 +255,26 @@ public class LjMd3Dv2y {
             for (int i=1; i<cutoffsLS.length; i++) {
                 cutoffsLS[i] = cutoffsLS[i-1]*1.2;
             }
-            pLS = new Potential2SoftSphericalLSMulti(sim.getSpace(), cutoffsLS, sim.potential);
-            potentialMasterLS.addPotential(pLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
-        
-            final MeterPUCutLS meterPULS = new MeterPUCutLS(sim.getSpace(), cutoffsLS.length);
-            meterPULS.setBox(sim.box);
-            meterPULS.setPotentialMaster(potentialMasterLS);
-            meterPULS.setTemperature(temperature);
+
+            double rcMaxLS = cutoffsLS[nCutoffsLS-1];
+            int cellRange = (int)Math.ceil(2.01*rcMaxLS / sim.box.getBoundary().getBoxSize().getX(0));
+
+            potentialMasterLS = new PotentialMasterCellFasterer(sim.getSpeciesManager(), sim.box, cellRange, BondingInfo.noBonding());
+            P2SoftSphericalSumTruncated p2tLS = new P2SoftSphericalSumTruncated(sim.getSpace(), rcMaxLS, sim.potential);
+            potentialMasterLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2tLS);
+
+            final MeterPUCutFasterer meterPULS;
+            potentialMasterLS.init();
 
             if (params.v2 == 0 && !useRho) {
-                potentialMasterLJLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
-                pLJLS = new Potential2SoftSphericalLSMulti(sim.getSpace(), cutoffsLS, p2LJ);
-                potentialMasterLJLS.addPotential(pLJLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
-                meterPULS.setPotentialMasterDADv2(potentialMasterLJLS);
+                potentialMasterLJLS = new PotentialMasterCellFasterer(sim.getSpeciesManager(), sim.box, cellRange, BondingInfo.noBonding());
+                P2SoftSphericalSumTruncated p2tLJLS = new P2SoftSphericalSumTruncated(sim.getSpace(), rcMaxLS, p2LJ);
+                potentialMasterLJLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2tLJLS);
+                potentialMasterLJLS.init();
+                meterPULS = new MeterPUCutFasterer(sim.box, potentialMasterLS, potentialMasterLJLS, temperature, cutoffsLS);
+            }
+            else {
+                meterPULS = new MeterPUCutFasterer(sim.box, potentialMasterLS, temperature, cutoffsLS);
             }
             uCut = meterPULS.getData();
 
@@ -310,8 +310,9 @@ public class LjMd3Dv2y {
         writeConfig.actionPerformed();
         
         System.out.println("hybrid acceptance: "+sim.integrator.getHybridAcceptance());
-        long numNbrUpdates = sim.potentialMasterList.getNeighborManager(sim.box).getNumUpdates();
-        System.out.println(String.format("avg steps between nbr update: %3.1f",((double)steps)/numNbrUpdates));
+        // FIXME
+        long numNbrUpdates = 0; //sim.potentialMasterList.getNeighborManager(sim.box).getNumUpdates();
+        System.out.printf("avg steps between nbr update: %3.1f\n",((double)steps)/numNbrUpdates);
 
         System.out.println();
 
@@ -334,7 +335,7 @@ public class LjMd3Dv2y {
             double errW = errPU.getValue(j+4);
             double corW = corPU.getValue(j+4);
 
-            System.out.println(String.format("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %6.4f", i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+            System.out.printf("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %6.4f\n", i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW);
 
             j+=5;
         }
@@ -359,7 +360,7 @@ public class LjMd3Dv2y {
                 double errW = errPULS.getValue(j+4);
                 double corW = corPULS.getValue(j+4);
 
-                System.out.println(String.format("rcLS: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %6.4f", i, (ulrc + uFacCutLS[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+                System.out.printf("rcLS: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %6.4f\n", i, (ulrc + uFacCutLS[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW);
 
                 j+=5;
             }
@@ -369,7 +370,6 @@ public class LjMd3Dv2y {
         
         DataGroup dataPU1 = (DataGroup)accPUBlocks.getData();
         IData avgPU1 = dataPU1.getData(accPUBlocks.AVERAGE.index);
-        IData errPU1 = dataPU1.getData(accPUBlocks.ERROR.index);
         IData covPU1 = dataPU1.getData(accPUBlocks.BLOCK_COVARIANCE.index);
         IData corPU1 = dataPU1.getData(accPUBlocks.BLOCK_CORRELATION.index);
         
@@ -397,7 +397,7 @@ public class LjMd3Dv2y {
             errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + ratioW2 - 2*errU*errW/(avgU*avgW)*corUW);
             avgU /= avgW;
             double corU = corPU1.getValue(j+0);
-            if (!useRho) System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU, avgU*biasU, corU));
+            if (!useRho) System.out.printf("rc: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, ulrc + avgU, errU, avgU*biasU, corU);
 
             double avgP = avgPU.getValue(jRaw+1);
             double errP = errPU.getValue(jRaw+1);
@@ -409,8 +409,8 @@ public class LjMd3Dv2y {
             double vol = sim.box.getBoundary().volume();
             double plrc = -p0lrc.virial(null)/(3*vol);
             double puCor = covPU1.getValue((j+0)*n+j+1) / Math.sqrt(covPU1.getValue((j+0)*n+j+0) * covPU1.getValue((j+1)*n+j+1));
-            if (useRho) System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, plrc + avgP, errP, avgP*biasP, corP));
-            else System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, avgP*biasP, corP, puCor));
+            if (useRho) System.out.printf("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, plrc + avgP, errP, avgP*biasP, corP);
+            else System.out.printf("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f\n", i, plrc + avgP, errP, avgP*biasP, corP, puCor);
 
             if (!useRho) {
 	            double avgDADy = avgPU.getValue(jRaw+2);
@@ -420,7 +420,7 @@ public class LjMd3Dv2y {
 	            errDADy = Math.abs(avgDADy/avgW)*Math.sqrt(errDADy*errDADy/(avgDADy*avgDADy) + ratioW2 - 2*errDADy*errW/(avgDADy*avgW)*corDADyW);
 	            avgDADy /= avgW;
 	            double corDADy = corPU1.getValue(j+2);
-	            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, avgDADy*biasDADy, corDADy));
+	            System.out.printf("rc: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, avgDADy*biasDADy, corDADy);
 	
 	            double avgDADv2 = avgPU.getValue(jRaw+3);
 	            double errDADv2 = errPU.getValue(jRaw+3);
@@ -443,28 +443,22 @@ public class LjMd3Dv2y {
 	
 	            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
 	            double dadCor = covPU1.getValue((j+2)*n+j+3) / Math.sqrt(covPU1.getValue((j+2)*n+j+2) * covPU1.getValue((j+3)*n+j+3));
-	            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, dadCor));
+	            System.out.printf("rc: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f\n", i, DADv2LRC + avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, dadCor);
 	            System.out.println();
             }
 
             j+=4;
             jRaw+=5;
         }
-        covPU = corPU = errPU = null;
 
         if (nCutoffsLS > 0) {
-            AtomPair selfPair = new AtomPair();
-            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().get(0);
-            double[][] puSelfLRC = pLS.energyVirialCut(selfPair);
-            double[][] puSelfLJLRC = null;
-            if (pLJLS!=null) puSelfLJLRC = pLJLS.energyVirialCut(selfPair);
 
             dataPU = (DataGroup)accPULS.getData();
             avgPU = dataPU.getData(accPULS.AVERAGE.index);
 
             dataPU1 = (DataGroup)accPULSBlocks.getData();
             avgPU1 = dataPU1.getData(accPULSBlocks.AVERAGE.index);
-            errPU1 = dataPU1.getData(accPULSBlocks.ERROR.index);
+            IData errPU1 = dataPU1.getData(accPULSBlocks.ERROR.index);
             covPU1 = dataPU1.getData(accPULSBlocks.BLOCK_COVARIANCE.index);
             corPU1 = dataPU1.getData(accPULSBlocks.BLOCK_CORRELATION.index);
 
@@ -485,12 +479,13 @@ public class LjMd3Dv2y {
 
                 double avgW = avgPU.getValue(j+4);
 
+                PotentialMasterFasterer dummy = new PotentialMasterFasterer(sim.getSpeciesManager(), sim.box, BondingInfo.noBonding());
+                dummy.doAllTruncationCorrection = true;
                 P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
-                p2t.setBox(sim.box);
-                Potential0Lrc p0lrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                p0lrc.setBox(sim.box);
-                double ulrc = p0lrc.energy(null) / numAtoms;
-                ulrc += puSelfLRC[0][i];
+                dummy.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2t);
+                double[] ulrca = {0}, dulrca = {0};
+                dummy.computeAllTruncationCorrection(ulrca, dulrca);
+                double ulrc = ulrca[0] / numAtoms;
                 if (i==cutoffs.length-1) ulrcRef = ulrc;
                 else ulrc -= ulrcRef;
 
@@ -504,7 +499,7 @@ public class LjMd3Dv2y {
                 double errP1 = errPU1.getValue(j1+1);
                 double corP1 = corPU1.getValue(j1+1);
                 double vol = sim.box.getBoundary().volume();
-                double plrc = -(p0lrc.virial(null) + numAtoms*puSelfLRC[1][i])/(3*vol);
+                double plrc = -dulrca[0]/(3*vol);
                 if (i==cutoffs.length-1) plrcRef = plrc;
                 else plrc -= plrcRef;
                 double puCor = covPU1.getValue((j1+0)*n1+j1+1) / Math.sqrt(covPU1.getValue((j1+0)*n1+j1+0) * covPU1.getValue((j1+1)*n1+j1+1));
@@ -517,10 +512,10 @@ public class LjMd3Dv2y {
                     avgU -= avgUref;
                     avgP -= avgPref;
                     avgDADy -= avgDADyref;
-                    if (!useRho) System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU1, (avgU-avgU1)/nAccBlocks, corU1));
-                    if (useRho) System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1));
-                    else System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1, puCor));
-                    if (!useRho) System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy1, (avgDADy-avgDADy1)/nAccBlocks, corDADy1));
+                    if (!useRho) System.out.printf("drcLS: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, ulrc + avgU, errU1, (avgU-avgU1)/nAccBlocks, corU1);
+                    if (useRho) System.out.printf("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1);
+                    else System.out.printf("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f\n", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1, puCor);
+                    if (!useRho) System.out.printf("drcLS: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy1, (avgDADy-avgDADy1)/nAccBlocks, corDADy1);
                 }
 
                 double avgDADv2 = avgPU.getValue(j+3)/avgW;
@@ -531,12 +526,12 @@ public class LjMd3Dv2y {
                 // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
                 if (p2LJ!=null) {
                     p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffsLS[i]);
-                    p2t.setBox(sim.box);
-                    p0lrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                    p0lrc.setBox(sim.box);
-                    ulrc = p0lrc.energy(null) / numAtoms;
-                    ulrc += puSelfLJLRC[0][i];
-                    plrc = -(p0lrc.virial(null) + numAtoms*puSelfLJLRC[1][i])/(3*vol);
+                    dummy.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2t);
+                    ulrca[0] = 0;
+                    dulrca[0] = 0;
+                    dummy.computeAllTruncationCorrection(ulrca, dulrca);
+                    ulrc = ulrca[0] / numAtoms;
+                    plrc = -dulrca[0]/(3*vol);
                     if (i==cutoffs.length-1) ulrcRefLJ = ulrc;
                     else ulrc -= ulrcRefLJ;
                     if (i==cutoffs.length-1) plrcRefLJ = plrc;
@@ -557,7 +552,7 @@ public class LjMd3Dv2y {
                 if (!useRho) {
 	                double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
 	                double dadCor = covPU1.getValue((j1+2)*n1+j1+3) / Math.sqrt(covPU1.getValue((j1+2)*n1+j1+2) * covPU1.getValue((j1+3)*n1+j1+3));
-	                System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv21, (avgDADv21-avgDADv2)/nAccBlocks, corDADv21, dadCor));
+	                System.out.printf("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f\n", i, DADv2LRC + avgDADv2, errDADv21, (avgDADv21-avgDADv2)/nAccBlocks, corDADv21, dadCor);
 	                System.out.println();
                 }
 
