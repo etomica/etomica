@@ -139,9 +139,9 @@ public class P2SoftSphere extends Potential2SoftSpherical {
     public double integral(double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
-        double rC3 = rC * rC * rC;
+        double rCD = space.powerD(rC);
 
-        return A * rC3 * u(rC * rC) / (n - D);  //complete LRC is obtained by multiplying by N1*N2/V
+        return A * rCD * u(rC * rC) / (n - D);  //complete LRC is obtained by multiplying by N1*N2/V
     }
 
     /**

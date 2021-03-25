@@ -126,6 +126,15 @@ public class P2SoftSphereFloatTab extends P2SoftSphere {
         if (sigma > 0) populateTabulatedValues();
     }
 
+    public double integral(double rC) {
+        double A = space.sphereArea(1.0);  //multiplier for differential surface element
+        int D = space.D();                 //spatial dimension
+        double rCD = space.powerD(rC);
+
+        double sig_rCn = sigma / rC;
+        return epsilon * A * rCD * Math.pow(sig_rCn, n+nFloat) / (n+nFloat - D);
+    }
+
     private final double nFloat;
     private final double xFac;
     private final double[][] rpTab;

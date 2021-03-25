@@ -77,10 +77,10 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
     public double integral(double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
-        double rC3 = rC * rC * rC;
+        double rCD = space.powerD(rC);
 
         double sig_rCn = sigma / rC;
-        return epsilon * A * rC3 * Math.pow(sig_rCn, n) / (n - D);
+        return epsilon * A * rCD * Math.pow(sig_rCn, n) / (n - D);
     }
 
     /**

@@ -75,12 +75,11 @@ public class P2LennardJones extends Potential2SoftSpherical {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rc = sigma / rC;
-        double sigmaD = space.powerD(sigma);
-        double rcD = space.powerD(rc);
+        double rCD = space.powerD(rC);
         double rc3 = rc * rc * rc;
         double rc6 = rc3 * rc3;
         double rc12 = rc6 * rc6;
-        return 4.0 * epsilon * sigmaD * A * (rc12 / (12. - D) - rc6 / (6. - D)) / rcD;  //complete LRC is obtained by multiplying by N1*N2/V
+        return 4.0 * epsilon * rCD * A * (rc12 / (12. - D) - rc6 / (6. - D));
     }
 
     /**
