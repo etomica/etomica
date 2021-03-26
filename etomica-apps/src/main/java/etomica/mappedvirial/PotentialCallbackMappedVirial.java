@@ -4,14 +4,14 @@
 
 package etomica.mappedvirial;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.*;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
@@ -24,14 +24,11 @@ import etomica.space3d.Space3D;
  * 
  * @author Andrew Schultz
  */
-public class PotentialCalculationMappedVirial implements PotentialCalculation {
+public class PotentialCallbackMappedVirial implements PotentialCallback {
 
+    protected final PotentialCompute pc;
     protected final Box box;
-    protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<Vector> forceManager;
-    protected final Space space;
     protected double beta;
-    protected final Vector dr;
     protected double c1;
     protected final double[] cumint;
     protected final AtomPair pair;
@@ -43,14 +40,11 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected double sum;
     protected double x0, vCut;
 
-    public PotentialCalculationMappedVirial(Space space, Box box, int nbins, AtomLeafAgentManager<Vector> forceManager) {
-        this.space = space;
+    public PotentialCallbackMappedVirial(Box box, PotentialCompute pc, int nbins) {
+        this.pc = pc;
         this.box = box;
         this.nbins = nbins;
         pair = new AtomPair();
-        this.forceManager = forceManager;
-        allAtoms = new IteratorDirective();
-        dr = space.makeVector();
         cumint = new double[nbins+1];
         vol = box.getBoundary().volume();
     }
@@ -58,7 +52,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         Box box = new Box(sim.getSpace());
-        PotentialCalculationMappedVirial pc = new PotentialCalculationMappedVirial(sim.getSpace(),box, 1000000, null);
+        PotentialCallbackMappedVirial pc = new PotentialCallbackMappedVirial(box, null, 1000000);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 2.5);
         pc.setTemperature(1, p2Truncated);
@@ -91,7 +85,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         x0 = rc*0.95;
         if (vCut==0) vCut = x0;
         c1 = Math.log(rc+1)/nbins;
-        int D = space.D();
+        int D = box.getSpace().D();
         qu = 0;
         vShift = -p2.u(vCut*vCut);
         for (int i=1; i<=nbins; i++) {
@@ -121,7 +115,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         double v = u + vShift;
         if (r > vCut) v = 0;
         double evm1 = Math.exp(-beta*v)-1;
-        return -r + space.D()/(1+q/vol)*y/(r*r*(evm1+1));
+        return -r + box.getSpace().D()/(1+q/vol)*y/(r*r*(evm1+1));
     }
 
     protected double cumint( double r) {
@@ -143,30 +137,23 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     public void reset() {
         sum = sum1 = sum2 = 0;
     }
-    
-    public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        if (!(potential instanceof Potential2SoftSpherical)) return;
-        Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
-        IAtom a = atoms.get(0);
-        IAtom b = atoms.get(1);
 
-        dr.Ev1Mv2(b.getPosition(),a.getPosition());
-        box.getBoundary().nearestImage(dr);
+    @Override
+    public void pairCompute(int i, int j, Vector dr, double[] u012) {
+
         double r2 = dr.squared();
         double r = Math.sqrt(r2);
-        if (r > p2.getRange()) return;
-        double fij = p2.du(r2);
-        double up = fij/r;
+        double up = u012[1]/r;
         double vp = up;
         if (r>vCut) vp = 0;
         sum += r*(vp-up);
         sum1 += r*(vp-up);
+        Vector[] forces = pc.getForces();
         if (r<x0) {
-            Vector fi = forceManager.getAgent(a);
-            Vector fj = forceManager.getAgent(b);
-            double u = p2.u(r2);
+            Vector fi = forces[i];
+            Vector fj = forces[j];
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-            double xs = calcXs(r, u);
+            double xs = calcXs(r, u012[0]);
             double wp = 0.5*fifj;
             sum += xs*(vp-wp);
             sum2 += xs*(vp-wp);
@@ -176,7 +163,8 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     public double sum1, sum2;
 
     public double getPressure() {
-        int D = space.D();
+        int D = box.getSpace().D();
         return sum/(D*box.getBoundary().volume());
     }
+
 }
