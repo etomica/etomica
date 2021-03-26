@@ -258,6 +258,7 @@ public class LjMd3Dv2yFasterer {
 
             double rcMaxLS = cutoffsLS[nCutoffsLS-1];
             int cellRange = (int)Math.ceil(2.01*rcMaxLS / sim.box.getBoundary().getBoxSize().getX(0));
+            cellRange = Math.max(cellRange, 3);
 
             potentialMasterLS = new PotentialMasterCellFasterer(sim.getSpeciesManager(), sim.box, cellRange, BondingInfo.noBonding());
             P2SoftSphericalSumTruncated p2tLS = new P2SoftSphericalSumTruncated(sim.getSpace(), rcMaxLS, sim.potential);
