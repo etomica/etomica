@@ -69,6 +69,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         int[] cellOffsets = cellManager.getCellOffsets();
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
+        int numCellOffsets = cellManager.numCellOffsets;
         long t1 = System.nanoTime();
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
@@ -86,7 +87,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
             }
             int iCell = atomCell[i];
-            for (int cellOffset : cellOffsets) {
+            for (int k=0; k<numCellOffsets; k++) {
+                int cellOffset = cellOffsets[k];
                 int jCell = iCell + cellOffset;
                 jbo = boxOffsets[jCell];
                 jCell = wrapMap[jCell];
