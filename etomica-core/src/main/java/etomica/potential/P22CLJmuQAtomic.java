@@ -18,7 +18,7 @@ import etomica.space.Vector;
  *
  * @author Jayant K. Singh
  */
-public class P22CLJmuQAtomic implements IPotentialPair {
+public class P22CLJmuQAtomic implements Potential2Soft {
 
     private double sigma12, sigma1Sq, sigma2Sq, sigma12Sq;
     private double epsilon1, epsilon2, epsilon12;

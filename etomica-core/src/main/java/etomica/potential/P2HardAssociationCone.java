@@ -20,7 +20,7 @@ import etomica.units.dimensions.*;
  * @author Jayant K. Singh
  */
 
-public class P2HardAssociationCone implements IPotentialPair {
+public class P2HardAssociationCone implements Potential2Soft {
 
     public static boolean FLAG = false;
     private double wellcutoffFactor;

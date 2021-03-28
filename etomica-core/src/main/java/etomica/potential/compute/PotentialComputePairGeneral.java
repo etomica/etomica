@@ -12,6 +12,7 @@ import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialPair;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -24,7 +25,7 @@ import java.util.Objects;
 public class PotentialComputePairGeneral implements PotentialCompute {
 
     private final NeighborIterator neighborIterator;
-    protected final IPotentialPair[][] pairPotentials;
+    protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
     private final NeighborManager neighborManager;
     private final NeighborIteratorCellFasterer.SuperNbrConsumer nbrConsumer;
@@ -43,10 +44,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     public boolean doOneTruncationCorrection = false;
 
     public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
-        this(new IPotentialPair[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
+        this(new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
     }
 
-    public PotentialComputePairGeneral(IPotentialPair[][] p2, Box box, NeighborManager neighborManager) {
+    public PotentialComputePairGeneral(Potential2Soft[][] p2, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
         pairPotentials = p2;
         this.neighborManager = neighborManager;
@@ -150,7 +151,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         return energyTot;
     }
 
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotentialPair p12) {
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
 
@@ -201,12 +202,12 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
-            IPotentialPair[] ip = pairPotentials[iType];
+            Potential2Soft[] ip = pairPotentials[iType];
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
                 int j = jAtom.getLeafIndex();
                 int jType = jAtom.getType().getIndex();
-                IPotentialPair pij = ip[jType];
+                Potential2Soft pij = ip[jType];
                 if (pij == null) return;
                 double uij;
                 if (doForces) {

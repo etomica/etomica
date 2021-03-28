@@ -7,11 +7,11 @@ package etomica.modules.colloid;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.potential.IPotentialPair;
 import etomica.potential.P2HardGeneric;
+import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 
-public class P2SquareWellMonomerFasterer extends P2HardGeneric implements IPotentialPair {
+public class P2SquareWellMonomerFasterer extends P2HardGeneric implements Potential2Soft {
 
     protected int chainLength;
     protected double rGraftMin2;

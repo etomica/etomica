@@ -24,7 +24,7 @@ import etomica.util.random.RandomNumberGenerator;
  *
  * @author Andrew Schultz
  */
-public class P2LJDipoleAtomic implements IPotentialPair {
+public class P2LJDipoleAtomic implements Potential2Soft {
 
     private final Space space;
 
