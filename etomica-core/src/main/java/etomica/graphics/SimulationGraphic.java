@@ -139,9 +139,13 @@ public class SimulationGraphic implements SimulationContainer {
 
     private static JFrame makeFrame(JPanel panel) {
         JFrame f = new JFrame();
-        f.setSize(700, 500);
         f.getContentPane().add(panel);
         f.pack();
+        Dimension s = f.getSize();
+        Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
+        s.height = Math.min(s.height, ss.height);
+        s.width = Math.min(s.width, ss.width);
+        f.setSize(s);
         return f;
     }
 
