@@ -259,7 +259,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
      * potential does not result in a gradient or torque on the molecule and is
      * independent of position or orientation.
      */
-    private static class P0ReactionField extends PotentialMolecular implements IPotential0Lrc, PotentialMolecularSoft {
+    private static class P0ReactionField extends PotentialMolecular implements IPotential0MoleculeLrc, PotentialMolecularSoft {
 
         protected final P2ReactionFieldDipole potential;
         protected final Vector[] gradient;
