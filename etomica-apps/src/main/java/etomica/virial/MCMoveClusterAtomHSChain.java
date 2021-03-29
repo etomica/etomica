@@ -20,10 +20,15 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
 
     protected final double sigma;
     protected int[] seq;
+    protected boolean forceInBox;
 
     public MCMoveClusterAtomHSChain(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
+    }
+
+    public void setForceInBox(boolean forceInBox) {
+        this.forceInBox = forceInBox;
     }
 
     public boolean doTrial() {
@@ -59,10 +64,12 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
                 }
                 pos.TE(sig);
                 insideBox = true;
-                for (int j = 0; j < pos.getD(); j++) {
-                    if (Math.abs(pos.getX(j)) > box.getBoundary().getBoxSize().getX(j)/2) {
-                        insideBox = false;
-                        break;
+                if (forceInBox) {
+                    for (int j = 0; j < pos.getD(); j++) {
+                        if (Math.abs(pos.getX(j)) > box.getBoundary().getBoxSize().getX(j) / 2) {
+                            insideBox = false;
+                            break;
+                        }
                     }
                 }
                 if (insideBox) {

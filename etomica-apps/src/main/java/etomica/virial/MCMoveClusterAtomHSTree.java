@@ -26,6 +26,10 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
         this.sigma = sigma;
     }
 
+    public void setForceInBox(boolean forceInBox) {
+        this.forceInBox = forceInBox;
+    }
+
     public void setBox(Box box) {
         super.setBox(box);
         int n = box.getLeafList().size();
@@ -114,10 +118,12 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                     }
                     pos.TE(sig);
                     insideBox = true;
-                    for (int i = 0; i < pos.getD(); i++) {
-                        if (Math.abs(pos.getX(i)) > box.getBoundary().getBoxSize().getX(i)/2) {
-                            insideBox = false;
-                            break;
+                    if (forceInBox) {
+                        for (int i = 0; i < pos.getD(); i++) {
+                            if (Math.abs(pos.getX(i)) > box.getBoundary().getBoxSize().getX(i) / 2) {
+                                insideBox = false;
+                                break;
+                            }
                         }
                     }
                     if (insideBox) {
@@ -154,4 +160,5 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
     protected int[][] bonds;
     protected int[] degree, a;
     protected int[] inserted;
+    protected boolean forceInBox;
 }

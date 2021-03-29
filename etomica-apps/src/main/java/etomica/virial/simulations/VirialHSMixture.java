@@ -152,12 +152,15 @@ public class VirialHSMixture {
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
+            mcMoveHS.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
+            mcMoveHST.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
             sim.integrator.getMoveManager().addMCMove(mcMoveHST);
             sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
             MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
+            mcMoveHSC.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
         } else if (ref == VirialHSParam.RANDOM) {
