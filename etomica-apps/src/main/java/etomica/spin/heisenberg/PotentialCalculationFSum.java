@@ -2,7 +2,6 @@ package etomica.spin.heisenberg;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.molecule.DipoleSource;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
 import etomica.space.Space;
@@ -14,7 +13,6 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
     protected final double mu, J, bt; //TODO should I add final here
     protected Vector dr;
     protected double FSum = 0;
-    protected DipoleSource dipoleSource;
 
 
     public PotentialCalculationFSum(Space space, double dipoleMagnitude, double interactionS, double beta) {
@@ -108,10 +106,6 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
         }
 
 
-    }
-
-    public void setDipoleSource(DipoleSource newDipoleSource) {
-        dipoleSource = newDipoleSource;
     }
 
     public void zeroSum() {
