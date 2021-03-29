@@ -9,14 +9,14 @@ import etomica.molecule.Molecule;
 import etomica.molecule.MoleculeArrayList;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
 import etomica.util.Debug;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MoleculeArrayListTest {
 
-    protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
+    protected ISpecies species = new SpeciesBuilder(Space3D.getInstance()).build();
     
 	/*
 	 * testTrimToSize()

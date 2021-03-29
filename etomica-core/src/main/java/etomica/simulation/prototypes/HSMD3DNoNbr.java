@@ -7,6 +7,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -21,7 +22,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Three-dimensional hard-sphere molecular dynamics simulation with no
@@ -33,14 +34,13 @@ public class HSMD3DNoNbr extends Simulation {
 
     public Box box;
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public P2HardSphere potential;
 
     public HSMD3DNoNbr() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -54,9 +54,8 @@ public class HSMD3DNoNbr extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         box.setNMolecules(species, numAtoms);

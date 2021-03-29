@@ -4,6 +4,7 @@
 
 package etomica.modules.sam;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
@@ -14,6 +15,7 @@ import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.Sulfur;
 import etomica.config.ConformationChainZigZag;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.SimulationGraphic;
@@ -30,7 +32,8 @@ import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.IOrientation3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -48,11 +51,11 @@ public class Sam extends Simulation {
     public final double sinusoidalB;
     public final P2Harmonic p2SurfaceBond;
     public final double harmonicStrength;
-    public SpeciesAlkaneThiol species;
-    public SpeciesSpheresMono speciesSurface;
+    public SpeciesGeneral species;
+    public SpeciesGeneral speciesSurface;
     public Box box;
     public IntegratorVelocityVerletSAM integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public IMoleculePositionDefinition positionDefinition;
     public P1WCAWall wallPotential;
     public ConfigurationSAM config;
@@ -80,12 +83,17 @@ public class Sam extends Simulation {
 
         //species and potentials
         chainLength = 16;
-        species = new SpeciesAlkaneThiol(space, chainLength - 1);
-        species.setIsDynamic(true);
+        ConformationChainZigZag conf0 = new ConformationChainZigZag(getSpace());
+        species = new SpeciesBuilder(getSpace())
+                .addCount(new AtomType(Sulfur.INSTANCE), 1)
+                .addCount(AtomType.simple("CH2", 14), chainLength - 2)
+                .addCount(AtomType.simple("CH3", 15), 1)
+                .setDynamic(true)
+                .withConformation(conf0)
+                .build();
         addSpecies(species);
 
-        speciesSurface = new SpeciesSpheresMono(this, space);
-        speciesSurface.setIsDynamic(true);
+        speciesSurface = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesSurface);
 
@@ -108,8 +116,6 @@ public class Sam extends Simulation {
         bondL_CC = 1.54;
         double bondL_CS = 1.82;
         bondTheta = Math.PI * 114 / 180;
-        ConformationChainZigZag conformation = new ConformationChainZigZag(space);
-        species.setConformation(conformation);
         chainTheta = 0;
         chainPsi = 0;
         chainPhi = new double[4];
@@ -131,7 +137,7 @@ public class Sam extends Simulation {
         config.setNCellsZ(numZCells);
         config.setSurfaceYOffset(2);
 
-        config.setConformation(0, (ConformationChainZigZag) species.getConformation());
+        config.setConformation(0, conf0);
         config.setConformation(1, new ConformationChainZigZag(space));
         config.setConformation(2, new ConformationChainZigZag(space));
         config.setConformation(3, new ConformationChainZigZag(space));
@@ -145,12 +151,11 @@ public class Sam extends Simulation {
         integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(500);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
-        AtomType typeCH2 = species.getCH2Type();
-        AtomType typeCH3 = species.getCH3Type();
-        AtomType typeS = species.getSulfurType();
+        AtomType typeCH2 = species.getTypeByName("CH2");
+        AtomType typeCH3 = species.getTypeByName("CH3");
+        AtomType typeS = species.getTypeByName("S");
 
         double sigmaCH3 = 3.75;
         double sigmaSulfur = 3.62;
@@ -234,30 +239,30 @@ public class Sam extends Simulation {
         p1SurfaceBond.setB(0); // initially disabled
         p1SurfaceBond.setCellSize(sizeCellX, sizeCellZ);
         p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
-        potentialMaster.addPotential(p1SurfaceBond, new AtomType[]{species.getSulfurType()});
+        potentialMaster.addPotential(p1SurfaceBond, new AtomType[]{typeS});
 
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
         wallPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1) * 0.5);
-        potentialMaster.addPotential(wallPotential, new AtomType[]{species.getCH2Type()});
-        potentialMaster.addPotential(wallPotential, new AtomType[]{species.getCH3Type()});
+        potentialMaster.addPotential(wallPotential, new AtomType[]{typeCH2});
+        potentialMaster.addPotential(wallPotential, new AtomType[]{typeCH3});
 
         forceSum = new PotentialCalculationForceSumWall(wallPotential);
         integrator.setForceSum(forceSum);
 
         P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));
         p2CH2Surface = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
-        potentialMaster.addPotential(p2CH2Surface, new AtomType[]{speciesSurface.getLeafType(), species.getCH2Type()});
+        potentialMaster.addPotential(p2CH2Surface, new AtomType[]{speciesSurface.getLeafType(), typeCH2});
         potentialMaster.getNeighborManager(box).setDoApplyPBC(false);
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
 
         harmonicStrength = 10000;
         p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
         p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
-        potentialMaster.addPotential(p2SulfurSurfaceLJ, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        potentialMaster.addPotential(p2SulfurSurfaceLJ, new AtomType[]{speciesSurface.getLeafType(), typeS});
         criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
         criterion3.setBox(box);
         P2Surface p2SurfaceTrunc = new P2Surface(space, p2SulfurSurfaceLJ, p2SurfaceBond, criterion3);
-        potentialMaster.addPotential(p2SurfaceTrunc, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        potentialMaster.addPotential(p2SurfaceTrunc, new AtomType[]{speciesSurface.getLeafType(), typeS});
         findTetherBonds();
 
 

@@ -5,6 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -23,7 +24,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.CompoundUnit;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
@@ -40,9 +41,8 @@ import java.awt.*;
 public class SimLJ extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MCMoveAtomNPath mcMoveAtom;
@@ -52,7 +52,7 @@ public class SimLJ extends Simulation {
 
     public SimLJ(int numAtoms, double temperature, double density, double rc, double w, int offsetDim) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);
@@ -73,8 +73,7 @@ public class SimLJ extends Simulation {
         integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2LennardJones(space, sigma, 1);
         AtomType leafType = species.getLeafType();
@@ -196,14 +195,11 @@ public class SimLJ extends Simulation {
         }
 
         long eqSteps = steps/10;
-        sim.ai.setMaxSteps(eqSteps);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
+
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-
-        System.out.println("equilibration finished ("+eqSteps+" steps)");
+System.out.println("equilibration finished ("+eqSteps+" steps)");
 
         long t1 = System.currentTimeMillis();
 
@@ -213,8 +209,7 @@ public class SimLJ extends Simulation {
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);

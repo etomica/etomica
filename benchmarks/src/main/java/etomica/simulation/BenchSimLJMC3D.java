@@ -35,7 +35,7 @@ public class BenchSimLJMC3D {
                 TestLJMC3D.class
         );
 
-        sim = new TestLJMC3D(numMolecules, numSteps, config);
+        sim = new TestLJMC3D(numMolecules, config);
 
         pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);

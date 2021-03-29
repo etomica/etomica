@@ -5,6 +5,7 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -23,7 +24,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import javax.swing.*;
 
@@ -36,23 +37,21 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
     public MeterTemperature thermometer;
-    public SpeciesSpheresMono speciesA;
-    public SpeciesSpheresMono speciesB;
+    public SpeciesGeneral speciesA;
+    public SpeciesGeneral speciesB;
     public P2SquareWellBonded AAbonded;
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
-    public ActivityIntegrate activityIntegrate;
+
     public IAtom[] agents;
     private AtomLeafAgentManager<IAtom> agentManager = null;
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 
@@ -95,9 +94,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         meterDimerFraction.setBox(box);
         thermometer = new MeterTemperature(box, space.D());
 
-        activityIntegrate = new ActivityIntegrate(integratorHard1);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integratorHard1));
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);

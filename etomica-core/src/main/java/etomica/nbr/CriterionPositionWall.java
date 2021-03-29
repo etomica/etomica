@@ -4,15 +4,15 @@
 
 package etomica.nbr;
 
-import etomica.atom.IAtom;
-import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
 import etomica.nbr.CriterionPositionWall.DoubleWrapper;
+import etomica.simulation.Simulation;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.util.Debug;
@@ -72,7 +72,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
      */
     public void setInteractionRange(double r) {
         interactionRange = r;
-        if (neighborRange == Double.NaN) {
+        if (Double.isNaN(neighborRange)) {
             return;
         }
         rMaxSafe = (neighborRange - interactionRange);
@@ -88,14 +88,15 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
      * distance of the wall are "accepted".
      */
 	public void setNeighborRange(double r) {
-		if (interactionRange != Double.NaN && r < interactionRange) throw new IllegalArgumentException("Neighbor radius must be larger than interaction range");
-		neighborRange = r;
-        if (interactionRange == Double.NaN) {
+        if (!Double.isNaN(interactionRange) && r < interactionRange)
+            throw new IllegalArgumentException("Neighbor radius must be larger than interaction range");
+        neighborRange = r;
+        if (Double.isNaN(interactionRange)) {
             return;
         }
         rMaxSafe = (neighborRange - interactionRange);
         displacementLimit = rMaxSafe * safetyFactor;
-	}
+    }
     
     public double getNeighborRange() {
         return neighborRange;

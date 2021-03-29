@@ -25,7 +25,7 @@ public class ClusterMultivalueUmbrella implements ClusterWeight {
     }
 
     public ClusterAbstract makeCopy() {
-        ClusterMultivalueUmbrella newCluster = new ClusterMultivalueUmbrella((ClusterWheatleySoftDerivatives) cluster.makeCopy());
+        ClusterMultivalueUmbrella newCluster = new ClusterMultivalueUmbrella((ClusterAbstractMultivalue) cluster.makeCopy());
         newCluster.setWeightCoefficients(weightCoefficients);
         return newCluster;
     }

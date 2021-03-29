@@ -5,6 +5,7 @@
 package etomica.modules.swmd;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -23,24 +24,23 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 
 public class Swmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public IntegratorHard integrator;
     public P2HardWrapper potentialWrapper;
-    public ActivityIntegrate activityIntegrate;
+
     
     public Swmd(Space _space) {
         super(_space);
 
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         ((ElementSimple) species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
         addSpecies(species);
 
@@ -60,8 +60,7 @@ public class Swmd extends Simulation {
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma * lambda);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         integrator.setNullPotential(nullPotential, species.getLeafType());
 
@@ -92,6 +91,6 @@ public class Swmd extends Simulation {
         }
             
         Swmd sim = new Swmd(space);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
 }

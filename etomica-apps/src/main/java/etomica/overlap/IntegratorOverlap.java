@@ -7,6 +7,10 @@ package etomica.overlap;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorManagerMC;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
 /**
  * This integrator class manages (2) sub-integrators for an overlap
  * sampling simulation.
@@ -15,12 +19,13 @@ public class IntegratorOverlap extends IntegratorManagerMC {
 
     protected final double[] stepFrac;
     protected long numSubSteps;
-    protected long[] totNumSubSteps;
+    protected long[] totNumSteps;
     protected ReferenceFracSource fracSource;
     protected boolean doAdjustStepFrac, doAggressiveAdjustStepFrac;
     protected long adjustInterval, adjustCountdown;
     protected long[] totTime;
     protected boolean doAdjustStepsOnTime;
+    protected boolean ignoreResetForFrac;
 
     public IntegratorOverlap(Integrator[] aIntegrators) {
         super(null);
@@ -30,13 +35,12 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         }
         int nIntegrators = this.integrators.size();
         stepFrac = new double[nIntegrators];
-        totNumSubSteps = new long[nIntegrators];
+        totNumSteps = new long[nIntegrators];
         totTime = new long[nIntegrators];
         setAdjustStepFraction(true);
         setAdjustInterval(1);
         //there are no global moves
         setGlobalMoveInterval(Double.POSITIVE_INFINITY);
-
 
         // and hope nobody calls add/remove Integrators
     }
@@ -53,8 +57,6 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             if (doAdjustStepFrac) {
                 stepFrac[i] = 1.0 / nIntegrators;
             }
-            totNumSubSteps[i] = 0;
-            totTime[i] = 0;
         }
     }
 
@@ -63,6 +65,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         if (fracSource != null) {
             // we just want to reset our frac-related stuff
             setReferenceFracSource(fracSource);
+        }
+        if (!ignoreResetForFrac && doAdjustStepFrac) {
+            for (int i = 0; i < totNumSteps.length; i++) {
+                totNumSteps[i] = totTime[i] = 0;
+            }
         }
     }
 
@@ -132,6 +139,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     // Override superclass so we can run the integrators for different lenghts
     // of time.  There are no global moves.
     protected void doStepInternal() {
+        ignoreResetForFrac = false;
         int totSubSteps = 0;
         int nIntegrators = this.integrators.size();
         if (!doAggressiveAdjustStepFrac) {
@@ -150,32 +158,33 @@ public class IntegratorOverlap extends IntegratorManagerMC {
                     integrators.get(i).doStep();
                 }
                 totTime[i] += System.nanoTime();
-                totNumSubSteps[i] += iSubSteps;
+                totNumSteps[i]++;
             }
         } else {
             int iBox;
-            if (stepCount < 21) {
-                iBox = (int) (stepCount % 2);
+            long totSteps = totNumSteps[0] + totNumSteps[1];
+            if (totSteps < 21) {
+                iBox = (int) (totSteps % 2);
             } else {
                 // stepCount starts at 1
-                iBox = ((double) totNumSubSteps[0]) / ((stepCount - 1) * numSubSteps) > stepFrac[0] ? 1 : 0;
+                iBox = ((double) totNumSteps[0]) / (totSteps - 1) > stepFrac[0] ? 1 : 0;
             }
             totTime[iBox] -= System.nanoTime();
             for (int j = 0; j < numSubSteps; j++) {
                 integrators.get(iBox).doStep();
             }
             totTime[iBox] += System.nanoTime();
-            totNumSubSteps[iBox] += numSubSteps;
+            totNumSteps[iBox]++;
         }
         if (doAdjustStepFrac && --adjustCountdown == 0) {
             double nFrac;
-            if (doAdjustStepsOnTime && totTime[0] > 4 * totNumSubSteps[0] / numSubSteps && totTime[1] > 4 * totNumSubSteps[1] / numSubSteps) {
+            if (doAdjustStepsOnTime && totTime[0] > 4 * totNumSteps[0] && totTime[1] > 4 * totNumSteps[1]) {
                 double idealFrac = fracSource.getIdealRefFraction((double) totTime[0] / (totTime[0] + totTime[1]));
                 double tRatio = idealFrac / (1 - idealFrac);
-                double nRatio = tRatio * Math.sqrt(((double) totNumSubSteps[0]) * totTime[1] / totNumSubSteps[1] / totTime[0]);
+                double nRatio = tRatio * Math.sqrt(((double) totNumSteps[0]) * totTime[1] / totNumSteps[1] / totTime[0]);
                 nFrac = nRatio / (1 + nRatio);
             } else {
-                nFrac = fracSource.getIdealRefFraction((double) totNumSubSteps[0] / (totNumSubSteps[0] + totNumSubSteps[1]));
+                nFrac = fracSource.getIdealRefFraction((double) totNumSteps[0] / (totNumSteps[0] + totNumSteps[1]));
             }
             if (nFrac < 0.001) nFrac = 0.001;
             else if (nFrac > 0.999) nFrac = 0.999;
@@ -190,7 +199,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     }
 
     public double getRefStepFraction() {
-        return totNumSubSteps[0] / (double) (totNumSubSteps[0] + totNumSubSteps[1]);
+        return totNumSteps[0] / (double) (totNumSteps[0] + totNumSteps[1]);
     }
 
     public void setRefStepFraction(double f) {
@@ -200,6 +209,29 @@ public class IntegratorOverlap extends IntegratorManagerMC {
 
     public double getRefTimeFraction() {
         return totTime[0] / (double) (totTime[0] + totTime[1]);
+    }
+
+    public void writeStateToFile(OutputStreamWriter osw) {
+        try {
+            osw.write(totNumSteps[0] + " " + totNumSteps[1] + " ");
+            osw.write(totTime[0] + " " + totTime[1] + "\n");
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void readStateFromFile(BufferedReader br) {
+        try {
+            String[] bits = br.readLine().split(" ");
+            totNumSteps[0] = Long.parseLong(bits[0]);
+            totNumSteps[1] = Long.parseLong(bits[1]);
+            totTime[0] = Long.parseLong(bits[2]);
+            totTime[1] = Long.parseLong(bits[3]);
+            // hack!  Don't reset this stuff later when someone calls reset()
+            ignoreResetForFrac = true;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public interface ReferenceFracSource {

@@ -7,6 +7,8 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
@@ -17,7 +19,7 @@ import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
@@ -162,7 +164,7 @@ public class VirialCPSHeliumNonAdditiveClassical {
         refCluster.setTemperature(temperature);
 
         
-        SpeciesSpheresMono species = new SpeciesSpheresMono(space, new ElementSimple("A"));
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster,total ? targetClusterT : targetCluster, false);
                 
         
@@ -235,15 +237,13 @@ public class VirialCPSHeliumNonAdditiveClassical {
                 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 0);
+//                    sim.initRefPref(null, 0, false);
 //                    sim.equilibrate(null,0);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
 //            });
-            sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -258,20 +258,20 @@ public class VirialCPSHeliumNonAdditiveClassical {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/blocks*blocksEq); // 5000 IntegratorOverlap steps = 5e6 steps
-        System.out.println((stepsPerBlock*blocksEq) + " equilibration steps ("+blocksEq+" blocks of "+stepsPerBlock+" steps)"); 
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println((stepsPerBlock*blocksEq) + " equilibration steps ("+blocksEq+" blocks of "+stepsPerBlock+" steps)");
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         sim.setAccumulatorBlockSize(stepsPerBlock);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
-        
+
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

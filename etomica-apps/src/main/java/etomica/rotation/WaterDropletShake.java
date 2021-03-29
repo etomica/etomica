@@ -4,6 +4,7 @@
 
 package etomica.rotation;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
@@ -24,6 +25,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -37,7 +39,7 @@ public class WaterDropletShake {
         Simulation sim = new Simulation(space);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
-        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true);
         sim.addSpecies(species);
         box.setNMolecules(species, 108);
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
@@ -62,9 +64,7 @@ public class WaterDropletShake {
 //        MeterTemperature meterTemperature = new MeterTemperature(box, 3);
 //        System.out.println("T="+Kelvin.UNIT.fromSim(meterTemperature.getDataAsScalar()));
 //        integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -72,8 +72,8 @@ public class WaterDropletShake {
         double chargeOxygen = Electron.UNIT.toSim(-0.82);
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
 
-        AtomType oType = species.getOxygenType();
-        AtomType hType = species.getHydrogenType();
+        AtomType oType = species.getTypeByName("H");
+        AtomType hType = species.getTypeByName("O");
         double epsOxygen = new P2WaterSPC(space).getEpsilon();
         double sigOxygen = new P2WaterSPC(space).getSigma();
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);
@@ -99,13 +99,14 @@ public class WaterDropletShake {
         potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
 
         if (false) {
-            ai.setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
             return graphic;
         }
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         return null;
     }
 

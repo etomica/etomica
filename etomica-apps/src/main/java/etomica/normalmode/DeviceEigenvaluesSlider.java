@@ -4,20 +4,8 @@
 
       package etomica.normalmode;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -25,33 +13,75 @@ import etomica.modifier.Modifier;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 /**
  * @author taitan
- *
  */
 public class DeviceEigenvaluesSlider extends Device {
 
-	private JPanel        eValNumPanel;  // main panel for eigenvalues # device PRIVATE
-	private DeviceSlider  eValNumSlider; // Do not make accessible
+	private JPanel eValNumPanel;  // main panel for eigenvalues # device PRIVATE
+	private DeviceSlider eValNumSlider; // Do not make accessible
 	private JRadioButton  buttonAllEVal;   // Do not make accessible
 	private JRadioButton  buttonOneEVal;  // Do not make accessible
-	protected IntegratorHarmonic integrator;
+	private final IntegratorHarmonic integrator;
 
 	private final int DEFAULT_MIN_nEIGENVECTORS = 0;
 	private final int DEFAULT_MAX_nEIGENVECTORS = 24;
 
-	public DeviceEigenvaluesSlider(Controller cont) {
-		
-        //using all eigenvalues or individual radio button
-        ButtonGroup eValGroup = new ButtonGroup();
-        buttonAllEVal = new JRadioButton("All Normal Modes");
+	public DeviceEigenvaluesSlider(Controller cont, IntegratorHarmonic integrator) {
+		super(cont);
+
+		this.integrator = integrator;
+		eValNumSlider = new DeviceSlider(controller);
+		eValNumSlider.setModifier(new Modifier(){
+
+			public Dimension getDimension() {
+				return Null.DIMENSION;
+			}
+
+			public String getLabel() {
+				return "Eigenvalues #";
+			}
+
+			public double getValue() {
+				return integrator.getEValNum();
+			}
+
+			public void setValue(double eValValue) {
+				integrator.setEValNum((int)eValValue);
+
+			}
+
+		});
+
+		ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxChangeSetOneEval);
+
+		addRadioGroupActionListener(actionListen);
+
+		if (this.integrator.isOneEVal()) {
+			setOneEVal();
+
+		}
+		else {
+			setAllEVal();
+		}
+
+
+		//using all eigenvalues or individual radio button
+		ButtonGroup eValGroup = new ButtonGroup();
+		buttonAllEVal = new JRadioButton("All Normal Modes");
         buttonOneEVal = new JRadioButton("One Normal Mode");
         eValGroup.add(buttonAllEVal);
         eValGroup.add(buttonOneEVal);
 
         //eigenvalues selector
-        eValNumSlider = new DeviceSlider(controller);
         eValNumSlider.setShowValues(true);
         eValNumSlider.setEditValues(true);
         eValNumSlider.setMinimum(DEFAULT_MIN_nEIGENVECTORS);
@@ -60,8 +90,6 @@ public class DeviceEigenvaluesSlider extends Device {
         eValNumSlider.setValue(0);
         eValNumSlider.getSlider().setEnabled(false);
         eValNumSlider.getTextField().setEnabled(false);
-
-        setController(cont);
 
         // Tie the "all eigenvalues"/"one eigenvalue" setting to the selectable status of
         // eigenvalues slider
@@ -128,7 +156,7 @@ public class DeviceEigenvaluesSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller.doActionNow(integratorBoxChangeSetOneEval);
+	        controller.submitActionInterrupt(integratorBoxChangeSetOneEval);
 	    }
 	}
 
@@ -206,11 +234,11 @@ public class DeviceEigenvaluesSlider extends Device {
     }
 
     /**
-     * @return The panel that holds all graphical objects for the DeviceEigenvaluesSlider.
-     */
-    public Component graphic(Object obj) {
-    	return eValNumPanel;
-    }
+	 * @return The panel that holds all graphical objects for the DeviceEigenvaluesSlider.
+	 */
+	public Component graphic() {
+		return eValNumPanel;
+	}
 
 
 	/**
@@ -229,75 +257,14 @@ public class DeviceEigenvaluesSlider extends Device {
     }
 
 	/**
-	 * Set the eigenvalue # slider controller.
-	 */
-   
-    public void setController(Controller cont) {
-    	super.setController(cont);
-    	eValNumSlider.setController(cont);
-        
-    	if (integrator != null) {
-            setIntegrator(integrator);
-        }
-    }
-
-	/**
 	 * Set the post slider value changed action.
 	 */
     public void setSliderPostAction(IAction action) {
     	eValNumSlider.setPostAction(action);
     }
 
-    /**
-     * Sets the integrator for the device.  Adds actions to the device's
-     * controller to inform the integrator when the eigenvalue # and
-     * "All eigenvalues"/"One eigenvalue" selection has changed based upon the type
-     * of integrator passed in.
-     * @param i Integrator
-     */
-    
-    public void setIntegrator(IntegratorHarmonic i) {
-    	integrator = i;
-    	eValNumSlider.setModifier(new Modifier(){
 
-			public Dimension getDimension() {
-				return Null.DIMENSION;
-			}
-
-			public String getLabel() {
-				return "Eigenvalues #";
-			}
-
-			public double getValue() {
-				return integrator.getEValNum();
-			}
-
-			public void setValue(double eValValue) {
-				integrator.setEValNum((int)eValValue);
-				
-			}
-    		
-    	});
-
-    	ActionListener actionListen = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-				controller.doActionNow(integratorBoxChangeSetOneEval);
-            }
-        };
-
-        addRadioGroupActionListener(actionListen);
-        
-        if (i.isOneEVal()) {
-        	setOneEVal();
-        	
-        }
-        else {
-            setAllEVal();
-        }
-        
-    }
-
-    private IAction integratorBoxChangeSetOneEval = new IAction() {
+    private final IAction integratorBoxChangeSetOneEval = new IAction() {
         public void actionPerformed() {
         	integrator.setOneEVal(isOneEVal());
         	
@@ -328,28 +295,4 @@ public class DeviceEigenvaluesSlider extends Device {
         }
     }
     
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Eigenvalues Number Slider";
-
-       
-        etomica.space.Space sp = etomica.space1d.Space1D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        
-        DeviceEigenvaluesSlider device = new DeviceEigenvaluesSlider(new Controller());
-        device.setMinimum(0);
-        device.setMaximum(12);
-        device.setEValNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-
-
 }

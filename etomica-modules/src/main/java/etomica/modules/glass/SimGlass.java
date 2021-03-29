@@ -5,7 +5,10 @@
 package etomica.modules.glass;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -22,32 +25,42 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 public class SimGlass extends Simulation {
 
-    public SpeciesSpheresMono speciesA, speciesB;
+    public SpeciesGeneral speciesA, speciesB;
     public Box box;
     public IntegratorMD integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
-    public enum PotentialChoice {LJ, WCA, SS, HS}
+    protected P2SquareWell p2AA;
+
+    public enum PotentialChoice {LJ, WCA, SS, HS, WS}
 
     public double sigmaB;
 
+    protected int chs;
+
     public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep) {
+        this(D, nA, nB, density, temperature, doSwap, pc, tStep, null);
+    }
+
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, int[] randSeeds) {
         super(Space.getInstance(D));
+        if (randSeeds != null) {
+            setRandom(new RandomMersenneTwister(randSeeds));
+        }
         this.potentialChoice = pc;
         //species
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesB);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);
@@ -61,14 +74,9 @@ public class SimGlass extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
         integrator.setThermostatNoDrift(true);
 
-        int chs = 85;
-        double coreHS = 0.01 * chs;
-        P2SquareWell p2AA = null;
-        if (potentialChoice == PotentialChoice.LJ) {
+        if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
             sigmaB = 0.88;
             P2LennardJones potentialAA = new P2LennardJones(space);
             P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
@@ -82,15 +90,15 @@ public class SimGlass extends Simulation {
         } else if (potentialChoice == PotentialChoice.WCA) {
             potentialMaster.setRange(2);
             // https://doi.org/10.1103/PhysRevX.1.021013
-            sigmaB = D == 2 ? 1.0 / 1.4 : 1.0 / 1.2;
-            double mB = D == 2 ? 1 : 2;
+            sigmaB = D == 2 ? 1.4 : 1.0 / 1.2; // changes 1/1.4 to 1.4
+            double mA = D == 2 ? 1 : 2;
             P2WCA potentialAA = new P2WCA(space, 1, 1);
             potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-            P2WCA potentialAB = new P2WCA(space, 0.5 + 0.5 * sigmaB, 1);
+            P2WCA potentialAB = new P2WCA(space, D == 2 ? 1.1 : 0.5 + 0.5 * sigmaB, 1);
             potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
             P2WCA potentialBB = new P2WCA(space, sigmaB, 1);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
-            ((ElementSimple) speciesB.getLeafType().getElement()).setMass(mB);
+            ((ElementSimple) speciesA.getLeafType().getElement()).setMass(mA);
         } else if (potentialChoice == PotentialChoice.SS) {
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
             sigmaB = 1.0 / 1.4;
@@ -104,6 +112,8 @@ public class SimGlass extends Simulation {
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
             potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.HS) {
+            chs = 50;
+            double coreHS = 0.01 * chs;
             double L = Math.pow((nA + nB) / density, 1.0 / 3.0);
             if (L < 2.01) throw new RuntimeException("too small!");
             double nbrCut = 1.7;
@@ -117,6 +127,21 @@ public class SimGlass extends Simulation {
             P2HardSphere potentialBB = new P2HardSphere(space, sigmaB, false);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
             integrator.setAlwaysScaleRandomizedMomenta(true);
+        } else if (potentialChoice == PotentialChoice.WS) {
+            // G. Wahnström, Phys. Rev. A 44, 3752 1991.
+            // T. B. Schrøder, cond-mat/0005127.
+            // https://doi.org/10.1063/1.1605094
+            sigmaB = 5.0 / 6.0;
+            P2LennardJones potentialAA = new P2LennardJones(space);
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            potentialMaster.addPotential(p2TruncatedAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+            P2LennardJones potentialAB = new P2LennardJones(space, (1 + sigmaB) / 2, 1);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            potentialMaster.addPotential(p2TruncatedAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+            P2LennardJones potentialBB = new P2LennardJones(space, sigmaB, 1);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+            ((ElementSimple) speciesA.getLeafType().getElement()).setMass(2);
         }
 
         //construct box
@@ -139,55 +164,71 @@ public class SimGlass extends Simulation {
 
         integrator.reset();
         integrator.doThermostat();
-        if (potentialChoice == PotentialChoice.HS) {
-            boolean success = false;
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-            integrator.setTimeStep(0.001);
-            for (; chs <= 100; chs++) {
-                p2AA.setCoreDiameter(chs * 0.01);
-                p2AA.setLambda(1 / (chs * 0.01));
-                double u = meterPE.getDataAsScalar();
-                if (u == Double.POSITIVE_INFINITY) {
-                    chs--;
-                    p2AA.setCoreDiameter(chs * 0.01);
-                    p2AA.setLambda(1 / (chs * 0.01));
-                    break;
-                }
-                if (chs == 100) {
-                    success = true;
-                    potentialMaster.removePotential(p2AA);
-                    P2HardSphere p = new P2HardSphere(space, 1, false);
-                    potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-                }
-            }
-            if (!success) {
+    }
 
-                while (chs < 100) {
-                    integrator.reset();
-                    for (int i = 0; i < 1000; i++) {
-                        integrator.doStep();
-                    }
-                    chs++;
+    public Activity makeInitConfigActivity() {
+        return new Activity() {
+            @Override
+            public void runActivity(Controller.ControllerHandle handle) {
+                if (potentialChoice != PotentialChoice.HS) return;
+                boolean success = false;
+                PotentialMaster potentialMaster = integrator.getPotentialMaster();
+                MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+                double tStepOld = integrator.getTimeStep();
+                integrator.setTimeStep(0.001);
+                for (; chs <= 100; chs++) {
                     p2AA.setCoreDiameter(chs * 0.01);
                     p2AA.setLambda(1 / (chs * 0.01));
-                    if (meterPE.getDataAsScalar() == Double.POSITIVE_INFINITY) {
+                    double u = meterPE.getDataAsScalar();
+                    if (u == Double.POSITIVE_INFINITY) {
                         chs--;
                         p2AA.setCoreDiameter(chs * 0.01);
                         p2AA.setLambda(1 / (chs * 0.01));
-                        continue;
-                    } else if (chs == 100) {
+                        break;
+                    }
+                    if (chs == 100) {
+                        success = true;
                         potentialMaster.removePotential(p2AA);
                         P2HardSphere p = new P2HardSphere(space, 1, false);
                         potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
                     }
                 }
+                if (!success) {
 
+                    while (chs < 100) {
+                        integrator.reset();
+                        for (int i = 0; i < 1000; i++) {
+                            handle.yield(integrator::doStep);
+                        }
+                        chs++;
+                        p2AA.setCoreDiameter(chs * 0.01);
+                        p2AA.setLambda(1 / (chs * 0.01));
+                        if (meterPE.getDataAsScalar() == Double.POSITIVE_INFINITY) {
+                            chs--;
+                            p2AA.setCoreDiameter(chs * 0.01);
+                            p2AA.setLambda(1 / (chs * 0.01));
+                            continue;
+                        } else if (chs == 100) {
+                            potentialMaster.removePotential(p2AA);
+                            P2HardSphere p = new P2HardSphere(space, 1, false);
+                            potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+                        }
+                    }
+                }
+                integrator.reset();
+                integrator.resetStepCount();
+                integrator.setTimeStep(tStepOld);
             }
-            integrator.reset();
-            integrator.resetStepCount();
-            integrator.setTimeStep(tStep);
-        }
+        };
+    }
 
+    public void initConfig() {
+        this.getController().runActivityBlocking(makeInitConfigActivity());
+    }
+
+    @Override
+    public IntegratorMD getIntegrator() {
+        return integrator;
     }
 
     public static void main(String[] args) {
@@ -198,7 +239,8 @@ public class SimGlass extends Simulation {
         } else {
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
-        sim.getController().actionPerformed();
+        sim.initConfig();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
 
     public static class GlassParams extends ParameterBase {

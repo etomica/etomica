@@ -85,7 +85,7 @@ public class DeviceCheckBox extends Device {
     /**
      * Returns the GUI box element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return box;
     }
     

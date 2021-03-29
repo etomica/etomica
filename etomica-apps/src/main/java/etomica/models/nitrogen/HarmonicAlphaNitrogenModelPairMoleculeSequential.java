@@ -20,6 +20,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,16 +48,13 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 //		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
 
-		SpeciesN2 species = new SpeciesN2(space);
+		SpeciesGeneral species = SpeciesN2.create(false);
 		addSpecies(species);
 
 		potentialMaster = new PotentialMaster();
 
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
-
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species.setConformation(conformation);
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
 		box = this.makeBox(boundary);

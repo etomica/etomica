@@ -4,12 +4,14 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.*;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
@@ -115,7 +117,7 @@ public class VirialHSMixtureOverlap {
 
         long blockSize = steps / 1000;
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, 1, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints, 1, refCluster, targetCluster);
         sim.init();
         sim.integratorOS.setDoAdjustOnTime(true);
 
@@ -199,8 +201,8 @@ public class VirialHSMixtureOverlap {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+System.out.println("equilibration finished");
 
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -210,11 +212,10 @@ public class VirialHSMixtureOverlap {
         sim.integratorOS.setNumSubSteps((int) blockSize);
         sim.setAccumulatorBlockSize(blockSize);
         sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(steps / blockSize);
         for (int i = 1; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());

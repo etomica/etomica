@@ -7,13 +7,11 @@ package etomica;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.*;
 
 /**
  * Contains some convenience methods and fields useful for implementing unit
@@ -62,12 +60,15 @@ public class UnitTestUtil {
         ISpecies species1 = null;
         int nBox = 0;
         if (n0 != null) {
-            species0 = new SpeciesSpheres(sim, space, nA0);
+            species0 = new SpeciesBuilder(space)
+                    .withConformation(new ConformationLinear(space))
+                    .addCount(AtomType.simpleFromSim(sim), nA0)
+                    .build();
             sim.addSpecies(species0);
             nBox = n0.length;
         }
         if (n1 != null) {
-            species1 = new SpeciesSpheresMono(sim, space);
+            species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
             sim.addSpecies(species1);
             nBox = n1.length;
         }
@@ -111,13 +112,12 @@ public class UnitTestUtil {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         for (int i = 0; i < nMolecules.length; i++) {
-            AtomType[] leafTypes = new AtomType[nAtoms[i].length];
+            SpeciesBuilder builder = new SpeciesBuilder(space);
             for (int j = 0; j < nAtoms[i].length; j++) {
-                leafTypes[j] = new AtomType(new ElementSimple(sim));
+                builder.addCount(AtomType.simpleFromSim(sim), nAtoms[i][j]);
             }
-            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, leafTypes);
-            species.setChildCount(nAtoms[i]);
-            sim.addSpecies(species);
+            builder.withConformation(new ConformationLinear(space));
+            sim.addSpecies(builder.build());
         }
         Box box = new Box(space);
         sim.addBox(box);

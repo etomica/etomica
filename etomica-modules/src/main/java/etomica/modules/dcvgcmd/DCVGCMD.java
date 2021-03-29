@@ -4,6 +4,7 @@
 
 package etomica.modules.dcvgcmd;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -28,7 +29,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 /**
@@ -45,9 +47,9 @@ public class DCVGCMD extends Simulation {
     public P1WCAWall potentialwall1;
     public P1WCAPorousWall potentialwallPorousA, potentialwallPorousA1;
     public P1WCAPorousWall potentialwallPorousB, potentialwallPorousB1;
-    public SpeciesSpheresMono species1;
-    public SpeciesSpheresMono species2;
-    public SpeciesTube speciesTube;
+    public SpeciesGeneral species1;
+    public SpeciesGeneral species2;
+    public SpeciesGeneral speciesTube;
     public Box box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
@@ -60,7 +62,7 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage accumulator2;
     public DataPump profile1pump, profile2pump;
     public Vector poreCenter;
-    public ActivityIntegrate activityIntegrate;
+
     public ConfigurationLatticeTube config;
     
     //Constructor
@@ -72,11 +74,13 @@ public class DCVGCMD extends Simulation {
         //Instantiate classes
         super(_space);
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
-        speciesTube = new SpeciesTube(20, 40, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesTube = new SpeciesBuilder(space)
+                .addCount(AtomType.simple("T", Double.POSITIVE_INFINITY), 20 * 40)
+                .withConformation(new ConformationTube(space, 20))
+                .setDynamic(true)
+                .build();
         addSpecies(species1);
         addSpecies(species2);
         addSpecies(speciesTube);
@@ -91,7 +95,7 @@ public class DCVGCMD extends Simulation {
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
 
-        AtomType tubetype = speciesTube.getLeafType();
+        AtomType tubetype = speciesTube.getAtomType(0);
         AtomType speciestype = species1.getLeafType();
         AtomType speciestype1 = species2.getLeafType();
         ((ElementSimple) speciestype.getElement()).setMass(mass);
@@ -183,8 +187,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
-        activityIntegrate = new ActivityIntegrate(integratorDCV);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorDCV));
 
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
@@ -200,7 +203,7 @@ public class DCVGCMD extends Simulation {
         // 40),new BasisMonatomic(3));
         double length = 0.25;
         config = new ConfigurationLatticeTube(new LatticeCubicFcc(space), length, space);
-        config.setSpeciesSpheres(new SpeciesSpheresMono[]{species1, species2});
+        config.setSpeciesSpheres(new SpeciesGeneral[]{species1, species2});
         config.setSpeciesTube(speciesTube);
         config.initializeCoordinates(box);
 
@@ -275,7 +278,6 @@ public class DCVGCMD extends Simulation {
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.activityIntegrate.setMaxSteps(5000);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 5000));
     }
 }

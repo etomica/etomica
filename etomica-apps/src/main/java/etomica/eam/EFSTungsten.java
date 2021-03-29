@@ -5,8 +5,8 @@
 package etomica.eam;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Tungsten;
@@ -29,7 +29,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterDADB;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
@@ -67,21 +67,19 @@ public class EFSTungsten extends Simulation {
     private static final String APP_NAME = "MEAM Md3D";
     public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono w;
+    public SpeciesGeneral w;
     public Box box;
     public PotentialEFS potentialN;
-    public Controller controller;
     public DisplayBox display;
     public MeterEnergy energy;
-    public ActivityIntegrate activityIntegrate;
+
     public IDataInfo info2;
     public CoordinateDefinition coordinateDefinition;
 
     public EFSTungsten(int numatoms, double density, double temperature) {
         super(Space3D.getInstance());
 
-        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
-        w.setIsDynamic(true);
+        w = SpeciesGeneral.monatomic(space, AtomType.element(Tungsten.INSTANCE), true);
         addSpecies(w);
 
         potentialMaster = new PotentialMasterList(this, space);
@@ -92,8 +90,7 @@ public class EFSTungsten extends Simulation {
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(w, numatoms);
 
         //BCC W
@@ -250,12 +247,10 @@ public class EFSTungsten extends Simulation {
         	simGraphic.makeAndDisplayFrame(APP_NAME);
         	return;
     	}
-    	
-    	sim.activityIntegrate.setMaxSteps(numsteps/10);
-    	sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numsteps);
-        System.out.println("equilibration finished");
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numsteps / 10));
+
+System.out.println("equilibration finished");
 
         AccumulatorAverageFixed accumulatorAveragePE = null;
         AccumulatorAverageFixed accumulatorAverageDADB = null;
@@ -281,12 +276,12 @@ public class EFSTungsten extends Simulation {
 	        dadbPump = new DataPumpListener(DADBMeter, accumulatorHistoryDADB, 10);
 
 	        sim.integrator.getEventManager().addListener(energyPump);
-	        sim.integrator.getEventManager().addListener(dadbPump);        	
+	        sim.integrator.getEventManager().addListener(dadbPump);
         }
-        
-        
+
+
         long t1 = System.currentTimeMillis();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numsteps));
         long t2 = System.currentTimeMillis();
 
         if (doHistory) {

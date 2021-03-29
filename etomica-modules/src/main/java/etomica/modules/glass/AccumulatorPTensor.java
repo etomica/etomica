@@ -87,7 +87,6 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     @Override
     public void putData(IData inputData) {
         if (!enabled) return;
-        int blockSize = 1;
 
         double[] x = new double[nP];
 

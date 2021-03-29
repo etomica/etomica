@@ -16,10 +16,10 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
 
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data;
-    protected DataFunction.DataInfoFunction dataInfo;
+    protected DataFunction data, covData;
+    protected DataFunction.DataInfoFunction dataInfo, covDataInfo;
     protected double[] msdSum, xSum, xmsdSum, msd2Sum, x2Sum;
-    protected final DataTag tTag, tag;
+    protected final DataTag tTag, tag, covTag;
     protected long[] nSamples;
     protected double[] lastSampleMSD, lastSampleX;
     protected double[] blockSumX;
@@ -44,12 +44,12 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
         lastStepMSD = nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
+        covTag = new DataTag();
         resetStep0();
     }
 
     public void resetStep0() {
-        step0 = integrator.getStepCount();
-        step0 -= step0 % (1L << xlog2Interval);
+        step0 = -1;
         for (int i = 0; i < nBlockSamplesX.length; i++) {
             lastStepX[i] = nBlockSamplesX[i] = 0;
             blockSumX[i] = 0;
@@ -69,11 +69,14 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
         lastSampleX = Arrays.copyOf(lastSampleX, n);
         lastSampleMSD = Arrays.copyOf(lastSampleMSD, n);
         data = new DataFunction(new int[]{n});
+        covData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         tDataInfo.addTag(tTag);
         dataInfo = new DataFunction.DataInfoFunction("X-MSD cor", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        covDataInfo = new DataFunction.DataInfoFunction("X-MSD cov", Null.DIMENSION, this);
+        covDataInfo.addTag(covTag);
         double[] t = tData.getData();
         if (t.length > 0) {
             double dt = integrator.getTimeStep() * (1L << xlog2Interval);
@@ -118,6 +121,7 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
     public void putData(IData inputData) {
         if (!enabled) return;
         double x = inputData.getValue(0);
+        if (step0 < 0) step0 = integrator.getStepCount() - (1L << xlog2Interval);
         long step = integrator.getStepCount() - step0;
         for (int i = 0; i < blockSumX.length; i++) {
             blockSumX[i] += x;
@@ -182,5 +186,39 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
         msd2Sum[log2interval] += lastSampleMSD[log2interval] * lastSampleMSD[log2interval];
         lastStepMSD[log2interval] = lastStepX[log2interval] = -1;
         nSamples[log2interval]++;
+    }
+
+    public DataSourceMSDcovP makeCov() {
+        return new DataSourceMSDcovP();
+    }
+
+    /**
+     * Returns the covariance of the MSD with P, divided by t
+     */
+    public class DataSourceMSDcovP implements IDataSource {
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return covDataInfo;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return covTag;
+        }
+
+        @Override
+        public IData getData() {
+            double[] y = data.getData();
+            for (int i = 0; i < y.length - 1; i++) {
+                double pAvg = xSum[i] / nSamples[i];
+                double msdAvg = msdSum[i] / nSamples[i];
+                double pmsdAvg = xmsdSum[i] / nSamples[i];
+                y[i] = pmsdAvg - pAvg * msdAvg / tData.getValue(i);
+            }
+            if (y.length > 0) y[y.length - 1] = Double.NaN;
+            return data;
+        }
+
     }
 }

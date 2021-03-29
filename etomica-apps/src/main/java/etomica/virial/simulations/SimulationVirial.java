@@ -5,6 +5,9 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
+import etomica.atom.AtomTypeOriented;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -14,9 +17,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresMono;
-import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 
@@ -31,7 +31,7 @@ public class SimulationVirial extends Simulation {
     public IDataSink dataSink;
     public DataPumpListener accumulatorPump;
     public ISpecies[] species;
-    public ActivityIntegrate ai;
+
     public IntegratorMC integrator;
     public BoxCluster box;
     public ClusterAbstract[] allValueClusters;
@@ -56,7 +56,7 @@ public class SimulationVirial extends Simulation {
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
     }
-    
+
     public void setDoWiggle(boolean newDoWiggle) {
         this.doWiggle = newDoWiggle;
     }
@@ -85,7 +85,7 @@ public class SimulationVirial extends Simulation {
 	    setDoWiggle(doWiggle);
 	    init();
 	}
-	
+
 	public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
 	    this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
         setDoWiggle(doWiggle);
@@ -125,13 +125,23 @@ public class SimulationVirial extends Simulation {
         integrator.setTemperature(temperature);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
+        boolean doRotate = false;
+        boolean multiAtomic = false;
+        for (int i=0; i<species.length; i++) {
+            ISpecies sp = species[i];
+            if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
+                doRotate = true;
+            }
+            if (sp.getLeafAtomCount() > 1) {
+                multiAtomic = true;
+            }
+        }
 
-        if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
+        if (!multiAtomic) {
             mcMoveTranslate = new MCMoveClusterAtomMulti(random, space);
-            if (species[0] instanceof SpeciesSpheresRotating) {
+            if (doRotate) {
                 mcMoveRotate = new MCMoveClusterAtomRotateMulti(random, space);
                 integrator.getMoveManager().addMCMove(mcMoveRotate);
             }
@@ -139,13 +149,11 @@ public class SimulationVirial extends Simulation {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
-            if (species[0] instanceof SpeciesSpheres) {
-                if (doWiggle) {
-                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
-                    integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                    mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
-                    integrator.getMoveManager().addMCMove(mcMoveReptate);
-                }
+            if (doWiggle) {
+                mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
+                integrator.getMoveManager().addMCMove(mcMoveWiggle);
+                mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
+                integrator.getMoveManager().addMCMove(mcMoveReptate);
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }
@@ -161,7 +169,7 @@ public class SimulationVirial extends Simulation {
 
     public void setMeter(IDataSource newMeter) {
         meter = newMeter;
-        if (accumulator != null) { 
+        if (accumulator != null) {
             if (accumulatorPump != null) {
                 integrator.getEventManager().removeListener(accumulatorPump);
                 accumulatorPump = null;
@@ -188,30 +196,39 @@ public class SimulationVirial extends Simulation {
 			accumulatorPump.setDataSink(newAccumulator);
 		}
 	}
-	
+
 	public void setAccumulatorBlockSize(long newBlockSize) {
 	    accumulator.setBlockSize(newBlockSize);
 	}
-	
+
 	public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        ai.setMaxSteps(initSteps);
-               
-        integrator.getMoveManager().setEquilibrating(true);
-        
-        ai.actionPerformed();
-
-        integrator.getMoveManager().setEquilibrating(false);
-        
-        if (accumulator != null) {
-            accumulator.reset();
-        }
+        getController().runActivityBlocking(makeEquilibrationActivity(initSteps));
     }
-	
+
+    private Activity makeEquilibrationActivity(long initSteps) {
+        ActivityIntegrate ai = new ActivityIntegrate(integrator, initSteps);
+        return new Activity() {
+            @Override
+            public void runActivity(Controller.ControllerHandle handle) {
+                integrator.getMoveManager().setEquilibrating(true);
+                ai.runActivity(handle);
+                integrator.getMoveManager().setEquilibrating(false);
+                if (accumulator != null) {
+                    accumulator.reset();
+                }
+            }
+        };
+    }
+
+    public Controller.ActivityHandle<?> addEquilibration(long initSteps) {
+        return getController().addActivity(makeEquilibrationActivity(initSteps));
+    }
+
 
     public void printResults(double refIntegral) {
-        
+
         DataGroup allYourBase = (DataGroup)accumulator.getData();
         IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
         IData stdevData = allYourBase.getData(accumulator.STANDARD_DEVIATION.index);
@@ -220,11 +237,11 @@ public class SimulationVirial extends Simulation {
         IData ratioData = allYourBase.getData(accumulator.RATIO.index);
         IData ratioErrorData = allYourBase.getData(accumulator.RATIO_ERROR.index);
         IData covarianceData = allYourBase.getData(accumulator.BLOCK_COVARIANCE.index);
-        
+
         System.out.println();
         System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                 averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        
+
         System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                 averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
 
@@ -241,6 +258,11 @@ public class SimulationVirial extends Simulation {
 
         System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
         System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+    }
+
+    @Override
+    public IntegratorMC getIntegrator() {
+        return integrator;
     }
 }
 

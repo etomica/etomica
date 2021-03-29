@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -18,8 +17,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -136,7 +134,7 @@ public class VirialHSMixture {
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
 
         System.out.println(steps + " steps ");
-        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{new SpeciesSpheresMono(space, new ElementSimple("A"))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
+        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams, false);
         if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
@@ -198,7 +196,7 @@ public class VirialHSMixture {
 
             accumulator.setBlockSize(1000);
 
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -250,8 +248,7 @@ public class VirialHSMixture {
         }
 
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 
         DataGroup allYourBase = (DataGroup) accumulator.getData();

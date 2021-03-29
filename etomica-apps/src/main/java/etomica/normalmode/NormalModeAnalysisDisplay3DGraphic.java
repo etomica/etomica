@@ -187,8 +187,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
-                
+
                 getController().getSimRestart().getDataResetAction().actionPerformed();
             	
 		    }
@@ -403,10 +402,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         /*
          * Eigenvalues Slider
          */
-        eValSlider = new DeviceEigenvaluesSlider(sim.getController());
+        eValSlider = new DeviceEigenvaluesSlider(sim.getController(), sim.integrator);
         eValSlider.setMinimum(0);
         eValSlider.setMaximum(sim.nm.getOmegaSquared()[0].length);
-        eValSlider.setIntegrator(sim.integrator);
         sim.integrator.setOneWV(true);
         
         eValPostAction = new IAction(){
@@ -525,9 +523,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
-                
-                
+
+
                 getController().getSimRestart().getDataResetAction().actionPerformed();
 		    }
 		};	
@@ -728,7 +725,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         resetAction = new IAction(){
         	public void actionPerformed(){
         		heDisplay.putData(heAccumulator.getData());
-        		heDisplay.repaint();
         		getDisplayBox(sim.box).graphic().repaint();
         	}
         };

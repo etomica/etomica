@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode.nptdemo;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -17,7 +18,7 @@ import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -28,9 +29,9 @@ import etomica.species.SpeciesSpheresMono;
 public class HSNPT2DSim extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public ActivityIntegrate ai;
+
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species1;
+    public SpeciesGeneral species1;
     public Box box;
     public Potential2 potential;
     public PotentialMasterList potentialMaster;
@@ -40,8 +41,7 @@ public class HSNPT2DSim extends Simulation {
     public HSNPT2DSim() {
         super(Space2D.getInstance());
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species1);
 
         potentialMaster = new PotentialMasterList(this, space);
@@ -57,8 +57,7 @@ public class HSNPT2DSim extends Simulation {
 
         potentialMaster.setRange(sigma * 1.6);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType leafType1 = species1.getLeafType();
         potential = new P2HardSphere(space, sigma, false);
 

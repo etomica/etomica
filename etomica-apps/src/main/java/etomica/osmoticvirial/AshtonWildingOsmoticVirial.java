@@ -1,6 +1,7 @@
 package etomica.osmoticvirial;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -28,7 +29,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -49,8 +50,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
-    protected SpeciesSpheresMono species1, species2;
-    protected ActivityIntegrate activityIntegrate;
+    protected SpeciesGeneral species1, species2;
+
 
     /**
      * @param numAtoms no. of solute atoms in the box
@@ -61,8 +62,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq, boolean graphics){
 
         super(Space3D.getInstance());
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
 //      setRandom(new RandomMersenneTwister(1));
@@ -80,13 +81,17 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
+        species1 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
+        addSpecies(species1);
+        addSpecies(species2);
+
         box = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box);
         box.setNMolecules(species1,numAtoms);
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
@@ -248,10 +253,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
@@ -265,7 +268,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         accNm = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
         sim.integrator.getEventManager().addListener(pumpNm);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();

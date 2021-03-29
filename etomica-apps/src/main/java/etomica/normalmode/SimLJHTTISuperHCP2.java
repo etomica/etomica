@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -32,7 +33,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -46,7 +47,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public BoundaryDeformablePeriodic boundary;
     public int[] nCells;
@@ -55,7 +56,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
 
     public SimLJHTTISuperHCP2(Space _space, int numAtoms, double density, double coa, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
@@ -63,7 +64,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
             setRandom(new RandomMersenneTwister(seeds));
         }
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         // TARGET
@@ -136,9 +137,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -512,9 +511,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         long endTime = System.currentTimeMillis();
         System.out.println();
 
@@ -748,9 +745,8 @@ public class SimLJHTTISuperHCP2 extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
         integrator.getMoveManager().setEquilibrating(false);
     }
 

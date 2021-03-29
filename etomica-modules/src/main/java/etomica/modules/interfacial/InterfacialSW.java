@@ -4,6 +4,7 @@
 
 package etomica.modules.interfacial;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
@@ -25,8 +26,8 @@ import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation for interfacial tension module.  Simulation itself is just a
@@ -37,11 +38,11 @@ import etomica.species.SpeciesSpheresMono;
 public class InterfacialSW extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
-    public final SpeciesSpheresHetero surfactant;
+    public final SpeciesGeneral species;
+    public final SpeciesGeneral surfactant;
     public final Box box;
     public final IntegratorHard integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final AtomType leafType, headType, tailType;
     public final P2SquareWell p2Head, p2HeadHead;
     public final P2HardSphere p2TailTail, p2Tail, p2HeadTail;
@@ -50,14 +51,14 @@ public class InterfacialSW extends Simulation {
     public InterfacialSW(Space _space) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        surfactant = new SpeciesSpheresHetero(this, space, 2);
-        surfactant.setIsDynamic(true);
-        surfactant.setChildCount(new int[]{1, 1});
-        surfactant.setTotalChildren(2);
-        ((ConformationLinear) surfactant.getConformation()).setBondLength(0.9);
+        surfactant = new SpeciesBuilder(space)
+                .addCount(AtomType.simpleFromSim(this), 1)
+                .addCount(AtomType.simpleFromSim(this), 1)
+                .withConformation(new ConformationLinear(space, 0.9))
+                .setDynamic(true)
+                .build();
         addSpecies(surfactant);
 
         double pRange = 2.0;
@@ -75,8 +76,7 @@ public class InterfacialSW extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
         integrator.setTimeStep(0.01);
 
         //species and potentials
@@ -133,6 +133,6 @@ public class InterfacialSW extends Simulation {
         }
             
         InterfacialSW sim = new InterfacialSW(space);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
 }

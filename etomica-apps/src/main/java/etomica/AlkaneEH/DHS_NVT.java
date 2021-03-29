@@ -5,8 +5,8 @@
 package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -43,6 +43,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -62,21 +63,19 @@ public class DHS_NVT extends Simulation {
 	private static final long serialVersionUID = 1L;
     private final static String APP_NAME = "dipolar HS, dielectric constant";
     private static final int PIXEL_SIZE = 15;
-    public final ActivityIntegrate activityIntegrate;
-    protected final SpeciesSpheresRotating species;
+    protected final SpeciesGeneral species;
     protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move
 	protected final Box box;
-    public Controller controller; 
-  
+
 	//************************************* constructor ********************************************//
     public DHS_NVT(Space space, int numberMolecules, final double sigmaHS, double mu,
                    double dielectricOutside, double boxSize, double temperature, double truncation) {
         super(space);
         //setRandom(new RandomNumberGenerator(1));
-        species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+        species = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numberMolecules);
@@ -109,9 +108,7 @@ public class DHS_NVT extends Simulation {
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(10000000);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -182,9 +179,8 @@ public class DHS_NVT extends Simulation {
 			simGraphic.getDisplayBox(sim.box).repaint();
 	    	return ;
     	}
-    	sim.activityIntegrate.setMaxSteps(steps/5);// equilibration period
-   		sim.getController().actionPerformed();
-   		sim.getController().reset();
+    	sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/5));// equilibration period
+
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
 
@@ -208,9 +204,7 @@ public class DHS_NVT extends Simulation {
         energyAccumulator.setBlockSize(50);
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
         sim.integrator.getEventManager().addListener(energyListener);
-
-        sim.activityIntegrate.setMaxSteps(steps);// equilibration period
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;

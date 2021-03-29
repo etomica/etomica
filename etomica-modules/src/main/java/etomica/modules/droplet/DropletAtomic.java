@@ -5,6 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
@@ -23,7 +24,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 /**
@@ -34,10 +35,10 @@ import etomica.units.Kelvin;
 public class DropletAtomic extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
     public final IntegratorVelocityVerlet integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final PotentialMasterList potentialMaster;
     public final P2LennardJones p2LJ;
     public final P2SoftSphericalTruncatedShifted p2LJt;
@@ -51,8 +52,7 @@ public class DropletAtomic extends Simulation {
     public DropletAtomic() {
         super(Space3D.getInstance());
         //species
-        species = new SpeciesSpheresMono(space, Argon.INSTANCE);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Argon.INSTANCE), true);
         addSpecies(species);
 
         //construct box
@@ -71,8 +71,7 @@ public class DropletAtomic extends Simulation {
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(5000);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
 
         //potentials
@@ -98,7 +97,7 @@ public class DropletAtomic extends Simulation {
         Space space = Space3D.getInstance();
 
         DropletAtomic sim = new DropletAtomic();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
     
     public void makeDropShape() {

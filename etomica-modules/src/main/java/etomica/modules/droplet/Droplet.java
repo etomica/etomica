@@ -4,6 +4,7 @@
 
 package etomica.modules.droplet;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -13,7 +14,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Mesoscale simulation for Droplet module.
@@ -22,10 +23,9 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class Droplet extends Simulation {
 
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
     public final IntegratorDroplet integrator;
-    public final ActivityIntegrate activityIntegrate;
     public final P2Cohesion p2;
     public final P1Smash p1Smash;
     public final ConfigurationDroplet config;
@@ -36,8 +36,7 @@ public class Droplet extends Simulation {
         super(Space3D.getInstance());
 
         //species
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
@@ -46,9 +45,7 @@ public class Droplet extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorDroplet(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-//        activityIntegrate.setMaxSteps(10);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator), Long.MAX_VALUE, 0.0);
         integrator.setTimeStep(0.2);
         integrator.setTemperature(0);
 
@@ -82,11 +79,16 @@ public class Droplet extends Simulation {
 
         p2.setLiquidFilter(liquidFilter);
     }
-    
+
+    @Override
+    public IntegratorDroplet getIntegrator() {
+        return integrator;
+    }
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
         Droplet sim = new Droplet();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
 }

@@ -5,7 +5,8 @@
 package etomica.virial.simulations;
 
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -23,7 +24,7 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -222,7 +223,7 @@ public class VirialHeNonAdditiveD {
 
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints, temperature,refCluster,targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
 
         ClusterAbstract[] targetDiagrams = null;
@@ -277,9 +278,9 @@ public class VirialHeNonAdditiveD {
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
+            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
@@ -287,8 +288,8 @@ public class VirialHeNonAdditiveD {
 //            displayBox1.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
@@ -302,20 +303,14 @@ public class VirialHeNonAdditiveD {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
         long t1 = System.currentTimeMillis();
 
@@ -377,8 +372,8 @@ public class VirialHeNonAdditiveD {
 
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
-
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+System.out.println("equilibration finished");
 
         if(dorefpref){
             long t2 = System.currentTimeMillis();
@@ -408,12 +403,10 @@ public class VirialHeNonAdditiveD {
         sim.setAccumulatorBlockSize(blockSize);
 
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(steps / blockSize);
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         if (doHist) {
             double[] xValues = targHist.xValues();

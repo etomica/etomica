@@ -5,8 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationConeDoubleSites;
@@ -14,14 +14,9 @@ import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ConfigurationClusterMove;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryOrientedSpheres;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /** 
@@ -99,7 +94,7 @@ public class VirialHardAssociationConeDoubleSites {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
         //final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryOrientedSpheres(), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
         //sim.integratorOS.setStepFreq0(0.5);
         //sim.integratorOS.setAdjustStepFreq(false);
         /**sim.integratorOS.setNumSubSteps(1000);
@@ -122,7 +117,7 @@ public class VirialHardAssociationConeDoubleSites {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 100);
+                    sim.initRefPref(null, 100, false);
                     sim.equilibrate(null, 200);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
@@ -139,34 +134,27 @@ public class VirialHardAssociationConeDoubleSites {
 		configuration.initializeCoordinates(sim.box[1]);
 		sim.setAccumulatorBlockSize((int)steps*10);
 		
-		if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+		if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             simGraphic.makeAndDisplayFrame();
-    
+
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null,20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
-            return;
-        }
+    return;
+}
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
@@ -176,52 +164,30 @@ public class VirialHardAssociationConeDoubleSites {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
             }
         };
         IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
-        progressReportListener.setInterval((int)(steps/10));
+        progressReportListener.setInterval((int) (steps / 10));
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
-        sim.ai.setMaxSteps(steps);
-        for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
+        for (int i = 0; i < 2; i++) {
+            System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
-        
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(0);
-        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
-        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
+        System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
-        allYourBase = (DataGroup)sim.accumulators[1].getData(0);
-        System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
-        System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
-	}
+        sim.printResults(HSB[nPoints]);
+    }
 
    
     public static class VirialLJParam extends ParameterBase {

@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
  */
 public class PNWaterGCPMTest {
     private IMoleculeList molecules;
-    private static final double EPSILON = 7e-7;
+    private static final double EPSILON = 2e-6;
     @BeforeEach
     public void setUp() throws Exception {
-        IMolecule mol1 = new SpeciesWater4PCOM(Space3D.getInstance()).makeMolecule();
-        IMolecule mol2 = new SpeciesWater4PCOM(Space3D.getInstance()).makeMolecule();
+        IMolecule mol1 = SpeciesWater4PCOM.create(false).makeMolecule();
+        IMolecule mol2 = SpeciesWater4PCOM.create(false).makeMolecule();
 
         MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
         act.setDestination(new Vector3D(4, 4, 4));
@@ -38,7 +38,7 @@ public class PNWaterGCPMTest {
     public void testEnergy() throws Exception {
         PNWaterGCPM potential = new PNWaterGCPM(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
-        Assertions.assertEquals(-14.868663567298231, potential.energy(molecules), EPSILON);
+        Assertions.assertEquals(-14.868664927613436, potential.energy(molecules), EPSILON);
     }
 
 }

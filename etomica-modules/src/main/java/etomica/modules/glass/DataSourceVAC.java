@@ -10,7 +10,6 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
@@ -31,24 +30,23 @@ public class DataSourceVAC implements IDataSource, ConfigurationStorage.Configur
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected AtomType type;
-    protected Space space;
+    protected int minInterval = 3;
 
     public DataSourceVAC(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
-        space = configStorage.getBox().getSpace();
         vacSum = new double[0];
         vac2Sum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
-        reset();
+        reallocate(0);
     }
 
-
     public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n  == vacSum.length && data != null) return;
-        if (n < 1) n = 0;
+        reallocate(0);
+    }
+
+    protected void reallocate(int n) {
         vacSum = Arrays.copyOf(vacSum, n);
         vac2Sum = Arrays.copyOf(vac2Sum, n);
         nSamples = Arrays.copyOf(nSamples, n);
@@ -104,23 +102,24 @@ public class DataSourceVAC implements IDataSource, ConfigurationStorage.Configur
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] velocities = configStorage.getSavedVel(0);
         Box box = configStorage.getBox();
         IAtomList atoms = box.getLeafList();
-        for (int i = 1; i < vacSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iVelocities = configStorage.getSavedVel(i);
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
+            if (step % (1L << x) == 0) {
+                if (i >= vacSum.length) reallocate(i + 1);
+                Vector[] iVelocities = configStorage.getSavedVel(i + 1);
                 for (int j = 0; j < velocities.length; j++) {
                     IAtom jAtom = atoms.get(j);
-                    if(type == null || jAtom.getType() == type){
+                    if (type == null || jAtom.getType() == type) {
                         double vaci = velocities[j].dot(iVelocities[j]);
-                        vacSum[i-1] += vaci;
-                        vac2Sum[i-1] += vaci*vaci;
+                        vacSum[i] += vaci;
+                        vac2Sum[i] += vaci * vaci;
                     }
                 }
-                nSamples[i - 1]++;
+                nSamples[i]++;
             }
         }
     }

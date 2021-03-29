@@ -9,13 +9,13 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
-import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.heVLE.DeviceThermoSliderGEMC;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.modules.vle.DeviceThermoSliderGEMC;
 import etomica.space.Space;
 import etomica.units.Pixel;
 
@@ -60,9 +60,8 @@ public class SWVLE extends SimulationGraphic {
             }
         };
 
-        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
+        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController(), sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setPrecision(2);
-        thermoSlider.setIntegrators(sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setIsothermal();
         thermoSlider.setMinimum(0);
         thermoSlider.setMaximum(2);
@@ -71,8 +70,7 @@ public class SWVLE extends SimulationGraphic {
         thermoSlider.setPostAction(resetMCMoves);
         add(thermoSlider);
 
-        MeterDensity meterDensityLiquid = new MeterDensity(sim.getSpace());
-        meterDensityLiquid.setBox(sim.boxLiquid);
+        MeterDensity meterDensityLiquid = new MeterDensity(sim.boxLiquid);
         DataFork fork = new DataFork();
         DataPump pumpLiquidDensity = new DataPump(meterDensityLiquid, fork);
         getController().getDataStreamPumps().add(pumpLiquidDensity);
@@ -87,8 +85,7 @@ public class SWVLE extends SimulationGraphic {
         sim.integratorLiquid.getEventManager().addListener(pumpLiquidDensityListener);
         pumpLiquidDensityListener.setInterval(100);
 
-        MeterDensity meterDensityVapor = new MeterDensity(sim.getSpace());
-        meterDensityVapor.setBox(sim.boxVapor);
+        MeterDensity meterDensityVapor = new MeterDensity(sim.boxVapor);
         fork = new DataFork();
         DataPump pumpVaporDensity = new DataPump(meterDensityVapor, fork);
         getController().getDataStreamPumps().add(pumpVaporDensity);
@@ -105,7 +102,7 @@ public class SWVLE extends SimulationGraphic {
         DisplayTextBoxesCAE liquidDensityDisplay = new DisplayTextBoxesCAE();
         liquidDensityDisplay.setAccumulator(avgLiquidDensity);
         add(liquidDensityDisplay);
-        DisplayPlot liquidDensityHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart liquidDensityHistoryPlot = new DisplayPlotXChart();
         liquidDensityHistoryPlot.setLabel("Liquid Density");
         add(liquidDensityHistoryPlot);
         historyDensityLiquid.addDataSink(liquidDensityHistoryPlot.getDataSet().makeDataSink());
@@ -115,7 +112,7 @@ public class SWVLE extends SimulationGraphic {
         DisplayTextBoxesCAE vaporDensityDisplay = new DisplayTextBoxesCAE();
         vaporDensityDisplay.setAccumulator(avgVaporDensity);
         add(vaporDensityDisplay);
-        DisplayPlot vaporDensityHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart vaporDensityHistoryPlot = new DisplayPlotXChart();
         vaporDensityHistoryPlot.setLegend(new DataTag[]{historyDensityVapor.getTag()}, "Density (mol/L)");
         vaporDensityHistoryPlot.setLabel("Vapor Density");
         add(vaporDensityHistoryPlot);
@@ -142,11 +139,11 @@ public class SWVLE extends SimulationGraphic {
             pumpNMoleculesVaporListener.setInterval(100);
             getController().getDataStreamPumps().add(pumpNMoleculesVapor);
 
-            DisplayPlot nMoleculesLiquidHistoryPlot = new DisplayPlot();
+            DisplayPlotXChart nMoleculesLiquidHistoryPlot = new DisplayPlotXChart();
             nMoleculesLiquidHistoryPlot.setLabel("# of Liquid Atoms");
             add(nMoleculesLiquidHistoryPlot);
             historyNMoleculesLiquid.addDataSink(nMoleculesLiquidHistoryPlot.getDataSet().makeDataSink());
-            DisplayPlot nMoleculesVaporHistoryPlot = new DisplayPlot();
+            DisplayPlotXChart nMoleculesVaporHistoryPlot = new DisplayPlotXChart();
             nMoleculesVaporHistoryPlot.setLabel("# of Vapor Atoms");
             add(nMoleculesVaporHistoryPlot);
             historyNMoleculesVapor.addDataSink(nMoleculesVaporHistoryPlot.getDataSet().makeDataSink());

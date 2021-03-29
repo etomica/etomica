@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -25,7 +26,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -45,7 +46,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public BoundaryDeformablePeriodic boundary;
     public int[] nCells;
@@ -60,7 +61,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
     public SimOverlapSoftSphereTPSlantedBox(Space _space, int numAtoms, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
@@ -145,9 +146,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         if (potentialMaster instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
@@ -230,9 +229,8 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         System.out.println("\nratio averages:\n");
@@ -283,13 +281,12 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("Equilibration Steps: " + initSteps);
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
 
         accumulator.reset();
 
-        getController().reset();
+
 
     }
     

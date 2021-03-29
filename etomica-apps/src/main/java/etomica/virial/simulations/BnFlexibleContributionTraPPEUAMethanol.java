@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
@@ -18,6 +18,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -36,7 +37,7 @@ import java.awt.*;
 public class BnFlexibleContributionTraPPEUAMethanol {
 
     // to control whether or not graphics are used:
-    protected static boolean graphics = false;
+    protected static boolean graphics = true;
 
     public static void main(String[] args) {
 
@@ -215,10 +216,15 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         //PotentialMaster potentialMaster = new PotentialMaster(space);
 
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space,new SpeciesMethanol(space),
-                temperature,refCluster,targetCluster, true); //use first constructor; no need for intramolecular movement MC trial
+        SpeciesGeneral species = SpeciesMethanol.create(false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(
+                space,
+                species,
+                temperature,
+                refCluster,
+                targetCluster,
+                true); //use first constructor; no need for intramolecular movement MC trial
     	//sim.setRandom(new RandomNumberGenerator(8));
-    	SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
     	MethanolPotentialHelper.initPotential(space, species, U_a_b);
     	//potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
 
@@ -298,9 +304,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         //****************************************************************************
 
 
-        if (graphics) {
-
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(graphics) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
@@ -315,9 +320,9 @@ public class BnFlexibleContributionTraPPEUAMethanol {
 
 
             // Create instances of the types of molecular sites
-            AtomType typeCH3 = species.getCH3Type();
-            AtomType typeO = species.getOType();
-            AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeO = species.getTypeByName("O");
+            AtomType typeH = species.getTypeByName("H");
 
             // Set color of each site type for each simulation
 
@@ -336,21 +341,14 @@ public class BnFlexibleContributionTraPPEUAMethanol {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
 
         //****************************************************************************
@@ -364,8 +362,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         // Run another short simulation to find MC move step sizes and maybe narrow in more on the best "refPref."
         // If it does continue looking for a refPref, it will write the value to the file.
         sim.equilibrate(refFileName, steps/20);
-
-        sim.setAccumulatorBlockSize(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.setAccumulatorBlockSize(steps);
 
         System.out.println();
         System.out.println("equilibration finished");
@@ -379,8 +377,7 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         System.out.println();
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println();
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
@@ -397,7 +394,7 @@ public class BnFlexibleContributionTraPPEUAMethanol {
     public static class VirialParam extends ParameterBase {
 
         // number of molecules in simulation (e.g., 2 for B2 calculation)
-    	public int numMolecules = 5;
+    	public int numMolecules = 3;
 
         public double temperature = 300.0;   // Kelvin
 

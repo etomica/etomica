@@ -5,6 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -33,6 +34,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
@@ -62,7 +64,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
 
-		species = new SpeciesN2(space);
+		species = SpeciesN2.create(false);
 		addSpecies(species);
 
         potentialMaster = new PotentialMasterListMolecular(this, space);
@@ -140,8 +142,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //		
 //		System.exit(1);
 
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
+		this.getController().addActivity(new ActivityIntegrate(integrator));
 	}
 	
 	public static void main (String[] args){
@@ -212,8 +213,8 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    	    
 			DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
+			diameter.setDiameter(sim.species.getTypeByName("N"), 3.1);
+			diameter.setDiameter(sim.species.getTypeByName("P"), 0.0);
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			
 		    simGraphic.makeAndDisplayFrame("Alpha-Phase Nitrogen Crystal Structure");
@@ -233,36 +234,32 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 			
 //			double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //			double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-			
-			sim.activityIntegrate.setMaxSteps(1000000);
-			sim.getController().actionPerformed();
+
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 1000000));
 		    return;
 		    
 		}
-			
-		sim.activityIntegrate.setMaxSteps(simSteps/5);
-		sim.getController().actionPerformed();
-		System.out.println("****System Equilibrated (20% of SimSteps)****");
-		
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 5));
+System.out.println("****System Equilibrated (20% of SimSteps)****");
+
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
-		
-		sim.getController().reset();
-	
+
+
+
 		AccumulatorAverage energyAverage = new AccumulatorAverageFixed();
 		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
 		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 		energyListener.setInterval(numMolecule);
 		sim.integrator.getEventManager().addListener(energyListener);
-			
+
 		AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
 		DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
 		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
 		pressureListener.setInterval((int)simSteps/200);
 		sim.integrator.getEventManager().addListener(pressureListener);
-		
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
 		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);
@@ -311,10 +308,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

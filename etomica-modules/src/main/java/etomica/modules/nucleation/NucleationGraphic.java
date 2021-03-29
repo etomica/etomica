@@ -6,6 +6,7 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTest;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -34,6 +35,7 @@ import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Pressure2D;
 import etomica.util.Constants.CompassDirection;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -121,7 +123,8 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setEditValues(true);
         add(densitySlider);
 
-        sim.activityIntegrate.setSleepPeriod(0);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
@@ -182,7 +185,7 @@ public class NucleationGraphic extends SimulationGraphic {
         int numAtoms = sim.box.getLeafList().size();
         pePump.setInterval(numAtoms > 120 ? 1 : 120 / numAtoms);
 
-        final DisplayPlot ePlot = new DisplayPlot();
+        final DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setDoLegend(false);
 
@@ -191,7 +194,7 @@ public class NucleationGraphic extends SimulationGraphic {
         ePlot.setUnit(eUnit);
         ePlot.setXLabel("Simulation Time (ps)");
 
-        final DisplayPlot tPlot = new DisplayPlot();
+        final DisplayPlotXChart tPlot = new DisplayPlotXChart();
         temperatureHistory.setDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setDoLegend(false);
 
@@ -223,7 +226,7 @@ public class NucleationGraphic extends SimulationGraphic {
         AccumulatorHistory clusterHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         clusterHistory.setTimeDataSource(timeCounter);
         forkCluster.addDataSink(clusterHistory);
-        DisplayPlot clusterHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart clusterHistoryPlot = new DisplayPlotXChart();
         clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
         clusterHistoryPlot.setLabel("Cluster History");
         clusterHistoryPlot.setDoLegend(false);
@@ -231,7 +234,7 @@ public class NucleationGraphic extends SimulationGraphic {
         add(clusterHistoryPlot);
 
         meterClusterSizes = new MeterClusterSizes(sim.box);
-        DisplayPlot clusterHistogramPlot = new DisplayPlot();
+        DisplayPlotXChart clusterHistogramPlot = new DisplayPlotXChart();
         DataPumpListener pumpClusterHistogram = new DataPumpListener(meterClusterSizes, clusterHistogramPlot.getDataSet().makeDataSink(), 100);
         sim.integrator.getEventManager().addListener(pumpClusterHistogram);
         clusterHistogramPlot.setLabel("Cluster Histogram");
@@ -264,33 +267,29 @@ public class NucleationGraphic extends SimulationGraphic {
 
                 temperaturePump.actionPerformed();
                 tBox.putData(temperatureAverage.getData());
-                tBox.repaint();
 
                 pMeter.reset();
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
                 getDisplayBox(sim.box).graphic().repaint();
 
                 displayCycles.putData(meterCycles.getData());
-                displayCycles.repaint();
             }
         };
 
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
-        JPanel etPanel = new JPanel(new GridBagLayout());
-        etPanel.add(ePlot.getPlot(), vertGBC);
-        etPanel.add(tPlot.getPlot(), vertGBC);
+        JPanel etPanel = new JPanel(new MigLayout("flowy"));
+        etPanel.add(ePlot.getPanel(), "");
+        etPanel.add(tPlot.getPanel(), "");
         addAsTab(etPanel, "Energy", true);
 
         add(displayCycles);

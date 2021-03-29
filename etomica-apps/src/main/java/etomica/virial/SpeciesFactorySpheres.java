@@ -4,10 +4,10 @@
 
 package etomica.virial;
 
-import etomica.chem.elements.ElementSimple;
+import etomica.atom.AtomType;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -15,6 +15,6 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SpeciesFactorySpheres implements SpeciesFactory, java.io.Serializable {
     public ISpecies makeSpecies(Space _space) {
-        return new SpeciesSpheresMono(_space, new ElementSimple("A"));
+        return SpeciesGeneral.monatomic(_space, AtomType.simple("A"));
     }
 }

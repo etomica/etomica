@@ -4,6 +4,7 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -14,6 +15,7 @@ import etomica.potential.P2O2Bartolomei;
 import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -95,8 +97,8 @@ public class VirialO2 {
         tarCluster.setTemperature(temperature);
         
         // make species
-        SpeciesSpheresRotating speciesUranium = new SpeciesSpheresRotating(space,new ElementSimple("U",238.02891));
-        
+        SpeciesGeneral speciesUranium = SpeciesSpheresRotating.create(space, new ElementSimple("U", 238.02891));
+
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesUranium, temperature, refCluster, tarCluster);
 //        sim.init();
@@ -129,12 +131,12 @@ public class VirialO2 {
         }
         
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -144,7 +146,7 @@ public class VirialO2 {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -159,7 +161,8 @@ public class VirialO2 {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
         

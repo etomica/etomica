@@ -1,7 +1,7 @@
 package etomica.osmoticvirial;
 
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -22,7 +22,7 @@ import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -36,13 +36,12 @@ public class GCWidomInsertHS extends Simulation {
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete ;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
-    protected SpeciesSpheresMono species1;
-    protected SpeciesSpheresMono species2;
+    protected SpeciesGeneral species1;
+    protected SpeciesGeneral species2;
     protected Box box;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    protected Controller controller;
-    protected ActivityIntegrate activityIntegrate;
+    
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -57,8 +56,8 @@ public class GCWidomInsertHS extends Simulation {
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
         box = new Box(new BoundaryRectangularPeriodic(space, 4 * sigma1), space);
@@ -67,8 +66,7 @@ public class GCWidomInsertHS extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -176,11 +174,9 @@ public class GCWidomInsertHS extends Simulation {
             return;
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
         meterinsert.setSpecies(sim.species1);
@@ -189,7 +185,7 @@ public class GCWidomInsertHS extends Simulation {
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pump = new DataPumpListener(meterinsert, acc);
         sim.integrator.getEventManager().addListener(pump);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
         IData ierr = acc.getData(AccumulatorAverage.ERROR);

@@ -4,6 +4,7 @@
 
 package etomica.potential;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.Argon;
@@ -16,7 +17,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 
 import java.io.*;
@@ -251,7 +252,7 @@ public class PotentialEmul extends PotentialMolecular {
 	    if (false) {
     	    PotentialEmul p2 = new PotentialEmul(space, "template.in");
     	    Simulation sim = new Simulation(space);
-			SpeciesSpheresMono species = new SpeciesSpheresMono(space, Helium.INSTANCE);
+			SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(Helium.INSTANCE));
 			sim.addSpecies(species);
     	    Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
     	    sim.addBox(box);
@@ -280,7 +281,7 @@ public class PotentialEmul extends PotentialMolecular {
 	        Simulation sim = new Simulation(space);
 	        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
 	        sim.addBox(box);
-	        SpeciesSpheresMono species = new SpeciesSpheresMono(space, Argon.INSTANCE);
+	        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(Argon.INSTANCE));
 	        sim.addSpecies(species);
 	        box.setNMolecules(species, 3);
             p2.setBox(box);

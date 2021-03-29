@@ -7,12 +7,13 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
-import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -34,7 +35,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
@@ -475,7 +477,10 @@ public class VirialHePI {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(new AtomType(Helium.INSTANCE), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -596,7 +601,7 @@ public class VirialHePI {
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            AtomType type = species.getLeafType();
+            AtomType type = species.getAtomType(0);
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
             diameterManager.setDiameter(type, 1+1.0/nBeads);
             displayBox1.setDiameterHash(diameterManager);
@@ -614,7 +619,7 @@ public class VirialHePI {
 //            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 10);
+//                    sim.initRefPref(null, 10, false);
 //                    sim.equilibrate(null, 20);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
@@ -629,10 +634,10 @@ public class VirialHePI {
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
@@ -714,11 +719,8 @@ public class VirialHePI {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        
-        // make the accumulator block size equal to the # of steps performed for each overlap step.
-        // make the integratorOS aggressive so that it runs either reference or target
-        // then, we'll have some number of complete blocks in the accumulator
-        sim.setAccumulatorBlockSize(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
 
         if (refFreq >= 0) {
@@ -738,7 +740,7 @@ public class VirialHePI {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -752,13 +754,13 @@ public class VirialHePI {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -792,7 +794,7 @@ public class VirialHePI {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -809,7 +811,7 @@ public class VirialHePI {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -843,9 +845,11 @@ public class VirialHePI {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
+        
+        // make the accumulator block size equal to the # of steps performed for each overlap step.
+        // make the integratorOS aggressive so that it runs either reference or target
+        // then, we'll have some number of complete blocks in the accumulator
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {

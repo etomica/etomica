@@ -4,11 +4,11 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2ArgonAziz1993;
 import etomica.potential.P2QChem;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
@@ -128,10 +128,12 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
         clusterMove.initializeCoordinates(sim.box);
         
         sim.equilibrate(steps/40);
-        
-        System.out.println("Equilibration finished.");
-        
-        sim.ai.setMaxSteps(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+System.out.println("Equilibration finished.");
+
+        System.out.println();
+        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
+sim.getController().runActivityBlocking(ai);
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
@@ -143,12 +145,6 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
 //        };
 //        sim.integratorOS.addIntervalAction(progressReport);
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
-
-        
-        System.out.println();
-        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-        
-        sim.getController().actionPerformed();
 
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         

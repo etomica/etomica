@@ -10,8 +10,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.box.Box;
-import etomica.chem.models.Model;
-import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -107,22 +105,6 @@ public class PotentialMaster {
     }
 
     /**
-     * Add the given Model's intramolecular potentials to this PotentialMaster
-     */
-    public void addModel(Model newModel) {
-        if (getPotential(new ISpecies[]{newModel.getSpecies()}) != null) {
-            throw new IllegalArgumentException(newModel + " has already been added");
-        }
-        PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
-        PotentialGroup pGroup = makePotentialGroup(1);
-        for (int i = 0; i < potentialsAndIterators.length; i++) {
-            pGroup.addPotential(potentialsAndIterators[i].getPotential(),
-                    potentialsAndIterators[i].getIterator());
-        }
-        addPotential(pGroup, new ISpecies[]{newModel.getSpecies()});
-    }
-
-    /**
      * Indicates to the PotentialMaster that the given potential should apply to
      * the specified species.  Exception is thrown if the potential.nBody() value
      * is different from the length of the species array.  Thus, for example, if
@@ -156,6 +138,7 @@ public class PotentialMaster {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }
 
+        Arrays.sort(atomTypes);
         // depth of molecules
         ISpecies[] parentAtomTypes = new ISpecies[atomTypes.length];
         for (int i = 0; i < atomTypes.length; i++) {

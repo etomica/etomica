@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -25,7 +26,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -47,11 +48,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
 	private static final String APP_NAME = "Sim Umbrella's";
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Basis basis;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
@@ -85,7 +86,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         }
         int D = space.D();
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, space);
@@ -98,8 +99,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         primitive = new PrimitiveCubic(space, n * L);
         primitiveUnitCell = new PrimitiveCubic(space, L);
@@ -213,11 +213,10 @@ public class SimUmbrellaSoftSphere extends Simulation {
 
         IDataSource[] samplingMeters = new IDataSource[2];
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("System Equilibrated!");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+System.out.println("System Equilibrated!");
 
-        sim.getController().reset();
+
 
         /*
          *
@@ -307,9 +306,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
         outputActionListener.setInterval(10000);
         sim.integrator.getEventManager().addListener(outputActionListener);
-
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         try{
         	fileWriterHarm.close();

@@ -18,9 +18,7 @@ import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -28,7 +26,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.IListener;
 import etomica.util.ParameterBase;
@@ -37,10 +35,9 @@ import etomica.util.ParseArgs;
 public class VLESim extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
-    public final ActivityIntegrate activityIntegrate;
     protected final Potential2SoftSpherical p2;
     protected final P2SoftTruncated p2Truncated;
     protected double sigma;
@@ -59,7 +56,7 @@ public class VLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / 3.0));
 
-        species = new SpeciesSpheresMono(space, Helium.INSTANCE);
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Helium.INSTANCE));
         addSpecies(species);
 
         System.out.println("box size: " + initBoxSize);
@@ -148,8 +145,6 @@ public class VLESim extends Simulation {
 //            }
 //        });
 //
-        activityIntegrate = new ActivityIntegrate(integratorGEMC);
-        getController().addAction(activityIntegrate);
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();
@@ -169,24 +164,22 @@ public class VLESim extends Simulation {
 
         long steps = params.numSteps;
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorGEMC, steps / 10));
         sim.integratorGEMC.resetStepCount();
 
         int interval = params.numAtoms;
-        int blockSize = (int) (params.numSteps / interval);
-        MeterDensity liquidDensity = new MeterDensity(sim.getSpace());
+        int blockSize = (int) (params.numSteps / (interval * 100));
+        MeterDensity liquidDensity = new MeterDensity(sim.boxLiquid);
         AccumulatorAverageFixed accLiquidDensity = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpLiquidDensity = new DataPumpListener(liquidDensity, accLiquidDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpLiquidDensity);
 
-        MeterDensity vaporDensity = new MeterDensity(sim.getSpace());
+        MeterDensity vaporDensity = new MeterDensity(sim.boxVapor);
         AccumulatorAverageFixed accVaporDensity = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpVaporDensity = new DataPumpListener(vaporDensity, accVaporDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpVaporDensity);
 
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorGEMC, steps));
         long t2 = System.currentTimeMillis();
 
         IData liquidDensityData = accLiquidDensity.getData();
@@ -202,7 +195,7 @@ public class VLESim extends Simulation {
         double vaporCor = vaporDensityData.getValue(accVaporDensity.BLOCK_CORRELATION.index);
         System.out.println("vapor density: " + vaporAvg + " err: " + vaporErr + " cor: " + vaporCor);
 
-        System.out.println("time: " + (t2 - t2) * 0.001);
+        System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
     public static class GEMCParams extends ParameterBase {

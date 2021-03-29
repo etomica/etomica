@@ -5,19 +5,17 @@
 package etomica.virial.GUI.models;
 
 
-import etomica.atom.IAtomList;
+import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.potential.P2CO2EMP2;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.virial.SpeciesFactory;
 
 public class MolecularModelEMP2_SpeciesCO2 implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - EPM";
@@ -202,56 +200,15 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(Space space) {
-	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-	            species.setChildCount(new int[]{1,2});
-	            
-	            IConformation conformation = new IConformation(){
-	    			public void initializePositions(IAtomList atomList) {
-	                    // atoms are C, O and O, so we arrange them as 1-0-2
-	                   
-	                    atomList.get(0).getPosition().E(0);
-	                    atomList.get(1).getPosition().E(0);
-	                    atomList.get(1).getPosition().setX(0, -bondL);
-	                    atomList.get(2).getPosition().E(0);
-	                    atomList.get(2).getPosition().setX(0, +bondL);
-	                }
-	    		};
-	            
-	            species.setConformation(conformation);
-	            return species;
-	        }
-	    };
-	    return factory.makeSpecies(this.space);
+	    return new SpeciesBuilder(this.space)
+				.addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+				.addAtom(AtomType.element(Oxygen.INSTANCE), Vector.of(-bondL, 0, 0))
+				.addAtom(AtomType.element(Oxygen.INSTANCE), Vector.of(+bondL, 0, 0))
+                .build();
+
 	}
 
-	
-	public SpeciesFactory createSpeciesFactory(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(Space space) {
-	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-	            species.setChildCount(new int[]{1,2});
-	            
-	            IConformation conformation = new IConformation(){
-	    			public void initializePositions(IAtomList atomList) {
-	                    // atoms are C, O and O, so we arrange them as 1-0-2
-	                   
-	                    atomList.get(0).getPosition().E(0);
-	                    atomList.get(1).getPosition().E(0);
-	                    atomList.get(1).getPosition().setX(0, -bondL);
-	                    atomList.get(2).getPosition().E(0);
-	                    atomList.get(2).getPosition().setX(0, +bondL);
-	                }
-	    		};
-	            
-	            species.setConformation(conformation);
-	            return species;
-	        }
-	    };
-	    return factory;
-	}
-	
+
 	public int getParameterCount() {
 		return 2;
 	}

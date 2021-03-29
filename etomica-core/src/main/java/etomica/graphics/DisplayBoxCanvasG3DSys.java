@@ -4,7 +4,7 @@
 
 package etomica.graphics;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
-        AgentSource<Ball>, BondManager {
+        AgentSource<Ball> {
 
 
     protected final Map<AtomType, OrientedSite[]> atomTypeOrientedManager;

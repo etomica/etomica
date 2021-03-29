@@ -4,10 +4,9 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
-import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConformationLinear;
@@ -20,7 +19,8 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.P2O2Bartolomei;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -113,15 +113,14 @@ public class VirialO2PI {
         tarCluster.setTemperature(temperature);
 
         // make species
-        AtomTypeOriented atype = new AtomTypeOriented(Oxygen.INSTANCE, space);
-        SpeciesSpheresHetero speciesO2 = null;
-        speciesO2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-            protected IAtom makeLeafAtom(AtomType leafType) {
-                return new AtomHydrogen(space, (AtomTypeOriented) leafType, blO2);
-            }
-        };
-        speciesO2.setChildCount(new int [] {nBeads});
-        speciesO2.setConformation(new ConformationLinear(space, 0));
+        SpeciesGeneral speciesO2 = new SpeciesBuilder(space)
+                .addCount(new AtomTypeOriented(Oxygen.INSTANCE, space.makeVector()), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .withAtomFactory(atype -> {
+                    return new AtomHydrogen(space, (AtomTypeOriented) atype, blO2);
+                })
+                .build();
+
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesO2, temperature, refCluster, tarCluster);
 //        sim.init();
@@ -179,13 +178,12 @@ public class VirialO2PI {
             sim.integratorOS.setAdjustStepFraction(false);
         }
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
-
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
@@ -195,7 +193,7 @@ public class VirialO2PI {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -210,7 +208,8 @@ public class VirialO2PI {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
 

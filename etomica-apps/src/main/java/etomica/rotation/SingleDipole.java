@@ -5,7 +5,9 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -19,6 +21,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 
 public class SingleDipole {
@@ -26,7 +29,8 @@ public class SingleDipole {
     public static SimulationGraphic makeDipole() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(sim, space);
+        SpeciesGeneral species = SpeciesSpheresRotatingMolecule
+                .create(space, AtomType.simpleFromSim(sim), null, false);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
@@ -42,14 +46,13 @@ public class SingleDipole {
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(1);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
-        sim.getController().addAction(ai);
+        sim.getController().setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate(integrator));
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-        ai.setSleepPeriod(10);
         SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
 
         return graphic;

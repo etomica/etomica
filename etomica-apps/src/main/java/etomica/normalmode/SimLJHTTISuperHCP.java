@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -31,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -47,7 +48,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public BoundaryRectangularPeriodic boundary;
     public int[] nCells;
@@ -56,7 +57,7 @@ public class SimLJHTTISuperHCP extends Simulation {
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
 
     public SimLJHTTISuperHCP(Space _space, int numAtoms, double density, double temperature, double alpha, double rc, boolean ss, int[] seeds) {
         super(_space);
@@ -64,7 +65,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             setRandom(new RandomMersenneTwister(seeds));
         }
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double a = Math.pow(2, 1.0 / 6.0) / Math.pow(density, 1.0 / 3.0);
@@ -147,9 +148,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             coordinateDefinition = c0;
         }
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
     }
 
     /**
@@ -502,9 +501,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         long endTime = System.currentTimeMillis();
         System.out.println();
 
@@ -723,9 +720,8 @@ public class SimLJHTTISuperHCP extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
         integrator.getMoveManager().setEquilibrating(false);
     }
     

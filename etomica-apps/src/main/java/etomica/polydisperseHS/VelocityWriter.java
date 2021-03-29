@@ -5,7 +5,6 @@
 package etomica.polydisperseHS;
 
 import etomica.action.IAction;
-import etomica.action.activity.ControllerEvent;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
@@ -15,13 +14,11 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
-import etomica.util.IEvent;
-import etomica.util.IListener;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class VelocityWriter implements IAction, IListener {
+public class VelocityWriter implements IAction {
 
 	public VelocityWriter(Integrator integrator, Box box, String fileName, int writeInterval) {
 		this.box = box;
@@ -95,13 +92,6 @@ public class VelocityWriter implements IAction, IListener {
 		}
 	}
 
-    public void actionPerformed(IEvent evt) {
-        if (fileWriter != null &&
-            (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
-             ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
-            closeFile();
-        }
-    }
 
 	private Box box;
 	private AtomIterator iterator;

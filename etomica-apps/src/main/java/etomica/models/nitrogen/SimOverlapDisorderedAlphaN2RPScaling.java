@@ -5,6 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -29,7 +30,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.species.Species;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -57,7 +58,7 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
 
-        Species species = new SpeciesN2(space);
+        SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         Boundary boundary = new BoundaryRectangularPeriodic(space, nC * a);
@@ -139,17 +140,15 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
     }
     
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
-    	activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
         
         accumulator.reset();
 
@@ -262,9 +261,8 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
 
         
         final long startTime = System.currentTimeMillis();
-       
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
         sim.writeConfiguration(configFileName);
@@ -323,7 +321,7 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Primitive primitive;
     public AccumulatorAverageFixed accumulator;

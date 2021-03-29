@@ -4,20 +4,18 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-
-import javax.swing.JPanel;
 
 /**
  * Superclass of all classes that display something from the simulation.
  * Included are displays of graphical and tabular data, and views of the
  * molecules as they move about during the simulation.
- * 
+ *
  * @author David Kofke
  */
-public abstract class Display implements GraphicalElement {
+public abstract class Display {
 
     public Display() {
     }
@@ -28,20 +26,7 @@ public abstract class Display implements GraphicalElement {
      * override in subclass to return a more appropriate graphical element, or
      * none at all.
      */
-    public Component graphic(Object obj) {
-        return panel;
-    }
-
-    /**
-     * Same as graphic method with a null argument.
-     */
-    public final Component graphic() {
-        return graphic(null);
-    }
-
-    public void repaint() {
-        panel.repaint();
-    }
+    public abstract Component graphic();
 
     /**
      * Accessor method of the label describing the display.
@@ -85,5 +70,4 @@ public abstract class Display implements GraphicalElement {
 
     protected PropertyChangeSupport support = new PropertyChangeSupport(this);
     protected String label;
-    private JPanel panel = new JPanel();
 }

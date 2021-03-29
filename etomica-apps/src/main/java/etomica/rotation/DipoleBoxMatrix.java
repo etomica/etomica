@@ -6,7 +6,9 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -22,19 +24,19 @@ import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 import etomica.units.Pixel;
 
 public class DipoleBoxMatrix extends Simulation {
 
     public final IntegratorRigidMatrixIterative integrator;
-    public final ActivityIntegrate ai;
     public final Box box;
     
     public DipoleBoxMatrix(Space space, int nAtoms, double dt) {
         super(space);
-        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, Vector.of(new double[]{0.025, 0.025, 0.025}));
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesSpheresRotatingMolecule
+                .create(space, AtomType.simpleFromSim(this), Vector.of(0.025, 0.025, 0.025), true);
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));
         box.setNMolecules(species, nAtoms);
@@ -60,8 +62,7 @@ public class DipoleBoxMatrix extends Simulation {
         integrator.setMaxIterations(maxIterations);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         P2LJDipole p2 = new P2LJDipole(space, 1.0, 1.0, 2.0);
         p2.setTruncationRadius(2.5);
@@ -78,7 +79,7 @@ public class DipoleBoxMatrix extends Simulation {
         double dt = 0.01;
         if (args.length == 0) {
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, nAtoms, dt);
-            sim.ai.setSleepPeriod(10);
+            sim.getController().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
             graphic.makeAndDisplayFrame();
@@ -88,7 +89,7 @@ public class DipoleBoxMatrix extends Simulation {
             nAtoms = Integer.parseInt(args[1]);
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, nAtoms, dt);
             sim.integrator.printInterval = 100;
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
         }
     }
 
@@ -97,7 +98,7 @@ public class DipoleBoxMatrix extends Simulation {
         public void init() {
             Space space = Space3D.getInstance();
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, 864, 0.01);
-            sim.ai.setSleepPeriod(10);
+            sim.getController().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
 

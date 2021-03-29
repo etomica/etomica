@@ -19,6 +19,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
 /**
@@ -50,7 +51,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 		cDim = aDim * ratio;
 		numMolecule = nC[0] * nC[1] * nC[2] * 2;
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
 		potentialMaster = new PotentialMaster();
@@ -412,7 +413,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	protected MeterPotentialEnergy meterPotential;
 	protected PotentialMaster potentialMaster;
 	protected Box box;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	protected double density;
 	protected Space space;
 	protected Primitive primitive;

@@ -59,6 +59,10 @@ public class ConfigurationStorage implements IntegratorListener {
         this.doVel = false;
     }
 
+    public void setDoVelocity(boolean doVelocity) {
+        doVel = doVelocity;
+    }
+
     public void setSampleInterval(int newSampleInterval) {
         interval = intervalCountdown = newSampleInterval;
         reset();
@@ -105,8 +109,10 @@ public class ConfigurationStorage implements IntegratorListener {
         if (configList == null) {
             configList = new Vector[1][];
             configList[0] = box.getSpace().makeVectorArray(n);
-            configVelList = new Vector[1][];
-            configVelList[0] = box.getSpace().makeVectorArray(n);
+            if (doVel) {
+                configVelList = new Vector[1][];
+                configVelList[0] = box.getSpace().makeVectorArray(n);
+            }
         } else if (storageType == StorageType.LOG2) {
             // we need to copy existing configs forward to make way for our new config
 
@@ -127,36 +133,42 @@ public class ConfigurationStorage implements IntegratorListener {
                     if (configList.length <= j) {
                         configList = Arrays.copyOf(configList, j + 1);
                         configList[j] = box.getSpace().makeVectorArray(n);
-                        configVelList = Arrays.copyOf(configVelList, j + 1);
-                        configVelList[j] = box.getSpace().makeVectorArray(n);
+                        if (doVel) {
+                            configVelList = Arrays.copyOf(configVelList, j + 1);
+                            configVelList[j] = box.getSpace().makeVectorArray(n);
+                        }
                     }
                     for (int i = 0; i < n; i++) {
                         configList[j][i].E(configList[j - 1][i]);
-                        configVelList[j][i].E(configVelList[j - 1][i]);
+                        if (doVel) {
+                            configVelList[j][i].E(configVelList[j - 1][i]);
+                        }
                     }
                 }
             }
         } else if (storageType == StorageType.LINEAR) {
             if (configList.length < savedSteps.length) {
                 Vector[][] newConfigList = new Vector[configList.length + 1][];
-                Vector[][] newConfigVelList = new Vector[configVelList.length + 1][];
+                Vector[][] newConfigVelList = doVel ? new Vector[configVelList.length + 1][] : null;
                 for (int i = 0; i < configList.length; i++) {
                     newConfigList[i + 1] = configList[i];
-                    newConfigVelList[i + 1] = configVelList[i];
+                    if (doVel) newConfigVelList[i + 1] = configVelList[i];
                 }
                 configList = newConfigList;
                 configList[0] = box.getSpace().makeVectorArray(n);
-                configVelList = newConfigVelList;
-                configVelList[0] = box.getSpace().makeVectorArray(n);
+                if (doVel) {
+                    configVelList = newConfigVelList;
+                    configVelList[0] = box.getSpace().makeVectorArray(n);
+                }
             } else {
                 Vector[] tmp = configList[configList.length - 1];
-                Vector[] tmpV = configVelList[configVelList.length - 1];
+                Vector[] tmpV = doVel ? configVelList[configVelList.length - 1] : null;
                 for (int i = configList.length - 1; i > 0; i--) {
                     configList[i] = configList[i - 1];
-                    configVelList[i] = configVelList[i - 1];
+                    if (doVel) configVelList[i] = configVelList[i - 1];
                 }
                 configList[0] = tmp;
-                configVelList[0] = tmpV;
+                if (doVel) configVelList[0] = tmpV;
             }
             for (int i = configList.length - 1; i > 0; i--) { //no
                 savedSteps[i] = savedSteps[i - 1];
@@ -170,10 +182,11 @@ public class ConfigurationStorage implements IntegratorListener {
             configList = Arrays.copyOf(configList, 2);
             configList[1] = configList[0];
             configList[0] = box.getSpace().makeVectorArray(n);
-            configVelList = Arrays.copyOf(configVelList, 2);
-            configVelList[1] = configVelList[0];
-            configVelList[0] = box.getSpace().makeVectorArray(n);
-
+            if (doVel) {
+                configVelList = Arrays.copyOf(configVelList, 2);
+                configVelList[1] = configVelList[0];
+                configVelList[0] = box.getSpace().makeVectorArray(n);
+            }
         }
 
         // savedSteps isn't integrator's steps, it's just relative steps for our own purposes
@@ -201,7 +214,7 @@ public class ConfigurationStorage implements IntegratorListener {
                 }
             }
             configList[0][i].E(p);
-            configVelList[0][i].E(v);
+            if (doVel) configVelList[0][i].E(v);
         }
         for (ConfigurationStorageListener csl : listeners) {
             csl.newConfigruation();
@@ -215,19 +228,21 @@ public class ConfigurationStorage implements IntegratorListener {
                 if (configList.length <= j + 1) {
                     configList = Arrays.copyOf(configList, j + 2);
                     configList[j + 1] = configList[j];
-                    configVelList = Arrays.copyOf(configVelList, j + 2);
-                    configVelList[j + 1] = configVelList[j];
                     savedSteps[j + 1] = savedSteps[j];
                     savedTimes[j + 1] = savedTimes[j];
                     configList[j] = box.getSpace().makeVectorArray(n);
-                    configVelList[j] = box.getSpace().makeVectorArray(n);
+                    if (doVel) {
+                        configVelList = Arrays.copyOf(configVelList, j + 2);
+                        configVelList[j + 1] = configVelList[j];
+                        configVelList[j] = box.getSpace().makeVectorArray(n);
+                    }
                 }
                 savedSteps[j] = savedSteps[0];
                 savedTimes[j] = savedTimes[0];
 //                System.out.println("=> "+Arrays.toString(savedSteps));
                 for (int i = 0; i < n; i++) {
                     configList[j][i].E(configList[0][i]);
-                    configVelList[j][i].E(configVelList[0][i]);
+                    if (doVel) configVelList[j][i].E(configVelList[0][i]);
                 }
             }
         }

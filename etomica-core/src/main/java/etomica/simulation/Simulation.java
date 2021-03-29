@@ -5,8 +5,8 @@
 package etomica.simulation;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
+
+import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.IElement;
@@ -49,13 +49,13 @@ public class Simulation {
     public Simulation(Space space) {
         this.space = space;
         boxes = new ArrayList<>();
-        controller = new Controller();
         seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         speciesList = new ArrayList<>();
         elementSymbolHash = new HashMap<>();
         elementAtomTypeHash = new HashMap<>();
+        controller = new Controller();
     }
 
     /**
@@ -330,14 +330,6 @@ public class Simulation {
      * Returns null if no integrator is found.
      */
     public Integrator getIntegrator() {
-        Integrator integrator = null;
-        IAction[] controllerActions = controller.getAllActions();
-        for (IAction controllerAction : controllerActions) {
-            if (controllerAction instanceof ActivityIntegrate) {
-                integrator = ((ActivityIntegrate) controllerAction).getIntegrator();
-                break;
-            }
-        }
-        return integrator;
+        return this.controller.getIntegrator();
     }
 }

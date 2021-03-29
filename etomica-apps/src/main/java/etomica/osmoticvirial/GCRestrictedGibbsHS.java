@@ -23,7 +23,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -40,12 +40,12 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected IntegratorRGEMC integrator;
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete1, mcMoveInsertDelete2;
-    protected SpeciesSpheresMono species1;
-    protected SpeciesSpheresMono species2;
+    protected SpeciesGeneral species1;
+    protected SpeciesGeneral species2;
     protected Box box1, box2;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    protected ActivityIntegrate activityIntegrate;
+
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -55,8 +55,8 @@ public class GCRestrictedGibbsHS extends Simulation {
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
 
@@ -69,8 +69,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
 
         integrator = new IntegratorRGEMC(random, space, species1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         double sigma1 = 1; //solute
         double sigma2 = q * sigma1; //solvent
@@ -207,7 +206,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         long numSteps = params.numSteps;
         double vf = params.vf;
         double q = params.q;
-        boolean graphics = true;
+        boolean graphics = false;
         boolean computeAO = params.computeAO;
         double L = params.L;
         double GMIfac = params.GMIfac;
@@ -246,11 +245,9 @@ public class GCRestrictedGibbsHS extends Simulation {
             return;
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps / 10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         double GMI = sim.integrator.getGlobalMoveInterval();
         int targetNumBlocks = 100;
@@ -259,7 +256,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance(blockSize);
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         System.out.println("block count " + acc.getBlockCount());
         IData iavg = acc.getData(acc.AVERAGE);

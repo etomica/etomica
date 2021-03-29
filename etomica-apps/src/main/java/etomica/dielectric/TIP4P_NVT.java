@@ -5,8 +5,8 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -43,6 +43,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -59,24 +60,23 @@ import java.util.Calendar;
  * Canonical ensemble Monte Carlo simulation (NVT)
  * dielectric constant (epsilon)
  * TIP4P water
- * @author shu and Weisong
+ *
+ * @author Weisong
  */
 public class TIP4P_NVT extends Simulation {
-     private static final long serialVersionUID = 1L;
-     protected final PotentialMaster potentialMaster;
-     protected final IntegratorMC integrator;
-     protected final MCMoveMolecule moveMolecule;//translation
-     protected final MCMoveRotateMolecule3D rotateMolecule;//rotation
-     protected final Box box;
-     protected SpeciesWater4P species;
-     protected P2WaterTIP4PSoft pWater;
-     private final static String APP_NAME = "TIP4P water";
-     private static final int PIXEL_SIZE = 15;
-     public final ActivityIntegrate activityIntegrate;
-     
-     public Controller controller;
-     protected double sigmaLJ, epsilonLJ;
-     protected double chargeM, chargeH;
+    private static final long serialVersionUID = 1L;
+    protected final PotentialMaster potentialMaster;
+    protected final IntegratorMC integrator;
+    protected final MCMoveMolecule moveMolecule;//translation
+    protected final MCMoveRotateMolecule3D rotateMolecule;//rotation
+    protected final Box box;
+    protected SpeciesGeneral species;
+    protected P2WaterTIP4PSoft pWater;
+    private final static String APP_NAME = "TIP4P water";
+    private static final int PIXEL_SIZE = 15;
+
+    protected double sigmaLJ, epsilonLJ;
+    protected double chargeM, chargeH;
 
      //************************************* for reaction field ********************************************//
      public static class DipoleSourceTIP4PWater implements DipoleSource {//for potential reaction field
@@ -104,7 +104,7 @@ public class TIP4P_NVT extends Simulation {
 
 //    	 setRandom(new RandomNumberGenerator(1));  // debug only
 
-         species = new SpeciesWater4P(space);
+         species = SpeciesWater4P.create();
          addSpecies(species);
          box = this.makeBox();
          box.setNMolecules(species, numberMolecules);
@@ -148,8 +148,7 @@ public class TIP4P_NVT extends Simulation {
          // add mc move
          moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
          rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
-         activityIntegrate = new ActivityIntegrate(integrator);
-         getController().addAction(activityIntegrate);
+         this.getController().addActivity(new ActivityIntegrate(integrator));
          //******************************** periodic boundary condition ******************************** //
          BoxImposePbc imposePbc = new BoxImposePbc(box, space);
          imposePbc.setApplyToMolecules(true);
@@ -169,53 +168,54 @@ public class TIP4P_NVT extends Simulation {
      public static void main (String[] args){
 //    	 System.out.println(Electron.UNIT.toSim( 0.20819434)*1.855);
 //    	 System.exit(2);
-    	 Param params = new Param();
-    	 if (args.length > 0) {
-    		 ParseArgs.doParseArgs(params, args);
-    	 } else {
-              
-    	 }
- 		final long startTime = System.currentTimeMillis();
- 		DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
- 		Calendar cal = Calendar.getInstance();
- 		System.out.println("startTime : " + date.format(cal.getTime()));
-    	 Space space = Space3D.getInstance();
-    	 int steps = params.steps;
-    	 boolean isGraphic = params.isGraphic;
-    	 boolean mSquare = params.mSquare;
-    	 boolean aEE = params.aEE;
-    	 double temperature = Kelvin.UNIT.toSim(params.temperatureK);// convert Kelvin temperature to T(sim), essentially kT
+        Param params = new Param();
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
+        } else {
+
+        }
+        final long startTime = System.currentTimeMillis();
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        System.out.println("startTime : " + date.format(cal.getTime()));
+        Space space = Space3D.getInstance();
+        int steps = params.steps;
+        boolean isGraphic = params.isGraphic;
+        boolean difInterval = params.difInterval;
+        boolean mSquare = params.mSquare;
+        boolean aEE = params.aEE;
+        double temperature = Kelvin.UNIT.toSim(params.temperatureK);// convert Kelvin temperature to T(sim), essentially kT
 //    	 System.out.println(temperature +" "+Kelvin.UNIT.toSim(1)+" "+Kelvin.UNIT.fromSim(1));
 //    	 System.exit(2);
-    	 int numberMolecules = params.numberMolecules;
-    	 double density = params.density;//mol/L
-    	// double sigmaLJ=3.1535779419764953;
-    	// double epsilonLJ=64.8694333333333;
-    	// double chargeM = Electron.UNIT.toSim(-1.04);
-    	// double chargeH = Electron.UNIT.toSim(+0.52);
-    	// double hardCore = 0.7735839376326238;
-    	
-         //double dipoleStrength=168.96979945736229;// in sim unit
-    	 double dielectricOutside = params.dielectricOutside;
-         double densitySim = density /(2*Hydrogen.INSTANCE.getMass()+Oxygen.INSTANCE.getMass())* Constants.AVOGADRO * 1e-24;  // convert to sim unit; in 1/(A)^3
+        int numberMolecules = params.numberMolecules;
+        double density = params.density;//mol/L
+        // double sigmaLJ=3.1535779419764953;
+        // double epsilonLJ=64.8694333333333;
+        // double chargeM = Electron.UNIT.toSim(-1.04);
+        // double chargeH = Electron.UNIT.toSim(+0.52);
+        // double hardCore = 0.7735839376326238;
+
+        //double dipoleStrength=168.96979945736229;// in sim unit
+        double dielectricOutside = params.dielectricOutside;
+        double densitySim = density / (2 * Hydrogen.INSTANCE.getMass() + Oxygen.INSTANCE.getMass()) * Constants.AVOGADRO * 1e-24;  // convert to sim unit; in 1/(A)^3
 //         System.out.println("Constants.AVOGADRO * 1e-27: "+Constants.AVOGADRO * 1e-27);
 //         System.exit(2);
-         double boxSize = Math.pow(numberMolecules/densitySim,(1.0/3.0));
-         double truncation=boxSize* 0.49;
+        double boxSize = Math.pow(numberMolecules / densitySim, (1.0 / 3.0));
+        double truncation = boxSize * 0.49;
 //         System.out.println("******************* TIP4P water, dielectric constant, NVT********************");
-         System.out.println("steps = "+steps);
-         System.out.println("numberMolecules = "+numberMolecules);
+        System.out.println("steps = " + steps);
+        System.out.println("numberMolecules = " + numberMolecules);
 //         System.out.println("density= "+density+" mol/L");
 //         System.out.println("denisty(sim)= "+densitySim + "1/(A)^3");
-         System.out.println("density = " + density + " g/cm^3");
-         System.out.println("temperature= "+params.temperatureK +" K");
+        System.out.println("density = " + density + " g/cm^3");
+        System.out.println("temperature= " + params.temperatureK + " K");
 //         System.out.println("temperature in sim unit = "+temperature);
 //         System.out.println("box size= "+boxSize);
 //         System.out.println("truncation= "+truncation);
 //         System.out.println("dielectric constant outside = "+dielectricOutside);
-    
-         final TIP4P_NVT sim = new TIP4P_NVT(space,numberMolecules,dielectricOutside,boxSize,temperature,truncation);
-         
+
+        final TIP4P_NVT sim = new TIP4P_NVT(space, numberMolecules, dielectricOutside, boxSize, temperature, truncation);
+
 //         System.out.println("*********** potential parameters:");
 
          double sigmaLJ=sim.sigmaLJ;
@@ -231,43 +231,53 @@ public class TIP4P_NVT extends Simulation {
         	  simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
         	  simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));            
         	 
-        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getHydrogenType(),1);
-        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getOxygenType(),1);
-        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getMType(),1);
+        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("H"),1);
+        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("O"),1);
+        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("M"),1);
 
-        	  ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme();
-        	  colorScheme.setColor(sim.species.getHydrogenType(), Color.red);
-        	  colorScheme.setColor(sim.species.getOxygenType(), Color.green);
-        	  colorScheme.setColor(sim.species.getMType(), Color.blue);
-        	  
-        	  simGraphic.makeAndDisplayFrame(APP_NAME);
-        	  simGraphic.getDisplayBox(sim.box).repaint();
-        	  return;    
-          }
-         
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme();
+            colorScheme.setColor(sim.species.getTypeByName("H"), Color.red);
+            colorScheme.setColor(sim.species.getTypeByName("O"), Color.green);
+            colorScheme.setColor(sim.species.getTypeByName("M"), Color.blue);
+
+            simGraphic.makeAndDisplayFrame(APP_NAME);
+            simGraphic.getDisplayBox(sim.box).repaint();
+            return;
+        }
+
         ////////////////////////////////////////////////////////////////////
-         int blockNumber = 1000; 
-         int sampleAtInterval = numberMolecules;
-         int samplePerBlock = steps/sampleAtInterval/blockNumber;
+        int blockNumber = 1000;
+        int sampleAtInterval = numberMolecules;
+        int samplePerBlock = steps / sampleAtInterval / blockNumber;
 //         System.out.println("number of blocks is : "+blockNumber);
 //         System.out.println("sample per block is : "+samplePerBlock);
-         ////////////////////////////////////////////////////////////////////
-         sim.activityIntegrate.setMaxSteps(steps/5);//
-         sim.getController().actionPerformed();
-         sim.getController().reset();
-         sim.integrator.getMoveManager().setEquilibrating(false);
+        ////////////////////////////////////////////////////////////////////
+         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));//
+
+        sim.integrator.getMoveManager().setEquilibrating(false);
 //         System.out.println("equilibration finished");
-         // dipoleSumSquared
-         MeterDipoleSumSquaredTIP4PWater dipoleMeter = null;
-         AccumulatorAverage dipoleAccumulator = null;
-         if(mSquare){
-        	 dipoleMeter = new MeterDipoleSumSquaredTIP4PWater(space,sim.box);
-        	 dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
-        	 DataPump dipolePump = new DataPump(dipoleMeter,dipoleAccumulator);
-        	 IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
-        	 dipoleListener.setInterval(sampleAtInterval);
-        	 sim.integrator.getEventManager().addListener(dipoleListener);
-         }
+        // dipoleSumSquared
+        MeterDipoleSumSquaredTIP4PWater dipoleMeter = null;
+        AccumulatorAverage dipoleAccumulator = null;
+        if (mSquare) {
+            if (difInterval) {
+                sampleAtInterval = numberMolecules / 40;
+                samplePerBlock = steps / sampleAtInterval / blockNumber;
+            }
+
+
+            System.out.println("sampleperBlock " + samplePerBlock);
+            System.out.println("SampleArInterval " + sampleAtInterval);
+            System.out.println("BlockNumber " + (steps / sampleAtInterval / samplePerBlock));
+
+
+            dipoleMeter = new MeterDipoleSumSquaredTIP4PWater(space, sim.box);
+            dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+            DataPump dipolePump = new DataPump(dipoleMeter, dipoleAccumulator);
+            IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
+            dipoleListener.setInterval(sampleAtInterval);
+            sim.integrator.getEventManager().addListener(dipoleListener);
+        }
         // energy
 //         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 //         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
@@ -275,42 +285,48 @@ public class TIP4P_NVT extends Simulation {
 //         energyAccumulator.setBlockSize(50);
 //         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 //         sim.integrator.getEventManager().addListener(energyListener);
-       //externalField 
+        //externalField
 //		MeterExternalFieldPerturbationWater meterExternalfiled =
 //		new MeterExternalFieldPerturbationWater(space, sim.box,dipoleStrength,temperature, sim.potentialMaster);
 //		AccumulatorAverage externalFieldAccumlator = new AccumulatorAverageFixed(samplePerBlock);
 //		DataPumpListener externalFieldPumpListener = new DataPumpListener(meterExternalfiled,externalFieldAccumlator,sampleAtInterval);
 //		sim.integrator.getEventManager().addListener(externalFieldPumpListener);
-         
- 		//AEE   
+
+        //AEE
         DipoleSourceTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceTIP4PWater(space);
-        
-        MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box,sim, dipoleStrength, temperature,sim.potentialMaster);
- 		AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
-        
-        if(aEE){
-        	AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box,sim, dipoleStrength, temperature,sim.potentialMaster);
-        	AEEMeter.setDipoleSource(dipoleSourceTIP4PWater);
-        	AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
-        	DataPump AEEPump = new DataPump(AEEMeter,AEEAccumulator);
-        	IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
-        	AEEListener.setInterval(sampleAtInterval);
-        	//AEEListener.setInterval(1);//debug only to have more test samples
-        	sim.integrator.getEventManager().addListener(AEEListener);
+
+        MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box, sim, dipoleStrength, temperature, sim.potentialMaster);
+        AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
+
+        if (aEE) {
+            if (difInterval) {
+                sampleAtInterval = numberMolecules * 4;
+                samplePerBlock = steps / sampleAtInterval / blockNumber;
+            }
+            System.out.println("sampleperBlock " + samplePerBlock);
+            System.out.println("SampleArInterval " + sampleAtInterval);
+            System.out.println("BlockNumber " + (steps / sampleAtInterval / samplePerBlock));
+
+            AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box, sim, dipoleStrength, temperature, sim.potentialMaster);
+            AEEMeter.setDipoleSource(dipoleSourceTIP4PWater);
+            AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
+            DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
+            IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
+            AEEListener.setInterval(sampleAtInterval);
+            //AEEListener.setInterval(1);//debug only to have more test samples
+            sim.integrator.getEventManager().addListener(AEEListener);
         }
-		
-		sim.activityIntegrate.setMaxSteps(steps);// equilibration period
-		sim.getController().actionPerformed();
-       
-         //calculate dipoleSumSquared average
-		double dipoleSumSquared = 0;
-		double dipoleSumSquaredERR = 0;
-		double dipoleSumCor = 0;
-		 if(mSquare){
-			 dipoleSumSquared = ((DataDouble)((DataGroup)dipoleAccumulator.getData()).getData(dipoleAccumulator.AVERAGE.index)).x;
-			 dipoleSumSquaredERR = ((DataDouble)((DataGroup)dipoleAccumulator.getData()).getData(dipoleAccumulator.ERROR.index)).x;
-			 dipoleSumCor = ((DataDouble)((DataGroup)dipoleAccumulator.getData()).getData(dipoleAccumulator.BLOCK_CORRELATION.index)).x;
-		 }
+         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+
+        //calculate dipoleSumSquared average
+        double dipoleSumSquared = 0;
+        double dipoleSumSquaredERR = 0;
+        double dipoleSumCor = 0;
+        if (mSquare) {
+            dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+            dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+            dipoleSumCor = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
+        }
 //         //externalField 
 //         double UE = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(0);
 //         double UEERR =  (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.ERROR.index)).getValue(0);
@@ -333,47 +349,48 @@ public class TIP4P_NVT extends Simulation {
 //         System.out.println("UE2 = \t" + UE2 + " UE2RR =  \t" + UE2ERR );
 //         System.out.println("JE = \t" + JE + " JEERR =  \t" + JEERR );
 //         System.out.println("JEE = \t" + JEE + " JEERR =  \t" + JEEERR );
-         
-         //AEE
-		 double AEE = 0;
-		 double AEEER = 0;
-		 double AEECor = 0;
-		 if(aEE){
-			 double sum0 =  ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(0); 
-			 double ERsum0 = ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(0);
-			 AEECor = ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_CORRELATION.index).getValue(0);
-			 AEE = sum0;
-			 AEEER = ERsum0;
-		 }
 
-		 long endTime = System.currentTimeMillis();
+        //AEE
+        double AEE = 0;
+        double AEEER = 0;
+        double AEECor = 0;
+        if (aEE) {
+            double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+            AEE = sum0;
+            AEEER = ERsum0;
+        }
 
-		 double totalTime = (endTime - startTime)/(1000.0*60.0);
-		 if(mSquare){
-			 System.out.println("-<M^2>*bt*bt:\t"+(-dipoleSumSquared/temperature/temperature)
-					 + " mSquareErr:\t" + (dipoleSumSquaredERR/temperature/temperature)
-					 + " mSquareDifficulty:\t"+(dipoleSumSquaredERR/temperature/temperature)*Math.sqrt(totalTime)
-					 + " dipolesumcor = " + dipoleSumCor );
-			 System.out.println(  "mSquare_Time: " + (endTime - startTime)/(1000.0*60.0)); 
-		 }
-		 if(aEE){
-			 System.out.println("AEE_new:\t"+ (AEE) 
-					 + " AEEErr:\t" + AEEER 
-					 + " AEEDifficulty:\t"+ AEEER*Math.sqrt(totalTime)
-					 + " AEECor = " + AEECor );
-			 System.out.println(  "AEE_Time: " + (endTime - startTime)/(1000.0*60.0)); 
-		 }
-     }
-    
-     // ******************* parameters **********************//
-     public static class Param extends ParameterBase {
-          public boolean isGraphic = false;
-          public boolean mSquare = true;
-          public boolean aEE = true; 
-          public double temperatureK = 1000;
-          public int numberMolecules = 2;
-          public double density = 0.001;//g/cm^3
-          public double dielectricOutside = 1.0E11;
-          public int steps = 100000;
-     }
+        long endTime = System.currentTimeMillis();
+
+        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
+        if (mSquare) {
+            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature)
+                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature)
+                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature) * Math.sqrt(totalTime)
+                    + " dipolesumcor = " + dipoleSumCor);
+            System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
+        }
+        if (aEE) {
+            System.out.println("AEE_new:\t" + (AEE)
+                    + " AEEErr:\t" + AEEER
+                    + " AEEDifficulty:\t" + AEEER * Math.sqrt(totalTime)
+                    + " AEECor = " + AEECor);
+            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
+        }
+    }
+
+    // ******************* parameters **********************//
+    public static class Param extends ParameterBase {
+        public boolean isGraphic = false;
+        public boolean difInterval = !true;//TODO should be true when actually run with big system
+        public boolean mSquare = true;
+        public boolean aEE = false;
+        public double temperatureK = 256;
+        public int numberMolecules = 2;
+        public double density = 1;//g/cm^3
+        public double dielectricOutside = 1.0E11;
+        public int steps = 100000;
+    }
 }

@@ -4,6 +4,7 @@
 
 package etomica.metastable;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -31,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.statmech.LennardJones;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
@@ -49,9 +50,8 @@ import java.util.List;
 public class LJmuVT extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveInsertDelete mcMoveID;
 
@@ -62,8 +62,7 @@ public class LJmuVT extends Simulation {
         }
 
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
         potentialMaster = new PotentialMasterCell(this, rc, space);
@@ -72,8 +71,7 @@ public class LJmuVT extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);
@@ -214,8 +212,7 @@ public class LJmuVT extends Simulation {
             meterP.setPotentialMaster(sim.potentialMaster);
             meterP.setTemperature(temperature);
     
-            final MeterDensity meterDensity = new MeterDensity(sim.getSpace());
-            meterDensity.setBox(sim.box);
+            final MeterDensity meterDensity = new MeterDensity(sim.box);
     
             final MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
             meterPE.setIntegrator(sim.integrator);
@@ -306,22 +303,20 @@ public class LJmuVT extends Simulation {
                 return;
             }
             long tstart = System.currentTimeMillis();
-            sim.activityIntegrate.setMaxSteps(numSteps/10);
-            sim.getController().actionPerformed();
-            sim.integrator.resetStepCount();
-            sim.getController().reset();
+            ActivityIntegrate activity = new ActivityIntegrate(sim.integrator, numSteps / 10);
+            sim.getController().runActivityBlocking(activity);
+sim.integrator.resetStepCount();
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.mcMoveID.setMu(mu);
-            sim.activityIntegrate.setMaxSteps(numSteps);
-            sim.integrator.getEventManager().addListener(new IntegratorListener() {
+sim.integrator.getEventManager().addListener(new IntegratorListener() {
 
                 int count = 0;
                 int interval = numAtoms;
-                
+
                 public void integratorStepStarted(IntegratorEvent e) {
                 }
-                
+
                 public void integratorStepFinished(IntegratorEvent e) {
                     interval--;
                     if (interval > 0) return;
@@ -337,14 +332,13 @@ public class LJmuVT extends Simulation {
                         throw new RuntimeException(ex);
                     }
                     count++;
-                    if (U<-1) sim.activityIntegrate.setMaxSteps(0);
+                    if (U<-1) activity.setMaxSteps(0);
                 }
-                
+
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-            
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
             long tstop = System.currentTimeMillis();
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {

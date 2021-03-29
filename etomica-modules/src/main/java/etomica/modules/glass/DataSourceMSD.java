@@ -30,6 +30,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected long[] nSamples;
     protected final AtomType type;
     protected List<MSDSink> msdSinks;
+    protected int minInterval = 3;
 
     public DataSourceMSD(ConfigurationStorage configStorage) {
         this(configStorage, null);
@@ -45,13 +46,14 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         tag = new DataTag();
         tTag = new DataTag();
         msdSinks = new ArrayList<>();
-        reset();
+        reallocate(0);
     }
 
     public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n == msdSum.length && data != null) return;
-        if (n < 1) n = 0;
+        reallocate(0);
+    }
+
+    protected void reallocate(int n) {
         msdSum = Arrays.copyOf(msdSum, n);
         msd2Sum = Arrays.copyOf(msd2Sum, n);
         msdSumBlock = Arrays.copyOf(msdSumBlock, n);
@@ -102,14 +104,15 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         int blockSize = 1;
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
-        for (int i = 1; i <= msdSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
+            if (step % (1L << x) == 0) {
+                if (i >= msdSum.length) reallocate(i + 1);
+                Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 double iSum = 0;
                 int iSamples = 0;
                 for (int j = 0; j < positions.length; j++) {
@@ -117,19 +120,18 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                     iSum += positions[j].Mv1Squared(iPositions[j]);
                     iSamples++;
                 }
-                double iAvg = iSum/iSamples;
-                msdSumBlock[i-1] += iAvg;
-                if(step % (blockSize*(1L << (i - 1))) == 0){
-                    double xb = msdSumBlock[i-1]/blockSize;
-                    msdSum[i-1] += xb;
-                    msd2Sum[i-1] += xb*xb;
-                    nSamples[i-1]++;
-                    msdSumBlock[i-1] = 0;
+                double iAvg = iSum / iSamples;
+                msdSumBlock[i] += iAvg;
+                if (step % (blockSize * (1L << i)) == 0) {
+                    double xb = msdSumBlock[i] / blockSize;
+                    msdSum[i] += xb;
+                    msd2Sum[i] += xb * xb;
+                    nSamples[i]++;
+                    msdSumBlock[i] = 0;
                 }
                 for (MSDSink s : msdSinks) {
-                    s.putMSD(i - 1, step, iAvg);
+                    s.putMSD(i, step, iAvg);
                 }
-
             }
         }
     }

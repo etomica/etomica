@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.SpeciesWater3P;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -23,7 +23,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Dalton;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -36,8 +36,8 @@ import etomica.units.Kelvin;
 public class ReverseOsmosisWater extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public SpeciesWater3POriented speciesSolvent;
-    public SpeciesSpheresMono speciesSodium, speciesChlorine, speciesMembrane;
+    public SpeciesGeneral speciesSolvent;
+    public SpeciesGeneral speciesSodium, speciesChlorine, speciesMembrane;
     public Box box;
     public IntegratorRigidIterative integrator;
     public P2WaterSPCSoft potentialWater;
@@ -47,7 +47,7 @@ public class ReverseOsmosisWater extends Simulation {
     public P2Electrostatic potentialQOCl, potentialQONa;
     public P2Electrostatic potentialQHNa, potentialQHCl;
     public P2LennardJones potentialMM, potentialMO, potentialMCl, potentialMNa;
-    public ActivityIntegrate activityIntegrate;
+
     public ConfigurationMembraneWater configMembrane;
     public P1Tether potentialTether;
     public PotentialCalculationTorqueSumWallForce torqueSum;
@@ -56,21 +56,18 @@ public class ReverseOsmosisWater extends Simulation {
         super(Space3D.getInstance());
 
         //solute (1)
-        speciesSodium = new SpeciesSpheresMono(space, Sodium.INSTANCE);
-        speciesSodium.setIsDynamic(true);
+        speciesSodium = SpeciesGeneral.monatomic(space, AtomType.element(Sodium.INSTANCE), true);
         addSpecies(speciesSodium);
 
-        speciesChlorine = new SpeciesSpheresMono(space, Chlorine.INSTANCE);
-        speciesChlorine.setIsDynamic(true);
+        speciesChlorine = SpeciesGeneral.monatomic(space, AtomType.element(Chlorine.INSTANCE), true);
         addSpecies(speciesChlorine);
 
         //solvent (2)
-        speciesSolvent = new SpeciesWater3POriented(space, true);
+        speciesSolvent = SpeciesWater3P.create(true, true);
         addSpecies(speciesSolvent);
 
         //membrane
-        speciesMembrane = new SpeciesSpheresMono(this, space);
-        speciesMembrane.setIsDynamic(true);
+        speciesMembrane = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
 
@@ -97,8 +94,8 @@ public class ReverseOsmosisWater extends Simulation {
         double rCut = 0.49 * yzSize;
         double switchFac = 0.7;
 
-        AtomType oType = speciesSolvent.getOxygenType();
-        AtomType hType = speciesSolvent.getHydrogenType();
+        AtomType oType = speciesSolvent.getTypeByName("O");
+        AtomType hType = speciesSolvent.getTypeByName("H");
         AtomType naType = speciesSodium.getLeafType();
         AtomType clType = speciesChlorine.getLeafType();
         AtomType mType = speciesMembrane.getLeafType();
@@ -228,10 +225,9 @@ public class ReverseOsmosisWater extends Simulation {
         integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
-        integrator.setTimeStep(0.002);
+        integrator.setTimeStep(0.004);
         integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000 * 298 / 125);
@@ -257,7 +253,7 @@ public class ReverseOsmosisWater extends Simulation {
         }
             
         ReverseOsmosisWater sim = new ReverseOsmosisWater();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
     
 }

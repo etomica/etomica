@@ -15,7 +15,6 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
-import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 /**
@@ -33,35 +32,37 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     protected long[] nSamples;
     protected Vector dr, q;
     protected AtomType type;
-    protected Space space;
+    protected int minInterval = 3;
 
     public DataSourceFs(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
-        space = configStorage.getBox().getSpace();
+        Space space = configStorage.getBox().getSpace();
         fsSum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
         dr = space.makeVector();
         q = space.makeVector();
-        q.setX(0,7.0);
-        reset();
+        q.setX(0, 7.0);
+        reallocate(0);
     }
 
     public void setQ(Vector q) {
-        this.q = space.makeVector();
         for (int i = 0; i < q.getD(); i++) {
             this.q.setX(i, q.getX(i));
         }
+        reset();
     }
 
-
-    public Vector getQ(){return  this.q;}
+    public Vector getQ() {
+        return q;
+    }
 
     public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n  == fsSum.length && data != null) return;
-        if (n < 1) n = 0;
+        reallocate(0);
+    }
+
+    public void reallocate(int n) {
         fsSum = Arrays.copyOf(fsSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
@@ -112,22 +113,23 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         Box box = configStorage.getBox();
         IAtomList atoms = box.getLeafList();
-        for (int i = 1; i < fsSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
+            if (step % (1L << x) == 0) {
+                if (i >= fsSum.length) reallocate(i + 1);
+                Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
                     IAtom jAtom = atoms.get(j);
-                    if(type == null || jAtom.getType() == type){
+                    if (type == null || jAtom.getType() == type) {
                         dr.Ev1Mv2(positions[j], iPositions[j]);
-                        fsSum[i-1] += Math.cos(q.dot(dr));
+                        fsSum[i] += Math.cos(q.dot(dr));
                     }
                 }
-                nSamples[i - 1]++;
+                nSamples[i]++;
             }
         }
     }
