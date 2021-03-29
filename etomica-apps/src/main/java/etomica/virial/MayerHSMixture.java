@@ -32,7 +32,6 @@ public class MayerHSMixture implements MayerFunction {
     protected final double[][] sigma2;
     protected final double[][] allVal;
     protected final Boundary boundary;
-    protected Boundary boxBoundary;
     protected final Vector dr;
 
     public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma, Boundary b) {
@@ -55,7 +54,7 @@ public class MayerHSMixture implements MayerFunction {
                 //double vij = isRef ? space.sphereVolume(pairSigma[i][j]) : 1;
                 double vij = 0;
                 if (isRef) {
-                    if (b.getBoxSize().getX(0) >= 2*pairSigma[i][j]) {
+                    if (b==null || b.getBoxSize().getX(0) >= 2*pairSigma[i][j]) {
                         vij = space.sphereVolume(pairSigma[i][j]);
                     }
                     else if (Math.sqrt(2)*b.getBoxSize().getX(0) >= 2*pairSigma[i][j]){
@@ -85,10 +84,6 @@ public class MayerHSMixture implements MayerFunction {
         if (boundary != null) {
             dr.Ev1Mv2(pair.get(0).getChildList().get(0).getPosition(),
                     pair.get(1).getChildList().get(0).getPosition());
-            if (boxBoundary != null) {
-                dr.DE(boxBoundary.getBoxSize());
-                dr.TE(boundary.getBoxSize());
-            }
             boundary.nearestImage(dr);
             r2 = dr.squared();
         }
@@ -100,10 +95,5 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
-        Boundary boxBoundary = newBox.getBoundary();
-        if (boxBoundary.getPeriodicity(0)) {
-            // assume it's fully periodic
-            this.boxBoundary = boxBoundary;
-        }
     }
 }
