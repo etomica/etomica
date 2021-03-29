@@ -21,7 +21,7 @@ public class PotentialComputeField implements PotentialCompute {
 
     protected final IPotentialField[] potentials;
     protected final Box box;
-    protected Vector[] forces;
+    protected Vector[] forces, torques;
     protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
@@ -34,7 +34,7 @@ public class PotentialComputeField implements PotentialCompute {
     public PotentialComputeField(IPotentialField[] p1, Box box) {
         potentials = p1;
         this.box = box;
-        forces = new Vector[0];
+        torques = forces = new Vector[0];
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
@@ -99,6 +99,11 @@ public class PotentialComputeField implements PotentialCompute {
     }
 
     @Override
+    public Vector[] getTorques() {
+        return torques;
+    }
+
+    @Override
     public double getLastVirial() {
         return 0;
     }
@@ -119,14 +124,21 @@ public class PotentialComputeField implements PotentialCompute {
         if (doForces && numAtoms > forces.length) {
             int oldLength = forces.length;
             forces = Arrays.copyOf(forces, numAtoms);
-            for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+            torques = Arrays.copyOf(torques, numAtoms);
+            for (int i = oldLength; i < numAtoms; i++) {
+                forces[i] = box.getSpace().makeVector();
+                torques[i] = box.getSpace().makeVector();
+            }
         }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
         }
         for (int i = 0; i < numAtoms; i++) {
             uAtom[i] = 0;
-            if (doForces) forces[i].E(0);
+            if (doForces) {
+                forces[i].E(0);
+                torques[i].E(0);
+            }
         }
     }
 
@@ -142,7 +154,7 @@ public class PotentialComputeField implements PotentialCompute {
             if (ip == null) continue;
             double u;
             if (doForces) {
-                u = ip.udu(iAtom, forces[i]);
+                u = ip.uduTorque(iAtom, forces[i], torques[i]);
             } else {
                 u = ip.u(iAtom);
             }

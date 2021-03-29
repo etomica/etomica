@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class PotentialComputeAggregate implements PotentialCompute {
     private final List<PotentialCompute> potentialComputes;
+    private Vector[] torques;
 
     public PotentialComputeAggregate() {
         potentialComputes = new ArrayList<>(1);
@@ -50,6 +51,12 @@ public class PotentialComputeAggregate implements PotentialCompute {
     }
 
     @Override
+    public Vector[] getTorques() {
+        return torques;
+    }
+
+
+    @Override
     public double getLastVirial() {
         return this.potentialComputes.stream().mapToDouble(PotentialCompute::getLastVirial).sum();
     }
@@ -82,6 +89,18 @@ public class PotentialComputeAggregate implements PotentialCompute {
                             forces[i].PE(f[i]);
                         }
                     });
+            torques = null;
+            for (PotentialCompute potentialCompute : potentialComputes) {
+                Vector[] iTorques = potentialCompute.getTorques();
+                if (iTorques == null) continue;
+                if (torques == null) {
+                    torques = iTorques;
+                    continue;
+                }
+                for (int j=0; j<torques.length; j++) {
+                    torques[j].PE(iTorques[j]);
+                }
+            }
         }
         return sum;
     }
