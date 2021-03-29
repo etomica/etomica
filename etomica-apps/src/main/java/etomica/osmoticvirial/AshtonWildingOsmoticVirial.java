@@ -1,7 +1,6 @@
 package etomica.osmoticvirial;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -80,11 +79,6 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
-
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
-        addSpecies(species1);
-        addSpecies(species2);
 
         box = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box);

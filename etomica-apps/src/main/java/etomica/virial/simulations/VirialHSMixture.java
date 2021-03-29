@@ -5,6 +5,9 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
+import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -17,6 +20,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -134,7 +138,7 @@ public class VirialHSMixture {
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
 
         System.out.println(steps + " steps ");
-        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams, false);
+        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
         if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
