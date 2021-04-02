@@ -35,6 +35,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     protected double virialTot = Double.NaN;
     protected boolean includeSelfOne = false;
     protected double uTotSelf, uTotFS = Double.NaN, uTotIntra, uOneFS;
+    protected double uOneOld, uOneNew;
     protected Vector[] forces;
     protected final int[] atomCountByType;
     protected final Space space;
@@ -913,9 +914,11 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             // uOne = uTot - (energy without this molecule)
             uOneFS = uTotFS - fourierSum - fourierSum6;
             uOne += uOneFS;
+            uOneOld = uOne;
         } else {
             // (energy with new coordinates) - (energy without the molecule)
             uOne += fourierSum + fourierSum6 - (uTotFS - uOneFS);
+            uOneNew = uOne;
         }
         return uOne;
     }
@@ -937,6 +940,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             for (int kB = 0; kB <= 6; kB++) {
                 Arrays.fill(dsFacB[kB], 0, nWaveVectors * 2, 0);
             }
+        }
+        if (fac == 1) {
+            uTotFS += uOneNew - uOneOld;
         }
     }
 
