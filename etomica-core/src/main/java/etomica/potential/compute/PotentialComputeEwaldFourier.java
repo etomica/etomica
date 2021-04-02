@@ -193,6 +193,18 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         return params;
     }
 
+    /**
+     * Returns Ewald parameters necessary to achieve accuracy s for the given
+     * rCut.
+     */
+    public EwaldParams getOptimalParamsForCutoff(double s, double rCut) {
+        EwaldParams params = new EwaldParams();
+        params.rCut = rCut;
+        params.alpha = s / rCut;
+        params.kCut = 2 * params.alpha * s;
+        return params;
+    }
+
     public void setCharge(AtomType type, double charge) {
         this.chargesByType[type.getIndex()] = charge;
     }
