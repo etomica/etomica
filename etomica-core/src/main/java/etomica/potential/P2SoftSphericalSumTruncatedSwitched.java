@@ -21,7 +21,7 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum impl
     protected double switchFac, r2Switch;
     protected double a, b, c;
 
-    public P2SoftSphericalSumTruncatedSwitched(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+    public P2SoftSphericalSumTruncatedSwitched(Space _space, double truncationRadius, Potential2Soft... potential) {
         super(_space, potential);
         setTruncationRadius(truncationRadius);
         setTaperOrder(3);

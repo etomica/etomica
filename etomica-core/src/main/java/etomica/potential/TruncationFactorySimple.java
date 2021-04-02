@@ -19,7 +19,7 @@ public class TruncationFactorySimple implements TruncationFactory {
     }
 
     @Override
-    public Potential2Soft make(Potential2SoftSpherical... p2) {
+    public Potential2Soft make(Potential2Soft... p2) {
         return new P2SoftSphericalSumTruncated(space, rc, p2);
     }
 }

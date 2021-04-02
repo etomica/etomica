@@ -18,7 +18,7 @@ public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumT
 
     protected double uShift, ufShift;
 
-    public P2SoftSphericalSumTruncatedForceShifted(Space _space, double truncationRadius, Potential2SoftSpherical... potential) {
+    public P2SoftSphericalSumTruncatedForceShifted(Space _space, double truncationRadius, Potential2Soft... potential) {
         super(_space, truncationRadius, potential);
     }
 
