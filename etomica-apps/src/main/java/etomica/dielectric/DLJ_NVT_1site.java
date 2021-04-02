@@ -31,7 +31,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.potential.P2LJDipole;
@@ -88,7 +88,7 @@ public class DLJ_NVT_1site extends Simulation {
         // dipolar LJ potential
         P2LJDipole pDLJ = new P2LJDipole(space, sigmaLJ, epsilonLJ, mu, truncation);
         // add reaction field potential
-        DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, mu);// add reaction field potential
+        DipoleSourceMolecularDLJ dipoleSourceDLJ = new DipoleSourceMolecularDLJ(space, mu);// add reaction field potential
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleSourceDLJ);
         pRF.setRange(truncation);
@@ -210,7 +210,7 @@ public class DLJ_NVT_1site extends Simulation {
    		}
 
         //AEE
-        DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, dipoleStrength);
+        DipoleSourceMolecularDLJ dipoleSourceDLJ = new DipoleSourceMolecularDLJ(space, dipoleStrength);
         MeterDipoleSumSquaredMappedAverage AEEMeter =  null;
    		AccumulatorAverageCovariance AEEAccumulator = null;
    		if(aEE){
@@ -269,11 +269,11 @@ public class DLJ_NVT_1site extends Simulation {
         System.out.println(  "time: " + totalTime);
 	}
 
-    public static class DipoleSourceDLJ implements DipoleSource {//for potential reaction field
+    public static class DipoleSourceMolecularDLJ implements DipoleSourceMolecular {//for potential reaction field
         protected final Vector dipoleVector;
         protected double dipoleStrength;
 
-        public DipoleSourceDLJ(Space space, double s) {
+        public DipoleSourceMolecularDLJ(Space space, double s) {
             dipoleStrength = s;
             dipoleVector = space.makeVector();
         }

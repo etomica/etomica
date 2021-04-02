@@ -6,47 +6,48 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
+import etomica.atom.ChargeSource;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
-import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
-import etomica.data.meter.MeterDipoleSumSquaredTIP4PWater;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterDipoleSumSquared;
+import etomica.data.meter.MeterDipoleSumSquaredMappedAverageFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.IntegratorMCFasterer;
+import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
+import etomica.integrator.mcmove.MCMoveMoleculeRotateFasterer;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.models.water.P2WaterTIP4P;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.DipoleSourceMolecular;
-import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculePositionDefinition;
-import etomica.molecule.MoleculePositionCOM;
-import etomica.potential.P2ReactionFieldDipole;
-import etomica.potential.PotentialMaster;
+import etomica.molecule.DipoleSourceMolecularGeneric;
+import etomica.potential.*;
+import etomica.potential.compute.PotentialCompute;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeEwaldFourier;
+import etomica.potential.ewald.P2Ewald1Real;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
-import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomNumberGenerator;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -60,12 +61,11 @@ import java.util.Calendar;
  *
  * @author Weisong
  */
-public class TIP4P_NVT extends Simulation {
-
-    protected final PotentialMaster potentialMaster;
-    protected final IntegratorMC integrator;
-    protected final MCMoveMolecule moveMolecule;//translation
-    protected final MCMoveRotateMolecule3D rotateMolecule;//rotation
+public class TIP4P extends Simulation {
+    protected final PotentialCompute potentialMaster;
+    protected final IntegratorMCFasterer integrator;
+    protected final MCMoveMoleculeFasterer moveMolecule;//translation
+    protected final MCMoveMoleculeRotateFasterer rotateMolecule;//rotation
     protected final Box box;
     protected SpeciesGeneral species;
     protected P2WaterTIP4PSoft pWater;
@@ -75,31 +75,11 @@ public class TIP4P_NVT extends Simulation {
     protected double sigmaLJ, epsilonLJ;
     protected double chargeM, chargeH;
 
-     //************************************* for reaction field ********************************************//
-     public static class DipoleSourceMolecularTIP4PWater implements DipoleSourceMolecular {//for potential reaction field
-    	 protected final Vector dipole;
-         public DipoleSourceMolecularTIP4PWater(Space space){
-              dipole=space.makeVector();
-         }
-         public Vector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
-             IAtomList childList = molecule.getChildList();
-             IAtom atomH1 = childList.get(0);
-             IAtom atomH2 = childList.get(1);
-             IAtom atomO = childList.get(2);
-             IAtom atomM = childList.get(3);
-             double chargeH = Electron.UNIT.toSim(+0.52);
-             double chargeM = Electron.UNIT.toSim(-1.04);
-             dipole.Ea1Tv1(chargeH, atomH1.getPosition());
-             dipole.PEa1Tv1(chargeH, atomH2.getPosition());
-             dipole.PEa1Tv1(chargeM, atomM.getPosition());
-             return dipole;
-         }
-     }
      //************************************* constructor ********************************************//
-     public TIP4P_NVT(Space space, int numberMolecules, double dielectricOutside, double boxSize, double temperature,double truncation) {
+     public TIP4P(Space space, int numberMolecules, double dielectricOutside, double boxSize, double temperature, double truncation) {
          super(space);
 
-//    	 setRandom(new RandomNumberGenerator(1));  // debug only
+    	 setRandom(new RandomNumberGenerator(2));
 
          species = SpeciesWater4P.create();
          addSpecies(species);
@@ -109,42 +89,44 @@ public class TIP4P_NVT extends Simulation {
          //	 double mu=168.96979945736229;//in simulation unit
 
          //for potential truncated
-         IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space);
 
-         pWater = new P2WaterTIP4PSoft(space, truncation, positionDefinition);
+         AtomType oType = species.getTypeByName("O");
+         AtomType hType = species.getTypeByName("H");
+         AtomType mType = species.getTypeByName("M");
 
-         sigmaLJ = pWater.getSigma();
-         epsilonLJ = pWater.getEpsilon();
-         chargeM = pWater.getChargeM();
-         chargeH = pWater.getChargeH();
-//    	 System.out.println("sigma = " +sigmaLJ);
-//    	 System.out.println("epsilon = " + epsilonLJ);
-//    	 System.exit(2);
+         sigmaLJ = P2WaterTIP4P.s;
+         epsilonLJ = P2WaterTIP4P.e;
+         chargeM = -2*P2WaterTIP4P.qH;
+         chargeH = P2WaterTIP4P.qH;
 
-         // add reaction field potential
-         DipoleSourceMolecularTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceMolecularTIP4PWater(space);
-         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
-         pRF.setDipoleSource(dipoleSourceTIP4PWater);
-         pRF.setRange(truncation);
-         pRF.setDielectric(dielectricOutside);
+         PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding());
+         PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParamsForCutoff(3, truncation);
 
-         potentialMaster = new PotentialMaster();
-         potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
-         potentialMaster.addPotential(pWater, new ISpecies[]{species, species});
-         potentialMaster.lrcMaster().addPotential(pRF.makeP0());
+         ewaldFourier.setkCut(params.kCut);
+         ewaldFourier.setCharge(mType, chargeM);
+         ewaldFourier.setCharge(hType, chargeH);
+         ewaldFourier.setAlpha(params.alpha);
 
-         //add external field potential
-//         P1ExternalField p1ExternalField = new P1ExternalField(space);
-//         IVectorMutable dr = space.makeVector();
-//         p1ExternalField.setExternalField(dr);
-//         p1ExternalField.setDipoleSource(dipoleSourceTIP4PWater);//
-//    	 potentialMaster.addPotential(p1ExternalField,  new ISpecies[] {species});//External field 
+         PotentialMasterFasterer pm = new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
+
+         TruncationFactory tf = new TruncationFactorySimple(space, truncation);
+         Potential2Soft p2OO = tf.make(new P2LennardJones(space, sigmaLJ, epsilonLJ));
+         Potential2Soft p2MM = tf.make(new P2Ewald1Real(chargeM*chargeM, params.alpha));
+         Potential2Soft p2HH = tf.make(new P2Ewald1Real(chargeH*chargeH, params.alpha));
+         P2HardGeneric p2MHC = P2HardSphere.makePotential(0.1);
+         Potential2Soft p2MH = tf.make(p2MHC, new P2Ewald1Real(chargeH*chargeM, params.alpha));
+         pm.setPairPotential(oType, oType, p2OO);
+         pm.setPairPotential(mType, mType, p2MM);
+         pm.setPairPotential(hType, hType, p2HH);
+         pm.setPairPotential(mType, hType, p2MH);
+
+         potentialMaster = new PotentialComputeAggregate(pm, ewaldFourier);
 
          // integrator from potential master
-         integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
+         integrator = new IntegratorMCFasterer(potentialMaster, random, temperature, box);
          // add mc move
-         moveMolecule = new MCMoveMolecule(potentialMaster, this.getRandom(), space);//stepSize:1.0, stepSizeMax:15.0
-         rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+         moveMolecule = new MCMoveMoleculeFasterer(random, potentialMaster, box);
+         rotateMolecule = new MCMoveMoleculeRotateFasterer(random, potentialMaster, box);
          this.getController().addActivity(new ActivityIntegrate(integrator));
          //******************************** periodic boundary condition ******************************** //
          BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -160,7 +142,7 @@ public class TIP4P_NVT extends Simulation {
          ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
          configuration.initializeCoordinates(box);
      }
-         
+
      // **************************** simulation part **************************** //
      public static void main (String[] args){
 //    	 System.out.println(Electron.UNIT.toSim( 0.20819434)*1.855);
@@ -169,7 +151,6 @@ public class TIP4P_NVT extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-
         }
         final long startTime = System.currentTimeMillis();
         DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -211,7 +192,7 @@ public class TIP4P_NVT extends Simulation {
 //         System.out.println("truncation= "+truncation);
 //         System.out.println("dielectric constant outside = "+dielectricOutside);
 
-        final TIP4P_NVT sim = new TIP4P_NVT(space, numberMolecules, dielectricOutside, boxSize, temperature, truncation);
+        final TIP4P sim = new TIP4P(space, numberMolecules, dielectricOutside, boxSize, temperature, truncation);
 
 //         System.out.println("*********** potential parameters:");
 
@@ -219,15 +200,15 @@ public class TIP4P_NVT extends Simulation {
          double epsilonLJ=sim.epsilonLJ;
          double chargeM=sim.chargeM;
          double chargeH=sim.chargeH;
-         
-         
+
+
          double dipoleStrength = 168.96979945736229;
-         
+
          if (isGraphic){
         	  SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         	  simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
-        	  simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));            
-        	 
+        	  simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+
         	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("H"),1);
         	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("O"),1);
         	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("M"),1);
@@ -253,15 +234,21 @@ public class TIP4P_NVT extends Simulation {
 
          sim.integrator.getMoveManager().setEquilibrating(false);
 
-         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+//         MeterPotentialEnergyFasterer meterPE = new MeterPotentialEnergyFasterer(sim.potentialMaster);
+
+         MeterPotentialEnergyFromIntegratorFasterer meterPE = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
          AccumulatorAverage accPE = new AccumulatorAverageFixed(samplePerBlock);
          DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, sampleAtInterval);
          sim.integrator.getEventManager().addListener(pumpPE);
 
+         ChargeSource chargeSource = new ChargeSource(sim.getSpeciesManager());
+         chargeSource.setCharge(sim.species.getTypeByName("M"), -2*P2WaterTIP4P.qH);
+         chargeSource.setCharge(sim.species.getTypeByName("H"), P2WaterTIP4P.qH);
+         DipoleSourceMolecular dipoleSource = new DipoleSourceMolecularGeneric(sim.box, chargeSource, null);
 
-         //         System.out.println("equilibration finished");
+//         System.out.println("equilibration finished");
         // dipoleSumSquared
-        MeterDipoleSumSquaredTIP4PWater dipoleMeter = null;
+        MeterDipoleSumSquared dipoleMeter = null;
         AccumulatorAverage dipoleAccumulator = null;
         if (mSquare) {
             if (difInterval) {
@@ -275,7 +262,7 @@ public class TIP4P_NVT extends Simulation {
             System.out.println("BlockNumber " + (steps / sampleAtInterval / samplePerBlock));
 
 
-            dipoleMeter = new MeterDipoleSumSquaredTIP4PWater(space, sim.box);
+            dipoleMeter = new MeterDipoleSumSquared(sim.box, dipoleSource);
             dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPump dipolePump = new DataPump(dipoleMeter, dipoleAccumulator);
             IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
@@ -297,9 +284,9 @@ public class TIP4P_NVT extends Simulation {
 //		sim.integrator.getEventManager().addListener(externalFieldPumpListener);
 
         //AEE
-        DipoleSourceMolecularTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceMolecularTIP4PWater(space);
 
-         MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
+         MeterDipoleSumSquaredMappedAverageFasterer AEEMeter = new MeterDipoleSumSquaredMappedAverageFasterer(sim.box, dipoleStrength, temperature,
+                 sim.potentialMaster, dipoleSource);
          AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
 
         if (aEE) {
@@ -311,7 +298,6 @@ public class TIP4P_NVT extends Simulation {
             System.out.println("SampleArInterval " + sampleAtInterval);
             System.out.println("BlockNumber " + (steps / sampleAtInterval / samplePerBlock));
 
-            AEEMeter.setDipoleSource(dipoleSourceTIP4PWater);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -321,11 +307,11 @@ public class TIP4P_NVT extends Simulation {
         }
          sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
-         double avgPE = accPE.getData(accPE.AVERAGE).getValue(0);
-         double errPE = accPE.getData(accPE.ERROR).getValue(0);
-         System.out.println("PE: "+avgPE+" "+errPE);
+        double avgPE = accPE.getData(accPE.AVERAGE).getValue(0);
+        double errPE = accPE.getData(accPE.ERROR).getValue(0);
+        System.out.println("PE: "+avgPE+" "+errPE);
 
-         //calculate dipoleSumSquared average
+        //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;
         double dipoleSumSquaredERR = 0;
         double dipoleSumCor = 0;
@@ -334,23 +320,23 @@ public class TIP4P_NVT extends Simulation {
             dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
             dipoleSumCor = ((DataDouble) ((DataGroup) dipoleAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
         }
-//         //externalField 
+//         //externalField
 //         double UE = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(0);
 //         double UEERR =  (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.ERROR.index)).getValue(0);
-//         
+//
 //         double UEE = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(1);
 //         double UEEERR =  (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.ERROR.index)).getValue(1);
-//         
+//
 //         double UE2 = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(2);
 //         double UE2ERR =  (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.ERROR.index)).getValue(2);
-//         
+//
 //         double JE = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(3);
 //         double JEERR =  (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.ERROR.index)).getValue(3);
-//         
+//
 //         double JEE = (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.AVERAGE.index)).getValue(4);
 //         double JEEERR =  (((DataGroup)externalFieldAccumlator.getData()).getData(externalFieldAccumlator.ERROR.index)).getValue(4);
-//         
-//         
+//
+//
 //         System.out.println("UE = \t" + UE + " UEERR =  \t" + UEERR );
 //         System.out.println("UEE = \t" + UEE + " UEEERR =  \t" + UEEERR);
 //         System.out.println("UE2 = \t" + UE2 + " UE2RR =  \t" + UE2ERR );
@@ -396,7 +382,7 @@ public class TIP4P_NVT extends Simulation {
         public boolean aEE = false;
         public double temperatureK = 256;
         public int numberMolecules = 2;
-        public double density = 1;//g/cm^3
+        public double density = 0.1;//g/cm^3
         public double dielectricOutside = 1.0E11;
         public int steps = 100000;
     }

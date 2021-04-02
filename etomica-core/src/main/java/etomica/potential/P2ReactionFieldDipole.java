@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
@@ -33,7 +33,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     protected final Vector[][] gradientAndTorque;
     protected final Tensor[] secondDerivative;
     protected final Vector3D[] a;
-    protected DipoleSource dipoleSource;
+    protected DipoleSourceMolecular dipoleSource;
     protected Boundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
@@ -70,14 +70,14 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
      *
      * @return the dipole source used by this object.
      */
-    public DipoleSource getDipoleSource() {
+    public DipoleSourceMolecular getDipoleSource() {
         return dipoleSource;
     }
 
     /**
      * @param newDipoleSource the DipoleSource to set
      */
-    public void setDipoleSource(DipoleSource newDipoleSource) {
+    public void setDipoleSource(DipoleSourceMolecular newDipoleSource) {
         dipoleSource = newDipoleSource;
     }
 
@@ -275,7 +275,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         public double energy(IMoleculeList atoms) {
             double epsilon = potential.getDielectric();
             double cutoff = potential.getRange();
-            DipoleSource dipoleSource = potential.getDipoleSource();
+            DipoleSourceMolecular dipoleSource = potential.getDipoleSource();
             double fac = 2 * (epsilon - 1) / (2 * epsilon + 1) / (cutoff * cutoff * cutoff);
             double u = 0;
             if (targetAtom != null) {

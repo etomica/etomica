@@ -4,18 +4,17 @@
 
 package etomica.molecule;
 
-import etomica.atom.IAtom;
 import etomica.space.Vector;
 
 /**
- * Interface for something that can calculate the dipole of an atom.
+ * Interface for something that can calculate the dipole of a molecule.
  */
-public interface DipoleSourceAtomic {
+public interface DipoleSourceMolecular {
     
     /**
-     * Returns the dipole of the given atom.
-     * The method is likely to through an exception if a atom of the wrong
+     * Returns the dipole of the given molecule.
+     * The method is likely to through an exception if a molecule of the wrong
      * type is passed in.
      */
-    Vector getDipole(IAtom atom);
+    public Vector getDipole(IMolecule molecule);
 }

@@ -17,7 +17,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
-import etomica.models.water.DipoleSourceWater;
+import etomica.models.water.DipoleSourceMolecularWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3P;
@@ -752,7 +752,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 
             double boxlength = box.getBoundary().getBoxSize().getX(0);
 
-            DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
+            DipoleSourceMolecularWater dipoleSource = new DipoleSourceMolecularWater(sim.getSpace());
             dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));
             IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space) ;
             P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),positionDefinition);

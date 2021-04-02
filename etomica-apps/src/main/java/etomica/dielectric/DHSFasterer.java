@@ -6,10 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomTypeOriented;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -29,7 +26,8 @@ import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveAtomRotateFasterer;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.molecule.DipoleSourceAtomic;
+import etomica.molecule.DipoleSourceMolecular;
+import etomica.molecule.DipoleSourceMolecularGeneric;
 import etomica.potential.P1ReactionField;
 import etomica.potential.P2HSDipoleAtomic;
 import etomica.potential.P2ReactionFieldDipoleFasterer;
@@ -135,7 +133,7 @@ public class DHSFasterer extends Simulation {
 		    params.dipoleStrength2 = 0.5;
 		    params.temperature = 1;
 		    params.numberMolecules = 2;
-		    params.steps = 1000000000L;
+		    params.steps = 10000000L;
 		    params.isGraphic = false;
 		}
 		final long startTime = System.currentTimeMillis();
@@ -213,8 +211,9 @@ public class DHSFasterer extends Simulation {
 
 		//AEE
 		DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space, dipoleStrength);// add reaction field potential
-		MeterDipoleSumSquaredMappedAverageFasterer AEEMeter = new MeterDipoleSumSquaredMappedAverageFasterer(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
-		AEEMeter.setDipoleSource(dipoleDHS);
+		DipoleSourceMolecular dipoleSourceMolecular = new DipoleSourceMolecularGeneric(sim.box, null, dipoleDHS);
+		MeterDipoleSumSquaredMappedAverageFasterer AEEMeter = new MeterDipoleSumSquaredMappedAverageFasterer(sim.box, dipoleStrength, temperature, sim.potentialMaster,
+				dipoleSourceMolecular);
 		AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
 		DataPumpListener AEEPump = new DataPumpListener(AEEMeter, AEEAccumulator, sampleAtInterval);
 

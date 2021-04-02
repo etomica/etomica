@@ -4,10 +4,10 @@
 
 package etomica.potential;
 
+import etomica.atom.DipoleSourceAtomic;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.molecule.DipoleSourceAtomic;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;

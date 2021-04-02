@@ -6,10 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomTypeOriented;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -31,7 +28,8 @@ import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveAtomRotateFasterer;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.molecule.DipoleSourceAtomic;
+import etomica.molecule.DipoleSourceMolecular;
+import etomica.molecule.DipoleSourceMolecularGeneric;
 import etomica.potential.*;
 import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -208,8 +206,9 @@ public class DLJFasterer extends Simulation {
         MeterDipoleSumSquaredMappedAverageFasterer AEEMeter =  null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if(aEE){
-            AEEMeter = new MeterDipoleSumSquaredMappedAverageFasterer(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
-            AEEMeter.setDipoleSource(dipoleSourceDLJ);
+            DipoleSourceMolecular dipoleSourceMolecular = new DipoleSourceMolecularGeneric(sim.box, null, dipoleSourceDLJ);
+            AEEMeter = new MeterDipoleSumSquaredMappedAverageFasterer(sim.box, dipoleStrength, temperature, sim.potentialMaster,
+                    dipoleSourceMolecular);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
             DataPumpListener AEEPump = new DataPumpListener(AEEMeter,AEEAccumulator, sampleAtInterval);
 

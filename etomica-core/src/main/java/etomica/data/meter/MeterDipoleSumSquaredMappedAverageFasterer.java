@@ -11,13 +11,14 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.molecule.DipoleSourceAtomic;
+import etomica.molecule.DipoleSourceMolecular;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.molecule.TorqueSourceMolecular;
 import etomica.potential.PotentialCallbackPhiSumFasterer;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Null;
 
 /**
@@ -30,18 +31,23 @@ public class MeterDipoleSumSquaredMappedAverageFasterer implements IDataSource {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected PotentialCallbackPhiSumFasterer secondDerivativeSum;
+    protected final PotentialCallbackPhiSumFasterer secondDerivativeSum;
     protected final Space space;
-    private Box box;
-    private Vector vectorSum;
+    private final Box box;
+    private final Vector vectorSum;
     private double dipoleMagnitude;
     private double temperature;
     protected final PotentialCompute potentialMaster;
     protected Vector dr;
     protected Vector work;
-    protected DipoleSourceAtomic dipoleSource;
+    protected TorqueSourceMolecular torqueSourceMolecular;
+    protected DipoleSourceMolecular dipoleSource;
 
-    public MeterDipoleSumSquaredMappedAverageFasterer(Box box, SpeciesManager sm, double dipoleMagnitude, double temperature, PotentialCompute potentialMaster) {
+    public MeterDipoleSumSquaredMappedAverageFasterer(Box box, double dipoleMagnitude, double temperature,
+                                                      PotentialCompute potentialMaster,
+                                                      DipoleSourceMolecular dipoleSource) {
+        this.dipoleSource = dipoleSource;
+        torqueSourceMolecular = new TorqueSourceMolecular(box, potentialMaster);
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
@@ -54,7 +60,7 @@ public class MeterDipoleSumSquaredMappedAverageFasterer implements IDataSource {
         vectorSum = space.makeVector();
 //        r = space.makeVector();
         vectorSum.setX(2, 1);
-        secondDerivativeSum = new PotentialCallbackPhiSumFasterer(space);
+        secondDerivativeSum = new PotentialCallbackPhiSumFasterer(box, dipoleSource);
         dr = space.makeVector();
         work = space.makeVector();
 
@@ -78,24 +84,18 @@ public class MeterDipoleSumSquaredMappedAverageFasterer implements IDataSource {
         if (u == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("u infinity during data collection");
         }
-        Vector[] torques = potentialMaster.getTorques();
 
         vectorSum.E(0);
-        for (int i = 0;i < nM; i++){
-            dr.E(dipoleSource.getDipole(moleculeList.get(i).getChildList().get(0)));
-            dr.normalize();
+        for (IMolecule m : moleculeList) {
+             dr.E(dipoleSource.getDipole(m));
+             dr.normalize();
 
-            dr.XE(torques[i]);
+            dr.XE(torqueSourceMolecular.getTorque(m));
             vectorSum.PE(dr);
         }//i loop
 
-        x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*vectorSum.squared()+ 0.25*bt3*mu2*secondDerivativeSum.getSum();//TODO
+        x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*vectorSum.squared()+ 0.25*bt3*mu2*secondDerivativeSum.getSum(potentialMaster.getForces());//TODO
         return data;
-    }
-    
-    public void setDipoleSource(DipoleSourceAtomic newDipoleSource) {
-        dipoleSource = newDipoleSource;
-        secondDerivativeSum.setDipoleSource(newDipoleSource); 
     }
     
     public DataTag getTag() {

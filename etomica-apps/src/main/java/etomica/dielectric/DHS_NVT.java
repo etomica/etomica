@@ -29,7 +29,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.potential.P2HSDipole;
@@ -97,7 +97,7 @@ protected final SpeciesGeneral species;
 //
 //		}
         P2HSDipole pTarget = new P2HSDipole(space, HSDiameter, mu, truncation);
-        DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space, mu);// add reaction field potential
+        DipoleSourceMolecularDHS dipoleDHS = new DipoleSourceMolecularDHS(space, mu);// add reaction field potential
 //		System.out.println("in main class, magnitude of dipole:"+dipoleDHS.dipoleStrength);
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleDHS);
@@ -150,7 +150,7 @@ protected final SpeciesGeneral species;
 		    params.dipoleStrength2 = 0.5;
 		    params.temperature = 1;
 		    params.numberMolecules = 2;
-		    params.steps = 1000000000L;
+		    params.steps = 10000000L;
 		    params.isGraphic = false;
 		}
 		final long startTime = System.currentTimeMillis();
@@ -230,7 +230,7 @@ protected final SpeciesGeneral species;
 		sim.integrator.getEventManager().addListener(energyListener);
 
 		//AEE
-		DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space, dipoleStrength);// add reaction field potential
+		DipoleSourceMolecularDHS dipoleDHS = new DipoleSourceMolecularDHS(space, dipoleStrength);// add reaction field potential
 		MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
 		AEEMeter.setDipoleSource(dipoleDHS);
 		AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
@@ -305,11 +305,11 @@ protected final SpeciesGeneral species;
         System.out.println("Time taken (in mins): " + (endTime - startTime) / (1000.0 * 60.0));
     }
 
-    public static class DipoleSourceDHS implements DipoleSource {//for potential reaction field
+    public static class DipoleSourceMolecularDHS implements DipoleSourceMolecular {//for potential reaction field
         protected final Vector dipoleVector;
         protected double dipoleStrength;
 
-        public DipoleSourceDHS(Space space, double dipole) {
+        public DipoleSourceMolecularDHS(Space space, double dipole) {
             dipoleStrength = dipole;
             dipoleVector = space.makeVector();
         }

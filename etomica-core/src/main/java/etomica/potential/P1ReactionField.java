@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential;
 
+import etomica.atom.DipoleSourceAtomic;
 import etomica.atom.IAtom;
-import etomica.molecule.DipoleSourceAtomic;
 import etomica.space.Vector;
 
 public class P1ReactionField implements IPotentialField {

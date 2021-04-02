@@ -12,7 +12,7 @@ import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
@@ -52,7 +52,7 @@ private double dipoleMagnitude;
 	protected Vector dr;
 	protected Vector work;
 	protected MoleculeAgentManager<MoleculeAgent> moleculeAgentManager;
-	protected DipoleSource dipoleSource;
+	protected DipoleSourceMolecular dipoleSource;
 
 	public MeterDipoleSumSquaredMappedAverage(Box box, SpeciesManager sm, double dipoleMagnitude, double temperature, PotentialMaster potentialMaster) {
 		data = new DataDoubleArray(2);
@@ -139,7 +139,7 @@ private double dipoleMagnitude;
 		return data;
 	}
 	
-	public void setDipoleSource(DipoleSource newDipoleSource) {
+	public void setDipoleSource(DipoleSourceMolecular newDipoleSource) {
 		dipoleSource = newDipoleSource;
 		secondDerivativeSum.setDipoleSource(newDipoleSource); 
 	}

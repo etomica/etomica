@@ -11,7 +11,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.models.water.DipoleSourceWater;
+import etomica.models.water.DipoleSourceMolecularWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3P;
@@ -72,7 +72,7 @@ public class WaterBox {
         double boxlength = box.getBoundary().getBoxSize().getX(0);
         System.out.println(boxlength);
 
-        DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
+        DipoleSourceMolecularWater dipoleSource = new DipoleSourceMolecularWater(sim.getSpace());
         dipoleSource.setDipoleStrength(2 * Electron.UNIT.toSim(0.41) * Math.cos(109.5 / 2.0 * Math.PI / 180));
         P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(), new MoleculePositionCOM(space));
         pNRF.setDipoleSource(dipoleSource);
