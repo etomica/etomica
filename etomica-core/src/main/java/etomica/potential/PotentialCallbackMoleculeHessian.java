@@ -35,6 +35,11 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
         for (int i=0; i<id.D(); i++) id.setComponent(i,i,1);
     }
 
+    @Override
+    public boolean wantsHessian() {
+        return true;
+    }
+
     public void reset() {
         int numMolecules = box.getMoleculeList().size();
         if (moleculePhiTotal.length != molD*numMolecules) {
@@ -77,8 +82,19 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
         double r2 = dr.squared();
         Tensor t = box.getSpace().makeTensor();
         t.Ev1v2(dr, dr);
-        atomPhiTotal[i][j].PEa1Tt1((u012[1] - u012[2]) / (r2*r2), t);
-        atomPhiTotal[i][j].PEa1Tt1(-u012[1]/r2, id);
+        double f1 = (u012[1] - u012[2]) / (r2*r2);
+        double f2 = -u012[1]/r2;
+        atomPhiTotal[i][j].PEa1Tt1(f1, t);
+        atomPhiTotal[i][j].PEa1Tt1(f2, id);
+        atomPhiTotal[j][i].PEa1Tt1(f1, t);
+        atomPhiTotal[j][i].PEa1Tt1(f2, id);
+    }
+
+    @Override
+    public void pairComputeHessian(int i, int j, Tensor phi) {
+        atomPhiTotal[i][j].PE(phi);
+        phi.transpose();
+        atomPhiTotal[j][i].PE(phi);
     }
 
     private Vector makeDr(IAtom atom, int m) {
@@ -132,7 +148,7 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
                 for (int jm=0; jm<molecules.size(); jm++) {
                     IMolecule mj = molecules.get(jm);
                     IAtomList atomsj = mj.getChildList();
-                    for (int ja=0; ja<molecules.size(); ia++) {
+                    for (int ja=0; ja<atomsj.size(); ja++) {
                         IAtom jAtom = atomsj.get(ja);
                         int j = jAtom.getLeafIndex();
                         // TT
