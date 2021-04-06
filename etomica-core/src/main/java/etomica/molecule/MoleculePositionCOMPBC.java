@@ -45,7 +45,7 @@ public class MoleculePositionCOMPBC implements IMoleculePositionDefinition {
             else {
                 dr.Ev1Mv2(children.get(i).getPosition(), pos0);
                 boundary.nearestImage(dr);
-                center.PE(dr);
+                center.PEa1Tv1(mass, dr);
             }
             massSum += mass;
         }
