@@ -13,6 +13,7 @@ import etomica.math.Complex;
 import etomica.molecule.IMolecule;
 import etomica.potential.BondingInfo;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
@@ -433,7 +434,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 hdf6dh = 3*f6Exp[ik] - 1.5*coeffB2*exph2;
             }
 
-            this.handleKVectorSFac(ik, ikx, iky, ikz, nk[0], nk[1], nk[2], kMax[1], kMax[2]);
+            this.handleKVectorSFac(ik, ikx, iky, ikz, nk[0], nk[1], nk[2], kMax[1], kMax[2], pc);
 
             double x = Complex.fromArray(sFac, ik).times(Complex.fromArray(sFac, ik).conjugate()).real();
             fourierSum += fExp[ik] * x;
@@ -488,7 +489,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         return uTot;
     }
 
-    private void handleKVectorSFac(int ik, int ikx, int iky, int ikz, int nkx, int nky, int nkz, int kMaxY, int kMaxZ) {
+    private void handleKVectorSFac(int ik, int ikx, int iky, int ikz, int nkx, int nky, int nkz, int kMaxY, int kMaxZ, PotentialCallback pc) {
         long t1 = System.nanoTime();
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.size();
@@ -511,6 +512,39 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                             .intoArray(sFacB[kB], ik);
                 }
             }
+
+            if (pc != null && pc.wantsHessian()) {
+                double iphiFac = 2*qi*fExp[ik];
+                double[] iphiFac6 = new double[7];
+                if (alpha6>0) {
+                    for (int kB=0; kB<=6; kB++) {
+                        iphiFac6[kB] = f6Exp[ik]*b6[iType][kB];
+                    }
+                }
+                Vector bs = box.getBoundary().getBoxSize();
+                Vector kvec = Vector.of(ikx, iky, ikz);
+                kvec.TE(2.0*PI);
+                kvec.DE(bs);
+
+                for (int jAtom=0; jAtom<iAtom; jAtom++) {
+                    int jType = atoms.get(jAtom).getType().getIndex();
+                    double qj = chargesByType[jType];
+                    if (qj * qi == 0 && iphiFac6[0] * B6[jType][jType] == 0) continue;
+                    // cos(kr) ?= f(eik.real,ejk.real)
+                    double ijPhiFac = qj * iphiFac;
+                    if (alpha6 > 0) {
+                        for (int kB = 0; kB <= 6; kB++) {
+                            ijPhiFac += b6[jType][6 - kB] * iphiFac6[kB];
+                        }
+                    }
+                    ijPhiFac *= (Complex.fromArray(sFacAtom, iAtom).times(Complex.fromArray(sFacAtom, jAtom).conjugate())).real();
+                    Tensor phi = box.getSpace().makeTensor();
+                    phi.Ev1v2(kvec, kvec);
+                    phi.TE(ijPhiFac);
+                    pc.pairComputeHessian(iAtom, jAtom, phi);
+                }
+            }
+
         }
         fTime += System.nanoTime() - t1;
     }
