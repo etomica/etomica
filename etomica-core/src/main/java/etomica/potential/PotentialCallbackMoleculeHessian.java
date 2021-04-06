@@ -84,9 +84,10 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
         t.Ev1v2(dr, dr);
         double f1 = (u012[1] - u012[2]) / (r2*r2);
         double f2 = -u012[1]/r2;
-        atomPhiTotal[i][j].PEa1Tt1(f1, t);
+        t.TE(f1);
+        atomPhiTotal[i][j].PE(t);
         atomPhiTotal[i][j].PEa1Tt1(f2, id);
-        atomPhiTotal[j][i].PEa1Tt1(f1, t);
+        atomPhiTotal[j][i].PE(t);
         atomPhiTotal[j][i].PEa1Tt1(f2, id);
     }
 
