@@ -169,12 +169,12 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
                             moleculePhiTotal[molD*im+1][molD*jm+1].PE(tmpmat);
                         }
                     }
-                    if (molD > 1) {
-                        // intramolecular RR correction
-                        double xdotf = dri.dot(forces[i]);
-                        moleculePhiTotal[molD*im+1][molD*im+1].PEa1Tt1(xdotf, id);
-                        moleculePhiTotal[molD*im+1][molD*im+1].MEv1v2(dri, forces[i]);
-                    }
+                }
+                if (molD > 1) {
+                    // intramolecular RR correction
+                    double xdotf = dri.dot(forces[i]);
+                    moleculePhiTotal[molD*im+1][molD*im+1].PEa1Tt1(xdotf, id);
+                    moleculePhiTotal[molD*im+1][molD*im+1].MEv1v2(dri, forces[i]);
                 }
             }
         }
