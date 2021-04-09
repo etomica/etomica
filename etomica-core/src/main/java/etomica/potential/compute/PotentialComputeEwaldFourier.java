@@ -11,7 +11,11 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.math.Complex;
 import etomica.molecule.IMolecule;
-import etomica.potential.BondingInfo;
+import etomica.potential.P2SoftSphericalSum;
+import etomica.potential.Potential2Soft;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.ewald.P2Ewald1FourierCancel;
+import etomica.potential.ewald.P2Ewald6FourierCancel;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -21,7 +25,9 @@ import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringJoiner;
 
 import static etomica.math.SpecialFunctions.erfc;
@@ -29,22 +35,24 @@ import static etomica.math.SpecialFunctions.factorial;
 import static java.lang.Math.PI;
 
 public class PotentialComputeEwaldFourier implements PotentialCompute {
+
+    private final SpeciesManager sm;
     private static final double SQRT_PI = Math.sqrt(PI);
     private final Box box;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
     protected double virialTot = Double.NaN;
     protected boolean includeSelfOne = false;
-    protected double uTotSelf, uTotFS = Double.NaN, uTotIntra, uOneFS;
+    protected double uTotSelf, uTotFS = Double.NaN, uOneFS;
     protected double uOneOld, uOneNew;
     protected Vector[] forces;
     protected final int[] atomCountByType;
     protected final Space space;
-    private final BondingInfo bondingInfo;
 
     private final double[] chargesByType;
     private final double[][] B6;
     private final double[][] b6;
+    private final double[] sigma, epsilon;
 
     private final Vector kBasis;
 
@@ -121,10 +129,10 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
     }
 
-    public PotentialComputeEwaldFourier(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
+    public PotentialComputeEwaldFourier(SpeciesManager sm, Box box) {
+        this.sm = sm;
         this.box = box;
         this.space = box.getSpace();
-        this.bondingInfo = bondingInfo;
         this.duAtom = new DoubleArrayList(16);
         this.uAtomsChanged = new IntArrayList(16);
         this.forces = new Vector[0];
@@ -156,6 +164,8 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         this.chargesByType = new double[numAtomTypes];
         this.B6 = new double[numAtomTypes][numAtomTypes];
         this.b6 = new double[numAtomTypes][7];
+        sigma = new double[numAtomTypes];
+        epsilon = new double[numAtomTypes];
 
         this.kBasis = space.makeVector();
     }
@@ -168,6 +178,74 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         @Override
         public String toString() {
             return new StringJoiner(", ", EwaldParams.class.getSimpleName() + "[", "]").add("alpha=" + alpha).add("rCut=" + rCut).add("kCut=" + kCut).toString();
+        }
+    }
+
+    /**
+     * Returns a PotentialMasterBonding that computes the contributions that
+     * cancel the intramolecular contributions from the Fourier part (computed
+     * by this class).  Add the PotentialMasterBonding returned here to your
+     * PotentialComputeAggregate.
+     *
+     * This method must not be called until this class is fully configured.
+     * All charges, sigmas, epsilon and alphas must be set.
+     */
+    public PotentialMasterBonding makeIntramolecularCorrection() {
+        PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
+        populateIntramolecular(pmBonding);
+        return pmBonding;
+    }
+
+    /**
+     * Populates the given PotentialMasterBonding with pair potentials that
+     * cancel the (unwanted) intramolecular contributions computed by this class.
+     */
+    public void populateIntramolecular(PotentialMasterBonding pmBonding) {
+        for (ISpecies species : sm.getSpeciesList()) {
+            List<Integer>[] typeList = new ArrayList[species.getUniqueAtomTypeCount()];
+            for (int i=0; i<typeList.length; i++) {
+                typeList[i] = new ArrayList<>();
+            }
+            List<AtomType> types = species.getAtomTypes();
+            for (int i=0; i<types.size(); i++) {
+                typeList[types.get(i).getIndex()].add(i);
+            }
+            for (int i=0; i<typeList.length; i++) {
+                if (typeList[i].size() == 0) continue;
+                double qi = chargesByType[i];
+                for (int j=i; j<typeList.length; j++) {
+                    if (typeList[j].size() == 0 || (i==j && typeList[j].size() == 1)) continue;
+                    double qj = chargesByType[j];
+                    if (qi*qj==0 && B6[i][j] == 0) continue;
+                    List<int[]> pairs = new ArrayList<>();
+                    for (int ii = 0; ii < typeList[i].size(); ii++) {
+                        if (i==j) {
+                            for (int jj=ii+1; jj<typeList[i].size(); jj++) {
+                                pairs.add(new int[]{typeList[i].get(ii),typeList[j].get(jj)});
+                            }
+                        }
+                        else {
+                            for (int jj=0; jj<typeList[j].size(); jj++) {
+                                pairs.add(new int[]{typeList[i].get(ii),typeList[j].get(jj)});
+                            }
+                        }
+                    }
+                    Potential2Soft pij = null;
+                    if (qi*qj != 0) {
+                        pij = new P2Ewald1FourierCancel(qi * qj, alpha);
+                    }
+                    if (B6[i][j] != 0) {
+                        P2Ewald6FourierCancel pij6 = new P2Ewald6FourierCancel(sigma[i], epsilon[i], sigma[j], epsilon[j], alpha6);
+                        if (pij != null) {
+                            pij = new P2SoftSphericalSum(space, pij, pij6);
+                        }
+                        else {
+                            pij = pij6;
+                        }
+                    }
+                    pmBonding.setBondingPotentialPair(species, pij, pairs);
+                }
+            }
         }
     }
 
@@ -214,6 +292,8 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     public void setR6Coefficient(AtomType type, double sigma, double epsilon) {
         int numAtomTypes = this.B6.length;
         int iType = type.getIndex();
+        this.sigma[iType] = sigma;
+        this.epsilon[iType] = epsilon;
         double sigmak = 1;
         for (int k=0; k<=6; k++) {
             long ck = factorial(6)/(factorial(6-k)*factorial(k));
@@ -246,7 +326,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     @Override
     public double getLastEnergy() {
-        return uTotSelf + uTotIntra + uTotFS;
+        return uTotSelf + uTotFS;
     }
 
     @Override
@@ -305,7 +385,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         double q2sum = 0;
         double sumBij = 0;
         double sumBii = 0;
-        uTotSelf = uTotIntra = uTotFS = 0;
+        uTotSelf = uTotFS = 0;
 
         for (int iType = 0; iType < atomCountByType.length; iType++) {
             int iNum = atomCountByType[iType];
@@ -332,12 +412,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             uTotSelf += alpha63 * (alpha63 / 12) * sumBii;
         }
         double uTot = uTotSelf;
-
-        uTotIntra = 0;
-        for (IMolecule molecule : box.getMoleculeList()) {
-            uTotIntra += computeFourierIntramolecular(molecule, doForces);
-        }
-        uTot += uTotIntra;
 
         Vector bs = box.getBoundary().getBoxSize();
         int kxMax = (int) (0.5 * bs.getX(0) / PI * kCut);
@@ -572,71 +646,6 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
     }
 
-    protected double computeFourierIntramolecular(IMolecule molecule, boolean doForces) {
-        IAtomList atoms = molecule.getChildList();
-        if (atoms.size() == 1) return 0;
-        double twoosqrtpi = 2.0 / SQRT_PI;
-        double uIntra = 0;
-        for (int iAtom = 0; iAtom < atoms.size() - 1; iAtom++) {
-            IAtom atom = atoms.get(iAtom);
-            int iType = atom.getType().getIndex();
-            double qi = chargesByType[iType];
-            double Bii = B6[iType][iType];
-            if (qi == 0 && Bii == 0) continue;
-            Vector ri = atom.getPosition();
-            for (int jAtom = iAtom + 1; jAtom < atoms.size(); jAtom++) {
-                int jType = atoms.get(jAtom).getType().getIndex();
-                double qj = chargesByType[jType];
-                double Bij = B6[iType][jType];
-                double qiqj = qi * qj;
-                if (qiqj == 0 && Bij == 0) continue;
-                Vector rj = atoms.get(jAtom).getPosition();
-                Vector dr = space.makeVector();
-                dr.Ev1Mv2(rj, ri);
-                box.getBoundary().nearestImage(dr);
-                double r2 = dr.squared();
-                double r = Math.sqrt(r2);
-                double ec = 0;
-                if (alpha > 0) {
-                    ec = erfc(alpha * r);
-                    uIntra -= qiqj * (1 - ec) / r;
-                }
-                double s2 = 0, s4 = 0, a2 = 0, a4 = 0, alpha66 = 0, e = 0;
-                if (alpha6 > 0) {
-                    s2 = 1 / r2;
-                    s4 = s2 * s2;
-                    double alpha62 = alpha6 * alpha6;
-                    a2 = r2 * alpha62;
-                    a4 = a2 * a2;
-                    alpha66 = alpha62 * alpha62 * alpha62;
-                    e = Math.exp(-a2);
-                    double ureal = -Bij * alpha66 * (1 + a2 + a4 / 2) * e / (a4 * a2);
-                    double ufull = -Bij * s4 * s2;
-                    uIntra += -ufull + ureal;
-                }
-                if (!bondingInfo.isOnlyRigidMolecules()) {
-                    // skip any non-bonded pair
-                    if (!bondingInfo.skipBondedPair(false, atom, atoms.get(jAtom))) continue;
-                    double du = 0;
-                    if (alpha > 0)
-                        du = -qiqj * (twoosqrtpi * Math.exp(-alpha * alpha * r2) * alpha + (ec - 1) / r) / r2;
-                    if (alpha6 > 0) {
-                        double a6 = a4 * a2;
-                        double dureal = Bij * alpha66 * (6 + 6 * a2 + 3 * a4 + a6) * e / a6;
-                        double dufull = 6 * Bij * s2 * s4;
-                        du += -dufull + dureal;
-                    }
-                    if (doForces) {
-                        forces[iAtom].PEa1Tv1(du, dr);
-                        forces[jAtom].PEa1Tv1(-du, dr);
-                    }
-                    virialTot += du * r2;
-                }
-            }
-        }
-        return uIntra;
-    }
-
     @Override
     public double computeOneOld(IAtom atom) {
         didOld = true;
@@ -650,9 +659,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         didOld = true;
         Arrays.fill(dsFac, 0);
         for (int i = 0; i < dsFacB.length; i++) Arrays.fill(dsFacB[i], 0);
-        double u = computeManyAtomsInternal(true, ((AtomArrayList) molecule.getChildList()).toArray());
-        u += computeFourierIntramolecular(molecule, false);
-        return u;
+        return computeManyAtomsInternal(true, ((AtomArrayList) molecule.getChildList()).toArray());
     }
 
     @Override
@@ -664,9 +671,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     @Override
     public double computeOneMolecule(IMolecule molecule) {
-        double u = computeManyAtoms(((AtomArrayList) molecule.getChildList()).toArray());
-        u += computeFourierIntramolecular(molecule, false);
-        return u;
+        return computeManyAtoms(((AtomArrayList) molecule.getChildList()).toArray());
     }
 
     @Override

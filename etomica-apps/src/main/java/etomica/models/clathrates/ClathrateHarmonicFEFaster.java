@@ -15,6 +15,8 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.P2WaterTIP4P;
 import etomica.models.water.SpeciesWater4P;
@@ -24,6 +26,7 @@ import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeEwaldFourier;
 import etomica.potential.ewald.P2Ewald1Real;
+import etomica.potential.ewald.P2Ewald6Real;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -56,14 +59,14 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         if (isIce) {
             sigma = 3.1668;
             epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice
-//			sigma = 3.1589; epsilon = Kelvin.UNIT.toSim(93.2);//TIP4P/2005			
+//			sigma = 3.1589; epsilon = Kelvin.UNIT.toSim(93.2);//TIP4P/2005
         } else {//TIP4P
             double A = 600E3; // kcal A^12 / mol
             double C = 610.0; // kcal A^6 / mol
             double s6 = A / C;
             sigma = Math.pow(s6, 1.0 / 6.0);
             epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
-//            sigma = 3.154; epsilon = Kelvin.UNIT.toSim(78.0); //TIP4P           
+//            sigma = 3.154; epsilon = Kelvin.UNIT.toSim(78.0); //TIP4P
         }
 
         AtomType oType = species.getTypeByName("O");
@@ -73,21 +76,26 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         double chargeH = isIce ? 0.5897 : P2WaterTIP4P.qH;
         double chargeM = -2*chargeH;
 
-        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
         PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParams(3, 0);
         params.rCut = rCutRealES;
         params.kCut = kCut;
-        params.alpha = 0.4031128874149275;
+        params.alpha = 0.30472470011002206;
 
         ewaldFourier.setkCut(params.kCut);
         ewaldFourier.setCharge(mType, chargeM);
         ewaldFourier.setCharge(hType, chargeH);
         ewaldFourier.setAlpha(params.alpha);
+        ewaldFourier.setR6Coefficient(oType, sigma, epsilon);
+        ewaldFourier.setAlpha6(params.alpha);
 
-        PotentialMasterCellFasterer pm = new PotentialMasterCellFasterer(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+
+        PotentialMasterCellFasterer pm = new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding());
 
         TruncationFactory tf = new TruncationFactorySimple(space, params.rCut);
-        Potential2Soft p2OO = tf.make(new P2LennardJones(space, sigma, epsilon));
+        P2SoftSphere p2OO12 = new P2SoftSphere(space, sigma, 4*epsilon, 12);
+        P2Ewald6Real p2OO6 = new P2Ewald6Real(sigma, epsilon, sigma, epsilon, params.alpha);
+        Potential2Soft p2OO = tf.make(p2OO12, p2OO6);
         Potential2Soft p2MM = tf.make(new P2Ewald1Real(chargeM*chargeM, params.alpha));
         Potential2Soft p2HH = tf.make(new P2Ewald1Real(chargeH*chargeH, params.alpha));
         Potential2Soft p2MH = tf.make(new P2Ewald1Real(chargeH*chargeM, params.alpha));
@@ -96,7 +104,9 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         pm.setPairPotential(hType, hType, p2HH);
         pm.setPairPotential(mType, hType, p2MH);
 
-        potentialMaster = new PotentialComputeAggregate(pm, ewaldFourier);
+        PotentialMasterBonding pmBonding = ewaldFourier.makeIntramolecularCorrection();
+
+        potentialMaster = new PotentialComputeAggregate(pm, pmBonding, ewaldFourier);
 
 
         if (includeM) {
@@ -132,6 +142,10 @@ public class ClathrateHarmonicFEFaster extends Simulation {
 
         final double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
 
+        final int[] nLJShells = new int[]{(int) Math.ceil(rCutLJ / a0_sc[0] - 0.49999), (int) Math.ceil(rCutLJ / a0_sc[1] - 0.49999), (int) Math.ceil(rCutLJ / a0_sc[2] - 0.49999)};
+
+        final double rCutLJ2 = rCutLJ * rCutLJ;
+
         System.out.println(" nX = " + nC[0]);
         System.out.println(" rCutLJ = " + rCutLJ);
         System.out.println(" kCut = " + kCut);
@@ -158,6 +172,7 @@ public class ClathrateHarmonicFEFaster extends Simulation {
             }
         }
 
+        Primitive primitive = new PrimitiveOrthorhombic(space, a0[0], a0[1], a0[2]);
         PotentialCallbackMoleculeHessian pcHessian = new PotentialCallbackMoleculeHessian(sim.getSpeciesManager(), sim.box);
         pcHessian.reset();
         sim.potentialMaster.computeAll(true, pcHessian);
@@ -166,12 +181,26 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         System.out.println(hessian[0][0]);
         System.out.println("Hessian 0 1");
         System.out.println(hessian[0][1]);
-        System.out.println("Hessian 0 2");
-        System.out.println(hessian[0][2]);
-        System.out.println("Hessian 0 3");
-        System.out.println(hessian[0][3]);
-        System.out.println("Hessian 1 2");
-        System.out.println(hessian[1][2]);
+        System.out.println("Hessian 1 0");
+        System.out.println(hessian[1][0]);
+        System.out.println("Hessian 1 1");
+        System.out.println(hessian[1][1]);
+        System.out.println("Hessian 2 0");
+        System.out.println(hessian[2][0]);
+        System.out.println("Hessian 5 1");
+        System.out.println(hessian[5][1]);
+        System.out.println("Hessian 7 1");
+        System.out.println(hessian[7][1]);
+
+//        Vector f0 = sim.potentialMaster.getForces()[3];
+//        System.out.println(f0.getX(0));
+//
+//        Vector m7 = sim.box.getLeafList().get(7).getPosition();
+//        m7.setX(0, m7.getX(0)-0.001);
+//
+//        sim.potentialMaster.computeAll(true);
+//        f0 = sim.potentialMaster.getForces()[3];
+//        System.out.println("=> "+f0.getX(0));
 
         // do something
         // wave vectors
@@ -181,8 +210,8 @@ public class ClathrateHarmonicFEFaster extends Simulation {
     public static class SimParams extends ParameterBase {
         //    	public String configFile = "config_from_paper_HHO_shiftedL_2_sI";
         public String configFile = "finalPos";
-        public double rCutLJ = 8;
-        public double rCutRealES = 8;
+        public double rCutLJ = 14;
+        public double rCutRealES = 14;
         public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
         public int nBasis = 46;//sI
         //		public int nBasis = 136;//sII
@@ -190,7 +219,7 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         public double kCut = 2.6;
         //		public double[] a0 = new double[]{17.31, 17.31, 17.31};//sII
 //		public double[] a0 = new double[]{12.21,21.15, 10.14};//sH
-        public boolean waveVectorMethod = false;
+        public boolean waveVectorMethod = true;
         public boolean isIce = false;
         public boolean includeM = true;
         int nX = 1;

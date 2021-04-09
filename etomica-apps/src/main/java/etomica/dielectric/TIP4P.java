@@ -99,7 +99,7 @@ public class TIP4P extends Simulation {
          chargeM = -2*P2WaterTIP4P.qH;
          chargeH = P2WaterTIP4P.qH;
 
-         PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding());
+         PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
          PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParamsForCutoff(3, truncation);
 
          ewaldFourier.setkCut(params.kCut);
@@ -120,7 +120,9 @@ public class TIP4P extends Simulation {
          pm.setPairPotential(hType, hType, p2HH);
          pm.setPairPotential(mType, hType, p2MH);
 
-         potentialMaster = new PotentialComputeAggregate(pm, ewaldFourier);
+         PotentialMasterBonding pmBonding = ewaldFourier.makeIntramolecularCorrection();
+
+         potentialMaster = new PotentialComputeAggregate(pm, ewaldFourier, pmBonding);
 
          // integrator from potential master
          integrator = new IntegratorMCFasterer(potentialMaster, random, temperature, box);

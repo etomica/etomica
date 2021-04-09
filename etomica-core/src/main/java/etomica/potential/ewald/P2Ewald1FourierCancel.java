@@ -7,10 +7,10 @@ import etomica.space3d.Space3D;
 
 import static etomica.math.SpecialFunctions.erfc;
 
-public class P2Ewald1Real extends Potential2SoftSpherical {
+public class P2Ewald1FourierCancel extends Potential2SoftSpherical {
 
     public static Potential2Soft makeTruncated(double qiqj, double alpha, TruncationFactory tf) {
-        return tf.make(new P2Ewald1Real(qiqj, alpha));
+        return tf.make(new P2Ewald1FourierCancel(qiqj, alpha));
     }
 
     private double qiqj;
@@ -18,7 +18,7 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
 
     private static final double SQRT_PI = Math.sqrt(Math.PI);
 
-    public P2Ewald1Real(double qiqj, double alpha) {
+    public P2Ewald1FourierCancel(double qiqj, double alpha) {
         super(Space3D.getInstance());
         this.qiqj = qiqj;
         this.alpha = alpha;
@@ -35,19 +35,19 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
     @Override
     public double u(double r2) {
         double r = Math.sqrt(r2);
-        return qiqj*erfc(alpha*r)/r;
+        return qiqj*(erfc(alpha*r)-1)/r;
     }
 
     @Override
     public double du(double r2) {
         double r = Math.sqrt(r2);
-        return -qiqj * (2 * SQRT_PI * Math.exp(-alpha * alpha * r2) * alpha + erfc(alpha * r) / r);
+        return -qiqj * (2 * SQRT_PI * Math.exp(-alpha * alpha * r2) * alpha + (erfc(alpha * r) - 1) / r);
     }
 
     @Override
     public void u012add(double r2, double[] u012) {
         double r = Math.sqrt(r2);
-        double u = qiqj * erfc(alpha * r) / r;
+        double u = qiqj * (erfc(alpha * r)-1) / r;
         double derfc = -qiqj * 2 / SQRT_PI * Math.exp(-alpha * alpha * r2) * alpha;
         u012[0] += u;
         u012[1] += derfc - u;

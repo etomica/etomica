@@ -51,6 +51,7 @@ class EwaldSummationTest {
     private EwaldSummation es;
     private PotentialMasterFasterer pair;
     private PotentialComputeEwaldFourier fourier;
+    private PotentialMasterBonding pmBonding;
 
     @BeforeEach
     void setup(RepetitionInfo repetitionInfo) {
@@ -83,12 +84,14 @@ class EwaldSummationTest {
         pair.setPairPotential(oType, oType, p2oo);
         pair.init();
 
-        fourier = new PotentialComputeEwaldFourier(sim.getSpeciesManager(), box, BondingInfo.noBonding());
+        fourier = new PotentialComputeEwaldFourier(sim.getSpeciesManager(), box);
         fourier.setAlpha(alpha);
         fourier.setCharge(hType, P2WaterSPCE.QH);
         fourier.setCharge(oType, P2WaterSPCE.QO);
         fourier.setkCut(kcut);
         fourier.init();
+
+        pmBonding = fourier.makeIntramolecularCorrection();
 
         es = new EwaldSummation(box, atomAgentManager, space, kcut, rCutRealES);
         es.setAlpha(5.6 / boxlength);
@@ -114,15 +117,16 @@ class EwaldSummationTest {
                 () -> assertEquals(Kelvin.UNIT.toSim(NIST_corr[filenum - 1]), es.uBondCorr(), 100, "uBondCorr")
         );
 
-        double fourierNIST = NIST_fourier[filenum - 1] + NIST_self[filenum - 1] + NIST_corr[filenum - 1];
+        double fourierNIST = NIST_fourier[filenum - 1] + NIST_self[filenum - 1];
         assertAll(
                 () -> assertEquals(Kelvin.UNIT.toSim(NIST_real[filenum - 1]), pair.computeAll(false), 10, "uRealFasterer"),
-                () -> assertEquals(Kelvin.UNIT.toSim(fourierNIST), fourier.computeAll(false), 100, "uFourierFasterer")
+                () -> assertEquals(Kelvin.UNIT.toSim(fourierNIST), fourier.computeAll(false), 100, "uFourierFasterer"),
+                () -> assertEquals(Kelvin.UNIT.toSim(NIST_corr[filenum - 1]), pmBonding.computeAll(false), 100, "uFourierIntra")
         );
 
         assertAll(
                 () -> assertEquals(es.uReal(), pair.computeAll(false), 0.001, "uRealFasterer"),
-                () -> assertEquals(es.uFourier() + es.uSelf() + es.uBondCorr(), fourier.computeAll(false), 0.001, "uFourierFasterer")
+                () -> assertEquals(es.uFourier() + es.uSelf(), fourier.computeAll(false), 0.001, "uFourierFasterer")
         );
     }
 
