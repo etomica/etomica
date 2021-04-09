@@ -174,7 +174,13 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
                     // intramolecular RR correction
                     double xdotf = dri.dot(forces[i]);
                     moleculePhiTotal[molD*im+1][molD*im+1].PEa1Tt1(xdotf, id);
-                    moleculePhiTotal[molD*im+1][molD*im+1].MEv1v2(dri, forces[i]);
+                    // force dr F to be symmetric.... ?????
+                    Tensor foo = box.getSpace().makeTensor();
+                    foo.Ev1v2(dri, forces[i]);
+                    foo.TE(0.5);
+                    moleculePhiTotal[molD*im+1][molD*im+1].ME(foo);
+                    foo.transpose();
+                    moleculePhiTotal[molD*im+1][molD*im+1].ME(foo);
                 }
             }
         }
