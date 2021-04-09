@@ -39,6 +39,7 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
     private Vector[] oldAtomPositions;
     private final List<INeighborListener> listeners;
     private int numUnsafe = -1;
+    private double minR2;
 
     public NeighborListManagerFasterer(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         this.box = box;
@@ -154,6 +155,13 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
     }
 
     public void reset() {
+        Vector boxSize = box.getBoundary().getBoxSize();
+        double minL = Double.POSITIVE_INFINITY;
+        for (int i=0; i<boxSize.getD(); i++) {
+            minL = Math.min(minL, boxSize.getX(i));
+        }
+        minR2 = (0.5*minL)*(0.5*minL);
+
         IAtomList atoms = box.getLeafList();
         int boxNumAtoms = atoms.size();
         if (boxNumAtoms == 0) return;
@@ -264,7 +272,7 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
     protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
 
-        if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) return 0;
+        boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
 
         Vector dr = space.makeVector();
         Vector ri = iAtom.getPosition();
@@ -272,7 +280,7 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double r2 = dr.squared();
-        if (r2 > rc2) return 0;
+        if (r2 > rc2 || (skipIntra && r2 < minR2)) return 0;
         return addAsNbrPair(i, j, iAtom, jAtom, jbo, iPotentials, dr);
     }
 

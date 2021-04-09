@@ -83,8 +83,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
-                if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
-                uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
+                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
+                uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc, skipIntra);
             }
             int iCell = atomCell[i];
             for (int k=0; k<numCellOffsets; k++) {
@@ -97,8 +97,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                     int jType = jAtom.getType().getIndex();
                     Potential2Soft pij = ip[jType];
                     if (pij == null) continue;
-                    if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
-                    uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
+                    boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
+                    uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc, skipIntra);
                 }
             }
         }
@@ -148,9 +148,9 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
-                if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
+                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 Vector rj = jAtom.getPosition();
-                u1 += handleComputeOne(pij, ri, rj, jbo, i, j);
+                u1 += handleComputeOne(pij, ri, rj, jbo, i, j, skipIntra);
             }
         }
         for (int cellOffset : cellOffsets) {
@@ -162,8 +162,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
-                if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
-                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
+                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
+                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
             }
 
             // now down
@@ -175,8 +175,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
-                if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
-                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
+                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
+                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
             }
         }
         tMC += System.nanoTime() - t1;

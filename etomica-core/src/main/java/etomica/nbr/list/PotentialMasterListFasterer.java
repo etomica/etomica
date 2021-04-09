@@ -68,7 +68,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
                 Potential2Soft pij = iPotentials[jType];
                 Vector rj = jAtom.getPosition();
                 Vector jbo = iNbrBoxOffsets[j];
-                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij, pc);
+                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij, pc, false);
             }
         }
 
