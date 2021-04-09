@@ -592,7 +592,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 double[] iphiFac6 = new double[7];
                 if (alpha6>0) {
                     for (int kB=0; kB<=6; kB++) {
-                        iphiFac6[kB] = f6Exp[ik]*b6[iType][kB];
+                        iphiFac6[kB] = 2*f6Exp[ik]*b6[iType][kB];
                     }
                 }
                 Vector bs = box.getBoundary().getBoxSize();
