@@ -202,7 +202,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
      */
     public void populateIntramolecular(PotentialMasterBonding pmBonding) {
         for (ISpecies species : sm.getSpeciesList()) {
-            List<Integer>[] typeList = new ArrayList[species.getUniqueAtomTypeCount()];
+            List<Integer>[] typeList = new ArrayList[sm.getAtomTypeCount()];
             for (int i=0; i<typeList.length; i++) {
                 typeList[i] = new ArrayList<>();
             }
