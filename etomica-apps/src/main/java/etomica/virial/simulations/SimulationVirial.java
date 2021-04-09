@@ -47,6 +47,7 @@ public class SimulationVirial extends Simulation {
     public boolean doWiggle;
     public int[] newSeeds;
     public int[] numMolecules;
+    protected double boxLength;
 
     public SimulationVirial(Space space, ISpecies[] species, int[] nMolecules, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
         super(space);
@@ -79,14 +80,18 @@ public class SimulationVirial extends Simulation {
         init();
     }
 
-	public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle, int[] seeds) {
-		this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
-		setDoWiggle(doWiggle);
-		setSeeds(seeds);
-		init();
-	}
+    public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle, int[] seeds) {
+        this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+        setDoWiggle(doWiggle);
+        setSeeds(seeds);
+        init();
+    }
 
-	public void init() {
+    public void setBoxLength(double length) {
+        boxLength = length;
+    }
+
+    public void init() {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
@@ -96,7 +101,7 @@ public class SimulationVirial extends Simulation {
 
         PotentialMaster potentialMaster = new PotentialMaster();
         int nMolecules = sampleCluster.pointCount();
-        box = new BoxCluster(sampleCluster, space);
+        box = new BoxCluster(sampleCluster, space, boxLength);
         addBox(box);
 
         for (int i = 0; i < species.length; i++) {

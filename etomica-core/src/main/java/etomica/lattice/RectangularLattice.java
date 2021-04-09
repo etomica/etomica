@@ -65,6 +65,7 @@ public class RectangularLattice implements FiniteLattice {
     }
 
     private void computeNeighbors() {
+        if (sites == null) return;
         if (Debug.ON) {
             System.out.println("Computing lattice cell neighbors");
         }

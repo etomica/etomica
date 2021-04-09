@@ -1,6 +1,5 @@
 package etomica.osmoticvirial;
 
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -46,7 +45,7 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected Box box1, box2;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    
+
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -55,6 +54,12 @@ public class GCRestrictedGibbsHS extends Simulation {
     public GCRestrictedGibbsHS(double vf, double q, int numAtoms, boolean computeAO, double L, double GMIfac) {
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
+
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        addSpecies(species1);
+        addSpecies(species2);
+
         PotentialMaster potentialMaster;
         potentialMaster = new PotentialMasterCellMixed(this, q);
 //        potentialMaster = new PotentialMasterCell(this,1,space);
@@ -62,10 +67,6 @@ public class GCRestrictedGibbsHS extends Simulation {
         PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
-        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
-        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
-        addSpecies(species1);
-        addSpecies(species2);
 
         integrator = new IntegratorRGEMC(random, space, species1);
         this.getController().addActivity(new ActivityIntegrate(integrator));
