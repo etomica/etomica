@@ -49,7 +49,7 @@ public class ClathrateHarmonicFEFaster extends Simulation {
     protected PotentialCompute potentialMaster;
     protected SpeciesGeneral species;
 
-    public ClathrateHarmonicFEFaster(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
+    public ClathrateHarmonicFEFaster(Space space, int[] nC, double rCutRealES, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
         super(space);
         species = SpeciesWater4P.create();
         addSpecies(species);
@@ -138,21 +138,16 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         boolean isIce = params.isIce;
         boolean includeM = params.includeM;
         double rCutRealES = params.rCutRealES;
-        double rCutLJ = params.rCutLJ;
 
         final double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
 
-        final int[] nLJShells = new int[]{(int) Math.ceil(rCutLJ / a0_sc[0] - 0.49999), (int) Math.ceil(rCutLJ / a0_sc[1] - 0.49999), (int) Math.ceil(rCutLJ / a0_sc[2] - 0.49999)};
-
-        final double rCutLJ2 = rCutLJ * rCutLJ;
-
         System.out.println(" nX = " + nC[0]);
-        System.out.println(" rCutLJ = " + rCutLJ);
+        System.out.println(" rCut = " + rCutRealES);
         System.out.println(" kCut = " + kCut);
 
         int numMolecule = nBasis * nC[0] * nC[1] * nC[2];
         final Space space = Space3D.getInstance();
-        final ClathrateHarmonicFEFaster sim = new ClathrateHarmonicFEFaster(space, nC, rCutRealES, rCutLJ, a0_sc, numMolecule, configFile, isIce, kCut, includeM);
+        final ClathrateHarmonicFEFaster sim = new ClathrateHarmonicFEFaster(space, nC, rCutRealES, a0_sc, numMolecule, configFile, isIce, kCut, includeM);
 
         if (false) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
@@ -173,10 +168,31 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         }
 
         Primitive primitive = new PrimitiveOrthorhombic(space, a0[0], a0[1], a0[2]);
-        PotentialCallbackMoleculeHessian pcHessian = new PotentialCallbackMoleculeHessian(sim.getSpeciesManager(), sim.box);
+        Tensor[][] hessian = new Tensor[2*46][2*46];
+        for (int i=0; i<2*46; i++) {
+            for (int j=0; j<2*46; j++) {
+                hessian[i][j] = space.makeTensor();
+            }
+        }
+        PotentialCallbackMoleculeHessian pcHessian = new PotentialCallbackMoleculeHessian(sim.getSpeciesManager(), sim.box, new PotentialCallbackMoleculeHessian.HessianConsumer() {
+            @Override
+            public void takeHessian(int i, int j, Tensor tt, Tensor tr, Tensor rt, Tensor rr) {
+                hessian[2*i][2*j].PE(tt);
+                hessian[2*i][2*j+1].PE(tr);
+                hessian[2*i+1][2*j].PE(rt);
+                hessian[2*i+1][2*j+1].PE(rr);
+            }
+        });
+
+
         pcHessian.reset();
+        long t1 = System.nanoTime();
         sim.potentialMaster.computeAll(true, pcHessian);
-        Tensor[][] hessian = pcHessian.getMoleculePhi(sim.potentialMaster.getForces());
+        pcHessian.intramolecularCorrection(sim.potentialMaster.getForces());
+        long t2 = System.nanoTime();
+
+        System.out.println("time: "+(t2-t1)/1e9);
+
         System.out.println("Hessian 0 0");
         System.out.println(hessian[0][0]);
         System.out.println("Hessian 0 1");
@@ -185,22 +201,6 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         System.out.println(hessian[1][0]);
         System.out.println("Hessian 1 1");
         System.out.println(hessian[1][1]);
-        System.out.println("Hessian 2 0");
-        System.out.println(hessian[2][0]);
-        System.out.println("Hessian 5 1");
-        System.out.println(hessian[5][1]);
-        System.out.println("Hessian 7 1");
-        System.out.println(hessian[7][1]);
-
-//        Vector f0 = sim.potentialMaster.getForces()[3];
-//        System.out.println(f0.getX(0));
-//
-//        Vector m7 = sim.box.getLeafList().get(7).getPosition();
-//        m7.setX(0, m7.getX(0)-0.001);
-//
-//        sim.potentialMaster.computeAll(true);
-//        f0 = sim.potentialMaster.getForces()[3];
-//        System.out.println("=> "+f0.getX(0));
 
         // do something
         // wave vectors
@@ -210,7 +210,6 @@ public class ClathrateHarmonicFEFaster extends Simulation {
     public static class SimParams extends ParameterBase {
         //    	public String configFile = "config_from_paper_HHO_shiftedL_2_sI";
         public String configFile = "finalPos";
-        public double rCutLJ = 14;
         public double rCutRealES = 14;
         public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
         public int nBasis = 46;//sI
