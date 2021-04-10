@@ -264,6 +264,18 @@ public class Box {
         return moleculeLists[speciesIndex].size();
     }
 
+    public int getMoleculeGlobalIndex(IMolecule molecule) {
+        int is = molecule.getType().getIndex();
+        int globalIndex = 0;
+        for (int i=0; i<moleculeLists.length; i++) {
+            if (i==is) {
+                return globalIndex + molecule.getIndex();
+            }
+            globalIndex += moleculeLists[i].size();
+        }
+        throw new RuntimeException("Unexpected species");
+    }
+
     /**
      * Returns the list of molecules of the given species.
      *
