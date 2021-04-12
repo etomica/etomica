@@ -20,8 +20,6 @@ import etomica.species.SpeciesManager;
 public class PotentialCallbackMoleculeHessian implements PotentialCallback {
 
     protected final Box box;
-    protected Tensor[][] atomPhiTotal;
-    protected Tensor[][] moleculePhiTotal;
     protected Vector[] com;
     protected final int molD;
     protected final Tensor id; // identity tensor
@@ -29,8 +27,6 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
 
     public PotentialCallbackMoleculeHessian(SpeciesManager sm, Box box, HessianConsumer callback) {
         this.box = box;
-        atomPhiTotal = new Tensor[0][0];
-        moleculePhiTotal = new Tensor[0][0];
         molD = sm.getSpecies(0).getLeafAtomCount() > 1 ? 2 : 1;
         id = box.getSpace().makeTensor();
         for (int i=0; i<id.D(); i++) id.setComponent(i,i,1);
@@ -44,35 +40,13 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
 
     public void reset() {
         int numMolecules = box.getMoleculeList().size();
-        if (moleculePhiTotal.length != molD*numMolecules) {
-            moleculePhiTotal = new Tensor[molD*numMolecules][molD*numMolecules];
-            for (int i=0; i<molD*numMolecules; i++) {
-                for (int j=0; j<molD*numMolecules; j++) {
-                    moleculePhiTotal[i][j] = box.getSpace().makeTensor();
-                }
-            }
+        if (com == null || com.length != molD*numMolecules) {
             com = new Vector[numMolecules];
             for (int i=0; i<numMolecules; i++) com[i] = box.getSpace().makeVector();
         }
         IMoleculeList molecules = box.getMoleculeList();
         for (int i=0; i<numMolecules; i++) {
             com[i].E(MoleculePositionCOMPBC.com(box.getBoundary(), molecules.get(i)));
-        }
-        int numAtoms = box.getLeafList().size();
-        if (atomPhiTotal.length != numAtoms) {
-            atomPhiTotal = new Tensor[numAtoms][numAtoms];
-            for (int i=0; i<numAtoms; i++) {
-                for (int j=0; j<numAtoms; j++) {
-                    atomPhiTotal[i][j] = box.getSpace().makeTensor();
-                }
-            }
-        }
-        else {
-            for (int i=0; i<numAtoms; i++) {
-                for (int j=0; j<numAtoms; j++) {
-                    atomPhiTotal[i][j].E(0);
-                }
-            }
         }
     }
 
