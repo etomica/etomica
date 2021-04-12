@@ -21,6 +21,7 @@ import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.P2WaterTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.normalmode.LatticeDynamics;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -168,9 +169,23 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         }
 
         Primitive primitive = new PrimitiveOrthorhombic(space, a0[0], a0[1], a0[2]);
-        Tensor[][] hessian = new Tensor[2*46][2*46];
-        for (int i=0; i<2*46; i++) {
-            for (int j=0; j<2*46; j++) {
+
+        LatticeDynamics ld = new LatticeDynamics(sim.getSpeciesManager(), sim.box, primitive, nBasis);
+        PotentialCallbackMoleculeHessian pcHessianWV = new PotentialCallbackMoleculeHessian(sim.getSpeciesManager(), sim.box, ld);
+        pcHessianWV.reset();
+
+        sim.potentialMaster.computeAll(true, pcHessianWV);
+        pcHessianWV.intramolecularCorrection(sim.potentialMaster.getForces());
+
+        Tensor[][][][] matrix = ld.getMatrix();
+        System.out.println("With WV  0 0");
+        System.out.println(matrix[0][0][0][0]);
+        if (true) return;
+
+        int N = sim.box.getMoleculeList().size();
+        Tensor[][] hessian = new Tensor[2*N][2*N];
+        for (int i=0; i<2*N; i++) {
+            for (int j=0; j<2*N; j++) {
                 hessian[i][j] = space.makeTensor();
             }
         }
@@ -183,8 +198,6 @@ public class ClathrateHarmonicFEFaster extends Simulation {
                 hessian[2*i+1][2*j+1].PE(rr);
             }
         });
-
-
         pcHessian.reset();
         long t1 = System.nanoTime();
         sim.potentialMaster.computeAll(true, pcHessian);
@@ -221,7 +234,7 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         public boolean waveVectorMethod = true;
         public boolean isIce = false;
         public boolean includeM = true;
-        int nX = 1;
+        int nX = 2;
         public int[] nC = new int[]{nX, nX, nX};
     }
 }
