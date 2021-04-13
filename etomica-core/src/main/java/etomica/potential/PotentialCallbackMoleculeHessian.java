@@ -34,6 +34,11 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
     }
 
     @Override
+    public boolean skipPair(int i, int j) {
+        return callback.skipPair(i, j);
+    }
+
+    @Override
     public boolean wantsHessian() {
         return true;
     }
@@ -201,5 +206,7 @@ public class PotentialCallbackMoleculeHessian implements PotentialCallback {
 
     public interface HessianConsumer {
         void takeHessian(int i, int j, Tensor tt, Tensor tr, Tensor rt, Tensor rr);
+
+        default boolean skipPair(int i, int j) {return false;}
     }
 }

@@ -52,6 +52,11 @@ public class LatticeDynamics implements PotentialCallbackMoleculeHessian.Hessian
     }
 
     @Override
+    public boolean skipPair(int i, int j) {
+        return box.getLeafList().get(i).getParentGroup().getIndex() >= numBasis && box.getLeafList().get(j).getParentGroup().getIndex() >= numBasis;
+    }
+
+    @Override
     public void takeHessian(int i, int j, Tensor tt, Tensor tr, Tensor rt, Tensor rr) {
         // we take i to be the molecule within the first unit cell and j to be any molecule in the box
         if (i >= numBasis) return;

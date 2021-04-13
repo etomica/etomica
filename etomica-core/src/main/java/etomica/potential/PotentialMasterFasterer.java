@@ -147,6 +147,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij, PotentialCallback pc, boolean skipIntra) {
+        if (pc != null && pc.skipPair(iAtom, jAtom)) return 0;
         numAll++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);

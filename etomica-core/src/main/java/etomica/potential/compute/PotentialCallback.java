@@ -10,6 +10,8 @@ import etomica.space.Vector;
 
 public interface PotentialCallback {
 
+    default boolean skipPair(int i, int j) {return false;}
+
     default boolean wantsHessian() {return false;}
 
     default void pairCompute(int i, int j, Vector dr, double[] u012) {}

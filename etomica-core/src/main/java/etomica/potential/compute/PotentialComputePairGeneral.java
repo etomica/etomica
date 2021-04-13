@@ -215,6 +215,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
                 int j = jAtom.getLeafIndex();
+                if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) return;

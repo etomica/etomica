@@ -601,6 +601,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                 kvec.DE(bs);
 
                 for (int jAtom=0; jAtom<iAtom; jAtom++) {
+                    if (pc.skipPair(iAtom, jAtom)) continue;
                     int jType = atoms.get(jAtom).getType().getIndex();
                     double qj = chargesByType[jType];
                     if (qj * qi == 0 && iphiFac6[0] * B6[jType][jType] == 0) continue;
