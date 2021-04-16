@@ -14,7 +14,6 @@ import etomica.species.SpeciesManager;
 public class LatticeDynamics implements PotentialCallbackMoleculeHessian.HessianConsumer {
 
     protected final int molD;
-    protected final WaveVectorFactory kFactory;
     protected final Vector[] waveVectors;
 
     protected final Box box;
@@ -25,9 +24,8 @@ public class LatticeDynamics implements PotentialCallbackMoleculeHessian.Hessian
     public LatticeDynamics(SpeciesManager sm, Box box, Primitive primitive, int numBasis) {
         this.box = box;
         this.numBasis = numBasis;
-        kFactory = new WaveVectorFactorySimple(primitive, box.getSpace());
+        WaveVectorFactorySimple kFactory = new WaveVectorFactorySimple(primitive, box.getSpace());
         kFactory.makeWaveVectors(box);
-        double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
 
         molD = sm.getSpecies(0).getLeafAtomCount() > 1 ? 2 : 1;
         waveVectors = kFactory.getWaveVectors();
