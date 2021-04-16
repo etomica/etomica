@@ -46,7 +46,6 @@ public class P2SoftSum implements Potential2Soft, PotentialTruncated {
     }
 
     public void setBox(Box box) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
