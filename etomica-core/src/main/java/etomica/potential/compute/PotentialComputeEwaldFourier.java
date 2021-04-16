@@ -36,9 +36,9 @@ import static java.lang.Math.PI;
 
 public class PotentialComputeEwaldFourier implements PotentialCompute {
 
-    private final SpeciesManager sm;
-    private static final double SQRT_PI = Math.sqrt(PI);
-    private final Box box;
+    protected final SpeciesManager sm;
+    protected static final double SQRT_PI = Math.sqrt(PI);
+    protected final Box box;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
     protected double virialTot = Double.NaN;
@@ -49,12 +49,12 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
     protected final int[] atomCountByType;
     protected final Space space;
 
-    private final double[] chargesByType;
-    private final double[][] B6;
-    private final double[][] b6;
-    private final double[] sigma, epsilon;
+    protected final double[] chargesByType;
+    protected final double[][] B6;
+    protected final double[][] b6;
+    protected final double[] sigma, epsilon;
 
-    private final Vector kBasis;
+    protected final Vector kBasis;
 
     public void setkCut(double kCut) {
         this.kCut = kCut;
@@ -68,29 +68,29 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         this.alpha6 = alpha6;
     }
 
-    private double kCut;
-    private double alpha;
-    private double alpha6;
-//    private Complex[] sFacAtom = new Complex[0]; // Complex for each atom
-    private double[] sFacAtom = new double[0];
-//    private Complex[] sFac = new Complex[0]; // Complex for each kVector
-    private double[] sFac = new double[0];
+    protected double kCut;
+    protected double alpha;
+    protected double alpha6;
+//    protected Complex[] sFacAtom = new Complex[0]; // Complex for each atom
+    protected double[] sFacAtom = new double[0];
+//    protected Complex[] sFac = new Complex[0]; // Complex for each kVector
+    protected double[] sFac = new double[0];
     // 7 arrays of, Complex for each kVector
-    private final double[][] sFacB = new double[7][0];
+    protected final double[][] sFacB = new double[7][0];
 
     // Array for each spacial dimension, then flattened array of (num kVectors in that dimension)*Complex for each atom
-    private final double[][] eik = new double[3][0];
+    protected final double[][] eik = new double[3][0];
 
-    private double[] dsFac = new double[0]; // Complex for each kVector
+    protected double[] dsFac = new double[0]; // Complex for each kVector
     // 7 arrays of, Complex for each kVector
-    private final double[][] dsFacB = new double[7][0];
-    private double[] fExp; // double for each kVector
-    private double[] f6Exp; // double for each kVector
-    private int nWaveVectors;
-    private final IntArrayList ik = new IntArrayList();
-    private final DoubleArrayList kxyz2 = new DoubleArrayList();
-    private final Vector3D lastBoxSize = new Vector3D();
-    private double lastKCut = Double.NaN;
+    protected final double[][] dsFacB = new double[7][0];
+    protected double[] fExp; // double for each kVector
+    protected double[] f6Exp; // double for each kVector
+    protected int nWaveVectors;
+    protected final IntArrayList ik = new IntArrayList();
+    protected final DoubleArrayList kxyz2 = new DoubleArrayList();
+    protected final Vector3D lastBoxSize = new Vector3D();
+    protected double lastKCut = Double.NaN;
     protected boolean didOld;
     public long numMC, tMC;
     public long fTime, fNum;
@@ -334,7 +334,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
 
     }
 
-    private void computeKVectors(int kxMax) {
+    protected void computeKVectors(int kxMax) {
         Vector bs = box.getBoundary().getBoxSize();
         if (lastBoxSize.equals(bs) && lastKCut == kCut) {
             return;
