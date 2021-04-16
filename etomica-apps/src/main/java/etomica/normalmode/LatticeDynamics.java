@@ -59,7 +59,9 @@ public class LatticeDynamics implements PotentialCallbackMoleculeHessian.Hessian
         // we take i to be the molecule within the first unit cell and j to be any molecule in the box
         if (i >= numBasis) return;
         for (int iwv=0; iwv<waveVectors.length; iwv++) {
-            double kdotr = waveVectors[iwv].dot(cellPos[j/numBasis]);
+            Vector dr = box.getSpace().makeVector();
+            dr.Ev1Mv2(cellPos[j/numBasis], cellPos[0]);
+            double kdotr = waveVectors[iwv].dot(dr);
             double c = Math.cos(kdotr);
             double s = -Math.sin(kdotr);
             matrix[iwv][molD*i][molD*(j%numBasis)][0].PEa1Tt1(c, tt);
