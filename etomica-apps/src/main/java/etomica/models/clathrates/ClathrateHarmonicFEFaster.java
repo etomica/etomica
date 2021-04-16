@@ -26,6 +26,7 @@ import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeEwaldFourier;
+import etomica.potential.compute.PotentialComputeEwaldFourierLD;
 import etomica.potential.ewald.P2Ewald1Real;
 import etomica.potential.ewald.P2Ewald6Real;
 import etomica.simulation.Simulation;
@@ -47,7 +48,7 @@ import java.awt.*;
 public class ClathrateHarmonicFEFaster extends Simulation {
     protected static double[] initialU;
     protected Box box;
-    protected PotentialCompute potentialMaster;
+    protected PotentialCompute potentialMaster, potentialMasterLD;
     protected SpeciesGeneral species;
 
     public ClathrateHarmonicFEFaster(Space space, int[] nC, double rCutRealES, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
@@ -90,6 +91,13 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         ewaldFourier.setR6Coefficient(oType, sigma, epsilon);
         ewaldFourier.setAlpha6(params.alpha);
 
+        PotentialComputeEwaldFourierLD ewaldFourierLD = new PotentialComputeEwaldFourierLD(getSpeciesManager(), box);
+        ewaldFourierLD.setkCut(params.kCut);
+        ewaldFourierLD.setCharge(mType, chargeM);
+        ewaldFourierLD.setCharge(hType, chargeH);
+        ewaldFourierLD.setAlpha(params.alpha);
+        ewaldFourierLD.setR6Coefficient(oType, sigma, epsilon);
+        ewaldFourierLD.setAlpha6(params.alpha);
 
         PotentialMasterCellFasterer pm = new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding());
 
@@ -108,7 +116,7 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         PotentialMasterBonding pmBonding = ewaldFourier.makeIntramolecularCorrection();
 
         potentialMaster = new PotentialComputeAggregate(pm, pmBonding, ewaldFourier);
-
+        potentialMasterLD = new PotentialComputeAggregate(pm, pmBonding, ewaldFourierLD);
 
         if (includeM) {
             ConfigurationFile config = new ConfigurationFile(configFileName);////to duplicate with M point!
@@ -174,49 +182,21 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         PotentialCallbackMoleculeHessian pcHessianWV = new PotentialCallbackMoleculeHessian(sim.getSpeciesManager(), sim.box, ld);
         pcHessianWV.reset();
 
-        sim.potentialMaster.computeAll(true, pcHessianWV);
-        pcHessianWV.intramolecularCorrection(sim.potentialMaster.getForces());
-
-        Tensor[][][][] matrix = ld.getMatrix();
-        System.out.println("With WV  0 0");
-        System.out.println(matrix[0][0][0][0]);
-        if (true) return;
-
-        int N = sim.box.getMoleculeList().size();
-        Tensor[][] hessian = new Tensor[2*N][2*N];
-        for (int i=0; i<2*N; i++) {
-            for (int j=0; j<2*N; j++) {
-                hessian[i][j] = space.makeTensor();
-            }
-        }
-        PotentialCallbackMoleculeHessian pcHessian = new PotentialCallbackMoleculeHessian(sim.getSpeciesManager(), sim.box, new PotentialCallbackMoleculeHessian.HessianConsumer() {
-            @Override
-            public void takeHessian(int i, int j, Tensor tt, Tensor tr, Tensor rt, Tensor rr) {
-                hessian[2*i][2*j].PE(tt);
-                hessian[2*i][2*j+1].PE(tr);
-                hessian[2*i+1][2*j].PE(rt);
-                hessian[2*i+1][2*j+1].PE(rr);
-            }
-        });
-        pcHessian.reset();
         long t1 = System.nanoTime();
-        sim.potentialMaster.computeAll(true, pcHessian);
-        pcHessian.intramolecularCorrection(sim.potentialMaster.getForces());
+        sim.potentialMasterLD.computeAll(true, pcHessianWV);
+        sim.potentialMaster.computeAll(true);
+        pcHessianWV.intramolecularCorrection(sim.potentialMaster.getForces());
         long t2 = System.nanoTime();
 
+        Tensor[][][][] matrix = ld.getMatrix();
+        System.out.println("With WV  0 0  wv 0, real");
+        System.out.println(matrix[0][0][0][0]);
+        System.out.println("With WV  0 0  wv 1, real");
+        System.out.println(matrix[1][0][0][0]);
+        System.out.println("With WV  0 0  wv 1, imag");
+        System.out.println(matrix[1][0][0][1]);
+
         System.out.println("time: "+(t2-t1)/1e9);
-
-        System.out.println("Hessian 0 0");
-        System.out.println(hessian[0][0]);
-        System.out.println("Hessian 0 1");
-        System.out.println(hessian[0][1]);
-        System.out.println("Hessian 1 0");
-        System.out.println(hessian[1][0]);
-        System.out.println("Hessian 1 1");
-        System.out.println(hessian[1][1]);
-
-        // do something
-        // wave vectors
     }
 
 
@@ -235,6 +215,6 @@ public class ClathrateHarmonicFEFaster extends Simulation {
         public boolean isIce = false;
         public boolean includeM = true;
         int nX = 2;
-        public int[] nC = new int[]{nX, nX, nX};
+        public int[] nC = new int[]{nX, 1, 1};
     }
 }
