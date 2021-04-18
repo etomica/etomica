@@ -21,7 +21,7 @@ public class SpeciesFileParser {
 
     public static SpeciesGeneral parse(Readable contents) {
         Scanner scanner = new Scanner(contents)
-                .skip("#.*\\R"); // ignore comments starting with '#'
+                .skip("#.*\\R"); // ignore comments starting with '#' TODO this is totally wrong...
 
         List<AtomType> types = parseTypesSection(scanner);
         Map<String, AtomType> typesMap = types.stream().collect(Collectors.toMap(

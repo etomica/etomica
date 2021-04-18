@@ -57,6 +57,7 @@ project(':etomica-core') {
         compile "org.knowm.xchart:xchart:3.6.4"
         compile 'com.miglayout:miglayout-swing:5.2'
         compile "com.formdev:flatlaf:0.37"
+        compile "org.jparsec:jparsec:3.1"
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
