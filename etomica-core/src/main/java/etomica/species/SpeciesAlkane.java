@@ -32,8 +32,9 @@ public class SpeciesAlkane {
                 Vector.of(-bondL * Math.cos(bondTheta), bondL * Math.sin(bondTheta), 0)
         );
         return new SpeciesBuilder(Space3D.getInstance())
-                .addCount(ch3Type, Math.min(2, numCarbons))
+                .addCount(ch3Type, 1)
                 .addCount(ch2Type, Math.max(numCarbons - 2, 0))
+                .addCount(ch3Type, Math.min(1, numCarbons-1))
                 .withConformation(conf)
                 .build();
     }

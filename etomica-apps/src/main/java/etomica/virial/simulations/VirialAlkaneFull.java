@@ -214,13 +214,14 @@ public class VirialAlkaneFull {
 
 
         AtomType typeCH3 = species.getAtomType(0);
-        AtomType typeCH2 = species.getAtomType(1);
-        pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
+        AtomType typeCH2 = nSpheres > 2 ? species.getAtomType(1) : null;
         // CH2 on molecule1 to CH3 on molecule2
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
-        pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH2}));
+        if (typeCH2 != null) {
+            pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH2}));
+            pTargetGroup.addPotential(p2CH2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH2, typeCH3}));
+        }
         pTargetGroup.addPotential(p2CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));
-        
+
         sim.integratorOS.setNumSubSteps(1000);
 
         // create the intramolecular potential here, add to it and add it to
@@ -303,7 +304,7 @@ public class VirialAlkaneFull {
 
 
             DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
-            diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
+            if (typeCH2 != null) diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
             diameterManager.setDiameter(typeCH3, 0.2 * sigmaCH3);
             displayBox1.setDiameterHash(diameterManager);
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
