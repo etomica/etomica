@@ -41,6 +41,10 @@ public class PotentialMoleculePair implements IPotentialMolecular {
         atomPotentials[atomType2.getIndex()][atomType1.getIndex()] = p2;
     }
 
+    public Potential2Soft[][] getAtomPotentials() {
+        return atomPotentials;
+    }
+
     @Override
     public double energy(IMoleculeList molecules) {
         return energy(molecules.get(0), molecules.get(1));
