@@ -132,15 +132,6 @@ public class PotentialComputePair implements PotentialCompute {
         return pairPotentials;
     }
 
-    public void setPairPotentials(Potential2Soft[][] newPairPotentials) {
-
-        for (int i = 0; i < pairPotentials.length; i++) {
-            System.arraycopy(newPairPotentials[i], 0, pairPotentials[i], 0, pairPotentials[i].length);
-        }
-
-
-    }
-
     @Override
     public void init() {
         this.neighborManager.init();

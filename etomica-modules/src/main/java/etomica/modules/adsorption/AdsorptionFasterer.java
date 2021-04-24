@@ -64,7 +64,6 @@ public class AdsorptionFasterer extends Simulation {
 
         PotentialComputeField computeWall = new PotentialComputeField(getSpeciesManager(), box);
         NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(getSpeciesManager(), box, 1, BondingInfo.noBonding());
-        PotentialComputePair computePairMC = new PotentialComputePair(getSpeciesManager(), box, neighborManagerMC);
 
         double sigma = 1;
         double lambda = 1.5;
@@ -78,7 +77,7 @@ public class AdsorptionFasterer extends Simulation {
         computePair.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
         p2BB = P2SquareWell.makePotential(sigma, lambda, epsilon);
         computePair.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
-        computePairMC.setPairPotentials(computePair.getPairPotentials());
+        PotentialComputePair computePairMC = new PotentialComputePair(getSpeciesManager(), box, neighborManagerMC, computePair.getPairPotentials());
 
         double L = 12 * sigma;
         p1WallA = new P1WallFasterer(L, sigma, sigma / 2, epsilonWF);
