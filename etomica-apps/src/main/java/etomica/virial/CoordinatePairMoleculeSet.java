@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
-import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -35,7 +35,7 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
         setAtoms(list);
         dr = space.makeVector();
         iPosition = space.makeVector();
-        positionDefinition = new MoleculePositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionCOM(space);
     }
     
     
