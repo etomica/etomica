@@ -42,10 +42,16 @@ public class PotentialComputePair implements PotentialCompute {
     public boolean doOneTruncationCorrection = false;
 
     public PotentialComputePair(SpeciesManager sm, Box box, NeighborManager neighborManager) {
+        this(sm, box, neighborManager, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
+    }
+
+    public PotentialComputePair(SpeciesManager sm, Box box, NeighborManager neighborManager, Potential2Soft[][] pairPotentials) {
         space = box.getSpace();
         int numAtomTypes = sm.getAtomTypeCount();
-        pairPotentials = new Potential2Soft[numAtomTypes][numAtomTypes];
         this.neighborManager = neighborManager;
+        this.pairPotentials = pairPotentials;
+        updateNeighborRange();
+
         this.neighborManager.setPairPotentials(pairPotentials);
         this.neighborIterator = neighborManager.makeNeighborIterator();
         this.box = box;
@@ -132,12 +138,7 @@ public class PotentialComputePair implements PotentialCompute {
             System.arraycopy(newPairPotentials[i], 0, pairPotentials[i], 0, pairPotentials[i].length);
         }
 
-        double maxRange = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
-                .filter(Objects::nonNull)
-                .mapToDouble(IPotential::getRange)
-                .max().orElse(0);
 
-        this.neighborManager.setPotentialRange(maxRange);
     }
 
     @Override
@@ -163,7 +164,10 @@ public class PotentialComputePair implements PotentialCompute {
     public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
+        updateNeighborRange();
+    }
 
+    protected void updateNeighborRange() {
         double maxRange = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
                 .filter(Objects::nonNull)
                 .mapToDouble(IPotential::getRange)
