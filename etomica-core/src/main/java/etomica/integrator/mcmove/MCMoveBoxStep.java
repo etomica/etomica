@@ -50,10 +50,12 @@ public abstract class MCMoveBoxStep extends MCMoveBox implements MCMoveStepDepen
 
     public void setStepSizeMax(double newStepSizeMax) {
         stepSizeMax = newStepSizeMax;
+        stepSize = Math.min(stepSize, stepSizeMax);
     }
 
     public void setStepSizeMin(double newStepSizeMin) {
         stepSizeMin = newStepSizeMin;
+        stepSize = Math.max(stepSize, stepSizeMin);
     }
 
     public final Dimension getStepSizeDimension() {return Length.DIMENSION;}
