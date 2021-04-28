@@ -102,10 +102,10 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
 
     private static PotentialCompute makeTotalCompute(Box box, IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IPotentialHardField[] fieldPotentials, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
         int n = pairPotentials.length;
-        IPotentialPair[][] softPotentials = new IPotentialPair[n][n];
+        Potential2Soft[][] softPotentials = new Potential2Soft[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                softPotentials[i][j] = (IPotentialPair) pairPotentials[i][j];
+                softPotentials[i][j] = (Potential2Soft) pairPotentials[i][j];
             }
         }
         List<PotentialCompute> computes = new ArrayList<>();

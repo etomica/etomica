@@ -19,9 +19,9 @@ import etomica.space.Space;
 public class P2SoftSphericalSum extends Potential2SoftSpherical
         implements PotentialTruncated {
 
-    private final Potential2SoftSpherical potential1, potential2, potential3;
+    private final Potential2Soft potential1, potential2, potential3;
 
-    public P2SoftSphericalSum(Space _space, Potential2SoftSpherical... potential) {
+    public P2SoftSphericalSum(Space _space, Potential2Soft... potential) {
         super(_space);
         if (potential.length > 3) throw new RuntimeException("This class only handles up to 3 potentials");
         this.potential1 = potential[0];
@@ -32,15 +32,15 @@ public class P2SoftSphericalSum extends Potential2SoftSpherical
     /**
      * Returns the wrapped potential.
      */
-    public Potential2SoftSpherical getWrappedPotential1() {
+    public Potential2Soft getWrappedPotential1() {
         return potential1;
     }
 
-    public Potential2SoftSpherical getWrappedPotential2() {
+    public Potential2Soft getWrappedPotential2() {
         return potential2;
     }
 
-    public Potential2SoftSpherical getWrappedPotential3() {
+    public Potential2Soft getWrappedPotential3() {
         return potential3;
     }
 

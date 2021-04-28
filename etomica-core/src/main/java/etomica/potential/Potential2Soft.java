@@ -19,7 +19,9 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical, IPot
     /**
      * The derivative of the pair energy, times the separation r: r du/dr.
      */
-    double du(double r2);
+    default double du(double r2) {
+        throw new MethodNotImplementedException();
+    }
 
     default void u012add(double r2, double[] u012) {
         u012[0] += u(r2);
@@ -31,7 +33,9 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical, IPot
      * The second derivative of the pair energy, times the square of the
      * separation:  r^2 d^2u/dr^2.
      */
-    double d2u(double r2);
+    default double d2u(double r2) {
+        throw new MethodNotImplementedException();
+    }
 
     default double u(Vector dr12, IAtom atom1, IAtom atom2) {
         return u(dr12.squared());

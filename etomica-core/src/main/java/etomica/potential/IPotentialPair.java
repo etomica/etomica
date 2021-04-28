@@ -5,6 +5,7 @@ package etomica.potential;
 
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 
 public interface IPotentialPair extends IPotentialTorque {
@@ -53,6 +54,8 @@ public interface IPotentialPair extends IPotentialTorque {
         return u;
     }
 
+    default Hessian d2u(Vector dr12, IAtom atom1, IAtom atom2) { return null; }
+
     /**
      * Integral used to evaluate correction to truncation of potential.
      */
@@ -62,5 +65,26 @@ public interface IPotentialPair extends IPotentialTorque {
 
     default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
 
+    }
+
+    final class Hessian {
+        public final Tensor r1r2, r1o2, r2o1, o1o1, o1o2, o2o2;
+        public Hessian(Tensor r1r2, Tensor r1o2, Tensor r2o1, Tensor o1o1, Tensor o1o2, Tensor o2o2) {
+            this.r1r2 = r1r2;
+            this.r1o2 = r1o2;
+            this.r2o1 = r2o1;
+            this.o1o1 = o1o1;
+            this.o1o2 = o1o2;
+            this.o2o2 = o2o2;
+        }
+
+        public void PE(Hessian h2) {
+            r1r2.PE(h2.r1r2);
+            r1o2.PE(h2.r1o2);
+            r2o1.PE(h2.r2o1);
+            o1o1.PE(h2.o1o1);
+            o1o2.PE(h2.o1o2);
+            o2o2.PE(h2.o2o2);
+        }
     }
 }

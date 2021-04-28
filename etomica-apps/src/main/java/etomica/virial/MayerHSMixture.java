@@ -32,7 +32,6 @@ public class MayerHSMixture implements MayerFunction {
     protected final double[][] sigma2;
     protected final double[][] allVal;
     protected final Boundary boundary;
-    protected Boundary boxBoundary;
     protected final Vector dr;
 
     public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma, Boundary b) {
@@ -52,7 +51,28 @@ public class MayerHSMixture implements MayerFunction {
         for (int i = 0; i < nPoints; i++) {
             for (int j = 0; j < nPoints; j++) {
                 sigma2[i][j] = sigma2[j][i] = pairSigma[i][j] * pairSigma[i][j];
-                double vij = isRef ? space.sphereVolume(pairSigma[i][j]) : 1;
+                //double vij = isRef ? space.sphereVolume(pairSigma[i][j]) : 1;
+                double vij = 0;
+                if (isRef) {
+                    if (b==null || b.getBoxSize().getX(0) >= 2*pairSigma[i][j]) {
+                        vij = space.sphereVolume(pairSigma[i][j]);
+                    }
+                    else if (Math.sqrt(2)*b.getBoxSize().getX(0) >= 2*pairSigma[i][j]){
+                        double R = pairSigma[i][j];
+                        double h = R - b.getBoxSize().getX(0)/2;
+                        double vijExcluded = Math.PI*h*h*(3*R - h)/3;
+                        vij = space.sphereVolume(pairSigma[i][j]) -  6*vijExcluded;
+                    }
+                    else if (Math.sqrt(3)*b.getBoxSize().getX(0) > 2*pairSigma[i][j]) {//Math.sqrt(2)*b.getBoxSize().getX(0) < 2*pairSigma[i][j]) {
+                        throw new RuntimeException("Box length not handled. Try increasing or decreasing box length.");
+                    }
+                    else {//if (Math.sqrt(3)*b.getBoxSize().getX(0) <= 2*pairSigma[i][j]) {
+                        vij = b.volume();
+                    }
+                }
+                else {
+                    vij = 1;
+                }
                 allVal[i][j] = allVal[j][i] = val / vij;
             }
         }
@@ -64,8 +84,6 @@ public class MayerHSMixture implements MayerFunction {
         if (boundary != null) {
             dr.Ev1Mv2(pair.get(0).getChildList().get(0).getPosition(),
                     pair.get(1).getChildList().get(0).getPosition());
-            dr.DE(boxBoundary.getBoxSize());
-            dr.TE(boundary.getBoxSize());
             boundary.nearestImage(dr);
             r2 = dr.squared();
         }
@@ -77,6 +95,5 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
-        boxBoundary = newBox.getBoundary();
     }
 }

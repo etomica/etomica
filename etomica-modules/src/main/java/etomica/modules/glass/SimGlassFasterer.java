@@ -73,7 +73,6 @@ public class SimGlassFasterer extends Simulation {
                 : new NeighborListManagerFasterer(getSpeciesManager(), box, 2, 2.99, BondingInfo.noBonding());
         NeighborCellManagerFasterer neighborManagerMC = new NeighborCellManagerFasterer(getSpeciesManager(), box, 2, BondingInfo.noBonding());
         PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
-        PotentialComputePair potentialMasterMC = new PotentialComputePair(getSpeciesManager(), box, neighborManagerMC);
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
             sigmaB = 0.88;
@@ -160,8 +159,8 @@ public class SimGlassFasterer extends Simulation {
             integrator.setAlwaysScaleRandomizedMomenta(true);
         }
 
+        PotentialComputePair potentialMasterMC = new PotentialComputePair(getSpeciesManager(), box, neighborManagerMC, potentialMaster.getPairPotentials());
         swapMove = new MCMoveSwapFasterer(space, random, potentialMasterMC, speciesA, speciesB);
-        potentialMasterMC.setPairPotentials(potentialMaster.getPairPotentials());
         integratorMC = new IntegratorMCFasterer(potentialMasterMC, random, integrator.getTemperature(), box);
         integratorMC.getMoveManager().addMCMove(swapMove);
         if (doSwap) {

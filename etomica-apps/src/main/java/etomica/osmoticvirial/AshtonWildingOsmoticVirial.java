@@ -50,7 +50,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     protected MCMoveInsertDelete mcMoveInsertDelete;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
     protected SpeciesGeneral species1, species2;
-    
+
 
     /**
      * @param numAtoms no. of solute atoms in the box
@@ -61,6 +61,10 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq, boolean graphics){
 
         super(Space3D.getInstance());
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        addSpecies(species1);
+        addSpecies(species2);
 //      setRandom(new RandomMersenneTwister(1));
 //      PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         PotentialMaster potentialMaster;
@@ -75,11 +79,6 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
-
-        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
-        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
-        addSpecies(species1);
-        addSpecies(species2);
 
         box = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box);
@@ -250,7 +249,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
-sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
         AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L*sim.potential1.getRange())));

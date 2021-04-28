@@ -12,6 +12,7 @@ import etomica.nbr.cell.NeighborIteratorCellFasterer;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialPair;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -24,7 +25,7 @@ import java.util.Objects;
 public class PotentialComputePairGeneral implements PotentialCompute {
 
     private final NeighborIterator neighborIterator;
-    protected final IPotentialPair[][] pairPotentials;
+    protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
     private final NeighborManager neighborManager;
     private final NeighborIteratorCellFasterer.SuperNbrConsumer nbrConsumer;
@@ -32,7 +33,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
     protected double virialTot = Double.NaN, energyTot = Double.NaN;
-    protected Vector[] forces;
+    protected Vector[] forces, torques;
     protected final Space space;
 
     protected final int[] atomCountByType;
@@ -43,10 +44,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     public boolean doOneTruncationCorrection = false;
 
     public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
-        this(new IPotentialPair[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
+        this(new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
     }
 
-    public PotentialComputePairGeneral(IPotentialPair[][] p2, Box box, NeighborManager neighborManager) {
+    public PotentialComputePairGeneral(Potential2Soft[][] p2, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
         pairPotentials = p2;
         this.neighborManager = neighborManager;
@@ -57,7 +58,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
-        forces = new Vector[0];
+        torques = forces = new Vector[0];
 
         this.atomCountByType = new int[p2.length];
         box.getEventManager().addListener(new BoxEventListener() {
@@ -140,6 +141,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         return forces;
     }
 
+    public Vector[] getTorques() {
+        return torques;
+    }
+
     @Override
     public double getLastVirial() {
         return virialTot;
@@ -150,7 +155,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         return energyTot;
     }
 
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotentialPair p12) {
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
 
@@ -179,13 +184,18 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             int oldLength = forces.length;
             forces = Arrays.copyOf(forces, numAtoms);
             for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+            torques = Arrays.copyOf(torques, numAtoms);
+            for (int i = oldLength; i < numAtoms; i++) torques[i] = box.getSpace().makeVector();
         }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
         }
         for (int i = 0; i < numAtoms; i++) {
             uAtom[i] = 0;
-            if (doForces) forces[i].E(0);
+            if (doForces) {
+                forces[i].E(0);
+                torques[i].E(0);
+            }
         }
     }
 
@@ -201,20 +211,32 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
-            IPotentialPair[] ip = pairPotentials[iType];
+            Potential2Soft[] ip = pairPotentials[iType];
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
                 int j = jAtom.getLeafIndex();
+                if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();
-                IPotentialPair pij = ip[jType];
+                Potential2Soft pij = ip[jType];
                 if (pij == null) return;
                 double uij;
                 if (doForces) {
                     Vector fj = space.makeVector();
+                    Vector ti = space.makeVector();
+                    Vector tj = space.makeVector();
                     fj.E(forces[j]);
-                    uij = pij.udu(rij, iAtom, jAtom, forces[finalI], forces[j]);
+                    ti.E(torques[finalI]);
+                    tj.E(torques[j]);
+                    uij = pij.uduTorque(rij, iAtom, jAtom, forces[finalI], forces[j], torques[finalI], torques[j]);
                     if (uij == 0) return;
-                    fj.ME(forces[j]);
+                    if (pc != null) {
+                        fj.ME(forces[j]);
+                        ti.ME(torques[finalI]);
+                        ti.TE(-1);
+                        tj.ME(torques[j]);
+                        tj.TE(-1);
+                        pc.pairComputeGeneral(pij, iAtom, jAtom, rij, fj, ti, tj);
+                    }
                     virialTot += fj.dot(rij);
                 } else {
                     uij = pij.u(rij, iAtom, jAtom);

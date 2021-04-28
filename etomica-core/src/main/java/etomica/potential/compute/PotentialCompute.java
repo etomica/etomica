@@ -13,7 +13,7 @@ public interface PotentialCompute {
         return false;
     }
 
-    ;
+    default Vector[] getTorques() {return null;}
 
     Vector[] getForces();
 

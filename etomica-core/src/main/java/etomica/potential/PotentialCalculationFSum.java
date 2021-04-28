@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.molecule.DipoleSource;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -13,7 +12,6 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
     protected final double Q, mu, J, bt; //TODO should I add final here
     protected Vector dr;
     protected double FSum = 0;
-    protected DipoleSource dipoleSource;
 
 
     public PotentialCalculationFSum(Space space, double dipoleMagnitude, double interactionS, double temperature) {
@@ -82,10 +80,6 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
         }
 
 
-    }
-
-    public void setDipoleSource(DipoleSource newDipoleSource) {
-        dipoleSource = newDipoleSource;
     }
 
     public void zeroSum() {

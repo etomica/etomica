@@ -80,22 +80,7 @@ public class TestN2MC extends Simulation {
         potentialMaster = cellListing ? new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding()) : new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
 
         boolean doEwald = (trunc == Truncation.EWALD || trunc == Truncation.EWALD1);
-        ewald = doEwald ? new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding()) : null;
-
-        if (doEwald) {
-            pcAggregate = new PotentialComputeAggregate(potentialMaster, ewald);
-        } else {
-            pcAggregate = new PotentialComputeAggregate(potentialMaster);
-        }
-
-        integrator = new IntegratorMCFasterer(pcAggregate, this.getRandom(), 1.0, box);
-        integrator.setTemperature(Kelvin.UNIT.toSim(temperatureK));
-
-        translateMove = new MCMoveMoleculeFasterer(random, pcAggregate, box);
-        translateMove.setStepSizeMax(50);
-        integrator.getMoveManager().addMCMove(translateMove);
-        rotateMove = new MCMoveMoleculeRotateFasterer(random, pcAggregate, box);
-        integrator.getMoveManager().addMCMove(rotateMove);
+        ewald = doEwald ? new PotentialComputeEwaldFourier(getSpeciesManager(), box) : null;
 
         box.setNMolecules(species, numMolecules);
         new BoxInflate(box, space, 100.0 / (100 * 100 * 100)).actionPerformed();
@@ -180,6 +165,23 @@ public class TestN2MC extends Simulation {
         potentialMaster.setPairPotential(typeN, typeN, pNNt);
         potentialMaster.setPairPotential(typeN, typeM, pNMt);
         potentialMaster.setPairPotential(typeM, typeM, pMMt);
+
+        PotentialMasterBonding pmBonding = doEwald ? ewald.makeIntramolecularCorrection() : null;
+
+        if (doEwald) {
+            pcAggregate = new PotentialComputeAggregate(potentialMaster, pmBonding, ewald);
+        } else {
+            pcAggregate = new PotentialComputeAggregate(potentialMaster);
+        }
+
+        integrator = new IntegratorMCFasterer(pcAggregate, this.getRandom(), 1.0, box);
+        integrator.setTemperature(Kelvin.UNIT.toSim(temperatureK));
+
+        translateMove = new MCMoveMoleculeFasterer(random, pcAggregate, box);
+        translateMove.setStepSizeMax(50);
+        integrator.getMoveManager().addMCMove(translateMove);
+        rotateMove = new MCMoveMoleculeRotateFasterer(random, pcAggregate, box);
+        integrator.getMoveManager().addMCMove(rotateMove);
 
         if (!cellListing) {
             BoxImposePbc imposepbc = new BoxImposePbc(space);

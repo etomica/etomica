@@ -31,6 +31,10 @@ public interface IPotentialField extends PotentialSoft {
         return u;
     }
 
+    default double uduTorque(IAtom atom, Vector f, Vector t) {
+        return udu(atom, f);
+    }
+
     default int nBody() {
         return 1;
     }

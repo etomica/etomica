@@ -45,9 +45,9 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
                 ((Integrator.Forcible)agent).force().E(0);
             }
         };
-        leafAgentManager.getAgents().values().forEach(resetAgent);
+        if (leafAgentManager != null) leafAgentManager.getAgents().values().forEach(resetAgent);
 
-        moleculeAgentManager.agentStream().forEach(resetAgent);
+        if (moleculeAgentManager != null) moleculeAgentManager.agentStream().forEach(resetAgent);
     }
     
     /**

@@ -125,9 +125,8 @@ public class ReverseOsmosisWaterFasterer extends Simulation implements MeterOsmo
         AtomType clType = speciesChlorine.getLeafType();
         AtomType mType = speciesMembrane.getLeafType();
 
-        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
         PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(2.5, 0);
-        System.out.println(ewaldParams + " " + rCut);
         double alpha = ewaldParams.alpha;
         ewaldFourier.setkCut(ewaldParams.kCut);
         ewaldFourier.setAlpha(alpha);
@@ -135,6 +134,8 @@ public class ReverseOsmosisWaterFasterer extends Simulation implements MeterOsmo
         ewaldFourier.setCharge(hType, chargeHydrogen);
         ewaldFourier.setCharge(naType, chargeSodium);
         ewaldFourier.setCharge(clType, chargeChlorine);
+
+        PotentialMasterBonding pmBonding = ewaldFourier.makeIntramolecularCorrection();
 
         TruncationFactoryForceShift tf = new TruncationFactoryForceShift(space, rCut);
         potentialLJOO = new P2LennardJones(space, P2WaterSPC.sigmaOO, P2WaterSPC.epsilonOO);
@@ -203,7 +204,7 @@ public class ReverseOsmosisWaterFasterer extends Simulation implements MeterOsmo
                 return u;
             }
         };
-        PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, ewaldFourier, pcField);
+        PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, ewaldFourier, pmBonding, pcField);
 
         //controller and integrator
         integrator = new IntegratorVelocityVerletFasterer(pcAgg, random, 0.002, Kelvin.UNIT.toSim(298), box);

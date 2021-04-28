@@ -4,7 +4,7 @@
 
 package etomica.models.water;
 
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeOriented;
 import etomica.space.Space;
@@ -23,9 +23,9 @@ import etomica.space3d.IOrientationFull3D;
  *
  * @author Andrew Schultz
  */
-public class DipoleSourceWater implements DipoleSource {
+public class DipoleSourceMolecularWater implements DipoleSourceMolecular {
 
-    public DipoleSourceWater(Space space) {
+    public DipoleSourceMolecularWater(Space space) {
         dipole = space.makeVector();
     }
 

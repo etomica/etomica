@@ -12,5 +12,5 @@ public interface TruncationFactory {
      * @return a truncated potential that wraps (and sums) the given pair
      * potentials.
      */
-    Potential2Soft make(Potential2SoftSpherical... p2);
+    Potential2Soft make(Potential2Soft... p2);
 }

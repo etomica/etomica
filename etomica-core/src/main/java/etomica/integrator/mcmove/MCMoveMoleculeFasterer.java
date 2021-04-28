@@ -55,7 +55,6 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
         translationVector = space.makeVector();
         setStepSizeMax(box.getBoundary().getBoxSize().getX(0) / 2);
         setStepSizeMin(0.0);
-        setStepSize(stepSize);
         perParticleFrequency = true;
         setBox(box);
     }

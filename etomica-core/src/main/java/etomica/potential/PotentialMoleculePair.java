@@ -21,16 +21,28 @@ public class PotentialMoleculePair implements IPotentialMolecular {
     protected final Potential2Soft[][] atomPotentials;
 
     public PotentialMoleculePair(Space space, SpeciesManager sm) {
+        this(space, makeAtomPotentials(sm));
+    }
+
+    public PotentialMoleculePair(Space space, Potential2Soft[][] atomPotentials) {
         this.space = space;
+        this.atomPotentials = atomPotentials;
+    }
+
+    private static Potential2Soft[][] makeAtomPotentials(SpeciesManager sm) {
         // we could try to store the potentials more compactly, but it doesn't really matter
         ISpecies species = sm.getSpecies(sm.getSpeciesCount() - 1);
         int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        atomPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
+        return new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
     }
 
     public void setAtomPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p2) {
         atomPotentials[atomType1.getIndex()][atomType2.getIndex()] = p2;
         atomPotentials[atomType2.getIndex()][atomType1.getIndex()] = p2;
+    }
+
+    public Potential2Soft[][] getAtomPotentials() {
+        return atomPotentials;
     }
 
     @Override

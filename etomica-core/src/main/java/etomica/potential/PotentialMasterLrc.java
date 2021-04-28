@@ -42,7 +42,7 @@ public class PotentialMasterLrc {
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
 
-        if (pc instanceof PotentialCalculationMolecular && (targetAtom != null)) {
+        if (pc instanceof PotentialCalculationMolecular && targetAtom == null) {
             int numMolecularPotentials = molecularPotentials.size();
             for (int i=0; i<numMolecularPotentials; i++) {
                 final IPotentialMolecular potential = molecularPotentials.get(i);

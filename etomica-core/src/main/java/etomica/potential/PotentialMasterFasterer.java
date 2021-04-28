@@ -32,6 +32,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
+    protected double minR2;
 
     protected final boolean isPureAtoms;
     protected final int[] atomCountByType;
@@ -145,12 +146,14 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
     }
 
-    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij, PotentialCallback pc) {
+    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij, PotentialCallback pc, boolean skipIntra) {
+        if (pc != null && pc.skipPair(iAtom, jAtom)) return 0;
         numAll++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double[] u012 = new double[3];
         double r2 = dr.squared();
+        if (skipIntra && r2 < minR2) return 0;
         pij.u012add(r2, u012);
         double uij = u012[0];
 //        double uij = pij.u(dr.squared());
@@ -213,7 +216,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
                 dr.Ev1Mv2(jAtom.getPosition(), ri);
                 boundary.nearestImage(dr);
-                u += handleComputeAll(doForces, i, j, zero, dr, zero, pij, pc);
+                u += handleComputeAll(doForces, i, j, zero, dr, zero, pij, pc, false);
             }
         }
         tAll += System.nanoTime() - t1;
@@ -277,11 +280,13 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         return uIntra;
     }
 
-    protected double handleComputeOne(Potential2Soft pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom) {
+    protected double handleComputeOne(Potential2Soft pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom, boolean skipIntra) {
         numMC++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
-        double uij = pij.u(dr.squared());
+        double r2 = dr.squared();
+        if (skipIntra && r2 < minR2) return 0;
+        double uij = pij.u(r2);
         if (uij == 0) return 0;
 
         uAtomsChanged.add(jAtom);
@@ -328,7 +333,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             if (bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom)) continue;
             dr.Ev1Mv2(jAtom.getPosition(), atom.getPosition());
             boundary.nearestImage(dr);
-            u += handleComputeOne(pij, zero, dr, zero, i, j);
+            u += handleComputeOne(pij, zero, dr, zero, i, j, false);
         }
         tMC += System.nanoTime() - t1;
         return u;

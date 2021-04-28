@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
@@ -19,7 +19,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 	 protected Vector Aj;
 	 protected Vector dr;
 	 protected double secondDerivativeSum= 0;
-	 protected DipoleSource dipoleSource;
+	 protected DipoleSourceMolecular dipoleSource;
 	 protected final Vector[] a;
 	 protected final Tensor iT;
 	 
@@ -131,7 +131,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		
 	}
 	
-	 public void setDipoleSource(DipoleSource newDipoleSource) {
+	 public void setDipoleSource(DipoleSourceMolecular newDipoleSource) {
 	        dipoleSource = newDipoleSource;
 	    }
 	

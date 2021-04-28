@@ -545,7 +545,7 @@ public class SamFasterer extends Simulation {
      * Potential class that behaves like switched LJ except for the specific pair
      * of sulfur/surface atoms that are tethered.
      */
-    private static class P2Surface extends Potential2 implements PotentialSoft, IPotentialPair {
+    private static class P2Surface extends Potential2 implements Potential2Soft {
         protected final Potential2Soft p2lj;
         protected final P2Harmonic p2Bond;
         protected final Vector dr;

@@ -9,7 +9,7 @@ import etomica.space.Vector;
 /**
  * Interface for something that can calculate the dipole of a molecule.
  */
-public interface DipoleSource {
+public interface DipoleSourceMolecular {
     
     /**
      * Returns the dipole of the given molecule.

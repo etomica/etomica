@@ -52,7 +52,7 @@ public class TestLJMD3DEwald extends Simulation {
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
 
-        ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box, BondingInfo.noBonding());
+        ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
         PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 0);
         System.out.println(ewaldParams);
         pair = new PotentialMasterListFasterer(this.getSpeciesManager(), box, 2, ewaldParams.rCut + 1, BondingInfo.noBonding());

@@ -13,12 +13,10 @@ import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
+import etomica.data.*;
 import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
 import etomica.data.meter.MeterDipoleSumSquaredTIP4PWater;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -31,7 +29,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionCOM;
@@ -63,7 +61,7 @@ import java.util.Calendar;
  * @author Weisong
  */
 public class TIP4P_NVT extends Simulation {
-    private static final long serialVersionUID = 1L;
+
     protected final PotentialMaster potentialMaster;
     protected final IntegratorMC integrator;
     protected final MCMoveMolecule moveMolecule;//translation
@@ -78,9 +76,9 @@ public class TIP4P_NVT extends Simulation {
     protected double chargeM, chargeH;
 
      //************************************* for reaction field ********************************************//
-     public static class DipoleSourceTIP4PWater implements DipoleSource {//for potential reaction field
+     public static class DipoleSourceMolecularTIP4PWater implements DipoleSourceMolecular {//for potential reaction field
     	 protected final Vector dipole;
-         public DipoleSourceTIP4PWater(Space space){
+         public DipoleSourceMolecularTIP4PWater(Space space){
               dipole=space.makeVector();
          }
          public Vector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site
@@ -124,7 +122,7 @@ public class TIP4P_NVT extends Simulation {
 //    	 System.exit(2);
 
          // add reaction field potential
-         DipoleSourceTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceTIP4PWater(space);
+         DipoleSourceMolecularTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceMolecularTIP4PWater(space);
          P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
          pRF.setDipoleSource(dipoleSourceTIP4PWater);
          pRF.setRange(truncation);
@@ -253,8 +251,15 @@ public class TIP4P_NVT extends Simulation {
         ////////////////////////////////////////////////////////////////////
          sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));//
 
-        sim.integrator.getMoveManager().setEquilibrating(false);
-//         System.out.println("equilibration finished");
+         sim.integrator.getMoveManager().setEquilibrating(false);
+
+         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+         AccumulatorAverage accPE = new AccumulatorAverageFixed(samplePerBlock);
+         DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, sampleAtInterval);
+         sim.integrator.getEventManager().addListener(pumpPE);
+
+
+         //         System.out.println("equilibration finished");
         // dipoleSumSquared
         MeterDipoleSumSquaredTIP4PWater dipoleMeter = null;
         AccumulatorAverage dipoleAccumulator = null;
@@ -292,7 +297,7 @@ public class TIP4P_NVT extends Simulation {
 //		sim.integrator.getEventManager().addListener(externalFieldPumpListener);
 
         //AEE
-        DipoleSourceTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceTIP4PWater(space);
+        DipoleSourceMolecularTIP4PWater dipoleSourceTIP4PWater = new DipoleSourceMolecularTIP4PWater(space);
 
          MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
          AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
@@ -316,7 +321,11 @@ public class TIP4P_NVT extends Simulation {
         }
          sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
-        //calculate dipoleSumSquared average
+         double avgPE = accPE.getData(accPE.AVERAGE).getValue(0);
+         double errPE = accPE.getData(accPE.ERROR).getValue(0);
+         System.out.println("PE: "+avgPE+" "+errPE);
+
+         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;
         double dipoleSumSquaredERR = 0;
         double dipoleSumCor = 0;

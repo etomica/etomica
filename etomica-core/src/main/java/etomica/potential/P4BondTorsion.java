@@ -71,10 +71,9 @@ public class P4BondTorsion extends Potential implements PotentialSoft, IPotentia
 
     @Override
     public double u(double costheta) {
-        double cos2phi = 2 * costheta * costheta - 1;
-        double cos3phi = costheta * (2 * costheta * costheta - 1);
-
-        return a0 + a1 * (1 + costheta) + a2 * (1 - cos2phi) + a3 * (1 + cos3phi);
+        double cosSQtheta = costheta * costheta;
+        double cosCBtheta = cosSQtheta * costheta;
+        return a0 + a1 * (1 + costheta) + a2 * (2 - 2 * cosSQtheta) + a3 * (1 + 4 * cosCBtheta - 3 * costheta);
     }
 
     public double getRange() {
