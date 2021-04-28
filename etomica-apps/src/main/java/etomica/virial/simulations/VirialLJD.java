@@ -134,12 +134,13 @@ public class VirialLJD {
         }
         sim.setExtraTargetClusters(targetDiagrams);
         targetCluster.setBDAccFrac(params.BDAccFrac, sim.getRandom());
+        sim.setDoFasterer(true);
         sim.init();
 
         if (doChainRef) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -148,8 +149,8 @@ public class VirialLJD {
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if(true) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(false) {
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -174,13 +175,13 @@ public class VirialLJD {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-    sim.equilibrate(null, 20, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-    return;
-}
+            return;
+        }
 
         long t1 = System.currentTimeMillis();
         // if running interactively, don't use the file
@@ -190,8 +191,8 @@ public class VirialLJD {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+        System.out.println("equilibration finished");
 
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -255,7 +256,7 @@ System.out.println("equilibration finished");
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         if (doHist) {
@@ -280,7 +281,12 @@ sim.getController().runActivityBlocking(ai);
 
         double[] avgCheck = targetCluster.getAverageCheck();
         double[] avgCheckBD = targetCluster.getAverageCheckBD();
-        System.out.println("BD ratios: " + avgCheck[0] / avgCheckBD[0] + " " + avgCheck[1] / avgCheckBD[1]);
+        if (avgCheckBD[0] != 0) {
+            System.out.println("BD ratios: " + avgCheck[0] / avgCheckBD[0] + " " + avgCheck[1] / avgCheckBD[1]);
+        }
+        else {
+            System.out.println("no BD!");
+        }
 
         String[] extraNames = new String[nDer];
         for (int i = 1; i <= nDer; i++) {
