@@ -268,7 +268,7 @@ public class PotentialComputePair implements PotentialCompute {
             u += this.computeOneTruncationCorrection(atom.getLeafIndex());
         }
 
-        u -= computeIntraAtoms(atoms);
+        u -= computeIntraAtoms(true, atoms);
 
         return u;
     }
@@ -278,7 +278,7 @@ public class PotentialComputePair implements PotentialCompute {
         return computeManyAtoms(true, atoms);
     }
 
-    protected double computeIntraAtoms(IAtom... atoms) {
+    protected double computeIntraAtoms(boolean doOld, IAtom... atoms) {
         BondingInfo bondingInfo = neighborManager.getBondingInfo();
         double uIntra = 0;
         for (int i = 0; i < atoms.length; i++) {
@@ -292,8 +292,10 @@ public class PotentialComputePair implements PotentialCompute {
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 box.getBoundary().nearestImage(rij);
                 double uij = pij.u(rij.squared());
-                duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
-                duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
+                if (!doOld) {
+                    duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
+                    duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
+                }
                 uIntra += uij;
             }
         }
@@ -315,7 +317,7 @@ public class PotentialComputePair implements PotentialCompute {
         }
 
         if (doInternal) {
-            u -= computeIntraAtoms(atoms);
+            u -= computeIntraAtoms(false, atoms);
         }
 
         return u;

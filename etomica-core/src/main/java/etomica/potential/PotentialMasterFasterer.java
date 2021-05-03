@@ -255,11 +255,11 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             u += uAtom[atom.getLeafIndex()] * 2;
             u += this.computeOneTruncationCorrection(atom.getLeafIndex());
         }
-        u -= computeIntraAtoms(atoms);
+        u -= computeIntraAtoms(true, atoms);
         return u;
     }
 
-    protected double computeIntraAtoms(IAtom... atoms) {
+    protected double computeIntraAtoms(boolean isOld, IAtom... atoms) {
         double uIntra = 0;
         for (int i = 0; i < atoms.length; i++) {
             IAtom atom1 = atoms[i];
@@ -272,8 +272,11 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 box.getBoundary().nearestImage(rij);
                 double uij = pij.u(rij.squared());
-                duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
-                duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
+                if (!isOld) {
+                    duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
+                    duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
+                }
+
                 uIntra += uij;
             }
         }
@@ -352,8 +355,9 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             u += computeOneInternal(atom);
             u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
+        if (u == Double.POSITIVE_INFINITY) return u;
 
-        u -= computeIntraAtoms(atoms);
+        u -= computeIntraAtoms(false, atoms);
 
         return u;
     }
