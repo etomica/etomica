@@ -29,7 +29,7 @@ public class MCMoveMoleculeRotateFasterer extends MCMoveBoxStep {
 
     protected final PotentialCompute potentialCompute;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final List<Vector> oldPositions = new ArrayList<>();
+    protected final List<Vector> oldPositions = new ArrayList<>();
     protected final IRandom random;
     protected IMolecule molecule;
     protected double uOld;
