@@ -20,7 +20,11 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
     private final NeighborListManagerFasterer nbrManager;
 
     public PotentialMasterListFasterer(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
-        super(sm, box, bondingInfo);
+        this(sm, box, cellRange, nbrRange, bondingInfo, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
+    }
+
+    public PotentialMasterListFasterer(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo, Potential2Soft[][] pairPotentials) {
+        super(sm, box, bondingInfo, pairPotentials);
         this.nbrManager = new NeighborListManagerFasterer(sm, box, cellRange, nbrRange, bondingInfo);
         this.nbrManager.setPairPotentials(this.pairPotentials);
     }

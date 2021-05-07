@@ -45,9 +45,13 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     public long numMC, tMC;
 
     public PotentialMasterFasterer(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
+        this(sm, box, bondingInfo, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
+    }
+
+    public PotentialMasterFasterer(SpeciesManager sm, Box box, BondingInfo bondingInfo, Potential2Soft[][] pairPotentials) {
         space = box.getSpace();
         this.bondingInfo = bondingInfo;
-        pairPotentials = new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()];
+        this.pairPotentials = pairPotentials;
         this.box = box;
         dr = box.getSpace().makeVector();
 
