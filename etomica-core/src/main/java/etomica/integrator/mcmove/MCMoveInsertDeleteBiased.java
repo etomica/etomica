@@ -81,7 +81,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
 
         int numMolecules = box.getNMolecules(species);
         double a = box.getBoundary().volume() / numMolecules;
-        return Math.exp(getLnBiasDiff()) * a * Math.exp(b / temperature);
+        return Math.exp(getLnBiasDiff()) * (insert ? a : 1.0 / a) * Math.exp(b / temperature);
     }
     
     public double getLnBiasDiff() {
