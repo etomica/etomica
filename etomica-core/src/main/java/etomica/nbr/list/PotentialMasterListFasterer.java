@@ -103,4 +103,44 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
     @Override
     public void integratorStepFinished(IntegratorEvent e) {
     }
+
+    protected double computeOneInternal(IAtom atom) {
+        int iType = atom.getType().getIndex();
+        int i = atom.getLeafIndex();
+        Potential2Soft[] ip = pairPotentials[iType];
+        double u = 0;
+        long t1 = System.nanoTime();
+        Vector ri = atom.getPosition();
+
+        IAtomList atoms = box.getLeafList();
+        int iNumNbrs = nbrManager.numAtomNbrsUp[i];
+        int[] iNbrs = nbrManager.nbrs[i];
+        Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[i];
+        for (int j = 0; j < iNumNbrs; j++) {
+            int jj = iNbrs[j];
+            IAtom jAtom = atoms.get(jj);
+            int jType = jAtom.getType().getIndex();
+            Potential2Soft pij = ip[jType];
+            Vector rj = jAtom.getPosition();
+            Vector jbo = iNbrBoxOffsets[j];
+            boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom);
+            u += handleComputeOne(pij, ri, rj, jbo, i, jj, skipIntra);
+        }
+
+        iNumNbrs = nbrManager.numAtomNbrsDn[i];
+        for (int j = 0; j < iNumNbrs; j++) {
+            int jj = iNbrs[iNbrs.length - 1 - j];
+            IAtom jAtom = atoms.get(jj);
+            int jType = jAtom.getType().getIndex();
+            Potential2Soft pij = ip[jType];
+            Vector rj = jAtom.getPosition();
+            Vector jbo = iNbrBoxOffsets[iNbrs.length - 1 - j];
+            boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom);
+            u += handleComputeOne(pij, rj, ri, jbo, i, jj, skipIntra);
+        }
+
+        tMC += System.nanoTime() - t1;
+        return u;
+    }
+
 }
