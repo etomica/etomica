@@ -202,7 +202,6 @@ public class PotentialComputeField implements PotentialCompute {
     @Override
     public double computeManyAtoms(IAtom... atoms) {
         uAtomsChanged.clear();
-        duAtom.setAll(0);
         duAtom.ensureCapacity(box.getLeafList().size());
         double u = 0;
 
