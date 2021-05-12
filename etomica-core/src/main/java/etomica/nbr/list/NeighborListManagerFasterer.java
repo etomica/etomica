@@ -18,7 +18,7 @@ import etomica.util.Debug;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NeighborListManagerFasterer implements NeighborManager, NeighborManager.NeighborEventSource {
+public class NeighborListManagerFasterer implements NeighborManager, NeighborManager.NeighborEventSource, IntegratorListener {
     private final NeighborCellManagerFasterer cellManager;
     private IPotentialAtomic[][] pairPotentials;
     protected final Box box;
@@ -125,23 +125,19 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
 
     @Override
     public IntegratorListener makeIntegratorListener() {
-        return new IntegratorListener() {
-            @Override
-            public void integratorInitialized(IntegratorEvent e) {
-                init();
-            }
-
-            @Override
-            public void integratorStepStarted(IntegratorEvent e) {
-                checkUpdateNbrs();
-            }
-
-            @Override
-            public void integratorStepFinished(IntegratorEvent e) {
-
-            }
-        };
+        return this;
     }
+
+    @Override
+    public void integratorInitialized(IntegratorEvent e) {
+        init();
+    }
+
+    @Override
+    public void integratorStepStarted(IntegratorEvent e) {
+        checkUpdateNbrs();
+    }
+
 
     @Override
     public void updateAtom(IAtom atom) {
