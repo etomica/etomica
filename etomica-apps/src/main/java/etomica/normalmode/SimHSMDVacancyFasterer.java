@@ -9,7 +9,6 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
@@ -34,12 +33,10 @@ import etomica.normalmode.DataSourceMuRootFasterer.DataSourceMuRootVacancyConcen
 import etomica.potential.BondingInfo;
 import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.statmech.HardSphereSolid;
@@ -47,8 +44,6 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-
-import java.awt.*;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -278,77 +273,11 @@ public class SimHSMDVacancyFasterer extends Simulation {
             
             final String APP_NAME = "HSMD Vacancy";
         	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
-        	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            ColorScheme colorScheme = new ColorScheme() {
-                public Color getAtomColor(IAtom a) {
-                    float x = (float)a.getPosition().getX(0);
-                    float L = (float)sim.box.getBoundary().getBoxSize().getX(0);
-                    x = nc*2*(x/L+0.5f);
-                    if (nc%2==0) x+=0.5f;
-                    while (x>3) x-=3;
-                    float r = 0f, g = 0f, b = 0f;
-                    if (x < 1) {
-                        r = 1-x;
-                        if (r>1) r=1;
-                        g = x;
-                        if (g<0) g=0;
-                    }
-                    else if (x < 2) {
-                        g = 2-x;
-                        b = x-1;
-                    }
-                    else {
-                        b = 3-x;
-                        if (b<0) b=0;
-                        r = x-2;
-                        if (r>1) r=1;
-                    }
-                    return new Color(r, g, b);
-                }
-            };
-            colorScheme = new ColorScheme() {
-                Vector dr = sim.space.makeVector();
-                double rc = sim.mcMoveID.getMaxDistance();
-                double rc2 = rc*rc;
-                int nmax = 12;
-                NeighborIterator iter = sim.neighborManager.makeNeighborIterator();
-                public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
-
-                    final int[] n = {0};
-                    iter.iterAllNeighbors(a.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
-                        @Override
-                        public void accept(IAtom jAtom, Vector rij) {
-                            if (rij.squared() < rc2) n[0]++;
-                        }
-                    });
-                    if (n[0] < nmax) return Color.RED;
-                    if (n[0] == nmax) return Color.BLUE;
-                    return Color.BLUE;
-                }
-            };
+            ColorScheme colorScheme = new ColorSchemeVacancy(sim.integrator, sim.neighborManager, sim.mcMoveID.getMaxDistance());
 
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             
-            DiameterHash dh = new DiameterHash() {
-                double rc = sim.mcMoveID.getMaxDistance();
-                double rc2 = rc*rc;
-                int nmax = 12;
-                NeighborIterator iter = sim.neighborManager.makeNeighborIterator();
-                public double getDiameter(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent()) return 1.0;
-                    int[] n = {0};
-                    iter.iterAllNeighbors(a.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
-                        @Override
-                        public void accept(IAtom jAtom, Vector rij) {
-                            if (rij.squared() < rc2) n[0]++;
-                        }
-                    });
-                    if (n[0] < nmax) return 1.0;
-                    if (n[0] == nmax) return 0.1;
-                    return 0.1;
-                }
-            };
+            DiameterHash dh = new DiameterHashVacancy(sim.integrator, sim.neighborManager, sim.mcMoveID.getMaxDistance());
             simGraphic.getDisplayBox(sim.box).setDiameterHash(dh);
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
