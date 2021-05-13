@@ -122,7 +122,7 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
             if (Double.isNaN(newMu) || Double.isInfinite(newMu)) {
                 throw new RuntimeException("oops " + myMu + " " + lastDP + " " + dmu + " " + latticeDensity);
             }
-            if (newMu == myMu || newMu == lastMu) {
+            if (newMu == myMu) {
                 return newMu;
             }
             if (newMu >= maxMu) {

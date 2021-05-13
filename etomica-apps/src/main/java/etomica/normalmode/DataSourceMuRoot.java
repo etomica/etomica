@@ -51,6 +51,7 @@ public class DataSourceMuRoot extends DataSourceScalar {
         double lastMu = bmu;
         double maxMu = Double.POSITIVE_INFINITY;
         double minMu = Double.NEGATIVE_INFINITY;
+        int iters = 0;
         while (true) {
 
             double p = 1;
@@ -132,22 +133,33 @@ public class DataSourceMuRoot extends DataSourceScalar {
             double dmu = lastDP/latticeDensity - lastLnTot/volume;
             lastDMu = dmu;
             double newMu = bmuLat + dmu;
-            if (newMu == lastMu) return newMu;
-            if (newMu == maxMu || newMu == minMu) return (minMu+maxMu)/2;
-            if (newMu > maxMu) {
-                return maxMu;
+            if (newMu == myMu) {
+                return newMu;
             }
-            if (newMu < minMu) {
-                return minMu;
+            if (newMu >= maxMu) {
+                newMu = (myMu + maxMu) / 2;
+                if (newMu == maxMu || newMu == myMu) return newMu;
             }
-            if (newMu > lastMu) {
-                minMu = lastMu;
+            if (newMu <= minMu) {
+                newMu = (minMu + myMu) / 2;
+                if (newMu == minMu || newMu == myMu) return newMu;
             }
-            else {
-                maxMu = lastMu;
+            if (newMu > myMu) {
+                minMu = Math.max(myMu, minMu);
+            }
+            else if (newMu < myMu){
+                maxMu = Math.min(myMu, maxMu);
+            }
+            if ((newMu - myMu) * (lastMu - myMu) > 0 && iters > 10) {
+                // we're bouncing.  if bouncing hard, consider going to the middle
+                if ((newMu - myMu) / (lastMu - myMu) > 0.9) {
+                    newMu = (newMu + myMu) / 2;
+                }
             }
             lastMu = myMu;
             myMu = newMu;
+            iters++;
+            if (iters>1000) throw new RuntimeException("oops");
         }
     }
     
