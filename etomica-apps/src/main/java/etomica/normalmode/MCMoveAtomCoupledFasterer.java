@@ -38,6 +38,7 @@ public class MCMoveAtomCoupledFasterer extends MCMoveBoxStep {
     protected final IRandom random;
     protected Vector oldPosition1, oldPosition2;
     protected IPotentialField constraintPotential;
+    protected boolean callComputeManyAtoms;
 
     public MCMoveAtomCoupledFasterer(PotentialCompute potentialCompute, IRandom random, Space _space) {
         super(null);
@@ -56,6 +57,17 @@ public class MCMoveAtomCoupledFasterer extends MCMoveBoxStep {
         oldPosition2 = _space.makeVector();
     }
 
+    /**
+     * Informs the move that it should call computeManyAtoms instead of
+     * computeManyAtomsOld.  This will allow systems with a neighbor range -
+     * potential range mismatch to work and will also work with a lattice sum.
+     * Calling computeManyAtoms may be slower and may break other MC moves that
+     * rely on the PotentialCompute keeping track of the energy of every atom.
+     */
+    public void setCallComputeManyAtoms(boolean doCallComputeManyAtoms) {
+        callComputeManyAtoms = doCallComputeManyAtoms;
+    }
+
     public void setConstraint(IPotentialField newConstraintPotential) {
         if (newConstraintPotential.nBody() != 1) {
             throw new RuntimeException("must be a 1-body potential");
@@ -71,7 +83,12 @@ public class MCMoveAtomCoupledFasterer extends MCMoveBoxStep {
         if (atom1 == null) return false;
         atom2 = atomSource.getAtom();
         if (atom2 == null || atom1 == atom2) return false;
-        uOld = potentialCompute.computeManyAtomsOld(atom1, atom2);
+        if (callComputeManyAtoms) {
+            uOld = potentialCompute.computeManyAtoms(atom1, atom2);
+        }
+        else {
+            uOld = potentialCompute.computeManyAtomsOld(atom1, atom2);
+        }
         if(uOld > 1e10) {
             throw new ConfigurationOverlapException(box);
         }
@@ -105,17 +122,19 @@ public class MCMoveAtomCoupledFasterer extends MCMoveBoxStep {
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
     public void acceptNotify() {
-        potentialCompute.processAtomU(1);
-        // put it back, then compute old contributions to energy
-        atom1.getPosition().E(oldPosition1);
-        atom2.getPosition().E(oldPosition2);
+        if (!callComputeManyAtoms) {
+            potentialCompute.processAtomU(1);
+            // put it back, then compute old contributions to energy
+            atom1.getPosition().E(oldPosition1);
+            atom2.getPosition().E(oldPosition2);
 
-        potentialCompute.computeManyAtoms(atom1, atom2);
+            potentialCompute.computeManyAtoms(atom1, atom2);
 
-        atom1.getPosition().PE(translationVector);
-        atom2.getPosition().ME(translationVector);
+            atom1.getPosition().PE(translationVector);
+            atom2.getPosition().ME(translationVector);
 
-        potentialCompute.processAtomU(-1);
+            potentialCompute.processAtomU(-1);
+        }
     }
     
     /**

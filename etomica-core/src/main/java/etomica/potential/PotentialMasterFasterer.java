@@ -259,11 +259,20 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             u += uAtom[atom.getLeafIndex()] * 2;
             u += this.computeOneTruncationCorrection(atom.getLeafIndex());
         }
-        u -= computeIntraAtoms(true, atoms);
+        u -= computeIntraAtoms(atoms);
         return u;
     }
 
-    protected double computeIntraAtoms(boolean isOld, IAtom... atoms) {
+    protected boolean arrayContains(IAtom a, int startIdx, IAtom... atoms) {
+        for (int i=startIdx; i<atoms.length; i++) {
+            if (atoms[i] == a) return true;
+        }
+        return false;
+    }
+
+    protected double computeIntraAtoms(IAtom... atoms) {
+        // XXX when using neighbor lists, we should only include neighbors
+        //     or, computeOneInternal needs to avoid double-counting
         double uIntra = 0;
         for (int i = 0; i < atoms.length; i++) {
             IAtom atom1 = atoms[i];
@@ -276,11 +285,6 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 box.getBoundary().nearestImage(rij);
                 double uij = pij.u(rij.squared());
-                if (!isOld) {
-                    duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
-                    duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
-                }
-
                 uIntra += uij;
             }
         }
@@ -325,6 +329,10 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
     }
 
     protected double computeOneInternal(IAtom atom) {
+        return computeOneInternal(atom, 0, new IAtom[0]);
+    }
+
+    protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
         int iType = atom.getType().getIndex();
         int i = atom.getLeafIndex();
         Potential2Soft[] ip = pairPotentials[iType];
@@ -337,6 +345,7 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
             int jType = jAtom.getType().getIndex();
             Potential2Soft pij = ip[jType];
             if (pij == null) continue;
+            if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
             if (bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom)) continue;
             dr.Ev1Mv2(jAtom.getPosition(), atom.getPosition());
             boundary.nearestImage(dr);
@@ -354,14 +363,13 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         duAtom.ensureCapacity(box.getLeafList().size());
         double u = 0;
 
-        for (IAtom atom : atoms) {
+        for (int i=0; i<atoms.length; i++) {
+            IAtom atom = atoms[i];
             uAtomsChanged.add(atom.getLeafIndex());
-            u += computeOneInternal(atom);
+            u += computeOneInternal(atom, i+1, atoms);
             u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
         if (u == Double.POSITIVE_INFINITY) return u;
-
-        u -= computeIntraAtoms(false, atoms);
 
         return u;
     }

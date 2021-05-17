@@ -257,7 +257,24 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     protected double computeOneInternal(IAtom iAtom) {
-        return this.neighborIterator.iterAndSumAllNeighbors(iAtom, this.nbrConsumer);
+        return computeOneInternal(iAtom, 0, new IAtom[0]);
+    }
+
+    protected boolean arrayContains(IAtom a, int startIdx, IAtom... atoms) {
+        for (int i=startIdx; i<atoms.length; i++) {
+            if (atoms[i] == a) return true;
+        }
+        return false;
+    }
+
+    protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
+        return this.neighborIterator.iterAndSumAllNeighbors(atom, new NeighborIterator.SuperNbrConsumer() {
+            @Override
+            public double accept(IAtom atom1, IAtom atom2, Vector rij) {
+                if (arrayContains(atom2, startExcludeIdx, excludedAtoms)) return 0;
+                return nbrConsumer.accept(atom1, atom2, rij);
+            }
+        });
     }
 
     @Override
@@ -268,17 +285,12 @@ public class PotentialComputePair implements PotentialCompute {
             u += this.computeOneTruncationCorrection(atom.getLeafIndex());
         }
 
-        u -= computeIntraAtoms(true, atoms);
+        u -= computeIntraAtoms(atoms);
 
         return u;
     }
 
-    @Override
-    public double computeManyAtoms(IAtom... atoms) {
-        return computeManyAtoms(true, atoms);
-    }
-
-    protected double computeIntraAtoms(boolean doOld, IAtom... atoms) {
+    protected double computeIntraAtoms(IAtom... atoms) {
         BondingInfo bondingInfo = neighborManager.getBondingInfo();
         double uIntra = 0;
         for (int i = 0; i < atoms.length; i++) {
@@ -292,32 +304,25 @@ public class PotentialComputePair implements PotentialCompute {
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 box.getBoundary().nearestImage(rij);
                 double uij = pij.u(rij.squared());
-                if (!doOld) {
-                    duAtom.plusEquals(atom1.getLeafIndex(), -0.5 * uij);
-                    duAtom.plusEquals(atom2.getLeafIndex(), -0.5 * uij);
-                }
                 uIntra += uij;
             }
         }
         return uIntra;
     }
 
-    protected double computeManyAtoms(boolean doInternal, IAtom... atoms) {
+    @Override
+    public double computeManyAtoms(IAtom... atoms) {
         duAtomMulti = true;
         uAtomsChanged.clear();
         duAtom.setAll(0);
         duAtom.ensureCapacity(box.getLeafList().size());
         double u = 0;
 
-        for (IAtom atom : atoms) {
+        for (int i=0; i<atoms.length; i++) {
+            IAtom atom = atoms[i];
             uAtomsChanged.add(atom.getLeafIndex());
-
-            u += computeOneInternal(atom);
+            u += computeOneInternal(atom, i+1, atoms);
             u += computeOneTruncationCorrection(atom.getLeafIndex());
-        }
-
-        if (doInternal) {
-            u -= computeIntraAtoms(false, atoms);
         }
 
         return u;

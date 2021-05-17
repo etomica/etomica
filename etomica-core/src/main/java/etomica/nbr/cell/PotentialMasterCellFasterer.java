@@ -124,7 +124,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         return uTot;
     }
 
-    protected double computeOneInternal(IAtom iAtom) {
+    protected double computeOneInternal(IAtom iAtom, int startExcludeIdx, IAtom... excludedAtoms) {
         int iType = iAtom.getType().getIndex();
         int i = iAtom.getLeafIndex();
         Vector ri = iAtom.getPosition();
@@ -162,6 +162,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
             }

@@ -104,7 +104,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
     public void integratorStepFinished(IntegratorEvent e) {
     }
 
-    protected double computeOneInternal(IAtom atom) {
+    protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
         int iType = atom.getType().getIndex();
         int i = atom.getLeafIndex();
         Potential2Soft[] ip = pairPotentials[iType];
@@ -119,6 +119,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         for (int j = 0; j < iNumNbrs; j++) {
             int jj = iNbrs[j];
             IAtom jAtom = atoms.get(jj);
+            if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
             int jType = jAtom.getType().getIndex();
             Potential2Soft pij = ip[jType];
             Vector rj = jAtom.getPosition();
@@ -131,6 +132,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         for (int j = 0; j < iNumNbrs; j++) {
             int jj = iNbrs[iNbrs.length - 1 - j];
             IAtom jAtom = atoms.get(jj);
+            if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
             int jType = jAtom.getType().getIndex();
             Potential2Soft pij = ip[jType];
             Vector rj = jAtom.getPosition();
