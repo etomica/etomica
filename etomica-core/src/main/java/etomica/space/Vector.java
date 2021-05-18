@@ -25,14 +25,14 @@ public interface Vector {
      * Dimension of the space occupied by the vector. Number of elements in the
      * vector.
      */
-    public int getD();
+    int getD();
 
     /**
      * Assigns the components of this vector to the elements of the given array.
      * Does not check that array length is consistent with vector dimension.
      * Inverse of the E method.
      */
-    public void assignTo(double[] array);
+    void assignTo(double[] array);
 
     default double[] toArray() {
         double[] arr = new double[this.getD()];
@@ -41,45 +41,52 @@ public interface Vector {
     }
 
     /**
+     *
+     * @return a new Vector instance that is a copy of this one
+     */
+    Vector makeCopy();
+
+    /**
      * Returns true if all corresponding elements of this and the given vector
      * are equal; returns false otherwise.
      */
-    public boolean equals(Vector v);
+    boolean equals(Vector v);
 
     /**
      * Vector components corresponding to the given index. For example,
      * x-component is given for i = 0. If index exceeds dimension of vector, no
      * error is given and the last element of the vector is returned.
      */
-    public double getX(int i);
+    double getX(int i);
+
 
     /**
      * Returns the square magnitude of this vector, e.g., x^2 + y^2 for D = 2.
      */
-    public double squared();
+    double squared();
 
     /**
      * Returns true if all components of this vector are zero; false otherwise.
      */
     @IgnoreProperty
-    public boolean isZero();
+    boolean isZero();
 
     /**
      * Returns the dot product of this vector with the given one.
      */
-    public double dot(Vector u);
+    double dot(Vector u);
 
     /**
      * Returns true if any element of the vector is not-a-number.
      */
     @IgnoreProperty
-    public boolean isNaN();
+    boolean isNaN();
 
     /**
      * Returns square of vector resulting from subtracting given vector
      * from this one.  Neither vector is changed by this operation.
      */
-    public double Mv1Squared(Vector v1);
+    double Mv1Squared(Vector v1);
 
     /**
      * Sets the i-th component of the vector to the given value d. If index
