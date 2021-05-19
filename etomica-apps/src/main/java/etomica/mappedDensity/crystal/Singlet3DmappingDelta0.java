@@ -31,41 +31,41 @@ public class Singlet3DmappingDelta0 {
         rDir.ME(deltaVec);
 
         Vector thetaDir = RVec.makeCopy();//this will be used to store theta direction, but not yet
-        thetaDir.ME(deltaVec);
+        thetaDir.ME(deltaVec);//right now it is (R - delta)
 
         double r2 = rDir.squared()/sigma2;
         double R2 = thetaDir.squared()/sigma2;
         double rp2 = rVec.Mv1Squared(RVec)/sigma2;
         double rp = Math.sqrt(rp2);
         double r = Math.sqrt(r2);
-        double R = Math.sqrt(R2);
+        double rDotR = rVec.dot(RVec)/(r*sigma2); // R * cos(theta)
         double p = Math.exp(-0.5*rp2);
-        double term0 = rVec.dot(RVec)/r; // R * cos(theta)
-        double Rsint = Math.sqrt(R2 - term0*term0);// R * sin(theta)
+        double Rsint = Math.sqrt(R2 - rDotR*rDotR);// R * sin(theta)
         double term1 = (p*rp*sqrt2OverPi - Erf.erf(rp/sqrt2))/(rp2*rp);
         double term2 = Math.exp(-0.5*R2)/(4*Math.PI*sigma2);
 
         double Ar = term2 * ( 1/r2 + (r2 - R2 + rp2)*term1/(2*r) );
         double At = term2 * Rsint * term1;
 
-        // now compute theta direction
-        thetaDir.XE(rDir);
-        thetaDir.XE(rDir);
+        // now compute theta direction; at this point, thetaDir = R
+        thetaDir.PEa1Tv1(-rDotR/r,rDir); //rDotR = r.R/|r|
+//        thetaDir.XE(rDir);
+//        thetaDir.XE(rDir);
         thetaDir.normalize();
-        rDir.TE(Ar/(r*sigma*p));//divide by (r*sigma) to normalize, divide by p to get rDot
-        System.out.println(rDir.squared());
-        thetaDir.TE(At/p);
+        rDir.TE(Ar/(r*sigma*p));//divide by (r*sigma) to normalize rDir, divide by p to get rDot
+        thetaDir.TE(-At/p);//thetaDir is actually -(theta direction) so need to multiply by -1
 
         rDir.PE(thetaDir);
         return rDir;
     }
 
     public static void main(String[] args) {
-        Vector rx = new Vector3D(-.5,.3,2);
-        Vector Rx = new Vector3D(1.2,0,0);
-        Vector deltax = new Vector3D(.7,1.5,-.1);
+        Vector rx = new Vector3D(sqrt2,0,sqrt2);
+        Vector Rx = new Vector3D(0,0,1.5);
+        Vector deltax = new Vector3D(0,0,0);
 
-        System.out.println(Singlet3DmappingDelta0.xyzDot(rx, Rx,deltax, 1));
+        System.out.println(Singlet3DmappingDelta0.xyzDot(rx, Rx,deltax, 1.1));
+
     }
 
 
