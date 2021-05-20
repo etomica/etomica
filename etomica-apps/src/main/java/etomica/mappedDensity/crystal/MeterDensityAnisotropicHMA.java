@@ -55,18 +55,18 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
     protected final DataTag tag;
     protected double temperature;
     protected CoordinateDefinition latticesite;
-    protected double[] arraymsd;
+    protected double msd;
     protected int rnumberofbins;
-    protected int thetaphinumberofbins;
+    protected int costhetaphinumberofbins;
 
-    public MeterDensityAnisotropicHMA(double[] arraymsd, int rnumberofbins, int thetaphinumberofbins, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
+    public MeterDensityAnisotropicHMA(double msd, int rnumberofbins, int costhetaphinumberofbins, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
-        this.arraymsd = arraymsd;
+        this.msd = msd;
         this.rnumberofbins = rnumberofbins;
-        this.thetaphinumberofbins = thetaphinumberofbins;
+        this.costhetaphinumberofbins = costhetaphinumberofbins;
 
-        this.Rmax = Math.sqrt(arraymsd[0])*4;
+        this.Rmax = Math.sqrt(msd)*4;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
         this.rvector = box.getSpace().makeVector();
@@ -98,13 +98,13 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
         xDataSourcephi.setTypeMax(LimitType.HALF_STEP);
         xDataSourcephi.setTypeMin(LimitType.HALF_STEP);
 
-        xDataSourcetheta.setXMin(0);
-        xDataSourcetheta.setXMax(Math.PI);
+        xDataSourcetheta.setXMin(-1);
+        xDataSourcetheta.setXMax(+1);
         xDataSourcephi.setXMin(0);
         xDataSourcephi.setXMax(2*Math.PI);
         xDataSourcer.setNValues(rnumberofbins);
-        xDataSourcetheta.setNValues(thetaphinumberofbins);
-        xDataSourcephi.setNValues(thetaphinumberofbins);
+        xDataSourcetheta.setNValues(costhetaphinumberofbins);
+        xDataSourcephi.setNValues(costhetaphinumberofbins);
 
         rotationTensor = new RotationTensor3D();
         orientation = new OrientationFull3D(Space3D.getInstance());
@@ -150,7 +150,7 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
         IAtomList atoms = box.getLeafList();
         double L = box.getBoundary().getBoxSize().getX(profileDim);
         double dz = Rmax / xDataSourcer.getNValues();
-         double [][][] ytemporary=new double[rnumberofbins][thetaphinumberofbins][thetaphinumberofbins];
+        double [][][] ytemporary=new double[rnumberofbins][costhetaphinumberofbins][costhetaphinumberofbins];
 
         for (IAtom atom : atoms) {
             rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
@@ -163,54 +163,45 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
             //               phii = phii + 2 * Math.PI;
             //           }
             //
+            double sigma2 = msd / 3;
+            double sigma = Math.sqrt(sigma2);
             for (int i = 0; i < rnumberofbins; i++) {
                 double r = (i + 0.5) * dz;
 
-                for (int j = 0; j < thetaphinumberofbins; j++) {
-                    double theta = (j + 0.5) * Math.PI / thetaphinumberofbins;
+                for (int j = 0; j < costhetaphinumberofbins; j++) {
+                    double costheta = -1 + (j+0.5)*2.0 / costhetaphinumberofbins;
+                    double sintheta = Math.sqrt(1.0 - costheta*costheta);
 
-                    for (int k = 0; k < thetaphinumberofbins; k++) {
-                        double phi = (k + 0.5) * 2 * Math.PI / thetaphinumberofbins;
+                    for (int k = 0; k < costhetaphinumberofbins; k++) {
+                        double phi = (k + 0.5) * 2 * Math.PI / costhetaphinumberofbins;
 
-                        int mm = j * thetaphinumberofbins + k;
-                        double pr = (Math.exp(-3 * r * r / (2 * arraymsd[mm])));
-                        double q = Math.pow(2 * Math.PI * arraymsd[mm] / 3, 1.5);
-                        int nmax = 5;
+                        int mm = j * costhetaphinumberofbins + k;
+                        double pr = (Math.exp(-r * r / (2 * sigma2)));
+                        double q = Math.pow(2 * Math.PI * sigma2, 1.5);
                         //    System.out.println(j + k + "r" + r + "theta" + theta + "phi" + phi + " " + "ri" + ri + "thetai" + thetai + "phii" + phii);
 //point where dens measured from lat site
-                        rvector.setX(0, Math.sin(theta) * Math.cos(phi));
-                        rvector.setX(1, Math.sin(theta) * Math.sin(phi));
-                        rvector.setX(2, Math.cos(theta));
+                        rvector.setX(0, sintheta * Math.cos(phi));
+                        rvector.setX(1, sintheta * Math.sin(phi));
+                        rvector.setX(2, costheta);
 
-                        //projection of rivector on rvector
-                        double dotproduct = rvector.dot(rivector);
-                        temporary.Ea1Tv1(dotproduct, rvector);
-                        perpendtorvectorinriplane.Ev1Mv2(rivector, temporary);
-                        perpendtorvectorinriplane.normalize();
-                        crossprodrandri.E(rvector);
-                        crossprodrandri.XE(perpendtorvectorinriplane);
-
-                        orientation.setDirections(perpendtorvectorinriplane, crossprodrandri);
-                        rotationTensor.setOrientation(orientation);
-                        rotationTensor.invert();
-
-                        double ti = Math.acos(dotproduct / ri);
-                        double[] mappingvelocitytransformed = Singlet3Dmapping.xyzDot(nmax, ri, ti, 0, r, Math.sqrt(arraymsd[mm] / 3.0));
-                        vel.E(mappingvelocitytransformed);
-                        rotationTensor.transform(vel);
+                        vel.E(Singlet3DmappingDelta0.xyzDot(rivector, rvector, sigma));
 
                         double rdot = vel.dot(rivector) / ri;
-                        double dlnpridr = -3 * ri / arraymsd[mm];
+                        double dlnpridr = -2 * ri / sigma2;
 
                         ytemporary[i][j][k] += (pr / q) - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr);
+                        if (Double.isNaN(ytemporary[i][j][k])) {
+                            Singlet3DmappingDelta0.xyzDot(rivector, rvector, sigma);
+                            System.out.println("oops");
+                        }
                     }
                 }
             }
         }
         int n = 0;
         for (int i = 0; i < rnumberofbins; i++) {
-            for (int j = 0; j < thetaphinumberofbins; j++) {
-                for (int k = 0; k < thetaphinumberofbins; k++) {
+            for (int j = 0; j < costhetaphinumberofbins; j++) {
+                for (int k = 0; k < costhetaphinumberofbins; k++) {
                     y[n] = ytemporary[i][j][k] / box.getLeafList().size();
                     n = n + 1;
                 }

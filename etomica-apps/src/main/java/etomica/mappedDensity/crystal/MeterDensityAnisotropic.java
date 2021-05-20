@@ -41,11 +41,11 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
     protected final DataTag tag;
     protected CoordinateDefinition latticesite;
 
-    public MeterDensityAnisotropic(double[] arraymsd, int rnumberofbins, int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
+    public MeterDensityAnisotropic(double msd, int rnumberofbins, int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
         this.box = box;
          this.rnumberofbins = rnumberofbins;
         this.thetaphinumberofbins = thetaphinumberofbins;
-        this.Rmax = Math.sqrt(arraymsd[0])*4;
+        this.Rmax = Math.sqrt(msd)*4;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
         xDataSourcer = new DataSourceUniform("r", Length.DIMENSION);
@@ -118,42 +118,39 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
             IAtomList atoms = box.getLeafList();
         double dz = Rmax / xDataSourcer.getNValues();
 
-         for (IAtom atom : atoms) {
+        for (IAtom atom : atoms) {
             rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
             box.getBoundary().nearestImage(rivector);
             double ri = Math.sqrt(rivector.squared());
-            double thetai= Math.acos(rivector.getX(2)/ri);
-             double phii=Math.atan2(rivector.getX(1),rivector.getX(0));
+            double costhetai = rivector.getX(2)/ri;
+            double phii = Math.atan2(rivector.getX(1),rivector.getX(0));
             if(phii<0){phii=phii+2*Math.PI;}
             int i = (int) (ri/dz);
-            int j = (int) (thetai*thetaphinumberofbins/Math.PI);
+            int j = (int) ((costhetai+1)/2*thetaphinumberofbins);
             int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
             ytemporary[i][j][k]=ytemporary[i][j][k]+1;
         }
 
         int n=0;
         int numAtoms = box.getLeafList().size();
-     for (int i = 0; i < rnumberofbins; i++)   {
+        double dcostheta = 2.0 / thetaphinumberofbins;
+        double dphi = 2*Math.PI/ thetaphinumberofbins;
+        for (int i = 0; i < rnumberofbins; i++)   {
             double Rbinstart=i*dz;
-         double Rbinend=(i+1)*dz;
+            double Rbinend=(i+1)*dz;
 
-         for (int j = 0; j < thetaphinumberofbins; j++) {
-             double thetabegin = j * Math.PI / thetaphinumberofbins;
-             double thetaend = (j + 1) * Math.PI / thetaphinumberofbins;
+            for (int j = 0; j < thetaphinumberofbins; j++) {
 
-             for (int k = 0; k < thetaphinumberofbins; k++) {
-                 double phibegin = k * 2 * Math.PI / thetaphinumberofbins;
-                 double phiend = (k + 1) * 2 * Math.PI / thetaphinumberofbins;
+                for (int k = 0; k < thetaphinumberofbins; k++) {
 
-                 y[n] = ytemporary[i][j][k] / numAtoms / (((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend))) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
-                 n=n+1;
+                    y[n] = ytemporary[i][j][k] / numAtoms / ((dphi * dcostheta) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
+                    n=n+1;
 
-                 //   System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq "+q);
-             }
-         }
-
-     }
-         return data;
+                    //   System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq "+q);
+                }
+            }
+        }
+        return data;
     }
 
     public DataDoubleArray getIndependentData(int i) {

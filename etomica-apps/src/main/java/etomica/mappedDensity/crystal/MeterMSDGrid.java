@@ -29,7 +29,7 @@ public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
     protected DataFunction data;
     protected IDataInfo dataInfo;
     protected Vector rivector;
-    protected int thetaphinumberofbins;
+    protected int costhetaphinumberofbins;
     protected double ytemporary[][];
     protected int num[][];
 
@@ -46,14 +46,14 @@ public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterMSDGrid(int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
+    public MeterMSDGrid(int costhetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
         this.box = box;
-        this.thetaphinumberofbins = thetaphinumberofbins;
+        this.costhetaphinumberofbins = costhetaphinumberofbins;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
         tag = new DataTag();
-        ytemporary=new double[thetaphinumberofbins][thetaphinumberofbins];
-        num=new int[thetaphinumberofbins][thetaphinumberofbins];
+        ytemporary=new double[costhetaphinumberofbins][costhetaphinumberofbins];
+        num=new int[costhetaphinumberofbins][costhetaphinumberofbins];
 
         xDataSourcetheta = new DataSourceUniform("theta", Length.DIMENSION);
         xDataSourcetheta.setTypeMax(LimitType.HALF_STEP);
@@ -67,8 +67,8 @@ public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
         xDataSourcetheta.setXMax(Math.PI);
         xDataSourcephi.setXMin(0);
         xDataSourcephi.setXMax(2*Math.PI);
-        xDataSourcetheta.setNValues(thetaphinumberofbins);
-        xDataSourcephi.setNValues(thetaphinumberofbins);
+        xDataSourcetheta.setNValues(costhetaphinumberofbins);
+        xDataSourcephi.setNValues(costhetaphinumberofbins);
     }
 
     public IDataInfo getDataInfo() {
@@ -115,11 +115,11 @@ public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
             box.getBoundary().nearestImage(rivector);
              double r2i = rivector.squared();
       //       try {fw.write(""+r2i+"\n");}catch (IOException ex){throw new RuntimeException(ex);}
-            double thetai= Math.acos(rivector.getX(2)/Math.sqrt(r2i));
-             double phii=Math.atan2(rivector.getX(1),rivector.getX(0));
+            double costhetai= rivector.getX(2)/Math.sqrt(r2i);
+            double phii=Math.atan2(rivector.getX(1),rivector.getX(0));
             if(phii<0){phii=phii+2*Math.PI;}
-            int j = (int) (thetai*thetaphinumberofbins/Math.PI);
-            int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
+            int j = (int) ((costhetai+1)* costhetaphinumberofbins /2.0);
+            int k = (int) (phii* costhetaphinumberofbins /(2*Math.PI));
             ytemporary[j][k]=ytemporary[j][k]+r2i;
             num[j][k]++;
          }
@@ -130,8 +130,8 @@ public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
 
         int n=0;
 
-         for (int j = 0; j < thetaphinumberofbins; j++) {
-             for (int k = 0; k < thetaphinumberofbins; k++) {
+         for (int j = 0; j < costhetaphinumberofbins; j++) {
+             for (int k = 0; k < costhetaphinumberofbins; k++) {
                  y[n] =ytemporary[j][k]/num[j][k];
                  n=n+1;
               }
@@ -177,11 +177,11 @@ public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
     public void reset() {
         if (box == null) return;
 
-         ytemporary=new double[thetaphinumberofbins][thetaphinumberofbins];
-        num=new int[thetaphinumberofbins][thetaphinumberofbins];
+         ytemporary=new double[costhetaphinumberofbins][costhetaphinumberofbins];
+        num=new int[costhetaphinumberofbins][costhetaphinumberofbins];
 
-        xDataSourcetheta.setXMin(0);
-        xDataSourcetheta.setXMax(Math.PI);
+        xDataSourcetheta.setXMin(-1);
+        xDataSourcetheta.setXMax(+1);
         xDataSourcephi.setXMin(0);
         xDataSourcephi.setXMax(2*Math.PI);
 
