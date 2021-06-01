@@ -35,7 +35,7 @@ public class ClusterWheatleySoft implements ClusterAbstract {
     protected boolean debug = false;
     protected boolean doCaching = true;
     protected long totCount, countBD;
-    protected double BDAccFrac;
+    protected double BDAccFrac = 1;
     protected long timeBD;
     protected IRandom random;
     protected double[] avgAbsCheck = {0, 0}, avgAbsCheckBD = {0, 0};
@@ -298,7 +298,7 @@ public class ClusterWheatleySoft implements ClusterAbstract {
         totCount++;
         double bfac = (1.0 - n) / SpecialFunctions.factorial(n);
         if (Math.abs(fB[nf - 1]) < tol * 100 && fB[nf - 1] != 0) {
-            double r = BDAccFrac < 1 ? random.nextDouble() : 1;
+            double r = (0 < BDAccFrac && BDAccFrac < 1) ? random.nextDouble() : 1;
             boolean justChecking = Math.abs(fB[nf - 1]) > tol;
             if (justChecking) {
                 r /= 1000;
