@@ -72,8 +72,6 @@ public class SimDensityAnisotropic extends Simulation {
 
         potentialMaster = new PotentialMasterList(this, space);
 
-        // TARGET
-
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
@@ -154,8 +152,6 @@ public class SimDensityAnisotropic extends Simulation {
         double rcMax0 = params.rcMax0;
         double rcMax1 = params.rcMax1;
         if (rcMax1 > rcMax0) rcMax1 = rcMax0;
-//        double[] bpharm = params.bpharm;
-        double[] bpharmLJ = params.bpharmLJ;
         int[] seeds = params.randomSeeds;
 
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
@@ -283,9 +279,6 @@ public class SimDensityAnisotropic extends Simulation {
             ((P2SoftSphericalTruncated)potentialLJ).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
         }
 
-        // meter needs lattice energy, so make it now
-
-
         double rcMaxLS = 3*0.494*L;
         if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
         if (rcMax1 >= rcMax0) rcMaxLS=0;
@@ -300,12 +293,6 @@ public class SimDensityAnisotropic extends Simulation {
         nCutoffsLS--;
 
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
-        Potential2SoftSphericalLSMultiLat pLS = null;
-        PotentialMasterMonatomic potentialMasterLJLS = null;
-        Potential2SoftSphericalLSMultiLat pLJLS = null;
-        final double[] uFacCutLS = new double[cutoffsLS.length];
-        MeterSolidDACut meterSolidLS = null;
 
         if (args.length == 0) {
             // quick initialization
@@ -332,7 +319,7 @@ public class SimDensityAnisotropic extends Simulation {
  //       MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
         MeterDensityAnisotropic meterConventional3D = new MeterDensityAnisotropic(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition);
         long steps = params.numSteps;
-        int blocks = 10;
+        int blocks = 100;
         long blockSize = steps / (interval * blocks);
         meterConventional3D.reset();
         AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
@@ -341,12 +328,6 @@ public class SimDensityAnisotropic extends Simulation {
 
 
         MeterDensityAnisotropicHMA meterMappedAvg3Dmapping = new MeterDensityAnisotropicHMA(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
-     //  double [] hey=new double[params.thetaphinumberofbins*params.thetaphinumberofbins] ;
-     //  for (int i = 0; i < hey.length; i++) {
-      //          hey[i] = 0.0391218;
-       //    hey[i] = 1.391218;
-       //}
- //      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(hey,params.rnumberofbins,params.thetaphinumberofbins,params.msd,sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
 
         meterMappedAvg3Dmapping.reset();
         AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
@@ -400,11 +381,15 @@ public class SimDensityAnisotropic extends Simulation {
         IData phidata=((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(2);
         System.out.println(pot.getValue(0));
 
+        double sigma2 = avgMSD/3.;
+        double q = Math.pow(2 * Math.PI * sigma2, 1.5);
         for (int i = 0; i < params.rnumberofbins; i++) {
+            double r = rdata.getValue(i);
+            double p = (Math.exp(-r * r / (2 * sigma2)))/q;
             for (int j = 0; j < params.thetaphinumberofbins; j++) {
                 for (int k = 0; k < params.thetaphinumberofbins; k++) {
                     int [] rho=new int[] {i,j,k};
-                    System.out.println(rdata.getValue(i)+" "+thetadata.getValue(j)+" "+phidata.getValue(k)+" "+" "+data.getValue(rho)+" "+dataunc.getValue(rho)+" "+dataMappedAvg.getValue(rho)+" "+dataMappedAvgunc.getValue(rho));
+                    System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(dataMappedAvg.getValue(rho)-p)+", "+dataMappedAvgunc.getValue(rho)+"},");
                 }
             }
         }
@@ -430,8 +415,8 @@ public class SimDensityAnisotropic extends Simulation {
         public int rnumberofbins = 20;
         public int thetaphinumberofbins=6;
         public double density = 1.29;
-        public long numSteps = 100000;
-        public double temperature = 2.11;
+        public long numSteps = 100000000;
+        public double temperature = 0.1;
         public double msddependence=1.0;
         public double rc = 3;
         public double rc0 = rc;

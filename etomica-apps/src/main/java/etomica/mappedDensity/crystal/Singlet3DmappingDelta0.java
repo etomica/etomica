@@ -17,16 +17,14 @@ public class Singlet3DmappingDelta0 {
 
     /**
      * Returns mapping velocities in x, y, z, directions
-     * @param rVec coordinate of sphere
-     * @param RVec coordinate of reference lattice site
+     * @param rVec coordinate of sphere relative to measurement site
+     * @param RVec coordinate of reference lattice site relative to measurement site
      * @param sigma width of Gaussian reference distribution, p(r) = exp(-r^2/(2 sigma^2))
      * @return mapping velocities in x, y, z, directions, respectively
      */
     public static Vector xyzDot(Vector rVec, Vector RVec, double sigma) {
         double sigma2 = sigma*sigma;
         Vector rDir = rVec.makeCopy();
-
-        Vector thetaDir = RVec.makeCopy();//this will be used to store theta direction, but not yet
 
         double r2 = rVec.squared()/sigma2;
         double R2 = RVec.squared()/sigma2;
@@ -42,7 +40,8 @@ public class Singlet3DmappingDelta0 {
         double Ar = term2 * ( 1/r2 + (r2 - R2 + rp2)*term1/(2*r) );
         double At = term2 * Rsint * term1;
 
-        // now compute theta direction; at this point, thetaDir = R
+        // minus (theta direction)
+        Vector thetaDir = RVec.makeCopy();
         thetaDir.PEa1Tv1(-rDotR/r,rDir); //rDotR = r.R/|r|
 //        thetaDir.XE(rDir);
 //        thetaDir.XE(rDir);

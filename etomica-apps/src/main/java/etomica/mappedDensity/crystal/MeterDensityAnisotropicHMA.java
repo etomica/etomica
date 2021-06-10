@@ -40,14 +40,10 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
     protected DataFunction data;
     protected IDataInfo dataInfo;
     protected double Rmax;
-    protected Vector rivector;
-    protected Vector rvector;
-    protected Vector perpendtorvectorinriplane;
-    protected Vector crossprodrandri;
-    protected Vector temporary;
-    protected Vector rivectortransformed;
-    protected Vector fivectortransformed;
-    protected Vector rvectortransformed;
+    protected final Vector rivector;
+    protected final Vector deltaVec;
+    protected final Vector rVec;
+    protected final Vector RVec;
     protected int profileDim;
     protected final OrientationFull3D orientation;
     protected final RotationTensor3D rotationTensor;
@@ -69,13 +65,9 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
         this.Rmax = Math.sqrt(msd)*4;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
-        this.rvector = box.getSpace().makeVector();
-        this.perpendtorvectorinriplane = box.getSpace().makeVector();
-        this.crossprodrandri = box.getSpace().makeVector();
-        this.temporary = box.getSpace().makeVector();
-        this.rivectortransformed = box.getSpace().makeVector();
-        this.rvectortransformed = box.getSpace().makeVector();
-        this.fivectortransformed = box.getSpace().makeVector();
+        this.deltaVec = box.getSpace().makeVector();
+        this.rVec = box.getSpace().makeVector();
+        this.RVec = box.getSpace().makeVector();
 
         xDataSourcer = new DataSourceUniform("r", Length.DIMENSION);
         tag = new DataTag();
@@ -148,23 +140,19 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
         double[] y = data.getData();
 
         IAtomList atoms = box.getLeafList();
-        double L = box.getBoundary().getBoxSize().getX(profileDim);
         double dz = Rmax / xDataSourcer.getNValues();
         double [][][] ytemporary=new double[rnumberofbins][costhetaphinumberofbins][costhetaphinumberofbins];
+
+        double sigma2 = msd / 3;
+        double sigma = Math.sqrt(sigma2);
+        double q = Math.pow(2 * Math.PI * sigma2, 1.5);
 
         for (IAtom atom : atoms) {
             rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
             box.getBoundary().nearestImage(rivector);
             double ri = Math.sqrt(rivector.squared());
-            //           double fr = agentManager.getAgent(atom).dot(rivector) / ri;
-            //           double thetai = Math.acos(rivector.getX(2) / ri);
-            //           double phii = Math.atan2(rivector.getX(1), rivector.getX(0));
-            //           if (phii < 0) {
-            //               phii = phii + 2 * Math.PI;
-            //           }
-            //
-            double sigma2 = msd / 3;
-            double sigma = Math.sqrt(sigma2);
+            double dlnpridr = - ri / sigma2;
+
             for (int i = 0; i < rnumberofbins; i++) {
                 double r = (i + 0.5) * dz;
 
@@ -177,21 +165,23 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
 
                         int mm = j * costhetaphinumberofbins + k;
                         double pr = (Math.exp(-r * r / (2 * sigma2)));
-                        double q = Math.pow(2 * Math.PI * sigma2, 1.5);
-                        //    System.out.println(j + k + "r" + r + "theta" + theta + "phi" + phi + " " + "ri" + ri + "thetai" + thetai + "phii" + phii);
-//point where dens measured from lat site
-                        rvector.setX(0, sintheta * Math.cos(phi));
-                        rvector.setX(1, sintheta * Math.sin(phi));
-                        rvector.setX(2, costheta);
 
-                        vel.E(Singlet3DmappingDelta0.xyzDot(rivector, rvector, sigma));
+                        //point where dens measured, relative to lat site
+                        deltaVec.setX(0, r * sintheta * Math.cos(phi));
+                        deltaVec.setX(1, r * sintheta * Math.sin(phi));
+                        deltaVec.setX(2, r * costheta);
+
+                        rVec.Ev1Mv2(rivector, deltaVec);
+                        RVec.Ea1Tv1(-1, deltaVec);
+                        vel.E(Singlet3DmappingDelta0.xyzDot(rVec, RVec, sigma));
 
                         double rdot = vel.dot(rivector) / ri;
-                        double dlnpridr = -2 * ri / sigma2;
-
+                        double a1 = -agentManager.getAgent(atom).dot(vel);
+                        double a2 =  temperature * rdot * dlnpridr;
+      //                  System.out.println(a1+", "+a2+", "+(a1+a2));
                         ytemporary[i][j][k] += (pr / q) - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr);
                         if (Double.isNaN(ytemporary[i][j][k])) {
-                            Singlet3DmappingDelta0.xyzDot(rivector, rvector, sigma);
+                            Singlet3DmappingDelta0.xyzDot(rivector, deltaVec, sigma);
                             System.out.println("oops");
                         }
                     }
