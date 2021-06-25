@@ -132,7 +132,6 @@ public class MCMoveGeometricClusterFasterer extends MCMoveBox {
             }
             break;
         }
-        potentialCompute.init();
         return true;
     }
 
