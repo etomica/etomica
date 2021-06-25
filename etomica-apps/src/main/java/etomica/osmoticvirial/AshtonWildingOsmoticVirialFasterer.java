@@ -62,7 +62,7 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
      * @param q size of solvent divided by size of solute
      * @param computeIdeal whether to compute histograms for ideal gas
      */
-    public AshtonWildingOsmoticVirialFasterer(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq, boolean graphics){
+    public AshtonWildingOsmoticVirialFasterer(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq){
 
         super(Space3D.getInstance());
 
@@ -71,7 +71,7 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
         species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
-        addSpecies(species2);
+        if (vf != 0) addSpecies(species2);
 
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
@@ -92,13 +92,11 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
             potential1 = P2HardSphere.makePotential(sigma1);
             potential2 = P2HardSphere.makePotential(sigma2);
             potential12 = P2HardSphere.makePotential(sigma12);
-
         }
-
 
         PotentialComputePair potentialMaster;
         NeighborManager neighborManager;
-        if(!computeIdeal) {
+        if(!computeIdeal && vf != 0) {
             AtomType solvent = species2.getLeafType();
             AtomType solute = species1.getLeafType();
             neighborManager = new NeighborManagerCellMixed(getSpeciesManager(), box, 2, BondingInfo.noBonding(), solvent);
@@ -132,18 +130,20 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
 
         System.out.println("vol: "+box.getBoundary().volume());
 
-        // add solvents to the boxes as though there are no solutes (and add solutes as though there
-        // are no solvents).  then remove any solvents that overlap a solute
-        int nSolvent = (int) (box.getBoundary().volume() * vf / (q * q * q * Math.PI / 6));
-        box.setNMolecules(species2, nSolvent);
+        if (vf != 0) {
+            // add solvents to the boxes as though there are no solutes (and add solutes as though there
+            // are no solvents).  then remove any solvents that overlap a solute
+            int nSolvent = (int) (box.getBoundary().volume() * vf / (q * q * q * Math.PI / 6));
+            box.setNMolecules(species2, nSolvent);
+        }
 
 //      integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box, species1);
-        configuration.initializeCoordinates(box, species2);
+        if (vf != 0) configuration.initializeCoordinates(box, species2);
 
         potentialMaster.init();
-        if (!computeIdeal){
+        if (!computeIdeal && vf != 0){
             final Set<IMolecule> overlaps = new HashSet<>();
             PotentialCallback overlapCheck = new PotentialCallback() {
                 @Override
@@ -162,7 +162,7 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
         // CPU time doing GC moves and Displacement/Insert-Delete moves.  Set GCfreq to achieve desired result.
 
         if(!computeIdeal && vf != 0){
-//            integrator.getMoveManager().setFrequency(mcMoveGeometricCluster,2*GCfreq);
+            integrator.getMoveManager().setFrequency(mcMoveGeometricCluster,2*GCfreq);
         }
     }
 
@@ -207,14 +207,14 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        AshtonWildingOsmoticVirialFasterer sim = new AshtonWildingOsmoticVirialFasterer(numAtoms, vf, q, computeIdeal, L, GCfreq, graphics);
+        AshtonWildingOsmoticVirialFasterer sim = new AshtonWildingOsmoticVirialFasterer(numAtoms, vf, q, computeIdeal, L, GCfreq);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            if (vf != 0) ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
@@ -227,12 +227,15 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
 
-        MeterNMolecules meterNMolecules = new MeterNMolecules();
-        meterNMolecules.setSpecies(sim.species2);
-        meterNMolecules.setBox(sim.box);
-        accNm = new AccumulatorAverageFixed(samplesPerBlock);
-        DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
-        sim.integrator.getEventManager().addListener(pumpNm);
+        if (vf != 0) {
+            MeterNMolecules meterNMolecules = new MeterNMolecules();
+            meterNMolecules.setSpecies(sim.species2);
+            meterNMolecules.setBox(sim.box);
+            accNm = new AccumulatorAverageFixed(samplesPerBlock);
+            DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
+            sim.integrator.getEventManager().addListener(pumpNm);
+        }
+
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         double[] histRmin = accRmin.getHistograms().getHistogram();
@@ -244,15 +247,17 @@ public class AshtonWildingOsmoticVirialFasterer extends Simulation {
         }
         writer.close();
 
-        double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
-        double NmCor = accNm.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+        if (vf != 0) {
+            double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
+            double NmCor = accNm.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
 
-        double VfBox = NmAvg*q*q*q*Math.PI/6/sim.box.getBoundary().volume();
-        double VfErr = NmErr*q*q*q*Math.PI/6/sim.box.getBoundary().volume();
+            double VfBox = NmAvg * q * q * q * Math.PI / 6 / sim.box.getBoundary().volume();
+            double VfErr = NmErr * q * q * q * Math.PI / 6 / sim.box.getBoundary().volume();
 
-        System.out.print(String.format("No. of molecules avg: %13.6e  err: %11.4e   cor: % 4.2f\n", NmAvg, NmErr, NmCor));
-        System.out.print(String.format("Volume frac avg: %13.6e  err: %11.4e\n", VfBox, VfErr));
+            System.out.print(String.format("No. of molecules avg: %13.6e  err: %11.4e   cor: % 4.2f\n", NmAvg, NmErr, NmCor));
+            System.out.print(String.format("Volume frac avg: %13.6e  err: %11.4e\n", VfBox, VfErr));
+        }
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+ (t2-t1)*0.001);
