@@ -15,8 +15,6 @@ import etomica.data.IData;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
@@ -25,12 +23,10 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.MeterSolidDACut;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -154,6 +150,10 @@ public class SimDensityAnisotropic extends Simulation {
         if (rcMax1 > rcMax0) rcMax1 = rcMax0;
         int[] seeds = params.randomSeeds;
 
+        int xIndex = 2;  //index for coordinate that is varied. 0 for r; 1 for theta; 2 for phi
+        int iX2 = 4;//params.thetaphinumberofbins/2;  // index for constant value of first fixed coordinate (value defined by MeterDensityAnisotropic instance)
+        int iX3 = 4;//params.thetaphinumberofbins/2;  // index for constant value of second fixed coordinate
+
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println(numSteps+" steps");
 
@@ -164,135 +164,18 @@ public class SimDensityAnisotropic extends Simulation {
         }
         System.out.println("Random seeds: "+Arrays.toString(seeds));
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.setPaintInterval(sim.box, 1000);
-            ColorScheme colorScheme = new ColorScheme() {
-                protected Color[] allColors;
-
-                public Color getAtomColor(IAtom a) {
-                    if (allColors==null) {
-                        allColors = new Color[768];
-                        for (int i=0; i<256; i++) {
-                            allColors[i] = new Color(255-i,i,0);
-                        }
-                        for (int i=0; i<256; i++) {
-                            allColors[i+256] = new Color(0,255-i,i);
-                        }
-                        for (int i=0; i<256; i++) {
-                            allColors[i+512] = new Color(i,0,255-i);
-                        }
-                    }
-                    return allColors[(2*a.getLeafIndex()) % 768];
-                }
-            };
-            simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-
-            DisplayTextBox timer = new DisplayTextBox();
-            DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
-            DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
-            sim.integrator.getEventManager().addListener(counterPump);
-            simGraphic.getPanel().controlPanel.add(timer.graphic());
-
-            simGraphic.makeAndDisplayFrame((ss?"SS":"LJ")+" FCC");
-
+            makeSimGraphic(sim, ss);
             return;
         }
 
         //start simulation
-
         MeterDensity meterDensity = new MeterDensity(sim.getSpace());
         meterDensity.setBox(sim.box);
         System.out.println("density is "+meterDensity.getDataAsScalar());
         MeterPotentialEnergy meterpe = new MeterPotentialEnergy(sim.potentialMaster,sim.box);
-        System.out.println("lattice energy is "+meterpe.getDataAsScalar()/numAtoms);
+        double latticeEnergy = meterpe.getDataAsScalar()/numAtoms;
+        System.out.println("lattice energy is "+latticeEnergy);
         System.out.println("temperature is "+sim.integrator.getTemperature());
-
-        double L = Math.pow(numAtoms, 1.0/3.0);
-        if (rcMax1 > 0.494*L) rcMax1 = 0.494*L;
-        double delta = 0.5;
-        int nCutoffs = 1;
-        double c = rc0;
-        for (nCutoffs=1; c<=rcMax1*1.0001; nCutoffs++) {
-            c += delta;
-            if (nCutoffs%2==0) delta += 0.5;
-        }
-        nCutoffs--;
-        delta = 0.5;
-        double[] cutoffs = new double[nCutoffs];
-        cutoffs[0] = rc0;
-        for (int i=1; i<nCutoffs; i++) {
-            cutoffs[i] = cutoffs[i-1] + delta;
-            if (i%2==0) delta += 0.5;
-        }
-        for (int i=0; i<nCutoffs; i++) {
-            cutoffs[i] *= Math.pow(density, -1.0/3.0);
-        }
-
-        PotentialMasterList potentialMasterData;
-        Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
-        {
-            // |potential| is our local potential used for data collection.
-            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
-            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
-            AtomType sphereType = sim.species.getLeafType();
-            potentialMasterData.addPotential(potentialT, new AtomType[]{sphereType, sphereType});
-            potentialMasterData.lrcMaster().setEnabled(false);
-
-            int cellRange = 2;
-            potentialMasterData.setCellRange(cellRange);
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            potentialMasterData.getNeighborManager(sim.box).reset();
-            int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
-
-            // extend potential range, so that atoms that move outside the truncation range will still interact
-            // atoms that move in will not interact since they won't be neighbors
-            potentialT.setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
-        }
-
-        PotentialMasterList potentialMasterDataLJ = null;
-        P2LennardJones p2LJ = null;
-        Potential2SoftSpherical potentialLJ = null;
-        if (ss) {
-            // |potential| is our local potential used for data collection.
-            potentialMasterDataLJ = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
-            p2LJ = new P2LennardJones(sim.getSpace());
-
-            potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
-            AtomType sphereType = sim.species.getLeafType();
-            potentialMasterDataLJ.addPotential(potentialLJ, new AtomType[]{sphereType, sphereType});
-            potentialMasterDataLJ.lrcMaster().setEnabled(false);
-
-            int cellRange = 2;
-            potentialMasterDataLJ.setCellRange(cellRange);
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            potentialMasterDataLJ.getNeighborManager(sim.box).reset();
-            int potentialCells = potentialMasterDataLJ.getNbrCellManager(sim.box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
-
-            // extend potential range, so that atoms that move outside the truncation range will still interact
-            // atoms that move in will not interact since they won't be neighbors
-            ((P2SoftSphericalTruncated)potentialLJ).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
-        }
-
-        double rcMaxLS = 3*0.494*L;
-        if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
-        if (rcMax1 >= rcMax0) rcMaxLS=0;
-
-        delta = 0.5;
-        int nCutoffsLS = 1;
-        c = rc0;
-        for (nCutoffsLS=1; c<rcMaxLS*1.0001; nCutoffsLS++) {
-            c += delta;
-            if (nCutoffsLS%2==0) delta += 0.5;
-        }
-        nCutoffsLS--;
-
-        final double[] cutoffsLS = new double[nCutoffsLS];
 
         if (args.length == 0) {
             // quick initialization
@@ -314,22 +197,43 @@ public class SimDensityAnisotropic extends Simulation {
         sim.getController().reset();
         double avgMSD = accMSD.getData(accMSD.AVERAGE).getValue(0);
         System.out.println("MSD: "+avgMSD);
-///////////////////////////////////////MSD ARRAY DONE///////////////////////////////////////////////////////
+///////////////////////////////////////MSD CALCULATION DONE///////////////////////////////////////////////////////
 
- //       MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
-        MeterDensityAnisotropic meterConventional3D = new MeterDensityAnisotropic(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition);
         long steps = params.numSteps;
         int blocks = 100;
-        long blockSize = steps / (interval * blocks);
-        meterConventional3D.reset();
+        long blockSize = Math.max(steps / (interval * blocks),1);
+
+        MeterDensityAnisotropic meterConventional3D = new MeterDensityAnisotropic(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition);
+        IData rdata= meterConventional3D.getIndependentData(0);
+        IData thetadata=meterConventional3D.getIndependentData(1);
+        IData phidata=meterConventional3D.getIndependentData(2);
+
         AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpCon = new DataPumpListener(meterConventional3D, accCon, interval);
         sim.getIntegrator().getEventManager().addListener(pumpCon);
 
-
-        MeterDensityAnisotropicHMA meterMappedAvg3Dmapping = new MeterDensityAnisotropicHMA(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
-
-        meterMappedAvg3Dmapping.reset();
+        int nX;
+        double X2, X3;
+        switch(xIndex) {
+            case 0:
+                nX = params.rnumberofbins;
+                X2 = thetadata.getValue(iX2);
+                X3 = phidata.getValue(iX3);
+                break;
+            case 1:
+                nX = params.thetaphinumberofbins;
+                X2 = rdata.getValue(iX2);
+                X3 = phidata.getValue(iX3);
+                break;
+            case 2:
+                nX = params.thetaphinumberofbins;
+                X2 = rdata.getValue(iX2);
+                X3 = thetadata.getValue(iX3);
+                break;
+            default:
+                throw new IllegalArgumentException("xIndex must be 0, 1, or 2");
+        }
+        MeterDensityAnisotropic1CoordHMA meterMappedAvg3Dmapping = new MeterDensityAnisotropic1CoordHMA(avgMSD, xIndex, nX, X2, X3, sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
         AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg3Dmapping, accMappedAvg, interval);
         sim.getIntegrator().getEventManager().addListener(pumpMappedAvg);
@@ -337,7 +241,6 @@ public class SimDensityAnisotropic extends Simulation {
         AccumulatorAverageFixed pe = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumppe = new DataPumpListener(meterpe, pe, interval);
         sim.getIntegrator().getEventManager().addListener(pumppe);
-
 
         int numBlocks = 10;
          int intervalLS = 5*interval;
@@ -375,11 +278,13 @@ public class SimDensityAnisotropic extends Simulation {
         DataDoubleArray dataMappedAvg =(DataDoubleArray)  accMappedAvg.getData(accMappedAvg.AVERAGE);
         DataDoubleArray dataMappedAvgunc = (DataDoubleArray) accMappedAvg.getData(accMappedAvg.ERROR);
         IData pot =   pe.getData(pe.AVERAGE);
+        double anharmE = ((pot.getValue(0)/numAtoms - latticeEnergy) - (1.5*temperature))/temperature;
 
-        IData rdata= ((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
-        IData thetadata=((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(1);  //i have y[i][j][k] where theta is j and phi is k
-        IData phidata=((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(2);
-        System.out.println(pot.getValue(0));
+        System.out.println("Anharmonic energy / kT: "+anharmE);
+
+        double[] dataHMAavg = dataMappedAvg.getData();
+        double[] dataHMAunc = dataMappedAvgunc.getData();
+        int iHMA = 0;
 
         double sigma2 = avgMSD/3.;
         double q = Math.pow(2 * Math.PI * sigma2, 1.5);
@@ -388,13 +293,36 @@ public class SimDensityAnisotropic extends Simulation {
             double p = (Math.exp(-r * r / (2 * sigma2)))/q;
             for (int j = 0; j < params.thetaphinumberofbins; j++) {
                 for (int k = 0; k < params.thetaphinumberofbins; k++) {
+                    double xHMA = Double.NaN;
+                    double uHMA = Double.NaN;
+                    //extract HMA values if the coordinates correspond to the fixed-coord values
+                    switch (xIndex) {
+                        case 0:
+                            if(j == iX2 && k == iX3) {
+                                xHMA = dataHMAavg[iHMA];
+                                uHMA = dataHMAunc[iHMA++];
+                            }
+                            break;
+                        case 1:
+                            if(i == iX2 && k == iX3) {
+                                xHMA = dataHMAavg[iHMA];
+                                uHMA = dataHMAunc[iHMA++];
+                            }
+                            break;
+                        case 2:
+                            if(i == iX2 && j == iX3) {
+                                xHMA = dataHMAavg[iHMA];
+                                uHMA = dataHMAunc[iHMA++];
+                            }
+                            break;
+                    }
                     int [] rho=new int[] {i,j,k};
-                    System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(dataMappedAvg.getValue(rho)-p)+", "+dataMappedAvgunc.getValue(rho)+"},");
+                    System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
                 }
             }
         }
 
-        System.out.println("time taken"+endTime+"-"+startTime);
+        System.out.println("time taken: "+(endTime-startTime)/1000./60+" minutes");
     }
 
     public void initialize(long initSteps) {
@@ -405,18 +333,51 @@ public class SimDensityAnisotropic extends Simulation {
         integrator.getMoveManager().setEquilibrating(false);
     }
 
+    private static void makeSimGraphic(SimDensityAnisotropic sim, boolean ss) {
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+        simGraphic.setPaintInterval(sim.box, 1000);
+        ColorScheme colorScheme = new ColorScheme() {
+            protected Color[] allColors;
 
-    
+            public Color getAtomColor(IAtom a) {
+                if (allColors==null) {
+                    allColors = new Color[768];
+                    for (int i=0; i<256; i++) {
+                        allColors[i] = new Color(255-i,i,0);
+                    }
+                    for (int i=0; i<256; i++) {
+                        allColors[i+256] = new Color(0,255-i,i);
+                    }
+                    for (int i=0; i<256; i++) {
+                        allColors[i+512] = new Color(i,0,255-i);
+                    }
+                }
+                return allColors[(2*a.getLeafIndex()) % 768];
+            }
+        };
+        simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+
+        DisplayTextBox timer = new DisplayTextBox();
+        DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
+        DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
+        sim.integrator.getEventManager().addListener(counterPump);
+        simGraphic.getPanel().controlPanel.add(timer.graphic());
+
+        simGraphic.makeAndDisplayFrame((ss?"SS":"LJ")+" FCC");
+
+    }
+
+
     /**
-     * Inner class for parameters understood by the HSMD3D constructor
+     * Inner class for parameters understood by the simulation constructor
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
         public int rnumberofbins = 20;
-        public int thetaphinumberofbins=6;
+        public int thetaphinumberofbins=10;
         public double density = 1.29;
-        public long numSteps = 100000000;
-        public double temperature = 0.1;
+        public long numSteps = 1000000000;
+        public double temperature = 0.2;
         public double msddependence=1.0;
         public double rc = 3;
         public double rc0 = rc;
@@ -427,4 +388,6 @@ public class SimDensityAnisotropic extends Simulation {
         public boolean ss = false;
         public int[] randomSeeds = null;
     }
+
+
 }

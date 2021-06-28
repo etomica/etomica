@@ -43,7 +43,7 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
 
     public MeterDensityAnisotropic(double msd, int rnumberofbins, int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
         this.box = box;
-         this.rnumberofbins = rnumberofbins;
+        this.rnumberofbins = rnumberofbins;
         this.thetaphinumberofbins = thetaphinumberofbins;
         this.Rmax = Math.sqrt(msd)*4;
         this.latticesite = latticesite;
@@ -55,22 +55,26 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
         xDataSourcer.setXMin(0);
         xDataSourcer.setXMax(Rmax);
 
-
         xDataSourcetheta = new DataSourceUniform("theta", Length.DIMENSION);
         xDataSourcetheta.setTypeMax(LimitType.HALF_STEP);
         xDataSourcetheta.setTypeMin(LimitType.HALF_STEP);
+        xDataSourcetheta.setXMin(-1);
+        xDataSourcetheta.setXMax(1);
 
         xDataSourcephi = new DataSourceUniform("phi", Length.DIMENSION);
         xDataSourcephi.setTypeMax(LimitType.HALF_STEP);
         xDataSourcephi.setTypeMin(LimitType.HALF_STEP);
-
-        xDataSourcetheta.setXMin(0);
-        xDataSourcetheta.setXMax(Math.PI);
         xDataSourcephi.setXMin(0);
         xDataSourcephi.setXMax(2*Math.PI);
+
         xDataSourcer.setNValues(rnumberofbins);
         xDataSourcetheta.setNValues(thetaphinumberofbins);
         xDataSourcephi.setNValues(thetaphinumberofbins);
+
+        data = new DataFunction(new int[]{rnumberofbins,thetaphinumberofbins,thetaphinumberofbins});
+        dataInfo = new DataInfoFunction("Mapped Average Profile", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1, -1}), this);
+        dataInfo.addTag(tag);
+
     }
 
     public IDataInfo getDataInfo() {
@@ -107,15 +111,7 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
         data.E(0);
         double[] y = data.getData();
         double [][][] ytemporary=new double[rnumberofbins][thetaphinumberofbins][thetaphinumberofbins];
-
-    //    for (int i = 0; i < rnumberofbins; i++) {
-    //        for (int j = 0; j < thetaphinumberofbins; j++) {
-    //            for (int k = 0; k < thetaphinumberofbins; k++) {
-    //                ytemporary[i][j][k]=0;
-    //            }
-    //        }
-    //    }
-            IAtomList atoms = box.getLeafList();
+        IAtomList atoms = box.getLeafList();
         double dz = Rmax / xDataSourcer.getNValues();
 
         for (IAtom atom : atoms) {
@@ -142,11 +138,8 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
             for (int j = 0; j < thetaphinumberofbins; j++) {
 
                 for (int k = 0; k < thetaphinumberofbins; k++) {
-
                     y[n] = ytemporary[i][j][k] / numAtoms / ((dphi * dcostheta) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
                     n=n+1;
-
-                    //   System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq "+q);
                 }
             }
         }
@@ -161,7 +154,6 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
     }
 
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
-
         if(i==0){return (DataInfoDoubleArray) xDataSourcer.getDataInfo();}
         if(i==1){return (DataInfoDoubleArray) xDataSourcetheta.getDataInfo();}
         if(i==2){return (DataInfoDoubleArray) xDataSourcephi.getDataInfo();}
@@ -173,14 +165,10 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
     }
 
     public DataTag getIndependentTag(int i) {
-
         if(i==0){return xDataSourcer.getTag();}
         if(i==1){return xDataSourcetheta.getTag();}
         if(i==2){return xDataSourcephi.getTag();}
         throw new RuntimeException();
-
-
-
     }
 
     /**
@@ -190,29 +178,11 @@ public class MeterDensityAnisotropic implements IDataSource, DataSourceIndepende
         return box;
     }
 
-    public void reset() {
-        if (box == null) return;
-
-        Boundary boundary = box.getBoundary();
-        xDataSourcer.setXMin(0);
-        xDataSourcer.setXMax(Rmax);
-        xDataSourcetheta.setXMin(0);
-        xDataSourcetheta.setXMax(Math.PI);
-        xDataSourcephi.setXMin(0);
-        xDataSourcephi.setXMax(2*Math.PI);
- //       xDataSource.setYMin(0);
-
-        data = new DataFunction(new int[]{xDataSourcer.getNValues(),xDataSourcetheta.getNValues(),xDataSourcephi.getNValues()});
-        dataInfo = new DataInfoFunction("Mapped Average Profile", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1, -1}), this);
-        dataInfo.addTag(tag);
-    }
-
     public DataSourceUniform getXDataSource(int i) {
         if(i==0)return xDataSourcer;
         if(i==1)return xDataSourcetheta;
         if(i==2)return xDataSourcephi;
         throw new RuntimeException();
-
     }
 
     public DataTag getIndependentTag(){throw new RuntimeException();}
