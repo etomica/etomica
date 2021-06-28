@@ -20,7 +20,16 @@ import etomica.units.dimensions.Null;
  * @author David Kofke
  */
 public class DataSourceUniform implements IDataSource, java.io.Serializable {
-    
+
+    private LimitType typeMin, typeMax;
+    private double xMin, xMax;
+    private double[] x;
+    private DataDoubleArray data;
+    private DataInfoDoubleArray dataInfo;
+    private double dx;
+    protected final DataTag tag;
+    protected boolean doEnforceBounds = true;
+
     /**
      * Default constructor. Chooses 100 points between 0 and 1, inclusive,
      * and sets dataInfo label to "Uniform" and dimension to Dimension.NULL 
@@ -51,7 +60,6 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
                    LimitType typeMin, LimitType typeMax) {
         dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{nValues});
         data = new DataDoubleArray(nValues);
-        if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -62,7 +70,13 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
      */
     private void calculateX(int nValues, double newXMin, double newXMax, 
                    LimitType newTypeMin, LimitType newTypeMax) {
-        
+
+        if(nValues < 1) throw new IllegalArgumentException("nValues must be at least 1");
+        if(nValues == 1 && newXMax != newXMin && newTypeMin == LimitType.INCLUSIVE && newTypeMax == LimitType.INCLUSIVE)
+            throw new IllegalArgumentException("Incompatible x range, number of intervals, and limit types");
+        if(nValues == 1 && newXMax == newXMin && (newTypeMin == LimitType.EXCLUSIVE || newTypeMax == LimitType.EXCLUSIVE))
+            throw new IllegalArgumentException("Incompatible x range, number of intervals, and limit types");
+
         //determine number of intervals between left and right end points
         double intervalCount = (nValues - 1);
 
@@ -74,7 +88,8 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
         else if(newTypeMax == LimitType.EXCLUSIVE) intervalCount += 1.0;
         
         //determine spacing between values
-        dx = (newXMax - newXMin)/intervalCount;
+        if(intervalCount == 0) dx = 0; //this can happen only if newXMax == newXMin
+        else dx = (newXMax - newXMin)/intervalCount;
         
         //determine first value
         double x0 = newXMin;
@@ -125,10 +140,9 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
     
     /**
      * Sets the number of uniformly spaced values.
-     * Minimum allowable value is 2 (smaller values cause return with no action).
+     * Minimum allowable value is 1
      */
     public void setNValues(int nValues) {
-        if(nValues < 1) return;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
     }
     
@@ -242,16 +256,6 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
         EXCLUSIVE
     }
     
-    private static final long serialVersionUID = 1L;
-    private LimitType typeMin, typeMax;
-    private double xMin, xMax;
-    private double[] x;
-    private DataDoubleArray data;
-    private DataInfoDoubleArray dataInfo;
-    private double dx;
-    protected final DataTag tag;
-    protected boolean doEnforceBounds = true;
-
     /**
      * Main method to demonstrate and check class.
      * Should output the values described in the comments for the LimitType class.
@@ -260,15 +264,17 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
         
         DataSourceUniform source = new DataSourceUniform();
         
-        int n = 3;
-        source.setXMin(0.0);
+        int n = 2;
+        source.setXMin(1.0);
         source.setXMax(1.0);
         source.setNValues(n);
-        source.setTypeMin(LimitType.INCLUSIVE);
-        source.setTypeMax(LimitType.INCLUSIVE);
+        source.setTypeMin(LimitType.HALF_STEP);
+        source.setTypeMax(LimitType.HALF_STEP);
         for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println();
         source.setTypeMax(LimitType.HALF_STEP);
+        source.setTypeMin(LimitType.INCLUSIVE);
+        source.setNValues(n);
         for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println();
         source.setTypeMax(LimitType.EXCLUSIVE);
