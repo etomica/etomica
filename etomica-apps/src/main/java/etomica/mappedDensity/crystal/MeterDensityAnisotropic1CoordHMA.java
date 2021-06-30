@@ -190,14 +190,14 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
                         deltaVec.setX(1, r * sintheta * Math.sin(phi));
                         deltaVec.setX(2, r * costheta);
 
-                        rVec.Ev1Mv2(rivector, deltaVec);
-                        RVec.Ea1Tv1(-1, deltaVec);
+                        rVec.Ev1Mv2(rivector, deltaVec); // r - delta
+                        RVec.Ea1Tv1(-1, deltaVec);    // R - delta
                         vel.E(Singlet3DmappingDelta0.xyzDot(rVec, RVec, sigma));
 
                         double rdot = vel.dot(rivector) / ri;
-      //                  double a1 = -agentManager.getAgent(atom).dot(vel);
-      //                  double a2 =  temperature * rdot * dlnpridr;
-      //                  System.out.println(a1+", "+a2+", "+(a1+a2));
+                        double a1 = -agentManager.getAgent(atom).dot(vel);
+                        double a2 =  temperature * rdot * dlnpridr;
+                        double r2 = rVec.squared()/sigma2;
                         ytemporary[i][j][k] += (pr / q) - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr);
                         if (Double.isNaN(ytemporary[i][j][k])) {
                             Singlet3DmappingDelta0.xyzDot(rivector, deltaVec, sigma);
@@ -206,6 +206,18 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
                     }
                 }
             }
+            //debugging
+//                        if(Math.abs(a1+a2)>1e6) System.out.println(r2+", "+a1+", "+a2+", "+(a1+a2));
+            rVec.E(rivector); // atom position relative to lattice site
+            rVec.normalize(); //unit vector from lattice site to atom
+            double Fr = agentManager.getAgent(atom).dot(rVec);//magnitude of force in direction from lattice site to atom
+            rVec.TE(Fr);//force in direction of r-R
+            rVec.ME(agentManager.getAgent(atom));//force in direction perpendicular to r-R
+            double Fperp = Math.sqrt(rVec.squared());
+            if(new java.util.Random().nextDouble() < 0.01) System.out.println(Fperp+", "+Fr+", "+temperature*dlnpridr+", "+(Fr-temperature*dlnpridr)+", "+(Fperp/Fr));
+
+            //end debugging
+
         }
         int n = 0;
         for (int i = 0; i < nR; i++) {
