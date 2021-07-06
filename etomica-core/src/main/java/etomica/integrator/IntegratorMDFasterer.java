@@ -387,7 +387,9 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             }
         }
         if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
-            shiftMomenta();
+            if (thermostatNoDrift) {
+                shiftMomenta();
+            }
             scaleMomenta();
         } else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
             if (initialized) {
