@@ -119,6 +119,12 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
 
     @Override
     public void init() {
+        Vector L = box.getBoundary().getBoxSize();
+        double minL = Double.POSITIVE_INFINITY;
+        for (int i=0; i<L.getD(); i++) {
+            minL = Math.min(minL, L.getX(0));
+        }
+        minR2 = 0.25*minL*minL;
     }
 
     @Override

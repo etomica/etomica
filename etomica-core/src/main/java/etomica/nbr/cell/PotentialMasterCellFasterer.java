@@ -48,6 +48,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
     }
 
     public void init() {
+        super.init();
         cellManager.init();
     }
 

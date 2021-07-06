@@ -34,6 +34,7 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
     }
 
     public void init() {
+        super.init();
         this.nbrManager.init();
     }
 
