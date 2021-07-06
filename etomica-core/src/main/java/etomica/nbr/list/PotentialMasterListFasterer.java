@@ -12,6 +12,7 @@ import etomica.potential.BondingInfo;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterFasterer;
 import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
@@ -82,6 +83,9 @@ public class PotentialMasterListFasterer extends PotentialMasterFasterer impleme
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         uTot += uCorrection[0];
         virialTot += duCorrection[0];
+        if (doForces && !isPureAtoms) {
+            virialTot += PotentialCompute.computeVirialIntramolecular(forces, box);
+        }
         energyTot = uTot;
         return uTot;
     }

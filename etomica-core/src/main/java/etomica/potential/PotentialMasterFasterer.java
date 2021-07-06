@@ -10,6 +10,7 @@ import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,7 +21,7 @@ import etomica.util.collections.IntArrayList;
 
 import java.util.Arrays;
 
-public class PotentialMasterFasterer implements etomica.potential.compute.PotentialCompute {
+public class PotentialMasterFasterer implements PotentialCompute {
     protected final BondingInfo bondingInfo;
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
@@ -115,6 +116,11 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
                 }
             }
         });
+    }
+
+    @Override
+    public boolean needForcesForVirial() {
+        return !isPureAtoms;
     }
 
     @Override
@@ -236,6 +242,10 @@ public class PotentialMasterFasterer implements etomica.potential.compute.Potent
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         u += uCorrection[0];
         virialTot += duCorrection[0];
+
+        if (doForces && !isPureAtoms) {
+            virialTot += PotentialCompute.computeVirialIntramolecular(forces, box);
+        }
 
         if (debug && uAtom.length == uAtomOld.length && !first) {
             boolean success = true;

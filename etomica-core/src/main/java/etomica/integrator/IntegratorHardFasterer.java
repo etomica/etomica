@@ -109,7 +109,7 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
             }
         }
         List<PotentialCompute> computes = new ArrayList<>();
-        PotentialComputePairGeneral pcPair = new PotentialComputePairGeneral(softPotentials, box, neighborManager);
+        PotentialComputePairGeneral pcPair = new PotentialComputePairGeneral(sm, softPotentials, box, neighborManager);
         computes.add(pcPair);
         if (fieldPotentials != null) {
             PotentialComputeField pcField = new PotentialComputeField(fieldPotentials, box);

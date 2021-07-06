@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class PotentialComputePair implements PotentialCompute {
+
+    protected final boolean isPureAtoms;
     private final NeighborIterator neighborIterator;
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
@@ -46,6 +48,7 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     public PotentialComputePair(SpeciesManager sm, Box box, NeighborManager neighborManager, Potential2Soft[][] pairPotentials) {
+        isPureAtoms = sm.isPureAtoms();
         space = box.getSpace();
         int numAtomTypes = sm.getAtomTypeCount();
         this.neighborManager = neighborManager;
@@ -126,6 +129,11 @@ public class PotentialComputePair implements PotentialCompute {
                 return uij;
             }
         };
+    }
+
+    @Override
+    public boolean needForcesForVirial() {
+        return !isPureAtoms;
     }
 
     public Potential2Soft[][] getPairPotentials() {
@@ -230,6 +238,11 @@ public class PotentialComputePair implements PotentialCompute {
         this.computeAllTruncationCorrection(uCorrection, duCorrection);
         uTot[0] += uCorrection[0];
         virialTot += duCorrection[0];
+
+        if (doForces && !isPureAtoms) {
+            virialTot += PotentialCompute.computeVirialIntramolecular(forces, box);
+        }
+
         energyTot = uTot[0];
         return uTot[0];
     }
@@ -257,7 +270,7 @@ public class PotentialComputePair implements PotentialCompute {
     }
 
     protected double computeOneInternal(IAtom iAtom) {
-        return computeOneInternal(iAtom, 0, new IAtom[0]);
+        return computeOneInternal(iAtom, 0);
     }
 
     protected boolean arrayContains(IAtom a, int startIdx, IAtom... atoms) {

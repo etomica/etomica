@@ -24,6 +24,7 @@ import java.util.Objects;
 
 public class PotentialComputePairGeneral implements PotentialCompute {
 
+    protected final boolean isPureAtoms;
     private final NeighborIterator neighborIterator;
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
@@ -44,10 +45,11 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     public boolean doOneTruncationCorrection = false;
 
     public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
-        this(new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
+        this(sm, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
     }
 
-    public PotentialComputePairGeneral(Potential2Soft[][] p2, Box box, NeighborManager neighborManager) {
+    public PotentialComputePairGeneral(SpeciesManager sm, Potential2Soft[][] p2, Box box, NeighborManager neighborManager) {
+        isPureAtoms = sm.isPureAtoms();
         space = box.getSpace();
         pairPotentials = p2;
         this.neighborManager = neighborManager;
@@ -253,6 +255,9 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         computeAllTruncationCorrection(uCorrection, duCorrection);
         uTot[0] += uCorrection[0];
         virialTot += duCorrection[0];
+        if (doForces && !isPureAtoms) {
+            virialTot += PotentialCompute.computeVirialIntramolecular(forces, box);
+        }
 
         if (debug && uAtom.length == uAtomOld.length && !first) {
             boolean success = true;

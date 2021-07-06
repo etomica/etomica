@@ -558,6 +558,9 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
         }
 
         virialTot += virialSum + virialSum6;
+        if (doForces && !sm.isPureAtoms()) {
+            virialTot += PotentialCompute.computeVirialIntramolecular(forces, box);
+        }
         first = false;
 
         return uTot;
