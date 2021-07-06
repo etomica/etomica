@@ -149,6 +149,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 Vector rj = jAtom.getPosition();
                 u1 += handleComputeOne(pij, ri, rj, jbo, i, j, skipIntra);
@@ -177,6 +178,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
             }
