@@ -317,7 +317,7 @@ public class SimDensityAnisotropic extends Simulation {
                             break;
                     }
                     int [] rho=new int[] {i,j,k};
-                    System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
+                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
                 }
             }
         }
@@ -376,8 +376,8 @@ public class SimDensityAnisotropic extends Simulation {
         public int rnumberofbins = 20;
         public int thetaphinumberofbins=10;
         public double density = 1.29;
-        public long numSteps = 1000000000;
-        public double temperature = 0.2;
+        public long numSteps = 1000000;
+        public double temperature = 0.1;
         public double msddependence=1.0;
         public double rc = 3;
         public double rc0 = rc;

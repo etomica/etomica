@@ -18,9 +18,10 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
+
+import java.util.Objects;
 
 /**
  * Measured anisotropic singlet density for a crystal using HMA, focusing on variation of a single coordinate variable
@@ -43,9 +44,11 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
     protected final Vector deltaVec;
     protected final Vector rVec;
     protected final Vector RVec;
-    protected final Vector vel;
+    protected final Vector riDotB;
+    protected final Vector riDotA;
     protected final DataTag tag;
     protected double temperature;
+    protected double beta;
     protected CoordinateDefinition latticesite;
     protected double msd;
     protected int nR;
@@ -67,14 +70,18 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
     public MeterDensityAnisotropic1CoordHMA(double msd, int iX, int nX, double X2, double X3, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
+//        this.temperature = 1.0;
+        beta = 1./this.temperature;
         this.msd = msd;
+        System.out.println("sigma: "+Math.sqrt(msd/3.));
         this.Rmax = Math.sqrt(msd)*2;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
         this.deltaVec = box.getSpace().makeVector();
         this.rVec = box.getSpace().makeVector();
         this.RVec = box.getSpace().makeVector();
-        this.vel = box.getSpace().makeVector();
+        this.riDotB = box.getSpace().makeVector();
+        this.riDotA = box.getSpace().makeVector();
 
         xDataSourceR = new DataSourceUniform("r", Length.DIMENSION);
         xDataSourceR.setTypeMax(LimitType.HALF_STEP);
@@ -167,14 +174,20 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
         double q = Math.pow(2 * Math.PI * sigma2, 1.5);
 
         for (IAtom atom : atoms) {
-            rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
+            rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom)); // r - R
             box.getBoundary().nearestImage(rivector);
-            double ri = Math.sqrt(rivector.squared());
+            double ri = Math.sqrt(rivector.squared());//distance of atom from lattice site, r-R
+            riDotA.E(Singlet3DmappingDelta0.xyzDotA(rivector, ri, sigma));
+            double a1 = -beta * agentManager.getAgent(atom).dot(riDotA);
+
             double dlnpridr = - ri / sigma2;
+            //double rdot = riDotA.dot(rivector) / ri;
+            double rdot = Math.sqrt(riDotA.squared());//riDotA is already in the direction of rivector
+            double a2 = rdot * dlnpridr;
 
             for (int i = 0; i < nR; i++) {
                 double r = ((DataDoubleArray) xDataSourceR.getData()).getData()[i];
-                //double r = (i + 0.5) * dz;
+                double pr = (Math.exp(-r * r / (2 * sigma2)));
 
                 for (int j = 0; j < nTheta; j++) {
                     double costheta = ((DataDoubleArray) xDataSourceTheta.getData()).getData()[j];
@@ -183,22 +196,20 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
                     for (int k = 0; k < nPhi; k++) {
                         double phi = ((DataDoubleArray) xDataSourcePhi.getData()).getData()[k];
 
-                        double pr = (Math.exp(-r * r / (2 * sigma2)));
-
-                        //point where dens measured, relative to lat site
+                        //point where dens measured, relative to lat site;  delta - R
                         deltaVec.setX(0, r * sintheta * Math.cos(phi));
                         deltaVec.setX(1, r * sintheta * Math.sin(phi));
                         deltaVec.setX(2, r * costheta);
 
                         rVec.Ev1Mv2(rivector, deltaVec); // r - delta
-                        RVec.Ea1Tv1(-1, deltaVec);    // R - delta
-                        vel.E(Singlet3DmappingDelta0.xyzDot(rVec, RVec, sigma));
+                        riDotB.E(Singlet3DmappingDelta0.xyzDotB(rVec, Math.sqrt(rVec.squared())));
 
-                        double rdot = vel.dot(rivector) / ri;
-                        double a1 = -agentManager.getAgent(atom).dot(vel);
-                        double a2 =  temperature * rdot * dlnpridr;
-                        double r2 = rVec.squared()/sigma2;
-                        ytemporary[i][j][k] += (pr / q) - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr);
+                        double a3 = -beta * agentManager.getAgent(atom).dot(riDotB);
+//                        double r2 = rVec.squared()/sigma2;
+                        ytemporary[i][j][k] += (pr / q) + (a1 + a2) * pr + a3;
+                        if(i==0 && j==0 && k==0 && Objects.equals(atom, atoms.get(0))) {
+//                            System.out.println((a1 + a2) * pr + a3+", "+pr+", "+a1*pr+", "+a2*pr+", "+a3);
+                        }
                         if (Double.isNaN(ytemporary[i][j][k])) {
                             Singlet3DmappingDelta0.xyzDot(rivector, deltaVec, sigma);
                             System.out.println("oops");
@@ -207,18 +218,19 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
                 }
             }
             //debugging
-//                        if(Math.abs(a1+a2)>1e6) System.out.println(r2+", "+a1+", "+a2+", "+(a1+a2));
-            rVec.E(rivector); // atom position relative to lattice site
-            rVec.normalize(); //unit vector from lattice site to atom
-            double Fr = agentManager.getAgent(atom).dot(rVec);//magnitude of force in direction from lattice site to atom
-            rVec.TE(Fr);//force in direction of r-R
-            rVec.ME(agentManager.getAgent(atom));//force in direction perpendicular to r-R
-            double Fperp = Math.sqrt(rVec.squared());
-            if(new java.util.Random().nextDouble() < 0.01) System.out.println(Fperp+", "+Fr+", "+temperature*dlnpridr+", "+(Fr-temperature*dlnpridr)+", "+(Fperp/Fr));
+            double myr = Math.sqrt(rVec.squared()); // |ri - delta|
+            //if(i==0 && j==0 && k==0 && Math.abs((a1+a2)*pr+a3)>1e6) System.out.println((ri/sigma)+", "+myr+", "+a1*pr+", "+a2*pr+", "+a3+", "+((a1+a2)*pr+a3)+", "+ Math.sqrt(riDotA.squared())+", "+Math.sqrt(riDotB.squared()));
+//                        rVec.E(rivector); // atom position relative to lattice site
+//                        rVec.normalize(); //unit vector from lattice site to atom
+//                        double Fr = agentManager.getAgent(atom).dot(rVec);//magnitude of force in direction from lattice site to atom
+//                        rVec.TE(Fr);//force in direction of r-R
+//                        rVec.ME(agentManager.getAgent(atom));//force in direction perpendicular to r-R
+//                        double Fperp = Math.sqrt(rVec.squared());
+//                        //if(new java.util.Random().nextDouble() < 0.01) System.out.println(Fperp+", "+Fr+", "+temperature*dlnpridr+", "+(Fr-temperature*dlnpridr)+", "+(Fperp/Fr));
 
             //end debugging
 
-        }
+        }//loop over atoms
         int n = 0;
         for (int i = 0; i < nR; i++) {
             for (int j = 0; j < nTheta; j++) {
