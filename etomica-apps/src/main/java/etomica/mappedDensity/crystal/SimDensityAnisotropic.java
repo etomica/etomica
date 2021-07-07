@@ -27,7 +27,10 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.potential.*;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -272,6 +275,20 @@ public class SimDensityAnisotropic extends Simulation {
 
         sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
+
+        double[] h = meterMappedAvg3Dmapping.h.getHistogram();
+        double[] x = meterMappedAvg3Dmapping.h.xValues();
+        double[] hl = meterMappedAvg3Dmapping.hl.getHistogram();
+        double[] xl = meterMappedAvg3Dmapping.hl.xValues();
+        for (int i=0; i<x.length; i++) {
+            System.out.println(x[i]+" "+h[i]);
+        }
+        System.out.println("&");
+        for (int i=0; i<xl.length; i++) {
+            double xx = Math.exp(xl[i]);
+            System.out.println(xx+" "+hl[i]/xx);
+        }
+        System.exit(0);
 
         DataDoubleArray data =  (DataDoubleArray)accCon.getData(accCon.AVERAGE);
         DataDoubleArray dataunc =(DataDoubleArray)  accCon.getData(accCon.ERROR);

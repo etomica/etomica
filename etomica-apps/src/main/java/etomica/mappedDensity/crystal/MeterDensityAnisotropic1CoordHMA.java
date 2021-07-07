@@ -10,10 +10,14 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
+import etomica.data.histogram.Histogram;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.math.DoubleRange;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
@@ -157,6 +161,8 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
     }
 //sim.coordinateDefinition - latticesites
 
+    public final Histogram hl = new HistogramExpanding(1);
+    public final Histogram h = new HistogramSimple(200, new DoubleRange(-1e7, 1e7));
     /**
      * Returns the profile for the current configuration.
      */
@@ -210,6 +216,10 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
                         if(i==0 && j==0 && k==0 && Objects.equals(atom, atoms.get(0))) {
 //                            System.out.println((a1 + a2) * pr + a3+", "+pr+", "+a1*pr+", "+a2*pr+", "+a3);
                         }
+//                        if  (k==0) {
+//                            h.addValue( - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr));
+//                            hl.addValue(Math.log(Math.abs(- agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr))));
+//                        }
                         if (Double.isNaN(ytemporary[i][j][k])) {
                             Singlet3DmappingDelta0.xyzDot(rivector, deltaVec, sigma);
                             System.out.println("oops");
