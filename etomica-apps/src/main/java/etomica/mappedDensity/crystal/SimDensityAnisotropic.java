@@ -276,19 +276,19 @@ public class SimDensityAnisotropic extends Simulation {
         sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
 
-        double[] h = meterMappedAvg3Dmapping.h.getHistogram();
-        double[] x = meterMappedAvg3Dmapping.h.xValues();
-        double[] hl = meterMappedAvg3Dmapping.hl.getHistogram();
-        double[] xl = meterMappedAvg3Dmapping.hl.xValues();
-        for (int i=0; i<x.length; i++) {
-            System.out.println(x[i]+" "+h[i]);
-        }
-        System.out.println("&");
-        for (int i=0; i<xl.length; i++) {
-            double xx = Math.exp(xl[i]);
-            System.out.println(xx+" "+hl[i]/xx);
-        }
-        System.exit(0);
+//        double[] h = meterMappedAvg3Dmapping.h.getHistogram();
+//        double[] x = meterMappedAvg3Dmapping.h.xValues();
+//        double[] hl = meterMappedAvg3Dmapping.hl.getHistogram();
+//        double[] xl = meterMappedAvg3Dmapping.hl.xValues();
+//        for (int i=0; i<x.length; i++) {
+//            System.out.println(x[i]+" "+h[i]);
+//        }
+//        System.out.println("&");
+//        for (int i=0; i<xl.length; i++) {
+//            double xx = Math.exp(xl[i]);
+//            System.out.println(xx+" "+hl[i]/xx);
+//        }
+//        System.exit(0);
 
         DataDoubleArray data =  (DataDoubleArray)accCon.getData(accCon.AVERAGE);
         DataDoubleArray dataunc =(DataDoubleArray)  accCon.getData(accCon.ERROR);
