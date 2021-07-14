@@ -13,6 +13,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -44,7 +45,7 @@ public class PistonCylinder extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
         lambda = 2.0;
         double sigma = 4.0;
         box = this.makeBox(new BoundaryPistonCylinder(space));
@@ -95,7 +96,7 @@ public class PistonCylinder extends Simulation {
         potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
         ((BoundaryPistonCylinder) box.getBoundary()).setPistonPotential(pistonPotential);
 
-        integrator = new IntegratorHardPiston(this, potentialMaster, pistonPotential, box);
+        integrator = new IntegratorHardPiston(random, potentialMaster, pistonPotential, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);

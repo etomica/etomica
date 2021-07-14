@@ -9,8 +9,10 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.*;
-import etomica.simulation.Simulation;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationPhiSumHeisenberg;
+import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -22,7 +24,6 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
     protected final Space space;
     protected final IPotentialAtomic p2;
     protected final IteratorDirective allAtoms;
-    protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected PotentialCalculationPhiSum secondDerivativeSum;
@@ -38,7 +39,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2, int nMax) {
+    public MeterMappedAveraging3Pair(Box box, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 17;
         data = new DataDoubleArray(nValues);
@@ -48,7 +49,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         this.box = box;
         this.p2 = p2;
 
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         this.nMax = nMax;
         J = interactionS;
@@ -61,7 +62,6 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
-        energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);

@@ -9,12 +9,12 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
+import etomica.data.histogram.HistogramCollapsing;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierGeneral;
 import etomica.space3d.Space3D;
-import etomica.data.histogram.HistogramCollapsing;
 import etomica.util.ParameterBase;
 
 /**
@@ -110,27 +110,6 @@ public class HTTPSoftSphereApplet extends SimulationGraphic {
         simGraphic.makeAndDisplayFrame("HTTP Method - Soft Sphere FCC Crystal");
     }
     
-    public static class Applet extends javax.swing.JApplet{
-    	
-		public void init(){
-			SimOverlapTPSSParams params = new SimOverlapTPSSParams();
-	    	
-	        int numMolecules = params.numMolecules;
-	        double temperature = params.temperature;
-	        double otherTemperature = params.otherTemperature;
-			
-	        HTTPSoftSphereSim sim = new HTTPSoftSphereSim(Space3D.getInstance(), numMolecules, temperature);
-	        HTTPSoftSphereApplet simGraphic = new HTTPSoftSphereApplet(sim, otherTemperature); 
-	        getContentPane().add(simGraphic.getPanel());
-		}
-		
-		private static final long serialVersionUID = 1L;
-
-    }
-    
-    
-    
-    private static final long serialVersionUID = 1L;
     protected HTTPSoftSphereSim sim;
     protected MeterBoltzmannHTTP meter;
     

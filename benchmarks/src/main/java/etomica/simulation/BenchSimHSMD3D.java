@@ -7,8 +7,10 @@ package etomica.simulation;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.data.meter.MeterPressureHard;
+import etomica.data.meter.MeterPressureHardFasterer;
 import etomica.space3d.Space3D;
 import etomica.tests.TestHSMD3D;
+import etomica.tests.TestHSMD3DSlow;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -25,7 +27,7 @@ public class BenchSimHSMD3D {
     private int numSteps;
 
     private TestHSMD3D sim;
-    private MeterPressureHard pMeter;
+    private TestHSMD3DSlow simSlow;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -35,19 +37,37 @@ public class BenchSimHSMD3D {
                 TestHSMD3D.class
         );
 
-        sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, config);
+        {
+            sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, config);
 
-        pMeter = new MeterPressureHard(sim.integrator);
-        sim.integrator.reset();
+            MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+            sim.integrator.reset();
+        }
+
+        {
+            simSlow = new TestHSMD3DSlow(Space3D.getInstance(), numMolecules, config);
+
+            MeterPressureHard pMeter = new MeterPressureHard(simSlow.integrator);
+            sim.integrator.reset();
+        }
     }
 
-    @Benchmark
+    //    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 3, timeUnit = TimeUnit.SECONDS, iterations = 5)
-    public double integratorStep() {
+    public void integratorStep() {
         sim.integrator.doStep();
-        return pMeter.getDataAsScalar();
     }
+
+    //    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, timeUnit = TimeUnit.SECONDS, iterations = 5)
+    public void integratorStepSlow() {
+        simSlow.integrator.doStep();
+    }
+
 }

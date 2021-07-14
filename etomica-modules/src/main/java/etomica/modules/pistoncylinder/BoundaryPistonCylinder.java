@@ -46,5 +46,4 @@ public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
     }
 
     private P1HardMovingBoundary pistonPotential;
-    private static final long serialVersionUID = 1L;
 }

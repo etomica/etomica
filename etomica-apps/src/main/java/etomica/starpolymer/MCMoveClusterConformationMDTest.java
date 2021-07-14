@@ -12,9 +12,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
+import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.MCMoveClusterMolecule;
-import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.mcmove.MCMoveClusterMolecule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +29,9 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
     private StarPolymerMD simMD;
 
 
-    public MCMoveClusterConformationMDTest(SimulationVirialOverlap2 sim, Space _space, double temperature, int f, int l,
+    public MCMoveClusterConformationMDTest(IRandom random, Space _space, double temperature, int f, int l,
                                            boolean useNbrs, boolean doCollecting) {
-        super(sim, _space);
+        super(random, _space);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
         molCOM = new MoleculePositionCOM(_space);
@@ -101,7 +101,7 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
 //        System.out.println("uOld: " + uOld);
         for (int i = 0; i < nBody; i++) {
             IMolecule mol = box.getMoleculeList().get(i);
-            List<IAtom> atoms = mol.getChildList().getAtoms();
+            List<IAtom> atoms = mol.getChildList();
             List<Vector3D> old = new ArrayList<>();
             Vector oldCOM = space.makeVector();
             oldCOM.E(molCOM.position(mol));
@@ -202,7 +202,7 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
 
         for (int i = 0; i < box.getMoleculeList().size(); i++) {
             IMolecule mol = box.getMoleculeList().get(i);
-            List<IAtom> atoms = mol.getChildList().getAtoms();
+            List<IAtom> atoms = mol.getChildList();
             List<Vector3D> old = oldPos.get(i);
 
             for (int j = 0; j < nBead; j++) {

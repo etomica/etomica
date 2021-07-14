@@ -38,9 +38,9 @@ public class WaterDropletShake {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
-        sim.addBox(box);
         SpeciesGeneral species = SpeciesWater3P.create(true);
         sim.addSpecies(species);
+        sim.addBox(box);
         box.setNMolecules(species, 108);
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater108 configFile = new ConfigurationWater108();
@@ -48,7 +48,7 @@ public class WaterDropletShake {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 100;
-        IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, box);
+        IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, box);
         double lOH = ConformationWater3P.bondLengthOH;
         double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWater3P.angleHOH)));
         integrator.setBondConstraints(species, new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});
@@ -72,8 +72,8 @@ public class WaterDropletShake {
         double chargeOxygen = Electron.UNIT.toSim(-0.82);
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
 
-        AtomType oType = species.getTypeByName("H");
-        AtomType hType = species.getTypeByName("O");
+        AtomType oType = species.getTypeByName("O");
+        AtomType hType = species.getTypeByName("H");
         double epsOxygen = new P2WaterSPC(space).getEpsilon();
         double sigOxygen = new P2WaterSPC(space).getSigma();
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);

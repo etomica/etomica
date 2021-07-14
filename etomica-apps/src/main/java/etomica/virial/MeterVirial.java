@@ -4,10 +4,14 @@
 
 package etomica.virial;
 
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
+import etomica.virial.cluster.ClusterAbstract;
 
 /**
  * Measures value of clusters in a box and returns the values
@@ -36,11 +40,11 @@ public class MeterVirial implements IDataSource, java.io.Serializable {
     
     public IData getData() {
         double pi = box.getSampleCluster().value(box);
-        if (pi == 0 || pi == Double.POSITIVE_INFINITY || Double.isNaN(pi)) throw new RuntimeException("oops "+pi);
+        if (pi == 0 || pi == Double.POSITIVE_INFINITY || Double.isNaN(pi)) throw new RuntimeException("oops "+pi+" for box "+box.getIndex());
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
             x[i] = clusters[i].value(box)/pi;
-            if (Double.isNaN(x[i]) || Double.isInfinite(x[i])) throw new RuntimeException("oops "+clusters[i].value(box)+" "+x[i]+" "+pi);
+            if (Double.isNaN(x[i]) || Double.isInfinite(x[i])) throw new RuntimeException("oops for box "+box.getIndex()+" "+clusters[i].value(box)+" "+x[i]+" "+pi);
         }
 //        System.out.println(box.getIndex()+" "+pi+" "+x[0]+" "+x[1]);
         return data;

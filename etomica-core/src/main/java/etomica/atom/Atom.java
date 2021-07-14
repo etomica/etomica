@@ -13,12 +13,11 @@ import etomica.util.Debug;
  /**
   * Atom that represents a physical atom with a position.
   * <p>
+  *
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
-  * 
   */
-public class Atom implements IAtom, java.io.Serializable {
+ public class Atom implements IAtom {
 
-     private static final long serialVersionUID = 3L;
      protected final AtomType type;
      protected final Vector position;
      protected int index;
@@ -26,8 +25,8 @@ public class Atom implements IAtom, java.io.Serializable {
      protected int leafIndex;
 
      public Atom(Space space, AtomType type) {
-        super();
-        this.type = type;
+         super();
+         this.type = type;
         position = space.makeVector();
     }
 
@@ -100,14 +99,18 @@ public class Atom implements IAtom, java.io.Serializable {
     }
 
      public void setLeafIndex(int newLeafIndex) {
-        leafIndex = newLeafIndex;
-    }
+         leafIndex = newLeafIndex;
+     }
 
-    /**
-     * @return the Atom type, holding properties held in common with other
-     * atoms made by this atom's factory.
-     */
-    public final AtomType getType() {
-        return type;
-    }
-}
+     /**
+      * @return the Atom type, holding properties held in common with other
+      * atoms made by this atom's factory.
+      */
+     public final AtomType getType() {
+         return type;
+     }
+
+     public void copyCoordinatesFrom(IAtom atom) {
+         position.E(atom.getPosition());
+     }
+ }

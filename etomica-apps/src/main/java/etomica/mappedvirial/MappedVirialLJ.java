@@ -5,7 +5,6 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -52,7 +51,7 @@ public class MappedVirialLJ extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc);
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
@@ -151,7 +150,7 @@ public class MappedVirialLJ extends Simulation {
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
-sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
@@ -160,6 +159,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
 
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
         meterMappedVirial.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
+        meterMappedVirial.getDataAsScalar();
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
         if (computePMA) sim.integrator.getEventManager().addListener(pumpMappedVirial);

@@ -28,6 +28,7 @@ import java.util.Set;
  */
 public class PotentialMasterList extends PotentialMasterNbr {
 
+    private final Simulation simulation;
     private final Space space;
     private final AtomSetSinglet atomSetSinglet;
     private final AtomPair atomPair;
@@ -50,7 +51,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public PotentialMasterList(Simulation sim, double range, NeighborListAgentSource neighborListAgentSource, Space _space) {
-        super(sim);
+        super(sim.getSpeciesManager());
+        this.simulation = sim;
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);

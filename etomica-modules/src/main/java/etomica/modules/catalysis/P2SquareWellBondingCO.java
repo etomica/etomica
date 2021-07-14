@@ -27,7 +27,6 @@ import etomica.units.dimensions.Null;
  */
 public class P2SquareWellBondingCO extends Potential2HardSpherical {
 
-    private static final long serialVersionUID = 1L;
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda

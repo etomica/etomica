@@ -271,7 +271,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
         IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
@@ -319,7 +319,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         kePumpListener.setInterval(10);
         dataStreamPumps.add(kePump);
 
-        MeterFlux meterFlux = new MeterFlux(sim, space);
+        MeterFlux meterFlux = new MeterFlux(sim.getSpeciesManager(), space);
         double xLength = sim.box.getBoundary().getBoxSize().getX(0);
         meterFlux.setBoundaries(0, new double[]{-0.25 * xLength, 0.25 * xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);

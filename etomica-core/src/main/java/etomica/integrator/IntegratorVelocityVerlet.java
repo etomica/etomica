@@ -11,7 +11,6 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -25,10 +24,6 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     protected final Tensor workTensor;
 
     protected AtomLeafAgentManager<Vector> agentManager;
-
-    public IntegratorVelocityVerlet(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
-    }
 
     public IntegratorVelocityVerlet(PotentialMaster potentialMaster, IRandom random,
                                     double timeStep, double temperature, Box box) {

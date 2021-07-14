@@ -57,11 +57,12 @@ public class LjMd3Dv2y {
         if (args.length==0) {
             params.graphics = false;
             params.numAtoms = 250;
-            params.steps = 100000;
+            params.steps = 200000;
             params.v2 = 0;
             params.rcShort = 2.5; //*Math.pow(params.v2, 1.0/6.0);
             params.y = 1.5;
             params.hybridInterval = 20;
+            params.nrcMax = 1;
         }
 
         final int numAtoms = params.numAtoms;
@@ -224,7 +225,7 @@ public class LjMd3Dv2y {
         P2LennardJones p2LJ = null;
 
         if (params.v2 == 0 && !useRho) {
-            PotentialMasterMonatomic potentialMasterLJ = new PotentialMasterMonatomic(sim);
+            PotentialMasterMonatomic potentialMasterLJ = new PotentialMasterMonatomic(sim.getSpeciesManager());
             p2LJ = new P2LennardJones(sim.getSpace());
             potentialMasterLJ.addPotential(p2LJ, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
             meterPU.setPotentialMasterDADv2(potentialMasterLJ);
@@ -249,7 +250,7 @@ public class LjMd3Dv2y {
         if (nCutoffs-1 >= nrcMax) nCutoffsLS=0;
         else if (nCutoffsLS-1>nrcMax) nCutoffsLS=1+nrcMax;
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
+        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
         Potential2SoftSphericalLSMulti pLS = null;
         PotentialMasterMonatomic potentialMasterLJLS = null;
         Potential2SoftSphericalLSMulti pLJLS = null;
@@ -270,7 +271,7 @@ public class LjMd3Dv2y {
             meterPULS.setTemperature(temperature);
 
             if (params.v2 == 0 && !useRho) {
-                potentialMasterLJLS = new PotentialMasterMonatomic(sim);
+                potentialMasterLJLS = new PotentialMasterMonatomic(sim.getSpeciesManager());
                 pLJLS = new Potential2SoftSphericalLSMulti(sim.getSpace(), cutoffsLS, p2LJ);
                 potentialMasterLJLS.addPotential(pLJLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
                 meterPULS.setPotentialMasterDADv2(potentialMasterLJLS);

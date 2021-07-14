@@ -70,7 +70,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHard(this, potentialMaster, box);
+        integratorHard = new IntegratorHard(random, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);

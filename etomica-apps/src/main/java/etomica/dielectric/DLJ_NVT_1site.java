@@ -5,7 +5,6 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -32,7 +31,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.potential.P2LJDipole;
@@ -89,7 +88,7 @@ public class DLJ_NVT_1site extends Simulation {
         // dipolar LJ potential
         P2LJDipole pDLJ = new P2LJDipole(space, sigmaLJ, epsilonLJ, mu, truncation);
         // add reaction field potential
-        DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, mu);// add reaction field potential
+        DipoleSourceMolecularDLJ dipoleSourceDLJ = new DipoleSourceMolecularDLJ(space, mu);// add reaction field potential
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleSourceDLJ);
         pRF.setRange(truncation);
@@ -102,9 +101,9 @@ public class DLJ_NVT_1site extends Simulation {
         potentialMaster.lrcMaster().addPotential(pRF.makeP0());
 
         // integrator from potential master
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         // add mc move
-        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
+        moveMolecule = new MCMoveMolecule(potentialMaster, this.getRandom(), space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
@@ -211,12 +210,12 @@ public class DLJ_NVT_1site extends Simulation {
    		}
 
         //AEE
-        DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, dipoleStrength);
+        DipoleSourceMolecularDLJ dipoleSourceDLJ = new DipoleSourceMolecularDLJ(space, dipoleStrength);
         MeterDipoleSumSquaredMappedAverage AEEMeter =  null;
    		AccumulatorAverageCovariance AEEAccumulator = null;
    		if(aEE){
-         AEEMeter = new MeterDipoleSumSquaredMappedAverage(space, sim.box,sim, dipoleStrength,temperature,sim.potentialMaster);
-		AEEMeter.setDipoleSource(dipoleSourceDLJ);
+         AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, sim.getSpeciesManager(), dipoleStrength, temperature, sim.potentialMaster);
+            AEEMeter.setDipoleSource(dipoleSourceDLJ);
          AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
 		DataPump AEEPump = new DataPump(AEEMeter,AEEAccumulator);
 		IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -270,11 +269,11 @@ public class DLJ_NVT_1site extends Simulation {
         System.out.println(  "time: " + totalTime);
 	}
 
-    public static class DipoleSourceDLJ implements DipoleSource {//for potential reaction field
+    public static class DipoleSourceMolecularDLJ implements DipoleSourceMolecular {//for potential reaction field
         protected final Vector dipoleVector;
         protected double dipoleStrength;
 
-        public DipoleSourceDLJ(Space space, double s) {
+        public DipoleSourceMolecularDLJ(Space space, double s) {
             dipoleStrength = s;
             dipoleVector = space.makeVector();
         }

@@ -84,7 +84,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         addBox(box);
         box.setNMolecules(species1,numAtoms);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

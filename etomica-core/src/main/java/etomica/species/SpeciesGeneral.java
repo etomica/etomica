@@ -138,7 +138,7 @@ public class SpeciesGeneral implements ISpecies {
     }
 
     @Override
-    public int getAtomTypeCount() {
+    public int getUniqueAtomTypeCount() {
         return this.uniqueAtomTypes.length;
     }
 
@@ -161,8 +161,13 @@ public class SpeciesGeneral implements ISpecies {
     }
 
     @Override
-    public List<AtomType> getAtomTypes() {
+    public List<AtomType> getUniqueAtomTypes() {
         return Arrays.asList(this.uniqueAtomTypes);
+    }
+
+    @Override
+    public List<AtomType> getAtomTypes() {
+        return Arrays.asList(this.atomTypes);
     }
 
     @Override

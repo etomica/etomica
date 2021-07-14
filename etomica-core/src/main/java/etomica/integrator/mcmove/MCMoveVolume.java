@@ -12,7 +12,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Pressure;
@@ -35,11 +34,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     protected double biasOld, uOld, hOld, vNew, vScale, hNew;
     protected double uNew = Double.NaN;
-
-    public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster,
-                        Space space) {
-        this(potentialMaster, sim.getRandom(), space, 1.0);
-    }
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies

@@ -11,7 +11,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -19,7 +18,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.MCMoveClusterMolecule;
+import etomica.virial.mcmove.MCMoveClusterMolecule;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the
@@ -37,8 +36,8 @@ public class MCMoveClusterRotateArm extends MCMoveClusterMolecule {
 
     public PotentialMaster potentialMaster;
 
-    public MCMoveClusterRotateArm(Simulation sim, PotentialMaster potentialMaster, int armLength, Space _space) {
-        this(potentialMaster, sim.getRandom(), 1.0, armLength, _space);
+    public MCMoveClusterRotateArm(IRandom random, PotentialMaster potentialMaster, int armLength, Space _space) {
+        this(potentialMaster, random, 1.0, armLength, _space);
     }
 
     public MCMoveClusterRotateArm(PotentialMaster potentialMaster,

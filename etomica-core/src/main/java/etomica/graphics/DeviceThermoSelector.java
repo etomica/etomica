@@ -8,7 +8,6 @@ import etomica.action.IAction;
 import etomica.action.controller.Controller;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
-import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
@@ -32,9 +31,8 @@ public class DeviceThermoSelector extends Device {
     /**
      * Constructor that specifies Kelvin as temperature units.
      */
-    public DeviceThermoSelector(Simulation sim, final IntegratorBox integrator) {
-        this(sim.getController(), Kelvin.UNIT, false);
-        setController(controller);
+    public DeviceThermoSelector(Controller controller, final IntegratorBox integrator) {
+        this(controller, Kelvin.UNIT, false);
         setIntegrator(integrator);
     }
      
@@ -169,8 +167,8 @@ public class DeviceThermoSelector extends Device {
 
         final HSMD3D sim = new HSMD3D();
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        
-        DeviceThermoSelector device = new DeviceThermoSelector(sim, sim.integrator);
+
+        DeviceThermoSelector device = new DeviceThermoSelector(sim.getController(), sim.integrator);
         device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});
         graphic.add(device);
         LinkedList displays = graphic.displayList();

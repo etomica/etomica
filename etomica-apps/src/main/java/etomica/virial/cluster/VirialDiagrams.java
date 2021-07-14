@@ -4,89 +4,38 @@
 
 package etomica.virial.cluster;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.graph.iterators.StoredIterator;
 import etomica.graph.iterators.filters.PropertyFilter;
-import etomica.graph.model.BitmapFactory;
-import etomica.graph.model.Coefficient;
-import etomica.graph.model.Edge;
-import etomica.graph.model.Graph;
-import etomica.graph.model.GraphFactory;
-import etomica.graph.model.GraphIterator;
-import etomica.graph.model.GraphList;
-import etomica.graph.model.Metadata;
-import etomica.graph.model.Node;
+import etomica.graph.model.*;
 import etomica.graph.model.comparators.ComparatorBiConnected;
 import etomica.graph.model.comparators.ComparatorChain;
 import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
-import etomica.graph.operations.AllIsomorphs;
+import etomica.graph.operations.*;
 import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
-import etomica.graph.operations.BiComponentSubst;
 import etomica.graph.operations.BiComponentSubst.BiComponentSubstParameters;
-import etomica.graph.operations.ComponentSubst;
 import etomica.graph.operations.ComponentSubst.ComponentSubstParameters;
-import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
-import etomica.graph.operations.DifByConstant;
 import etomica.graph.operations.DifByConstant.DifByConstantParameters;
-import etomica.graph.operations.DifByNode;
-import etomica.graph.operations.DifParameters;
-import etomica.graph.operations.Factor;
-import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
-import etomica.graph.operations.GraphOp;
-import etomica.graph.operations.GraphOpMaxRoot;
-import etomica.graph.operations.IsoFree;
-import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
-import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.operations.MulScalar;
-import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.ReeHoover;
 import etomica.graph.operations.ReeHoover.ReeHooverParameters;
-import etomica.graph.operations.Relabel;
-import etomica.graph.operations.RelabelParameters;
-import etomica.graph.operations.Split;
-import etomica.graph.operations.SplitGraph;
-import etomica.graph.operations.SplitOneBiconnected;
 import etomica.graph.operations.SplitOneBiconnected.SplitOneParametersBC;
-import etomica.graph.operations.SplitParameters;
-import etomica.graph.operations.Unfactor;
-import etomica.graph.property.HasSimpleArticulationPoint;
-import etomica.graph.property.IsBiconnected;
-import etomica.graph.property.IsConnected;
-import etomica.graph.property.NumFieldNodes;
-import etomica.graph.property.NumRootNodes;
-import etomica.graph.property.Property;
+import etomica.graph.property.*;
 import etomica.graph.traversal.BCVisitor;
 import etomica.graph.traversal.CVisitor;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 import etomica.util.Arrays;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterBondsNonAdditive;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumHS;
-import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterSumMultibodyShell;
-import etomica.virial.ClusterSumShell;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionNonAdditive;
 import etomica.virial.cluster.CondenseExchange.CondenseExchangeParameters;
 import etomica.virial.cluster.ExchangeSplit.ExchangeSplitParameters;
+
+import java.util.*;
 
 public class VirialDiagrams {
 
@@ -423,21 +372,6 @@ public class VirialDiagrams {
             return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f});
         }
         return new ClusterSumMultibody(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}, new MayerFunctionNonAdditive[]{fMulti});
-    }
-
-    public ClusterSumHS makeVirialClusterHS(Set<Graph> graphs, MayerFunction f) {
-        
-        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-        ArrayList<Double> weights = new ArrayList<Double>();
-        for (Graph g : graphs) {
-            populateEFBonds(g, allBonds, weights, false);
-        }
-
-        double[] w = new double[weights.size()];
-        for (int i=0; i<w.length; i++) {
-            w[i] = weights.get(i);
-        }
-        return new ClusterSumHS(allBonds.toArray(new ClusterBonds[0]), w, f);
     }
 
     public ClusterSum makeVirialClusterTempDeriv(MayerFunction f, MayerFunction e, MayerFunction dfdT) {

@@ -3,22 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.materialfracture;
+
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.potential.PotentialSoft;
+import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 
-public class P1Tension implements PotentialSoft {
-    
+public class P1Tension implements IPotentialField {
+
     protected final Space space;
     protected double w;
     protected final Vector[] force;
     protected Box box;
-    
+
     public P1Tension(Space space) {
         this.space = space;
         force = new Vector[1];
@@ -44,20 +46,33 @@ public class P1Tension implements PotentialSoft {
     public Dimension getSpringConstantDimension() {
         return Null.DIMENSION;
     }
-    
+
     public void setBox(Box newBox) {
         box = newBox;
+    }
+
+    public double u(IAtom atom) {
+        Vector r = atom.getPosition();
+        double x = r.getX(0);
+        return -0.5 * w * x * x;
+    }
+
+    public double udu(IAtom atom, Vector f) {
+        Vector r = atom.getPosition();
+        double x = r.getX(0);
+        f.setX(0, f.getX(0) + w * x);
+        return -0.5 * w * x * x;
     }
 
     public double energy(IAtomList a) {
         Vector r = a.get(0).getPosition();
         double aSum = 0.0;
         double x = r.getX(0);
-        aSum += x*x;
-        return 0.5*w*aSum;
+        aSum += x * x;
+        return 0.5 * w * aSum;
     }
 
-    public Vector[] gradient(IAtomList a, Tensor t){
+    public Vector[] gradient(IAtomList a, Tensor t) {
         return gradient(a);
     }
     

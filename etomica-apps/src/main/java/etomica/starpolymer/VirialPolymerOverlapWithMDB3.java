@@ -7,7 +7,6 @@ package etomica.starpolymer;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -28,8 +27,11 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneral;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.awt.*;
@@ -195,8 +197,8 @@ public class VirialPolymerOverlapWithMDB3 {
         ((MCMoveStepTracker) sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
 
-        MCMoveClusterConformationMDTest mcMove = new MCMoveClusterConformationMDTest(sim, space, temperature, f, l, true, true);
-        MCMoveClusterConformationMDTest mcMove2 = new MCMoveClusterConformationMDTest(sim, space, temperature, f, l, true, false);
+        MCMoveClusterConformationMDTest mcMove = new MCMoveClusterConformationMDTest(sim.getRandom(), space, temperature, f, l, true, true);
+        MCMoveClusterConformationMDTest mcMove2 = new MCMoveClusterConformationMDTest(sim.getRandom(), space, temperature, f, l, true, false);
         mcMove2.setConformationsList(mcMove.getConformationsList());
 
         sim.integrators[0].getMoveManager().addMCMove(mcMove);
@@ -224,8 +226,8 @@ public class VirialPolymerOverlapWithMDB3 {
             simGraphic.getDisplayBox(targetBox).setLabel("Target-System Sampling");
 //            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
 
-            ColorScheme colorScheme0 = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
-            ColorScheme colorScheme1 = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            ColorScheme colorScheme0 = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
+            ColorScheme colorScheme1 = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
 
             displayBox0.setColorScheme(colorScheme0);
             displayBox1.setColorScheme(colorScheme1);
@@ -235,7 +237,7 @@ public class VirialPolymerOverlapWithMDB3 {
             sim.integratorOS.setNumSubSteps(1000);
 
             sim.initRefPref(null, 1000, false);
-    sim.equilibrate(null, 2000, false);
+            sim.equilibrate(null, 2000, false);
     sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {

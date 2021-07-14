@@ -7,37 +7,36 @@ package etomica.nbr.cell.molecule;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.molecule.IMoleculePositionDefinition;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.SpeciesManager;
 
 /**
  * BoxAgentSource responsible for creating a NeighborCellManagerMolecular.
  *
  * @author Tai Boon Tan
- *
  */
 public class BoxAgentSourceCellManagerMolecular implements BoxAgentSource<NeighborCellManagerMolecular> {
 
-    public BoxAgentSourceCellManagerMolecular(Simulation sim, IMoleculePositionDefinition positionDefinition, Space _space) {
-        this.sim = sim;
+    public BoxAgentSourceCellManagerMolecular(SpeciesManager sm, IMoleculePositionDefinition positionDefinition, Space _space) {
+        this.sm = sm;
         this.positionDefinition = positionDefinition;
         this.space = _space;
     }
-    
+
     public void setRange(double d) {
         range = d;
     }
 
     public NeighborCellManagerMolecular makeAgent(Box box) {
-        NeighborCellManagerMolecular cellManager = new NeighborCellManagerMolecular(sim, box,range,positionDefinition, space);
+        NeighborCellManagerMolecular cellManager = new NeighborCellManagerMolecular(sm, box, range, positionDefinition, space);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
-    
+
     public void releaseAgent(NeighborCellManagerMolecular agent) {
     }
-    
-    protected final Simulation sim;
+
+    protected final SpeciesManager sm;
     protected double range;
     protected final IMoleculePositionDefinition positionDefinition;
     protected final Space space;

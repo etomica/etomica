@@ -5,7 +5,6 @@
 package etomica.modules.rosmosis;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -32,7 +31,6 @@ import etomica.units.Kelvin;
  */
 public class ReverseOsmosis extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public SpeciesGeneral speciesSolvent, speciesSolute, speciesMembrane;
     public Box box;
     public IntegratorVelocityVerlet integrator;
@@ -61,7 +59,7 @@ public class ReverseOsmosis extends Simulation {
         ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager()); //List(this, 2.0);
 
         //controller and integrator
         box = this.makeBox();

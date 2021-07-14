@@ -8,7 +8,6 @@ import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 
 public class DataSourceHisogram implements IDataSink, IDataSource, DataSourceIndependent {
@@ -21,19 +20,19 @@ public class DataSourceHisogram implements IDataSink, IDataSource, DataSourceInd
     protected double[] blockSumX;
     protected long[] nBlockSamplesX;
     protected long[] lastStepX;
-    protected final IntegratorMD integrator;
+    protected final TimeSource timeSource;
     protected long step0;
     protected boolean enabled;
     protected final int xlog2Interval;
     protected int interval;
     protected Histogram[] histograms;
 
-    public DataSourceHisogram(IntegratorMD integrator) {
-        this(integrator, 0);
+    public DataSourceHisogram(TimeSource timeSource) {
+        this(timeSource, 0);
     }
 
-    public DataSourceHisogram(IntegratorMD integrator, int xlog2Interval) {
-        this.integrator = integrator;
+    public DataSourceHisogram(TimeSource timeSource, int xlog2Interval) {
+        this.timeSource = timeSource;
         this.xlog2Interval = xlog2Interval;
         histograms = new Histogram[60];
         for (int i = 0; i < histograms.length; i++) {
@@ -48,7 +47,7 @@ public class DataSourceHisogram implements IDataSink, IDataSource, DataSourceInd
     }
 
     public void resetStep0() {
-        step0 = integrator.getStepCount();
+        step0 = timeSource.getStepCount();
         step0 -= step0 % (1L << xlog2Interval);
         for (int i = 0; i < nBlockSamplesX.length; i++) {
             lastStepX[i] = nBlockSamplesX[i] = 0;
@@ -98,7 +97,7 @@ public class DataSourceHisogram implements IDataSink, IDataSource, DataSourceInd
     public void putData(IData inputData) {
         if (!enabled) return;
         double x = inputData.getValue(0);
-        long step = integrator.getStepCount() - step0;
+        long step = timeSource.getStepCount() - step0;
         for (int i = 0; i < blockSumX.length; i++) {
             blockSumX[i] += x;
             nBlockSamplesX[i]++;

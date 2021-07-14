@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -55,7 +54,7 @@ public class HSMD2D extends Simulation {
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac * sigma);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 

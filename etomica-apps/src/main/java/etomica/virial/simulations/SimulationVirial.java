@@ -11,14 +11,18 @@ import etomica.atom.AtomTypeOriented;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
+import etomica.virial.BoxCluster;
+import etomica.virial.ConfigurationCluster;
+import etomica.virial.MeterVirial;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.mcmove.*;
 
 /**
  * Generic simulation using Mayer sampling to evaluate cluster integrals
@@ -39,7 +43,6 @@ public class SimulationVirial extends Simulation {
     public MCMoveBoxStep mcMoveTranslate;
     public MCMoveBoxStep mcMoveRotate;
     public MCMoveBoxStep mcMoveWiggle;
-    public MCMoveBox mcMoveReptate;
     public double temperature;
     public boolean doWiggle;
     public int[] newSeeds;
@@ -65,29 +68,14 @@ public class SimulationVirial extends Simulation {
         this.seeds = newSeeds;
     }
 
-    /**
-	 * Constructor for simulation to determine the ratio between reference and target Clusters
-	 */
-	public SimulationVirial(Space space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-	    this(space, new ISpecies[]{speciesFactory.makeSpecies(space)}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
-	    setDoWiggle(false);
-	    init();
-	}
-
     public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
         this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
         setDoWiggle(false);
         init();
     }
 
-    public SimulationVirial(Space space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
-	    this(space, new ISpecies[]{speciesFactory.makeSpecies(space)}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
-	    setDoWiggle(doWiggle);
-	    init();
-	}
-
-	public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
-	    this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+    public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
+        this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
         setDoWiggle(doWiggle);
         init();
     }
@@ -120,7 +108,7 @@ public class SimulationVirial extends Simulation {
             box.setNMolecules(species[i], numMolecules[i]);
         }
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
         // it's unclear what this accomplishes, but let's do it just for fun.
         integrator.setTemperature(temperature);
         integrator.getMoveManager().setEquilibrating(false);
@@ -146,14 +134,12 @@ public class SimulationVirial extends Simulation {
                 integrator.getMoveManager().addMCMove(mcMoveRotate);
             }
         } else {
-            mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(random, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
             if (doWiggle) {
-                mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
+                mcMoveWiggle = new MCMoveClusterWiggleMulti(random, potentialMaster, nMolecules, space);
                 integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
-                integrator.getMoveManager().addMCMove(mcMoveReptate);
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }

@@ -155,18 +155,18 @@ public class ParserLAMMPS {
         		double eps = Math.sqrt(epsilon[i-1]*epsilon[j-1]);
     			IPotentialAtomic p = new P2LennardJones(opts.space, sig, eps);
     			switch (opts.truncation) {
-    			case TRUNCATED:
-    				p = new P2SoftTruncated((Potential2SoftSpherical)p,  opts.rc, opts.space);
-    				break;
-    			case SHIFTED:
-    				p = new P2SoftSphericalTruncatedShifted(opts.space, (Potential2SoftSpherical)p, opts.rc);
-    				break;
-    			case FORCE_SHIFTED:
-    				p = new P2SoftSphericalTruncatedForceShifted(opts.space, (Potential2SoftSpherical)p, opts.rc);
-    				break;
-    			case SWITCHED:
-    				p = new P2SoftSphericalTruncatedSwitched(opts.space, (Potential2SoftSpherical)p, opts.rc);
-    				break;
+					case TRUNCATED:
+						p = new P2SoftSphericalTruncated(opts.space, (Potential2SoftSpherical) p, opts.rc);
+						break;
+					case SHIFTED:
+						p = new P2SoftSphericalTruncatedShifted(opts.space, (Potential2SoftSpherical) p, opts.rc);
+						break;
+					case FORCE_SHIFTED:
+						p = new P2SoftSphericalTruncatedForceShifted(opts.space, (Potential2SoftSpherical) p, opts.rc);
+						break;
+					case SWITCHED:
+						p = new P2SoftSphericalTruncatedSwitched(opts.space, (Potential2SoftSpherical) p, opts.rc);
+						break;
     			}
 				pInter.addPotential(p, new AtomType[]{atomTypes[i - 1], atomTypes[j - 1]});
 			}

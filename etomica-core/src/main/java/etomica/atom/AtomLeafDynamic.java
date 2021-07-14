@@ -9,7 +9,6 @@ import etomica.space.Vector;
 
 public class AtomLeafDynamic extends Atom implements IAtomKinetic {
 
-    private static final long serialVersionUID = 1L;
     protected final Vector velocity;
 
     public AtomLeafDynamic(Space space, AtomType type) {
@@ -19,5 +18,10 @@ public class AtomLeafDynamic extends Atom implements IAtomKinetic {
 
     public Vector getVelocity() {
         return velocity;
+    }
+
+    public void copyCoordinatesFrom(IAtom atom) {
+        super.copyCoordinatesFrom(atom);
+        velocity.E(((IAtomKinetic) atom).getVelocity());
     }
 }

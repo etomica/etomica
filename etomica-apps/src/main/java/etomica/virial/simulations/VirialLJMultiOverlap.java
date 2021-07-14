@@ -16,12 +16,8 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
+import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.Standard;
 
 /**

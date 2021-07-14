@@ -43,6 +43,10 @@ public class BoxImposePbc extends BoxActionAdapter {
 		setBox(box);
 	}
 
+	public static void imposePBC(Box box) {
+		new BoxImposePbc(box, box.getSpace()).actionPerformed();
+	}
+
 	public void actionPerformed() {
 		Boundary boundary = box.getBoundary();
         if (applyToMolecules) {

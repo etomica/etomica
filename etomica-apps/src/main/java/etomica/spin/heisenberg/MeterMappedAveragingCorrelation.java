@@ -14,7 +14,6 @@ import etomica.integrator.Integrator;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Vector1D;
@@ -46,11 +45,11 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     protected final Vector[] dtdotkdt0k, dtdotkdetak;
 
 
-    public MeterMappedAveragingCorrelation(Simulation sim, double temperature, double interactionS, PotentialMaster potentialMaster, int formula) {
-        this.box = sim.getBox(0);
-        this.space = sim.getSpace();
+    public MeterMappedAveragingCorrelation(Box box, double temperature, double interactionS, PotentialMaster potentialMaster, int formula) {
+        this.box = box;
+        this.space = box.getSpace();
         this.temperature = temperature;
-        beta = 1/temperature;
+        beta = 1 / temperature;
         this.potentialMaster = potentialMaster;
         this.formula = formula;
         bt = 1 / temperature;

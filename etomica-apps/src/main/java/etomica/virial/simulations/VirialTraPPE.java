@@ -29,8 +29,15 @@ import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneral;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMixBD;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -278,9 +285,9 @@ public class VirialTraPPE {
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 

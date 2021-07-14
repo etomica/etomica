@@ -4,35 +4,39 @@
 
 package etomica.data.meter;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
-import etomica.molecule.DipoleSource;
+import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.potential.*;
-import etomica.simulation.Simulation;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationPhiSum;
+import etomica.potential.PotentialCalculationTorqueSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Null;
 
 /**
  * meter for AEE use mapping average
- * 
+ *
  * @author Weisong
  */
-public class MeterDipoleSumSquaredMappedAverage implements IDataSource, MoleculeAgentSource {
+public class MeterDipoleSumSquaredMappedAverage implements IDataSource, MoleculeAgentSource<MoleculeAgent> {
 
 	protected final DataDoubleArray data;
 	protected final DataInfoDoubleArray dataInfo;
 	protected final DataTag tag;
-//	private IBoundary boundary;
-	protected PotentialCalculationEnergySum energySum;
+	//	private IBoundary boundary;
 	protected PotentialCalculationTorqueSum torqueSum;
 	protected PotentialCalculationPhiSum secondDerivativeSum;
 	protected final Space space;
@@ -40,17 +44,17 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 	private Vector vectorSum;
 //	private IVectorMutable r;
 //	private IVectorMutable [] a;
-	private double dipoleMagnitude;
-//	private double truncation;
+private double dipoleMagnitude;
+	//	private double truncation;
 	private double temperature;
-    protected final PotentialMaster potentialMaster;
-    private final IteratorDirective allAtoms;
-    protected Vector dr;
-    protected Vector work;
-    protected MoleculeAgentManager moleculeAgentManager;
-    protected DipoleSource dipoleSource;
+	protected final PotentialMaster potentialMaster;
+	private final IteratorDirective allAtoms;
+	protected Vector dr;
+	protected Vector work;
+	protected MoleculeAgentManager<MoleculeAgent> moleculeAgentManager;
+	protected DipoleSourceMolecular dipoleSource;
 
-	public MeterDipoleSumSquaredMappedAverage(final Space space, Box box, Simulation sim, double dipoleMagnitude, double temperature, PotentialMaster potentialMaster) {
+	public MeterDipoleSumSquaredMappedAverage(Box box, SpeciesManager sm, double dipoleMagnitude, double temperature, PotentialMaster potentialMaster) {
 		data = new DataDoubleArray(2);
 		dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
 		tag = new DataTag();
@@ -58,15 +62,14 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		this.box = box;
 		this.dipoleMagnitude = dipoleMagnitude;
 		this.temperature = temperature;
-		this.space = space;
+		this.space = box.getSpace();
 		this.potentialMaster = potentialMaster;
 		vectorSum = space.makeVector();
 //		r = space.makeVector();
 		vectorSum.setX(2, 1);
 		torqueSum = new PotentialCalculationTorqueSum();
-		energySum = new PotentialCalculationEnergySum();
-		secondDerivativeSum = new  PotentialCalculationPhiSum(space);
-		moleculeAgentManager  = new MoleculeAgentManager(sim,box,this);
+		secondDerivativeSum = new PotentialCalculationPhiSum(space);
+		moleculeAgentManager = new MoleculeAgentManager<>(sm, box, this);
 		torqueSum.setMoleculeAgentManager(moleculeAgentManager);
 		allAtoms = new IteratorDirective();
 		dr = space.makeVector();
@@ -136,7 +139,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		return data;
 	}
 	
-	public void setDipoleSource(DipoleSource newDipoleSource) {
+	public void setDipoleSource(DipoleSourceMolecular newDipoleSource) {
 		dipoleSource = newDipoleSource;
 		secondDerivativeSum.setDipoleSource(newDipoleSource); 
 	}
@@ -154,14 +157,11 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 	}
 
 
-	public Object makeAgent(IMolecule a) {
-		// TODO Auto-generated method stub
-		 return new MoleculeAgent(space);
+	public MoleculeAgent makeAgent(IMolecule a) {
+		return new MoleculeAgent(space);
 	}
 
-	public void releaseAgent(Object agent, IMolecule a) {
-		// TODO Auto-generated method stub
-		
+	public void releaseAgent(MoleculeAgent agent, IMolecule a) {
 	}
 
 }

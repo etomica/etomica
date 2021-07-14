@@ -141,7 +141,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     }
 
     public void reset() {
-        sum = 0;
+        sum = sum1 = sum2 = 0;
     }
     
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
@@ -160,6 +160,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         double vp = up;
         if (r>vCut) vp = 0;
         sum += r*(vp-up);
+        sum1 += r*(vp-up);
         if (r<x0) {
             Vector fi = forceManager.getAgent(a);
             Vector fj = forceManager.getAgent(b);
@@ -168,8 +169,11 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
             double xs = calcXs(r, u);
             double wp = 0.5*fifj;
             sum += xs*(vp-wp);
+            sum2 += xs*(vp-wp);
         }
     }
+
+    public double sum1, sum2;
 
     public double getPressure() {
         int D = space.D();

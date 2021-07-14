@@ -8,7 +8,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -27,8 +26,11 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneral;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.awt.*;
@@ -204,8 +206,8 @@ public class VirialPolymerOverlapMC {
         potentialGroup2.addPotential(new P2WCA(space), nonBoundedIndexList);
         potentialMaster.addPotential(potentialGroup2, new ISpecies[]{species});
 
-        MCMoveClusterBondLength mcBond = new MCMoveClusterBondLength(sim, potentialMaster, f, space);
-        MCMoveClusterBondLength mcBond2 = new MCMoveClusterBondLength(sim, potentialMaster, f, space);
+        MCMoveClusterBondLength mcBond = new MCMoveClusterBondLength(sim.getRandom(), potentialMaster, f, space);
+        MCMoveClusterBondLength mcBond2 = new MCMoveClusterBondLength(sim.getRandom(), potentialMaster, f, space);
         sim.integrators[0].getMoveManager().addMCMove(mcBond);
         sim.integrators[1].getMoveManager().addMCMove(mcBond2);
         ((MCMoveStepTracker) mcBond2.getTracker()).setNoisyAdjustment(true);
@@ -237,8 +239,8 @@ public class VirialPolymerOverlapMC {
 
             simGraphic.getDisplayBox(refBox).setLabel("Reference-System Sampling");
             simGraphic.getDisplayBox(targetBox).setLabel("Target-System Sampling");
-            ColorScheme colorScheme0 = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
-            ColorScheme colorScheme1 = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            ColorScheme colorScheme0 = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
+            ColorScheme colorScheme1 = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
 
             displayBox0.setColorScheme(colorScheme0);
             displayBox1.setColorScheme(colorScheme1);
@@ -247,8 +249,8 @@ public class VirialPolymerOverlapMC {
             sim.setAccumulatorBlockSize(1000);
             sim.integratorOS.setNumSubSteps(1000);
 
-			sim.initRefPref(null, 1000, false);
-    sim.equilibrate(null, 2000, false);
+            sim.initRefPref(null, 1000, false);
+            sim.equilibrate(null, 2000, false);
     sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {

@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -28,7 +27,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.random.RandomNumberGenerator;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -41,7 +39,6 @@ public class SingleWater {
     public static SimulationGraphic makeSingleWater() {
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        ((RandomNumberGenerator) sim.getRandom()).getWrappedRandom().setSeed(2000);
         SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
@@ -52,7 +49,7 @@ public class SingleWater {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.00016;
         int maxIterations = 40;
-        final IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        final IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());

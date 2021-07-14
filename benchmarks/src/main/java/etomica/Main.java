@@ -13,7 +13,9 @@ public class Main {
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
-                .include("BenchBox")
+                .include("BenchSimLJMC3D")
+//                .addProfiler(StackProfiler.class)
+                .jvmArgs()
 //                .jvmArgs(
 //                        "-XX:+UnlockDiagnosticVMOptions",
 //                        "-XX:+PrintAssembly",

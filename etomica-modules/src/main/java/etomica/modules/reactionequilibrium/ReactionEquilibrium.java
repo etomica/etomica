@@ -5,7 +5,6 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -45,7 +44,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public MeterDimerFraction meterDimerFraction;
 
     public IAtom[] agents;
-    private AtomLeafAgentManager<IAtom> agentManager = null;
+    private AtomLeafAgentManager<IAtom> agentManager;
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
@@ -55,13 +54,13 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(getSpeciesManager());
 
         double diameter = 1.0;
 
         //controller and integrator
         box = this.makeBox(new BoundaryRectangularPeriodic(space, 30.0));
-        integratorHard1 = new IntegratorHard(this, potentialMaster, box);
+        integratorHard1 = new IntegratorHard(random, potentialMaster, box);
         integratorHard1.setIsothermal(true);
 
         box.setNMolecules(speciesA, 30);

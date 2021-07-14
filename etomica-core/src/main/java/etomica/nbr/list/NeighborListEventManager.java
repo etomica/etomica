@@ -6,13 +6,12 @@ package etomica.nbr.list;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NeighborListEventManager {
 
-    private final List<INeighborListListener> listeners = new ArrayList<>();
+    private final List<INeighborListener> listeners = new ArrayList<>();
 
-    public void addListener(INeighborListListener newListener) {
+    public void addListener(INeighborListener newListener) {
         if (newListener == null) {
             throw new NullPointerException("Cannot add null as a listener to Neighbor List");
         }
@@ -22,12 +21,12 @@ public class NeighborListEventManager {
         listeners.add(newListener);
     }
 
-    public void removeListener(INeighborListListener listener) {
+    public void removeListener(INeighborListener listener) {
         listeners.remove(listener);
     }
 
     public void neighborsUpdated() {
-        for (INeighborListListener listener : listeners) {
+        for (INeighborListener listener : listeners) {
             listener.neighborListNeighborsUpdated();
         }
     }

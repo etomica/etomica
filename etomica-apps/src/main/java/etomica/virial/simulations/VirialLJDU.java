@@ -29,8 +29,14 @@ import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.CoordinatePairSet;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import java.awt.*;
 import java.io.File;
@@ -196,9 +202,9 @@ public class VirialLJDU {
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 

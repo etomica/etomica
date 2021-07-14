@@ -11,6 +11,7 @@ import etomica.molecule.IMoleculePositionDefinition;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.virial.cluster.ClusterWeight;
 
 /**
  * @author kofke

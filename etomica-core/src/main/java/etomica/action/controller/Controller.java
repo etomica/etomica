@@ -156,10 +156,8 @@ public class Controller {
         }
     }
 
-    public CompletableFuture<Void> restartCurrentActivity() {
-        return submitActionInterrupt(() -> {
-            this.currentTask.activity.restart();
-        });
+    public void restartCurrentActivity() {
+        this.currentTask.activity.restart();
     }
 
     public void completeActivities() {

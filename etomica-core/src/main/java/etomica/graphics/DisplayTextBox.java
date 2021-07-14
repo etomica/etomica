@@ -14,6 +14,7 @@ import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
@@ -114,7 +115,9 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
         return panel;
     }
     
-    
+    public void setBackground(Color bg) {
+        value.setBackground(bg);
+    }
     /**
      * @return Returns the integerDisplay.
      */

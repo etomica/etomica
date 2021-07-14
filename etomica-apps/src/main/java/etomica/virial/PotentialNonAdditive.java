@@ -4,16 +4,11 @@
 
 package etomica.virial;
 
-import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.Argon;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.IPotentialMolecular;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesGeneral;
+import etomica.virial.cluster.ClusterSumMultibody;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
@@ -136,7 +131,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                         }
                         u33 = una[3][groupID];
                         if (debugme) {
-                            System.out.println("3 "+groupID+" "+ClusterSumMultibody.m2s(moleculeList)+" "+una[3][groupID]);
+                            System.out.println("3 "+groupID+" "+ ClusterSumMultibody.m2s(moleculeList)+" "+una[3][groupID]);
                         }
                         groupID++;
                         moleculeList.remove(2);
@@ -252,51 +247,6 @@ public class PotentialNonAdditive implements IPotentialMolecular {
 
         public double energy(IMoleculeList molecules) {
             return PotentialNonAdditive.this.energy(molecules);
-        }
-    }
-
-    public static void main(String[] args) {
-
-        Space space = Space3D.getInstance();
-        PotentialEmulCached p3 = new PotentialEmulCached(space, "3body_template.in", 3);
-        PotentialEmulCached p2 = new PotentialEmulCached(space, "2body_template.in", 3);
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(Argon.INSTANCE));
-        sim.addSpecies(species);
-        BoxCluster box = new BoxCluster(null, space);
-        sim.addBox(box);
-        box.setNMolecules(species, 3);
-        p2.setBox(box);
-        p3.setBox(box);
-        box.getLeafList().get(0).getPosition().setX(0, -4);
-        box.getLeafList().get(1).getPosition().setX(0, -4);
-        box.getLeafList().get(0).getPosition().setX(1, -3);
-        box.getLeafList().get(1).getPosition().setX(1, 3);
-        MoleculeArrayList molecules02 = new MoleculeArrayList(2);
-        molecules02.add(box.getMoleculeList().get(0));
-        molecules02.add(box.getMoleculeList().get(1));
-        double u01 = p2.energy(molecules02);
-        molecules02.clear();
-        molecules02.add(box.getMoleculeList().get(0));
-        molecules02.add(box.getMoleculeList().get(2));
-        MoleculeArrayList molecules12 = new MoleculeArrayList(2);
-        molecules12.add(box.getMoleculeList().get(1));
-        molecules12.add(box.getMoleculeList().get(2));
-        
-        PotentialNonAdditive p3NA = new PotentialNonAdditive(new IPotentialMolecular[]{p2, p3});
-        p3NA.setBox(box);
-        
-        for (int i=0; i<100; i++) {
-            double r = -3 + i*0.1;
-            box.getLeafList().get(2).getPosition().setX(0, r);
-            box.trialNotify();
-            box.acceptNotify();
-            p3NA.setBox(box);
-            double uEmul = p3.energy(box.getMoleculeList(species));
-            double u02 = p2.energy(molecules02);
-            double u12 = p2.energy(molecules12);
-            System.out.printf("%5.2f ", r);
-            System.out.println(uEmul+" "+(uEmul - (u01+u02+u12))+" "+p3NA.energy(box.getMoleculeList(species)));
         }
     }
 }

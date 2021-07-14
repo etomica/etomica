@@ -4,6 +4,8 @@
 
 package etomica.potential;
 
+import etomica.exception.MethodNotImplementedException;
+
 /**
  * interface for spherical 2-body potentials
  */
@@ -12,6 +14,8 @@ public interface Potential2Spherical extends IPotentialAtomic {
 	 * The pair energy u(r^2) with no truncation applied.
 	 * @param r2 the square of the distance between the particles.
 	 */
-	public double u(double r2);
+	default double u(double r2) {
+		throw new MethodNotImplementedException();
+	}
 
 }

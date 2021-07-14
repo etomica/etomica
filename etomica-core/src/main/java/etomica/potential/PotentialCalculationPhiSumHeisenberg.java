@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.molecule.DipoleSource;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -12,7 +11,6 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
     protected Vector ei, ej;
     protected Vector dr;
     protected double secondDerivativeSum = 0;
-    protected DipoleSource dipoleSource;
 
 
     public PotentialCalculationPhiSumHeisenberg(Space space) {

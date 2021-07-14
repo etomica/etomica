@@ -5,7 +5,6 @@
 package etomica.modules.glass;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Activity;
 import etomica.action.controller.Controller;
@@ -32,9 +31,10 @@ import etomica.util.random.RandomMersenneTwister;
 
 public class SimGlass extends Simulation {
 
-    public SpeciesGeneral speciesA, speciesB;
-    public Box box;
-    public IntegratorMD integrator;
+    public final SpeciesGeneral speciesA, speciesB;
+    public final Box box;
+    public final IntegratorMD integrator;
+    public final TimeSourceOld timeSource;
 
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
@@ -164,6 +164,8 @@ public class SimGlass extends Simulation {
 
         integrator.reset();
         integrator.doThermostat();
+
+        timeSource = new TimeSourceOld();
     }
 
     public Activity makeInitConfigActivity() {
@@ -259,5 +261,27 @@ public class SimGlass extends Simulation {
         public boolean doSwap = true;
         public PotentialChoice potential = PotentialChoice.LJ;
         public double tStep = 0.005;
+    }
+
+    public class TimeSourceOld implements TimeSource {
+        @Override
+        public double getCurrentTime() {
+            return integrator.getCurrentTime();
+        }
+
+        @Override
+        public Box getBox() {
+            return integrator.getBox();
+        }
+
+        @Override
+        public long getStepCount() {
+            return integrator.getStepCount();
+        }
+
+        @Override
+        public double getTimeStep() {
+            return integrator.getTimeStep();
+        }
     }
 }

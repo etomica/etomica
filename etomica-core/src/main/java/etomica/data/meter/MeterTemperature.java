@@ -10,8 +10,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeOrientedDynamic;
-import etomica.simulation.Simulation;
-import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Temperature;
 
@@ -30,20 +29,20 @@ import etomica.units.dimensions.Temperature;
  */
 public class MeterTemperature extends DataSourceScalar {
 
-    private static final long serialVersionUID = 1L;
-    protected final Simulation sim;
-    private final int dim;
+	protected final SpeciesManager sm;
+	private final int dim;
     protected Box box;
     protected DataSourceScalar meterKE;
 
-    public MeterTemperature(Box box, int D) {
-        this(null, box, D);
-    }
-    public MeterTemperature(Simulation sim, Box box, int D) {
+	public MeterTemperature(Box box, int D) {
+		this(null, box, D);
+	}
+
+	public MeterTemperature(SpeciesManager sm, Box box, int D) {
 		super("Temperature", Temperature.DIMENSION);
 		dim = D;
 		meterKE = new MeterKineticEnergy(box);
-		this.sim = sim;
+		this.sm = sm;
 		this.box = box;
 	}
 
@@ -52,24 +51,23 @@ public class MeterTemperature extends DataSourceScalar {
     }
 
 	public double getDataAsScalar() {
-	    int totalD = box.getLeafList().size() * dim;
-	    if (sim != null) {
-	        totalD = 0;
+		int totalD = box.getLeafList().size() * dim;
+		if (sm != null) {
+			totalD = 0;
 //	        ISpecies[] species = sim.getSpeciesManager().getSpecies();
-	        for (int i=0; i<sim.getSpeciesCount(); i++) {
-	            int nMolecules = box.getNMolecules(sim.getSpecies(i));
-	            if (nMolecules > 0) {
-	                IMolecule molecule = box.getMoleculeList(sim.getSpecies(i)).get(0);
-	                if (molecule instanceof MoleculeOrientedDynamic) {
-	                    if (Double.isInfinite(sim.getSpecies(i).getMass())) {
-	                        continue;
-	                    }
-                        totalD += 6*nMolecules;
-	                }
-	                else {
-	                    IAtomList children = molecule.getChildList();
-                        if (children.size() == 0 ||
-                                Double.isInfinite(children.get(0).getType().getMass())) {
+			for (int i = 0; i < sm.getSpeciesCount(); i++) {
+				int nMolecules = box.getNMolecules(sm.getSpecies(i));
+				if (nMolecules > 0) {
+					IMolecule molecule = box.getMoleculeList(sm.getSpecies(i)).get(0);
+					if (molecule instanceof MoleculeOrientedDynamic) {
+						if (Double.isInfinite(sm.getSpecies(i).getMass())) {
+							continue;
+						}
+						totalD += 6 * nMolecules;
+					} else {
+						IAtomList children = molecule.getChildList();
+						if (children.size() == 0 ||
+								Double.isInfinite(children.get(0).getType().getMass())) {
 	                        continue;
 	                    }
                         if (children.get(0).getType() instanceof AtomTypeOriented) {

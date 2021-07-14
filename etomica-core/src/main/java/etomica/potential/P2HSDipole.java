@@ -22,14 +22,6 @@ import etomica.space.Vector;
  * 
  */
 public class P2HSDipole extends PotentialMolecular implements IPotentialMolecularSecondDerivative {
-//public class P2HSDipole extends PotentialMolecular implements IPotentialMolecularTorque  {
-	public P2HSDipole(Space space) {
-		this(space, 1, 1);
-	}
-
-	public P2HSDipole(Space space, double dipole) {
-		this(space, 1,dipole);
-	}
 
 	public P2HSDipole(Space space, double sigma, double dipole) {
 		this(space, 1,dipole,Double.POSITIVE_INFINITY);
@@ -212,7 +204,7 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 			torque[1].TE(3.0*v1.dot(drunit));
 			torque[1].PE(work);
 			torque[1].TE(fac);
-			
+
 			
 //			System.out.println("dr = " + dr);
 //			System.out.println("vi = " + v1);

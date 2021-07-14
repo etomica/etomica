@@ -8,12 +8,12 @@ package etomica.modules.mu;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.config.ConfigurationLatticeRandom;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
@@ -54,7 +54,7 @@ public class Mu extends Simulation {
         double epsilon = 1.0;
 
         //controller and integrator
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(1);
         integrator.setIsothermal(true);

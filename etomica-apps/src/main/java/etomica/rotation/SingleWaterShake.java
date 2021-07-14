@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -51,7 +50,7 @@ public class SingleWaterShake {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 0.000166;
         int maxIterations = 200;
-        final IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, box);
+        final IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.printInterval = 0;
         integrator.setMaxIterations(maxIterations);
@@ -69,7 +68,7 @@ public class SingleWaterShake {
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-        if (true) {
+        if (false) {
             final boolean isWriting = false;
             final FileWriter fileWriter;
             FileReader fileReader;
@@ -142,7 +141,7 @@ public class SingleWaterShake {
             integrator.getEventManager().addListener(writeAListener);
             sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         } else {
-            sim.getController().setSleepPeriod(10);
+            sim.getController().setSleepPeriod(1);
             sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);

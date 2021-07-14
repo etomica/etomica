@@ -10,9 +10,12 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.meter.MeterPressureHard;
+import etomica.data.meter.MeterPressureHardFasterer;
 import etomica.space3d.Space3D;
 import etomica.tests.TestSWChain;
+import etomica.tests.TestSWChainSlow;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -32,7 +35,7 @@ public class BenchSimSWChain {
     public int numSteps;
 
     private TestSWChain sim;
-    private MeterPressureHard pMeter;
+    private TestSWChainSlow simSlow;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -42,15 +45,39 @@ public class BenchSimSWChain {
                 TestSWChain.class
         );
 
-        sim = new TestSWChain(Space3D.getInstance(), numMolecules, simTime, config);
+        {
+            simSlow = new TestSWChainSlow(Space3D.getInstance(), numMolecules, config);
 
-        pMeter = new MeterPressureHard(sim.integrator);
-        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
-        energyAccumulator.setBlockSize(50);
-        sim.integrator.getEventManager().addListener(energyPump);
-        sim.integrator.reset();
+            MeterPressureHard pMeter = new MeterPressureHard(simSlow.integrator);
+            MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(simSlow.integrator);
+            AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
+            DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
+            energyAccumulator.setBlockSize(50);
+            simSlow.integrator.getEventManager().addListener(energyPump);
+            simSlow.integrator.reset();
+        }
+
+        {
+            sim = new TestSWChain(Space3D.getInstance(), numMolecules, config);
+
+            MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+            MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+            AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
+            DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
+            energyAccumulator.setBlockSize(50);
+            sim.integrator.getEventManager().addListener(energyPump);
+            sim.integrator.reset();
+        }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 3, iterations = 3)
+    @Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
+    public long integratorStepSlow() {
+        simSlow.integrator.doStep();
+        return simSlow.integrator.getStepCount();
     }
 
     @Benchmark

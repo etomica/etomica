@@ -214,8 +214,7 @@ public class ColloidGraphic extends SimulationGraphic {
 //
 //        monomerPanel.add(monomerEpsilonBox.graphic());
 
-        DeviceBox mmEpsilonBox = new DeviceBox();
-        mmEpsilonBox.setController(sim.getController());
+        DeviceBox mmEpsilonBox = new DeviceBox(sim.getController());
         mmEpsilonBox.setLabel("monomer epsilon");
         mmEpsilonBox.setModifier(new ModifierGeneral(sim.p2mm, "epsilon"));
         mmEpsilonBox.setModifier(new Modifier() {
@@ -251,8 +250,7 @@ public class ColloidGraphic extends SimulationGraphic {
 //        colloidRangeBox.setModifier(new WallRangeModifier(sim.p1WallColloid, null));
 //        colloidPanel.add(colloidRangeBox.graphic());
 
-        DeviceBox colloidSigmaBox = new DeviceBox();
-        colloidSigmaBox.setController(sim.getController());
+        DeviceBox colloidSigmaBox = new DeviceBox(sim.getController());
         colloidSigmaBox.setLabel("colloid sigma");
         colloidSigmaBox.setModifier(new ModifierGeneral(sim, "colloidSigma"));
         colloidSigmaBox.setPostAction(new IAction() {
@@ -264,8 +262,7 @@ public class ColloidGraphic extends SimulationGraphic {
         gbc.gridx = 1;
         potentialPanel.add(colloidSigmaBox.graphic(), gbc);
 
-        DeviceBox colloidEpsilonBox = new DeviceBox();
-        colloidEpsilonBox.setController(sim.getController());
+        DeviceBox colloidEpsilonBox = new DeviceBox(sim.getController());
         colloidEpsilonBox.setLabel("colloid-wall epsilon");
         colloidEpsilonBox.setModifier(new ModifierGeneral(sim.p1WallColloid, "epsilon"));
         gbc.gridx = 0;

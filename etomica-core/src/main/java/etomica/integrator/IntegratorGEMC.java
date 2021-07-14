@@ -4,18 +4,32 @@
 
 package etomica.integrator;
 
-import etomica.util.random.IRandom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
+import etomica.integrator.mcmove.MCMoveMoleculeExchangeFasterer;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
+import etomica.integrator.mcmove.MCMoveVolumeExchangeFasterer;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid
  * box coexistence. Written to apply to only two boxs.
- * 
+ *
  * @author David Kofke
  */
 public class IntegratorGEMC extends IntegratorManagerMC {
+
+    public static IntegratorManagerMC buildGEMC(IntegratorBoxFasterer integrator1, IntegratorBoxFasterer integrator2, IRandom random, Space space) {
+        IntegratorManagerMC integratorGEMC = new IntegratorManagerMC(random);
+        integratorGEMC.addIntegrator(integrator1);
+        integratorGEMC.addIntegrator(integrator2);
+        MCMoveVolumeExchangeFasterer volumeExchange = new MCMoveVolumeExchangeFasterer(random, space, integrator1, integrator2);
+        MCMoveMoleculeExchangeFasterer moleculeExchange = new MCMoveMoleculeExchangeFasterer(random, space, integrator1, integrator2);
+        integratorGEMC.getMoveManager().recomputeMoveFrequencies();
+        integratorGEMC.getMoveManager().addMCMove(volumeExchange);
+        integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
+        return integratorGEMC;
+    }
 
     public IntegratorGEMC(IRandom random, Space space) {
         super(random);
@@ -59,7 +73,6 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         return moleculeExchange;
     }
 
-    private static final long serialVersionUID = 1L;
     private MCMoveVolumeExchange volumeExchange;
     private MCMoveMoleculeExchange moleculeExchange;
     private Space space;

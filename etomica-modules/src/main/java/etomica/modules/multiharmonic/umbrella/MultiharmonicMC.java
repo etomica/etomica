@@ -31,7 +31,6 @@ import etomica.species.SpeciesGeneral;
  */
 public class MultiharmonicMC extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     protected final SpeciesGeneral species;
     protected final Box box;
     protected final P1Harmonic potentialA, potentialB;
@@ -45,22 +44,22 @@ public class MultiharmonicMC extends Simulation {
         super(Space1D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
-        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(getSpeciesManager());
+        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(getSpeciesManager());
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
         box.setNMolecules(species, 10);
 
-        integrator = new IntegratorMC(this, potentialMasterA, box);
+        integrator = new IntegratorMC(this.getRandom(), potentialMasterA, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
-        moveA = new MCMoveMultiHarmonic(potentialA, random);
+        moveA = new MCMoveMultiHarmonic(integrator, potentialA, random);
         integrator.getMoveManager().addMCMove(moveA);
         potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
         potentialB = new P1Harmonic(space);
-        moveB = new MCMoveMultiHarmonic(potentialB, random);
+        moveB = new MCMoveMultiHarmonic(integrator, potentialB, random);
         integrator.getMoveManager().addMCMove(moveB);
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 

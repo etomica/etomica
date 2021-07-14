@@ -5,11 +5,11 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.potential.P1HardMovingBoundary;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 
 
 /**
@@ -39,7 +39,6 @@ public class ApiFilteredCylinder extends ApiLeafAtoms implements AtomsetIterator
     }
         
     
-    private static final long serialVersionUID = 1L;
     protected final AtomFilterInCylinder filter;
 
     /**

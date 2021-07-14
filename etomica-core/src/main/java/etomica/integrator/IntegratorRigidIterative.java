@@ -7,7 +7,6 @@ package etomica.integrator;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
@@ -18,7 +17,10 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
-import etomica.models.water.*;
+import etomica.models.water.DipoleSourceMolecularWater;
+import etomica.models.water.OrientationCalcWater3P;
+import etomica.models.water.P2WaterSPCSoft;
+import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.potential.*;
@@ -31,16 +33,18 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
 import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesManager;
 import etomica.units.Electron;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
+import etomica.util.random.IRandom;
 
 import java.awt.*;
 import java.io.Serializable;
 
-public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource, AtomLeafAgentManager.AgentSource<IntegratorRigidIterative.AtomForceAgent> {
+public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource<OrientationCalc>, MoleculeAgentSource<IntegratorRigidIterative.MoleculeAgent>, AtomLeafAgentManager.AgentSource<IntegratorRigidIterative.AtomForceAgent> {
 
     protected PotentialCalculationTorqueSum torqueSum;
     private final IteratorDirective allAtoms;
@@ -49,7 +53,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     protected final RotationTensor3D rotationTensor;
     protected final RotationTensor3D tempRotationTensor;
     protected final Vector xWork;
-    protected final SpeciesAgentManager typeAgentManager;
+    protected final SpeciesAgentManager<OrientationCalc> typeAgentManager;
     protected final Vector tempAngularVelocity;
     protected final MoleculePositionCOM atomPositionCOM;
     protected final AtomActionTranslateBy translateBy;
@@ -60,19 +64,17 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     protected double omegaTolerance;
     protected final boolean storeAngularMomentum = false;
 
-    protected final Simulation sim;
     protected AtomLeafAgentManager<AtomForceAgent> leafAgentManager;
-    protected MoleculeAgentManager moleculeAgentManager;
+    protected MoleculeAgentManager<MoleculeAgent> moleculeAgentManager;
 
-    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(sim, potentialMaster, 0.05, 1.0, box);
+    public IntegratorRigidIterative(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster, Box box) {
+        this(sm, random, potentialMaster, 0.05, 1.0, box);
     }
-    
-    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster,
+
+    public IntegratorRigidIterative(SpeciesManager sm, IRandom random, PotentialMaster potentialMaster,
                                     double timeStep, double temperature, Box box) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
-        this.sim = sim;
-        // if you're motivated to throw away information earlier, you can use 
+        super(potentialMaster, random, timeStep, temperature, box);
+        // if you're motivated to throw away information earlier, you can use
         // PotentialCalculationForceSum instead.
         torqueSum = new PotentialCalculationTorqueSum();
         allAtoms = new IteratorDirective();
@@ -82,10 +84,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         allAtoms.setIncludeLrc(true);
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
-        rotationTensor = (RotationTensor3D)space.makeRotationTensor();
+        rotationTensor = (RotationTensor3D) space.makeRotationTensor();
         tempRotationTensor = (RotationTensor3D)space.makeRotationTensor();
         xWork = space.makeVector();
-        typeAgentManager = new SpeciesAgentManager(this, sim);
+        typeAgentManager = new SpeciesAgentManager<>(this, sm);
         tempAngularVelocity = space.makeVector();
         tempOrientation = new OrientationFull3D(space);
         atomPositionCOM = new MoleculePositionCOM(space);
@@ -93,10 +95,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         translator = new MoleculeChildAtomAction(translateBy);
         maxIterations = 40;
         omegaTolerance = 1.e-30;
-        meterKE = new MeterKineticEnergyRigid(space, sim);
+        meterKE = new MeterKineticEnergyRigid(space, sm);
 
         leafAgentManager = new AtomLeafAgentManager<>(this, box);
-        moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
+        moleculeAgentManager = new MoleculeAgentManager<>(sm, box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
         ((MeterKineticEnergyRigid)meterKE).setBox(box);
@@ -659,11 +661,12 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     
 //--------------------------------------------------------------
 
-    public final Object makeAgent(IMolecule a) {
+    public final MoleculeAgent makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }
 
-    public void releaseAgent(Object agent, IMolecule atom) {}
+    public void releaseAgent(MoleculeAgent agent, IMolecule atom) {
+    }
 
     @Override
     public AtomForceAgent makeAgent(IAtom a, Box agentBox) {
@@ -699,11 +702,12 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         public Vector force() {return force;}
     }
 
-    public Object makeAgent(ISpecies type) {
+    public OrientationCalc makeAgent(ISpecies type) {
         return null;
     }
 
-    public void releaseAgent(Object agent, ISpecies type) {}
+    public void releaseAgent(OrientationCalc agent, ISpecies type) {
+    }
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
@@ -732,7 +736,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
@@ -748,7 +752,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 
             double boxlength = box.getBoundary().getBoxSize().getX(0);
 
-            DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
+            DipoleSourceMolecularWater dipoleSource = new DipoleSourceMolecularWater(sim.getSpace());
             dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));
             IMoleculePositionDefinition positionDefinition = new MoleculePositionCOM(space) ;
             P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),positionDefinition);

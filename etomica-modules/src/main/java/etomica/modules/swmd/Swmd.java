@@ -5,7 +5,6 @@
 package etomica.modules.swmd;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -44,7 +43,7 @@ public class Swmd extends Simulation {
         ((ElementSimple) species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
         addSpecies(species);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(getSpeciesManager()); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
 
@@ -53,7 +52,7 @@ public class Swmd extends Simulation {
 
         //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator = new IntegratorHard(random, potentialMaster, box);
         integrator.setTimeStep(1.0);
         integrator.setTemperature(Kelvin.UNIT.toSim(300));
         integrator.setIsothermal(false);

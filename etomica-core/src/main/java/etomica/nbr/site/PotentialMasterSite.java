@@ -5,7 +5,6 @@
 package etomica.nbr.site;
 
 import etomica.atom.*;
-import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
@@ -16,13 +15,14 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.Debug;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class PotentialMasterSite extends PotentialMasterNbr {
 
+    private final SpeciesManager sm;
     private final BoxAgentManager<NeighborIterator> neighborIterators;
     private int cellRange;
     private final BoxAgentManager<NeighborSiteManager> neighborSiteManagers;
@@ -38,10 +38,11 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     }
 
     protected PotentialMasterSite(Simulation sim, int nCells) {
-        super(sim);
+        super(sim.getSpeciesManager());
+        this.sm = sim.getSpeciesManager();
         this.neighborSiteManagers = new BoxAgentManager<>(sim, box -> new NeighborSiteManager(box, nCells));
         this.neighborIterators = new BoxAgentManager<>(sim, box -> new NeighborIteratorSite(neighborSiteManagers.getAgent(box), box));
-	}
+    }
     
     /**
      * @return Returns the cellRange.
@@ -98,11 +99,11 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for (int i = 0; i < atoms.size(); i++) {
             calculate(atoms.get(i), nbrIterator, pc, IteratorDirective.Direction.UP);
         }
-        for (int i = 0; i < simulation.getSpeciesCount(); i++) {
-            PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(i));
+        for (int i = 0; i < sm.getSpeciesCount(); i++) {
+            PotentialArray intraPotentialArray = getIntraPotentials(sm.getSpecies(i));
             IPotential[] intraPotentials = intraPotentialArray.getPotentials();
             if (intraPotentials.length > 0) {
-                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
+                IMoleculeList moleculeList = box.getMoleculeList(sm.getSpecies(i));
                 for (int j = 0; j < moleculeList.size(); j++) {
                     for (IPotential intraPotential : intraPotentials) {
                         ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);

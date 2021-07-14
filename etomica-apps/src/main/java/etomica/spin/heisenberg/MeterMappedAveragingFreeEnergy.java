@@ -11,8 +11,10 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.*;
-import etomica.simulation.Simulation;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationPhiSumHeisenberg;
+import etomica.potential.PotentialCalculationTorqueSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -24,7 +26,6 @@ public class MeterMappedAveragingFreeEnergy implements IDataSource, AgentSource<
     protected final Space space;
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective allAtoms;
-    protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected etomica.spin.heisenberg.PotentialCalculationPhiSum secondDerivativeSum;
@@ -40,14 +41,14 @@ public class MeterMappedAveragingFreeEnergy implements IDataSource, AgentSource<
     private Box box;
     protected PotentialCalculationFreeEnergy FE;
 
-    public MeterMappedAveragingFreeEnergy(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
+    public MeterMappedAveragingFreeEnergy(Box box, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
         int nValues = 5;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
-        this.space = space;
+        this.space = box.getSpace();
         this.temperature = temperature;
         this.potentialMaster = potentialMaster;
         J = interactionS;
@@ -59,7 +60,6 @@ public class MeterMappedAveragingFreeEnergy implements IDataSource, AgentSource<
         leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
-        energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);

@@ -102,7 +102,7 @@ public class P22CLJmuQ extends PotentialMolecular implements PotentialMolecularS
         boundary.nearestImage(dr);
         ener += epsilon2 * calculateEnergy(dr.squared() / sigma2Sq);
 
-        if (Q2 != 0.0 && !Double.isInfinite(ener)) {
+        if ((Q2 != 0.0 || mu != 0) && !Double.isInfinite(ener)) {
 
             com1.Ea1Tv1(siteFraction, bead12.getPosition());
             com1.PEa1Tv1((1 - siteFraction), bead11.getPosition());

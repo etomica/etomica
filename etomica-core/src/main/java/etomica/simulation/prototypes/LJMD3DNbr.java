@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -47,7 +46,7 @@ public class LJMD3DNbr extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
         double sigma = 1.0;
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.02);
 
         box.setNMolecules(species, 5000);

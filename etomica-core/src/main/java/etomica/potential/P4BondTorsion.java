@@ -4,26 +4,25 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.*;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
+import etomica.space.*;
 import etomica.space3d.Space3D;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
 
 /**
  * Torsion potential.
- *    Jorgensen, W. L., Madura, J. D. and Swenson, C. J.
- *    J. Am. chem. Soc., 106, 6638-6646 (1984)
+ * Jorgensen, W. L., Madura, J. D. and Swenson, C. J.
+ * J. Am. chem. Soc., 106, 6638-6646 (1984)
  *
  * @author Andrew Schultz
  */
-public class P4BondTorsion extends Potential implements PotentialSoft {
+public class P4BondTorsion extends Potential implements PotentialSoft, IPotentialBondTorsion {
 
     public P4BondTorsion(Space space, double a0, double a1, double a2, double a3) {
         super(4, space);
@@ -61,26 +60,26 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         boundary.nearestImage(dr21);
         boundary.nearestImage(dr23);
         boundary.nearestImage(dr34);
-        
-        double dr23Sq = dr23.squared();
-        dr21.PEa1Tv1(-dr21.dot(dr23)/dr23Sq, dr23);
-        dr34.PEa1Tv1(-dr34.dot(dr23)/dr23Sq, dr23);
-        
-        double cosphi = dr21.dot(dr34)/Math.sqrt(dr21.squared()*dr34.squared());
-        return energyAtAngle(cosphi);
-    }
-    
-    public double energyAtAngle(double cosphi) {
-        double cos2phi = 2*cosphi*cosphi-1;
-        double cos3phi = cosphi*(2*cos2phi-1);
 
-        return a0 + a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1+cos3phi);
+        double dr23Sq = dr23.squared();
+        dr21.PEa1Tv1(-dr21.dot(dr23) / dr23Sq, dr23);
+        dr34.PEa1Tv1(-dr34.dot(dr23) / dr23Sq, dr23);
+
+        double cosphi = dr21.dot(dr34) / Math.sqrt(dr21.squared() * dr34.squared());
+        return u(cosphi);
+    }
+
+    @Override
+    public double u(double costheta) {
+        double cosSQtheta = costheta * costheta;
+        double cosCBtheta = cosSQtheta * costheta;
+        return a0 + a1 * (1 + costheta) + a2 * (2 - 2 * cosSQtheta) + a3 * (1 + 4 * cosCBtheta - 3 * costheta);
     }
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }
-    
+
     public Vector[] gradient(IAtomList atoms) {
         IAtom atom0 = atoms.get(0);
         IAtom atom1 = atoms.get(1);
@@ -118,31 +117,31 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         }
         double v1v2_3 = v1v2*v1v2*v1v2;
         
-        double cosphi = v1.dot(v2)/Math.sqrt(v1Sq*v2Sq);
-        
+        double cosphi = v1dotv2 / v1v2;
+
         double dUdcosphi = dUdcosphi(cosphi);
 
-        gradient[0].Ea1Tv1(1.0/v1v2, v2);
-        gradient[0].PEa1Tv1(-v1dotv2*v2Sq/v1v2_3, v1);
+        gradient[0].Ea1Tv1(1.0 / v1v2, v2);
+        gradient[0].PEa1Tv1(-v1dotv2 * v2Sq / v1v2_3, v1);
         gradient[0].TE(dUdcosphi);
-        
+
         // d(v1dotv2)/dr1
         gtmp.Ev1Pv2(dr21, dr23);
         gtmp.TE(dr23dotdr34odr23Sq);
         gtmp.ME(dr34);
-        gtmp.PEa1Tv1(dr21.dot(dr23)/dr23Sq, dr34);
-        gtmp.PEa1Tv1(-2*dr21.dot(dr23)*dr23dotdr34odr23Sq/dr23Sq, dr23);
-        gtmp.TE(1.0/v1v2);
+        gtmp.PEa1Tv1(dr23dotdr21odr23Sq, dr34);
+        gtmp.PEa1Tv1(-2 * dr23dotdr21odr23Sq * dr23dotdr34odr23Sq, dr23);
+        gtmp.TE(1.0 / v1v2);
         gradient[1].E(gtmp);
 
         // d(v1^2)/dr1
         gtmp.Ev1Pv2(dr21, dr23);
-        gtmp.TE(2.0*dr21.dot(dr23)/dr23Sq);
+        gtmp.TE(2.0 * dr21.dot(dr23) / dr23Sq);
         gtmp.PEa1Tv1(-2.0, dr21);
-        gtmp.PEa1Tv1(-2.0*dr23dotdr21odr23Sq*dr23dotdr21odr23Sq, dr23);
-        gtmp.TE(-0.5*v1dotv2*v2Sq/v1v2_3);
+        gtmp.PEa1Tv1(-2.0 * dr23dotdr21odr23Sq * dr23dotdr21odr23Sq, dr23);
+        gtmp.TE(-0.5 * v1dotv2 * v2Sq / v1v2_3);
         gradient[1].PE(gtmp);
-        
+
         // d(v2^2)/dr1
         gtmp.Ea1Tv1(2*dr23dotdr34odr23Sq, dr34);
         gtmp.PEa1Tv1(-2*dr23dotdr34odr23Sq*dr23dotdr34odr23Sq, dr23);
@@ -153,17 +152,29 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         gradient[3].Ea1Tv1(1.0/v1v2, v1);
         gradient[3].PEa1Tv1(-v1dotv2*v1Sq/v1v2_3, v2);
         gradient[3].TE(dUdcosphi);
-        
+
         gradient[2].Ea1Tv1(-1, gradient[0]);
         gradient[2].PEa1Tv1(-1, gradient[1]);
         gradient[2].PEa1Tv1(-1, gradient[3]);
 
         return gradient;
     }
-    
+
     public double dUdcosphi(double cosphi) {
-        double cos2phi = cosphi*cosphi;  // note, this is different than cos2phi in energy()
-        return 12.0*a3*cos2phi - 4.0*a2*cosphi + a1 - 3*a3;
+        double[] u = {0}, du = {0};
+        udu(cosphi, u, du);
+        return du[0];
+    }
+
+    @Override
+    public void udu(double costheta, double[] u, double[] du) {
+        // cos(2phi) = 2*cosphi*cosphi - 1
+        double cosSQtheta = costheta * costheta;
+        double cosCBtheta = cosSQtheta * costheta;
+
+        // a0 + a1*(1+cos(phi)) + a2*(1-cos2phi) + a3*(1+cos3phi)
+        u[0] = a0 + a1 * (1 + costheta) + a2 * (2 - 2 * cosSQtheta) + a3 * (1 + 4 * cosCBtheta - 3 * costheta);
+        du[0] = 12 * a3 * cosSQtheta - 4 * a2 * costheta + a1 - 3 * a3;
     }
 
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
@@ -174,7 +185,6 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         return 0;
     }
 
-    private static final long serialVersionUID = 1L;
     protected final Vector dr21, dr23, dr34;
     protected final Vector v1, v2;
     protected final Vector gtmp;

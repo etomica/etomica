@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -57,17 +56,17 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private double[] planeAngles;
     private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
 
-    public DisplayBoxCanvasG3DSys(Simulation sim, DisplayBox _box, Space _space, Controller controller) {
-        super(controller);
-        displayBox = _box;
-        space = _space;
+    public DisplayBoxCanvasG3DSys(DisplayBox _box, Space _space, Controller controller) {
+		super(controller);
+		displayBox = _box;
+		space = _space;
 
-        // init G3DSys
-        // adding JPanel flickers, Panel does not. Nobody knows why.
-        /*
-         * Set visible false here to be toggled later; seems to fix the
-         * 'sometimes gray' bug
-         */
+		// init G3DSys
+		// adding JPanel flickers, Panel does not. Nobody knows why.
+		/*
+		 * Set visible false here to be toggled later; seems to fix the
+		 * 'sometimes gray' bug
+		 */
         // this.setVisible(false); // to be set visible later by
         // SimulationGraphic
         panel = new Panel();

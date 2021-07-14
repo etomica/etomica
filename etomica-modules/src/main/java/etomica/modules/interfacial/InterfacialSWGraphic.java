@@ -421,11 +421,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final DisplayTextBox vaporDensityBox = new DisplayTextBox();
         vaporDensityBox.setLabel("Vapor density");
         final DisplayTextBox liquidDensityBox = new DisplayTextBox();
-        liquidDensityBox.setLabel("Vapor density");
+        liquidDensityBox.setLabel("Liquid density");
         final DisplayTextBox interfaceWidthBox = new DisplayTextBox();
-        interfaceWidthBox.setLabel("Vapor density");
+        interfaceWidthBox.setLabel("Interface width");
         final DisplayTextBox interfaceLocationBox = new DisplayTextBox();
-        interfaceLocationBox.setLabel("Vapor density");
+        interfaceLocationBox.setLabel("Interface location");
         JPanel fitParamsPanel = new JPanel();
         fitParamsPanel.add(vaporDensityBox.graphic());
         fitParamsPanel.add(liquidDensityBox.graphic());
@@ -461,9 +461,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
         chemicalPotentialAverage.setPushInterval(10);
         DataPump muProfilePump = new DataPump(muProfileMeter, chemicalPotentialAverage);
-        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
+        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential(sim.integrator);
         dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
-        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
         chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{chemicalPotentialAverage.AVERAGE});
         dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
         muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "mu");

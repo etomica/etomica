@@ -752,22 +752,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
-	
-	public static class Applet extends javax.swing.JApplet {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
 
-		public void init(){
-			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
-			Space sp = Space.getInstance(3);
-			NormalModeAnalysisDisplay3DGraphic nm3Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(), sp);
-			getContentPane().add(nm3Dgraphic.getPanel());
-		}
-	}
-	
-	private DeviceThermoSlider temperatureSetter; 
+    private DeviceThermoSlider temperatureSetter;
 	private DeviceWaveVectorSlider waveVectorSlider;
 	private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "3-D Harmonic Oscillator";

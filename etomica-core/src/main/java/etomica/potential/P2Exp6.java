@@ -4,9 +4,9 @@
 
 package etomica.potential;
 
-import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -14,13 +14,17 @@ import etomica.units.dimensions.Length;
 
 /**
  * Exponential-6 atom-atom repulsion-dispersion potential. Given formula:
- * 
+ * <p>
  * U(r) = A*exp(-r/B) - C /r^6
- * 
+ *
  * @author Tai Tan
  */
 
 public class P2Exp6 extends Potential2SoftSpherical {
+
+    public static Potential2Soft makeTruncated(Space space, double AA, double BB, double CC, TruncationFactory tf) {
+        return tf.make(new P2Exp6(space, AA, BB, CC));
+    }
 
     public P2Exp6(Space _space) {
         // these defaults probably aren't appropriate -- need to develop A,B,C
@@ -73,7 +77,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) { // need long range correction!!!!
+    public double integral(double rC) { // need long range correction!!!!
         throw new MethodNotImplementedException("Integral for long-range correction for Exp-6 not yet implemented");
     }
 
