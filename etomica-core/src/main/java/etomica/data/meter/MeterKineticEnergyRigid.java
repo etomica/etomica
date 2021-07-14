@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeKinetic;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculeOrientedKinetic;
 import etomica.space.Space;
@@ -58,12 +57,12 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
             if (molecule0 instanceof IMoleculeOrientedKinetic) {
                 for (int j = 0; j < moleculeList.size(); j++) {
                     IMoleculeOrientedKinetic moleculeOrientedKinetic = (IMoleculeOrientedKinetic) moleculeList.get(j);
-                    double mass = molecule0.getType().getMass();
-                    if (Double.isInfinite(mass)) {
-                        continue;
+                    double mass = sm.getSpecies(i).getMass();
+                    if (!Double.isInfinite(mass)) {
+                        ke += mass*moleculeOrientedKinetic.getVelocity().squared();
                     }
-                    ke += 0.5*mass*((IMoleculeKinetic)molecule0).getVelocity().squared();
                     Vector moment = molecule0.getType().getMomentOfInertia();
+                    if (1/moment.squared() == 0) continue;
         
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
                     rotationTensor.setOrientation((IOrientationFull3D)moleculeOrientedKinetic.getOrientation());
