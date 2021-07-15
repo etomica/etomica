@@ -8,34 +8,20 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
 import etomica.molecule.IMolecule;
-import etomica.molecule.MoleculePositionCOM;
-import etomica.molecule.OrientationCalc;
+import etomica.molecule.OrientationCalcMolecular;
 import etomica.molecule.OrientationCalcQuaternion;
-import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
-import etomica.space3d.RotationTensor3D;
 
-public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
-        OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
+public class OrientationCalcWater4P extends OrientationCalcMolecular implements
+        OrientationCalcQuaternion {
 
     public OrientationCalcWater4P(Space space) {
-        super(space);
+        super();
         xWork = space.makeVector();
         yWork = space.makeVector();
         zWork = space.makeVector();
-        com0 = space.makeVector();
-        rotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        atomPositionCOM = new MoleculePositionCOM(space);
-        initialized = false;
-        previousTensor = space.makeRotationTensor();
-        workTensor = space.makeRotationTensor();
-        double hMass = 1.0079;
-        double oMass = 15.9994;
-        com0.E(new double[] {hMass*bondLengthOH, 0, 0.0});
-        com0.PEa1Tv1(hMass, Vector.of(new double[]{bondLengthOH * Math.cos(angleHOH), bondLengthOH * Math.sin(angleHOH), 0.0}));
-        com0.TE(1.0/(hMass*2+oMass));
     }
 
     public void calcOrientation(IMolecule molecule, double[] quat) {
@@ -243,33 +229,7 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
         throw new MethodNotImplementedException("oops");
     }
 
-    public void initializePositions(IAtomList childList) {
-        super.initializePositions(childList);
-        if (!initialized) {
-            com0.E(atomPositionCOM.position(childList.get(0).getParentGroup()));
-            initialized = true;
-        }
-    }
-    
-    private static final long serialVersionUID = 1L;
-
     protected final Vector xWork, yWork, zWork;
-    protected final Vector com0;
-    protected final RotationTensor3D rotationTensor;
-    protected final MoleculePositionCOM atomPositionCOM;
-    protected boolean initialized;
-    protected final RotationTensor previousTensor, workTensor;
-    
-    protected static void doTransform(IMolecule molecule, Vector r0, RotationTensor rotationTensor) {
-        IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.size(); iChild++) {
-            IAtom a = childList.get(iChild);
-            Vector r = a.getPosition();
-            r.ME(r0);
-            rotationTensor.transform(r);
-            r.PE(r0);
-        }
-    }
 
     public void calcOrientation(IMolecule molecule,
             IOrientationFull3D orientation) {
@@ -294,19 +254,4 @@ public class OrientationCalcWater4P extends ConformationWaterTIP4P implements
         orientation.setDirections(xWork, yWork);
     }
 
-    public void setOrientation(IMolecule molecule,
-            IOrientationFull3D orientation) {
-        xWork.E(atomPositionCOM.position(molecule));
-        IAtomList childList = molecule.getChildList();
-        initializePositions(childList);
-        rotationTensor.setOrientation(orientation);
-        rotationTensor.invert();
-        for (int iChild = 0; iChild<childList.size(); iChild++) {
-            IAtom a = childList.get(iChild);
-            Vector r = a.getPosition();
-            r.ME(com0);
-            rotationTensor.transform(r);
-            r.PE(xWork);
-        }
-    }
 }

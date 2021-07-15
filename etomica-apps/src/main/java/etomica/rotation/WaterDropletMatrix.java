@@ -19,6 +19,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidMatrixIterative;
+import etomica.models.water.ConformationWaterTIP4P;
 import etomica.models.water.OrientationCalcWater4P;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
@@ -41,7 +42,8 @@ public class WaterDropletMatrix {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         OrientationCalcWater4P calcer = new OrientationCalcWater4P(sim.getSpace());
-        SpeciesGeneral species = SpeciesWater4P.create(true, calcer, true);
+        ConformationWaterTIP4P conformationWater = new ConformationWaterTIP4P(space);
+        SpeciesGeneral species = SpeciesWater4P.create(true, conformationWater, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);

@@ -23,7 +23,9 @@ import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
 import etomica.species.SpeciesManager;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
+import etomica.util.Constants;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
@@ -129,7 +131,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             Vector moment = molecule.getType().getMomentOfInertia();
 
             calcer.calcOrientation(molecule, orientation);
-            Vector angularMomentum = getAngularMomentum(molecule, com, box);
+            Vector angularMomentum = calcer.getAngularMomentum(molecule, com, box);
 //            System.out.println("angular velocity "+angularMomentum);
             // transform to body-fixed, multiply by moment of inertia, transform back
             tempAngularVelocity.E(angularMomentum);
@@ -196,18 +198,9 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             }
 
 //            System.out.println("o "+orientation.getDirection()+" "+orientation.getSecondaryDirection());
-            calcer.setOrientation(molecule, orientation);
+            calcer.setOrientation(molecule, box, orientation);
 
-            tempAngularVelocity.E(angularMomentum);
-            rotationTensor.setOrientation(orientation);
-            //find body-fixed angular momentum
-            rotationTensor.transform(tempAngularVelocity);
-            //now divide out moment of inertia to get body-fixed angular velocity
-            tempAngularVelocity.DE(moment);
-            rotationTensor.invert();
-            //now rotate back to get space-fixed angular velocity
-            rotationTensor.transform(tempAngularVelocity);
-            setAngularVelocity(molecule, com, box, tempAngularVelocity);
+            calcer.setAngularMomentum(molecule, com, box, angularMomentum);
             //advance linear velocity to half timestep
             Vector dv = box.getSpace().makeVector();
             dv.Ea1Tv1(0.5*timeStep/mass, force);
@@ -278,7 +271,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             //advance momentum to full timestep
             IOrientationFull3D orientation = new OrientationFull3D(box.getSpace());
             calcer.calcOrientation(molecule, orientation);
-            Vector angularMomentum = getAngularMomentum(molecule, com, box);
+            Vector angularMomentum = calcer.getAngularMomentum(molecule, com, box);
             Vector moment = molecule.getType().getMomentOfInertia();
 
             // we actually stored the half-timestep angular momentum in this field...
@@ -286,14 +279,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
 
             angularMomentum.PEa1Tv1(0.5*timeStep, torque);
 
-            tempAngularVelocity.E(angularMomentum);
-            rotationTensor.setOrientation(orientation);
-            rotationTensor.transform(tempAngularVelocity);
-            tempAngularVelocity.DE(moment);
-            rotationTensor.invert();
-            rotationTensor.transform(tempAngularVelocity);
-
-            setAngularVelocity(molecule, com, box, tempAngularVelocity);
+            calcer.setAngularMomentum(molecule, com, box, angularMomentum);
 
             Vector velocity = box.getSpace().makeVector();
             for (IAtom a : molecule.getChildList()) {
@@ -315,7 +301,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
         currentKineticEnergy *= 0.5;
         if (printInterval > 0 && stepCount%printInterval == 0) {
             int moleculeCount = box.getMoleculeList().size();
-            double fac = 1; //Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
+            double fac = Joule.UNIT.fromSim(1.0/moleculeCount)* Constants.AVOGADRO;
             System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/6*2)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
@@ -468,7 +454,6 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             tempAngularVelocity.Ea1Tv1(temperature, moment);
             tempAngularVelocity.map(new Function.Sqrt());
             tempAngularVelocity.TE(angularVelocity);
-            tempAngularVelocity.DE(moment);
 
             IOrientationFull3D orientation = new OrientationFull3D(box.getSpace());
             calcer.calcOrientation(molecule, orientation);
@@ -477,7 +462,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             rotationTensor.invert();
             // transform to space-fixed angular momentum
             rotationTensor.transform(tempAngularVelocity);
-            setAngularVelocity(molecule, com, box, tempAngularVelocity);
+            calcer.setAngularMomentum(molecule, com, box, tempAngularVelocity);
         }
 
     }
@@ -508,42 +493,6 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
                     +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
 
-    }
-
-    protected Vector getAngularMomentum(IMolecule molecule, Vector com, Box box) {
-        Vector dr = box.getSpace().makeVector();
-        Vector L = box.getSpace().makeVector();
-        // L = r x v
-        for (IAtom a : molecule.getChildList()) {
-            dr.Ev1Mv2(a.getPosition(), com);
-            box.getBoundary().nearestImage(dr);
-            dr.XE(((IAtomKinetic)a).getVelocity());
-            L.PEa1Tv1(a.getType().getMass(), dr);
-        }
-        return L;
-    }
-
-    protected void setAngularVelocity(IMolecule molecule, Vector com, Box box, Vector omega) {
-        Vector dr = box.getSpace().makeVector();
-        double omegaMag = Math.sqrt(omega.squared());
-        Vector velocity = box.getSpace().makeVector();
-        double mass = 0;
-        for (IAtom a : molecule.getChildList()) {
-            dr.Ev1Mv2(a.getPosition(), com);
-            box.getBoundary().nearestImage(dr);
-            double dot = dr.dot(omega);
-            dr.PEa1Tv1(-dot/omegaMag, omega);
-            dr.XE(omega);
-            Vector v = ((IAtomKinetic)a).getVelocity();
-            double m = a.getType().getMass();
-            velocity.PEa1Tv1(m, v);
-            mass += m;
-            v.Ea1Tv1(-1, dr);
-        }
-        velocity.TE(1.0/mass);
-        for (IAtom a : molecule.getChildList()) {
-            ((IAtomKinetic)a).getVelocity().PE(velocity);
-        }
     }
 
 //--------------------------------------------------------------

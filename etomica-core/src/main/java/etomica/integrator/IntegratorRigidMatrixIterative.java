@@ -243,7 +243,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
             orientation.setDirections(xWork, yWork);
 
 //            System.out.println("o "+orientation.getDirection()+" "+orientation.getSecondaryDirection());
-            calcer.setOrientation(molecule, orientation);
+            calcer.setOrientation(molecule, box, orientation);
             //advance linear velocity to half timestep
             orientedMolecule.getVelocity().PEa1Tv1(0.5*timeStep/mass, agent.force);
             

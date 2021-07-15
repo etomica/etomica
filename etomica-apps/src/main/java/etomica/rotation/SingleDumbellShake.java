@@ -31,6 +31,7 @@ public class SingleDumbellShake {
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .withConformation(new ConformationLinear(space))
                 .addCount(AtomType.simpleFromSim(sim), 2)
+                .setDynamic(true)
                 .build();
         ((ConformationLinear) species.getConformation()).setAngle(0, 0);
         ((ConformationLinear) species.getConformation()).setAngle(1, 0.5 * Math.PI);
