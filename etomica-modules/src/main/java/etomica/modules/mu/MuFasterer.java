@@ -90,7 +90,7 @@ public class MuFasterer extends Simulation {
         int N = 300;  //number of atoms
 
         //controller and integrator
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField), neighborManager, random, 0.01, 1, box, null, null);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField), neighborManager, random, 0.01, 1, box, getSpeciesManager(), null);
         integrator.setTemperature(1);
         integrator.setIsothermal(true);
         integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);

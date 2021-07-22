@@ -114,7 +114,7 @@ public class ColloidSimFasterer extends Simulation {
 
 
         //controller and integrator
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField), neighborManager, random, 0.02, 2, box, null, null);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField), neighborManager, random, 0.02, 2, box, getSpeciesManager(), null);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(2);
         integrator.setIsothermal(true);

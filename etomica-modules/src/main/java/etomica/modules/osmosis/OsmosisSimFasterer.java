@@ -90,7 +90,7 @@ public class OsmosisSimFasterer extends Simulation {
         box.setNMolecules(speciesSolute, initialSolute);
 
         integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), IntegratorHardFasterer.extractFieldPotentials(pcField),
-                neighborManager, random, 0.05, 1.0, box, null, null);
+                neighborManager, random, 0.05, 1.0, box, getSpeciesManager(), null);
         integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1.0), space);
