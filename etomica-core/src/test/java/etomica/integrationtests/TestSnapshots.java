@@ -18,7 +18,10 @@ import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -71,33 +74,33 @@ public class TestSnapshots {
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 
-
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }
 
     }
 
-//    public static void main(String[] args) throws IOException {
-//        Simulation sim = new HSMD3DNeighborList();
-//
-//        List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
-//                .map(IAtom::getPosition)
-//                .collect(Collectors.toList());
-//
-//        ObjectMapper om = new ObjectMapper();
-//        System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(coords));
-//
-//        sim.getController().actionPerformed();
-//
-//        List<Vector> coords2 = sim.box().getLeafList().getAtoms().stream()
-//                .map(IAtom::getPosition)
-//                .collect(Collectors.toList());
-//
-//        Process proc = new ProcessBuilder("git", "rev-parse", "--short", "HEAD").start();
-//        String hash = new BufferedReader(new InputStreamReader(proc.getInputStream())).readLine();
-//        System.out.println(hash);
-//        File f = new File(String.format("HSMD3DNeighborList_%s.json", hash));
-//        om.writeValue(f, coords2);
-//        System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(coords2));
-//    }
+    public static void main(String[] args) throws IOException {
+        if (true) return;
+        HSMD3DNeighborList sim = new HSMD3DNeighborList();
+
+        List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
+                .map(IAtom::getPosition)
+                .collect(Collectors.toList());
+
+        ObjectMapper om = new ObjectMapper();
+        System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(coords));
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 500));
+
+        List<Vector> coords2 = sim.box().getLeafList().getAtoms().stream()
+                .map(IAtom::getPosition)
+                .collect(Collectors.toList());
+
+        Process proc = new ProcessBuilder("git", "rev-parse", "--short", "HEAD").start();
+        String hash = new BufferedReader(new InputStreamReader(proc.getInputStream())).readLine();
+        System.out.println(hash);
+        File f = new File(String.format("HSMD3DNeighborList_%s.json", hash));
+        om.writeValue(f, coords2);
+        System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(coords2));
+    }
 }
