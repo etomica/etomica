@@ -132,8 +132,8 @@ public class IntegratorHardFasterer extends IntegratorMDFasterer implements INei
      * @param temperature      used by thermostat and/or to initialize velocities
      * @param box
      */
-    public IntegratorHardFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box) {
-        this(pairPotentials, neighborManager, random, timeStep, temperature, box, null, null);
+    public IntegratorHardFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
+        this(pairPotentials, neighborManager, random, timeStep, temperature, box, sm, null);
     }
 
     public IntegratorHardFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {

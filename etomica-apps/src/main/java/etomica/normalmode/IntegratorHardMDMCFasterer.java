@@ -10,6 +10,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHardFasterer;
 import etomica.potential.IPotentialHard;
 import etomica.potential.compute.NeighborManagerHard;
+import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
@@ -24,8 +25,8 @@ import java.util.List;
 public class IntegratorHardMDMCFasterer extends IntegratorHardFasterer {
     protected List<IAction> thermostatActions;
 
-    public IntegratorHardMDMCFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box) {
-        super(pairPotentials, neighborManager, random, timeStep, temperature, box);
+    public IntegratorHardMDMCFasterer(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
+        super(pairPotentials, neighborManager, random, timeStep, temperature, box, sm);
         thermostatActions = new ArrayList<>();
     }
 

@@ -98,7 +98,7 @@ public class SimHSMDVacancyFasterer extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMasterList.setPairPotential(leafType, leafType, potential);
-        integrator = new IntegratorHardMDMCFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMasterList), neighborManager, random, tStep, 1.0, box);
+        integrator = new IntegratorHardMDMCFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMasterList), neighborManager, random, tStep, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
         integrator.setThermostat(IntegratorMDFasterer.ThermostatType.HYBRID_MC);

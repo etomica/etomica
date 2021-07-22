@@ -60,7 +60,7 @@ public class InsertionFasterer extends Simulation {
         potentialGhost = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{0, 0});
         potentialCompute.setPairPotential(species.getLeafType(), speciesGhost.getLeafType(), potentialGhost);
 
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialCompute), neighborManager, random, 0.2, 1.0, box);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialCompute), neighborManager, random, 0.2, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(false);
         integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SCALING);
         integrator.setThermostatNoDrift(true);

@@ -60,7 +60,7 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.setPairPotential(type1, type2, P2HardSphere.makePotential(sigma));
         potentialMaster.setPairPotential(type2, type2, P2HardSphere.makePotential(sigma));
 
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager());
 
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);

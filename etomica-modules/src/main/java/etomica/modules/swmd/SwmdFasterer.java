@@ -54,7 +54,7 @@ public class SwmdFasterer extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager,
-                random, 1.0, Kelvin.UNIT.toSim(300), box);
+                random, 1.0, Kelvin.UNIT.toSim(300), box, getSpeciesManager());
         integrator.setIsothermal(false);
         integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);

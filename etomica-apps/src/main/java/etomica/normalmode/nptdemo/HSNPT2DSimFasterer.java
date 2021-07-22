@@ -57,7 +57,7 @@ public class HSNPT2DSimFasterer extends Simulation {
 
         potentialMaster.setPairPotential(leafType1, leafType1, potential);
 
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.05, 1.0, box);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.05, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.05);
 

@@ -149,7 +149,7 @@ public class SimGlassFasterer extends Simulation {
         new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
 
         integrator = potentialChoice == PotentialChoice.HS ?
-                new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), (NeighborManagerHard) neighborManager, random, tStep, temperature, box) :
+                new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), (NeighborManagerHard) neighborManager, random, tStep, temperature, box, getSpeciesManager()) :
                 new IntegratorVelocityVerletFasterer(potentialMaster, random, tStep, temperature, box);
         integrator.setIsothermal(true);
         integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN);

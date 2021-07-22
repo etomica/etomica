@@ -100,7 +100,7 @@ public class HSMD3DFasterer extends Simulation {
 
         potentialMaster.setPairPotential(leafType, leafType, potential);
 
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box);
+        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box, getSpeciesManager());
         integrator.setIsothermal(false);
 
         ActivityIntegrate ai2 = new ActivityIntegrate(integrator);

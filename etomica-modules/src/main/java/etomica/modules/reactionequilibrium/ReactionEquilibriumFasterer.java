@@ -78,7 +78,7 @@ public class ReactionEquilibriumFasterer extends Simulation implements AgentSour
         potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), BBbonded);
 
         integratorHard1 = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster),
-                neighborManager, random, 0.05, 1.0, box);
+                neighborManager, random, 0.05, 1.0, box, getSpeciesManager());
         integratorHard1.setMaxCollisionDiameter(speciesA.getLeafType(), diameter);
         integratorHard1.setMaxCollisionDiameter(speciesB.getLeafType(), diameter);
         integratorHard1.setIsothermal(true);
