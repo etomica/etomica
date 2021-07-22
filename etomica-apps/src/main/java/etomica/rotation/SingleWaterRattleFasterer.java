@@ -107,7 +107,7 @@ public class SingleWaterRattleFasterer {
             }
 
             final OrientationCalcWater3P calcer = new OrientationCalcWater3P(space);
-            final IOrientationFull3D orientation = (IOrientationFull3D) space.makeOrientation();
+            final IOrientationFull3D orientation = (IOrientationFull3D) calcer.makeOrientation(space);
             IAction writeA = new IAction() {
                 public void actionPerformed() {
                     IMolecule molecule = box.getMoleculeList().get(0);

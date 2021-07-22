@@ -437,11 +437,11 @@ public class P2LJDipoleAtomic implements Potential2Soft {
 
         double rdudr = epsilon48 * s6 * s6 - fShift / s1;
         Vector ftmp1 = space.makeVector();
-        ftmp1.Ea1Tv1(-rdudr / r2, dr);
+        ftmp1.Ea1Tv1(-rdudr / r2, dr12);
 
         if (momentSq != 0.0) {
             // normalize dr, the vector between the molecules
-            drunit.E(dr);
+            drunit.E(dr12);
             double r12 = Math.sqrt(r2);
             drunit.TE(1 / r12);
 
@@ -451,10 +451,10 @@ public class P2LJDipoleAtomic implements Potential2Soft {
             double udd = v1.dot(v2) - 3.0 * v1.dot(drunit) * v2.dot(drunit);
             work.Ea1Tv1(v2.dot(drunit), v1);
             work.PEa1Tv1(v1.dot(drunit), v2);
-            work.PEa1Tv1(-2 * v1.dot(drunit) * v2.dot(drunit) * s1, dr);
+            work.PEa1Tv1(-2 * v1.dot(drunit) * v2.dot(drunit) * s1, dr12);
             work.TE(3.0 * s1 * fac);
             ftmp1.ME(work);
-            ftmp1.PEa1Tv1(-dfac * udd, dr);
+            ftmp1.PEa1Tv1(-dfac * udd, dr12);
 
             work.E(v1);
             work.XE(v2);

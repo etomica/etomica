@@ -44,6 +44,14 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         }
     }
 
+    public void setRotation(Vector v1, Vector v2) {
+        work.E(v1);
+        work.XE(v2);
+        work.TE(1.0/Math.sqrt(work.squared()));
+        double theta = Math.acos(v1.dot(v2) / Math.sqrt(v1.squared() * v2.squared()));
+        setRotationAxis(work, theta);
+    }
+
     /**
      * Sets the tensor for rotation about the axis v by an angle theta.
      */

@@ -35,7 +35,6 @@ import etomica.species.SpeciesAgentManager;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesManager;
 import etomica.units.Electron;
-import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
@@ -332,8 +331,8 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
             int moleculeCount = box.getMoleculeList().size();
-            double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
-            System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/3)+" "
+            double fac = 1; //Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
+            System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+currentKineticEnergy/moleculeCount/5*2+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
 
@@ -392,7 +391,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                 continue;
             }
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
-            orientedMolecule.getVelocity().ME(momentum);
             KE += orientedMolecule.getVelocity().squared() * molecule.getType().getMass();
 
             Vector moment = molecule.getType().getMomentOfInertia();
@@ -551,7 +549,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                 angularVelocity.DE(moment);
             }
             
-            calcer.calcOrientation(orientedMolecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            calcer.calcOrientation(orientedMolecule, orientedMolecule.getOrientation());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             // body-fixed to space-fixed, so invert
             rotationTensor.invert();
@@ -594,7 +592,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             //angularVelocity is now the correct body-fixed angular momentum
             angularVelocity.DE(moment);
             
-            calcer.calcOrientation(orientedMolecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            calcer.calcOrientation(orientedMolecule, orientedMolecule.getOrientation());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             // body-fixed to space-fixed, so invert
             rotationTensor.invert();
@@ -625,7 +623,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             }
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
-            calcer.calcOrientation(molecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            calcer.calcOrientation(molecule, orientedMolecule.getOrientation());
             orientedMolecule.getPosition().E(atomPositionCOM.position(molecule));
         }
 

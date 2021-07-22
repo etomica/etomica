@@ -9,10 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.IOrientation;
 import etomica.space.Vector;
-import etomica.space3d.IOrientationFull3D;
-import etomica.space3d.RotationTensor3D;
 
-public abstract class OrientationCalcMolecular extends OrientationCalcNonLinear {
+public abstract class OrientationCalcMolecularLinear extends OrientationCalcLinear {
 
     @Override
     public Vector getMomentOfInertia(IMolecule molecule) {
@@ -66,14 +64,15 @@ public abstract class OrientationCalcMolecular extends OrientationCalcNonLinear 
         IAtomList childList = molecule.getChildList();
         molecule.getType().getConformation().initializePositions(childList);
         Vector com0 = CenterOfMass.position(box, molecule);
-        RotationTensor3D rotationTensor = new RotationTensor3D();
-        rotationTensor.setOrientation((IOrientationFull3D) orientation);
-        rotationTensor.invert();
+        IOrientation o = box.getSpace().makeOrientation();
+        calcOrientation(molecule, o);
         for (IAtom a : childList) {
             Vector r = a.getPosition();
             r.ME(com0);
-            rotationTensor.transform(r);
-            r.PE(com);
+            double sign = Math.signum(r.dot(o.getDirection()));
+            double r2 = r.squared();
+            r.E(com);
+            r.PEa1Tv1(Math.sqrt(r2)*sign, orientation.getDirection());
         }
     }
 }

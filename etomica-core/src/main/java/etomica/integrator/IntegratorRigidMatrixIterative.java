@@ -555,7 +555,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
             //angularVelocity is now the correct body-fixed angular momentum
             angularVelocity.DE(moment);
             
-            calcer.calcOrientation(orientedMolecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            calcer.calcOrientation(orientedMolecule, orientedMolecule.getOrientation());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             // body-fixed to space-fixed, so invert
             rotationTensor.invert();
@@ -598,7 +598,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
             //angularVelocity is now the correct body-fixed angular momentum
             angularVelocity.DE(moment);
             
-            calcer.calcOrientation(orientedMolecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            calcer.calcOrientation(orientedMolecule, orientedMolecule.getOrientation());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
             // body-fixed to space-fixed, so invert
             rotationTensor.invert();
@@ -624,13 +624,13 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = moleculeList.get(iMolecule);
-            OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
+            OrientationCalc calcer = typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
                 continue;
             }
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
-            calcer.calcOrientation(molecule, (IOrientationFull3D)orientedMolecule.getOrientation());
+            calcer.calcOrientation(molecule, orientedMolecule.getOrientation());
             orientedMolecule.getPosition().E(atomPositionCOM.position(molecule));
         }
 

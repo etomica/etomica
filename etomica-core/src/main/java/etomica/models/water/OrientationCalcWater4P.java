@@ -10,6 +10,7 @@ import etomica.exception.MethodNotImplementedException;
 import etomica.molecule.IMolecule;
 import etomica.molecule.OrientationCalcMolecular;
 import etomica.molecule.OrientationCalcQuaternion;
+import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
@@ -232,7 +233,7 @@ public class OrientationCalcWater4P extends OrientationCalcMolecular implements
     protected final Vector xWork, yWork, zWork;
 
     public void calcOrientation(IMolecule molecule,
-            IOrientationFull3D orientation) {
+            IOrientation orientation) {
         // depend on ordering as H1, H2, O.  we could sniff this out if needed
         IAtomList children = molecule.getChildList();
         IAtom H1 = children.get(0);
@@ -251,7 +252,7 @@ public class OrientationCalcWater4P extends OrientationCalcMolecular implements
         yWork.ME(O.getPosition());
 //        yWork.normalize();
 
-        orientation.setDirections(xWork, yWork);
+        ((IOrientationFull3D)orientation).setDirections(xWork, yWork);
     }
 
 }

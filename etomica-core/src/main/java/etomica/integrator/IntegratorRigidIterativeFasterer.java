@@ -4,12 +4,9 @@
 
 package etomica.integrator;
 
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
-import etomica.data.meter.MeterKineticEnergyRigid;
+import etomica.data.DataSourceScalar;
 import etomica.math.function.Function;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
@@ -17,15 +14,12 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.OrientationCalc;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
-import etomica.space3d.IOrientationFull3D;
-import etomica.space3d.OrientationFull3D;
+import etomica.space3d.IOrientation3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
 import etomica.species.SpeciesManager;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.util.Constants;
+import etomica.units.dimensions.Energy;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
@@ -50,9 +44,12 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
         tempAngularVelocity = space.makeVector();
         maxIterations = 40;
         omegaTolerance = 1.e-30;
-        meterKE = new MeterKineticEnergyRigid(space, sm);
-
-        ((MeterKineticEnergyRigid)meterKE).setBox(box);
+        meterKE = new DataSourceScalar("KE", Energy.DIMENSION) {
+            @Override
+            public double getDataAsScalar() {
+                return currentKineticEnergy;
+            }
+        };
     }
 
     public void setOrientationCalc(ISpecies moleculeType, OrientationCalc calcer) {
@@ -127,19 +124,14 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
 
 //            IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
 //            IOrientationFull3D orientation = (IOrientationFull3D)orientedMolecule.getOrientation();
-            IOrientationFull3D orientation = new OrientationFull3D(box.getSpace());
-            Vector moment = molecule.getType().getMomentOfInertia();
+            IOrientation3D orientation = (IOrientation3D) calcer.makeOrientation(space);
 
             calcer.calcOrientation(molecule, orientation);
             Vector angularMomentum = calcer.getAngularMomentum(molecule, com, box);
+
 //            System.out.println("angular velocity "+angularMomentum);
             // transform to body-fixed, multiply by moment of inertia, transform back
-            tempAngularVelocity.E(angularMomentum);
-            rotationTensor.setOrientation(orientation);
-            rotationTensor.transform(tempAngularVelocity);
-            tempAngularVelocity.DE(moment);
-            rotationTensor.invert();
-            rotationTensor.transform(tempAngularVelocity);
+            tempAngularVelocity.E(calcer.angularMomentumToVelocity(molecule, space, angularMomentum));
 
             // xWork = angular velocity from the previous iteration
             // save angular velocity to see if we've converged
@@ -156,32 +148,21 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             numRigid++;
             for (int i = 0; i<maxIterations; i++) {
                 iterationsTotal++;
-                IOrientationFull3D tempOrientation = new OrientationFull3D(box.getSpace());
+                IOrientation3D tempOrientation = (IOrientation3D) calcer.makeOrientation(space);
                 tempOrientation.E(orientation);
                 if (dtheta > 0) {
                     // estimate orientation at half timestep, we need this to get the moment of inertia at half timestep
                     tempOrientation.rotateBy(0.5*dtheta*timeStep, tempAngularVelocity);
                 }
 
-                tempAngularVelocity.E(angularMomentum);
+                Vector omega = calcer.angularMomentumToVelocity(tempOrientation, molecule, space, angularMomentum);
 
-                rotationTensor.setOrientation(tempOrientation);
-
-                //find body-fixed angular momentum
-                rotationTensor.transform(tempAngularVelocity);
-                //now divide out moment of inertia to get body-fixed angular velocity
-                tempAngularVelocity.DE(moment);
-                rotationTensor.invert();
-                //now rotate back to get space-fixed angular velocity
-                rotationTensor.transform(tempAngularVelocity);
-//                System.out.println("iteration "+i+" half-timestep angular velocity "+angularVelocity);
-
-                xWork.ME(tempAngularVelocity);
-                double omegaError = xWork.squared() / tempAngularVelocity.squared();
-                xWork.E(tempAngularVelocity);
-                dtheta = Math.sqrt(tempAngularVelocity.squared());
+                xWork.ME(omega);
+                double omegaError = xWork.squared() / omega.squared();
+                xWork.E(omega);
+                dtheta = Math.sqrt(omega.squared());
                 if (dtheta > 0) {
-                    tempAngularVelocity.TE(1.0/dtheta);
+                    omega.TE(1.0/dtheta);
                 }
 
                 if (omegaError < omegaTolerance) {
@@ -191,6 +172,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
                     System.err.println("omegaError still "+omegaError+" after "+maxIterations+" iterations");
 //                    throw new RuntimeException("omegaError still "+omegaError+" after "+maxIterations+" iterations");
                 }
+                tempAngularVelocity.E(omega);
             }
 
             if (dtheta > 0) {
@@ -269,10 +251,9 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             }
 
             //advance momentum to full timestep
-            IOrientationFull3D orientation = new OrientationFull3D(box.getSpace());
+            IOrientation3D orientation = (IOrientation3D) calcer.makeOrientation(space);
             calcer.calcOrientation(molecule, orientation);
             Vector angularMomentum = calcer.getAngularMomentum(molecule, com, box);
-            Vector moment = molecule.getType().getMomentOfInertia();
 
             // we actually stored the half-timestep angular momentum in this field...
             // advance to full timestep
@@ -288,21 +269,17 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             velocity.TE(1.0/mass);
 
             currentKineticEnergy += mass * velocity.squared();
-
-            tempAngularVelocity.E(angularMomentum);
-            rotationTensor.setOrientation(orientation);
-            rotationTensor.transform(tempAngularVelocity);
-            tempAngularVelocity.DE(moment);
-
-            tempAngularVelocity.TE(tempAngularVelocity);
-            currentKineticEnergy += tempAngularVelocity.dot(moment);
+            Vector omega = calcer.angularMomentumToVelocity(molecule, space, angularMomentum);
+            omega = calcer.spaceToBody(molecule, space, omega);
+            omega.TE(omega);
+            currentKineticEnergy += calcer.getMomentOfInertia(molecule).dot(omega);
         }
 
         currentKineticEnergy *= 0.5;
         if (printInterval > 0 && stepCount%printInterval == 0) {
             int moleculeCount = box.getMoleculeList().size();
-            double fac = Joule.UNIT.fromSim(1.0/moleculeCount)* Constants.AVOGADRO;
-            System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/6*2)+" "
+            double fac = 1; //Joule.UNIT.fromSim(1.0/moleculeCount)* Constants.AVOGADRO;
+            System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+(currentKineticEnergy/moleculeCount/5)*2+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
 
@@ -333,12 +310,21 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             OrientationCalc calcer = typeAgentManager.getAgent(molecule.getType());
-            if (calcer == null) D += children.size() * 3;
-            else D += 6;
-            for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
-                Vector velocity = a.getVelocity();
-                KE += velocity.squared() * a.getType().getMass();
+            if (calcer == null) {
+                D += children.size() * 3;
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
+                    Vector velocity = a.getVelocity();
+                    KE += velocity.squared() * a.getType().getMass();
+                }
+            }
+            else {
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
+                    KE += a.getVelocity().squared() * a.getType().getMass();
+                }
+
+                D += 3 + calcer.getDOF(space);
             }
         }
         if (temperature == 0 && KE == 0) {
@@ -350,12 +336,12 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
-            // unimolecular or at least not rigid
-            //Finish integration step
-            for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
-//                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
+            for (int iLeaf = 0; iLeaf < children.size(); iLeaf++) {
+                IAtomKinetic a = (IAtomKinetic) children.get(iLeaf);
                 a.getVelocity().TE(scale);
+                if (a instanceof IAtomOrientedKinetic) {
+                    ((IAtomOrientedKinetic)a).getAngularVelocity().TE(scale);
+                }
             }
         }
     }
@@ -415,18 +401,20 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
         IMoleculeList moleculeList = box.getMoleculeList();
         int nMolecules = moleculeList.size();
 //        System.out.println("rerandomize");
+        currentKineticEnergy = 0;
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
             IMolecule molecule = moleculeList.get(iMolecule);
             OrientationCalc calcer = typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
                 IAtomList children = molecule.getChildList();
                 for (int i = 0; i<children.size(); i++) {
-                    super.randomizeMomentum((IAtomKinetic)children.get(i));
+                    IAtomKinetic a = (IAtomKinetic) children.get(i);
+                    super.randomizeMomentum(a);
+                    currentKineticEnergy += 0.5*a.getType().getMass()*a.getVelocity().squared();
                 }
                 continue;
             }
 
-            Vector moment = molecule.getType().getMomentOfInertia();
             Vector com = CenterOfMass.position(box, molecule);
             double mass = 0;
             for (IAtom a : molecule.getChildList()) {
@@ -445,26 +433,24 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             for (IAtom a : molecule.getChildList()) {
                 ((IAtomKinetic)a).getVelocity().E(velocity);
             }
+            currentKineticEnergy += 0.5*mass*velocity.squared();
 
             Vector angularVelocity = box.getSpace().makeVector();
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
 
-            tempAngularVelocity.Ea1Tv1(temperature, moment);
+            tempAngularVelocity.Ea1Tv1(temperature, calcer.getMomentOfInertia(molecule));
             tempAngularVelocity.map(new Function.Sqrt());
             tempAngularVelocity.TE(angularVelocity);
-
-            IOrientationFull3D orientation = new OrientationFull3D(box.getSpace());
-            calcer.calcOrientation(molecule, orientation);
-            rotationTensor.setOrientation(orientation);
-            // body-fixed to space-fixed, so invert
-            rotationTensor.invert();
-            // transform to space-fixed angular momentum
-            rotationTensor.transform(tempAngularVelocity);
-            calcer.setAngularMomentum(molecule, com, box, tempAngularVelocity);
+            Vector tmp = box.getSpace().makeVector();
+            tmp.E(calcer.angularMomentumToVelocity(calcer.makeOrientation(space), molecule, space, tempAngularVelocity));
+            tmp.TE(tmp);
+            currentKineticEnergy += 0.5*calcer.getMomentOfInertia(molecule).dot(tmp);
+            //tempAngularVelocity is now the correct body-fixed angular momentum
+            Vector L = calcer.bodyToSpace(molecule, space, tempAngularVelocity);
+            calcer.setAngularMomentum(molecule, com, box, L);
         }
-
     }
 
     public void reset() {
@@ -489,7 +475,7 @@ public class IntegratorRigidIterativeFasterer extends IntegratorMDFasterer imple
             double PE = currentPotentialEnergy;
             int moleculeCount = box.getMoleculeList().size();
             double fac = 1; //Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
-            System.out.println(currentTime+" "+0+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/3)+" "
+            System.out.println(currentTime+" "+0+" "+(currentKineticEnergy/moleculeCount/5)*2+" "
                     +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
         }
 
