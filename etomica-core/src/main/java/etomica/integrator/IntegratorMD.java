@@ -391,7 +391,9 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
             }
         }
         if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
-            shiftMomenta();
+            if (thermostatNoDrift) {
+                shiftMomenta();
+            }
             scaleMomenta();
         } else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
             if (initialized) {
