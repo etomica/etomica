@@ -107,8 +107,10 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
-        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
+        go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
+    }
+
+    public void go(IAtomOriented atom1, IAtomOriented atom2) {
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 //        System.out.println(ei);

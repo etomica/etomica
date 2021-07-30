@@ -7,6 +7,7 @@ import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 
 import static etomica.math.SpecialFunctions.besselI;
@@ -18,7 +19,9 @@ import static etomica.math.SpecialFunctions.besselI;
  */
 
 public class PotentialCalculationHeisenberg implements PotentialCalculation {
-    //public class PotentialCalculationHeisenberg {
+    protected IAtomOriented atom1, atom2;
+    protected Vector torque1, torque2;
+    protected Tensor phi1, phi2;
     protected Vector ei, ej;
     protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
     protected final double mu, J, bt, bJ, bmu; //TODO should I add final here
@@ -31,6 +34,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
     protected int nMax;
     protected int count = 1;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
+    protected Vector[] torques;
+    protected Tensor[] phiSum;
 
     public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
         ei = space.makeVector();//TODO Do I have to do this again.
@@ -86,8 +91,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
-        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
+        go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
+    }
+
+    public void go(IAtomOriented atom1, IAtomOriented atom2) {
+        torque1 = leafAgentManager.getAgent(atom1).torque;
+        phi1 = leafAgentManager.getAgent(atom1).phi;
+        torque2 = leafAgentManager.getAgent(atom2).torque;
+        phi2 = leafAgentManager.getAgent(atom2).phi;
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 //        System.out.println(ei);

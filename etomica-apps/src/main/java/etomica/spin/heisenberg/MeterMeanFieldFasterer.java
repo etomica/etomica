@@ -11,8 +11,8 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.integrator.Integrator;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Vector1D;
@@ -23,32 +23,34 @@ import etomica.util.numerical.BesselFunction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSource<MeterMeanField.ForceTorque> {
+public class MeterMeanFieldFasterer implements IDataSource, AtomLeafAgentManager.AgentSource<MeterMeanFieldFasterer.ForceTorque> {
 
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final PotentialCalculationMeanField pc;
-    protected final PotentialMaster potentialMaster;
+    protected final NeighborIterator nbrIterator;
     protected final Box box;
-    protected final IteratorDirective allAtoms;
     protected double temperature;
     protected double[] I1I0, I2etc, eta, cost0, sint0, cosdtheta, sindtheta, dtheta, theta0;
     protected final List<Vector> spins, thetaDot;
+    protected final double J2;
+    protected final Vector[] netOrientation;
 
-
-    public MeterMeanField(Space space, Box box, double J, PotentialMaster potentialMaster, double temperature) {
-        this.potentialMaster = potentialMaster;
+    public MeterMeanFieldFasterer(Space space, Box box, double J, NeighborManager nbrManager, double temperature) {
+        this.nbrIterator = nbrManager.makeNeighborIterator();
         this.temperature = temperature;
-        pc = new PotentialCalculationMeanField(space, J, box);
+        this.J2 = 0.5*J;
         data = new DataDoubleArray(2);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
-        allAtoms = new IteratorDirective();
         spins = new ArrayList<>();
         thetaDot = new ArrayList<>();
+        netOrientation = new Vector[box.getLeafList().size()];
+        for (int i=0; i<netOrientation.length; i++) {
+            netOrientation[i] = box.getSpace().makeVector();
+        }
     }
 
     public static double[] getpVelocity(double dtheta, double b, double cosTheta0, double sinTheta0) {
@@ -62,11 +64,24 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
 
     @Override
     public IData getData() {
-        pc.reset();
+        for (int i=0; i<netOrientation.length; i++) {
+            netOrientation[i].E(0);
+        }
+        for (IAtom a1 : box.getLeafList()) {
+            IAtomOriented atom1 = (IAtomOriented) a1;
+            nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij) {
+                    IAtomOriented atom2 = (IAtomOriented) jAtom;
+                    Vector ei = atom1.getOrientation().getDirection();
+                    Vector ej = atom2.getOrientation().getDirection();
 
-        potentialMaster.calculate(box, allAtoms, pc);
+                    netOrientation[atom1.getLeafIndex()].PEa1Tv1(J2, ej);
+                    netOrientation[atom2.getLeafIndex()].PEa1Tv1(J2, ei);
+                }
+            });
+        }
 
-        AtomLeafAgentManager<Vector> agentManager = pc.getAgentManager();
         IAtomList atoms = box.getLeafList();
         int atomCount = atoms.size();
         if (spins.size() < atomCount) {
@@ -88,7 +103,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
         double[] d = data.getData();
         for (int i = 0; i < atoms.size(); i++) {
             IAtomOriented a = (IAtomOriented) atoms.get(i);
-            Vector h = agentManager.getAgent(a);
+            Vector h = netOrientation[i];
             eta[i] = Math.sqrt(h.squared());
             cost0[i] = h.getX(0) / eta[i];
             sint0[i] = h.getX(1) / eta[i];

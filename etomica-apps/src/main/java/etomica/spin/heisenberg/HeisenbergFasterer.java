@@ -12,17 +12,19 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFasterer;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.integrator.IntegratorMCFasterer;
+import etomica.integrator.mcmove.MCMoveAtomRotateFasterer;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.nbr.site.PotentialMasterSite;
+import etomica.nbr.list.NeighborListManagerLattice;
+import etomica.potential.BondingInfo;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -31,6 +33,7 @@ import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomNumberGenerator;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -46,15 +49,16 @@ import java.util.Calendar;
  *
  * @author Weisong Lin
  */
-public class Heisenberg extends Simulation {
+public class HeisenbergFasterer extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
-    public PotentialMasterSite potentialMaster; // difference betweet Pmaster pmastersite
+    public PotentialComputePairGeneral potentialMaster;
+    public NeighborListManagerLattice nbrManager;
     public Box box;
     public SpeciesGeneral spins;
     public P2Spin potential;
-    public MCMoveRotate mcMove;
-    private IntegratorMC integrator;
+    public MCMoveAtomRotateFasterer mcMove;
+    private IntegratorMCFasterer integrator;
 
     /**
      * 2D heisenberg model in square lattice.
@@ -64,18 +68,20 @@ public class Heisenberg extends Simulation {
      * @param interactionS    the J in heisenberg energy function: U = J*Cos(theta1-theta2)
      * @param dipoleMagnitude is the strength of heisenberg dipole.
      */
-    public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
+    public HeisenbergFasterer(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
-//        setRandom(new RandomNumberGenerator(1)); //debug only
+        setRandom(new RandomNumberGenerator(1)); //debug only
 //        System.out.println("============================the RandomSeed is one ===========================");
 
         spins = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         addSpecies(spins);
-
-        potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);
+
+        nbrManager = new NeighborListManagerLattice(getSpeciesManager(), box, 1, 1.1, BondingInfo.noBonding());
+        nbrManager.setDoDownNeighbors(true);
+        potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, nbrManager);
         int numAtoms = space.powerD(nCells);
 
         box.setNMolecules(spins, numAtoms);
@@ -84,16 +90,16 @@ public class Heisenberg extends Simulation {
         config.initializeCoordinates(box);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this.getRandom(), potentialMaster, box);
-        mcMove = new MCMoveRotate(potentialMaster, random, space);
+        integrator = new IntegratorMCFasterer(potentialMaster, random, 1.0, box);
+        mcMove = new MCMoveAtomRotateFasterer(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMove);
-        MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);
+        MCMoveSpinClusterFasterer spinMove = new MCMoveSpinClusterFasterer(space, random, potentialMaster, nbrManager, integrator, interactionS);
         integrator.getMoveManager().addMCMove(spinMove);
         integrator.setTemperature(temperature);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
-        potentialMaster.addPotential(potential, new AtomType[]{type, type});
+        potentialMaster.setPairPotential(type, type, potential);
 
     }
 
@@ -116,7 +122,7 @@ public class Heisenberg extends Simulation {
             params.temperature = 5;
             params.nCells = 5;
             params.steps = 10000000;
-            params.doGraphic = true;
+            params.doGraphic = false;
 
         }
         final long startTime = System.currentTimeMillis();
@@ -153,7 +159,7 @@ public class Heisenberg extends Simulation {
                 + " \ntemperature= " + temperature + " interactionS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
 
         Space sp = Space2D.getInstance();
-        Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
+        HeisenbergFasterer sim = new HeisenbergFasterer(sp, nCells, temperature, interactionS, dipoleMagnitude);
 
         if (doGraphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "XY", numberMolecules);
@@ -200,21 +206,20 @@ public class Heisenberg extends Simulation {
         }
 
 
-        MeterPotentialEnergy FECon = null;
+        MeterPotentialEnergyFasterer FECon = null;
         AccumulatorAverageFixed FEConAccumulator = null;
         if (doConventionalE) {
-            FECon = new MeterPotentialEnergy(sim.potentialMaster);
-            FECon.setBox(sim.box);
+            FECon = new MeterPotentialEnergyFasterer(sim.potentialMaster);
             FEConAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener FEConPump = new DataPumpListener(FECon, FEConAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(FEConPump);
         }
 
-        MeterMappedAveragingFreeEnergy FEMap = null;
+        MeterMappedAveragingFreeEnergyFasterer FEMap = null;
         AccumulatorAverageFixed FEMapAccumulator = null;
 
         if (doMappingE) {
-            FEMap = new MeterMappedAveragingFreeEnergy(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
+            FEMap = new MeterMappedAveragingFreeEnergyFasterer(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, sim.nbrManager);
             FEMapAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener FEMapPump = new DataPumpListener(FEMap, FEMapAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(FEMapPump);
@@ -237,10 +242,10 @@ public class Heisenberg extends Simulation {
 
 
         //AEE
-        MeterMappedAveragingVSum AEEMeter = null;
+        MeterMappedAveragingVSumFasterer AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
+            AEEMeter = new MeterMappedAveragingVSumFasterer(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, sim.nbrManager, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPumpListener AEEListener = new DataPumpListener(AEEMeter, AEEAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
@@ -248,12 +253,12 @@ public class Heisenberg extends Simulation {
 
 
         //Correlation
-        MeterMappedAveragingCorrelation CorrelationMeter = null;
+        MeterMappedAveragingCorrelationFasterer CorrelationMeter = null;
         AccumulatorAverageFixed CorrelationAccumulator = null;
 
         if (doCorrelation) {
 
-            CorrelationMeter = new MeterMappedAveragingCorrelation(sim.box, temperature, interactionS, sim.potentialMaster, formula);
+            CorrelationMeter = new MeterMappedAveragingCorrelationFasterer(sim.box, temperature, interactionS, sim.potentialMaster, sim.nbrManager, formula);
             CorrelationAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener CorrelationPump = new DataPumpListener(CorrelationMeter, CorrelationAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(CorrelationPump);
@@ -264,7 +269,7 @@ public class Heisenberg extends Simulation {
 
         if (doDipole) {
             MeterDipoleMoment dipoleMeter = new MeterDipoleMoment(sim.box);
-            MeterMeanField meterMeanField = new MeterMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            MeterMeanFieldFasterer meterMeanField = new MeterMeanFieldFasterer(sim.space, sim.box, interactionS, sim.nbrManager, temperature);
             dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             meanFieldAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener pumpDipole = new DataPumpListener(dipoleMeter, dipoleAccumulator, sampleAtInterval);
@@ -276,7 +281,7 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageCovariance energyMFAccumulator = null;
 
         if (doEnergyMF) {
-            MeterEnergyMeanField meterEnergyMF = new MeterEnergyMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            MeterEnergyMeanFieldFasterer meterEnergyMF = new MeterEnergyMeanFieldFasterer(sim.space, sim.box, interactionS, sim.nbrManager, temperature);
             energyMFAccumulator = new AccumulatorAverageCovariance(samplePerBlock);
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);

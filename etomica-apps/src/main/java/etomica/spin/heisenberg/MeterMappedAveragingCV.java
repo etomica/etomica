@@ -8,7 +8,6 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.dimensions.Null;
 
@@ -33,13 +32,11 @@ public class MeterMappedAveragingCV implements IDataSource {
     protected double temperature;
     private Box box;
     protected final Space space;
-    protected final PotentialMaster potentialMaster;
 
-    public MeterMappedAveragingCV(Box box, double temperature, double interactionS, PotentialMaster potentialMaster) {
+    public MeterMappedAveragingCV(Box box, double temperature, double interactionS) {
         this.box = box;
         this.space = box.getSpace();
         this.temperature = temperature;
-        this.potentialMaster = potentialMaster;
         bt = 1 / temperature;
         bJ = interactionS * bt;
 

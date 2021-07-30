@@ -32,7 +32,7 @@ public class NeighborListManagerFasterer implements NeighborManager, NeighborMan
     // consider 1D array since Java sucks
     public int[][] nbrs;
     public Vector[][] nbrBoxOffsets;
-    private double nbrRange;
+    protected double nbrRange;
     private double safetyFac = 0.4;
     private boolean onlyUpNbrs = true;
     protected int maxNab;

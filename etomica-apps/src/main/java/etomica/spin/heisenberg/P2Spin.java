@@ -4,12 +4,14 @@
 
 package etomica.spin.heisenberg;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.IPotentialTorque;
 import etomica.potential.Potential2;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -30,7 +32,7 @@ import etomica.space1d.Vector1D;
  * @author weisong lin and David Kofke
  */
 
-public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAtomicSecondDerivative {
+public class P2Spin extends Potential2 implements Potential2Soft, IPotentialTorque, IPotentialAtomicSecondDerivative {
 
     private static final long serialVersionUID = 1L;
     protected final Vector[] torque;
@@ -40,6 +42,7 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
     protected Vector dr;
     protected Vector dr2;
     private double coupling;
+    private final Hessian h;
 
     public P2Spin(Space space) {
         this(space, 1.0);
@@ -59,6 +62,7 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
         this.secondDerivative[1] = new Tensor1D();
         this.secondDerivative[2] = new Tensor1D();
         gradientAndTorque = new Vector[][]{gradient, torque};
+        h = new Hessian(new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D());
     }
 
     /**
@@ -73,6 +77,40 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
         IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         return -coupling * atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
     }
+
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        IAtomOriented atom1o = (IAtomOriented) atom1;
+        IAtomOriented atom2o = (IAtomOriented) atom2;
+        return -coupling * atom1o.getOrientation().getDirection().dot(atom2o.getOrientation().getDirection());
+    }
+
+    @Override
+    public double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2) {
+        IAtomOriented atom1o = (IAtomOriented) atom1;
+        IAtomOriented atom2o = (IAtomOriented) atom2;
+        return -coupling * atom1o.getOrientation().getDirection().dot(atom2o.getOrientation().getDirection());
+    }
+
+    @Override
+    public double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
+        IAtomOriented atom1o = (IAtomOriented) atom1;
+        IAtomOriented atom2o = (IAtomOriented) atom2;
+
+        double x1 = atom1o.getOrientation().getDirection().getX(0);//cost1
+        double y1 = atom1o.getOrientation().getDirection().getX(1);//sint1
+        double x2 = atom2o.getOrientation().getDirection().getX(0);//cost2
+        double y2 = atom2o.getOrientation().getDirection().getX(1);//sint2
+
+        //u=-J*cos(t1-t2) and  du/dt1 = J*sin(t1-t2) = J*(sint1*cost2- cost1*sint2 =y1*x2-x1*y2)
+        double JSin = coupling * (y1 * x2 - x1 * y2);
+
+        t1.PE(-JSin);
+        t2.PE(JSin);
+
+        return -coupling * atom1o.getOrientation().getDirection().dot(atom2o.getOrientation().getDirection());
+    }
+
 
     /**
      * Returns 0, because potential operates on a lattice and range
@@ -173,6 +211,16 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
 //    	System.out.println(secondDerivative[2].component(0, 0));
 //    	System.out.println("test for secondDerivative in p2Spin");
         return secondDerivative;
+    }
+
+    @Override
+    public Hessian d2u(Vector dr12, IAtom atom1, IAtom atom2) {
+        double JCos = coupling * ((IAtomOriented)atom1).getOrientation().getDirection()
+                            .dot(((IAtomOriented)atom2).getOrientation().getDirection());
+        h.o1o2.E(-JCos);
+        h.o1o1.E(JCos);
+        h.o2o2.E(JCos);
+        return h;
     }
 
     /**

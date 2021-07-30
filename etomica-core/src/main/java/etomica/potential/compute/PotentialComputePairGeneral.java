@@ -15,6 +15,8 @@ import etomica.potential.IPotentialPair;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space1d.Vector1D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
@@ -178,6 +180,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         this.neighborManager.updateAtom(atom);
     }
 
+    protected Vector makeTorque() {
+        return box.getSpace().D() == 2 ? new Vector1D() : new Vector3D();
+    }
+
     protected final void zeroArrays(boolean doForces) {
         virialTot = 0;
 
@@ -187,7 +193,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             forces = Arrays.copyOf(forces, numAtoms);
             for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
             torques = Arrays.copyOf(torques, numAtoms);
-            for (int i = oldLength; i < numAtoms; i++) torques[i] = box.getSpace().makeVector();
+            for (int i = oldLength; i < numAtoms; i++) torques[i] = makeTorque();
         }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
@@ -224,8 +230,8 @@ public class PotentialComputePairGeneral implements PotentialCompute {
                 double uij;
                 if (doForces) {
                     Vector fj = space.makeVector();
-                    Vector ti = space.makeVector();
-                    Vector tj = space.makeVector();
+                    Vector ti = makeTorque();
+                    Vector tj = makeTorque();
                     fj.E(forces[j]);
                     ti.E(torques[finalI]);
                     tj.E(torques[j]);
