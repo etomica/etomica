@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.integrator.mcmove;
+package etomica.spin.ising;
 
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
@@ -10,10 +10,11 @@ import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.IOrientation;
 import etomica.space.Space;
-import etomica.space3d.Orientation3D;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**
@@ -23,7 +24,7 @@ import etomica.util.random.IRandom;
  *
  * @author David Kofke
  */
-public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
+public class MCMoveSpinFlipFasterer extends MCMoveBox {
 
     protected final PotentialCompute potentialCompute;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -32,9 +33,7 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
-    protected boolean fixOverlap;
     protected Space space;
-    protected IOrientation oldOrientation, newOrientation;
 
     /**
      * Constructs the move with default stepSize = 1.0, stepSizeMax = 15.0, fixOverlap = false
@@ -42,29 +41,15 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
      * @param random           random number generator used to select the atom and its displacement
      * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
-    public MCMoveAtomRotateFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
+    public MCMoveSpinFlipFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
         super(null);
         this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
-        setStepSizeMax(Math.PI);
-        setStepSizeMin(0.0);
-        setStepSize(stepSize);
         perParticleFrequency = true;
         setBox(box);
-
-        IAtomOriented atom0 = (IAtomOriented) box.getLeafList().get(0);
-
-        if (atom0.getOrientation() instanceof Orientation3D) {
-            oldOrientation = new Orientation3D(space);
-            newOrientation = new Orientation3D(space);
-        } else {
-            oldOrientation = space.makeOrientation();
-            newOrientation = space.makeOrientation();
-        }
-
     }
 
     public boolean doTrial() {
@@ -76,8 +61,9 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
         }
 
         IOrientation iOrientation = atom.getOrientation();
-        oldOrientation.E(iOrientation);  //save old orientation
-        iOrientation.randomRotation(random, stepSize);
+        Vector d = iOrientation.getDirection();
+        d.TE(-1);
+        iOrientation.setDirection(d);
 
         potentialCompute.updateAtom(atom);
         return true;
@@ -97,14 +83,17 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
         potentialCompute.processAtomU(1);
 
         // put it back, then compute old contributions to energy
-        newOrientation.E(atom.getOrientation());
-        atom.getOrientation().E(oldOrientation);
+        IOrientation iOrientation = atom.getOrientation();
+        Vector d = iOrientation.getDirection();
+        d.TE(-1);
+        iOrientation.setDirection(d);
 
         potentialCompute.updateAtom(atom);
         potentialCompute.computeOne(atom);
 
         // put atom in new orientation again
-        atom.getOrientation().E(newOrientation);
+        d.TE(-1);
+        iOrientation.setDirection(d);
 
         potentialCompute.processAtomU(-1);
         potentialCompute.updateAtom(atom);
@@ -112,7 +101,10 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
 
     public void rejectNotify() {
 //        System.out.println("rejected");
-        atom.getOrientation().E(oldOrientation);
+        IOrientation iOrientation = atom.getOrientation();
+        Vector d = iOrientation.getDirection();
+        d.TE(-1);
+        iOrientation.setDirection(d);
         potentialCompute.updateAtom(atom);
     }
 
