@@ -7,12 +7,10 @@ package etomica.species;
 import etomica.atom.AtomOriented;
 import etomica.atom.AtomOrientedDynamic;
 import etomica.atom.AtomTypeOriented;
-import etomica.atom.IAtom;
-import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.config.ConformationLinear;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
@@ -31,9 +29,14 @@ public class SpeciesSpheresRotating {
     }
 
     public static SpeciesGeneral create(Space space, IElement element, boolean isDynamic, boolean isAxisSymmetric) {
+        Vector moment = space.makeVector();
+        moment.E(1);
+        if (isAxisSymmetric) {
+            moment.setX(0, 0);
+        }
         return new SpeciesBuilder(space)
                 .setDynamic(isDynamic)
-                .addCount(new AtomTypeOriented(element, space.makeVector()), 1)
+                .addCount(new AtomTypeOriented(element, moment), 1)
                 .withConformation(new ConformationLinear(space))
                 .withAtomFactory((atomType -> {
                     return isDynamic ? new AtomOrientedDynamic(space, atomType, isAxisSymmetric)
