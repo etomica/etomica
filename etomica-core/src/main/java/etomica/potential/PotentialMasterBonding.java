@@ -139,29 +139,49 @@ public class PotentialMasterBonding implements PotentialCompute {
     }
 
     public double computeOne(IAtom atom) {
+        return computeOneInternal(atom, 0);
+    }
+
+    protected boolean arrayContains(IAtom a, int startIdx, IAtom... atoms) {
+        for (int i=startIdx; i<atoms.length; i++) {
+            if (atoms[i] == a) return true;
+        }
+        return false;
+    }
+
+    protected double computeOneInternal(IAtom atom, int startIdx, IAtom... atoms) {
         double[] uTot = {0};
         IMolecule parentMolecule = atom.getParentGroup();
         bondingInfo.bondedPairPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
             for (int[] pairIdx : partners[atom.getIndex()]) {
                 IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                if (iAtom != atom && arrayContains(iAtom, startIdx, atoms)) continue;
                 IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                if (jAtom != atom && arrayContains(jAtom, startIdx, atoms)) continue;
                 uTot[0] += handleComputeOneBonded(potential, iAtom, jAtom);
             }
         });
         bondingInfo.bondedTripletPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
             for (int[] pairIdx : partners[atom.getIndex()]) {
                 IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                if (iAtom != atom && arrayContains(iAtom, startIdx, atoms)) continue;
                 IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                if (jAtom != atom && arrayContains(jAtom, startIdx, atoms)) continue;
                 IAtom kAtom = parentMolecule.getChildList().get(pairIdx[2]);
+                if (kAtom != atom && arrayContains(kAtom, startIdx, atoms)) continue;
                 uTot[0] += handleComputeOneBondedTriplet(potential, iAtom, jAtom, kAtom);
             }
         });
         bondingInfo.bondedQuadPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
             for (int[] pairIdx : partners[atom.getIndex()]) {
                 IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                if (iAtom != atom && arrayContains(iAtom, startIdx, atoms)) continue;
                 IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                if (jAtom != atom && arrayContains(jAtom, startIdx, atoms)) continue;
                 IAtom kAtom = parentMolecule.getChildList().get(pairIdx[2]);
+                if (kAtom != atom && arrayContains(kAtom, startIdx, atoms)) continue;
                 IAtom lAtom = parentMolecule.getChildList().get(pairIdx[3]);
+                if (lAtom != atom && arrayContains(lAtom, startIdx, atoms)) continue;
                 uTot[0] += handleComputeOneBondedQuad(potential, iAtom, jAtom, kAtom, lAtom);
             }
         });
@@ -378,12 +398,17 @@ public class PotentialMasterBonding implements PotentialCompute {
 
     @Override
     public double computeManyAtomsOld(IAtom... atoms) {
-        throw new RuntimeException("Can't compute bonding for many atoms");
+        return computeManyAtoms(atoms);
     }
 
     @Override
     public double computeManyAtoms(IAtom... atoms) {
-        throw new RuntimeException("Can't compute bonding for many atoms");
+        double u = 0;
+        for (int i=0; i<atoms.length; i++) {
+            IAtom atom = atoms[i];
+            u += computeOneInternal(atom, i+1, atoms);
+        }
+        return u;
     }
 
     public static double computeOneMolecule(Boundary boundary, IMolecule molecule, FullBondingInfo bondingInfo) {
