@@ -140,6 +140,7 @@ public class VirialLJDQPlus {
         ISpecies species = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nPoints, temperature,refCluster,targetCluster);
+        sim.setDoFasterer(true);
         ClusterAbstract[] targetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer];
         for(int m=1;m<=nDer;m++){
             targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster,m);
@@ -149,9 +150,9 @@ public class VirialLJDQPlus {
         sim.init();
 
         if (doChainRef) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -161,7 +162,7 @@ public class VirialLJDQPlus {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if(false) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -186,13 +187,13 @@ public class VirialLJDQPlus {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-    sim.equilibrate(null, 20, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-    return;
-}
+            return;
+        }
 
         long t1 = System.currentTimeMillis();
         // if running interactively, don't use the file
@@ -202,8 +203,8 @@ public class VirialLJDQPlus {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+        System.out.println("equilibration finished");
 
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -239,7 +240,7 @@ System.out.println("equilibration finished");
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
 
 

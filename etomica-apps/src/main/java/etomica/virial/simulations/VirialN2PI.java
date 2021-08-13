@@ -24,6 +24,7 @@ import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
@@ -153,8 +154,9 @@ public class VirialN2PI {
                 .withAtomFactory((leafType) -> new AtomHydrogen(space, (AtomTypeOriented) leafType, blN2))
                 .build();
         // make simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);
-        //        sim.init();
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesN2}, new int[]{nPoints}, temperature, refCluster, tarCluster);
+        sim.setDoFasterer(true);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
         final Vector[] rv = space.makeVectorArray(4);
@@ -190,8 +192,8 @@ public class VirialN2PI {
         //        rotation is a bit pointless when we can regrow the ring completely
 
         if (nBeads != 1) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+            sim.integratorsFasterer[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
         }
 
         //        ring regrow translation
@@ -203,8 +205,8 @@ public class VirialN2PI {
         tarTr.setEnergyFactor(2*nBeads*Math.PI/(lambda*lambda));
 
         if (nBeads != 1) {
-            sim.integrators[0].getMoveManager().addMCMove(refTr);
-            sim.integrators[1].getMoveManager().addMCMove(tarTr);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(refTr);
+            sim.integratorsFasterer[1].getMoveManager().addMCMove(tarTr);
         }
         //        ring regrow orientation
         MCMoveClusterRingRegrowOrientation refOr = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
@@ -213,8 +215,8 @@ public class VirialN2PI {
         tarOr.setStiffness(temperature, massN);
 
         if (nBeads != 1) {
-            sim.integrators[0].getMoveManager().addMCMove(refOr);
-            sim.integrators[1].getMoveManager().addMCMove(tarOr);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(refOr);
+            sim.integratorsFasterer[1].getMoveManager().addMCMove(tarOr);
         }
 
         System.out.println();
@@ -253,8 +255,8 @@ public class VirialN2PI {
             sim.integratorOS.setAdjustStepFraction(false);
         }
         sim.equilibrate(refFileName, steps/10);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+        System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
@@ -287,7 +289,7 @@ System.out.println("equilibration finished");
         }
         // this is where the simulation takes place
 
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
 
@@ -298,13 +300,13 @@ sim.getController().runActivityBlocking(ai);
         System.out.println(" ");
 
         System.out.println("Reference system: ");
-        List<MCMove> refMoves = sim.integrators[0].getMoveManager().getMCMoves();
+        List<MCMove> refMoves = sim.integratorsFasterer[0].getMoveManager().getMCMoves();
         for (MCMove m : refMoves) {
             double acc = m.getTracker().acceptanceRatio();
             System.out.println(m.toString()+" acceptance ratio: "+acc);
         }
         System.out.println("Target system: ");
-        List<MCMove> tarMoves = sim.integrators[1].getMoveManager().getMCMoves();
+        List<MCMove> tarMoves = sim.integratorsFasterer[1].getMoveManager().getMCMoves();
         for (MCMove m : tarMoves) {
             double acc = m.getTracker().acceptanceRatio();
 

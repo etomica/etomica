@@ -171,6 +171,7 @@ public class VirialPolyhedra2 {
         System.out.println(steps+" steps");
 
         final SimulationVirial sim = new SimulationVirial(space, allSpecies, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
+        sim.setDoFasterer(true);
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
@@ -180,22 +181,22 @@ public class VirialPolyhedra2 {
         sim.setAccumulator(accumulator);
         accumulator.setPushInterval(100000000);
 
-        sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+        sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
             MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), space, sigmaHSRef, p2, uValues);
-            sim.integrator.getMoveManager().addMCMove(mcMoveTree);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveTree);
         }
         else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), space, sigmaHSRef, p2, uValues);
-            sim.integrator.getMoveManager().addMCMove(mcMoveChain);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveChain);
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
             MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), space, sigmaHSRef, p2, uValues);
-            sim.integrator.getMoveManager().addMCMove(mcMoveTree);
-            sim.integrator.getMoveManager().setFrequency(mcMoveTree, 1-chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveTree);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveTree, 1-chainFrac);
             MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), space, sigmaHSRef, p2, uValues);
-            sim.integrator.getMoveManager().addMCMove(mcMoveChain);
-            sim.integrator.getMoveManager().setFrequency(mcMoveChain, chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveChain);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveChain, chainFrac);
         }
 
         final HistogramReweightedData histTarg = new HistogramReweightedData(100, new DoubleRange(0, nPoints/2.0));
@@ -254,7 +255,7 @@ public class VirialPolyhedra2 {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        if (doHist) sim.integrator.getEventManager().addListener(histListener);
+        if (doHist) sim.integratorFasterer.getEventManager().addListener(histListener);
         IntegratorListener histListenerRingy = new IntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
@@ -278,7 +279,7 @@ public class VirialPolyhedra2 {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        if (doHist) sim.integrator.getEventManager().addListener(histListenerRingy);
+        if (doHist) sim.integratorFasterer.getEventManager().addListener(histListenerRingy);
 
         if (false) {
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
@@ -334,7 +335,7 @@ public class VirialPolyhedra2 {
                     data.x = error*Math.abs(refIntegral);
                     errorBox.putData(data);
                     
-                    data.x = sim.integrator.getStepCount();
+                    data.x = sim.integratorFasterer.getStepCount();
                     stepsBox.putData(data);
                 }
                 
@@ -348,7 +349,7 @@ public class VirialPolyhedra2 {
             errorBox.putDataInfo(dataInfo);
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
+            sim.integratorFasterer.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
 
             if (doHist) {
                 DisplayPlot histPlot = new DisplayPlot();
@@ -381,7 +382,7 @@ public class VirialPolyhedra2 {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorFasterer, steps));
         long t2 = System.currentTimeMillis();
 
         

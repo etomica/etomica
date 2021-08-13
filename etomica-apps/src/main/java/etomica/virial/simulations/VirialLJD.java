@@ -228,7 +228,7 @@ public class VirialLJD {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
 
 

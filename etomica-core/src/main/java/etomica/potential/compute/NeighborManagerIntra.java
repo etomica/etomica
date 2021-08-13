@@ -43,9 +43,9 @@ public class NeighborManagerIntra implements NeighborManager {
                 IMolecule iMolecule = iAtom.getParentGroup();
                 Vector rij = box.getSpace().makeVector();
                 Vector ri = iAtom.getPosition();
-                for (int j = i + 1; j < atoms.size(); j++) {
-                    IAtom jAtom = atoms.get(j);
-                    if (jAtom.getParentGroup() != iMolecule) continue;
+                IAtomList childAtoms = iMolecule.getChildList();
+                for (int j = iAtom.getIndex()+1; j<childAtoms.size(); j++) {
+                    IAtom jAtom = childAtoms.get(j);
                     if (bondingInfo.skipBondedPair(false, iAtom, jAtom)) continue;
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
@@ -60,8 +60,9 @@ public class NeighborManagerIntra implements NeighborManager {
                 IMolecule iMolecule = iAtom.getParentGroup();
                 Vector rij = box.getSpace().makeVector();
                 Vector ri = iAtom.getPosition();
-                for (int j = 0; j < i; j++) {
-                    IAtom jAtom = atoms.get(j);
+                IAtomList childAtoms = iMolecule.getChildList();
+                for (int j = 0; j<iAtom.getIndex(); j++) {
+                    IAtom jAtom = childAtoms.get(j);
                     if (jAtom.getParentGroup() != iMolecule) continue;
                     if (bondingInfo.skipBondedPair(false, iAtom, jAtom)) continue;
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
@@ -77,9 +78,10 @@ public class NeighborManagerIntra implements NeighborManager {
                 IMolecule iMolecule = iAtom.getParentGroup();
                 Vector rij = box.getSpace().makeVector();
                 Vector ri = iAtom.getPosition();
-                for (int j = 0; j < atoms.size(); j++) {
-                    if (j == i) continue;
-                    IAtom jAtom = atoms.get(j);
+                IAtomList childAtoms = iMolecule.getChildList();
+                for (int j = 0; j<childAtoms.size(); j++) {
+                    if (i==j) continue;
+                    IAtom jAtom = childAtoms.get(j);
                     if (jAtom.getParentGroup() != iMolecule) continue;
                     if (bondingInfo.skipBondedPair(false, iAtom, jAtom)) continue;
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
@@ -95,10 +97,10 @@ public class NeighborManagerIntra implements NeighborManager {
                 Vector rij = box.getSpace().makeVector();
                 Vector ri = atom1.getPosition();
                 double sum = 0;
-                for (int j = 0; j < atoms.size(); j++) {
-                    if (j == atom1.getLeafIndex()) continue;
-                    IAtom jAtom = atoms.get(j);
-                    if (jAtom.getParentGroup() == iMolecule) continue;
+                IAtomList childAtoms = iMolecule.getChildList();
+                for (int j = 0; j<childAtoms.size(); j++) {
+                    if (atom1.getIndex()==j) continue;
+                    IAtom jAtom = childAtoms.get(j);
                     if (bondingInfo.skipBondedPair(false, atom1, jAtom)) continue;
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);

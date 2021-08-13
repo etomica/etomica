@@ -231,6 +231,7 @@ public class VirialHeNonAdditiveD {
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints, temperature,refCluster,targetCluster);
+        sim.setDoFasterer(true);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
 
         ClusterAbstract[] targetDiagrams = null;
@@ -256,9 +257,9 @@ public class VirialHeNonAdditiveD {
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
 
         if (doChainRef) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -374,13 +375,13 @@ public class VirialHeNonAdditiveD {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
 
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+        System.out.println("equilibration finished");
 
         if(dorefpref){
             long t2 = System.currentTimeMillis();

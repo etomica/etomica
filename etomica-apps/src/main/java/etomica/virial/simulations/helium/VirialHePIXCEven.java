@@ -27,6 +27,7 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
@@ -386,7 +387,9 @@ public class VirialHePIXCEven {
         // the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
         // we handle that manually below, so just set T=1 here
         
-        final SimulationVirial sim = new SimulationVirial(space, species, temperature, samplingCluster, refCluster, new ClusterAbstract[]{targetCluster});
+        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{species}, new int[]{nPoints}, temperature, samplingCluster, refCluster, new ClusterAbstract[]{targetCluster});
+        sim.setDoWiggle(false);
+        sim.init();
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveRotate);

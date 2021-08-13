@@ -143,49 +143,6 @@ public class SimulationVirialOverlap2 extends Simulation {
         extraTargetClusters = new ClusterAbstract[0];
     }
 
-    /*
-     * If this constructor is used to instantiate the simulation, then doWiggle is set to false, and
-     * ClusterAbstract[] is set to {refCluster,targetCluster}
-     */
-    public SimulationVirialOverlap2(Space aSpace, ISpecies species,
-                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
-        this(aSpace, new ISpecies[]{species}, new int[]{refCluster.pointCount()}, temperature, refCluster, targetCluster);
-        init();
-    }
-    // this constructor allows you to specify doWiggle=true
-    public SimulationVirialOverlap2(Space aSpace, ISpecies species,
-                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster, boolean doWiggle) {
-        this(aSpace,new ISpecies[]{species}, new int[]{refCluster.pointCount()},temperature,refCluster,targetCluster);
-        setDoWiggle(doWiggle);
-        init();
-    }
-    // this constructor allows you to specify your own sampleClusters
-    public SimulationVirialOverlap2(Space aSpace, ISpecies species,
-                                    double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, new ISpecies[]{species}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters[0], aValueClusters[1]);
-        setDoWiggle(doWiggle);
-        setSampleClusters(aSampleClusters);
-        init();
-    }
-    // this constructor allows you to perform the calculation for a mixture
-    public SimulationVirialOverlap2(Space aSpace, ISpecies[] species, int[] nMolecules,
-                                    double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, species, nMolecules, temperature, aValueClusters[0], aValueClusters[1]);
-        setSampleClusters(aSampleClusters);
-        setDoWiggle(doWiggle);
-        init();
-    }
-    // this constructor allows you to perform the calculation for a mixture or a flexible molecule (with an alternate/ghost molecule)
-    // this constructor also allows you to specify extra target diagrams to be calculated during the simulation
-    public SimulationVirialOverlap2(Space aSpace, ISpecies[] species, int[] nMolecules,
-                                    double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, species, nMolecules, temperature, aValueClusters[0], aValueClusters[1]);
-        setSampleClusters(aSampleClusters);
-        setDoWiggle(doWiggle);
-        setExtraTargetClusters(extraTargetClusters);
-        init();
-	}
-
     public boolean getDoWiggle() {
         return doWiggle;
     }
@@ -588,10 +545,19 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
             System.out.println("umbrella weights (from file): " + Arrays.toString(uWeights));
         } else {
-            integrators[1].reset();
-            // equilibrate
-            for (long i = 0; i < uSteps / 2; i++) {
-                integrators[1].doStep();
+            if (doFasterer) {
+                integratorsFasterer[1].reset();
+                // equilibrate
+                for (long i = 0; i < uSteps / 2; i++) {
+                    integratorsFasterer[1].doStep();
+                }
+            }
+            else {
+                integrators[1].reset();
+                // equilibrate
+                for (long i = 0; i < uSteps / 2; i++) {
+                    integrators[1].doStep();
+                }
             }
             accumulators[1].reset();
             for (int m = 0; m < n; m++) {
@@ -599,8 +565,15 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
 
             // collect data to determine umbrella weights
-            for (long i = 0; i < uSteps; i++) {
-                integrators[1].doStep();
+            if (doFasterer) {
+                for (long i = 0; i < uSteps; i++) {
+                    integratorsFasterer[1].doStep();
+                }
+            }
+            else {
+                for (long i = 0; i < uSteps; i++) {
+                    integrators[1].doStep();
+                }
             }
 
             DataGroup allYourBase = (DataGroup) accumulators[1].getData();
@@ -624,10 +597,20 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
             }
 
-            integrators[1].reset();
+            if (doFasterer) {
+                integratorsFasterer[1].reset();
+            }
+            else {
+                integrators[1].reset();
+            }
         }
 
-        accumulators[1].reset();
+        if (doFasterer) {
+            integratorsFasterer[1].reset();
+        }
+        else {
+            integrators[1].reset();
+        }
 
         for (int m = 0; m < n; m++) {
             ((ClusterWeightAbs) extraTargetClusters[m]).setDoAbs(false);
@@ -725,7 +708,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     double newRefPref = dvo.getOverlapAverage();
                     if (Double.isInfinite(newRefPref) || Double.isNaN(newRefPref)) {
                         dvo.getOverlapAverage();
-                        throw new RuntimeException("oops");
+                        throw new RuntimeException("oops refpref "+newRefPref);
                     }
                     if (newRefPref > oldRefPref * Math.exp(initAlphaSpan - 0.01) || newRefPref < oldRefPref * Math.exp(-(initAlphaSpan - 0.001))) {
                         System.out.println("guess for ref pref (" + newRefPref + ") is at the edge of the range considered");
@@ -888,7 +871,8 @@ public class SimulationVirialOverlap2 extends Simulation {
                     }
                     else {
                         integrators[i].getMoveManager().setEquilibrating(false);
-                    }                }
+                    }
+                }
                 if (extraTargetClusters.length > 0) {
                     initBlockAccumulator();
                 }

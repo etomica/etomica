@@ -41,7 +41,10 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.cluster.*;
+import etomica.virial.cluster.ClusterSum;
+import etomica.virial.cluster.ClusterSumShell;
+import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
 import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.mcmove.MCMoveClusterTorsionMulti;
@@ -182,12 +185,14 @@ public class VirialAlkaneFull {
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
      
-        ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
-
         SpeciesGeneral species = SpeciesAlkane.create(nSpheres);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
-                new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, new ClusterAbstract[]{refCluster, targetCluster},targetDiagrams,  sampleClusters, true);
+                new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.setExtraTargetClusters(targetDiagrams);
+        sim.setDoWiggle(true);
+        sim.init();
 
         if (alkaneFlex) {
             int[] constraintMap = new int[nPoints+1];

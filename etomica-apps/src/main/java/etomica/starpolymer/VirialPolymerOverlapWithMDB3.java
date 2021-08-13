@@ -168,10 +168,11 @@ public class VirialPolymerOverlapWithMDB3 {
             targetDiagram.setTemperature(temperature);
         }
 
-        ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetClusterFlex)};
-
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species},
-                new int[]{flex ? nPoints + 1 : nPoints}, temperature, new ClusterAbstract[]{refCluster, targetClusterFlex}, targetDiagrams, sampleClusters, false);
+                new int[]{flex ? nPoints + 1 : nPoints}, temperature, refCluster, targetClusterFlex);
+        sim.setDoFasterer(true);
+        sim.setExtraTargetClusters(targetDiagrams);
+        sim.init();
 
         int[] constraintMap = new int[nPoints + 1];
         for (int i = 0; i < nPoints; i++) {
@@ -201,8 +202,8 @@ public class VirialPolymerOverlapWithMDB3 {
         MCMoveClusterConformationMDTest mcMove2 = new MCMoveClusterConformationMDTest(sim.getRandom(), space, temperature, f, l, true, false);
         mcMove2.setConformationsList(mcMove.getConformationsList());
 
-        sim.integrators[0].getMoveManager().addMCMove(mcMove);
-        sim.integrators[1].getMoveManager().addMCMove(mcMove2);
+        sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMove);
+        sim.integratorsFasterer[1].getMoveManager().addMCMove(mcMove2);
 
         // Here it defines the box length of every dimension
         double lb = sigmaTranslate * 3 + 2;
@@ -310,8 +311,8 @@ sim.getController().runActivityBlocking(ai);
             }
         }
 
-        double AcceptProbTrans = sim.integrators[0].getMoveManager().getMCMoves().get(0).getTracker().acceptanceProbability();
-        double AcceptProbRotate = sim.integrators[0].getMoveManager().getMCMoves().get(1).getTracker().acceptanceProbability();
+        double AcceptProbTrans = sim.integratorsFasterer[0].getMoveManager().getMCMoves().get(0).getTracker().acceptanceProbability();
+        double AcceptProbRotate = sim.integratorsFasterer[0].getMoveManager().getMCMoves().get(1).getTracker().acceptanceProbability();
         System.out.println();
         System.out.println("Reference System:");
         System.out.print(String.format("Acceptance Probability of McMoveTranslate: %f\n", AcceptProbTrans));

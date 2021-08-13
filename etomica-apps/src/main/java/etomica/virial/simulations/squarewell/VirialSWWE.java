@@ -16,6 +16,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -167,8 +168,12 @@ public class VirialSWWE {
         refCluster.setTemperature(1.0);
         
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
-        
-        final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
+
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{species}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
+        sim.setDoFasterer(true);
+        sim.setDoWiggle(false);
+        sim.init();
         MeterVirialSWWE meter = new MeterVirialSWWE(targetCluster);
         meter.setBox(sim.box);
         sim.setMeter(meter);
@@ -177,17 +182,17 @@ public class VirialSWWE {
         sim.setAccumulator(accumulator);
         accumulator.setPushInterval(100000000);
         
-        sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+        sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialSWWEParam.RING_CHAIN_TREES){
         	MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHS);
-            sim.integrator.getMoveManager().addMCMove(mcMoveHSR);
-            sim.integrator.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSR);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHS);
-            sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
-            sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
             MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHS);
-            sim.integrator.getMoveManager().addMCMove(mcMoveHST);
-            sim.integrator.getMoveManager().setFrequency(mcMoveHST, treeFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, treeFrac);
             
 //            System.out.println("Inside if2---> chainFrac = " + chainFrac + ", treeFrac = " + treeFrac + ", ringFrac = " + ringFrac);
         }
@@ -204,7 +209,7 @@ public class VirialSWWE {
 
 
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorFasterer, steps));
         long t2 = System.currentTimeMillis();
         
         

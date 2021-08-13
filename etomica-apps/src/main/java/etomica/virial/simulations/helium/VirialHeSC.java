@@ -15,6 +15,7 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -141,8 +142,11 @@ public class VirialHeSC {
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
 
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("He"))), temperature, refCluster, targetCluster);
+
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("He")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
         long t1 = System.currentTimeMillis();

@@ -11,7 +11,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
-import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
@@ -469,9 +468,6 @@ public class VirialHePI {
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
         
-        ClusterWeight targetSampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster);
-        ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
-
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         // overerr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
@@ -484,8 +480,10 @@ public class VirialHePI {
                 .withConformation(new ConformationLinear(space, 0))
                 .build();
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
-                 targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.setExtraTargetClusters(targetDiagrams);
+        sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
 
@@ -506,8 +504,8 @@ public class VirialHePI {
         }
         
         // rotation is a bit pointless when we can regrow the chain completely
-        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-        sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+        sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+        sim.integratorsFasterer[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
         
         System.out.println("regrow full ring");
         MCMoveClusterRingRegrow ring0 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
@@ -516,8 +514,8 @@ public class VirialHePI {
         MCMoveClusterRingRegrow ring1 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
         ring1.setEnergyFactor(nBeads*Math.PI/(lambda*lambda));
 
-        sim.integrators[0].getMoveManager().addMCMove(ring0);
-        sim.integrators[1].getMoveManager().addMCMove(ring1);
+        sim.integratorsFasterer[0].getMoveManager().addMCMove(ring0);
+        sim.integratorsFasterer[1].getMoveManager().addMCMove(ring1);
 
         // for flexApproach = FLEX, we need to have some non-trivial conformations
         ring1.doTrial();
@@ -562,30 +560,6 @@ public class VirialHePI {
                 sim.box[1].trialNotify();
                 sim.box[1].acceptNotify();
             }
-        }
-
-        if (false) {
-            // unnecessary because our MC move regrows the chain using the
-            // probability distribution appropriate for the harmonic bonds
-            
-            // create the intramolecular potential here, add to it and add it to
-            // the potential master if needed
-            PotentialGroup pIntra = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
-            // we want exp[-(pi*P/lambda^2) * sum(x^2)]
-            // we set the integrator temperature=1 above, so when it does
-            //   exp[-beta * U] = exp[-U]
-            // so just make the spring constant whatever we need to get the above expression
-            P2Harmonic p2Bond = new P2Harmonic(space, 2*Math.PI*nBeads/(lambda*lambda)*temperature);
-            int[][] pairs = new int[nBeads][2];
-            for (int i=0; i<nBeads-1; i++) {
-                pairs[i][0] = i;
-                pairs[i][1] = i+1;
-            }
-            pairs[nBeads-1][0] = nBeads-1;
-            pairs[nBeads-1][1] = 0;
-            pIntra.addPotential(p2Bond, new ApiIndexList(pairs));
-            // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.getSpecies(0)});
         }
 
         if (false) {
@@ -844,10 +818,10 @@ sim.setAccumulatorBlockSize(steps);
         if (params.doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[0].getEventManager().addListener(histListenerRef);
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[0].getEventManager().addListener(histListenerRef);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
         
         // make the accumulator block size equal to the # of steps performed for each overlap step.
         // make the integratorOS aggressive so that it runs either reference or target

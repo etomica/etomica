@@ -11,6 +11,7 @@ import etomica.potential.P2LJQ;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
@@ -52,8 +53,11 @@ public class VirialLJQB2 {
         refCluster.setTemperature(temperature);
 
         steps /= 1000;
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature,refCluster,targetCluster);
+
+        ISpecies species = SpeciesSpheresRotating.create(space, new ElementSimple("O"));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         // this will either read the refpref in from a file or run a short simulation to find it

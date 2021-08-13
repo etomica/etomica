@@ -13,9 +13,10 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
+import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.Standard;
@@ -30,8 +31,10 @@ public class VirialLJMultiOverlap {
 
         VirialMixParam params = new VirialMixParam();
         if (args.length > 0) {
-            ReadParameters readParameters = new ReadParameters(args[0], params);
-            readParameters.readParameters();
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            // play with params here
         }
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
@@ -119,8 +122,11 @@ public class VirialLJMultiOverlap {
         refCluster.setTemperature(temperature);
 
         System.out.println((numSteps*1000)+" steps ("+numSteps+" blocks of 1000)");
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature, refCluster, targetCluster);
+
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         sim.setAccumulatorBlockSize(10*numSteps);
         // if running interactively, don't use the file
@@ -131,8 +137,8 @@ public class VirialLJMultiOverlap {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, numSteps/40);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, numSteps);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, numSteps);
+        System.out.println("equilibration finished");
 
         if (false) {
             IAction progressReport = new IAction() {
@@ -151,7 +157,7 @@ System.out.println("equilibration finished");
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -163,12 +169,12 @@ sim.getController().runActivityBlocking(ai);
      * Inner class for parameters
      */
     public static class VirialMixParam extends ParameterBase {
-        public int nPoints = 6;
+        public int nPoints = 5;
         public double temperature = 1.0;
-        public long numSteps = 50;
+        public long numSteps = 1000;
         public double sigmaHSRef = 1.5;
         public int mixID = 0;
-        public int[] nTypes = new int[]{nPoints,0};
+        public int[] nTypes = new int[]{nPoints-1,1};
     }
 }
 

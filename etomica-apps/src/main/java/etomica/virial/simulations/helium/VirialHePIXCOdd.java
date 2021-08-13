@@ -357,9 +357,6 @@ public class VirialHePIXCOdd {
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
         
-        ClusterWeight targetSampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster);
-        ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
-
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         // overerr expects this string, BnHS
         System.out.println("B"+nRings+"HS: "+refIntegral);
@@ -379,16 +376,13 @@ public class VirialHePIXCOdd {
                     .build();
             simMolecules[i] = 1;
         }
-      
-        
-        
-        
-        
-        // new int[]{nPoints+(doFlex?1:0)} needed at fourth (but not third) order
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, simMolecules, temperature, new ClusterAbstract[]{refCluster, targetCluster},
-                  new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
 
-        //Garberoglio and Harvey's U12 
+        // new int[]{nPoints+(doFlex?1:0)} needed at fourth (but not third) order
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, simMolecules, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
+
+        //Garberoglio and Harvey's U12
         Potential2SoftSpherical p2B = new P2HePCKLJS(space) {
         	public double energy(IAtomList molecules) {
            	 	return (super.energy(molecules))/nBeads;

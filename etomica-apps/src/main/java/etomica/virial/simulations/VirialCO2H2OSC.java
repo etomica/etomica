@@ -203,6 +203,7 @@ public class VirialCO2H2OSC {
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesH2O}, nTypes, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
         sim.init();
         int[] seeds = sim.getRandomSeeds();
         System.out.println("Random seeds: "+ Arrays.toString(seeds));
@@ -285,7 +286,7 @@ public class VirialCO2H2OSC {
         }
         
         if(false) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -309,14 +310,14 @@ public class VirialCO2H2OSC {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-    sim.equilibrate(null, 20, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
             simGraphic.makeAndDisplayFrame();
-    return;
-}
+            return;
+        }
 
 
         
@@ -348,8 +349,8 @@ public class VirialCO2H2OSC {
 
         sim.initRefPref(refFileName, steps/40);
         sim.equilibrate(refFileName, steps/20);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+        System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         for (int i=0; i<2; i++) {
@@ -359,7 +360,7 @@ System.out.println("equilibration finished");
         if (params.doHist) {
             sim.setupTargetHistogram(ai.getMaxSteps() / 10);
         }
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
         
         if (params.doHist) {
             sim.printTargetHistogram();

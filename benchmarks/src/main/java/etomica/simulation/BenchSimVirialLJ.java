@@ -13,6 +13,7 @@ import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunction;
@@ -112,12 +113,15 @@ public class BenchSimVirialLJ {
 
 //        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster);
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
 
         if (doChainRef) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -171,7 +175,7 @@ public class BenchSimVirialLJ {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
 
         sim.integratorOS.setNumSubSteps((int)steps);

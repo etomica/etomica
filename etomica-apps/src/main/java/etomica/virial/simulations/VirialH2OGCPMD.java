@@ -148,6 +148,7 @@ public class VirialH2OGCPMD {
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
             ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
@@ -377,13 +378,13 @@ public class VirialH2OGCPMD {
 
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[0].getEventManager().addListener(histListenerRef);
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[0].getEventManager().addListener(histListenerRef);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
 
         sim.initRefPref(refFileName, steps/20);
         sim.equilibrate(refFileName, steps/10);
-System.out.println("equilibration finished");
+        System.out.println("equilibration finished");
 
         if(dorefpref){
             long t2 = System.currentTimeMillis();

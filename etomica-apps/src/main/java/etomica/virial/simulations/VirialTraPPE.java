@@ -238,6 +238,7 @@ public class VirialTraPPE {
 
         // Setting up Simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nTypes, temperature,refCluster,targetCluster);
+        sim.setDoFasterer(true);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
         if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
@@ -264,9 +265,9 @@ public class VirialTraPPE {
 
         // Setting Chain Ref Moves
         if (doChainRef) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 

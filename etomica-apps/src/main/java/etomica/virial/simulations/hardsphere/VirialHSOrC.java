@@ -16,6 +16,7 @@ import etomica.math.function.IFunction;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
@@ -109,8 +110,11 @@ public class VirialHSOrC {
         refCluster.setTemperature(temperature);
 
         System.out.println(steps+" steps");
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature, refCluster, targetCluster);
+
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -131,8 +135,8 @@ public class VirialHSOrC {
         for (int i=0; i<2; i++) {
             mcDiscrete[i] = new MCMoveClusterAtomDiscrete(sim.getRandom(), space, dr);
             mcDiscrete[i].setRPow(rPow);
-            sim.integrators[i].getMoveManager().addMCMove(mcDiscrete[i]);
-            sim.integrators[i].getMoveManager().removeMCMove(sim.mcMoveTranslate[i]);
+            sim.integratorsFasterer[i].getMoveManager().addMCMove(mcDiscrete[i]);
+            sim.integratorsFasterer[i].getMoveManager().removeMCMove(sim.mcMoveTranslate[i]);
             sim.box[i].getLeafList().get(1).getPosition().setX(0, dr*Math.round(0.5/dr));
             if (nPoints>2) sim.box[i].getLeafList().get(2).getPosition().setX(1, dr*Math.round(0.5/dr));
             sim.box[i].trialNotify();

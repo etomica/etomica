@@ -17,6 +17,7 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
@@ -90,13 +91,16 @@ public class VirialSW {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster);
+
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
+        sim.setDoFasterer(true);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         
         
         if(false) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);

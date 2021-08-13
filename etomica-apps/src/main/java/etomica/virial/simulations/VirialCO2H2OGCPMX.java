@@ -25,6 +25,7 @@ import etomica.models.co2.PNGCPMX;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.molecule.IMolecule;
 import etomica.potential.IPotentialMolecular;
+import etomica.potential.PotentialMolecularSum;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -156,7 +157,7 @@ public class VirialCO2H2OGCPMX {
                 for (int i=3; i<=nPoints; i++) {
                     IPotentialMolecular p = null;
                     if (i==3 && nTypes[0] > 2) {
-                        p = null;
+                        p = new PotentialMolecularSum(new IPotentialMolecular[]{pi,p3ATM});
                     }
                     else {
                         p = pi.makeNB(i);
@@ -187,6 +188,7 @@ public class VirialCO2H2OGCPMX {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesWater}, nTypes, temperature, refCluster, targetCluster);
 //        sim.setRandom(new RandomMersenneTwister(new int[]{1941442288, -303985770, -1766960871, 2058398830}));
+        sim.setDoFasterer(true);
         sim.init();
         System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -224,7 +226,7 @@ public class VirialCO2H2OGCPMX {
         }
 
         if(false) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -248,13 +250,13 @@ public class VirialCO2H2OGCPMX {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-    sim.equilibrate(null, 20, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-    return;
-}
+            return;
+        }
 
 
 
@@ -285,8 +287,8 @@ public class VirialCO2H2OGCPMX {
 
         sim.initRefPref(refFileName, steps/40);
         sim.equilibrate(refFileName, steps/20);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
-System.out.println("equilibration finished");
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+        System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         for (int i=0; i<2; i++) {
@@ -383,10 +385,10 @@ System.out.println("equilibration finished");
 
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[0].getEventManager().addListener(histListenerRef);
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.integratorsFasterer[0].getEventManager().addListener(histListenerRef);
+            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
         }
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
 
         if (params.doHist) {
             double[] xValues = hist.xValues();

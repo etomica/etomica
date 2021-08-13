@@ -6,7 +6,6 @@ package etomica.starpolymer;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -24,6 +23,7 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesManager;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.MayerFunction;
@@ -35,13 +35,14 @@ import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * star-polymer Virial calculations
  */
-public class VirialPolymerOverlapMC {
+public class VirialPolymerOverlapMCFasterer {
 
     public static void main(String[] args) {
 
@@ -67,6 +68,8 @@ public class VirialPolymerOverlapMC {
         Space space = Space3D.getInstance();
         SpeciesGeneral species = SpeciesPolymerMono.create(space, AtomType.simple("A"), f, l)
                 .build();
+        SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
+
 
         final double sigmaTranslate = 30.0;
         final double refDiameter = 3.5 * Math.sqrt(l);
@@ -76,11 +79,11 @@ public class VirialPolymerOverlapMC {
         System.out.println("Computing for Star-polymer f = " + f + " l = " + l);
         System.out.println("Using Hard Sphere Diameter of: " + refDiameter);
 
-        final P2HardSphere potentialHS = new P2HardSphere(space);
-        final PotentialGroup potentialGroup = new PotentialGroup(2, space);
-        potentialGroup.addPotential(potentialHS, new AtomType[]{species.getAtomType(0), species.getAtomType(0)});
+        final P2HardGeneric potentialHS = P2HardSphere.makePotential(1);
+        PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
+        AtomType type = species.getAtomType(0);
+        pTarget.setAtomPotential(type, type, potentialHS);
 
-        MayerGeneral fRef = new MayerGeneral(potentialGroup);
         MayerFunction fRefPos = new MayerFunction() {
             public void setBox(Box box) {
             }
@@ -119,7 +122,7 @@ public class VirialPolymerOverlapMC {
         int[] targetDiagramNumbers = new int[0];
         boolean[] diagramFlexCorrection = null;
 
-        MayerGeneral fTarget = new MayerGeneral(potentialGroup);
+        MayerGeneral fTarget = new MayerGeneral(pTarget);
         VirialDiagrams polymerDiagrams = new VirialDiagrams(nPoints, false, flex);
         polymerDiagrams.setDoReeHoover(true);
         ClusterSum targetClusterFlex = polymerDiagrams.makeVirialCluster(fTarget);
@@ -163,9 +166,22 @@ public class VirialPolymerOverlapMC {
             targetDiagram.setTemperature(temperature);
         }
 
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
+        P2Fene potentialFene = new P2Fene(space);
+        P2WCA potentialWCA = new P2WCA(space);
+        P2SoftSphericalSum pBonding = new P2SoftSphericalSum(space, potentialFene, potentialWCA);
+
+        List<int[]> bondedPairs = getPairArray(f, l);
+
+        bondingInfo.setBondingPotentialPair(species, pBonding, bondedPairs);
+
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species},
                 new int[]{flex ? nPoints + 1 : nPoints}, temperature, refCluster, targetClusterFlex);
+        sim.setDoFasterer(true);
+        sim.setIntraPairPotentials(pTarget.getAtomPotentials());
         sim.setExtraTargetClusters(targetDiagrams);
+        sim.setBondingInfo(bondingInfo);
         sim.init();
 
         if (flex) {
@@ -193,30 +209,17 @@ public class VirialPolymerOverlapMC {
         ((MCMoveStepTracker) sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
 
-        PotentialMaster potentialMaster = new PotentialMaster();
-        ArrayList<ArrayList<int[]>> pairArray = getPairArray(f, l);
-        int[][] boundedPairs = pairArray.get(0).toArray(new int[0][0]);
-        int[][] nonBoundedPairs = pairArray.get(1).toArray(new int[0][0]);
-        ApiIndexList boundedIndexList = new ApiIndexList(boundedPairs);
-        ApiIndexList nonBoundedIndexList = new ApiIndexList(nonBoundedPairs);
+        MCMoveClusterBondLengthFasterer mcBond0 = new MCMoveClusterBondLengthFasterer(sim.getRandom(), sim.integratorsFasterer[0].getPotentialCompute(), f, space);
+        MCMoveClusterBondLengthFasterer mcBond1 = new MCMoveClusterBondLengthFasterer(sim.getRandom(), sim.integratorsFasterer[1].getPotentialCompute(), f, space);
+        sim.integratorsFasterer[0].getMoveManager().addMCMove(mcBond0);
+        sim.integratorsFasterer[1].getMoveManager().addMCMove(mcBond1);
+        ((MCMoveStepTracker) mcBond1.getTracker()).setNoisyAdjustment(true);
 
-        PotentialGroup potentialGroup2 = potentialMaster.makePotentialGroup(1);
-        potentialGroup2.addPotential(new P2Fene(space), boundedIndexList);
-        potentialGroup2.addPotential(new P2WCA(space), boundedIndexList);
-        potentialGroup2.addPotential(new P2WCA(space), nonBoundedIndexList);
-        potentialMaster.addPotential(potentialGroup2, new ISpecies[]{species});
-
-        MCMoveClusterBondLength mcBond = new MCMoveClusterBondLength(sim.getRandom(), potentialMaster, f, space);
-        MCMoveClusterBondLength mcBond2 = new MCMoveClusterBondLength(sim.getRandom(), potentialMaster, f, space);
-        sim.integrators[0].getMoveManager().addMCMove(mcBond);
-        sim.integrators[1].getMoveManager().addMCMove(mcBond2);
-        ((MCMoveStepTracker) mcBond2.getTracker()).setNoisyAdjustment(true);
-
-        MCMoveClusterRotateArm mcRotateArm = new MCMoveClusterRotateArm(potentialMaster, sim.getRandom(), 1, l, space);
-        MCMoveClusterRotateArm mcRotateArm2 = new MCMoveClusterRotateArm(potentialMaster, sim.getRandom(), 1, l, space);
-        sim.integrators[0].getMoveManager().addMCMove(mcRotateArm);
-        sim.integrators[1].getMoveManager().addMCMove(mcRotateArm2);
-        ((MCMoveStepTracker) mcRotateArm2.getTracker()).setNoisyAdjustment(true);
+        MCMoveClusterRotateArmFasterer mcRotateArm0 = new MCMoveClusterRotateArmFasterer(sim.getRandom(), sim.integratorsFasterer[0].getPotentialCompute(), l, space);
+        MCMoveClusterRotateArmFasterer mcRotateArm1 = new MCMoveClusterRotateArmFasterer(sim.getRandom(), sim.integratorsFasterer[1].getPotentialCompute(), l, space);
+        sim.integratorsFasterer[0].getMoveManager().addMCMove(mcRotateArm0);
+        sim.integratorsFasterer[1].getMoveManager().addMCMove(mcRotateArm1);
+        ((MCMoveStepTracker) mcRotateArm1.getTracker()).setNoisyAdjustment(true);
 
 
         // Here it defines the box length of every dimension
@@ -323,8 +326,8 @@ sim.getController().runActivityBlocking(ai);
             }
         }
 
-        double AcceptProbTrans = sim.mcMoveTranslate[0].getTracker().acceptanceProbability();
-        double AcceptProbRotate = sim.mcMoveRotate[0].getTracker().acceptanceProbability();
+        double AcceptProbTrans = sim.mcMoveTranslate[1].getTracker().acceptanceProbability();
+        double AcceptProbRotate = sim.mcMoveRotate[1].getTracker().acceptanceProbability();
         System.out.println();
         System.out.println("Reference System:");
         System.out.print(String.format("Acceptance Probability of McMoveTranslate: %f\n", AcceptProbTrans));
@@ -332,8 +335,8 @@ sim.getController().runActivityBlocking(ai);
 
         double AcceptProbTrans2 = sim.mcMoveTranslate[1].getTracker().acceptanceProbability();
         double AcceptProbRotate2 = sim.mcMoveRotate[1].getTracker().acceptanceProbability();
-        double AcceptProbBond = mcBond2.getTracker().acceptanceProbability();
-        double AcceptProbRotateArm = mcRotateArm2.getTracker().acceptanceProbability();
+        double AcceptProbBond = mcBond1.getTracker().acceptanceProbability();
+        double AcceptProbRotateArm = mcRotateArm1.getTracker().acceptanceProbability();
 
         System.out.println("Target System:");
         System.out.print(String.format("Acceptance Probability of McMoveTranslate: %f\n", AcceptProbTrans2));
@@ -378,33 +381,20 @@ sim.getController().runActivityBlocking(ai);
         return str;
     }
 
-    public static ArrayList<ArrayList<int[]>> getPairArray(int f, int l) {
-        ArrayList<ArrayList<int[]>> pairArray = new ArrayList<>(2);
-        ArrayList<int[]> boundedPairArray = new ArrayList<>();
-        ArrayList<int[]> nonBoundedPariArray = new ArrayList<>();
+    private static ArrayList<int[]> getPairArray(int f, int l) {
+        ArrayList<int[]> bondedPairArray = new ArrayList<>();
 
-        for (int k = 1; k < f * l + 1; k++) {
-            int[] temp = new int[]{0, k};
-
-            if (k % l == 1) {
-                boundedPairArray.add(temp);
-            } else {
-                nonBoundedPariArray.add(temp);
+        for (int k = 0; k < f; k++) {
+            int[] temp = new int[]{0, 1+k*l};
+            bondedPairArray.add(temp);
+        }
+        for (int k = 0; k < f; k++) {
+            for (int i=0; i<l-1; i++) {
+                int a1 = 1 + k*l + i;
+                bondedPairArray.add(new int[]{a1, a1+1});
             }
         }
-        for (int i = 1; i < f * l + 1; i++) {
-            for (int j = i + 1; j < f * l + 1; j++) {
-                int[] temp = new int[]{i, j};
-                if (j != i + 1 | i % l == 0) {
-                    nonBoundedPariArray.add(temp);
-                } else {
-                    boundedPairArray.add(temp);
-                }
-            }
-        }
-        pairArray.add(boundedPairArray);
-        pairArray.add(nonBoundedPariArray);
-        return pairArray;
+        return bondedPairArray;
     }
 
 }

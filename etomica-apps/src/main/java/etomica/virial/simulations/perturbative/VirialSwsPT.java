@@ -52,7 +52,7 @@ public class VirialSwsPT {
         else {
         	// type here for running from Eclipse
         	params.nPoints = 4;
-        	params.numSteps = 100000000;
+        	params.numSteps = 1000000;
         	params.lambda = 2;
         	params.order = 1;
         	params.doExp = true;
@@ -120,7 +120,10 @@ public class VirialSwsPT {
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
-                new int[]{nPoints},1.0, new ClusterAbstract[]{refCluster, targetCluster}, sampleClusters, true);
+                new int[]{nPoints},1.0, refCluster, targetCluster);
+        sim.setDoFasterer(true);
+        sim.setExtraTargetClusters(sampleClusters);
+        sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);

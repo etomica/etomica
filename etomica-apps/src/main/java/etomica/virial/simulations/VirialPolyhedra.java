@@ -298,6 +298,7 @@ public class VirialPolyhedra {
         System.out.println(steps+" steps");
 
         final SimulationVirial sim = new SimulationVirial(space, allSpecies, nShapes, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
+        sim.setDoFasterer(true);
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
@@ -307,52 +308,52 @@ public class VirialPolyhedra {
         sim.setAccumulator(accumulator);
         accumulator.setPushInterval(100000000);
 
-        sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+        sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
             MCMoveClusterAtomHSTree mcMoveTree = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveTree));
+            sim.integratorFasterer.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveTree));
         }
         else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
+            sim.integratorFasterer.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
         }
         else if (ref == VirialHSParam.RINGS) {
             MCMoveClusterAtomHSRing mcMoveHS = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
+            sim.integratorFasterer.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
             MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
             MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, 1-chainFrac);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
             mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSC);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, chainFrac);
         }
         else if (ref == VirialHSParam.RING_TREE) {
             MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
             MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-ringFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, 1-ringFrac);
             MCMoveClusterAtomHSRing mcMoveHSCR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
             mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSCR);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, ringFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, ringFrac);
         }
         else if (ref == VirialHSParam.RING_CHAIN_TREES) {
             MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
             MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSR);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, ringFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, ringFrac);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
             mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSC);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, chainFrac);
             MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
             mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
-            sim.integrator.getMoveManager().addMCMove(mcmcaq);
-            sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-ringFrac-chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcmcaq);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcmcaq, 1-ringFrac-chainFrac);
         }
 
         final HistogramReweightedData histTarg = new HistogramReweightedData(100, new DoubleRange(0, nPoints/2.0));
@@ -411,7 +412,7 @@ public class VirialPolyhedra {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        if (doHist) sim.integrator.getEventManager().addListener(histListener);
+        if (doHist) sim.integratorFasterer.getEventManager().addListener(histListener);
         IntegratorListener histListenerRingy = new IntegratorListener() {
             DataDoubleArray dataTarg = new DataDoubleArray(2);
             DataDouble dataRef = new DataDouble();
@@ -435,7 +436,7 @@ public class VirialPolyhedra {
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
-        if (doHist) sim.integrator.getEventManager().addListener(histListenerRingy);
+        if (doHist) sim.integratorFasterer.getEventManager().addListener(histListenerRingy);
 
         if (false) {
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
@@ -491,7 +492,7 @@ public class VirialPolyhedra {
                     data.x = error*Math.abs(refIntegral);
                     errorBox.putData(data);
                     
-                    data.x = sim.integrator.getStepCount();
+                    data.x = sim.integratorFasterer.getStepCount();
                     stepsBox.putData(data);
                 }
                 
@@ -505,7 +506,7 @@ public class VirialPolyhedra {
             errorBox.putDataInfo(dataInfo);
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
+            sim.integratorFasterer.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
 
             if (doHist) {
                 DisplayPlot histPlot = new DisplayPlot();
@@ -538,7 +539,7 @@ public class VirialPolyhedra {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorFasterer, steps));
         long t2 = System.currentTimeMillis();
 
         

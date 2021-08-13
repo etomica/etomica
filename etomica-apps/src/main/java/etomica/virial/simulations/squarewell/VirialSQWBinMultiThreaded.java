@@ -14,6 +14,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -369,8 +370,13 @@ public class VirialSQWBinMultiThreaded {
 
 
             System.out.println("thread "+iThread+", "+steps+" steps");
-            
-            final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams, false, mySeeds);
+
+            ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+            final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{species}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
+            sim.setDoWiggle(false);
+            sim.setSeeds(mySeeds);
+            sim.setDoFasterer(true);
+            sim.init();
             int[] randSeed = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
             if (randSeed == null) {
                 System.out.println(iThread+" Random seed: "+((RandomMersenneTwister)sim.getRandom()).getSeed());
@@ -542,24 +548,24 @@ public class VirialSQWBinMultiThreaded {
             // based on fit of data using weight=1, weight=0, each for 10^9 steps.
 //            double tRatio = 0.44869 * Math.exp(0.64714 * nPoints);
             //double tRatio = 0.292077*nPoints*nPoints + 0.00378375*Math.pow(3, nPoints);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meter));
+            sim.integratorFasterer.getEventManager().addListener(new IntegratorListenerAction(meter));
             
-            sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+            sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
 
             if (targetTemp == 0) {
                 MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, lambda);
-                sim.integrator.getMoveManager().addMCMove(mcMoveHSR);
-                sim.integrator.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
+                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSR);
+                sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
             }
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomSQWChain(sim.getRandom(), space, lambda, targetTemp);
-            sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
-            sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
             MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomSQWTree(sim.getRandom(), space, lambda, targetTemp);
-            sim.integrator.getMoveManager().addMCMove(mcMoveHST);
-            sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
+            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
+            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
             MeterVirialEBinMultiThreaded.setTRatio(tRatio);
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorFasterer, steps));
             long t2 = System.currentTimeMillis();
             System.out.println("thread "+iThread+" time: "+(t2-t1)*0.001);
         }
