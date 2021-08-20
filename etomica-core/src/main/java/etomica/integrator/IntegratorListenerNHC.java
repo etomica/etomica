@@ -68,6 +68,18 @@ public class IntegratorListenerNHC implements IntegratorListenerMD {
         }
     }
 
+    public double[] getEtaP() {
+        return etaP;
+    }
+
+    public double[] getEta() {
+        return eta;
+    }
+
+    public void setEtaP(double[] etaP) {
+        System.arraycopy(etaP, 0, this.etaP, 0, etaP.length);
+    }
+
     public double getChainEnergy() {
         return chainEnergy;
     }
