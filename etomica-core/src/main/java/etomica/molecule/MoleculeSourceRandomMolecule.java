@@ -13,6 +13,15 @@ import etomica.util.random.IRandom;
  */
 public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Serializable {
 
+    public MoleculeSourceRandomMolecule() {
+
+    }
+
+    public MoleculeSourceRandomMolecule(Box box, IRandom random) {
+        this.box = box;
+        this.random = random;
+    }
+
     /**
      * Sets the random number generator used to pick molecules
      */
