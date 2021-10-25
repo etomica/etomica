@@ -91,18 +91,18 @@ public class DeviceThermoSliderGEMC extends Device {
 
         ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxIsoChangeSetIso);
 
-        if (integrator1.isIsothermal()) {
-            setIsothermal();
-        } else {
-            setAdiabatic();
-        }
-
         //adiabatic/isothermal radio button
         ButtonGroup thermalGroup = new ButtonGroup();
         buttonAdiabatic = new JRadioButton("Adiabatic");
         buttonIsothermal = new JRadioButton("Isothermal");
         thermalGroup.add(buttonAdiabatic);
         thermalGroup.add(buttonIsothermal);
+
+        if (integrator1.isIsothermal()) {
+            setIsothermal();
+        } else {
+            setAdiabatic();
+        }
 
         addRadioGroupActionListener(actionListen);
 
