@@ -91,7 +91,6 @@ public class DeviceThermoSliderGEMC extends Device {
 
         ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxIsoChangeSetIso);
 
-        addRadioGroupActionListener(actionListen);
         if (integrator1.isIsothermal()) {
             setIsothermal();
         } else {
@@ -105,6 +104,7 @@ public class DeviceThermoSliderGEMC extends Device {
         thermalGroup.add(buttonAdiabatic);
         thermalGroup.add(buttonIsothermal);
 
+        addRadioGroupActionListener(actionListen);
 
         // Tie the isothermal/adiabatic setting to the selectable status of
         // temperature slider
