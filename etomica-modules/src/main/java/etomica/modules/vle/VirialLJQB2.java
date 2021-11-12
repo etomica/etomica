@@ -11,7 +11,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.virial.MayerGeneralAtomicFasterer;
+import etomica.virial.MayerGeneralAtomic;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
@@ -39,7 +39,7 @@ public class VirialLJQB2 {
         pTarget.setEpsilon(1.0);
         pTarget.setSigma(1.0);
         pTarget.setQuadrupolarMomentSquare(moment);
-        MayerGeneralAtomicFasterer fTarget = new MayerGeneralAtomicFasterer(space, pTarget);
+        MayerGeneralAtomic fTarget = new MayerGeneralAtomic(space, pTarget);
         ClusterWheatleySoft targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
         targetCluster.setTemperature(temperature);
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
@@ -49,7 +49,6 @@ public class VirialLJQB2 {
 
         ISpecies species = SpeciesSpheresRotating.create(space, new ElementSimple("O"));
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
-        sim.setDoFasterer(true);
         sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file

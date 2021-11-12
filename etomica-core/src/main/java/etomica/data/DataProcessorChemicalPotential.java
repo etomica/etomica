@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 
 /**
  * DataProcessor that takes as input the average density and average Boltzmann
@@ -18,8 +18,8 @@ import etomica.integrator.IntegratorBoxFasterer;
  */
 public class DataProcessorChemicalPotential extends DataProcessor {
 
-    public DataProcessorChemicalPotential(IntegratorBoxFasterer integrator) {
-        this.integratorFasterer = integrator;
+    public DataProcessorChemicalPotential(IntegratorBox integrator) {
+        this.integrator = integrator;
     }
 
     public void setDensityProfileDump(IDataSource newDensityProfileSource) {
@@ -35,7 +35,7 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         double[] newY = data.getData();
         IData densityData = densityProfileSource.getData();
         if (densityData == null) return null;
-        double temp = integratorFasterer.getTemperature();
+        double temp = integrator.getTemperature();
         for (int i=0; i<oldY.length; i++) {
             double density = densityData.getValue(i);
             if (density*oldY[i] == 0) {
@@ -57,5 +57,5 @@ public class DataProcessorChemicalPotential extends DataProcessor {
 
     protected IDataSource densityProfileSource;
     protected DataFunction data;
-    protected IntegratorBoxFasterer integratorFasterer;
+    protected IntegratorBox integrator;
 }

@@ -163,7 +163,6 @@ public class VirialCO2H2OGCPM {
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesWater}, nTypes, temperature, refCluster, targetCluster);
 //        sim.setRandom(new RandomMersenneTwister(new int[]{1941442288, -303985770, -1766960871, 2058398830}));
-        sim.setDoFasterer(true);
         sim.init();
         System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -362,8 +361,8 @@ public class VirialCO2H2OGCPM {
 
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integratorsFasterer[0].getEventManager().addListener(histListenerRef);
-            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
+            sim.integrators[0].getEventManager().addListener(histListenerRef);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
         sim.getController().runActivityBlocking(ai);
         

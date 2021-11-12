@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.integrator.IntegratorMD;
+
 public class DataSourceCorMSD extends DataSourceBlockAvgCor implements DataSourceMSD.MSDSink {
 
     // DataSourceMSD (by default) will collect interval<3, but not every time.  Our superclass
     // doesn't understand that.
 
-    public DataSourceCorMSD(TimeSource timeSource) {
-        super(timeSource);
+    public DataSourceCorMSD(IntegratorMD integrator) {
+        super(integrator);
     }
 
     public void putMSD(int interval, long step, double msd) {

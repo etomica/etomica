@@ -6,7 +6,7 @@ package etomica.graphics;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.integrator.IntegratorHardFasterer;
+import etomica.integrator.IntegratorHard;
 import etomica.space.Vector;
 
 import java.awt.*;
@@ -16,7 +16,7 @@ import java.awt.*;
  * Highlight colors are specified by the colliderColor and partnerColor fields; all other
  * atoms are colored with the baseColor.  Applies only to with a hard-potential MD integrator.
  */
-public class ColorSchemeColliders extends ColorScheme implements IntegratorHardFasterer.CollisionListener {
+public class ColorSchemeColliders extends ColorScheme implements IntegratorHard.CollisionListener {
     
     IAtom atom1, atom2;
 

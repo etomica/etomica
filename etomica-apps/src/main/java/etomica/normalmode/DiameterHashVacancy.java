@@ -5,19 +5,19 @@ package etomica.normalmode;
 
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Vector;
 
 class DiameterHashVacancy implements DiameterHash {
-    IntegratorBoxFasterer integrator;
+    IntegratorBox integrator;
     double rc;
     double rc2;
     int nmax;
     NeighborIterator iter;
 
-    public DiameterHashVacancy(IntegratorBoxFasterer integrator, NeighborManager neighborManager, double rc) {
+    public DiameterHashVacancy(IntegratorBox integrator, NeighborManager neighborManager, double rc) {
         this.integrator = integrator;
         this.rc = rc;
         rc2 = rc * rc;

@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 public class ShakeListener implements IntegratorListenerMD {
 
-    protected final IntegratorMDFasterer integrator;
+    protected final IntegratorMD integrator;
     protected Vector[][] drOld;
     protected Vector[] rOld;
     protected final SpeciesAgentManager<BondConstraints> agentManager;
@@ -28,7 +28,7 @@ public class ShakeListener implements IntegratorListenerMD {
     protected boolean[][] moved;
     protected boolean ready = false;
 
-    public ShakeListener(SpeciesManager sm, SpeciesAgentManager<BondConstraints> agentManager, IntegratorMDFasterer integrator) {
+    public ShakeListener(SpeciesManager sm, SpeciesAgentManager<BondConstraints> agentManager, IntegratorMD integrator) {
         this.integrator = integrator;
         this.agentManager = agentManager;
         nBonds = new int[sm.getSpeciesCount()];

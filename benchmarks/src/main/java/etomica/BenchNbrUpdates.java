@@ -8,8 +8,8 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.list.NeighborListManagerFasterer;
-import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @Fork(1)
 public class BenchNbrUpdates {
-    public NeighborListManagerFasterer nlm;
+    public NeighborListManager nlm;
     public IAtom a;
 
     @Setup(Level.Iteration)
@@ -40,7 +40,7 @@ public class BenchNbrUpdates {
         box.setNMolecules(species, 100_000);
         Configuration initialConfig = new ConfigurationLattice(new LatticeCubicFcc(sim.getSpace()), sim.getSpace());
         initialConfig.initializeCoordinates(box);
-        PotentialMasterListFasterer pm = new PotentialMasterListFasterer(sim.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
+        PotentialMasterList pm = new PotentialMasterList(sim.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
         pm.setPairPotential(species.getLeafType(), species.getLeafType(), new P2SoftSphericalTruncated(sim.getSpace(), new P2LennardJones(sim.getSpace()), 3));
         RandomPositionSource rand = new RandomPositionSourceRectangular(sim.getSpace(), sim.getRandom());
         rand.setBox(box);

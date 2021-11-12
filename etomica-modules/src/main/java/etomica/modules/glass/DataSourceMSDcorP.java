@@ -6,6 +6,7 @@ package etomica.modules.glass;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
@@ -24,17 +25,17 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
     protected double[] blockSumX;
     protected long[] nBlockSamplesX;
     protected long[] lastStepMSD, lastStepX;
-    protected final TimeSource timeSource;
+    protected final IntegratorMD integrator;
     protected long step0;
     protected boolean enabled;
     protected final int xlog2Interval;
 
-    public DataSourceMSDcorP(TimeSource timeSource) {
-        this(timeSource, 0);
+    public DataSourceMSDcorP(IntegratorMD integrator) {
+        this(integrator, 0);
     }
 
-    public DataSourceMSDcorP(TimeSource timeSource, int xlog2Interval) {
-        this.timeSource = timeSource;
+    public DataSourceMSDcorP(IntegratorMD integrator, int xlog2Interval) {
+        this.integrator = integrator;
         this.xlog2Interval = xlog2Interval;
         lastSampleMSD = lastSampleX = xSum = xmsdSum = msdSum = msd2Sum = x2Sum = new double[0];
         nBlockSamplesX = new long[60];
@@ -78,7 +79,7 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
         covDataInfo.addTag(covTag);
         double[] t = tData.getData();
         if (t.length > 0) {
-            double dt = timeSource.getTimeStep() * (1L << xlog2Interval);
+            double dt = integrator.getTimeStep() * (1L << xlog2Interval);
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -120,8 +121,8 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
     public void putData(IData inputData) {
         if (!enabled) return;
         double x = inputData.getValue(0);
-        if (step0 < 0) step0 = timeSource.getStepCount() - (1L << xlog2Interval);
-        long step = timeSource.getStepCount() - step0;
+        if (step0 < 0) step0 = integrator.getStepCount() - (1L << xlog2Interval);
+        long step = integrator.getStepCount() - step0;
         for (int i = 0; i < blockSumX.length; i++) {
             blockSumX[i] += x;
             nBlockSamplesX[i]++;

@@ -15,19 +15,19 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeRotateFasterer;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -55,7 +55,7 @@ import java.util.List;
 public class OctaneMC extends Simulation {
 
     public PotentialCompute pcAgg;
-    public IntegratorMCFasterer integrator;
+    public IntegratorMC integrator;
     public SpeciesGeneral species;
     public Box box;
 
@@ -96,22 +96,22 @@ public class OctaneMC extends Simulation {
         }
         pmBonding.setBondingPotentialQuad(species, p4, quads);
 
-        PotentialMasterCellFasterer potentialMaster = new PotentialMasterCellFasterer(getSpeciesManager(), box, 2, pmBonding.getBondingInfo());
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, pmBonding.getBondingInfo());
         potentialMaster.doAllTruncationCorrection = true;
         pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
-        integrator = new IntegratorMCFasterer(pcAgg, random, temperature, box);
+        integrator = new IntegratorMC(pcAgg, random, temperature, box);
         getController().addActivity(new ActivityIntegrate(integrator));
 
-        MCMoveMoleculeFasterer translateMove = new MCMoveMoleculeFasterer(random, pcAgg, box);
+        MCMoveMolecule translateMove = new MCMoveMolecule(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(translateMove);
 
-        MCMoveMoleculeRotateFasterer rotateMove = new MCMoveMoleculeRotateFasterer(random, pcAgg, box);
+        MCMoveMoleculeRotate rotateMove = new MCMoveMoleculeRotate(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(rotateMove);
 
-        MCMoveWiggleFasterer wiggleMove = new MCMoveWiggleFasterer(random, pcAgg, box);
+        MCMoveWiggle wiggleMove = new MCMoveWiggle(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(wiggleMove);
 
-        MCMoveAtomFasterer moveAtom = new MCMoveAtomFasterer(random, pcAgg, box);
+        MCMoveAtom moveAtom = new MCMoveAtom(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(moveAtom);
 
         AtomType typeCH3 = species.getAtomType(0);
@@ -208,12 +208,12 @@ public class OctaneMC extends Simulation {
 
         final OctaneMC sim = new OctaneMC(Space3D.getInstance(), density, 8, numMolecules, temperature, configFilename, rc);
 
-        MeterPotentialEnergyFromIntegratorFasterer meterU = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         sim.integrator.getPotentialCompute().init();
         sim.integrator.reset();
         System.out.println("u0/N "+(meterU.getDataAsScalar()/numMolecules));
 
-        MeterPressureFasterer meterP = new MeterPressureFasterer(sim.box, sim.pcAgg);
+        MeterPressure meterP = new MeterPressure(sim.box, sim.pcAgg);
         meterP.setTemperature(temperature);
         meterP.doCallComputeAll(true);
         DataProcessorForked dpZ = new DataProcessorForked() {

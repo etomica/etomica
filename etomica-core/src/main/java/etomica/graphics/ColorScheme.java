@@ -8,6 +8,7 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.IAtom;
 import etomica.modifier.ModifierGeneral;
+import etomica.simulation.prototypes.HSMD3D;
 
 import java.awt.*;
 
@@ -49,7 +50,7 @@ public abstract class ColorScheme {
     public static void main(String args[]) {
       final String APP_NAME = "Color Scheme";
 
-        final etomica.simulation.prototypes.HSMD3DFasterer sim = new etomica.simulation.prototypes.HSMD3DFasterer();
+        final HSMD3D sim = new HSMD3D();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);

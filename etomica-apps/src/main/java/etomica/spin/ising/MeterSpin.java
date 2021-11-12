@@ -5,13 +5,11 @@
 package etomica.spin.ising;
 
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.IDataSource;
-import etomica.space.Space;
-import etomica.space.Vector;
-import etomica.units.dimensions.Undefined;
+import etomica.units.dimensions.Null;
 
 
 /**
@@ -23,33 +21,27 @@ import etomica.units.dimensions.Undefined;
  */
 public class MeterSpin extends DataSourceScalar implements IDataSource {
 
-    private static final long serialVersionUID = 1L;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private final Vector sum;
-    private Box box;
+    private final Box box;
 
     /**
      *
      */
-    public MeterSpin(Space space) {
-        super("Spin", Undefined.DIMENSION);
-        sum = space.makeVector();
+    public MeterSpin(Box box) {
+        super("Spin", Null.DIMENSION);
+        this.box = box;
     }
 
     /* (non-Javadoc)
      * @see etomica.data.meter.MeterScalar#getDataAsScalar(etomica.Box)
      */
     public double getDataAsScalar() {
-        sum.E(0.0);
         int count = 0;
-        iterator.setBox(box);
-        iterator.reset();
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
-            sum.PE(atom.getPosition());
+        double sum = 0;
+        for (IAtom atom : box.getLeafList()) {
+            sum += ((IAtomOriented)atom).getOrientation().getDirection().getX(0);
             count++;
         }
-        return sum.getX(0) / count;
+        return sum / count;
     }
 
     /**
@@ -57,12 +49,5 @@ public class MeterSpin extends DataSourceScalar implements IDataSource {
      */
     public Box getBox() {
         return box;
-    }
-
-    /**
-     * @param box The box to set.
-     */
-    public void setBox(Box box) {
-        this.box = box;
     }
 }

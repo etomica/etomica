@@ -10,9 +10,9 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Configurations;
-import etomica.data.meter.MeterPressureHardFasterer;
-import etomica.integrator.IntegratorHardFasterer;
-import etomica.nbr.list.NeighborListManagerFastererHard;
+import etomica.data.meter.MeterPressureHard;
+import etomica.integrator.IntegratorHard;
+import etomica.nbr.list.NeighborListManagerHard;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2HardSphere;
 import etomica.potential.compute.PotentialComputePair;
@@ -32,7 +32,7 @@ import etomica.util.ParseArgs;
  
 public class TestHSMD3D extends Simulation {
 
-    public IntegratorHardFasterer integrator;
+    public IntegratorHard integrator;
     public SpeciesGeneral species, species2;
     public Box box;
 
@@ -46,7 +46,7 @@ public class TestHSMD3D extends Simulation {
 
         box = makeBox();
 
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 1.5, BondingInfo.noBonding());
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 1, 1.5, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
@@ -60,7 +60,7 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.setPairPotential(type1, type2, P2HardSphere.makePotential(sigma));
         potentialMaster.setPairPotential(type2, type2, P2HardSphere.makePotential(sigma));
 
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager());
+        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager());
 
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
@@ -83,7 +83,7 @@ public class TestHSMD3D extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms / 10));
         sim.integrator.resetStepCount();
 
-        MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
         long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms));

@@ -6,7 +6,7 @@ package etomica.simulation;
 
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
-import etomica.data.meter.MeterPressureHardFasterer;
+import etomica.data.meter.MeterPressureHard;
 import etomica.space3d.Space3D;
 import etomica.tests.TestHSMD3D;
 import org.openjdk.jmh.annotations.*;
@@ -37,7 +37,7 @@ public class BenchSimHSMD3D {
         {
             sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, config);
 
-            MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+            MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
             sim.integrator.reset();
         }
     }

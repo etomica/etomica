@@ -13,12 +13,12 @@ import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFasterer;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
@@ -37,8 +37,8 @@ import etomica.util.ParseArgs;
  */
 public class TestLJMCEwald extends Simulation {
 
-    public IntegratorMCFasterer integrator;
-    public MCMoveAtomFasterer mcMoveAtom;
+    public IntegratorMC integrator;
+    public MCMoveAtom mcMoveAtom;
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
@@ -59,12 +59,12 @@ public class TestLJMCEwald extends Simulation {
         PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
         PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 38.5 / 30.4);
         System.out.println(ewaldParams);
-        PotentialMasterCellFasterer pair = new PotentialMasterCellFasterer(this.getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        PotentialMasterCell pair = new PotentialMasterCell(this.getSpeciesManager(), box, 2, BondingInfo.noBonding());
         PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair, ewaldFourier);
 
 
-        integrator = new IntegratorMCFasterer(aggregate, random, 1.1, box);
-        mcMoveAtom = new MCMoveAtomFasterer(random, aggregate, box);
+        integrator = new IntegratorMC(aggregate, random, 1.1, box);
+        mcMoveAtom = new MCMoveAtom(random, aggregate, box);
         mcMoveAtom.setStepSize(0.275 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -99,14 +99,14 @@ public class TestLJMCEwald extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
 
         int bs = params.numSteps / (100 * 2 * numAtoms);
-        MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.integrator.getPotentialCompute());
+        MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
         pMeter.setTemperature(sim.integrator.getTemperature());
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pPump);
 
         bs = params.numSteps / (100 * 10);
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
         sim.integrator.getEventManager().addListener(energyPump);

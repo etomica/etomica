@@ -14,13 +14,13 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFasterer;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
-import etomica.integrator.mcmove.MCMoveInsertDeleteFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -37,9 +37,9 @@ import etomica.util.ParseArgs;
  */
 public class TestLJGCMC3D extends Simulation {
 
-    public IntegratorMCFasterer integrator;
-    public MCMoveAtomFasterer mcMoveAtom;
-    public MCMoveInsertDeleteFasterer mcMoveID;
+    public IntegratorMC integrator;
+    public MCMoveAtom mcMoveAtom;
+    public MCMoveInsertDelete mcMoveID;
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
@@ -52,16 +52,16 @@ public class TestLJGCMC3D extends Simulation {
 
         box = this.makeBox();
 
-        PotentialMasterCellFasterer potentialMaster = new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding());
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 3, BondingInfo.noBonding());
         potentialMaster.doOneTruncationCorrection = true;
         double sigma = 1.0;
-        integrator = new IntegratorMCFasterer(potentialMaster, this.getRandom(), 1.0, box);
+        integrator = new IntegratorMC(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(1.1);
-        mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
         mcMoveAtom.setStepSize(0.2 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        mcMoveID = new MCMoveInsertDeleteFasterer(potentialMaster, random, space);
+        mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveID.setBox(box);
         mcMoveID.setMu(-3.67);
         integrator.getMoveManager().addMCMove(mcMoveID);
@@ -96,7 +96,7 @@ public class TestLJGCMC3D extends Simulation {
         int pInterval = 2 * numAtoms;
         int bs = params.numSteps / (pInterval * 50);
         if (bs == 0) bs = 1;
-        MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.integrator.getPotentialCompute());
+        MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
         pMeter.setTemperature(sim.integrator.getTemperature());
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, pInterval);
@@ -104,7 +104,7 @@ public class TestLJGCMC3D extends Simulation {
 
         bs = params.numSteps / 50;
         if (bs == 0) bs = 1;
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener uPump = new DataPumpListener(energyMeter, energyAccumulator);
         sim.integrator.getEventManager().addListener(uPump);

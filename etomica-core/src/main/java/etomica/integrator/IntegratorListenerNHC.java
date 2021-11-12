@@ -21,7 +21,7 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorListenerNHC implements IntegratorListenerMD {
 
-    protected final IntegratorMDFasterer integrator;
+    protected final IntegratorMD integrator;
     protected final IRandom random;
     protected double kineticEnergy;
     protected double[] q;         // thermal inertias for each chain
@@ -37,7 +37,7 @@ public class IntegratorListenerNHC implements IntegratorListenerMD {
      * @param numChains  # of chains in the thermostat
      * @param tau        thermostat timescale
      */
-    public IntegratorListenerNHC(IntegratorMDFasterer integrator, IRandom random, int numChains, double tau) {
+    public IntegratorListenerNHC(IntegratorMD integrator, IRandom random, int numChains, double tau) {
         this.integrator = integrator;
         this.random = random;
         this.tau = tau;
@@ -198,10 +198,10 @@ public class IntegratorListenerNHC implements IntegratorListenerMD {
 
     public static class DataSourceTotalEnergy extends DataSourceScalar {
 
-        protected final IntegratorMDFasterer integrator;
+        protected final IntegratorMD integrator;
         protected final IntegratorListenerNHC nhc;
 
-        public DataSourceTotalEnergy(IntegratorMDFasterer integrator, IntegratorListenerNHC nhc) {
+        public DataSourceTotalEnergy(IntegratorMD integrator, IntegratorListenerNHC nhc) {
             super("Total Energy", Energy.DIMENSION);
             this.integrator = integrator;
             this.nhc = nhc;

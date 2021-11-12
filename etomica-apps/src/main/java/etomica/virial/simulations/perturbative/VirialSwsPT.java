@@ -121,7 +121,6 @@ public class VirialSwsPT {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{nPoints},1.0, refCluster, targetCluster);
-        sim.setDoFasterer(true);
         sim.setExtraTargetClusters(sampleClusters);
         sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -143,7 +142,7 @@ public class VirialSwsPT {
         sim.integratorOS.setNumSubSteps(1000);
 
         if(false) {
-    double size = 10;
+            double size = 10;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);

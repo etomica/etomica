@@ -203,7 +203,6 @@ public class VirialCO2H2OSC {
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesH2O}, nTypes, temperature, refCluster, targetCluster);
-        sim.setDoFasterer(true);
         sim.init();
         int[] seeds = sim.getRandomSeeds();
         System.out.println("Random seeds: "+ Arrays.toString(seeds));

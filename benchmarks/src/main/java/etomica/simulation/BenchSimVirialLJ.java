@@ -115,13 +115,12 @@ public class BenchSimVirialLJ {
 
         ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
-        sim.setDoFasterer(true);
         sim.init();
 
         if (doChainRef) {
-            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -175,7 +174,7 @@ public class BenchSimVirialLJ {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
         sim.integratorOS.setNumSubSteps((int)steps);

@@ -30,7 +30,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralAtomicFasterer;
+import etomica.virial.MayerGeneralAtomic;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.ClusterChainHS;
@@ -127,7 +127,7 @@ public class VirialLJDQPlus {
         P2HSDQPlus p2HSDQPlus = new P2HSDQPlus(space, 1, 1, mu, theta, alpha, kappa, D);
         P2SoftSum pTarget = new P2SoftSum(p2lj, p2HSDQPlus);
 
-        MayerGeneralAtomicFasterer fTarget = new MayerGeneralAtomicFasterer(space, pTarget);
+        MayerGeneralAtomic fTarget = new MayerGeneralAtomic(space, pTarget);
         if (doChainRef) System.out.println("HS Chain reference");
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
@@ -140,7 +140,6 @@ public class VirialLJDQPlus {
         ISpecies species = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nPoints, temperature,refCluster,targetCluster);
-        sim.setDoFasterer(true);
         ClusterAbstract[] targetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer];
         for(int m=1;m<=nDer;m++){
             targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster,m);
@@ -150,9 +149,9 @@ public class VirialLJDQPlus {
         sim.init();
 
         if (doChainRef) {
-            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -240,7 +239,7 @@ public class VirialLJDQPlus {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
 

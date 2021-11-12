@@ -13,12 +13,12 @@ import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureHardFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorHardFasterer;
-import etomica.nbr.list.NeighborListManagerFastererHard;
+import etomica.integrator.IntegratorHard;
+import etomica.nbr.list.NeighborListManagerHard;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2SquareWell;
 import etomica.potential.compute.PotentialComputePair;
@@ -38,7 +38,7 @@ import etomica.util.ParseArgs;
 
 public class TestSWMD3D extends Simulation {
 
-    public IntegratorHardFasterer integrator;
+    public IntegratorHard integrator;
     public SpeciesGeneral species, species2;
     public Box box;
 
@@ -52,7 +52,7 @@ public class TestSWMD3D extends Simulation {
 
         box = makeBox();
 
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 1, 1.8, BondingInfo.noBonding());
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 1, 1.8, BondingInfo.noBonding());
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
@@ -65,7 +65,7 @@ public class TestSWMD3D extends Simulation {
         potentialMaster.setPairPotential(type1, type1, P2SquareWell.makePotential(sigma, 1.5, 0.5));
         potentialMaster.setPairPotential(type1, type2, P2SquareWell.makePotential(sigma, 1.5, 0.5));
         potentialMaster.setPairPotential(type2, type2, P2SquareWell.makePotential(sigma, 1.5, 0.5));
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.005, 1.0, box, getSpeciesManager());
+        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.005, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(true);
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
@@ -91,12 +91,12 @@ public class TestSWMD3D extends Simulation {
 
         int interval = 4;
         long bs = steps / (interval * 100);
-        MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, interval);
         sim.integrator.getEventManager().addListener(pPump);
 
-        MeterPotentialEnergyFromIntegratorFasterer uMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator uMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage uAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener uPump = new DataPumpListener(uMeter, uAccumulator, interval);
         sim.integrator.getEventManager().addListener(uPump);

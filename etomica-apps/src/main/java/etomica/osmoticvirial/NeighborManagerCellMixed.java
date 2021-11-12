@@ -7,14 +7,14 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.nbr.cell.NeighborCellManagerFasterer;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.compute.NeighborIterator;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
-public class NeighborManagerCellMixed extends NeighborCellManagerFasterer {
+public class NeighborManagerCellMixed extends NeighborCellManager {
 
     protected final AtomType cellType;
     protected IPotentialAtomic[][] pairPotentials;

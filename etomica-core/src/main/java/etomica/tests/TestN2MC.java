@@ -16,17 +16,17 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeRotateFasterer;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeEwaldFourier;
@@ -55,13 +55,13 @@ import java.awt.*;
 public class TestN2MC extends Simulation {
 
     public PotentialComputeEwaldFourier ewald;
-    public PotentialMasterFasterer potentialMaster;
+    public PotentialMaster potentialMaster;
     public PotentialComputeAggregate pcAggregate;
-    public IntegratorMCFasterer integrator;
+    public IntegratorMC integrator;
     public SpeciesGeneral species;
     public Box box;
-    public MCMoveMoleculeFasterer translateMove;
-    public MCMoveMoleculeRotateFasterer rotateMove;
+    public MCMoveMolecule translateMove;
+    public MCMoveMoleculeRotate rotateMove;
 
     public TestN2MC(int numMolecules, double temperatureK, boolean cellListing, Truncation trunc, boolean droplet) {
         super(Space3D.getInstance());
@@ -77,7 +77,7 @@ public class TestN2MC extends Simulation {
 
         box = this.makeBox();
 
-        potentialMaster = cellListing ? new PotentialMasterCellFasterer(getSpeciesManager(), box, 3, BondingInfo.noBonding()) : new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
+        potentialMaster = cellListing ? new PotentialMasterCell(getSpeciesManager(), box, 3, BondingInfo.noBonding()) : new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
 
         boolean doEwald = (trunc == Truncation.EWALD || trunc == Truncation.EWALD1);
         ewald = doEwald ? new PotentialComputeEwaldFourier(getSpeciesManager(), box) : null;
@@ -174,13 +174,13 @@ public class TestN2MC extends Simulation {
             pcAggregate = new PotentialComputeAggregate(potentialMaster);
         }
 
-        integrator = new IntegratorMCFasterer(pcAggregate, this.getRandom(), 1.0, box);
+        integrator = new IntegratorMC(pcAggregate, this.getRandom(), 1.0, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperatureK));
 
-        translateMove = new MCMoveMoleculeFasterer(random, pcAggregate, box);
+        translateMove = new MCMoveMolecule(random, pcAggregate, box);
         translateMove.setStepSizeMax(50);
         integrator.getMoveManager().addMCMove(translateMove);
-        rotateMove = new MCMoveMoleculeRotateFasterer(random, pcAggregate, box);
+        rotateMove = new MCMoveMoleculeRotate(random, pcAggregate, box);
         integrator.getMoveManager().addMCMove(rotateMove);
 
         if (!cellListing) {
@@ -214,7 +214,7 @@ public class TestN2MC extends Simulation {
         }
     }
 
-    public IntegratorBoxFasterer getIntegrator() {
+    public IntegratorBox getIntegrator() {
         return integrator;
     }
 
@@ -250,7 +250,7 @@ public class TestN2MC extends Simulation {
 
         int bs = params.numSteps / (100 * 2 * numMolecules);
         if (bs == 0) bs = 1;
-        MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.pcAggregate);
+        MeterPressure pMeter = new MeterPressure(sim.box, sim.pcAggregate);
         pMeter.setTemperature(sim.integrator.getTemperature());
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 2 * numMolecules);
@@ -259,7 +259,7 @@ public class TestN2MC extends Simulation {
         bs = params.numSteps / (100 * 10);
         if (bs == 0) bs = 1;
 //        MeterPotentialEnergyFasterer energyMeter = new MeterPotentialEnergyFasterer(sim.box, sim.pcAggregate);
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
         sim.integrator.getEventManager().addListener(energyPump);

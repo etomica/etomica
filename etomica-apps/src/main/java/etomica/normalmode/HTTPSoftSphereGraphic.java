@@ -24,12 +24,12 @@ import etomica.util.ParameterBase;
  */
 public class HTTPSoftSphereGraphic extends SimulationGraphic {
 
-    public HTTPSoftSphereGraphic(final HTTPSoftSphereSimFasterer sim, double otherTemperature) {
+    public HTTPSoftSphereGraphic(final HTTPSoftSphereSim sim, double otherTemperature) {
         
     	super(sim, SimulationGraphic.TABBED_PANE);
         this.sim = sim;
         
-    	meter = new MeterBoltzmannHTTPFasterer(sim.potentialMaster, sim.species, sim, sim.coordinateDefinition, sim.rc);
+    	meter = new MeterBoltzmannHTTP(sim.potentialMaster, sim.species, sim, sim.coordinateDefinition, sim.rc);
         meter.setLatticeEnergy(sim.latticeEnergy);
         meter.setTemperature(sim.integrator.getTemperature());
         meter.setOtherTemperature(otherTemperature);
@@ -105,13 +105,13 @@ public class HTTPSoftSphereGraphic extends SimulationGraphic {
         double temperature = params.temperature;
         double otherTemperature = params.otherTemperature;
         
-        HTTPSoftSphereSimFasterer sim = new HTTPSoftSphereSimFasterer(Space3D.getInstance(), numMolecules, temperature);
+        HTTPSoftSphereSim sim = new HTTPSoftSphereSim(Space3D.getInstance(), numMolecules, temperature);
         HTTPSoftSphereGraphic simGraphic = new HTTPSoftSphereGraphic(sim, otherTemperature);
         simGraphic.makeAndDisplayFrame("HTTP Method - Soft Sphere FCC Crystal");
     }
     
-    protected HTTPSoftSphereSimFasterer sim;
-    protected MeterBoltzmannHTTPFasterer meter;
+    protected HTTPSoftSphereSim sim;
+    protected MeterBoltzmannHTTP meter;
     
     public static class SimOverlapTPSSParams extends ParameterBase{
         int numMolecules = 32;

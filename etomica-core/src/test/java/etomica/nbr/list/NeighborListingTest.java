@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NeighborListingTest {
-    private NeighborListManagerFasterer nlm;
+    private NeighborListManager nlm;
     private Box box;
 
     private static final double NBR_RANGE = 3.5;
@@ -79,7 +79,7 @@ class NeighborListingTest {
         P2LennardJones p2lj = new P2LennardJones(sim.getSpace());
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(sim.getSpace(), p2lj, POTENTIAL_RANGE);
         Potential2Soft[][] potentials = new Potential2Soft[][]{{p2,p2},{p2,p2}};
-        nlm = new NeighborListManagerFasterer(sim.getSpeciesManager(), box, 2, NBR_RANGE, BondingInfo.noBonding());
+        nlm = new NeighborListManager(sim.getSpeciesManager(), box, 2, NBR_RANGE, BondingInfo.noBonding());
         nlm.setPairPotentials(potentials);
         nlm.setDoDownNeighbors(true);
         nlm.reset();

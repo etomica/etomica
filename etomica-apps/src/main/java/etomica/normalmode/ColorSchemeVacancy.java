@@ -5,7 +5,7 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.graphics.ColorScheme;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Vector;
@@ -13,14 +13,14 @@ import etomica.space.Vector;
 import java.awt.*;
 
 class ColorSchemeVacancy extends ColorScheme {
-    IntegratorBoxFasterer integrator;
+    IntegratorBox integrator;
     Vector dr;
     double rc;
     double rc2;
     int nmax;
     NeighborIterator iter;
 
-    public ColorSchemeVacancy(IntegratorBoxFasterer integrator, NeighborManager neighborManager, double rc) {
+    public ColorSchemeVacancy(IntegratorBox integrator, NeighborManager neighborManager, double rc) {
         this.integrator = integrator;
         dr = this.integrator.getBox().getSpace().makeVector();
         this.rc = rc;

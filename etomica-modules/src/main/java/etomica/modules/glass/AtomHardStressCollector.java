@@ -7,20 +7,21 @@ package etomica.modules.glass;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorHardFasterer;
+import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorMD;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class AtomHardStressCollector implements IntegratorHardFasterer.CollisionListener, AtomStressSource {
+public class AtomHardStressCollector implements IntegratorHard.CollisionListener, AtomStressSource {
 
     private boolean velIncluded = false;
     private final double[][][] stress;
     private final Tensor stressPair;
-    private final TimeSource timeSource;
+    private final IntegratorMD timeSource;
     private double t0;
 
-    public AtomHardStressCollector(TimeSource timeSource) {
+    public AtomHardStressCollector(IntegratorMD timeSource) {
         this.timeSource = timeSource;
         Box box = timeSource.getBox();
         int n = box.getLeafList().size();

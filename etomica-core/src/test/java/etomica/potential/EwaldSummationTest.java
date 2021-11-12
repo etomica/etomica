@@ -49,7 +49,7 @@ class EwaldSummationTest {
     private static final double[] NIST_corr = {2.80999E+06, 5.61998E+06, 8.42998E+06, 1.41483E+07};
 
     private EwaldSummation es;
-    private PotentialMasterFasterer pair;
+    private PotentialMaster pair;
     private PotentialComputeEwaldFourier fourier;
     private PotentialMasterBonding pmBonding;
 
@@ -71,7 +71,7 @@ class EwaldSummationTest {
         box.setNMolecules(species, numofmolecules);
         box.getBoundary().setBoxSize(new Vector3D(boxlength, boxlength, boxlength));
 
-        pair = new PotentialMasterFasterer(sim.getSpeciesManager(), box, BondingInfo.noBonding());
+        pair = new PotentialMaster(sim.getSpeciesManager(), box, BondingInfo.noBonding());
 
         double alpha = 5.6 / boxlength;
         P2SoftSphericalTruncated p2hh = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QH, alpha), rCutRealES);

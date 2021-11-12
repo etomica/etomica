@@ -15,8 +15,8 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DisplayPlotXChart;
@@ -24,13 +24,13 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerNHC;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.IntegratorVelocityVerletFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeRotateFasterer;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
-import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -60,9 +60,9 @@ import java.util.List;
 public class OctaneMD extends Simulation {
 
     public PotentialCompute pcAgg, pcAggMC;
-    public PotentialMasterFasterer potentialMaster;
-    public IntegratorVelocityVerletFasterer integrator;
-    public IntegratorMCFasterer integratorMC;
+    public PotentialMaster potentialMaster;
+    public IntegratorVelocityVerlet integrator;
+    public IntegratorMC integratorMC;
     public SpeciesGeneral species;
     public Box box;
     public IntegratorListenerNHC nhc;
@@ -124,7 +124,7 @@ public class OctaneMD extends Simulation {
             System.out.println("alpha: "+eparams.alpha);
         }
         double nbrRange = rc * 1.05 + 1;
-        potentialMaster = new PotentialMasterListFasterer(getSpeciesManager(), box, 2, nbrRange, pmBonding.getBondingInfo());
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, nbrRange, pmBonding.getBondingInfo());
         TruncationFactory tf = new TruncationFactoryForceShift(space, rc);
         Potential2Soft p2CH2LJ, p2CH3LJ, p2CH2CH3LJ;
         P2SoftSphere p2CH212 = null, p2CH312 = null, p2CH2CH312 = null;
@@ -153,7 +153,7 @@ public class OctaneMD extends Simulation {
             pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
         }
 
-        integrator = new IntegratorVelocityVerletFasterer(pcAgg, random, 0.001, temperature, box);
+        integrator = new IntegratorVelocityVerlet(pcAgg, random, 0.001, temperature, box);
 //        integrator.setIsothermal(true);
 //        integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN);
 //        integrator.setThermostatInterval(1000);
@@ -171,18 +171,18 @@ public class OctaneMD extends Simulation {
         potentialMaster.setPairPotential(typeCH2, typeCH3, p2CH2CH3);
         potentialMaster.setPairPotential(typeCH3, typeCH3, p2CH3);
 
-        PotentialMasterCellFasterer potentialMasterMC = new PotentialMasterCellFasterer(getSpeciesManager(), box, 2, pmBonding.getBondingInfo());
+        PotentialMasterCell potentialMasterMC = new PotentialMasterCell(getSpeciesManager(), box, 2, pmBonding.getBondingInfo());
 
         potentialMasterMC.setPairPotential(typeCH2, typeCH2, p2CH2);
         potentialMasterMC.setPairPotential(typeCH2, typeCH3, p2CH2CH3);
         potentialMasterMC.setPairPotential(typeCH3, typeCH3, p2CH3);
         pcAggMC = new PotentialComputeAggregate(pmBonding, potentialMasterMC);
-        integratorMC = new IntegratorMCFasterer(pcAggMC, random, temperature, box);
+        integratorMC = new IntegratorMC(pcAggMC, random, temperature, box);
 
-        MCMoveMoleculeFasterer translateMove = new MCMoveMoleculeFasterer(random, pcAggMC, box);
+        MCMoveMolecule translateMove = new MCMoveMolecule(random, pcAggMC, box);
         integratorMC.getMoveManager().addMCMove(translateMove);
 
-        MCMoveMoleculeRotateFasterer rotateMove = new MCMoveMoleculeRotateFasterer(random, pcAggMC, box);
+        MCMoveMoleculeRotate rotateMove = new MCMoveMoleculeRotate(random, pcAggMC, box);
         integratorMC.getMoveManager().addMCMove(rotateMove);
 
 //        MCMoveWiggleFasterer wiggleMove = new MCMoveWiggleFasterer(random, pcAggMC, box);
@@ -297,11 +297,11 @@ public class OctaneMD extends Simulation {
 
         final OctaneMD sim = new OctaneMD(Space3D.getInstance(), density, 8, numMolecules, temperature, configFilename, rc, s);
 
-        MeterPotentialEnergyFromIntegratorFasterer meterU = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         MeterTemperature meterT = new MeterTemperature(sim.box, 3);
         sim.potentialMaster.init();
         System.out.println("u0: "+sim.potentialMaster.computeAll(false)/numMolecules);
-        MeterPressureFasterer meterP = new MeterPressureFasterer(sim.box, sim.pcAgg);
+        MeterPressure meterP = new MeterPressure(sim.box, sim.pcAgg);
         meterP.setTemperature(temperature);
         double p0 = meterP.getDataAsScalar();
         System.out.println("p0: "+p0);
@@ -349,7 +349,7 @@ public class OctaneMD extends Simulation {
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-            DataSourceCountTimeFasterer timer = new DataSourceCountTimeFasterer(sim.integrator);
+            DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
             DisplayTextBox timerBox = new DisplayTextBox();
             timerBox.setLabel("Time");
             DataPumpListener pumpSteps = new DataPumpListener(timer, timerBox, 100);

@@ -8,7 +8,7 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPressureFasterer;
+import etomica.data.meter.MeterPressure;
 import etomica.tests.TestLJMC3D;
 import etomica.tests.TestLJMC3DBrute;
 import etomica.tests.TestLJMC3DNew;
@@ -61,7 +61,7 @@ public class BenchSimLJMC3D {
         {
             simBrute = new TestLJMC3DBrute(numMolecules, config);
 
-            MeterPressureFasterer pMeter = new MeterPressureFasterer(simBrute.box, simBrute.potentialMaster);
+            MeterPressure pMeter = new MeterPressure(simBrute.box, simBrute.potentialMaster);
             pMeter.setTemperature(simBrute.integrator.getTemperature());
             DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
             simBrute.integrator.getEventManager().addListener(pumpListener);
@@ -71,7 +71,7 @@ public class BenchSimLJMC3D {
         {
             sim = new TestLJMC3D(numMolecules, config);
 
-            MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
+            MeterPressure pMeter = new MeterPressure(sim.box, sim.potentialMaster);
             pMeter.setTemperature(sim.integrator.getTemperature());
             DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
             sim.integrator.getEventManager().addListener(pumpListener);
@@ -79,7 +79,7 @@ public class BenchSimLJMC3D {
         }
         {
             simNew = new TestLJMC3DNew(numMolecules, config);
-            MeterPressureFasterer pMeter = new MeterPressureFasterer(simNew.box, simNew.integrator.getPotentialCompute());
+            MeterPressure pMeter = new MeterPressure(simNew.box, simNew.integrator.getPotentialCompute());
             pMeter.setTemperature(simNew.integrator.getTemperature());
             DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
             simNew.integrator.getEventManager().addListener(pumpListener);

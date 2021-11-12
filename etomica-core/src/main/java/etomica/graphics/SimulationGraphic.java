@@ -10,7 +10,7 @@ import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.Simulation;
@@ -175,9 +175,9 @@ public class SimulationGraphic implements SimulationContainer {
      * added to boxList.  If a box handled by an Integrator is in BoxList, a new DisplayBox is not created.
      */
     private void setupDisplayBox(Integrator integrator, LinkedList<Box> boxList) {
-        if (integrator instanceof IntegratorBoxFasterer) {
+        if (integrator instanceof IntegratorBox) {
             // TODO: make this not terrible
-            Box box = ((IntegratorBoxFasterer) integrator).getBox();
+            Box box = ((IntegratorBox) integrator).getBox();
             if (boxList.contains(box)) return;
             boxList.add(box);
             final DisplayBox display = new DisplayBox(simulation.getController(), box);

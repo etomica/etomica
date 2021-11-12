@@ -8,11 +8,11 @@ import etomica.space.Space;
 import etomica.space.Vector;
 
 public class NeighborIteratorList implements NeighborIterator {
-    private final NeighborListManagerFasterer nbrManager;
+    private final NeighborListManager nbrManager;
     private final Box box;
     private final Space space;
 
-    public NeighborIteratorList(NeighborListManagerFasterer nbrManager, Box box) {
+    public NeighborIteratorList(NeighborListManager nbrManager, Box box) {
         this.nbrManager = nbrManager;
         this.box = box;
         this.space = box.getSpace();

@@ -19,7 +19,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorMCFasterer;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.math.DoubleRange;
@@ -60,7 +60,7 @@ public class SimulationVirialOverlap2 extends Simulation {
 
     public final AccumulatorRatioAverageCovarianceFull[] accumulators;
     public final BoxCluster[] box;
-    public final IntegratorMCFasterer[] integratorsFasterer;
+    public final IntegratorMC[] integrators;
     public final MeterVirial[] meters;
     public final DataProcessorVirialOverlap[] dpVirialOverlap;
     protected final ISpecies[] species;
@@ -86,7 +86,6 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected HistogramSimple targHist;
     protected HistogramNotSoSimple targPiHist;
     protected double[] boxLengths = new double[]{0, 0};
-    protected boolean doFasterer;
     protected PotentialMasterBonding.FullBondingInfo bondingInfo;
     protected Potential2Soft[][] pairPotentials;
 
@@ -114,7 +113,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
         sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
         meters = new MeterVirial[2];
-        integratorsFasterer = new IntegratorMCFasterer[2];
+        integrators = new IntegratorMC[2];
         dpVirialOverlap = new DataProcessorVirialOverlap[2];
         box = new BoxCluster[2];
         accumulators = new AccumulatorRatioAverageCovarianceFull[2];
@@ -135,7 +134,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
         sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)};
         meters = new MeterVirial[2];
-        integratorsFasterer = new IntegratorMCFasterer[2];
+        integrators = new IntegratorMC[2];
         dpVirialOverlap = new DataProcessorVirialOverlap[2];
         box = new BoxCluster[2];
         accumulators = new AccumulatorRatioAverageCovarianceFull[2];
@@ -174,11 +173,6 @@ public class SimulationVirialOverlap2 extends Simulation {
         if (initialized) throw new RuntimeException("too late");
         boxLengths[0] = refLength;
         boxLengths[1] = targetLength;
-    }
-
-    public void setDoFasterer(boolean doFasterer) {
-        if (initialized) throw new RuntimeException("too late");
-        this.doFasterer = doFasterer;
     }
 
     public void setIntraPairPotentials(Potential2Soft[][] pairPotentials) {
@@ -241,10 +235,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             else {
                 pc = new PotentialComputeAggregate();
             }
-            integratorsFasterer[iBox] = new IntegratorMCFasterer(pc, getRandom(), temperature, box[iBox]);
-            integratorsFasterer[iBox].getMoveManager().setEquilibrating(true);
+            integrators[iBox] = new IntegratorMC(pc, getRandom(), temperature, box[iBox]);
+            integrators[iBox].getMoveManager().setEquilibrating(true);
 
-            MCMoveManager moveManager = integratorsFasterer[iBox].getMoveManager();
+            MCMoveManager moveManager = integrators[iBox].getMoveManager();
 
             if (!multiAtomic) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(random, box[iBox]);
@@ -269,9 +263,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                         }
                     }
                     if (doBend) {
-                        mcMoveWiggle[iBox] = new MCMoveClusterAngleBendFasterer(pc, random, 0.5, space);
+                        mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(pc, random, 0.5, space);
                     } else {
-                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMultiFasterer(random, pc, box[iBox]);
+                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(random, pc, box[iBox]);
                     }
                     moveManager.addMCMove(mcMoveWiggle[iBox]);
                 }
@@ -293,11 +287,11 @@ public class SimulationVirialOverlap2 extends Simulation {
             accumulators[iBox] = new AccumulatorRatioAverageCovarianceFull(blockSize);
             dpVirialOverlap[iBox].setDataSink(accumulators[iBox]);
             accumulatorPumps[iBox] = new DataPumpListener(meters[iBox], dpVirialOverlap[iBox]);
-            integratorsFasterer[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
+            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
         }
 
         setRefPref(1,5);
-        integratorOS = new IntegratorOverlap(integratorsFasterer);
+        integratorOS = new IntegratorOverlap(integrators);
         integratorOS.setNumSubSteps(1000);
         integratorOS.setEventInterval(1);
         integratorOS.setAggressiveAdjustStepFraction(true);
@@ -520,10 +514,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
             System.out.println("umbrella weights (from file): " + Arrays.toString(uWeights));
         } else {
-            integratorsFasterer[1].reset();
+            integrators[1].reset();
             // equilibrate
             for (long i = 0; i < uSteps / 2; i++) {
-                integratorsFasterer[1].doStep();
+                integrators[1].doStep();
             }
             accumulators[1].reset();
             for (int m = 0; m < n; m++) {
@@ -532,7 +526,7 @@ public class SimulationVirialOverlap2 extends Simulation {
 
             // collect data to determine umbrella weights
             for (long i = 0; i < uSteps; i++) {
-                integratorsFasterer[1].doStep();
+                integrators[1].doStep();
             }
 
             DataGroup allYourBase = (DataGroup) accumulators[1].getData();
@@ -556,10 +550,10 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
             }
 
-            integratorsFasterer[1].reset();
+            integrators[1].reset();
         }
 
-        integratorsFasterer[1].reset();
+        integrators[1].reset();
 
         for (int m = 0; m < n; m++) {
             ((ClusterWeightAbs) extraTargetClusters[m]).setDoAbs(false);
@@ -602,7 +596,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 double initAlphaSpan = 30;
                 while (true) {
                     for (int i = 0; i < 2; i++) {
-                        integratorsFasterer[i].getMoveManager().setEquilibrating(true);
+                        integrators[i].getMoveManager().setEquilibrating(true);
                     }
 
                     long oldBlockSize = blockSize;
@@ -641,7 +635,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     }
 
                     for (int i = 0; i < 2; i++) {
-                        integratorsFasterer[i].reset();
+                        integrators[i].reset();
                     }
 
                     double newRefPref = dvo.getOverlapAverage();
@@ -710,8 +704,8 @@ public class SimulationVirialOverlap2 extends Simulation {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        integratorsFasterer[0].getMoveManager().setEquilibrating(false);
-        integratorsFasterer[1].getMoveManager().setEquilibrating(false);
+        integrators[0].getMoveManager().setEquilibrating(false);
+        integrators[1].getMoveManager().setEquilibrating(false);
         accumulators[0].readBlockData(restartFilename + ".ref");
         accumulators[1].readBlockData(restartFilename + ".target");
         long readSteps = accumulators[0].getBlockCount() * accumulators[0].getBlockSize()
@@ -746,7 +740,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
                 setAccumulatorBlockSize((int)newBlockSize);
                 for (int i=0; i<2; i++) {
-                    integratorsFasterer[i].getMoveManager().setEquilibrating(true);
+                    integrators[i].getMoveManager().setEquilibrating(true);
                 }
                 boolean adjustable = integratorOS.isAdjustStepFraction();
                 if (adjustable) {
@@ -794,7 +788,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
                 setAccumulatorBlockSize(oldBlockSize);
                 for (int i = 0; i < 2; i++) {
-                    integratorsFasterer[i].getMoveManager().setEquilibrating(false);
+                    integrators[i].getMoveManager().setEquilibrating(false);
                 }
                 if (extraTargetClusters.length > 0) {
                     initBlockAccumulator();

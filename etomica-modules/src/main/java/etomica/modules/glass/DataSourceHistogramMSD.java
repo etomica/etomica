@@ -8,6 +8,7 @@ import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 
 public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependent, DataSourceMSD.MSDSink {
@@ -17,14 +18,14 @@ public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependen
     protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;
     protected final DataTag xTag, tag;
-    protected final TimeSource timeSource;
+    protected final IntegratorMD integrator;
     protected long step0;
     protected boolean enabled;
     protected int interval;
     protected Histogram[] histograms;
 
-    public DataSourceHistogramMSD(TimeSource timeSource) {
-        this.timeSource = timeSource;
+    public DataSourceHistogramMSD(IntegratorMD integrator) {
+        this.integrator = integrator;
         histograms = new Histogram[60];
         for (int i = 0; i < histograms.length; i++) {
             histograms[i] = new HistogramCollapsing(100);
@@ -35,7 +36,7 @@ public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependen
     }
 
     public void resetStep0() {
-        step0 = timeSource.getStepCount();
+        step0 = integrator.getStepCount();
         setInterval(0);
     }
 

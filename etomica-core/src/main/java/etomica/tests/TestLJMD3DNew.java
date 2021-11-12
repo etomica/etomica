@@ -13,10 +13,10 @@ import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFromIntegratorFasterer;
-import etomica.integrator.IntegratorVelocityVerletFasterer;
-import etomica.nbr.list.NeighborListManagerFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureFromIntegrator;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.nbr.list.NeighborListManager;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -33,7 +33,7 @@ import etomica.util.ParseArgs;
  */
 public class TestLJMD3DNew extends Simulation {
 
-    public IntegratorVelocityVerletFasterer integrator;
+    public IntegratorVelocityVerlet integrator;
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
@@ -45,10 +45,10 @@ public class TestLJMD3DNew extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        NeighborListManagerFasterer nbrManager = new NeighborListManagerFasterer(this.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
+        NeighborListManager nbrManager = new NeighborListManager(this.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
         PotentialComputePair pairCompute = new PotentialComputePair(getSpeciesManager(), box, nbrManager);
         double sigma = 1.0;
-        integrator = new IntegratorVelocityVerletFasterer(pairCompute, random, 0.01, 1.1, box);
+        integrator = new IntegratorVelocityVerlet(pairCompute, random, 0.01, 1.1, box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
@@ -74,12 +74,12 @@ public class TestLJMD3DNew extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
 
         int bs = steps / (4 * 100);
-        MeterPressureFromIntegratorFasterer pMeter = new MeterPressureFromIntegratorFasterer(sim.integrator);
+        MeterPressureFromIntegrator pMeter = new MeterPressureFromIntegrator(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 4);
         sim.integrator.getEventManager().addListener(pPump);
 
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 4);
         sim.integrator.getEventManager().addListener(energyPump);

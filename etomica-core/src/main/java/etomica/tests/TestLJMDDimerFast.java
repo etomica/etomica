@@ -13,14 +13,14 @@ import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationChainLinear;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorVelocityVerletFasterer;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
@@ -38,11 +38,11 @@ import java.util.stream.IntStream;
  */
 public class TestLJMDDimerFast extends Simulation {
 
-    public IntegratorVelocityVerletFasterer integrator;
+    public IntegratorVelocityVerlet integrator;
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public MeterPotentialEnergyFromIntegratorFasterer energy;
+    public MeterPotentialEnergyFromIntegrator energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
@@ -69,12 +69,12 @@ public class TestLJMDDimerFast extends Simulation {
         pmBonding.setBondingPotentialPair(species, pBond, bonds);
 
         BondingInfo bi = pmBonding.getBondingInfo();
-        PotentialMasterFasterer potentialMaster = nbrListing ?
-                new PotentialMasterListFasterer(this.getSpeciesManager(), box, 2, 4, bi)
-                : new PotentialMasterFasterer(this.getSpeciesManager(), box, bi);
+        PotentialMaster potentialMaster = nbrListing ?
+                new PotentialMasterList(this.getSpeciesManager(), box, 2, 4, bi)
+                : new PotentialMaster(this.getSpeciesManager(), box, bi);
 
         PotentialCompute compute = PotentialCompute.aggregate(potentialMaster, pmBonding);
-        integrator = new IntegratorVelocityVerletFasterer(compute, this.getRandom(), 0.05, 1.0, box);
+        integrator = new IntegratorVelocityVerlet(compute, this.getRandom(), 0.05, 1.0, box);
         integrator.setTimeStep(0.005);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
@@ -90,7 +90,7 @@ public class TestLJMDDimerFast extends Simulation {
 
 
         if (nbrListing) {
-            integrator.getEventManager().addListener(((PotentialMasterListFasterer) potentialMaster));
+            integrator.getEventManager().addListener(((PotentialMasterList) potentialMaster));
         } else {
             BoxImposePbc imposepbc = new BoxImposePbc(space);
             imposepbc.setBox(box);
@@ -100,7 +100,7 @@ public class TestLJMDDimerFast extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         integrator.reset();
-        energy = new MeterPotentialEnergyFromIntegratorFasterer(integrator);
+        energy = new MeterPotentialEnergyFromIntegrator(integrator);
         System.out.println("u0: "+energy.getDataAsScalar());
         avgEnergy = new AccumulatorAverageCollapsing();
         avgEnergy.setPushInterval(10);

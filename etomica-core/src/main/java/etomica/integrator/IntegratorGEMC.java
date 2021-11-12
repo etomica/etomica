@@ -4,8 +4,8 @@
 
 package etomica.integrator;
 
-import etomica.integrator.mcmove.MCMoveMoleculeExchangeFasterer;
-import etomica.integrator.mcmove.MCMoveVolumeExchangeFasterer;
+import etomica.integrator.mcmove.MCMoveMoleculeExchange;
+import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
 
@@ -17,12 +17,12 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorGEMC {
 
-    public static IntegratorManagerMC buildGEMC(IntegratorBoxFasterer integrator1, IntegratorBoxFasterer integrator2, IRandom random, Space space) {
+    public static IntegratorManagerMC buildGEMC(IntegratorBox integrator1, IntegratorBox integrator2, IRandom random, Space space) {
         IntegratorManagerMC integratorGEMC = new IntegratorManagerMC(random);
         integratorGEMC.addIntegrator(integrator1);
         integratorGEMC.addIntegrator(integrator2);
-        MCMoveVolumeExchangeFasterer volumeExchange = new MCMoveVolumeExchangeFasterer(random, space, integrator1, integrator2);
-        MCMoveMoleculeExchangeFasterer moleculeExchange = new MCMoveMoleculeExchangeFasterer(random, space, integrator1, integrator2);
+        MCMoveVolumeExchange volumeExchange = new MCMoveVolumeExchange(random, space, integrator1, integrator2);
+        MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(random, space, integrator1, integrator2);
         integratorGEMC.getMoveManager().recomputeMoveFrequencies();
         integratorGEMC.getMoveManager().addMCMove(volumeExchange);
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);

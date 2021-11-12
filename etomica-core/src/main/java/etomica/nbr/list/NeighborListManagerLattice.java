@@ -11,7 +11,7 @@ import etomica.potential.IPotentialAtomic;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
-public class NeighborListManagerLattice extends NeighborListManagerFasterer {
+public class NeighborListManagerLattice extends NeighborListManager {
     public NeighborListManagerLattice(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         super(sm, box, cellRange, nbrRange, bondingInfo);
     }

@@ -11,7 +11,7 @@ import etomica.box.BoxEventListener;
 import etomica.box.BoxMoleculeEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
-import etomica.nbr.cell.NeighborIteratorCellFasterer;
+import etomica.nbr.cell.NeighborIteratorCell;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialEmbedding;
 import etomica.potential.Potential2Soft;
@@ -37,7 +37,7 @@ public class PotentialComputeEAM implements PotentialCompute {
     protected final Potential2Soft[] rhoPotentials;
     protected final Box box;
     private final NeighborManager neighborManager;
-    private final NeighborIteratorCellFasterer.SuperNbrConsumer nbrConsumer1, nbrConsumerEmbedding;
+    private final NeighborIteratorCell.SuperNbrConsumer nbrConsumer1, nbrConsumerEmbedding;
     protected double[] rhoSum, idf;
     protected double[] uAtom;
     protected DoubleArrayList rdrho, drhoSum;
@@ -92,7 +92,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         });
 
         // for new atom energy, includes embedding contributions
-        this.nbrConsumer1 = new NeighborIteratorCellFasterer.SuperNbrConsumer() {
+        this.nbrConsumer1 = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
             public double accept(IAtom iAtom, IAtom jAtom, Vector rij) {
                 int i = iAtom.getLeafIndex();
@@ -144,7 +144,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         };
 
         // for old embedding energy
-        this.nbrConsumerEmbedding = new NeighborIteratorCellFasterer.SuperNbrConsumer() {
+        this.nbrConsumerEmbedding = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
             public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
                 double r2 = rij.squared();

@@ -159,7 +159,6 @@ public class VirialLJDU {
         }
         sim.setExtraTargetClusters(targetDiagrams);
         targetCluster.setBDAccFrac(params.BDAccFrac, sim.getRandom());
-        sim.setDoFasterer(true);
         sim.init();
 
         if (autoWeights) {
@@ -176,9 +175,9 @@ public class VirialLJDU {
         long refBlocksize = blockSize;
 
         if (doChainRef) {
-            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             refBlocksize = Math.max(steps / (100 * 1000), 1);
             sim.accumulators[0].setBlockSize(refBlocksize);
         }
@@ -279,7 +278,7 @@ public class VirialLJDU {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
 

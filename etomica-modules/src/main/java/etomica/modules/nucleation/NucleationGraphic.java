@@ -12,17 +12,17 @@ import etomica.atom.IAtom;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureHardFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorMDFasterer;
+import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.modules.swmd.SwmdFasterer;
+import etomica.modules.swmd.Swmd;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
@@ -45,11 +45,11 @@ public class NucleationGraphic extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
     protected Unit tUnit, eUnit, dUnit, pUnit;
-    protected SwmdFasterer sim;
+    protected Swmd sim;
     protected final MeterClusterSizes meterClusterSizes;
     protected final MeterLargestCluster meterLargestCluster;
 
-    public NucleationGraphic(final SwmdFasterer simulation) {
+    public NucleationGraphic(final Swmd simulation) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -124,7 +124,7 @@ public class NucleationGraphic extends SimulationGraphic {
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
 
-        final DataSourceCountTimeFasterer meterCycles = new DataSourceCountTimeFasterer(sim.integrator);
+        final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
         displayCycles.setPrecision(6);
         DataPumpListener pump = new DataPumpListener(meterCycles, displayCycles);
         sim.integrator.getEventManager().addListener(pump);
@@ -161,7 +161,7 @@ public class NucleationGraphic extends SimulationGraphic {
         tBox.setLabel("Measured Temperature (K)");
         tBox.setLabelPosition(CompassDirection.NORTH);
 
-        MeterPotentialEnergyFromIntegratorFasterer peMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         peHistory.setTimeDataSource(meterCycles);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -196,7 +196,7 @@ public class NucleationGraphic extends SimulationGraphic {
         tPlot.setUnit(tUnit);
         tPlot.setXLabel("Simulation Time (ps)");
 
-        MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         final DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
         sim.integrator.getEventManager().addListener(pPump);
@@ -238,7 +238,7 @@ public class NucleationGraphic extends SimulationGraphic {
         add(clusterHistogramPlot);
 
         sim.integrator.setTimeStep(0.1);
-        sim.integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN_SCALING);
+        sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
         sim.integrator.setThermostatInterval(100);
 
         //************* Lay out components ****************//
@@ -376,7 +376,7 @@ public class NucleationGraphic extends SimulationGraphic {
             }
         }
 
-        NucleationGraphic swmdGraphic = new NucleationGraphic(new SwmdFasterer(space));
+        NucleationGraphic swmdGraphic = new NucleationGraphic(new Swmd(space));
         SimulationGraphic.makeAndDisplayFrame
                 (swmdGraphic.getPanel(), APP_NAME);
     }

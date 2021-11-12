@@ -433,7 +433,6 @@ public class VirialHSBinMultiThreaded {
             final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{species}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
             sim.setDoWiggle(false);
             sim.setSeeds(mySeeds);
-            sim.setDoFasterer(true);
             sim.init();
             int[] randSeed = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
             if (randSeed == null) {
@@ -528,36 +527,36 @@ public class VirialHSBinMultiThreaded {
             // based on fit of data using weight=1, weight=0, each for 10^9 steps.
 //            double tRatio = 0.44869 * Math.exp(0.64714 * nPoints);
             //double tRatio = 0.292077*nPoints*nPoints + 0.00378375*Math.pow(3, nPoints);
-            sim.integratorFasterer.getEventManager().addListener(new IntegratorListenerAction(meter));
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meter));
             
-            sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+            sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
 
             if  (ref == VirialHSBinParam.TREE) {
                 MCMoveClusterAtomHSTree mcMoveHS = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
-                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHS);
             }
             else if (ref == VirialHSBinParam.TREE_CHAIN) {
                 MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
-                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
-                sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, 1-chainFrac);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHST);
+                sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1-chainFrac);
                 MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, 1);
-                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
-                sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
+                sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
             }
             else if (ref == VirialHSBinParam.TREE_CHAIN_RING) {
                 MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, 1);
-                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSR);
-                sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHSR);
+                sim.integrator.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
                 MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, 1);
-                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
-                sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
+                sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
                 MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
-                sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
-                sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
+                sim.integrator.getMoveManager().addMCMove(mcMoveHST);
+                sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
             }
             MeterVirialBDBinMultiThreaded.setTRatio(tRatio);
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorFasterer, steps));
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
             long t2 = System.currentTimeMillis();
             System.out.println("thread "+iThread+" time: "+(t2-t1)*0.001);
         }

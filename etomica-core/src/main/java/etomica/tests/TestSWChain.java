@@ -15,12 +15,12 @@ import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureHardFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorHardFasterer;
-import etomica.nbr.list.NeighborListManagerFastererHard;
+import etomica.integrator.IntegratorHard;
+import etomica.nbr.list.NeighborListManagerHard;
 import etomica.potential.P2HardGeneric;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterBonding;
@@ -44,7 +44,7 @@ import java.util.List;
  
 public class TestSWChain extends Simulation {
 
-    public IntegratorHardFasterer integrator;
+    public IntegratorHard integrator;
     public Box box;
     static int chainLength = 10;
 
@@ -69,7 +69,7 @@ public class TestSWChain extends Simulation {
         box = this.makeBox();
 
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(getSpeciesManager());
-        NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box, 2, nbrRange, bondingInfo);
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, nbrRange, bondingInfo);
         neighborManager.setDoDownNeighbors(true);
         PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
@@ -86,7 +86,7 @@ public class TestSWChain extends Simulation {
         P2HardGeneric potential = P2SquareWell.makePotential(sigma, sqwLambda, epsilon);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
 
-        integrator = new IntegratorHardFasterer(IntegratorHardFasterer.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
+        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
 
@@ -109,12 +109,12 @@ public class TestSWChain extends Simulation {
         sim.integrator.resetStepCount();
 
         long bs = nSteps / 100;
-        MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
         sim.integrator.getEventManager().addListener(pPump);
 
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage uAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, uAccumulator);
         sim.integrator.getEventManager().addListener(energyPump);

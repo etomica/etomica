@@ -4,19 +4,22 @@
 
 package etomica.potential;
 
-import java.util.List;
-
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomTypeSpheroPolyhedron;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.spaceNd.VectorND;
 
-public class P2SpheroPolyhedron extends Potential2 {
+import java.util.List;
 
+public class P2SpheroPolyhedron implements Potential2Soft {
+
+    protected final Space space;
     protected Boundary boundary;
     protected final Vector dr;
     protected final Vector v, w;
@@ -28,7 +31,7 @@ public class P2SpheroPolyhedron extends Potential2 {
     protected final Vector norm0, norm1, norm2;
     
     public P2SpheroPolyhedron(Space space) {
-        super(space);
+        this.space = space;
         dr = space.makeVector();
         v = space.makeVector();
         W0 = space.makeVector();
@@ -263,5 +266,45 @@ public class P2SpheroPolyhedron extends Potential2 {
 
     public void setBox(Box box) {
         boundary = box.getBoundary();
+    }
+
+    @Override
+    public int nBody() {
+        return 0;
+    }
+
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        AtomOrientedQuaternion atom1q = (AtomOrientedQuaternion)atom1;
+        AtomOrientedQuaternion atom2q = (AtomOrientedQuaternion)atom2;
+        AtomTypeSpheroPolyhedron atomType1 = (AtomTypeSpheroPolyhedron)atom1q.getType();
+        AtomTypeSpheroPolyhedron atomType2 = (AtomTypeSpheroPolyhedron)atom2q.getType();
+        Vector position0 = atom1q.getPosition();
+        Vector position1 = atom2q.getPosition();
+
+        dr.Ev1Mv2(position0, position1);
+        double r2 = dr.squared();
+        double din = atomType1.getInnerRadius() + atomType2.getInnerRadius();
+        if (r2 < din*din) return Double.POSITIVE_INFINITY;
+
+        double dout = atomType1.getOuterRadius() + atomType2.getOuterRadius();
+        if (r2 > dout*dout) return 0;
+
+        return gjke(atom1q, atom2q);
+    }
+
+    @Override
+    public double virial(IAtomList atoms) {
+        return 0;
+    }
+
+    @Override
+    public Vector[] gradient(IAtomList atoms) {
+        return new Vector[0];
+    }
+
+    @Override
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return new Vector[0];
     }
 }

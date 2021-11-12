@@ -13,7 +13,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -187,7 +187,7 @@ public class StrainGraphic extends Simulation {
         }
     }
 
-    public class IntegratorStrain extends IntegratorBoxFasterer {
+    public class IntegratorStrain extends IntegratorBox {
 
         public final double L;
         public final boolean[][] strain;

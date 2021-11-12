@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 public class RattleListener implements IntegratorListenerMD {
 
-    protected final IntegratorMDFasterer integrator;
+    protected final IntegratorMD integrator;
     protected Vector[][] drOld;
     protected Vector[] rOld;
     protected final SpeciesAgentManager<BondConstraints> agentManager;
@@ -29,7 +29,7 @@ public class RattleListener implements IntegratorListenerMD {
     protected boolean[][] moved;
     protected boolean ready = false;
 
-    public RattleListener(SpeciesManager sm, SpeciesAgentManager<BondConstraints> agentManager, IntegratorMDFasterer integrator) {
+    public RattleListener(SpeciesManager sm, SpeciesAgentManager<BondConstraints> agentManager, IntegratorMD integrator) {
         this.integrator = integrator;
         this.agentManager = agentManager;
         nBonds = new int[sm.getSpeciesCount()];

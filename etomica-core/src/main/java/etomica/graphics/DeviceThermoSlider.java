@@ -6,7 +6,7 @@ package etomica.graphics;
 
 import etomica.action.IAction;
 import etomica.action.controller.Controller;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Unit;
@@ -25,7 +25,7 @@ public class DeviceThermoSlider extends Device {
 	protected static final int DEFAULT_MIN_TEMPERATURE = 0;
 	protected static final int DEFAULT_MAX_TEMPERATURE = 300;
 
-	public DeviceThermoSlider(Controller cont, final IntegratorBoxFasterer integrator) {
+	public DeviceThermoSlider(Controller cont, final IntegratorBox integrator) {
 		super(cont);
 		//adiabatic/isothermal radio button
 		thermalButtons = new DeviceButtonGroup(cont, 2);

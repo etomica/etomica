@@ -13,10 +13,10 @@ import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
-import etomica.data.meter.MeterPressureFromIntegratorFasterer;
-import etomica.integrator.IntegratorVelocityVerletFasterer;
-import etomica.nbr.list.PotentialMasterListFasterer;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureFromIntegrator;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalSumTruncated;
@@ -34,11 +34,11 @@ import etomica.util.ParseArgs;
  */
 public class TestLJMD3DEwald extends Simulation {
 
-    public IntegratorVelocityVerletFasterer integrator;
+    public IntegratorVelocityVerlet integrator;
     public SpeciesGeneral species;
     public Box box;
     private final PotentialComputeEwaldFourier ewaldFourier;
-    public final PotentialMasterListFasterer pair;
+    public final PotentialMasterList pair;
 
     public TestLJMD3DEwald(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
@@ -55,10 +55,10 @@ public class TestLJMD3DEwald extends Simulation {
         ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
         PotentialComputeEwaldFourier.EwaldParams ewaldParams = ewaldFourier.getOptimalParams(3, 0);
         System.out.println(ewaldParams);
-        pair = new PotentialMasterListFasterer(this.getSpeciesManager(), box, 2, ewaldParams.rCut + 1, BondingInfo.noBonding());
+        pair = new PotentialMasterList(this.getSpeciesManager(), box, 2, ewaldParams.rCut + 1, BondingInfo.noBonding());
         PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair, ewaldFourier);
 //        PotentialComputeAggregate aggregate = new PotentialComputeAggregate(pair);
-        integrator = new IntegratorVelocityVerletFasterer(aggregate, random, 0.01, 1.1, box);
+        integrator = new IntegratorVelocityVerlet(aggregate, random, 0.01, 1.1, box);
         double alpha6 = ewaldParams.alpha;
         P2Ewald6Real ewaldReal = new P2Ewald6Real(1, 1, 1, 1, alpha6);
         P2SoftSphere pCore12 = new P2SoftSphere(space, 1, 4, 12);
@@ -94,12 +94,12 @@ public class TestLJMD3DEwald extends Simulation {
 
 
         int bs = steps / (4 * 100);
-        MeterPressureFromIntegratorFasterer pMeter = new MeterPressureFromIntegratorFasterer(sim.integrator);
+        MeterPressureFromIntegrator pMeter = new MeterPressureFromIntegrator(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 4);
         sim.integrator.getEventManager().addListener(pPump);
 
-        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 4);
         sim.integrator.getEventManager().addListener(energyPump);

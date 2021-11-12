@@ -7,21 +7,21 @@ package etomica.data.meter;
 import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorHardFasterer;
+import etomica.integrator.IntegratorHard;
 import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for the pressure by counting the number of collisions (assumes HS potential)
  */
-public class MeterPressureCollisionCount extends DataSourceScalar implements IntegratorHardFasterer.CollisionListener {
+public class MeterPressureCollisionCount extends DataSourceScalar implements IntegratorHard.CollisionListener {
 
     protected final int dim;
     protected long collisionCount = 0;
-    protected final IntegratorHardFasterer integratorHard;
+    protected final IntegratorHard integratorHard;
     protected double lastTime;
 
-    public MeterPressureCollisionCount(IntegratorHardFasterer integrator) {
+    public MeterPressureCollisionCount(IntegratorHard integrator) {
         super("Pressure(CC)", Pressure.dimension(integrator.getBox().getSpace().D()));
         integratorHard = integrator;
         integratorHard.addCollisionListener(this);
@@ -56,7 +56,7 @@ public class MeterPressureCollisionCount extends DataSourceScalar implements Int
         return value;
     }
 
-    public IntegratorHardFasterer getIntegrator() {
+    public IntegratorHard getIntegrator() {
         return integratorHard;
     }
 

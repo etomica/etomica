@@ -9,9 +9,9 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.IntegratorVelocityVerletFasterer;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.IPotentialField;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 public class PotentialComputeFieldTest {
 
     Simulation sim;
-    IntegratorMCFasterer integrator;
-    IntegratorVelocityVerletFasterer integratorMD;
+    IntegratorMC integrator;
+    IntegratorVelocityVerlet integratorMD;
     AccumulatorAverageFixed acc, accKE;
     DataPumpListener pump;
 
@@ -58,11 +58,11 @@ public class PotentialComputeFieldTest {
             }
         };
         pcOne.setFieldPotential(species.getLeafType(), p1);
-        integratorMD = new IntegratorVelocityVerletFasterer(pcOne, sim.getRandom(), 0.0005, 1.0, box);
+        integratorMD = new IntegratorVelocityVerlet(pcOne, sim.getRandom(), 0.0005, 1.0, box);
         integratorMD.setIsothermal(true);
         integratorMD.setThermostatInterval(10);
-        integrator = new IntegratorMCFasterer(pcOne, sim.getRandom(), 1, box);
-        integrator.getMoveManager().addMCMove(new MCMoveAtomFasterer(sim.getRandom(), pcOne, box));
+        integrator = new IntegratorMC(pcOne, sim.getRandom(), 1, box);
+        integrator.getMoveManager().addMCMove(new MCMoveAtom(sim.getRandom(), pcOne, box));
         sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 10000));
 
         DataSourceScalar msx = new DataSourceScalar("msx", Null.DIMENSION) {

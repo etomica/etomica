@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorBox;
 import etomica.potential.IteratorDirective;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -72,7 +72,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
      * calculated for the box the integrator acts on and the integrator's 
      * temperature is used to calculate the pressure.
      */
-    public void setIntegrator(IntegratorBoxFasterer newIntegrator) {
+    public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
     }
     
@@ -81,7 +81,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
      * calculated for the box the integrator acts on and the integrator's 
      * temperature is used to calculate the pressure.
      */
-    public IntegratorBoxFasterer getIntegrator() {
+    public IntegratorBox getIntegrator() {
         return integrator;
     }
 
@@ -169,7 +169,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
     private final Space space;
     private DataSourceUniform xDataSource;
     protected DataSourceExp vDataSource;
-    private IntegratorBoxFasterer integrator;
+    private IntegratorBox integrator;
     
     /**
      * Transforms the scaling from linear (-s to +s) to exponential (exp(-s) to exp(+s))

@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.integrator.IntegratorListener;
-import etomica.nbr.cell.NeighborIteratorCellFasterer;
+import etomica.nbr.cell.NeighborIteratorCell;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialPair;
@@ -31,7 +31,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
     private final NeighborManager neighborManager;
-    private final NeighborIteratorCellFasterer.SuperNbrConsumer nbrConsumer;
+    private final NeighborIteratorCell.SuperNbrConsumer nbrConsumer;
     protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
@@ -111,7 +111,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             }
         });
 
-        this.nbrConsumer = new NeighborIteratorCellFasterer.SuperNbrConsumer() {
+        this.nbrConsumer = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
             public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
                 IPotentialPair pij = pairPotentials[atom1.getType().getIndex()][jAtom.getType().getIndex()];

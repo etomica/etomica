@@ -146,7 +146,6 @@ public class VirialHSMixture {
 
         System.out.println(steps + " steps ");
         final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
-        sim.setDoFasterer(true);
         if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
@@ -156,26 +155,26 @@ public class VirialHSMixture {
         sim.setAccumulator(accumulator);
         accumulator.setPushInterval(1000000);
 
-        sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+        sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
-            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
             mcMoveHS.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
-            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
             mcMoveHST.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
-            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
-            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHST);
+            sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
             MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
             mcMoveHSC.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
-            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
-            sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
+            sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
         } else if (ref == VirialHSParam.RANDOM) {
             MCMoveClusterAtomInBox mcMoveHS = new MCMoveClusterAtomInBox(sim.getRandom(), sim.box);
-            sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         }
 
         if (false) {
@@ -240,7 +239,7 @@ public class VirialHSMixture {
                     data.x = error * Math.abs(refIntegral);
                     errorBox.putData(data);
 
-                    data.x = sim.integratorFasterer.getStepCount();
+                    data.x = sim.integrator.getStepCount();
                     stepsBox.putData(data);
                 }
 
@@ -254,13 +253,13 @@ public class VirialHSMixture {
             errorBox.putDataInfo(dataInfo);
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
-            sim.integratorFasterer.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
 
             return;
         }
 
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorFasterer, steps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 
         DataGroup allYourBase = (DataGroup) accumulator.getData();

@@ -52,7 +52,6 @@ public class VirialLJTest {
 
         ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("LJ")));
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
-        sim.setDoFasterer(true);
         sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.integratorOS.setNumSubSteps(1000);

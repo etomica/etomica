@@ -13,11 +13,11 @@ import etomica.space.Vector;
  * the callback for hard MD.
  */
 public class NeighborIteratorListHard implements NeighborIteratorHard {
-    private final NeighborListManagerFastererHard nbrManager;
+    private final NeighborListManagerHard nbrManager;
     private final Box box;
     private final Space space;
 
-    public NeighborIteratorListHard(NeighborListManagerFastererHard nbrManager, Box box) {
+    public NeighborIteratorListHard(NeighborListManagerHard nbrManager, Box box) {
         this.nbrManager = nbrManager;
         this.box = box;
         this.space = box.getSpace();

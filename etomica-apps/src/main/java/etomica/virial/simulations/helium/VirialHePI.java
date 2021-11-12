@@ -474,7 +474,6 @@ public class VirialHePI {
                 .build();
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, refCluster, targetCluster);
-        sim.setDoFasterer(true);
         sim.setExtraTargetClusters(targetDiagrams);
         sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -497,8 +496,8 @@ public class VirialHePI {
         }
         
         // rotation is a bit pointless when we can regrow the chain completely
-        sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-        sim.integratorsFasterer[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+        sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
         
         System.out.println("regrow full ring");
         MCMoveClusterRingRegrow ring0 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
@@ -507,8 +506,8 @@ public class VirialHePI {
         MCMoveClusterRingRegrow ring1 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
         ring1.setEnergyFactor(nBeads*Math.PI/(lambda*lambda));
 
-        sim.integratorsFasterer[0].getMoveManager().addMCMove(ring0);
-        sim.integratorsFasterer[1].getMoveManager().addMCMove(ring1);
+        sim.integrators[0].getMoveManager().addMCMove(ring0);
+        sim.integrators[1].getMoveManager().addMCMove(ring1);
 
         // for flexApproach = FLEX, we need to have some non-trivial conformations
         ring1.doTrial();
@@ -811,8 +810,8 @@ sim.setAccumulatorBlockSize(steps);
         if (params.doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integratorsFasterer[0].getEventManager().addListener(histListenerRef);
-            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
+            sim.integrators[0].getEventManager().addListener(histListenerRef);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
         sim.getController().runActivityBlocking(ai);
         

@@ -231,7 +231,6 @@ public class VirialHeNonAdditiveD {
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints, temperature,refCluster,targetCluster);
-        sim.setDoFasterer(true);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
 
         ClusterAbstract[] targetDiagrams = null;
@@ -257,9 +256,9 @@ public class VirialHeNonAdditiveD {
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
 
         if (doChainRef) {
-            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
 
@@ -375,7 +374,7 @@ public class VirialHeNonAdditiveD {
         if (doHist) {
             System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integratorsFasterer[1].getEventManager().addListener(histListenerTarget);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);

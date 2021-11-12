@@ -15,17 +15,17 @@ import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.meter.MeterDipoleSumSquared;
-import etomica.data.meter.MeterDipoleSumSquaredMappedAverageFasterer;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
+import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMCFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeFasterer;
-import etomica.integrator.mcmove.MCMoveMoleculeRotateFasterer;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.P2WaterTIP4P;
 import etomica.models.water.P2WaterTIP4PSoft;
@@ -63,9 +63,9 @@ import java.util.Calendar;
  */
 public class TIP4P extends Simulation {
     protected final PotentialCompute potentialMaster;
-    protected final IntegratorMCFasterer integrator;
-    protected final MCMoveMoleculeFasterer moveMolecule;//translation
-    protected final MCMoveMoleculeRotateFasterer rotateMolecule;//rotation
+    protected final IntegratorMC integrator;
+    protected final MCMoveMolecule moveMolecule;//translation
+    protected final MCMoveMoleculeRotate rotateMolecule;//rotation
     protected final Box box;
     protected SpeciesGeneral species;
     protected P2WaterTIP4PSoft pWater;
@@ -107,7 +107,7 @@ public class TIP4P extends Simulation {
          ewaldFourier.setCharge(hType, chargeH);
          ewaldFourier.setAlpha(params.alpha);
 
-         PotentialMasterFasterer pm = new PotentialMasterFasterer(getSpeciesManager(), box, BondingInfo.noBonding());
+         PotentialMaster pm = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
 
          TruncationFactory tf = new TruncationFactorySimple(space, truncation);
          Potential2Soft p2OO = tf.make(new P2LennardJones(space, sigmaLJ, epsilonLJ));
@@ -125,10 +125,10 @@ public class TIP4P extends Simulation {
          potentialMaster = new PotentialComputeAggregate(pm, ewaldFourier, pmBonding);
 
          // integrator from potential master
-         integrator = new IntegratorMCFasterer(potentialMaster, random, temperature, box);
+         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
          // add mc move
-         moveMolecule = new MCMoveMoleculeFasterer(random, potentialMaster, box);
-         rotateMolecule = new MCMoveMoleculeRotateFasterer(random, potentialMaster, box);
+         moveMolecule = new MCMoveMolecule(random, potentialMaster, box);
+         rotateMolecule = new MCMoveMoleculeRotate(random, potentialMaster, box);
          this.getController().addActivity(new ActivityIntegrate(integrator));
          //******************************** periodic boundary condition ******************************** //
          BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -238,7 +238,7 @@ public class TIP4P extends Simulation {
 
 //         MeterPotentialEnergyFasterer meterPE = new MeterPotentialEnergyFasterer(sim.potentialMaster);
 
-         MeterPotentialEnergyFromIntegratorFasterer meterPE = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
+         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
          AccumulatorAverage accPE = new AccumulatorAverageFixed(samplePerBlock);
          DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, sampleAtInterval);
          sim.integrator.getEventManager().addListener(pumpPE);
@@ -287,7 +287,7 @@ public class TIP4P extends Simulation {
 
         //AEE
 
-         MeterDipoleSumSquaredMappedAverageFasterer AEEMeter = new MeterDipoleSumSquaredMappedAverageFasterer(sim.box, dipoleStrength, temperature,
+         MeterDipoleSumSquaredMappedAverage AEEMeter = new MeterDipoleSumSquaredMappedAverage(sim.box, dipoleStrength, temperature,
                  sim.potentialMaster, dipoleSource);
          AccumulatorAverageCovariance AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
 

@@ -6,7 +6,7 @@ package etomica.modules.rheology;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorMDFasterer;
+import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
@@ -15,7 +15,7 @@ import etomica.util.random.IRandom;
  *
  * @author Andrew Schultz
  */
-public class IntegratorPolymer extends IntegratorMDFasterer {
+public class IntegratorPolymer extends IntegratorMD {
 
     public IntegratorPolymer(IRandom random,
                              double timeStep, double temperature, Box box) {
