@@ -82,6 +82,7 @@ class NeighborListingTest {
         nlm = new NeighborListManager(sim.getSpeciesManager(), box, 2, NBR_RANGE, BondingInfo.noBonding());
         nlm.setPairPotentials(potentials);
         nlm.setDoDownNeighbors(true);
+        nlm.init();
         nlm.reset();
     }
 
@@ -114,6 +115,7 @@ class NeighborListingTest {
             BoxInflate inflate = new BoxInflate(box, box.getSpace());
             inflate.setScale(1.2);
             inflate.actionPerformed();
+            nlm.init();
             nlm.reset();
         }
 
