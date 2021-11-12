@@ -55,7 +55,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
      */
     public MCMoveGeometricCluster(PotentialCompute potentialCompute, NeighborManager neighborManager, Space space, IRandom random,
                                   IntegratorMC integratorMC, ISpecies species, Potential2Soft[][] pairPotentials) {
-        super(null);
+        super();
         clusterAtoms = new HashSet<>();
         jNeighbors = new AtomArrayList();
         this.potentialCompute = potentialCompute;

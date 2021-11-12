@@ -43,7 +43,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	private double [] newAlpha;
 
 	public MCMoveClusterRingRegrowOrientation(IRandom random, Space _space, int P) {
-		super(null);
+		super();
 		this.space = _space;
 		this.P = P;
 		this.random = random;

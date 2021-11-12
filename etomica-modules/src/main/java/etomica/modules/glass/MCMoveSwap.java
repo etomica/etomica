@@ -28,7 +28,7 @@ public class MCMoveSwap extends MCMoveBox {
     protected final Vector tmp;
 
     public MCMoveSwap(Space space, IRandom random, PotentialCompute potentialMaster, ISpecies speciesA, ISpecies speciesB) {
-        super(null);
+        super();
         this.potentialCompute = potentialMaster;
         this.random = random;
         this.speciesA = speciesA;

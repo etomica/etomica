@@ -33,7 +33,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     }
     
     public MCMoveClusterRingRegrow(IRandom random, Space _space, int[][] tangledMolecules) {
-        super(null);
+        super();
         this.space = _space;
         this.random = random;
         this.tangledMolecules = tangledMolecules;

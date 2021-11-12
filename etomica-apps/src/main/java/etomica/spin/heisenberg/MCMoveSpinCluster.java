@@ -36,7 +36,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
     protected final AtomIteratorArrayListSimple atomIterator;
 
     public MCMoveSpinCluster(Space space, IRandom random, PotentialCompute potentialCompute, NeighborManager nbrManager, IntegratorMC integratorMC, double J) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.space = space;
         this.random = random;

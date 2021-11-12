@@ -25,7 +25,7 @@ import etomica.util.random.IRandom;
 public class MCMoveMultiHarmonic extends MCMoveBox {
 
     public MCMoveMultiHarmonic(IntegratorMC integratorMC, P1Harmonic p1, IRandom random) {
-        super(null);
+        super();
         this.integratorMC = integratorMC;
         this.p1 = p1;
         iterator = new AtomIteratorLeafAtoms();

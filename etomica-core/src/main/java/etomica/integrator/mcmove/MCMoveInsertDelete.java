@@ -54,7 +54,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
      * @param space           governing space for the simulation
      */
     public MCMoveInsertDelete(PotentialCompute potentialMaster, IRandom random, Space space) {
-        super(null);
+        super();
         this.potentialMaster = potentialMaster;
         setMu(0.0);
         atomTranslator = new MoleculeActionTranslateTo(space);

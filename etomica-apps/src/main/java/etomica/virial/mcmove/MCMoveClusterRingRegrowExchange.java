@@ -29,7 +29,7 @@ import etomica.virial.BoxCluster;
 public class MCMoveClusterRingRegrowExchange extends MCMoveBox {    
     
     public MCMoveClusterRingRegrowExchange(IRandom random, Space _space) {
-        super(null);
+        super();
         this.space = _space;
         this.random = random;        
         setNumTrial(10);

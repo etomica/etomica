@@ -5,6 +5,7 @@ import etomica.atom.AtomTypeOriented;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.integrator.IntegratorMC;
+import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -55,7 +56,7 @@ class MCMoveClusterRingRegrowOrientationTest {
             BoxCluster box = new BoxCluster(cluster, space);
             sim.addBox(box);
             box.setNMolecules(species, 2);
-            IntegratorMC integrator = new IntegratorMC(null, sim.getRandom(), 1, box);
+            IntegratorMC integrator = new IntegratorMC(new PotentialComputeAggregate(), sim.getRandom(), 1, box);
             MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
 
             for (int iTemp = 40; iTemp <= 40; iTemp += 2) {

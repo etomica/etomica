@@ -22,7 +22,7 @@ import etomica.util.random.IRandom;
 public class MCMoveEinsteinCrystal extends MCMoveBox {
 
     public MCMoveEinsteinCrystal(Space space, IRandom random) {
-        super(null);
+        super();
         this.random = random;
         fixedCOM = true;
         dr = space.makeVector();
