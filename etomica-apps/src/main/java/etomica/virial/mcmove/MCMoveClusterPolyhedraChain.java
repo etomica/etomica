@@ -7,22 +7,33 @@ package etomica.virial.mcmove;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtomList;
-import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.IPotentialAtomic;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
-public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
+public class MCMoveClusterPolyhedraChain extends MCMoveBox {
 
-    public MCMoveClusterPolyhedraChain(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
-        super(random, null, _space);
+    protected final IRandom random;
+    protected final double sigma;
+    protected final Vector dr;
+    protected int[] seq;
+    protected IPotentialAtomic p2;
+    protected final AtomPair pair;
+    protected final double[][] uValues;
+
+    public MCMoveClusterPolyhedraChain(IRandom random, Box box, double sigma, IPotentialAtomic p2, double[][] uValues) {
+        super();
+        this.random = random;
         this.sigma = sigma;
-        dr = space.makeVector();
+        dr = box.getSpace().makeVector();
         this.p2 = p2;
         pair = new AtomPair();
         this.uValues = uValues;
+        setBox(box);
     }
 
     protected void randomOrientation(Vector q) {
@@ -93,10 +104,13 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    protected final double sigma;
-    protected final Vector dr;
-    protected int[] seq;
-    protected IPotentialAtomic p2;
-    protected final AtomPair pair;
-    protected final double[][] uValues;
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
 }

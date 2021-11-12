@@ -5,10 +5,16 @@
 package etomica.virial.mcmove;
 
 import etomica.action.MoleculeAction;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.CenterOfMass;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.space.Space;
+import etomica.space.RotationTensor;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
@@ -17,10 +23,24 @@ import etomica.virial.BoxCluster;
  * a Box except the first molecule, which is never moved.  The angle of
  * rotation is the step size and can be tuned for some acceptance rate.
  */
-public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
+public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
 
-    public MCMoveClusterRotateMoleculeMulti(IRandom random, Space _space) {
-        super(null, random, _space);
+    protected double wOld, wNew;
+    protected final IRandom random;
+    protected int[] constraintMap;
+    protected int[] rotationAxis;
+    protected double[] theta;
+    private int trialCount, relaxInterval = 100;
+    private MoleculeAction relaxAction;
+    protected final Vector r0;
+    protected final RotationTensor rotationTensor;
+
+    public MCMoveClusterRotateMoleculeMulti(IRandom random, Box box) {
+        super();
+        this.random = random;
+        setBox(box);
+        r0 = box.getSpace().makeVector();
+        rotationTensor = box.getSpace().makeRotationTensor();
     }
 
     public void setBox(Box p) {
@@ -36,12 +56,34 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         }
     }
 
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
+
     public void setConstraintMap(int[] newConstraintMap) {
         constraintMap = newConstraintMap;
     }
 
+    protected void doTransform(IMolecule molecule) {
+        IAtomList childList = molecule.getChildList();
+        for (IAtom a : childList) {
+            Vector r = a.getPosition();
+            r.ME(r0);
+            box.getBoundary().nearestImage(r);
+            rotationTensor.transform(r);
+            r.PE(r0);
+            r.PE(box.getBoundary().centralImage(r));
+        }
+    }
+
     public boolean doTrial() {
-        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, illegal initial configuration");
 //        }
@@ -52,8 +94,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         }
         IMoleculeList moleculeList = box.getMoleculeList();
         for (int i = 0; i<moleculeList.size(); i++) {
-            molecule = moleculeList.get(i);
-            r0.E(positionDefinition.position(molecule));
+            IMolecule molecule = moleculeList.get(i);
+            r0.E(CenterOfMass.position(box, molecule));
 
             int j = constraintMap[i];
             if (j == i) {
@@ -63,7 +105,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
 
             rotationTensor.setAxial(rotationAxis[j],theta[j]);
 
-            doTransform();
+            doTransform(molecule);
 
             if (doRelax && relaxAction != null) {
                 relaxAction.actionPerformed(molecule);
@@ -71,16 +113,15 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         }
 
         ((BoxCluster)box).trialNotify();
-        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
 
     public double getChi(double temperature) {
-        return uNew/uOld;
+        return wNew/wOld;
     }
     
     public void acceptNotify() {
-        super.acceptNotify();
 //        if (uNew == 0) {
 //            throw new RuntimeException("oops, accepted illegal configuration");
 //        }
@@ -90,12 +131,12 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for (int i = 0; i<moleculeList.size(); i++) {
-            molecule = moleculeList.get(i);
-            r0.E(positionDefinition.position(molecule));
+            IMolecule molecule = moleculeList.get(i);
+            r0.E(CenterOfMass.position(box, molecule));
             int j = constraintMap[i];
             rotationTensor.setAxial(rotationAxis[j],-theta[j]);
 
-            doTransform();
+            doTransform(molecule);
         }
         ((BoxCluster)box).rejectNotify();
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
@@ -106,11 +147,4 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     public void setRelaxAction(MoleculeAction action) {
         relaxAction = action;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected int[] constraintMap;
-    protected int[] rotationAxis;
-    protected double[] theta;
-    private int trialCount, relaxInterval = 100;
-    private MoleculeAction relaxAction;
 }

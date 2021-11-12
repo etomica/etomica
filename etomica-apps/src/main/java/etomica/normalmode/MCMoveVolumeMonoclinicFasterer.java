@@ -35,7 +35,7 @@ public class MCMoveVolumeMonoclinicFasterer extends MCMoveBoxStep {
     private transient double uNew = Double.NaN;
 
     public MCMoveVolumeMonoclinicFasterer(PotentialCompute potentialCompute, IntegratorMCFasterer integrator, IRandom random) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.integrator = integrator;
         this.random = random;

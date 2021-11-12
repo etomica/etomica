@@ -22,7 +22,6 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionGeometricCenter;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManagerFasterer;
 import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.*;
@@ -74,7 +73,6 @@ public class SamFasterer extends Simulation {
     public double[] chainPhi;
     public double bondL_CC;
     public double bondTheta;
-    public PotentialCalculationForceSumWall forceSum;
     public PotentialMasterListFasterer potentialMaster;
     public PotentialMasterBonding potentialMasterBonding;
     public PotentialComputePairGeneral potentialMasterGeneral;
@@ -132,7 +130,7 @@ public class SamFasterer extends Simulation {
         chainPsi = 0;
         chainPhi = new double[4];
 
-        config = new ConfigurationSAM(this, space, species, speciesSurface, null);
+        config = new ConfigurationSAM(this, space, species, speciesSurface);
         Basis alkaneBasis = new Basis(new Vector[]{Vector.of(new double[]{1.0 / 6.0, 0, 1.0 / 6.0}), Vector.of(new double[]{2.0 / 3.0, 0, 2.0 / 3.0})});
         Basis surfaceBasis = new Basis(new Vector[]{
                 Vector.of(new double[]{2.0 / 6.0, 0, 0}),
@@ -261,7 +259,6 @@ public class SamFasterer extends Simulation {
         integrator.setThermostatInterval(500);
         getController().addActivity(new ActivityIntegrate(integrator));
 
-        forceSum = new PotentialCalculationForceSumWall(wallPotential);
         integratorListener = new SamIntegratorListener(pcAggregate, box);
         integrator.getEventManager().addListener(integratorListener);
 
@@ -550,9 +547,9 @@ public class SamFasterer extends Simulation {
         protected final P2Harmonic p2Bond;
         protected final Vector dr;
         protected Boundary boundary;
-        protected final NeighborCriterion bondCriterion;
+        protected final CriterionTether3 bondCriterion;
 
-        public P2Surface(Space space, Potential2Soft p2lj, P2Harmonic p2Bond, NeighborCriterion bondCriterion) {
+        public P2Surface(Space space, Potential2Soft p2lj, P2Harmonic p2Bond, CriterionTether3 bondCriterion) {
             super(space);
             dr = space.makeVector();
             this.p2lj = p2lj;

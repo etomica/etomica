@@ -14,14 +14,27 @@ public class P2Ewald6Real extends Potential2SoftSpherical {
         return tf.make(new P2Ewald6Real(sigmaI, epsilonI, sigmaJ, epsilonJ, alpha6));
     }
 
+    private double sigmaI, epsilonI, sigmaJ, epsilonJ;
     private final double alpha6Sq;
     private final double alpha66;
-    private final double Bij;
+    private double Bij;
+
+    public P2Ewald6Real(double sigma, double epsilon, double alpha6) {
+        this(sigma, epsilon, sigma, epsilon, alpha6);
+    }
 
     public P2Ewald6Real(double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6) {
         super(Space3D.getInstance());
         this.alpha6Sq = alpha6 * alpha6;
         this.alpha66 = alpha6Sq * alpha6Sq * alpha6Sq;
+        this.sigmaI = sigmaI;
+        this.epsilonI = epsilonI;
+        this.sigmaJ = sigmaJ;
+        this.epsilonJ = epsilonJ;
+        setup();
+    }
+
+    protected void setup() {
         double localBij = 0;
         for (int k = 0; k <= 6; k++) {
             long ck = factorial(6) / (factorial(6 - k) * factorial(k));
@@ -30,6 +43,18 @@ public class P2Ewald6Real extends Potential2SoftSpherical {
             localBij += bik * bjk;
         }
         this.Bij = localBij;
+    }
+
+    public void setSigma(double sigmaI, double sigmaJ) {
+        this.sigmaI = sigmaI;
+        this.sigmaJ = sigmaJ;
+        setup();
+    }
+
+    public void setEpsilon(double epsilonI, double epsilonJ) {
+        this.epsilonI = epsilonI;
+        this.epsilonJ = epsilonJ;
+        setup();
     }
 
     @Override

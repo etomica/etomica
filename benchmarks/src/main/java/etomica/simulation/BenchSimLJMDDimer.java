@@ -4,9 +4,8 @@
 
 package etomica.simulation;
 
-import etomica.tests.*;
+import etomica.tests.TestLJMDDimerFast;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -28,13 +27,11 @@ public class BenchSimLJMDDimer {
     private int moleculeSize;
 
     private TestLJMDDimerFast simFast;
-    private TestLJMDDimer simSlow;
 
 
     @Setup(Level.Iteration)
     public void setUp() {
         simFast = new TestLJMDDimerFast(moleculeSize, totalAtoms, doNbr);
-        simSlow = new TestLJMDDimer(moleculeSize, totalAtoms, doNbr);
 
     }
 
@@ -45,15 +42,6 @@ public class BenchSimLJMDDimer {
     @Measurement(time = 3, iterations = 5)
     public void integratorStepFast() {
         simFast.integrator.doStep();
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
-    public void integratorStepSlow() {
-        simSlow.integrator.doStep();
     }
 
 

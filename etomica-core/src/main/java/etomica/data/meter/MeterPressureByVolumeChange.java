@@ -10,9 +10,8 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorBoxFasterer;
 import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -73,7 +72,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
      * calculated for the box the integrator acts on and the integrator's 
      * temperature is used to calculate the pressure.
      */
-    public void setIntegrator(IntegratorBox newIntegrator) {
+    public void setIntegrator(IntegratorBoxFasterer newIntegrator) {
         integrator = newIntegrator;
     }
     
@@ -82,7 +81,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
      * calculated for the box the integrator acts on and the integrator's 
      * temperature is used to calculate the pressure.
      */
-    public IntegratorBox getIntegrator() {
+    public IntegratorBoxFasterer getIntegrator() {
         return integrator;
     }
 
@@ -136,9 +135,8 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
         if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
         Box box = integrator.getBox();
         inflater.setBox(box);
-        energy.zeroSum();
-        integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
-        double uOld = energy.getSum();
+
+        double uOld = integrator.getPotentialCompute().computeAll(false);
         final double[] x = ((DataDoubleArray)vDataSource.getData()).getData();
         double mult = 1.0/nDimension;
         for(int i=0; i<dataArray.length; i++) {
@@ -149,9 +147,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
 
             inflater.setVectorScale(scale);
             inflater.actionPerformed();
-            energy.zeroSum();
-            integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
-            double uNew = energy.getSum();
+            double uNew = integrator.getPotentialCompute().computeAll(false);
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
                               + box.getMoleculeList().size()*(x[i]-1));
             inflater.undo();
@@ -169,12 +165,11 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
     private final Vector scale;
     private final boolean[] inflateDimensions;
     private final IteratorDirective iteratorDirective;
-    private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private int nDimension;
     private final Space space;
     private DataSourceUniform xDataSource;
     protected DataSourceExp vDataSource;
-    private IntegratorBox integrator;
+    private IntegratorBoxFasterer integrator;
     
     /**
      * Transforms the scaling from linear (-s to +s) to exponential (exp(-s) to exp(+s))

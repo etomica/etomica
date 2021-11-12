@@ -6,14 +6,15 @@ package etomica.graphics;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import etomica.action.IAction;
-import etomica.action.SimulationRestart;
 import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
-import etomica.integrator.*;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorBoxFasterer;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
-import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.Space;
 
 import javax.swing.*;
@@ -174,9 +175,9 @@ public class SimulationGraphic implements SimulationContainer {
      * added to boxList.  If a box handled by an Integrator is in BoxList, a new DisplayBox is not created.
      */
     private void setupDisplayBox(Integrator integrator, LinkedList<Box> boxList) {
-        if (integrator instanceof IntegratorBox || integrator instanceof IntegratorBoxFasterer) {
+        if (integrator instanceof IntegratorBoxFasterer) {
             // TODO: make this not terrible
-            Box box = integrator instanceof IntegratorBox ? ((IntegratorBox) integrator).getBox() : ((IntegratorBoxFasterer) integrator).getBox();
+            Box box = ((IntegratorBoxFasterer) integrator).getBox();
             if (boxList.contains(box)) return;
             boxList.add(box);
             final DisplayBox display = new DisplayBox(simulation.getController(), box);
@@ -432,35 +433,6 @@ public class SimulationGraphic implements SimulationContainer {
             }
         }
         return null;
-    }
-
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-//        etomica.simulation.prototypes.SWMD2D sim = new etomica.simulation.prototypes.SWMD2D();
-//        etomica.simulation.prototypes.LJMD2D sim = new etomica.simulation.prototypes.LJMD2D();
-//        etomica.simulation.prototypes.HSMC2D sim = new etomica.simulation.prototypes.HSMC2D();
-//        etomica.simulation.prototypes.SWMD3D sim = new etomica.simulation.prototypes.SWMD3D();
-//        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
-//        final etomica.simulation.prototypes.HSMD3DNoNbr sim = new etomica.simulation.prototypes.HSMD3DNoNbr();
-//        etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-        HSMD2D sim = new HSMD2D();
-//        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
-//        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
-        Space space = Space.getInstance(2);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
-        IAction repaintAction = simGraphic.getPaintAction(sim.getBox(0));
-
-        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpecies(sim.getSpecies(0));
-        nSelector.setBox(sim.getBox(0));
-        nSelector.setPostAction(repaintAction);
-        simGraphic.add(nSelector);
-        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
-
-        simGraphic.makeAndDisplayFrame();
     }
 }
 

@@ -6,10 +6,10 @@ package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.IOrientation;
-import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -18,11 +18,17 @@ import etomica.virial.BoxCluster;
  * Extension of MCMoveAtom that does trial in which several atom orientations are
  * perturbed.  However, orientation of first atom is never altered.  
  */
-public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
+public class MCMoveClusterAtomRotateMulti extends MCMoveBoxStep {
 
-    public MCMoveClusterAtomRotateMulti(IRandom random, Space _space) {
-        super(random, null, _space, 1.0, Math.PI, false);
+    protected double wOld, wNew;
+    protected final IRandom random;
+
+    public MCMoveClusterAtomRotateMulti(IRandom random, Box box) {
+        super();
+        this.random = random;
         setStepSize(1.2);
+        setStepSizeMax(Math.PI);
+        setBox(box);
 	}
 
     public void setBox(Box box) {
@@ -33,17 +39,27 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         oldOrientations = new IOrientation[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             if (((IAtomOriented)atoms.get(i)).getOrientation() instanceof Orientation3D) {
-                oldOrientations[i] = new Orientation3D(space);
+                oldOrientations[i] = new Orientation3D(box.getSpace());
             }
             else {
-                oldOrientations[i] = space.makeOrientation();
+                oldOrientations[i] = box.getSpace().makeOrientation();
             }
         }
     }
-    
-	//note that total energy is calculated
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
+
+    //note that total energy is calculated
 	public boolean doTrial() {
-        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList atoms = box.getLeafList();
         int nAtoms = atoms.size();
         for(int i=0; i<nAtoms; i++) {
@@ -58,12 +74,12 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
             }
         }
 		((BoxCluster)box).trialNotify();
-        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
 
     public double getChi(double temperature) {
-        return uNew/uOld;
+        return wNew/wOld;
     }
 
     public void rejectNotify() {

@@ -7,13 +7,12 @@ package etomica.modules.glass;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHardFasterer;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class AtomHardStressCollector implements IntegratorHard.CollisionListener, IntegratorHardFasterer.CollisionListener, AtomStressSource {
+public class AtomHardStressCollector implements IntegratorHardFasterer.CollisionListener, AtomStressSource {
 
     private boolean velIncluded = false;
     private final double[][][] stress;
@@ -58,30 +57,6 @@ public class AtomHardStressCollector implements IntegratorHard.CollisionListener
         }
 
         return stress;
-    }
-
-    public void collisionAction(IntegratorHard.Agent agent) {
-        if (velIncluded) {
-            final int l = stress[0].length;
-            for (int i = 0; i < stress.length; i++) {
-                for (int j = 0; j < l; j++) {
-                    for (int k = 0; k < l; k++) {
-                        stress[i][j][k] = 0;
-                    }
-                }
-            }
-            velIncluded = false;
-        }
-        Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
-        int idx0 = agent.atom.getLeafIndex();
-        int idx1 = agent.collisionPartner.getLeafIndex();
-        int D = lcvt.D();
-        for (int i = 0; i < D; i++) {
-            for (int j = 0; j < D; j++) {
-                stress[idx0][i][j] += lcvt.component(i, j);
-                stress[idx1][i][j] += lcvt.component(i, j);
-            }
-        }
     }
 
     @Override

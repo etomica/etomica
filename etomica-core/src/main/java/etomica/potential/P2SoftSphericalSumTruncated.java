@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomType;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
@@ -18,7 +17,7 @@ import etomica.units.dimensions.Length;
  * pair correlations beyond the cutoff.  This class allows P2SoftSphericalSum3
  * to do all the work with the wrapped potential(s).
  */
-public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum implements PotentialTruncated {
+public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
 
     protected double rCutoff, r2Cutoff;
 
@@ -104,14 +103,5 @@ public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum implements P
      */
     public Dimension getTruncationRadiusDimension() {
         return Length.DIMENSION;
-    }
-
-    /**
-     * Returns the zero-body potential that evaluates the contribution to the
-     * energy and its derivatives from pairs that are separated by a distance
-     * exceeding the truncation radius.
-     */
-    public Potential0Lrc makeLrcPotential(AtomType[] types) {
-        throw new UnsupportedOperationException();
     }
 }

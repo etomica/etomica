@@ -10,6 +10,7 @@ import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Constants;
 
@@ -27,7 +28,7 @@ import java.util.Map;
  *
  * @author Andrew Schultz
  */
-public class P2SemiclassicalAtomic implements IPotentialAtomic {
+public class P2SemiclassicalAtomic implements Potential2Soft {
 
     protected final IPotentialTorque p2Classy;
     protected final Map<AtomType, AtomInfo> agents;
@@ -91,6 +92,21 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
         double uFull = uC + fac * sum;
 //        System.out.println(uC+" "+uFull);
         return uFull;
+    }
+
+    @Override
+    public double virial(IAtomList atoms) {
+        return 0;
+    }
+
+    @Override
+    public Vector[] gradient(IAtomList atoms) {
+        return new Vector[0];
+    }
+
+    @Override
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return new Vector[0];
     }
 
     public interface AtomInfo {

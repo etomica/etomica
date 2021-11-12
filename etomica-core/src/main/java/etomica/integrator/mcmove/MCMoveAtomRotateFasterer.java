@@ -43,7 +43,7 @@ public class MCMoveAtomRotateFasterer extends MCMoveBoxStep {
      * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
     public MCMoveAtomRotateFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();

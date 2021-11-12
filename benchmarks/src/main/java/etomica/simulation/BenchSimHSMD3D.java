@@ -6,11 +6,9 @@ package etomica.simulation;
 
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
-import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterPressureHardFasterer;
 import etomica.space3d.Space3D;
 import etomica.tests.TestHSMD3D;
-import etomica.tests.TestHSMD3DSlow;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -27,7 +25,6 @@ public class BenchSimHSMD3D {
     private int numSteps;
 
     private TestHSMD3D sim;
-    private TestHSMD3DSlow simSlow;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -43,13 +40,6 @@ public class BenchSimHSMD3D {
             MeterPressureHardFasterer pMeter = new MeterPressureHardFasterer(sim.integrator);
             sim.integrator.reset();
         }
-
-        {
-            simSlow = new TestHSMD3DSlow(Space3D.getInstance(), numMolecules, config);
-
-            MeterPressureHard pMeter = new MeterPressureHard(simSlow.integrator);
-            sim.integrator.reset();
-        }
     }
 
     //    @Benchmark
@@ -59,15 +49,6 @@ public class BenchSimHSMD3D {
     @Measurement(time = 3, timeUnit = TimeUnit.SECONDS, iterations = 5)
     public void integratorStep() {
         sim.integrator.doStep();
-    }
-
-    //    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, timeUnit = TimeUnit.SECONDS, iterations = 5)
-    public void integratorStepSlow() {
-        simSlow.integrator.doStep();
     }
 
 }

@@ -7,9 +7,7 @@ package etomica.species;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.IConformation;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -21,7 +19,6 @@ import java.util.List;
  * interest (for assigning potentials or setting the number of molecules in the box, for instance).
  *
  * @see Box
- * @see PotentialMaster
  */
 public interface ISpecies {
 
@@ -63,7 +60,6 @@ public interface ISpecies {
     /**
      * Returns the number of unique AtomTypes that make up this Species.
      */
-    @IgnoreProperty
     int getUniqueAtomTypeCount();
 
     /**

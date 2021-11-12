@@ -6,10 +6,8 @@ package etomica.simulation;
 
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.potential.compute.PotentialCompute;
-import etomica.tests.*;
+import etomica.tests.TestLJMC3D;
+import etomica.tests.TestLJMD3DEwald;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;

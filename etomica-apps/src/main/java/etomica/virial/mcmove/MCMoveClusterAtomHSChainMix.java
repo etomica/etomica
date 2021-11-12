@@ -4,7 +4,7 @@
 
 package etomica.virial.mcmove;
 
-import etomica.space.Space;
+import etomica.box.Box;
 import etomica.util.random.IRandom;
 
 /**
@@ -19,8 +19,8 @@ public class MCMoveClusterAtomHSChainMix extends MCMoveClusterAtomHSChain {
 
     protected double[][] pairSigma;
 
-    public MCMoveClusterAtomHSChainMix(IRandom random, Space _space, double[][] pairSigma) {
-        super(random, _space, 1);
+    public MCMoveClusterAtomHSChainMix(IRandom random, Box box, double[][] pairSigma) {
+        super(random, box, 1);
         this.pairSigma = pairSigma;
     }
 

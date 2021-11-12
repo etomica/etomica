@@ -5,9 +5,9 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Space;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -18,11 +18,19 @@ import etomica.virial.BoxCluster;
  * Extension of MCMoveAtom that does trial in which several atom positions are
  * perturbed.  However, position of first atom is never altered.  
  */
-public class MCMoveClusterAtomMulti extends MCMoveAtom {
+public class MCMoveClusterAtomMulti extends MCMoveBoxStep {
 
-    public MCMoveClusterAtomMulti(IRandom random, Space _space) {
-        super(random, null, _space);
+    protected double wOld, wNew;
+    protected final IRandom random;
+    protected Vector[] translationVectors;
+    protected int startAtom = 1;
+    protected boolean imposePBC = false;
+
+    public MCMoveClusterAtomMulti(IRandom random, Box box) {
+        super();
+        this.random = random;
         setStepSize(1.2);
+        setBox(box);
 	}
 	
     public void setBox(Box p) {
@@ -30,17 +38,27 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         if (translationVectors == null) {
             translationVectors = new Vector[box.getLeafList().size() - startAtom];
             for (int i=0; i<translationVectors.length; i++) {
-                translationVectors[i] = space.makeVector();
+                translationVectors[i] = box.getSpace().makeVector();
             }
         }
     }
-    
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
+
     public void setStartAtom(int newStartAtom) {
         startAtom = newStartAtom;
         if (translationVectors != null && translationVectors.length != box.getLeafList().size() - startAtom) {
             translationVectors = new Vector[box.getLeafList().size() - startAtom];
             for (int i = 0; i < translationVectors.length; i++) {
-                translationVectors[i] = space.makeVector();
+                translationVectors[i] = box.getSpace().makeVector();
             }
         }
 
@@ -55,7 +73,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     }
     
 	public boolean doTrial() {
-        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList leafAtoms = box.getLeafList();
         for(int i = startAtom; i<leafAtoms.size(); i++) {
             translationVectors[i - startAtom].setRandomCube(random);
@@ -65,12 +83,12 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
             if (imposePBC) r.PE(box.getBoundary().centralImage(r));
         }
 		((BoxCluster)box).trialNotify();
-        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
 
     public double getChi(double temperature) {
-        return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
+        return (wOld==0.0) ? Double.POSITIVE_INFINITY : wNew/wOld;
     }
 
     public void rejectNotify() {
@@ -86,8 +104,4 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void acceptNotify() {
     	((BoxCluster)box).acceptNotify();
     }
-
-    protected Vector[] translationVectors;
-    protected int startAtom = 1;
-    protected boolean imposePBC = false;
 }

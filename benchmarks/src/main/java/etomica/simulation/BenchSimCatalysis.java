@@ -1,6 +1,6 @@
 package etomica.simulation;
 
-import etomica.modules.catalysis.Catalysis;
+import etomica.modules.catalysis.CatalysisFasterer;
 import etomica.space3d.Space3D;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.StackProfiler;
@@ -14,14 +14,14 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @Fork(1)
 public class BenchSimCatalysis {
-    private Catalysis sim;
+    private CatalysisFasterer sim;
 
     @Param("20")
     private int nCellsZ;
 
     @Setup(Level.Iteration)
     public void setup() {
-        sim = new Catalysis(Space3D.getInstance(), nCellsZ);
+        sim = new CatalysisFasterer(Space3D.getInstance(), nCellsZ);
         sim.integrator.reset();
     }
 

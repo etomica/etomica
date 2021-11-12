@@ -4,22 +4,24 @@
 
 package etomica.data.meter;
 
+import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorHardFasterer;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
 /**
  * Meter for the pressure by counting the number of collisions (assumes HS potential)
  */
-public class MeterPressureCollisionCount extends DataSourceScalar implements IntegratorHard.CollisionListener {
+public class MeterPressureCollisionCount extends DataSourceScalar implements IntegratorHardFasterer.CollisionListener {
 
     protected final int dim;
     protected long collisionCount = 0;
-    protected final IntegratorHard integratorHard;
+    protected final IntegratorHardFasterer integratorHard;
     protected double lastTime;
 
-    public MeterPressureCollisionCount(IntegratorHard integrator) {
+    public MeterPressureCollisionCount(IntegratorHardFasterer integrator) {
         super("Pressure(CC)", Pressure.dimension(integrator.getBox().getSpace().D()));
         integratorHard = integrator;
         integratorHard.addCollisionListener(this);
@@ -54,15 +56,12 @@ public class MeterPressureCollisionCount extends DataSourceScalar implements Int
         return value;
     }
 
-    /**
-     * Implementation of CollisionListener interface
-     * Adds collision virial (from potential) to accumulator
-     */
-    public void collisionAction(IntegratorHard.Agent agent) {
-        collisionCount++;
+    public IntegratorHardFasterer getIntegrator() {
+        return integratorHard;
     }
 
-    public IntegratorHard getIntegrator() {
-        return integratorHard;
+    @Override
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision) {
+        collisionCount++;
     }
 }

@@ -117,7 +117,7 @@ public class SimLJHTTISuperFasterer extends Simulation {
         if (args.length == 0) {
             params.numAtoms = 500;
             params.numSteps = 1000000;
-            params.temperature = 0.96;
+            params.temperature = 0.4;
             params.density = 1;
             params.rcMax1 = 4;
             params.rcMax0 = 11;
@@ -215,7 +215,12 @@ public class SimLJHTTISuperFasterer extends Simulation {
             cutoffs[i] *= Math.pow(density, -1.0/3.0);
         }
 
-        PotentialMasterListFasterer potentialMasterData;
+        Box boxReflected = sim.makeBox(sim.box.getBoundary());
+        boxReflected.setNMolecules(sim.species, numAtoms);
+        for (IAtom a : sim.box.getLeafList()) {
+            boxReflected.getLeafList().get(a.getLeafIndex()).getPosition().E(a.getPosition());
+        }
+        PotentialMasterListFasterer potentialMasterData, potentialMasterReflected;
         Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
         {
             // |potential| is our local potential used for data collection.
@@ -227,6 +232,13 @@ public class SimLJHTTISuperFasterer extends Simulation {
 
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             potentialMasterData.init();
+
+            potentialMasterReflected = new PotentialMasterListFasterer(sim.getSpeciesManager(), boxReflected, 2, cutoffs[nCutoffs-1], BondingInfo.noBonding());
+            potentialMasterReflected.setPairPotential(sphereType, sphereType, potentialT);
+            potentialMasterReflected.doAllTruncationCorrection = false;
+
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            potentialMasterReflected.init();
 
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
@@ -258,6 +270,12 @@ public class SimLJHTTISuperFasterer extends Simulation {
         MeterSolidDACutFasterer meterSolid = new MeterSolidDACutFasterer(sim.getSpace(), potentialMasterData, sim.coordinateDefinition, cutoffs);
         meterSolid.setTemperature(temperature);
         meterSolid.setBPRes(bpharm);
+
+        MeterSolidDACutFasterer meterSolidR = new MeterSolidDACutFasterer(sim.getSpace(), potentialMasterReflected, sim.coordinateDefinition, cutoffs);
+        meterSolidR.setTemperature(temperature);
+        meterSolidR.setBPRes(bpharm);
+        MeterReflected meterReflected = new MeterReflected(meterSolid, meterSolidR, sim.box, boxReflected, sim.coordinateDefinition);
+
         IData d = meterSolid.getData();
 
         MeterPotentialEnergyFromIntegratorFasterer meterEnergyShort = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
@@ -423,6 +441,9 @@ public class SimLJHTTISuperFasterer extends Simulation {
         sim.integrator.getEventManager().addListener(pumpPU);
         final AccumulatorAverageCovariance avgSolid = new AccumulatorAverageCovariance(blockSize);
         puReweight.setDataSink(avgSolid);
+
+        DataPumpListener pumpPUr = new DataPumpListener(meterReflected, null, interval);
+        sim.integrator.getEventManager().addListener(pumpPUr);
 
         DataProcessorReweightRatio puReweightRatio = new DataProcessorReweightRatio(cutoffs.length);
         avgSolid.setBlockDataSink(puReweightRatio);

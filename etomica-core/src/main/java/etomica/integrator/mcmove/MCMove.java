@@ -6,7 +6,6 @@ package etomica.integrator.mcmove;
 
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 
 /**
  * Parent class for all elementary Monte Carlo move classes, as used by
@@ -21,18 +20,12 @@ import etomica.potential.PotentialMaster;
 
 public abstract class MCMove {
 
-    /**
-     * @param potentialMaster the potential master that move can use to calculate energy
-     */
-	public MCMove(PotentialMaster potentialMaster) {
-        this(potentialMaster, new MCMoveTracker());
+
+	public MCMove() {
+        this(new MCMoveTracker());
     }
 
-    /**
-     * @param potentialMaster the potential master that move can use to calculate energy
-     */
-    public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
-        potential = potentialMaster;
+    public MCMove(MCMoveTracker acceptanceTracker) {
         moveTracker = acceptanceTracker;
         nominalFrequency = 100;
     }
@@ -112,8 +105,6 @@ public abstract class MCMove {
 	public String toString() {
 	    return getClass().toString();
 	}
-
-    protected final PotentialMaster potential;
 
     /**
 	 * Value giving nominal frequency for performing this move. Default is 100,

@@ -6,7 +6,6 @@ package etomica.liquidLJ;
 
 import etomica.action.WriteConfigurationBinary;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
@@ -326,11 +325,7 @@ public class LjMd3Dv2yFasterer {
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
 
-            P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
-            p2t.setBox(sim.box);
-            Potential0Lrc p0lrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-            p0lrc.setBox(sim.box);
-            double ulrc = p0lrc.energy(null);
+            double ulrc = uduCorrection(sim, cutoffs[i])[0];
 
             double avgW = avgPU.getValue(j+4);
             double errW = errPU.getValue(j+4);
@@ -351,11 +346,7 @@ public class LjMd3Dv2yFasterer {
             j = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
 
-                P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
-                p2t.setBox(sim.box);
-                Potential0Lrc p0lrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                p0lrc.setBox(sim.box);
-                double ulrc = p0lrc.energy(null);
+                double ulrc = uduCorrection(sim, cutoffsLS[i])[0];
 
                 double avgW = avgPULS.getValue(j+4);
                 double errW = errPULS.getValue(j+4);
@@ -384,12 +375,9 @@ public class LjMd3Dv2yFasterer {
             double avgW = avgPU.getValue(jRaw+4);
             double errW = errPU.getValue(jRaw+4);
             double ratioW2 = errW*errW/(avgW*avgW);
-            
-            P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
-            p2t.setBox(sim.box);
-            Potential0Lrc p0lrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-            p0lrc.setBox(sim.box);
-            double ulrc = p0lrc.energy(null)/numAtoms;
+
+            double[] uduLRC = uduCorrection(sim, cutoffs[i]);
+            double ulrc = uduLRC[0] / numAtoms;
 
             double avgU = avgPU.getValue(jRaw+0);
             double errU = errPU.getValue(jRaw+0);
@@ -408,7 +396,7 @@ public class LjMd3Dv2yFasterer {
             avgP /= avgW;
             double corP = corPU1.getValue(j+1);
             double vol = sim.box.getBoundary().volume();
-            double plrc = -p0lrc.virial(null)/(3*vol);
+            double plrc = -uduLRC[1]/(3*vol);
             double puCor = covPU1.getValue((j+0)*n+j+1) / Math.sqrt(covPU1.getValue((j+0)*n+j+0) * covPU1.getValue((j+1)*n+j+1));
             if (useRho) System.out.printf("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f\n", i, plrc + avgP, errP, avgP*biasP, corP);
             else System.out.printf("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f\n", i, plrc + avgP, errP, avgP*biasP, corP, puCor);
@@ -434,12 +422,9 @@ public class LjMd3Dv2yFasterer {
 	            // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
 	
 	            if (p2LJ!=null) {
-	                p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[i]);
-	                p2t.setBox(sim.box);
-                    p0lrc = p2t.makeLrcPotential(new AtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                    p0lrc.setBox(sim.box);
-	                ulrc = p0lrc.energy(null)/numAtoms;
-	                plrc = -p0lrc.virial(null)/(3*vol);
+                    double[] udulj = uduCorrection(sim, p2LJ, cutoffs[i]);
+	                ulrc = udulj[0]/numAtoms;
+	                plrc = -udulj[1]/(3*vol);
 	            }
 	
 	            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
@@ -577,5 +562,22 @@ public class LjMd3Dv2yFasterer {
         public boolean graphics = false;
         public int nAccBlocks = 100;
         public double density = 0;
+    }
+
+    public static double[] uduCorrection(LjMd3DFasterer sim, double rc) {
+        return uduCorrection(sim, sim.potential, rc);
+    }
+
+    public static double[] uduCorrection(LjMd3DFasterer sim, Potential2Soft p, double rc) {
+        P2SoftSphericalSumTruncated pt = new P2SoftSphericalSumTruncated(Space3D.getInstance(), rc, p);
+        int N = sim.box.getMoleculeList().size();
+        double V = sim.box.getBoundary().volume();
+        int numPairs = N * (N - 1) / 2;
+        double pairDensity = numPairs / V;
+
+        double[] u = new double[1];
+        double[] du = new double[1];
+        pt.u01TruncationCorrection(u, du);
+        return new double[]{u[0] * pairDensity, du[0]*pairDensity};
     }
 }

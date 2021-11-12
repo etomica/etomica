@@ -133,7 +133,7 @@ public class VirialHSOrC {
 
         MCMoveClusterAtomDiscrete[] mcDiscrete = new MCMoveClusterAtomDiscrete[2];
         for (int i=0; i<2; i++) {
-            mcDiscrete[i] = new MCMoveClusterAtomDiscrete(sim.getRandom(), space, dr);
+            mcDiscrete[i] = new MCMoveClusterAtomDiscrete(sim.getRandom(), sim.box[i], dr);
             mcDiscrete[i].setRPow(rPow);
             sim.integratorsFasterer[i].getMoveManager().addMCMove(mcDiscrete[i]);
             sim.integratorsFasterer[i].getMoveManager().removeMCMove(sim.mcMoveTranslate[i]);

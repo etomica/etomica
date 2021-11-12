@@ -183,18 +183,18 @@ public class VirialPolyhedra2 {
 
         sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
-            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveTree);
         }
         else if (ref == VirialHSParam.CHAINS) {
-            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveChain);
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
-            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveTree);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveTree, 1-chainFrac);
-            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveChain);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveChain, chainFrac);
         }

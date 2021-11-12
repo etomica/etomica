@@ -43,7 +43,7 @@ public class MCMoveVolumeExchangeFasterer extends MCMoveStep {
                                         Space space,
                                         IntegratorBoxFasterer integrator1,
                                         IntegratorBoxFasterer integrator2) {
-        super(null, new MCMoveStepTracker());
+        super(new MCMoveStepTracker());
         this.random = random;
         ROOT = 1.0 / space.D();
         setStepSizeMax(Double.MAX_VALUE);

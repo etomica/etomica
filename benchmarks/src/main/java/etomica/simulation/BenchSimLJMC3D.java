@@ -9,7 +9,9 @@ import etomica.config.ConfigurationResourceFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPressureFasterer;
-import etomica.tests.*;
+import etomica.tests.TestLJMC3D;
+import etomica.tests.TestLJMC3DBrute;
+import etomica.tests.TestLJMC3DNew;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -24,8 +26,6 @@ public class BenchSimLJMC3D {
     @Param({"200000"})
     private int numSteps;
 
-    private TestLJMC3DSlowerer simSlowerer;
-    private TestLJMC3DSlowBrute simSlowBrute;
     private TestLJMC3D sim;
     private TestLJMC3DNew simNew;
     private TestLJMC3DBrute simBrute;
@@ -86,24 +86,6 @@ public class BenchSimLJMC3D {
             simNew.integrator.reset();
         }
 
-    }
-
-//    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
-    public void integratorStepSlowBrute() {
-        simSlowBrute.integrator.doStep();
-    }
-
-//    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
-    public void integratorStepSlowererer() {
-        simSlowerer.integrator.doStep();
     }
 
 //    @Benchmark

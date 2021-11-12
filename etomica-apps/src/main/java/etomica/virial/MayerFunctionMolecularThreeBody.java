@@ -20,6 +20,8 @@ public class MayerFunctionMolecularThreeBody extends MayerFunctionThreeBody {
         return p3.energy(molecules);
     }
 
+    protected double energy(IMoleculeList molecules, double rAB2, double rAC2, double rBC2) { return p3.energy(molecules);}
+
     public void setBox(Box box) {
         p3.setBox(box);
         super.setBox(box);

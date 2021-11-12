@@ -194,12 +194,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.get(iLeaf);
             if (atomTest != null && !atomTest.test(a)) continue;
-            if(this instanceof DisplayBoxSpin2D) {
-            	drawAtom(g, origin, a);
-            }
-            else {
-                drawAtom(g, atomOrigin, a);
-            }
+            drawAtom(g, atomOrigin, a);
         }
 
         //Draw overflow images if so indicated

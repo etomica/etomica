@@ -4,12 +4,13 @@
 
 package etomica.virial.mcmove;
 
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePositionCOM;
-import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
@@ -19,17 +20,20 @@ import etomica.virial.BoxCluster;
  *
  * @author Andrew
  */
-public class MCMoveClusterMoleculeHSChain extends MCMoveMolecule {
+public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
 
+    protected final IRandom random;
     protected final double sigma;
     protected int[] seq;
-    protected MoleculePositionCOM moleculeCOM;
     protected int[] constraintMap;
+    protected final Vector translationVector;
 
-    public MCMoveClusterMoleculeHSChain(IRandom random, Space _space, double sigma) {
-        super(null,random, _space,1, 1);
+    public MCMoveClusterMoleculeHSChain(IRandom random, Box box, double sigma) {
+        super();
+        this.random = random;
         this.sigma = sigma;
-        moleculeCOM = new MoleculePositionCOM(space);
+        translationVector = box.getSpace().makeVector();
+        setBox(box);
     }
 
     public void setBox(Box p) {
@@ -40,6 +44,16 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveMolecule {
                 constraintMap[i] = i;
             }
         }
+    }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
     }
 
 
@@ -71,30 +85,31 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveMolecule {
             start = 2;
         }
         IMolecule molecule = moleculeList.get(prev);
-        groupTranslationVector.E(moleculeCOM.position(molecule));
+        translationVector.E(CenterOfMass.position(box, molecule));
 
-        groupTranslationVector.TE(-1);
+        translationVector.TE(-1);
 
-        moveMoleculeAction.actionPerformed(molecule);
-
+        molecule.getChildList().forEach(atom -> {
+            atom.getPosition().PE(translationVector);
+        });
         for (int j=0; j<n; j++) {
             if (constraintMap[j] == prev && j != prev) {
-                groupTranslationVector.E(0);
+                translationVector.E(0);
                 translateFrom(prev, j);
             }
         }
 
         for (int i = start; i<n; i++) {
             if (constraintMap[seq[i]] != seq[i]) continue;
-            groupTranslationVector.setRandomInSphere(random);
+            translationVector.setRandomInSphere(random);
 
             double sig = getSigma(prev, seq[i]);
-            groupTranslationVector.TE(sig);
+            translationVector.TE(sig);
             translateFrom(prev, seq[i]);
 
             for (int j=0; j<n; j++) {
                 if (constraintMap[j] == seq[i] && j != seq[i]) {
-                    groupTranslationVector.E(0);
+                    translationVector.E(0);
                     translateFrom(seq[i], j);
                 }
             }
@@ -108,12 +123,14 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveMolecule {
     protected void translateFrom(int prev, int current) {
         IMoleculeList moleculeList = box.getMoleculeList();
         IMolecule moleculePrevious = moleculeList.get(prev);
-        groupTranslationVector.PE(moleculeCOM.position(moleculePrevious));
+        translationVector.PE(CenterOfMass.position(box, moleculePrevious));
 
-        molecule = moleculeList.get(current);
-        groupTranslationVector.ME(moleculeCOM.position(molecule));
+        IMolecule molecule = moleculeList.get(current);
+        translationVector.ME(CenterOfMass.position(box, molecule));
 
-        moveMoleculeAction.actionPerformed(molecule);
+        molecule.getChildList().forEach(atom -> {
+            atom.getPosition().PE(translationVector);
+        });
     }
 
     protected double getSigma(int i, int j) {

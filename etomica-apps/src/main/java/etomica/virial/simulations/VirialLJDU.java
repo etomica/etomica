@@ -177,7 +177,7 @@ public class VirialLJDU {
 
         if (doChainRef) {
             sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
             refBlocksize = Math.max(steps / (100 * 1000), 1);
             sim.accumulators[0].setBlockSize(refBlocksize);

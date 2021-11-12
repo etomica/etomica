@@ -3,22 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.mcmove;
 
-import etomica.space.Space;
+import etomica.box.Box;
 import etomica.util.random.IRandom;
 
 public class MCMoveClusterAtomSQWChain extends MCMoveClusterAtomHSChain {
 
     protected final double pCore, pWell;
 
-    public MCMoveClusterAtomSQWChain(IRandom random, Space _space, double lambda, double temperature) {
-        super(random, _space, lambda);
+    public MCMoveClusterAtomSQWChain(IRandom random, Box box, double lambda, double temperature) {
+        super(random, box, lambda);
         if (temperature == 0) {
             pCore = 0;
             pWell = 0;
             return;
         }
         double vCore = 1;
-        double vWell = _space.powerD(lambda) - vCore;
+        double vWell = box.getSpace().powerD(lambda) - vCore;
         double Y = Math.exp(1 / temperature) - 1;
         if (Y > 1) {
             pCore = 0;

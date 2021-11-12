@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
@@ -16,9 +15,6 @@ import etomica.math.function.Function;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionGeometricCenter;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
@@ -67,7 +63,7 @@ public class MCMoveVolumeMonoclinicScaledFasterer extends MCMoveBoxStep {
 
     public MCMoveVolumeMonoclinicScaledFasterer(PotentialCompute potentialCompute, IntegratorMCFasterer integrator,
                                                 IRandom random, double pressure, int D) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.integrator = integrator;
         this.random = random;
@@ -127,22 +123,6 @@ public class MCMoveVolumeMonoclinicScaledFasterer extends MCMoveBoxStep {
     
     public boolean doTrial() {
         uOld = integrator.getPotentialEnergy();
-        if (uOld == Double.POSITIVE_INFINITY) {
-            PotentialCalculationEnergySum myPcSum = new PotentialCalculationEnergySum() {
-
-                public void doCalculation(IAtomList atoms,
-                        IPotentialAtomic potential) {
-                    super.doCalculation(atoms, potential);
-                    if (sum == Double.POSITIVE_INFINITY && !found) {
-                        System.out.println("atoms "+atoms+" are overlapping");
-                        found = true;
-                    }
-                }
-                boolean found = false;
-            };
-            potential.calculate(box, new IteratorDirective(), myPcSum);
-            throw new RuntimeException("oops initial inf");
-        }
 
         double scalea = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         

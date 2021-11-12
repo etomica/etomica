@@ -14,7 +14,7 @@ import etomica.units.dimensions.Length;
  * Wraps a soft-spherical potential to apply a truncation to it.  The energy
  * is switched from fully-on to 0 over a short range (i.e. from 0.95*rC to rC).
  */
-public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum implements PotentialTruncated {
+public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum {
 
     protected double rCutoff, r2Cutoff;
     protected int taperOrder;

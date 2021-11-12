@@ -5,9 +5,9 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Space;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
@@ -18,8 +18,9 @@ import etomica.virial.BoxCluster;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MCMoveClusterAtomHSRing extends MCMoveAtom {
+public class MCMoveClusterAtomHSRing extends MCMoveBox {
 
+    protected final IRandom random;
     private static final int nLookUp = 5000;
     private static final double[] lookUpL;
     protected final Vector3D standardLensPoint, normalVector;
@@ -50,12 +51,14 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                                  (0.009769643775720165 + (5*sqrtU)/729.)*sqrtU))))));
     }
 
-    public MCMoveClusterAtomHSRing(IRandom random, Space _space, double sigma) {
-        super(random, null, _space);
+    public MCMoveClusterAtomHSRing(IRandom random, Box box, double sigma) {
+        super();
+        this.random = random;
         this.sigma = sigma;
-        axis0 = space.makeVector();
-        standardLensPoint = (Vector3D)space.makeVector();
-        normalVector = (Vector3D)space.makeVector();
+        setBox(box);
+        axis0 = box.getSpace().makeVector();
+        standardLensPoint = (Vector3D)box.getSpace().makeVector();
+        normalVector = (Vector3D)box.getSpace().makeVector();
         double[] b = new double[]{0,1.1,0.9*1.19776,0.674043,0.543464,0.4489,0.381788,0.331708,0.29308,0.262442,0.237574};
         normalWidth = new double[b.length];
         numInserts = new long[b.length*2+1];
@@ -102,6 +105,16 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     public void setBox(Box box) {
         super.setBox(box);
         inserted = new boolean[box.getLeafList().size()];
+    }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
     }
 
     public boolean doTrial() {

@@ -45,7 +45,7 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
      * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
     public MCMoveMoleculeFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();
@@ -63,8 +63,8 @@ public class MCMoveMoleculeFasterer extends MCMoveBoxStep {
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
         uOld = potentialCompute.computeOneOldMolecule(molecule);
-        if (uOld > 1e8) {
-            throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap");
+        if (uOld > 1e10) {
+            throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap ("+uOld+")");
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);

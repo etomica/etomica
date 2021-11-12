@@ -4,9 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveMoleculeExchangeFasterer;
-import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchangeFasterer;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
@@ -17,7 +15,7 @@ import etomica.util.random.IRandom;
  *
  * @author David Kofke
  */
-public class IntegratorGEMC extends IntegratorManagerMC {
+public class IntegratorGEMC {
 
     public static IntegratorManagerMC buildGEMC(IntegratorBoxFasterer integrator1, IntegratorBoxFasterer integrator2, IRandom random, Space space) {
         IntegratorManagerMC integratorGEMC = new IntegratorManagerMC(random);
@@ -30,51 +28,4 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
         return integratorGEMC;
     }
-
-    public IntegratorGEMC(IRandom random, Space space) {
-        super(random);
-        this.space = space;
-    }
-
-    public void addIntegrator(Integrator newIntegrator) {
-        if (!(newIntegrator instanceof IntegratorBox)) {
-            throw new IllegalArgumentException("Sub integrators must be able to handle a box");
-        }
-        if (integrators.size() == 2) {
-            throw new IllegalArgumentException("Only 2 sub-integrators can be added");
-        }
-        super.addIntegrator(newIntegrator);
-        if (integrators.size() == 2) {
-            volumeExchange = new MCMoveVolumeExchange(((IntegratorBox)newIntegrator).getPotentialMaster(), random,
-                    space, (IntegratorBox)integrators.get(0),(IntegratorBox) integrators.get(1));
-            moleculeExchange = new MCMoveMoleculeExchange(((IntegratorBox)newIntegrator).getPotentialMaster(), random,
-                    space, (IntegratorBox) integrators.get(0),(IntegratorBox) integrators.get(1));
-            moveManager.recomputeMoveFrequencies();
-            moveManager.addMCMove(volumeExchange);
-            moveManager.addMCMove(moleculeExchange);
-        }
-    }
-
-    /**
-     * Returns the object that performs the volume-exchange move in the GE
-     * simulation. Having handle to this object is needed to adjust trial
-     * frequency and view acceptance rate.
-     */
-    public MCMoveVolumeExchange getMCMoveVolumeExchange() {
-        return volumeExchange;
-    }
-
-    /**
-     * Returns the object that performs the molecule-exchange move in the GE
-     * simulation. Having handle to this object is needed to adjust trial
-     * frequency and view acceptance rate.
-     */
-    public MCMoveMoleculeExchange getMCMoveMoleculeExchange() {
-        return moleculeExchange;
-    }
-
-    private MCMoveVolumeExchange volumeExchange;
-    private MCMoveMoleculeExchange moleculeExchange;
-    private Space space;
-
 }

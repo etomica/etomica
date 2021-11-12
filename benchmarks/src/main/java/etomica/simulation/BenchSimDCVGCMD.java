@@ -1,7 +1,7 @@
 package etomica.simulation;
 
 import etomica.data.IData;
-import etomica.modules.dcvgcmd.DCVGCMD;
+import etomica.modules.dcvgcmd.DCVGCMDFasterer;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class BenchSimDCVGCMD {
 
-    private DCVGCMD sim;
+    private DCVGCMDFasterer sim;
 
     @Setup(Level.Iteration)
     public void setUp() {
-        sim = new DCVGCMD();
+        sim = new DCVGCMDFasterer();
     }
 
     @Benchmark

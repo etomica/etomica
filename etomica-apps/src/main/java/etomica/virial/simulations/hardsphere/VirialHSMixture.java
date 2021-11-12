@@ -158,23 +158,23 @@ public class VirialHSMixture {
 
         sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
-            MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
+            MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAINS) {
-            MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
+            MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
             mcMoveHS.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAIN_TREE) {
-            MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
+            MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
             mcMoveHST.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
-            MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
+            MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
             mcMoveHSC.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
         } else if (ref == VirialHSParam.RANDOM) {
-            MCMoveClusterAtomInBox mcMoveHS = new MCMoveClusterAtomInBox(sim.getRandom(), space);
+            MCMoveClusterAtomInBox mcMoveHS = new MCMoveClusterAtomInBox(sim.getRandom(), sim.box);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHS);
         }
 

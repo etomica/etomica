@@ -61,7 +61,7 @@ public class MCMoveVolumeSolidNPTMolecularFasterer extends MCMoveBoxStep {
 
     public MCMoveVolumeSolidNPTMolecularFasterer(PotentialCompute potentialCompute, IntegratorMCFasterer integrator,
                                                  IRandom random, double pressure, int D) {
-        super(null);
+        super();
         this.integrator = integrator;
         this.potentialCompute = potentialCompute;
         this.random = random;

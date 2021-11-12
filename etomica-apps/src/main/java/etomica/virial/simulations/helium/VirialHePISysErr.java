@@ -10,8 +10,6 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.iterator.ANIntergroupCoupled;
-import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
@@ -43,8 +41,6 @@ import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
-import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
-import etomica.virial.PotentialGroupPI.PotentialGroupPISkip;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
 import etomica.virial.mcmove.MCMoveClusterRingRegrow;
@@ -187,46 +183,41 @@ public class VirialHePISysErr {
         final Potential2SoftSpherical p2 = calcApprox ? p2Approx : p2Full;
         final Potential2SoftSpherical p2FullErr = new P2HePCKLJS(space,1);
 
-        PotentialGroupPI pTargetGroup = new PotentialGroupPI(beadFac);
-        pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
-        PotentialGroupPISkip[] pTargetSkip = new PotentialGroupPISkip[beadFac];
+        PotentialMoleculePairPI pTarget = new PotentialMoleculePairPI(space, p2, beadFac);
+        PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetSkip = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
-            pTargetSkip[i] = pTargetGroup.new PotentialGroupPISkip(i);
+            pTargetSkip[i] = pTarget.new PotentialMoleculePISkip(i);
         }
 
-        PotentialGroupPI pTargetGroupErr = new PotentialGroupPI(beadFac);
-        pTargetGroupErr.addPotential(p2FullErr, new ApiIntergroupCoupled());
-        PotentialGroupPISkip[] pTargetSkipErr = new PotentialGroupPISkip[beadFac];
+        PotentialMoleculePairPI pTargetErr = new PotentialMoleculePairPI(space, p2FullErr, beadFac);
+        PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetSkipErr = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
-            pTargetSkipErr[i] = pTargetGroupErr.new PotentialGroupPISkip(i);
+            pTargetSkip[i] = pTargetErr.new PotentialMoleculePISkip(i);
         }
 
-        PotentialGroupPI pTargetApproxGroup = new PotentialGroupPI(beadFac);
-        pTargetApproxGroup.addPotential(p2Approx, new ApiIntergroupCoupled());
-        PotentialGroupPISkip[] pTargetApproxSkip = new PotentialGroupPISkip[beadFac];
+        PotentialMoleculePairPI pTargetApprox = new PotentialMoleculePairPI(space, p2Approx, beadFac);
+        PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetApproxSkip = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
-            pTargetApproxSkip[i] = pTargetApproxGroup.new PotentialGroupPISkip(i);
+            pTargetApproxSkip[i] = pTargetApprox.new PotentialMoleculePISkip(i);
         }
+
         final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
-        final IPotentialAtomicMultibody p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
-        final IPotentialAtomicMultibody p3Err = new P3CPSNonAdditiveHe(space, 1);
+        final Potential3Soft p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
+        final Potential3Soft p3Err = new P3CPSNonAdditiveHe(space, 1);
 
-        PotentialGroup3PI p3TargetGroup = new PotentialGroup3PI(beadFac);
-        p3TargetGroup.addPotential(p3, new ANIntergroupCoupled(3));
-        PotentialGroup3PISkip[] p3TargetSkip = new PotentialGroup3PISkip[beadFac];
+        PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac);
+        PotentialMolecule3PI.PotentialMolecule3PISkip[] p3TargetSkip = new PotentialMolecule3PI.PotentialMolecule3PISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
-            p3TargetSkip[i] = p3TargetGroup.new PotentialGroup3PISkip(i);
+            p3TargetSkip[i] = p3Target.new PotentialMolecule3PISkip(i);
         }
 
-        PotentialGroup3PI p3TargetGroupErr = new PotentialGroup3PI(beadFac);
-        p3TargetGroupErr.addPotential(p3Err, new ANIntergroupCoupled(3));
+        PotentialMolecule3PI p3TargetErr = new PotentialMolecule3PI(space, p3Err, beadFac);
+        PotentialMolecule3PI p3TargetApprox = new PotentialMolecule3PI(space, p3Approx, beadFac);
 
-        PotentialGroup3PI p3TargetApproxGroup = new PotentialGroup3PI(beadFac);
-        p3TargetApproxGroup.addPotential(p3Approx, new ANIntergroupCoupled(3));
-        PotentialGroup3PISkip[] p3TargetApproxSkip = new PotentialGroup3PISkip[beadFac];
+        PotentialMolecule3PI.PotentialMolecule3PISkip[] p3TargetApproxSkip = new PotentialMolecule3PI.PotentialMolecule3PISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
-            p3TargetApproxSkip[i] = p3TargetGroup.new PotentialGroup3PISkip(i);
+            p3TargetApproxSkip[i] = p3TargetApprox.new PotentialMolecule3PISkip(i);
         }
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
@@ -242,19 +233,19 @@ public class VirialHePISysErr {
             };
         }
 
-        MayerGeneral fTarget = new MayerGeneral(pTargetGroup) {
+        MayerGeneral fTarget = new MayerGeneral(pTarget) {
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
             }
         };
 
-        MayerGeneral fTargetErr = new MayerGeneral(pTargetGroupErr) {
+        MayerGeneral fTargetErr = new MayerGeneral(pTargetErr) {
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
             }
         };
 
-        MayerGeneral fTargetApprox = new MayerGeneral(pTargetApproxGroup) {
+        MayerGeneral fTargetApprox = new MayerGeneral(pTargetApprox) {
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
             }
@@ -271,19 +262,19 @@ public class VirialHePISysErr {
             };
         }
 
-        MayerFunctionThreeBody f3Target = new MayerFunctionMolecularThreeBody(p3TargetGroup) {
+        MayerFunctionThreeBody f3Target = new MayerFunctionMolecularThreeBody(p3Target) {
             public double f(IMoleculeList molecules, double[] r2, double beta) {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
 
-        MayerFunctionThreeBody f3TargetErr = new MayerFunctionMolecularThreeBody(p3TargetGroupErr) {
+        MayerFunctionThreeBody f3TargetErr = new MayerFunctionMolecularThreeBody(p3TargetErr) {
             public double f(IMoleculeList molecules, double[] r2, double beta) {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
 
-        MayerFunctionThreeBody f3TargetApprox = new MayerFunctionMolecularThreeBody(p3TargetApproxGroup) {
+        MayerFunctionThreeBody f3TargetApprox = new MayerFunctionMolecularThreeBody(p3TargetApprox) {
             public double f(IMoleculeList molecules, double[] r2, double beta) {
                 return super.f(molecules, r2, beta/nBeads);
             }

@@ -5,8 +5,9 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Space;
+import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -17,15 +18,18 @@ import etomica.virial.BoxCluster;
  *
  * @author Andrew
  */
-public class MCMoveClusterAtomHSChain extends MCMoveAtom {
+public class MCMoveClusterAtomHSChain extends MCMoveBoxStep {
 
+    protected final IRandom random;
     protected final double sigma;
     protected int[] seq;
     protected boolean forceInBox;
 
-    public MCMoveClusterAtomHSChain(IRandom random, Space _space, double sigma) {
-        super(random, null, _space);
+    public MCMoveClusterAtomHSChain(IRandom random, Box box, double sigma) {
+        super();
+        this.random = random;
         this.sigma = sigma;
+        setBox(box);
     }
 
     public void setForceInBox(boolean forceInBox) {
@@ -97,5 +101,15 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
 
     public void acceptNotify() {
         ((BoxCluster)box).acceptNotify();
+    }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
     }
 }

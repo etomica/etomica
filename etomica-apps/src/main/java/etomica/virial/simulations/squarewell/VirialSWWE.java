@@ -184,13 +184,13 @@ public class VirialSWWE {
         
         sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialSWWEParam.RING_CHAIN_TREES){
-        	MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHS);
+        	MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHS);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSR);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHS);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHS);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHS);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHS);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, treeFrac);
             

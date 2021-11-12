@@ -1,7 +1,6 @@
 package etomica.modules.catalysis;
 
 import etomica.action.ActionIntegrate;
-import etomica.data.DataPumpListener;
 import etomica.space3d.Space3D;
 import etomica.util.random.RandomMersenneTwister;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CatalysisTest {
     private static final double delta = 1e-9;
-    Catalysis sim;
+    CatalysisFasterer sim;
     MeterDensityCO densityCO;
     MeterDensityO2 densityO2;
     MeterDensityCO2 densityCO2;
@@ -19,7 +18,7 @@ class CatalysisTest {
 
     @BeforeEach
     void setUp() {
-        sim = new Catalysis(Space3D.getInstance(), 20, new RandomMersenneTwister(1));
+        sim = new CatalysisFasterer(Space3D.getInstance(), 20, new RandomMersenneTwister(1));
         densityCO = new MeterDensityCO(sim.box, sim.speciesC, sim.interactionTracker.getAgentManager());
         densityO2 = new MeterDensityO2(sim.box, sim.speciesO, sim.interactionTracker.getAgentManager());
         densityCO2 = new MeterDensityCO2(sim.box, sim.speciesC, sim.interactionTracker.getAgentManager());

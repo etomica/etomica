@@ -6,6 +6,10 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
@@ -15,7 +19,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.mcmove.MCMoveClusterMolecule;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the
@@ -29,9 +32,21 @@ import etomica.virial.mcmove.MCMoveClusterMolecule;
  *
  * @author Andrew Schultz
  */
-public class MCMoveClusterRotateArmFasterer extends MCMoveClusterMolecule {
+public class MCMoveClusterRotateArmFasterer extends MCMoveBoxStep {
 
-    public PotentialCompute potentialMaster;
+    protected final IRandom random;
+    protected final PotentialCompute potentialMaster;
+    protected MoleculeSource moleculeSource;
+    protected IMolecule molecule;
+    protected Vector r0;
+    protected int startAtom;
+    protected final Vector work1, work2, work3;
+    protected final Space space;
+    protected ISpecies species;
+    protected double wOld, wNew, uOld, uNew;
+    protected final int armLength;
+    protected final RotationTensor3D rotationTensor;
+    protected final Vector axis;
 
     public MCMoveClusterRotateArmFasterer(IRandom random, PotentialCompute potentialMaster, int armLength, Space _space) {
         this(potentialMaster, random, 1.0, armLength, _space);
@@ -39,7 +54,8 @@ public class MCMoveClusterRotateArmFasterer extends MCMoveClusterMolecule {
 
     public MCMoveClusterRotateArmFasterer(PotentialCompute potentialMaster,
                                           IRandom random, double stepSize, int armLength, Space _space) {
-        super(random, _space, stepSize);
+        super();
+        this.random = random;
         this.potentialMaster = potentialMaster;
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
@@ -108,14 +124,12 @@ public class MCMoveClusterRotateArmFasterer extends MCMoveClusterMolecule {
 
     public void acceptNotify() {
 //        System.out.println("accepting rotate");
-        super.acceptNotify();
     }
 
     public void rejectNotify() {
 //        System.out.println("rejecting rotate");
         rotationTensor.invert();
         doTransform();
-        super.rejectNotify();
     }
 
     public double getChi(double temperature) {
@@ -124,13 +138,13 @@ public class MCMoveClusterRotateArmFasterer extends MCMoveClusterMolecule {
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 
-    protected Vector r0;
-    protected int startAtom;
-    protected final Vector work1, work2, work3;
-    protected final Space space;
-    protected ISpecies species;
-    protected double wOld, wNew;
-    protected final int armLength;
-    protected final RotationTensor3D rotationTensor;
-    protected final Vector axis;
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
 }

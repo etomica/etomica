@@ -5,6 +5,8 @@
 package etomica.species;
 
 import etomica.atom.AtomType;
+import etomica.chem.elements.Carbon;
+import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationChainZigZag2;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -40,7 +42,10 @@ public class SpeciesAlkane {
     }
 
     public static SpeciesBuilder makeBuilder(int numCarbons) {
-        return makeBuilder(numCarbons, AtomType.simple("CH3", 15), AtomType.simple("CH2", 14));
+        double cMass = Carbon.INSTANCE.getMass();
+        double hMass = Hydrogen.INSTANCE.getMass();
+        return makeBuilder(numCarbons, AtomType.simple("CH3", cMass+3*hMass),
+                                       AtomType.simple("CH2", cMass+2*hMass));
     }
 
     public static SpeciesBuilder makeBuilder(int numCarbons, AtomType ch3Type, AtomType ch2Type) {

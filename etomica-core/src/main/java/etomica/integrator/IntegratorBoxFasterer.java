@@ -6,7 +6,6 @@ package etomica.integrator;
 
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
@@ -38,15 +37,14 @@ public abstract class IntegratorBoxFasterer extends Integrator {
         super();
         this.box = Objects.requireNonNull(box);
         this.space = box.getSpace();
-        this.potentialCompute = Objects.requireNonNull(potentialCompute);
-        this.getEventManager().addListener(this.potentialCompute.makeIntegratorListener());
+        this.potentialCompute = potentialCompute;
+        if (potentialCompute != null) this.getEventManager().addListener(this.potentialCompute.makeIntegratorListener());
         setTemperature(temperature);
     }
 
     /**
      * @return the PotentialMaster instance used to compute energy etc.
      */
-    @IgnoreProperty
     public PotentialCompute getPotentialCompute() {
         return potentialCompute;
     }

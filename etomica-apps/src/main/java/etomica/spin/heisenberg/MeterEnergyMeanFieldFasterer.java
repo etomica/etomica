@@ -9,8 +9,6 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.PotentialCalculation;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
@@ -209,12 +207,7 @@ public class MeterEnergyMeanFieldFasterer implements IDataSource {
         return dataInfo;
     }
 
-    private class PotentialCalculationPhiij implements PotentialCalculation {
-        @Override
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
-        }
-
+    private class PotentialCalculationPhiij {
         public void go(IAtomOriented iatom, IAtomOriented jatom) {
             Vector io = iatom.getOrientation().getDirection();
             Vector jo = jatom.getOrientation().getDirection();
@@ -226,14 +219,11 @@ public class MeterEnergyMeanFieldFasterer implements IDataSource {
      * Used to compute and store sums of cos(theta) and sin(theta) over neighbors of each atom.
      * Needed for mapped-averaging calculation of heat capacity.
      */
-    public static class PotentialCalculationCSsum implements PotentialCalculation {
+    public static class PotentialCalculationCSsum {
         protected final double[] nbrCsum, nbrSsum;
         public PotentialCalculationCSsum(double[] nbrCsum, double[] nbrSsum) {
             this.nbrCsum = nbrCsum;
             this.nbrSsum = nbrSsum;
-        }
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
         }
 
         public void go(IAtomOriented iatom, IAtomOriented jatom) {
@@ -255,10 +245,7 @@ public class MeterEnergyMeanFieldFasterer implements IDataSource {
         }
     }
 
-    private class PotentialCalculationCvij implements PotentialCalculation {
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
-        }
+    private class PotentialCalculationCvij {
 
         public void go(IAtomOriented atom1, IAtomOriented atom2) {
             cvij += ijContribution(atom1, atom2) + ijContribution(atom2, atom1);

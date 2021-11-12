@@ -1,11 +1,7 @@
 package etomica.spin.heisenberg;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IPotentialAtomicSecondDerivative;
-import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -18,7 +14,7 @@ import static etomica.math.SpecialFunctions.besselI;
  * @author Weisong Lin
  */
 
-public class PotentialCalculationHeisenberg implements PotentialCalculation {
+public class PotentialCalculationHeisenberg {
     protected IAtomOriented atom1, atom2;
     protected Vector torque1, torque2;
     protected Tensor phi1, phi2;
@@ -84,14 +80,6 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         d2Ayc1 = new double[nMax + 1];
         d2Ays1 = new double[nMax + 1];
 
-    }
-
-
-    public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
-            return;
-        }
-        go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
     }
 
     public void go(IAtomOriented atom1, IAtomOriented atom2) {

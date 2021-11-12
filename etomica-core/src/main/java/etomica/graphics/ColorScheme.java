@@ -8,7 +8,6 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.IAtom;
 import etomica.modifier.ModifierGeneral;
-import etomica.nbr.list.PotentialMasterList;
 
 import java.awt.*;
 
@@ -50,7 +49,7 @@ public abstract class ColorScheme {
     public static void main(String args[]) {
       final String APP_NAME = "Color Scheme";
 
-        final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
+        final etomica.simulation.prototypes.HSMD3DFasterer sim = new etomica.simulation.prototypes.HSMD3DFasterer();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 
       IAction repaintAction = simGraphic.getPaintAction(sim.box);
@@ -67,13 +66,10 @@ public abstract class ColorScheme {
 
       final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
-      final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
-      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor((PotentialMasterList)sim.potentialMaster, sim.box);
-      nghb.setAtom(sim.box.getLeafList().get(0));
+      final ColorSchemeColliders ccld = new ColorSchemeColliders();
+      sim.integrator.addCollisionListener(ccld);
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.box, sim.getRandom());
-      final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.box);
-      cell.setLattice(((PotentialMasterList)sim.potentialMaster).getNbrCellManager(sim.box).getLattice());
-      
+
       IAction act = new IAction() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
@@ -97,12 +93,6 @@ public abstract class ColorScheme {
           dp.setColorScheme(ccld);
         }
       };
-      IAction act4 = new IAction() {
-        public void actionPerformed() {
-          DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
-          dp.setColorScheme(nghb);
-        }
-      };
       IAction act5 = new IAction() {
         public void actionPerformed() {
           DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
@@ -116,12 +106,6 @@ public abstract class ColorScheme {
           dp.setColorScheme(ct);
         }
       };
-      IAction act7 = new IAction() {
-        public void actionPerformed() {
-          DisplayBox dp = (DisplayBox)simGraphic.displayList().getFirst();
-          dp.setColorScheme(cell);
-        }
-      };
 
       DeviceButton colorer = new DeviceButton(sim.getController(),act);
       colorer.setLabel("Global Random");
@@ -130,18 +114,13 @@ public abstract class ColorScheme {
       tempcolorer.setLabel("By Temperature (0-5)");
       DeviceButton colliders = new DeviceButton(sim.getController(),act3);
       colliders.setLabel("Colliders");
-      DeviceButton neighbors = new DeviceButton(sim.getController(),act4);
-      neighbors.setLabel("Neighbors");
-      neighbors.setPostAction(repaintAction);
       DeviceButton randomcol = new DeviceButton(sim.getController(),act5);
       randomcol.setLabel("Unique Random");
       randomcol.setPostAction(repaintAction);
       DeviceButton def = new DeviceButton(sim.getController(),act6);
       def.setLabel("Default Red");
       def.setPostAction(repaintAction);
-      DeviceButton cellbtn = new DeviceButton(sim.getController(),act7);
-      cellbtn.setLabel("Cell");
-      
+
       DeviceSlider slabslide = new DeviceSlider(sim.getController());
       slabslide.setMinimum(0);
       slabslide.setMaximum(100);
@@ -161,9 +140,7 @@ public abstract class ColorScheme {
       simGraphic.add(colorer);
       simGraphic.add(tempcolorer);
       simGraphic.add(colliders);
-      simGraphic.add(neighbors);
       simGraphic.add(randomcol);
-      simGraphic.add(cellbtn);
       simGraphic.add(slabslide);
       simGraphic.add(depthslide);
       

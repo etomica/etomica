@@ -6,8 +6,9 @@ package etomica.virial.mcmove;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
@@ -32,8 +33,9 @@ import etomica.virial.BoxCluster;
  *
  * @author Andrew Schultz
  */
-public class MCMoveClusterTorsionMultiFasterer extends MCMoveMolecule {
+public class MCMoveClusterTorsionMultiFasterer extends MCMoveBox {
 
+    protected final IRandom random;
     protected final PotentialCompute pc;
     protected final P4BondTorsion torsionPotential;
     protected IMoleculePositionDefinition positionDefinition;
@@ -46,7 +48,7 @@ public class MCMoveClusterTorsionMultiFasterer extends MCMoveMolecule {
     protected final Vector dr21, dr23, dr34;
     protected Vector[][] oldPositions;
     protected final Vector oldCenter;
-    protected double wOld, wNew, bias;
+    protected double wOld, wNew, bias, uOld, uNew;
     protected ISpecies species;
 
     public MCMoveClusterTorsionMultiFasterer(PotentialCompute pc, Space space, IRandom random,
@@ -57,7 +59,8 @@ public class MCMoveClusterTorsionMultiFasterer extends MCMoveMolecule {
 
     public MCMoveClusterTorsionMultiFasterer(PotentialCompute pc, Space space,
                                              IRandom random, P4BondTorsion torsionPotential, int nBins) {
-        super(null,random,space);
+        super();
+        this.random = random;
         this.pc = pc;
         ((MCMoveStepTracker)getTracker()).setTunable(false);
         positionDefinition = new MoleculePositionGeometricCenter(space);
@@ -76,9 +79,19 @@ public class MCMoveClusterTorsionMultiFasterer extends MCMoveMolecule {
 
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
     }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
+
     public void setSpecies(ISpecies newSpecies) {
         species = newSpecies;
     }
@@ -379,7 +392,7 @@ public class MCMoveClusterTorsionMultiFasterer extends MCMoveMolecule {
             }
             oldPositions[i] = new Vector[numChildren];
             for (int j=0; j<numChildren; j++) {
-                oldPositions[i][j] = space.makeVector();
+                oldPositions[i][j] = box.getSpace().makeVector();
             }
             i++;
             selectedMolecules.add(a);

@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Configurations;
 import etomica.data.*;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.data.meter.MeterPressureFromIntegratorFasterer;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
@@ -31,7 +30,6 @@ public class TestLJMD3DBrute extends Simulation {
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public MeterPotentialEnergy energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
@@ -62,7 +60,7 @@ public class TestLJMD3DBrute extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3D.class);
 
         TestLJMD3DBrute sim = new TestLJMD3DBrute(numAtoms, config);
 

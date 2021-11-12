@@ -46,7 +46,7 @@ public class MCMoveClusterAngleBendFasterer extends MCMoveBoxStep {
 
     public MCMoveClusterAngleBendFasterer(PotentialCompute pc,
                                           IRandom random, double stepSize, Space _space) {
-        super(null);
+        super();
         this.pc = pc;
         this.random = random;
         moleculeSource = new MoleculeSourceRandomMolecule();

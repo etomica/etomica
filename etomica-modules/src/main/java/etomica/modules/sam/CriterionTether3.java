@@ -12,14 +12,13 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.nbr.NeighborCriterion;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 
 /**
  * Returns first leaf atom of each polymer molecule and the atom its bonded to.
  */
-public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource<IAtomList> {
+public class CriterionTether3 implements MoleculeAgentSource<IAtomList> {
 
     protected final SpeciesManager sm;
     protected final ISpecies polymerSpecies;

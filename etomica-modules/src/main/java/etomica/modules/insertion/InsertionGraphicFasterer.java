@@ -16,7 +16,6 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorHard.Agent;
 import etomica.integrator.IntegratorHardFasterer;
 import etomica.integrator.IntegratorMDFasterer;
 import etomica.math.DoubleRange;
@@ -421,9 +420,6 @@ public class InsertionGraphicFasterer extends SimulationGraphic {
             lastTime2 = lastTime;
             sum = 0;
             hist.reset();
-        }
-
-        public void collisionAction(Agent colliderAgent) {
         }
 
         public double getDataAsScalar() {

@@ -66,6 +66,7 @@ public class LjMd3DFasterer extends Simulation {
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         AtomType leafType = species.getLeafType();
+        TruncationFactory f;
         P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(space, potential, rcShort);
 
         potentialMasterList.setPairPotential(leafType, leafType, potentialTruncatedForceShifted);

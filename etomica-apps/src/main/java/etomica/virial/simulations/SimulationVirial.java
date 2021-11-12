@@ -11,10 +11,8 @@ import etomica.atom.AtomTypeOriented;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.PotentialMaster;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
@@ -40,7 +38,6 @@ public class SimulationVirial extends Simulation {
     public DataPumpListener accumulatorPump;
     public ISpecies[] species;
 
-    public IntegratorMC integrator;
     public IntegratorMCFasterer integratorFasterer;
     public BoxCluster box;
     public ClusterAbstract[] allValueClusters;
@@ -53,7 +50,6 @@ public class SimulationVirial extends Simulation {
     public int[] newSeeds;
     public int[] numMolecules;
     protected double boxLength;
-    public boolean doFasterer;
 
     public SimulationVirial(Space space, ISpecies[] species, int[] nMolecules, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
         super(space);
@@ -75,7 +71,7 @@ public class SimulationVirial extends Simulation {
     }
 
     public void setDoFasterer(boolean doFasterer) {
-        this.doFasterer = doFasterer;
+
     }
 
     public void setBoxLength(double length) {
@@ -90,8 +86,6 @@ public class SimulationVirial extends Simulation {
             addSpecies(species[i]);
         }
 
-        PotentialMaster potentialMaster = new PotentialMaster();
-        int nMolecules = sampleCluster.pointCount();
         box = new BoxCluster(sampleCluster, space, boxLength);
         addBox(box);
 
@@ -99,24 +93,14 @@ public class SimulationVirial extends Simulation {
             box.setNMolecules(species[i], numMolecules[i]);
         }
 
-        PotentialCompute pc;
-        if (doFasterer) {
-            pc = new PotentialComputeAggregate();
+        PotentialCompute pc = null;
+        pc = new PotentialComputeAggregate();
 
-            // temperature isn't going to mean anything here, but pass it anyway
-            integratorFasterer = new IntegratorMCFasterer(pc, random, temperature, box);
-            integratorFasterer.getMoveManager().setEquilibrating(false);
-            integratorFasterer.setEventInterval(1);
-            getController().addActivity(new ActivityIntegrate(integratorFasterer));
-        }
-        else {
-            integrator = new IntegratorMC(random, potentialMaster, box);
-            // it's unclear what this accomplishes, but let's do it just for fun.
-            integrator.setTemperature(temperature);
-            integrator.getMoveManager().setEquilibrating(false);
-            integrator.setEventInterval(1);
-            getController().addActivity(new ActivityIntegrate(integrator));
-        }
+        // temperature isn't going to mean anything here, but pass it anyway
+        integratorFasterer = new IntegratorMCFasterer(pc, random, temperature, box);
+        integratorFasterer.getMoveManager().setEquilibrating(false);
+        integratorFasterer.setEventInterval(1);
+        getController().addActivity(new ActivityIntegrate(integratorFasterer));
 
         boolean doRotate = false;
         boolean multiAtomic = false;
@@ -131,42 +115,22 @@ public class SimulationVirial extends Simulation {
         }
 
         if (!multiAtomic) {
-            mcMoveTranslate = new MCMoveClusterAtomMulti(random, space);
+            mcMoveTranslate = new MCMoveClusterAtomMulti(random, box);
             if (doRotate) {
-                mcMoveRotate = new MCMoveClusterAtomRotateMulti(random, space);
-                if (doFasterer) {
-                    integratorFasterer.getMoveManager().addMCMove(mcMoveRotate);
-                }
-                else {
-                    integrator.getMoveManager().addMCMove(mcMoveRotate);
-                }
-            }
-        } else {
-            mcMoveTranslate = new MCMoveClusterMoleculeMulti(random, space);
-            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
-            mcMoveRotate.setStepSize(Math.PI);
-            if (doWiggle) {
-                mcMoveWiggle = new MCMoveClusterWiggleMulti(random, potentialMaster, nMolecules, space);
-                if (doFasterer) {
-                    integratorFasterer.getMoveManager().addMCMove(mcMoveWiggle);
-                }
-                else {
-                    integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                }
-            }
-            if (doFasterer) {
+                mcMoveRotate = new MCMoveClusterAtomRotateMulti(random, box);
                 integratorFasterer.getMoveManager().addMCMove(mcMoveRotate);
             }
-            else {
-                integrator.getMoveManager().addMCMove(mcMoveRotate);
+        } else {
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(random, box);
+            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), box);
+            mcMoveRotate.setStepSize(Math.PI);
+            if (doWiggle) {
+                mcMoveWiggle = new MCMoveClusterWiggleMultiFasterer(random, pc, box);
+                integratorFasterer.getMoveManager().addMCMove(mcMoveWiggle);
             }
+            integratorFasterer.getMoveManager().addMCMove(mcMoveRotate);
         }
-        if (doFasterer) {
-            integratorFasterer.getMoveManager().addMCMove(mcMoveTranslate);
-        }
-        else {
-            integrator.getMoveManager().addMCMove(mcMoveTranslate);
-        }
+        integratorFasterer.getMoveManager().addMCMove(mcMoveTranslate);
 
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.initializeCoordinates(box);
@@ -180,12 +144,7 @@ public class SimulationVirial extends Simulation {
         meter = newMeter;
         if (accumulator != null) {
             if (accumulatorPump != null) {
-                if (doFasterer) {
-                    integratorFasterer.getEventManager().removeListener(accumulatorPump);
-                }
-                else {
-                    integrator.getEventManager().removeListener(accumulatorPump);
-                }
+                integratorFasterer.getEventManager().removeListener(accumulatorPump);
                 accumulatorPump = null;
             }
             if (meter != null) {
@@ -204,12 +163,7 @@ public class SimulationVirial extends Simulation {
 	    }
 		if (accumulatorPump == null) {
 			accumulatorPump = new DataPumpListener(meter,newAccumulator);
-			if (doFasterer) {
-                integratorFasterer.getEventManager().addListener(accumulatorPump);
-            }
-			else {
-                integrator.getEventManager().addListener(accumulatorPump);
-            }
+            integratorFasterer.getEventManager().addListener(accumulatorPump);
 		}
 		else {
 			accumulatorPump.setDataSink(newAccumulator);
@@ -227,20 +181,13 @@ public class SimulationVirial extends Simulation {
     }
 
     private Activity makeEquilibrationActivity(long initSteps) {
-        ActivityIntegrate ai = new ActivityIntegrate(doFasterer ? integratorFasterer : integrator, initSteps);
+        ActivityIntegrate ai = new ActivityIntegrate(integratorFasterer, initSteps);
         return new Activity() {
             @Override
             public void runActivity(Controller.ControllerHandle handle) {
-                if (doFasterer) {
-                    integratorFasterer.getMoveManager().setEquilibrating(true);
-                    ai.runActivity(handle);
-                    integratorFasterer.getMoveManager().setEquilibrating(false);
-                }
-                else {
-                    integrator.getMoveManager().setEquilibrating(true);
-                    ai.runActivity(handle);
-                    integrator.getMoveManager().setEquilibrating(false);
-                }
+                integratorFasterer.getMoveManager().setEquilibrating(true);
+                ai.runActivity(handle);
+                integratorFasterer.getMoveManager().setEquilibrating(false);
                 if (accumulator != null) {
                     accumulator.reset();
                 }
@@ -288,7 +235,7 @@ public class SimulationVirial extends Simulation {
 
     @Override
     public Integrator getIntegrator() {
-        return doFasterer ? integratorFasterer : integrator;
+        return integratorFasterer;
     }
 }
 

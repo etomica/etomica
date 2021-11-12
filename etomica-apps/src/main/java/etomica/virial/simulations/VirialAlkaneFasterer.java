@@ -221,7 +221,7 @@ public class VirialAlkaneFasterer {
         sim.init();
 
         sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-        MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), space, sigmaHSRef);
+        MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
         sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
 

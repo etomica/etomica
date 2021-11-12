@@ -1,11 +1,7 @@
 package etomica.spin.heisenberg;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IPotentialAtomicSecondDerivative;
-import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -19,7 +15,7 @@ import static etomica.math.SpecialFunctions.besselI;
  * @author Weisong Lin
  */
 
-public class PotentialCalculationMoleculeAgentSum implements PotentialCalculation {
+public class PotentialCalculationMoleculeAgentSum {
     //public class PotentialCalculationHeisenberg {
     protected Vector ei, ej;
     protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
@@ -100,14 +96,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         d2Ayc1 = new double[nMax + 1];
         d2Ays1 = new double[nMax + 1];
 
-    }
-
-
-    public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
-            return;
-        }
-        go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
     }
 
     public void go(IAtomOriented atom1, IAtomOriented atom2) {

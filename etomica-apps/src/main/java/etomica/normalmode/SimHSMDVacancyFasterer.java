@@ -22,7 +22,6 @@ import etomica.integrator.*;
 import etomica.integrator.mcmove.MCMoveIDBiasActionFasterer;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancyFasterer;
 import etomica.integrator.mcmove.MCMoveOverlapListenerFasterer;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -58,7 +57,6 @@ public class SimHSMDVacancyFasterer extends Simulation {
     public Box box;
     public P2HardGeneric potential;
     public IntegratorMCFasterer integratorMC;
-    public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancyFasterer mcMoveID;
 
 

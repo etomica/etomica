@@ -16,7 +16,6 @@ import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -29,6 +28,7 @@ import etomica.util.ParseArgs;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
 import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
 import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.simulations.SimulationVirialOverlap2;
@@ -198,13 +198,12 @@ public class VirialPolymerOverlapMCFasterer {
         sim.integratorOS.setRefStepFraction(-1);
         sim.integratorOS.setAdjustStepFraction(true);
 
-//        if (ref == VirialHSParam.CHAINS && flex) {
-//            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-//            sim.integrators[0].getMoveManager().addMCMove(new MCMoveClusterMoleculeHSChainB3(sim.getRandom(), space, refDiameter));
-//            sim.accumulators[0].setBlockSize(1);
-//        }
+        if (ref == VirialHSParam.CHAINS && flex) {
+            sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], refDiameter));
+            sim.accumulators[0].setBlockSize(1);
+        }
 
-        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[0]).setPositionDefinition(new MoleculePositionCOM(space));
 //        sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
         ((MCMoveStepTracker) sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
@@ -228,7 +227,7 @@ public class VirialPolymerOverlapMCFasterer {
         sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
 
         if(false) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "foo", 1);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -254,23 +253,23 @@ public class VirialPolymerOverlapMCFasterer {
 
             sim.initRefPref(null, 1000, false);
             sim.equilibrate(null, 2000, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-    return;
-}
+            return;
+        }
 
         long t1 = System.currentTimeMillis();
         steps = steps / 1000;
 
         sim.initRefPref(null, steps / 20);
         sim.equilibrate(null, steps / 10);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
-sim.setAccumulatorBlockSize(steps);
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+        sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps(steps);
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
 //        sim.initRefPref(null, 5);
 //        sim.equilibrate(null, 10);
 

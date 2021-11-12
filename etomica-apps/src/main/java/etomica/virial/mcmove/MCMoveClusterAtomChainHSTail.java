@@ -5,8 +5,9 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Space;
+import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -15,12 +16,20 @@ import etomica.virial.BoxCluster;
  * Grows configurations of chains with the pair probability distribution that
  * is flat for some distance and then has a power-law decay tail.
  */
-public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
+public class MCMoveClusterAtomChainHSTail extends MCMoveBoxStep {
 
-    public MCMoveClusterAtomChainHSTail(IRandom random, Space _space, double sigma, double pow) {
-        super(random, null, _space);
+    protected final IRandom random;
+    protected final double sigma;
+    protected final Vector dr;
+    protected final double pow;
+    protected final double totPCore;
+
+    public MCMoveClusterAtomChainHSTail(IRandom random, Box box, double sigma, double pow) {
+        super();
+        setBox(box);
+        this.random = random;
         this.sigma = sigma;
-        dr = space.makeVector();
+        dr = box.getSpace().makeVector();
         this.pow = pow;
         
         totPCore = (pow-3) / pow;
@@ -62,8 +71,13 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    protected final double sigma;
-    protected final Vector dr;
-    protected final double pow;
-    protected final double totPCore;
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
 }

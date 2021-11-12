@@ -4,11 +4,10 @@
 
 package etomica.virial.mcmove;
 
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -20,19 +19,18 @@ import etomica.virial.BoxCluster;
  * Extension of MCMoveAtom that does trial in which several atom positions are
  * perturbed.  However, position of first atom is never altered.  
  */
-public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
+public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
 
+    protected double uOld, uNew;
+    protected final IRandom random;
     protected Vector[] translationVectors;
     protected int[] constraintMap;
     protected int startMolecule;
 
-    public MCMoveClusterMoleculeMulti(IRandom random, Space _space) {
-        this(null, random, _space, 1.0);
-    }
-
-    public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
-                                      IRandom random, Space _space, double stepSize) {
-        super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
+    public MCMoveClusterMoleculeMulti(IRandom random, Box box) {
+        super();
+        this.random = random;
+        setBox(box);
         setStartMolecule(1);
     }
 
@@ -40,7 +38,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         super.setBox(p);
         translationVectors = new Vector[box.getMoleculeList().size()];
         for (int i = 0; i<box.getMoleculeList().size(); i++) {
-            translationVectors[i] = space.makeVector();
+            translationVectors[i] = box.getSpace().makeVector();
         }
         if (constraintMap == null) {
             constraintMap = new int[box.getMoleculeList().size()];
@@ -49,7 +47,17 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             }
         }
     }
-    
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
+
     public void setConstraintMap(int[] newConstraintMap) {
         constraintMap = newConstraintMap;
     }
@@ -71,8 +79,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
                 translationVectors[tv].setRandomCube(random);
                 translationVectors[tv].TE(stepSize);
             }
-            groupTranslationVector.E(translationVectors[tv]);
-            moveMoleculeAction.actionPerformed(moleculeList.get(i));
+            moleculeList.get(i).getChildList().forEach(atom -> {
+                atom.getPosition().PE(translationVectors[tv]);
+            });
         }
         ((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -82,8 +91,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = startMolecule; i<moleculeList.size(); i++) {
-            groupTranslationVector.Ea1Tv1(-1,translationVectors[constraintMap[i]]);
-            moveMoleculeAction.actionPerformed(moleculeList.get(i));
+            Vector v = translationVectors[constraintMap[i]];
+            moleculeList.get(i).getChildList().forEach(atom -> {
+                atom.getPosition().ME(v);
+            });
         }
         ((BoxCluster)box).rejectNotify();
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {

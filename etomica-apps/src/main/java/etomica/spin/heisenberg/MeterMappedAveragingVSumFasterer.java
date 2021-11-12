@@ -13,7 +13,6 @@ import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.PotentialCalculation;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.PotentialCompute;
@@ -157,6 +156,7 @@ public class MeterMappedAveragingVSumFasterer implements IDataSource, AgentSourc
                     }
                     if (doVSum) {
                         vSum.go((IAtomOriented) a1, (IAtomOriented) jAtom);
+                        vSumPair.go((IAtomOriented) a1, (IAtomOriented) jAtom);
                     }
                 }
             });
@@ -701,7 +701,7 @@ public class MeterMappedAveragingVSumFasterer implements IDataSource, AgentSourc
 
     }
 
-    private class PotentialCalculationPhiijMF implements PotentialCalculation {
+    private class PotentialCalculationPhiijMF {
         private final Vector myWorkVector = space.makeVector();
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));

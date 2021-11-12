@@ -41,7 +41,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
      * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
     public MCMoveAtomFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();
@@ -60,7 +60,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         uOld = potentialCompute.computeOneOld(atom);
-        if (uOld > 1e8) {
+        if (uOld > 1e10) {
             throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
         translationVector.setRandomCube(random);

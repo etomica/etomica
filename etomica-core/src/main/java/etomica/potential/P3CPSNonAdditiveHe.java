@@ -23,7 +23,7 @@ import etomica.units.Kelvin;
  *  
  * @author kate, Andrew Schultz
  */
-public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
+public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPotentialAtomicMultibody, Potential3Soft {
 
     public P3CPSNonAdditiveHe(Space space) {
         this(space, 0);
@@ -70,11 +70,8 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
 
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
     }
-    
-    public double energy(double[] r2) {
-        double RAB2 = r2[0];
-        double RAC2 = r2[1];
-        double RBC2 = r2[2];
+
+    public double energy(double RAB2, double RAC2, double RBC2) {
         double RAB = Math.sqrt(RAB2);
         double RAC = Math.sqrt(RAC2);
         double RBC = Math.sqrt(RBC2);
@@ -83,6 +80,10 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
         double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    public double energy(double[] r2) {
+        return energy(r2[0], r2[1], r2[2]);
     }
     
     protected double energy(double RAB, double RAC, double RBC, double costhetaA, double costhetaB, double costhetaC) {

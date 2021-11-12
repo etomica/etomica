@@ -238,7 +238,7 @@ public class HSDimerNPTFasterer extends Simulation {
                             if (event instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent) event).isAccepted()) {
                                 Vector scaleVec = space.makeVector();
                                 MCMove move = ((MCMoveTrialCompletedEvent) event).getMCMove();
-                                if (move instanceof MCMoveVolumeMonoclinic) {
+                                if (move instanceof MCMoveVolumeMonoclinicFasterer) {
                                     for (int i = 0; i < 3; i++) {
                                         Vector lbv = latticeBox.getBoundary().getEdgeVector(i);
                                         Vector bv = box.getBoundary().getEdgeVector(i);
@@ -246,7 +246,7 @@ public class HSDimerNPTFasterer extends Simulation {
                                     }
                                     inflaterLat.setVectorScale(scaleVec);
                                     inflaterLat.actionPerformed();
-                                } else if (move instanceof MCMoveVolumeMonoclinicAngle) {
+                                } else if (move instanceof MCMoveVolumeMonoclinicAngleFasterer) {
                                     scaleVec.E(box.getBoundary().getEdgeVector(2));
                                     inflateAngle.setCVector(scaleVec);
                                     inflateAngle.actionPerformed();

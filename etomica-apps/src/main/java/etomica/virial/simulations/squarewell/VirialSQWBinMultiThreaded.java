@@ -553,14 +553,14 @@ public class VirialSQWBinMultiThreaded {
             sim.integratorFasterer.getMoveManager().removeMCMove(sim.mcMoveTranslate);
 
             if (targetTemp == 0) {
-                MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, lambda);
+                MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, lambda);
                 sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSR);
                 sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSR, ringFrac);
             }
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomSQWChain(sim.getRandom(), space, lambda, targetTemp);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomSQWChain(sim.getRandom(), sim.box, lambda, targetTemp);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHSC);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomSQWTree(sim.getRandom(), space, lambda, targetTemp);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomSQWTree(sim.getRandom(), sim.box, lambda, targetTemp);
             sim.integratorFasterer.getMoveManager().addMCMove(mcMoveHST);
             sim.integratorFasterer.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
             MeterVirialEBinMultiThreaded.setTRatio(tRatio);

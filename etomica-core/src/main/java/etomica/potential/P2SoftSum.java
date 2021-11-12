@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -19,7 +18,7 @@ import etomica.space.Vector;
  * overhead for this class is much smaller than the overhead if holding and
  * iterating over an array of potentials.
  */
-public class P2SoftSum implements Potential2Soft, PotentialTruncated {
+public class P2SoftSum implements Potential2Soft {
 
     private final Potential2Soft potential1, potential2, potential3;
 
@@ -195,15 +194,6 @@ public class P2SoftSum implements Potential2Soft, PotentialTruncated {
         r = Math.max(r, potential2.getRange());
         if (potential3 == null) return r;
         return Math.max(r, potential3.getRange());
-    }
-
-    /**
-     * Returns the zero-body potential that evaluates the contribution to the
-     * energy and its derivatives from pairs that are separated by a distance
-     * exceeding the truncation radius.
-     */
-    public Potential0Lrc makeLrcPotential(AtomType[] types) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -49,7 +49,7 @@ public class MCMoveMoleculeCoupledFasterer extends MCMoveBoxStep {
 
     public MCMoveMoleculeCoupledFasterer(PotentialCompute potentialCompute, IRandom nRandom,
                                          Space _space){
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.random = nRandom;
         moleculeSource = new MoleculeSourceRandomMolecule();

@@ -35,7 +35,7 @@ public class MCMoveVolumeMonoclinicAngleFasterer extends MCMoveBoxStep {
     protected final Vector cVec;
 
     public MCMoveVolumeMonoclinicAngleFasterer(PotentialCompute potentialCompute, IntegratorMCFasterer integrator, IRandom random) {
-        super(null);
+        super();
         this.random = random;
         this.potentialCompute = potentialCompute;
         this.integrator = integrator;

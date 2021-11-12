@@ -5,22 +5,23 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.AtomOrientedQuaternion;
-import etomica.atom.AtomSource;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Space;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
-public class MCMoveClusterAtomQ extends MCMoveAtom {
+public class MCMoveClusterAtomQ extends MCMoveBox {
 
-    protected final MCMoveAtom mcMove;
+    protected final IRandom random;
+    protected final MCMoveBox mcMove;
     
-    public MCMoveClusterAtomQ(IRandom random, Space space, MCMoveAtom mcMove) {
-        super(random, null, space);
+    public MCMoveClusterAtomQ(IRandom random, Box box, MCMoveBox mcMove) {
+        super();
+        this.random = random;
         this.mcMove = mcMove;
+        setBox(box);
     }
 
     public boolean doTrial() {
@@ -65,14 +66,6 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
 
     public AtomIterator affectedAtoms() {
         return mcMove.affectedAtoms();
-    }
-
-    public AtomSource getAtomSource() {
-        return mcMove.getAtomSource();
-    }
-
-    public void setAtomSource(AtomSource source) {
-        mcMove.setAtomSource(source);
     }
 
     public Box getBox() {

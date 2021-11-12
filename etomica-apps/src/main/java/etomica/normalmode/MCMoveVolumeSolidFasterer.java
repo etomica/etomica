@@ -50,7 +50,7 @@ public class MCMoveVolumeSolidFasterer extends MCMoveBoxStep {
 
     public MCMoveVolumeSolidFasterer(IntegratorMCFasterer integrator, CoordinateDefinition coordinateDefinition, IRandom random,
                                      Space _space, double pressure) {
-        super(null);
+        super();
 //        System.out.println("do Corti? "+doCorti);
         this.integrator = integrator;
         this.coordinateDefinition = coordinateDefinition;

@@ -20,7 +20,6 @@ import etomica.math.function.Function;
 import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.nbr.CriterionPositionWall;
 import etomica.space.Vector;
 import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
@@ -358,36 +357,6 @@ public class ColloidGraphicFasterer extends SimulationGraphic {
         historyE2E.setDataSink(runningAvgE2E.getDataSet().makeDataSink());
         runningAvgE2E.setLabel("End-to-End Distance");
         add(runningAvgE2E);
-    }
-
-    public static class WallRangeModifier implements Modifier {
-        public WallRangeModifier(P1Wall p1, CriterionPositionWall criterion) {
-            this.p1 = p1;
-            this.criterion = criterion;
-        }
-
-        public Dimension getDimension() {
-            return Length.DIMENSION;
-        }
-
-        public String getLabel() {
-            return "Wall range";
-        }
-
-        public double getValue() {
-            return p1.getRange();
-        }
-
-        public void setValue(double newValue) {
-            if (newValue == getValue()) return;
-            p1.setRange(newValue);
-            if (criterion != null) {
-                criterion.setNeighborRange(1.5 * newValue);
-            }
-        }
-
-        protected final P1Wall p1;
-        protected final CriterionPositionWall criterion;
     }
 
     public static void main(String[] args) {

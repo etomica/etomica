@@ -78,7 +78,7 @@ public class TestLJMD3DEwald extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3D.class);
 //        config = new ConfigurationLattice(new LatticeCubicFcc(Space3D.getInstance()), Space3D.getInstance());
 
         TestLJMD3DEwald sim = new TestLJMD3DEwald(numAtoms, config);

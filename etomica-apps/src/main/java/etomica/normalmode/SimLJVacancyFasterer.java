@@ -86,8 +86,8 @@ public class SimLJVacancyFasterer extends Simulation {
         potentialMasterPair = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         p2LJ = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space, 1, 1);
+        potentialMasterPair.doAllTruncationCorrection = false;
         potential = new P2SoftSphericalTruncated(space, p2LJ, rc);
-        potential.setMakeLrc(false);
         AtomType leafType = species.getLeafType();
 
         potentialMasterPair.setPairPotential(leafType, leafType, potential);

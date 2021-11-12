@@ -174,7 +174,7 @@ public class GlassProdFasterer {
 
         sim.integrator.getEventManager().addListener(pTensorAccumViscPump);
 
-        GlassGraphic.DataProcessorTensorTrace tracer = new GlassGraphic.DataProcessorTensorTrace();
+        GlassGraphicFasterer.DataProcessorTensorTrace tracer = new GlassGraphicFasterer.DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
         DataFork pFork = new DataFork();
         tracer.setDataSink(pFork);

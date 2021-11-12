@@ -24,6 +24,7 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.*;
+import etomica.util.random.RandomMersenneTwister;
 
 public class SwmdFasterer extends Simulation {
 
@@ -34,7 +35,7 @@ public class SwmdFasterer extends Simulation {
 
     public SwmdFasterer(Space _space) {
         super(_space);
-
+        setRandom(new RandomMersenneTwister(1));
         //species
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         ((ElementSimple) species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));

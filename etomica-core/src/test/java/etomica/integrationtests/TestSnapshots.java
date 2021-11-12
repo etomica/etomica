@@ -7,10 +7,14 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorHardFasterer;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.NeighborListManagerFastererHard;
+import etomica.potential.BondingInfo;
+import etomica.potential.IPotentialHard;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -48,7 +52,7 @@ public class TestSnapshots {
     }
 
     private static class HSMD3DNeighborList extends Simulation {
-        public final IntegratorHard integrator;
+        public final IntegratorHardFasterer integrator;
         public HSMD3DNeighborList() {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
@@ -58,11 +62,12 @@ public class TestSnapshots {
 
             addBox(new Box(this.space));
 
-            PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
-            P2HardSphere potential = new P2HardSphere(space, 1.0, true);
+            NeighborListManagerFastererHard neighborManager = new NeighborListManagerFastererHard(getSpeciesManager(), box(), 2, 1.6, BondingInfo.noBonding());
+            PotentialComputePair pm = new PotentialComputePair(getSpeciesManager(), box(), neighborManager);
+            P2HardGeneric potential = P2HardSphere.makePotential(1.0);
             AtomType leafType = species.getLeafType();
 
-            pm.addPotential(potential, new AtomType[]{leafType, leafType});
+            pm.setPairPotential(leafType, leafType, potential);
 
             box().setNMolecules(species, 256);
             BoxInflate inflater = new BoxInflate(box(), space);
@@ -70,11 +75,7 @@ public class TestSnapshots {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            integrator = new IntegratorHard(random, pm, box());
-            integrator.setIsothermal(false);
-            integrator.setTimeStep(0.01);
-
-            integrator.getEventManager().addListener(pm.getNeighborManager(box()));
+            integrator = new IntegratorHardFasterer(new IPotentialHard[][]{{potential}}, neighborManager, random, 0.01, 1.0, box(), getSpeciesManager());
         }
 
     }

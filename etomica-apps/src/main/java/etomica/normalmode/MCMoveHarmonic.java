@@ -16,7 +16,7 @@ import etomica.util.random.IRandom;
 public class MCMoveHarmonic extends MCMoveBox {
 
     public MCMoveHarmonic(IRandom random) {
-        super(null, new MCMoveTracker());
+        super(new MCMoveTracker());
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
     }

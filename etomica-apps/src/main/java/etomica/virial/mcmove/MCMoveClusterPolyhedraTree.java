@@ -7,22 +7,33 @@ package etomica.virial.mcmove;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.IPotentialAtomic;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
-public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
+public class MCMoveClusterPolyhedraTree extends MCMoveBox {
 
-    public MCMoveClusterPolyhedraTree(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
-        super(random, null, _space);
+    protected final IRandom random;
+    protected final double sigma;
+    protected int[][] bonds;
+    protected int[] degree, a;
+    protected int[] inserted;
+    protected IPotentialAtomic p2;
+    protected final AtomPair pair;
+    protected final double[][] uValues;
+
+    public MCMoveClusterPolyhedraTree(IRandom random, Box box, double sigma, IPotentialAtomic p2, double[][] uValues) {
+        super();
+        this.random = random;
         this.sigma = sigma;
         this.p2 = p2;
         pair = new AtomPair();
         this.uValues = uValues;
+        setBox(box);
     }
     
     public void setBox(Box box) {
@@ -32,6 +43,16 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
         a = new int[n-2];
         inserted = new int[n];
         bonds = new int[n*(n-1)/2][2];
+    }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
     }
 
     protected void randomOrientation(Vector q) {
@@ -155,12 +176,4 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
     public void acceptNotify() {
     	((BoxCluster)box).acceptNotify();
     }
-
-    protected final double sigma;
-    protected int[][] bonds;
-    protected int[] degree, a;
-    protected int[] inserted;
-    protected IPotentialAtomic p2;
-    protected final AtomPair pair;
-    protected final double[][] uValues;
 }

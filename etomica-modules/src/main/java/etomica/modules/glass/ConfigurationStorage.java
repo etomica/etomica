@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorMDFasterer;
 import etomica.space.Vector;
 
 import java.util.Arrays;
@@ -192,7 +192,7 @@ public class ConfigurationStorage implements IntegratorListener {
         // savedSteps isn't integrator's steps, it's just relative steps for our own purposes
         savedSteps[0] = stepCount;
         Integrator integrator = e.getIntegrator();
-        savedTimes[0] = integrator instanceof IntegratorMD ? ((IntegratorMD) integrator).getCurrentTime() : integrator.getStepCount();
+        savedTimes[0] = integrator instanceof IntegratorMDFasterer ? ((IntegratorMDFasterer) integrator).getCurrentTime() : integrator.getStepCount();
         Vector boxDim = box.getBoundary().getBoxSize();
         for (int i = 0; i < n; i++) {
             Vector p = atoms.get(i).getPosition();

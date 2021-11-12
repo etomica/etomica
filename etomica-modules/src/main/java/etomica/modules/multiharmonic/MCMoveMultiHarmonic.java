@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.P1Harmonic;
@@ -25,20 +24,9 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveMultiHarmonic extends MCMoveBox {
 
-    public MCMoveMultiHarmonic(IntegratorMC integratorMC, P1Harmonic p1, IRandom random) {
-        super(null);
-        this.integratorMC = integratorMC;
-        this.integratorMCFasterer = null;
-        this.p1 = p1;
-        iterator = new AtomIteratorLeafAtoms();
-        this.random = random;
-        uNew = Double.NaN;
-    }
-
     public MCMoveMultiHarmonic(IntegratorMCFasterer integratorMC, P1Harmonic p1, IRandom random) {
         super(null);
         this.integratorMCFasterer = integratorMC;
-        this.integratorMC = null;
         this.p1 = p1;
         iterator = new AtomIteratorLeafAtoms();
         this.random = random;
@@ -62,7 +50,7 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
     }
 
     public boolean doTrial() {
-        uOld = integratorMC != null ? integratorMC.getPotentialEnergy() : integratorMCFasterer.getPotentialEnergy();
+        uOld = integratorMCFasterer.getPotentialEnergy();
         double s = p1.getSpringConstant();
         double sqrtS = Math.sqrt(s);
         Vector x0 = p1.getX0();
@@ -88,7 +76,6 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         throw new RuntimeException("oops");
     }
 
-    protected final IntegratorMC integratorMC;
     protected final IntegratorMCFasterer integratorMCFasterer;
     protected final P1Harmonic p1;
     protected final AtomIteratorLeafAtoms iterator;

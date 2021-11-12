@@ -312,8 +312,8 @@ public class OsmosisFasterer extends SimulationGraphic {
 		private ConfigurationLatticeWithPlane config;
 		private SimulationRestart simRestart;
 
-		private int speciesSolventTotal = OsmosisSim.initialSolvent;
-		private int speciesSoluteTotal = OsmosisSim.initialSolute;
+		private int speciesSolventTotal = OsmosisSimFasterer.initialSolvent;
+		private int speciesSoluteTotal = OsmosisSimFasterer.initialSolute;
 		private float solutePct = (float) speciesSoluteTotal / (float) (speciesSolventTotal + speciesSoluteTotal);
 
 		public InitializeMolecules(ConfigurationLatticeWithPlane configuration,

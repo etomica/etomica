@@ -5,8 +5,9 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.Space;
+import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
@@ -16,11 +17,14 @@ import etomica.virial.BoxCluster;
  *
  * @author Arpit Bansal
  */
-public class MCMoveClusterAtomInBox extends MCMoveAtom {
+public class MCMoveClusterAtomInBox extends MCMoveBox {
 
-    public MCMoveClusterAtomInBox(IRandom random, Space _space){//}, double sigma) {
-        super(random, null, _space);
-        //this.sigma = sigma;
+    protected final IRandom random;
+
+    public MCMoveClusterAtomInBox(IRandom random, Box box){
+        super();
+        this.random = random;
+        setBox(box);
     }
 
     public boolean doTrial() {
@@ -47,5 +51,15 @@ public class MCMoveClusterAtomInBox extends MCMoveAtom {
 
     public void acceptNotify() {
         ((BoxCluster)box).acceptNotify();
+    }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
     }
 }

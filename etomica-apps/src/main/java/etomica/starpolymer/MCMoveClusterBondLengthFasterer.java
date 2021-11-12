@@ -6,15 +6,17 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.atom.iterator.AtomIterator;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.mcmove.MCMoveClusterMolecule;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the
@@ -28,7 +30,21 @@ import etomica.virial.mcmove.MCMoveClusterMolecule;
  *
  * @author Andrew Schultz
  */
-public class MCMoveClusterBondLengthFasterer extends MCMoveClusterMolecule {
+public class MCMoveClusterBondLengthFasterer extends MCMoveBoxStep {
+
+    protected IMolecule molecule;
+    protected MoleculeSource moleculeSource;
+    protected IRandom random;
+    protected final PotentialCompute potentialMaster;
+    protected Vector r0;
+    protected double dr;
+    protected int startAtom;
+    protected final Space space;
+    protected double wOld, wNew, uOld, uNew;
+    protected ISpecies species;
+    protected final int armLength;
+    protected final Vector translateVector;
+    protected double bl;
 
     public MCMoveClusterBondLengthFasterer(IRandom random, PotentialCompute potentialMaster, int armLength, Space _space) {
         this(potentialMaster, random, 1.0, armLength, _space);
@@ -36,7 +52,7 @@ public class MCMoveClusterBondLengthFasterer extends MCMoveClusterMolecule {
 
     public MCMoveClusterBondLengthFasterer(PotentialCompute potentialMaster,
                                            IRandom random, double stepSize, int armLength, Space _space) {
-        super(random, _space, stepSize);
+        super();
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
         this.space = _space;
@@ -54,11 +70,6 @@ public class MCMoveClusterBondLengthFasterer extends MCMoveClusterMolecule {
         molecule = moleculeSource.getMolecule();
         uOld = potentialMaster.computeOneMolecule(molecule);
         wOld = ((BoxCluster) box).getSampleCluster().value((BoxCluster) box);
-        if (uOld > 1e8) {
-            PotentialCalculationEnergySum.debug = true;
-            energyMeter.getDataAsScalar();
-            throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap");
-        }
         IAtomList childList = molecule.getChildList();
         int numChildren = childList.size();
 
@@ -94,17 +105,10 @@ public class MCMoveClusterBondLengthFasterer extends MCMoveClusterMolecule {
         }
     }
 
-    public void acceptNotify() {
-//        if(r0.isZero()) System.out.println("accepted! ");
-//        System.out.println("accepting bond length move");
-        super.acceptNotify();
-    }
-
     public void rejectNotify() {
         dr = -dr;
 //        System.out.println("rejecting bond length move");
         doTransform();
-        super.rejectNotify();
     }
 
     public double getChi(double temperature) {
@@ -115,14 +119,18 @@ public class MCMoveClusterBondLengthFasterer extends MCMoveClusterMolecule {
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature) * ratio * ratio;
     }
 
-    protected final PotentialCompute potentialMaster;
-    protected Vector r0;
-    protected double dr;
-    protected int startAtom;
-    protected final Space space;
-    protected double wOld, wNew;
-    protected ISpecies species;
-    protected final int armLength;
-    protected final Vector translateVector;
-    protected double bl;
+    @Override
+    public void acceptNotify() {
+
+    }
+
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
 }

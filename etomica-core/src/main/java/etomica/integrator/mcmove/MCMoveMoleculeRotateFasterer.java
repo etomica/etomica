@@ -35,7 +35,6 @@ public class MCMoveMoleculeRotateFasterer extends MCMoveBoxStep {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected MoleculeSource moleculeSource;
-    protected boolean fixOverlap;
     protected Space space;
     protected final Vector r0;
     protected final RotationTensor rotationTensor;
@@ -47,7 +46,7 @@ public class MCMoveMoleculeRotateFasterer extends MCMoveBoxStep {
      * @param potentialCompute used to construct MeterPotentialEnergy required by full constructor
      */
     public MCMoveMoleculeRotateFasterer(IRandom random, PotentialCompute potentialCompute, Box box) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.random = random;
         this.space = box.getSpace();
@@ -67,8 +66,8 @@ public class MCMoveMoleculeRotateFasterer extends MCMoveBoxStep {
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
         uOld = potentialCompute.computeOneOldMolecule(molecule);
-        if (uOld > 1e8) {
-            throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap");
+        if (uOld > 1e10) {
+            throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap ("+uOld+")");
         }
         while (oldPositions.size() < molecule.getChildList().size()) {
             oldPositions.add(space.makeVector());

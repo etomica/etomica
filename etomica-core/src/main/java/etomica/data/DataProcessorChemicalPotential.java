@@ -5,7 +5,6 @@
 package etomica.data;
 
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorBoxFasterer;
 
 /**
@@ -18,10 +17,6 @@ import etomica.integrator.IntegratorBoxFasterer;
  * @author Andrew Schultz
  */
 public class DataProcessorChemicalPotential extends DataProcessor {
-
-    public DataProcessorChemicalPotential(IntegratorBox integrator) {
-        this.integrator = integrator;
-    }
 
     public DataProcessorChemicalPotential(IntegratorBoxFasterer integrator) {
         this.integratorFasterer = integrator;
@@ -40,7 +35,7 @@ public class DataProcessorChemicalPotential extends DataProcessor {
         double[] newY = data.getData();
         IData densityData = densityProfileSource.getData();
         if (densityData == null) return null;
-        double temp = integrator != null ? integrator.getTemperature() : integratorFasterer.getTemperature();
+        double temp = integratorFasterer.getTemperature();
         for (int i=0; i<oldY.length; i++) {
             double density = densityData.getValue(i);
             if (density*oldY[i] == 0) {
@@ -62,6 +57,5 @@ public class DataProcessorChemicalPotential extends DataProcessor {
 
     protected IDataSource densityProfileSource;
     protected DataFunction data;
-    protected IntegratorBox integrator;
     protected IntegratorBoxFasterer integratorFasterer;
 }

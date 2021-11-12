@@ -1,7 +1,7 @@
 package etomica.graphics;
 
 import etomica.action.SimulationRestart;
-import etomica.simulation.prototypes.HSMD3D;
+import etomica.simulation.prototypes.HSMD3DFasterer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ public class GraphicsSmokeTests {
 
     @Test
     public void testHSMD3D() {
-        HSMD3D sim = new HSMD3D();
+        HSMD3DFasterer sim = new HSMD3DFasterer();
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "test");
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

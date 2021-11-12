@@ -5,9 +5,6 @@
 package etomica.simulation;
 
 import etomica.tests.TestLJMCDimerFast;
-import etomica.tests.TestLJMCDimerSlow;
-import etomica.tests.TestLJMDDimer;
-import etomica.tests.TestLJMDDimerFast;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -31,13 +28,11 @@ public class BenchSimLJMCDimer {
     private int moleculeSize;
 
     private TestLJMCDimerFast simFast;
-    private TestLJMCDimerSlow simSlow;
 
 
     @Setup(Level.Iteration)
     public void setUp() {
         simFast = new TestLJMCDimerFast(moleculeSize, totalAtoms, doCell);
-        simSlow = new TestLJMCDimerSlow(moleculeSize, totalAtoms, doCell);
 
     }
 
@@ -48,15 +43,6 @@ public class BenchSimLJMCDimer {
     @Measurement(time = 3, iterations = 5)
     public void integratorStepFast() {
         simFast.integrator.doStep();
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.Throughput)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
-    public void integratorStepSlow() {
-        simSlow.integrator.doStep();
     }
 
 

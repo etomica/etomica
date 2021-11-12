@@ -9,7 +9,6 @@ import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.ConformationLinear;
@@ -117,16 +116,15 @@ public class VirialN2PI {
         final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads);
         // Temperature value for PI with SCB was T*P^2.
         // Should be just T*P for SCB-TI as the internal set temperature method squares the argument.
-        final IPotentialAtomic p2;
+        final Potential2Soft p2;
         if (scBeads) {
             p2 = p2PISC;
         }
         else {
             p2 = p2Full;
         }
-        PotentialGroupPI pTarGroup = new PotentialGroupPI(beadFac);
-        pTarGroup.addPotential(p2, new ApiIntergroupCoupled());
-        MayerGeneral fTar = new MayerGeneral(pTarGroup) {
+        PotentialMoleculePairPI pTar = new PotentialMoleculePairPI(space, p2, beadFac);
+        MayerGeneral fTar = new MayerGeneral(pTar) {
             @Override
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);

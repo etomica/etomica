@@ -6,12 +6,10 @@ package etomica.graphics;
 
 import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
-import etomica.action.SimulationRestart;
 import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
-import etomica.simulation.prototypes.HSMD2D;
 import etomica.species.ISpecies;
 
 /**
@@ -95,27 +93,4 @@ public class DeviceNSelector extends DeviceSlider {
     protected IAction resetAction;
     protected ISpecies species;
     protected Box box;
-    
-    //main method to demonstrate and test class
-    public static void main(String[] args) {
-        final String APP_NAME = "Devine n Selector";
-
-        etomica.space.Space space = etomica.space2d.Space2D.getInstance();
-        final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        
-        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setBox(sim.box);
-        nSelector.setSpecies(sim.species1);
-        nSelector.setPostAction(graphic.getPaintAction(sim.box));
-        graphic.add(nSelector);
-
-        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
-
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-    
-
 } //end of DeviceNSelector

@@ -37,7 +37,7 @@ public class MCMoveVolumeFasterer extends MCMoveBoxStep {
 
     public MCMoveVolumeFasterer(IntegratorBoxFasterer integrator, IRandom random,
                                 double pressure) {
-        super(null);
+        super();
         this.integrator = integrator;
         this.random = random;
         Space space = integrator.getBox().getSpace();

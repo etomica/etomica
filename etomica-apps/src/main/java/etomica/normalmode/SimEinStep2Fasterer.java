@@ -12,7 +12,6 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFasterer;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -21,7 +20,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.lattice.crystal.*;
-import etomica.molecule.IMolecule;
 import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -272,67 +270,6 @@ public class SimEinStep2Fasterer extends Simulation {
         // equilibrate off the lattice to avoid anomolous contributions
         this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
-    }
-    
-    protected static class MeterPotentialEnergyComposite extends
-            MeterPotentialEnergy {
-        protected final MeterPotentialEnergy meterPE1, meterPE2;
-        protected final int nMolecules;
-        protected double lambda, latticeEnergy;
-        protected boolean hasTarget = false;
-
-        protected MeterPotentialEnergyComposite(PotentialMaster potentialMaster1, PotentialMaster potentialMaster2, double latticeEnergy, int nMolecules) {
-            super(null);
-            meterPE1 = new MeterPotentialEnergy(potentialMaster1);
-            meterPE2 = new MeterPotentialEnergy(potentialMaster2);
-            this.latticeEnergy = latticeEnergy;
-            this.nMolecules = nMolecules;
-        }
-
-        public double getLambda() {
-            return lambda;
-        }
-
-        public void setLambda(double newFrac) {
-            lambda = newFrac;
-        }
-
-        public Box getBox() {
-            return meterPE1.getBox();
-        }
-
-        public void setBox(Box box) {
-            meterPE1.setBox(box);
-            meterPE2.setBox(box);
-        }
-
-        public boolean isIncludeLrc() {
-            return meterPE1.isIncludeLrc();
-        }
-        
-        public void setIncludeLrc(boolean b) {
-            meterPE1.setIncludeLrc(b);
-            meterPE2.setIncludeLrc(b);
-        }
-
-        public void setTarget(IAtom atom) {
-            meterPE1.setTarget(atom);
-            meterPE2.setTarget(atom);
-            hasTarget = atom != null;
-        }
-
-        public void setTarget(IMolecule mole) {
-            meterPE1.setTarget(mole);
-            meterPE2.setTarget(mole);
-            hasTarget = mole != null;
-        }
-
-        public double getDataAsScalar() {
-
-//            System.out.println(hasTarget+" "+meterPE1.getDataAsScalar()+" "+meterPE2.getDataAsScalar()+" "+(latticeEnergy/(hasTarget ? nMolecules/2 : 1)));
-//            System.out.println("hi "+(lambda * meterPE1.getDataAsScalar() + (meterPE2.getDataAsScalar() - latticeEnergy/(hasTarget ? nMolecules/2 : 1))));
-            return lambda * meterPE1.getDataAsScalar() + (meterPE2.getDataAsScalar() - latticeEnergy/(hasTarget ? nMolecules/2 : 1));
-        }
     }
 
     /**

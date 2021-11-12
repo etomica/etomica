@@ -40,7 +40,7 @@ public class SimulationRheology extends Simulation {
         box.setNMolecules(species, 2);
         config = new ConfigurationPolymer(space, random);
         config.initializeCoordinates(box);
-        integrator = new IntegratorPolymer(null, getRandom(), 0.01, 1.0, box);
+        integrator = new IntegratorPolymer(getRandom(), 0.01, 1.0, box);
         integrator.setB(1);
         getController().addActivity(new ActivityIntegrate(integrator, true));
     }

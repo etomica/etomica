@@ -3,7 +3,6 @@ package etomica.nbr.list;
 import etomica.action.BoxInflate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
@@ -11,9 +10,11 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2Soft;
+import etomica.potential.compute.NeighborIterator;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -22,22 +23,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NeighborListingTest {
-    private NeighborListManager nlm;
-    private PotentialMasterList pm;
+    private NeighborListManagerFasterer nlm;
     private Box box;
-
-    private Map<IAtom, Set<IAtom>> pmNbrsSame;
-    private Map<IAtom, Set<IAtom>> pmNbrsAB;
 
     private static final double NBR_RANGE = 3.5;
     private static final double POTENTIAL_RANGE = 3.;
@@ -81,91 +75,34 @@ class NeighborListingTest {
         box.setNMolecules(speciesB, 20);
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(sim.getSpace()), sim.getSpace());
         config.initializeCoordinates(box);
-        pm = new PotentialMasterList(sim, NBR_RANGE, sim.getSpace());
 
-        pmNbrsSame = new HashMap<>();
-        pmNbrsAB = new HashMap<>();
-
-        IPotentialAtomic mockPotentialAA = new MockPotential(2, POTENTIAL_RANGE) {
-            @Override
-            public double energy(IAtomList atoms) {
-                assertEquals(atoms.get(0).getType(), speciesA.getLeafType());
-                assertEquals(atoms.get(1).getType(), speciesA.getLeafType());
-                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1)));
-                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(1), a -> new HashSet<>()).add(atoms.get(0)));
-                return 0;
-            }
-        };
-
-        IPotentialAtomic mockPotentialAB = new MockPotential(2, POTENTIAL_RANGE) {
-            @Override
-            public double energy(IAtomList atoms) {
-                if (atoms.get(0).getType() == speciesA.getLeafType()) {
-                    assertEquals(atoms.get(1).getType(), speciesB.getLeafType());
-                } else {
-                    assertEquals(atoms.get(1).getType(), speciesA.getLeafType());
-                }
-                assertTrue(pmNbrsAB.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1)));
-                assertTrue(pmNbrsAB.computeIfAbsent(atoms.get(1), a -> new HashSet<>()).add(atoms.get(0)));
-                return 0;
-            }
-        };
-
-        IPotentialAtomic mockPotentialBB = new MockPotential(2, POTENTIAL_RANGE) {
-            @Override
-            public double energy(IAtomList atoms) {
-                assertEquals(atoms.get(0).getType(), speciesB.getLeafType());
-                assertEquals(atoms.get(1).getType(), speciesB.getLeafType());
-                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1)));
-                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(1), a -> new HashSet<>()).add(atoms.get(0)));
-                return 0;
-            }
-        };
-        pm.addPotential(mockPotentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-        pm.addPotential(mockPotentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
-        pm.addPotential(mockPotentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
-        nlm = pm.getNeighborManager(box);
+        P2LennardJones p2lj = new P2LennardJones(sim.getSpace());
+        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(sim.getSpace(), p2lj, POTENTIAL_RANGE);
+        Potential2Soft[][] potentials = new Potential2Soft[][]{{p2,p2},{p2,p2}};
+        nlm = new NeighborListManagerFasterer(sim.getSpeciesManager(), box, 2, NBR_RANGE, BondingInfo.noBonding());
+        nlm.setPairPotentials(potentials);
+        nlm.setDoDownNeighbors(true);
         nlm.reset();
-        nlm.ensureDownLists();
     }
 
     @Test
     void testNeighborDistance() {
         for (IAtom atom : box.getLeafList()) {
-            int typeIdx = atom.getType().getIndex();
-            int otherTypeIdx = typeIdx == 1 ? 0 : 1;
             Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
             Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
             Set<IAtom> sameTypeNbrList = new HashSet<>();
-            sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
-            sameTypeNbrList.addAll(nlm.getDownList(atom)[atom.getType().getIndex()]);
-
             Set<IAtom> otherTypeNbrList = new HashSet<>();
-            otherTypeNbrList.addAll(nlm.getUpList(atom)[otherTypeIdx]);
-            otherTypeNbrList.addAll(nlm.getDownList(atom)[otherTypeIdx]);
+            nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij) {
+                    if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
+                    else otherTypeNbrList.add(jAtom);
+                }
+            });
 
             assertEquals(sameTypeNbrs, sameTypeNbrList, atom + " same-type neighbors");
             assertEquals(otherTypeNbrs, otherTypeNbrList, atom + " other-type neighbors");
-        }
-    }
-
-    @Test
-    void testPotentialMasterNbrs() {
-
-        pm.calculate(box, new IteratorDirective(), new PotentialCalculation() {
-            @Override
-            public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-                potential.energy(atoms);
-            }
-        });
-
-        for (IAtom atom : box.getLeafList()) {
-            Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
-            Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
-
-            assertEquals(sameTypeNbrs, pmNbrsSame.get(atom), atom + " same-type neighbors");
-            assertEquals(otherTypeNbrs, pmNbrsAB.get(atom), atom + " other-type neighbors");
         }
     }
 
@@ -183,43 +120,23 @@ class NeighborListingTest {
         @Test
         void testNbrDistance() {
             for (IAtom atom : box.getLeafList()) {
-                int typeIdx = atom.getType().getIndex();
-                int otherTypeIdx = typeIdx == 1 ? 0 : 1;
                 Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
                 Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
                 Set<IAtom> sameTypeNbrList = new HashSet<>();
-                sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
-                sameTypeNbrList.addAll(nlm.getDownList(atom)[atom.getType().getIndex()]);
-
                 Set<IAtom> otherTypeNbrList = new HashSet<>();
-                otherTypeNbrList.addAll(nlm.getUpList(atom)[otherTypeIdx]);
-                otherTypeNbrList.addAll(nlm.getDownList(atom)[otherTypeIdx]);
+                nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                    @Override
+                    public void accept(IAtom jAtom, Vector rij) {
+                        if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
+                        else otherTypeNbrList.add(jAtom);
+                    }
+                });
 
                 assertEquals(sameTypeNbrs, sameTypeNbrList, atom + " same-type neighbors");
                 assertEquals(otherTypeNbrs, otherTypeNbrList, atom + " other-type neighbors");
             }
         }
-
-        @Test
-        void testPotentialMasterNbrs() {
-
-            pm.calculate(box, new IteratorDirective(), new PotentialCalculation() {
-                @Override
-                public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-                    potential.energy(atoms);
-                }
-            });
-
-            for (IAtom atom : box.getLeafList()) {
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
-
-                assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
-                assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
-            }
-        }
-
     }
     
     @Nested
@@ -237,40 +154,21 @@ class NeighborListingTest {
         @Test
         void testNbrDistance() {
             for (IAtom atom : box.getLeafList()) {
-                int typeIdx = atom.getType().getIndex();
-                int otherTypeIdx = typeIdx == 1 ? 0 : 1;
                 Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
                 Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
                 Set<IAtom> sameTypeNbrList = new HashSet<>();
-                sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
-                sameTypeNbrList.addAll(nlm.getDownList(atom)[atom.getType().getIndex()]);
-
                 Set<IAtom> otherTypeNbrList = new HashSet<>();
-                otherTypeNbrList.addAll(nlm.getUpList(atom)[otherTypeIdx]);
-                otherTypeNbrList.addAll(nlm.getDownList(atom)[otherTypeIdx]);
+                nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                    @Override
+                    public void accept(IAtom jAtom, Vector rij) {
+                        if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
+                        else otherTypeNbrList.add(jAtom);
+                    }
+                });
 
                 assertEquals(sameTypeNbrs, sameTypeNbrList, atom + " same-type neighbors");
                 assertEquals(otherTypeNbrs, otherTypeNbrList, atom + " other-type neighbors");
-            }
-        }
-
-        @Test
-        void testPotentialMasterNbrs() {
-
-            pm.calculate(box, new IteratorDirective(), new PotentialCalculation() {
-                @Override
-                public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-                    potential.energy(atoms);
-                }
-            });
-
-            for (IAtom atom : box.getLeafList()) {
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
-
-                assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
-                assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
             }
         }
     }
@@ -279,71 +177,29 @@ class NeighborListingTest {
     class AfterSetRange {
         @BeforeEach
         void setRange() {
-            pm.setRange(NBR_RANGE + 1);
+            nlm.setNeighborRange(NBR_RANGE + 1);
             nlm.reset();
         }
 
         @Test
         void testNbrDistance() {
             for (IAtom atom : box.getLeafList()) {
-                int typeIdx = atom.getType().getIndex();
-                int otherTypeIdx = typeIdx == 1 ? 0 : 1;
                 Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE + 1);
                 Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE + 1);
 
                 Set<IAtom> sameTypeNbrList = new HashSet<>();
-                sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
-                sameTypeNbrList.addAll(nlm.getDownList(atom)[atom.getType().getIndex()]);
-
                 Set<IAtom> otherTypeNbrList = new HashSet<>();
-                otherTypeNbrList.addAll(nlm.getUpList(atom)[otherTypeIdx]);
-                otherTypeNbrList.addAll(nlm.getDownList(atom)[otherTypeIdx]);
+                nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                    @Override
+                    public void accept(IAtom jAtom, Vector rij) {
+                        if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
+                        else otherTypeNbrList.add(jAtom);
+                    }
+                });
 
                 assertEquals(sameTypeNbrs, sameTypeNbrList, atom + " same-type neighbors");
                 assertEquals(otherTypeNbrs, otherTypeNbrList, atom + " other-type neighbors");
             }
-        }
-
-        @Test
-        void testPotentialMasterNbrs() {
-
-            pm.calculate(box, new IteratorDirective(), new PotentialCalculation() {
-                @Override
-                public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-                    potential.energy(atoms);
-                }
-            });
-
-            for (IAtom atom : box.getLeafList()) {
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE + 1);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE + 1);
-
-                assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
-                assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
-            }
-        }
-    }
-
-    private static abstract class MockPotential implements IPotentialAtomic {
-        private final int nBody;
-        private final double range;
-
-        public MockPotential(int nBody, double range) {
-            this.nBody = nBody;
-            this.range = range;
-        }
-
-        @Override
-        public double getRange() {
-            return range;
-        }
-
-        @Override
-        public void setBox(Box box) {}
-
-        @Override
-        public int nBody() {
-            return nBody;
         }
     }
 }

@@ -41,7 +41,7 @@ public class MCMoveAtomCoupledFasterer extends MCMoveBoxStep {
     protected boolean callComputeManyAtoms;
 
     public MCMoveAtomCoupledFasterer(PotentialCompute potentialCompute, IRandom random, Space _space) {
-        super(null);
+        super();
         this.potentialCompute = potentialCompute;
         this.random = random;
         atomSource = new AtomSourceRandomLeaf();
