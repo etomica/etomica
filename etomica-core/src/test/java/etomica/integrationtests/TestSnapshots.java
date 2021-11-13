@@ -39,15 +39,15 @@ public class TestSnapshots {
 
     @Test
     public void testHSMD3DNeighborListSnapshot() throws URISyntaxException, IOException {
-        String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_021af6881.json").toURI()))
+        String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList.json").toURI()))
                 .findFirst().get();
 
         HSMD3DNeighborList sim = new HSMD3DNeighborList();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 500));
-        List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
+        List<String> coords = sim.box().getLeafList().getAtoms().stream()
                 .map(IAtom::getPosition)
+                .map(Object::toString)
                 .collect(Collectors.toList());
-
         assertEquals(coordsStr, om.writeValueAsString(coords));
     }
 
