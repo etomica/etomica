@@ -60,7 +60,7 @@ import java.io.IOException;
 //
 
 
-public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {    
+public class P2NitrogenHellmann implements Potential2Soft {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space);

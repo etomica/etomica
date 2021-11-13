@@ -6,12 +6,12 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.atom.iterator.AtomIterator;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.IMolecule;
+import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -19,7 +19,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
-import etomica.virial.MCMoveClusterMolecule;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the
@@ -33,34 +32,41 @@ import etomica.virial.MCMoveClusterMolecule;
  *
  * @author Andrew Schultz
  */
-public class MCMoveClusterRotateArm extends MCMoveClusterMolecule {
+public class MCMoveClusterRotateArm extends MCMoveBoxStep {
 
-    public PotentialMaster potentialMaster;
+    protected final IRandom random;
+    protected final PotentialCompute potentialMaster;
+    protected MoleculeSource moleculeSource;
+    protected IMolecule molecule;
+    protected Vector r0;
+    protected int startAtom;
+    protected final Vector work1, work2, work3;
+    protected final Space space;
+    protected ISpecies species;
+    protected double wOld, wNew, uOld, uNew;
+    protected final int armLength;
+    protected final RotationTensor3D rotationTensor;
+    protected final Vector axis;
 
-    public MCMoveClusterRotateArm(Simulation sim, PotentialMaster potentialMaster, int armLength, Space _space) {
-        this(potentialMaster, sim.getRandom(), 1.0, armLength, _space);
+    public MCMoveClusterRotateArm(IRandom random, PotentialCompute potentialMaster, int armLength, Space _space) {
+        this(potentialMaster, random, 1.0, armLength, _space);
     }
 
-    public MCMoveClusterRotateArm(PotentialMaster potentialMaster,
+    public MCMoveClusterRotateArm(PotentialCompute potentialMaster,
                                   IRandom random, double stepSize, int armLength, Space _space) {
-        super(random, _space, stepSize);
+        super();
+        this.random = random;
         this.potentialMaster = potentialMaster;
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
         this.space = _space;
         this.armLength = armLength;
         setStepSizeMax(Math.PI);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
         work1 = _space.makeVector();
         work2 = _space.makeVector();
         work3 = _space.makeVector();
         rotationTensor = new RotationTensor3D();
         axis = space.makeVector();
-    }
-
-    public void setBox(Box p) {
-        super.setBox(p);
-        energyMeter.setBox(p);
     }
 
     public void setSpecies(ISpecies newSpecies) {
@@ -70,12 +76,9 @@ public class MCMoveClusterRotateArm extends MCMoveClusterMolecule {
     //note that total energy is calculated
     public boolean doTrial() {
         molecule = moleculeSource.getMolecule();
-        energyMeter.setTarget(molecule);
-        uOld = energyMeter.getDataAsScalar();
+        uOld = potentialMaster.computeOneMolecule(molecule);
         wOld = ((BoxCluster) box).getSampleCluster().value((BoxCluster) box);
         if (uOld > 1e8) {
-            PotentialCalculationEnergySum.debug = true;
-            energyMeter.getDataAsScalar();
             throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap");
         }
         IAtomList childList = molecule.getChildList();
@@ -121,30 +124,27 @@ public class MCMoveClusterRotateArm extends MCMoveClusterMolecule {
 
     public void acceptNotify() {
 //        System.out.println("accepting rotate");
-        super.acceptNotify();
     }
 
     public void rejectNotify() {
 //        System.out.println("rejecting rotate");
         rotationTensor.invert();
         doTransform();
-        super.rejectNotify();
     }
 
     public double getChi(double temperature) {
-        uNew = energyMeter.getDataAsScalar();
+        uNew = potentialMaster.computeOneMolecule(molecule);
         wNew = ((BoxCluster) box).getSampleCluster().value((BoxCluster) box);
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 
-    protected final MeterPotentialEnergy energyMeter;
-    protected Vector r0;
-    protected int startAtom;
-    protected final Vector work1, work2, work3;
-    protected final Space space;
-    protected ISpecies species;
-    protected double wOld, wNew;
-    protected final int armLength;
-    protected final RotationTensor3D rotationTensor;
-    protected final Vector axis;
+    @Override
+    public AtomIterator affectedAtoms() {
+        return null;
+    }
+
+    @Override
+    public double energyChange() {
+        return 0;
+    }
 }

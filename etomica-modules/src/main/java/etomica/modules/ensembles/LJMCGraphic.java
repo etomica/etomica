@@ -25,35 +25,35 @@ public class LJMCGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Ensembles";
     private final static int REPAINT_INTERVAL = 100;
     protected final LJMC sim;
-    
+
     protected boolean volumeChanges = false;
     protected boolean constMu = false;
 
-    public LJMCGraphic(final LJMC simulation, Space _space) {
+    public LJMCGraphic(final LJMC simulation) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-        
-    	this.sim = simulation;
 
-	    //display of box, timer
+        this.sim = simulation;
+
+        //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 
-		// Number density box
-	    final MeterDensity densityMeter = new MeterDensity(sim.box);
+        // Number density box
+        final MeterDensity densityMeter = new MeterDensity(sim.box);
         AccumulatorHistory dHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         dHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing dAccumulator = new AccumulatorAverageCollapsing();
         dAccumulator.setPushInterval(10);
         final HistogramCollapsing dh = new HistogramCollapsing();
-        double dmin = ((int)(densityMeter.getDataAsScalar() * 100))*0.01;
+        double dmin = ((int) (densityMeter.getDataAsScalar() * 100)) * 0.01;
         if (dmin > 0) dmin -= 0.005;
-        dh.setXRange(new DoubleRange(dmin, dmin+0.1));
+        dh.setXRange(new DoubleRange(dmin, dmin + 0.1));
         final AccumulatorHistogram dHistogram = new AccumulatorHistogram(dh);
         dHistogram.setPushInterval(10);
         DataFork dFork = new DataFork(new IDataSink[]{dHistory, dAccumulator, dHistogram});
@@ -61,7 +61,7 @@ public class LJMCGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(dPump);
         dHistory.setPushInterval(1);
         dataStreamPumps.add(dPump);
-	    
+
         DisplayPlotXChart dPlot = new DisplayPlotXChart();
         dHistory.setDataSink(dPlot.getDataSet().makeDataSink());
         dPlot.setDoLegend(false);
@@ -82,15 +82,14 @@ public class LJMCGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pePump);
         peHistory.setPushInterval(1);
         dataStreamPumps.add(pePump);
-		
+
         DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-		ePlot.setDoLegend(false);
-		ePlot.setLabel("Energy");
-		
-        MeterPressure pMeter = new MeterPressure(space);
-        pMeter.setIntegrator(sim.integrator);
-        pMeter.setBox(sim.box);
+        ePlot.setDoLegend(false);
+        ePlot.setLabel("Energy");
+
+        MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
+        pMeter.setTemperature(sim.integrator.getTemperature());
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         AccumulatorHistory pHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         pHistory.setTimeDataSource(timeCounter);
@@ -99,7 +98,7 @@ public class LJMCGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pPump);
         pAccumulator.setPushInterval(1);
         dataStreamPumps.add(pPump);
-        
+
         DisplayPlotXChart pPlot = new DisplayPlotXChart();
         pHistory.setDataSink(pPlot.getDataSet().makeDataSink());
         pPlot.setDoLegend(false);
@@ -124,19 +123,25 @@ public class LJMCGraphic extends SimulationGraphic {
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(10.0);
         temperatureSelect.setSliderMajorValues(4);
-	    temperatureSelect.setIsothermalButtonsVisibility(false);
+        temperatureSelect.setIsothermalButtonsVisibility(false);
+        temperatureSelect.setSliderPostAction(new IAction() {
+            @Override
+            public void actionPerformed() {
+                pMeter.setTemperature(temperatureSelect.getTemperature());
+            }
+        });
 
         IAction resetAction = new IAction() {
-        	public void actionPerformed() {
+            public void actionPerformed() {
 
-                double dMin = ((int)(densityMeter.getDataAsScalar() * 100))*0.01;
+                double dMin = ((int) (densityMeter.getDataAsScalar() * 100)) * 0.01;
                 if (dMin > 0) dMin -= 0.005;
-                dh.setXRange(new DoubleRange(dMin, dMin+0.1));
+                dh.setXRange(new DoubleRange(dMin, dMin + 0.1));
 
-        	    // Reset density (Density is set and won't change, but
-        		// do this anyway)
-        		dPump.actionPerformed();
-        		dDisplay.putData(dAccumulator.getData());
+                // Reset density (Density is set and won't change, but
+                // do this anyway)
+                dPump.actionPerformed();
+                dDisplay.putData(dAccumulator.getData());
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
@@ -144,8 +149,8 @@ public class LJMCGraphic extends SimulationGraphic {
                 pePump.actionPerformed();
                 peDisplay.putData(peAccumulator.getData());
 
-        		getDisplayBox(sim.box).graphic().repaint();
-        	}
+                getDisplayBox(sim.box).graphic().repaint();
+            }
         };
 
         this.getController().getReinitButton().setPostAction(resetAction);
@@ -154,7 +159,7 @@ public class LJMCGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
 
         JPanel pPanel = new JPanel(new GridBagLayout());
-        
+
         final DeviceSlider pSlider = new DeviceSlider(sim.getController(), sim.mcMoveVolume, "pressure");
         pSlider.setEnabled(volumeChanges);
         pSlider.setMaximum(10);
@@ -164,35 +169,33 @@ public class LJMCGraphic extends SimulationGraphic {
         pSlider.setEditValues(true);
         pSlider.setShowBorder(true);
         pSlider.setLabel("Pressure");
-        
-        DeviceCheckBox pCheckbox = new DeviceCheckBox("Volume changes", new ModifierBoolean() {
-            
+
+        DeviceCheckBox pCheckbox = new DeviceCheckBox(sim.getController(), "Volume changes", new ModifierBoolean() {
+
             public void setBoolean(boolean b) {
                 if (b == volumeChanges) return;
                 if (b) {
                     sim.integrator.getMoveManager().addMCMove(sim.mcMoveVolume);
                     pSlider.setEnabled(true);
-                }
-                else {
+                } else {
                     sim.integrator.getMoveManager().removeMCMove(sim.mcMoveVolume);
                     pSlider.setEnabled(false);
                 }
                 volumeChanges = b;
             }
-            
+
             public boolean getBoolean() {
                 return volumeChanges;
             }
         });
-        pCheckbox.setController(sim.getController());
-        
+
         pPanel.add(pCheckbox.graphic(), vertGBC);
         pPanel.add(pSlider.graphic(), vertGBC);
         getPanel().controlPanel.add(pPanel, vertGBC);
-        
+
 
         JPanel muPanel = new JPanel(new GridBagLayout());
-        
+
         final DeviceSlider muSlider = new DeviceSlider(sim.getController(), sim.mcMoveID, "mu");
         muSlider.setEnabled(constMu);
         muSlider.setMinimum(-10);
@@ -203,65 +206,66 @@ public class LJMCGraphic extends SimulationGraphic {
         muSlider.setEditValues(true);
         muSlider.setShowBorder(true);
         muSlider.setLabel("Chemical Potential");
-        
-        DeviceCheckBox muCheckbox = new DeviceCheckBox("Insert/Delete", new ModifierBoolean() {
-            
+
+        DeviceCheckBox muCheckbox = new DeviceCheckBox(sim.getController(), "Insert/Delete", new ModifierBoolean() {
+
             public void setBoolean(boolean b) {
                 if (b == constMu) return;
                 if (b) {
                     sim.integrator.getMoveManager().addMCMove(sim.mcMoveID);
                     muSlider.setEnabled(true);
-                }
-                else {
+                } else {
                     sim.integrator.getMoveManager().removeMCMove(sim.mcMoveID);
                     muSlider.setEnabled(false);
                 }
                 constMu = b;
             }
-            
+
             public boolean getBoolean() {
                 return constMu;
             }
         });
-        muCheckbox.setController(sim.getController());
-        
+
         muPanel.add(muCheckbox.graphic(), vertGBC);
         muPanel.add(muSlider.graphic(), vertGBC);
         getPanel().controlPanel.add(muPanel, vertGBC);
 
         DisplayTextBox vBox = new DisplayTextBox();
         vBox.setLabel("Volume");
+        sim.setvBox(vBox);
         MeterVolume meterVolume = new MeterVolume();
         meterVolume.setBox(sim.box);
         DataPumpListener vPump = new DataPumpListener(meterVolume, vBox, 100);
         sim.integrator.getEventManager().addListener(vPump);
-        
+
         DisplayTextBox nBox = new DisplayTextBox();
         nBox.setLabel("N");
+        nBox.setIntegerDisplay(true);
+        sim.setnBox(nBox);
         MeterNMolecules meterN = new MeterNMolecules();
         meterN.setBox(sim.box);
         DataPumpListener nPump = new DataPumpListener(meterN, nBox, 100);
         sim.integrator.getEventManager().addListener(nPump);
-        
+
         JPanel vnPanel = new JPanel(new GridBagLayout());
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         vnPanel.add(vBox.graphic(), horizGBC);
         vnPanel.add(nBox.graphic(), horizGBC);
         getPanel().controlPanel.add(vnPanel, vertGBC);
-        
+
         add(dPlot);
         add(dHistogramPlot);
-    	add(ePlot);
+        add(ePlot);
         add(pPlot);
-    	add(dDisplay);
-    	add(pDisplay);
-    	add(peDisplay);
+        add(dDisplay);
+        add(pDisplay);
+        add(peDisplay);
 
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
                 int sleep = (int) sim.getController().getSleepPeriod();
-                sleep = 1-sleep;
+                sleep = 1 - sleep;
                 sim.getController().setSleepPeriod(sleep);
                 slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
             }
@@ -272,38 +276,23 @@ public class LJMCGraphic extends SimulationGraphic {
 
     public static void main(String[] args) {
         Space sp = null;
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     sp = Space3D.getInstance();
+                } else {
+                    sp = Space2D.getInstance();
                 }
-                else {
-                	sp = Space2D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-        else {
-        	sp = Space3D.getInstance();
+            } catch (NumberFormatException e) {
+            }
+        } else {
+            sp = Space3D.getInstance();
         }
 
-        LJMCGraphic ljmdGraphic = new LJMCGraphic(new LJMC(sp), sp);
-		SimulationGraphic.makeAndDisplayFrame
-		        (ljmdGraphic.getPanel(), APP_NAME);
-    }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space3D.getInstance();
-            LJMCGraphic ljmdGraphic = new LJMCGraphic(new LJMC(sp), sp);
-
-		    getContentPane().add(ljmdGraphic.getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
+        LJMCGraphic ljmdGraphic = new LJMCGraphic(new LJMC(sp));
+        SimulationGraphic.makeAndDisplayFrame
+                (ljmdGraphic.getPanel(), APP_NAME);
     }
 }
 

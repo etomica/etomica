@@ -4,16 +4,17 @@
 
 package etomica.normalmode;
 
-import etomica.atom.*;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.PotentialMaster;
+import etomica.potential.IPotentialField;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -25,58 +26,49 @@ import etomica.util.random.IRandom;
  * @author Andrew Schultz
  */
 public class MCMoveAtomCoupled extends MCMoveBoxStep {
-    
+
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
-    protected final MeterPotentialEnergy energyMeter;
+    protected final PotentialCompute potentialCompute;
     protected final Vector translationVector;
-    protected IAtom atom0, atom1;
+    protected IAtom atom1, atom2;
     protected double uOld;
     protected double uNew;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected IPotentialAtomic[] pairPotential;
-    protected final AtomPair pair;
-    protected final AtomSetSinglet atomSinglet;
-    protected boolean doExcludeNonNeighbors;
-    protected int pairPotentialIndex;
-    protected IPotentialAtomic constraintPotential;
+    protected Vector oldPosition1, oldPosition2;
+    protected IPotentialField constraintPotential;
+    protected boolean callComputeManyAtoms;
 
-    public MCMoveAtomCoupled(PotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
-                             IRandom random, Space _space) {
-        super(potentialMaster);
+    public MCMoveAtomCoupled(PotentialCompute potentialCompute, IRandom random, Space _space) {
+        super();
+        this.potentialCompute = potentialCompute;
         this.random = random;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
-        this.energyMeter = energyMeter;
         translationVector = _space.makeVector();
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.1);
         perParticleFrequency = true;
-        energyMeter.setIncludeLrc(false);
         affectedAtomList = new AtomArrayList(2);
         affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
-        pair = new AtomPair();
-        atomSinglet = new AtomSetSinglet();
-        
-        setPotential(new IPotentialAtomic[0]);
-    }
-    
-    public void setPotential(IPotentialAtomic[] newPotential) {
-    	for(int i=0;i<newPotential.length;i++){
-    		if (newPotential[i].nBody() != 2) {
-    			throw new RuntimeException("must be a 2-body potential");
-    		}
-    	}
-        pairPotential = newPotential;
+        oldPosition1 = _space.makeVector();
+        oldPosition2 = _space.makeVector();
     }
 
-    public void setPotential(IPotentialAtomic newPotential) {
-    	setPotential(new IPotentialAtomic[] {newPotential});
+    /**
+     * Informs the move that it should call computeManyAtoms instead of
+     * computeManyAtomsOld.  This will allow systems with a neighbor range -
+     * potential range mismatch to work and will also work with a lattice sum.
+     * Calling computeManyAtoms may be slower and may break other MC moves that
+     * rely on the PotentialCompute keeping track of the energy of every atom.
+     */
+    public void setCallComputeManyAtoms(boolean doCallComputeManyAtoms) {
+        callComputeManyAtoms = doCallComputeManyAtoms;
     }
 
-    public void setConstraint(IPotentialAtomic newConstraintPotential) {
+    public void setConstraint(IPotentialField newConstraintPotential) {
         if (newConstraintPotential.nBody() != 1) {
             throw new RuntimeException("must be a 1-body potential");
         }
@@ -87,65 +79,38 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
      * Method to perform trial move.
      */
     public boolean doTrial() {
-        atom0 = atomSource.getAtom();
-        if (atom0 == null) return false;
         atom1 = atomSource.getAtom();
-        if (atom1 == null || atom0 == atom1) return false;
-        energyMeter.setTarget(atom0);
-        uOld = energyMeter.getDataAsScalar();
-        energyMeter.setTarget(atom1);
-        uOld += energyMeter.getDataAsScalar();
+        if (atom1 == null) return false;
+        atom2 = atomSource.getAtom();
+        if (atom2 == null || atom1 == atom2) return false;
+        if (callComputeManyAtoms) {
+            uOld = potentialCompute.computeManyAtoms(atom1, atom2);
+        }
+        else {
+            uOld = potentialCompute.computeManyAtomsOld(atom1, atom2);
+        }
         if(uOld > 1e10) {
             throw new ConfigurationOverlapException(box);
         }
-        pair.atom0 = atom0;
-        pair.atom1 = atom1;
-        pairPotentialIndex = -1;
-        if (pairPotential.length > 0 && doExcludeNonNeighbors) {
-            IAtomList[] list0 = ((PotentialMasterList)potential).getNeighborManager(box).getDownList(atom0);
-            for (int i=0; i<list0.length; i++) {
-                if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
-                	pairPotentialIndex = i;
-                    break;
-                }
-            }
-            if (pairPotentialIndex == -1) {
-                list0 = ((PotentialMasterList)potential).getNeighborManager(box).getUpList(atom0);
-                for (int i=0; i<list0.length; i++) {
-                    if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
-                    	pairPotentialIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-        if (pairPotentialIndex > -1) {
-            uOld -= pairPotential[pairPotentialIndex].energy(pair);
-        }
+        oldPosition1.E(atom1.getPosition());
+        oldPosition2.E(atom2.getPosition());
 
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        atom0.getPosition().PE(translationVector);
-        atom1.getPosition().ME(translationVector);
+        atom1.getPosition().PE(translationVector);
+        atom2.getPosition().ME(translationVector);
 
         return true;
     }
 
     public double getChi(double temperature) {
-        uNew = energyMeter.getDataAsScalar();
-        energyMeter.setTarget(atom0);
-        uNew += energyMeter.getDataAsScalar();
-        if(!Double.isInfinite(uNew) && pairPotentialIndex > -1){
-            uNew -= pairPotential[pairPotentialIndex].energy(pair);
-        }
+        uNew = potentialCompute.computeManyAtoms(atom1, atom2);
+
         if (constraintPotential != null) {
             // we could be double-counting the "energy" here (if the atoms are
             // neighbors), but the energy can only be 0 or +inf, so it's OK.
-            atomSinglet.atom = atom0;
-            constraintPotential.setBox(box);
-            uNew += constraintPotential.energy(atomSinglet);
-            atomSinglet.atom = atom1;
-            uNew += constraintPotential.energy(atomSinglet);
+            uNew += constraintPotential.u(atom1);
+            uNew += constraintPotential.u(atom2);
         }
 
         return Math.exp(-(uNew - uOld) / temperature);
@@ -156,7 +121,20 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
-    public void acceptNotify() {  /* do nothing */
+    public void acceptNotify() {
+        if (!callComputeManyAtoms) {
+            potentialCompute.processAtomU(1);
+            // put it back, then compute old contributions to energy
+            atom1.getPosition().E(oldPosition1);
+            atom2.getPosition().E(oldPosition2);
+
+            potentialCompute.computeManyAtoms(atom1, atom2);
+
+            atom1.getPosition().PE(translationVector);
+            atom2.getPosition().ME(translationVector);
+
+            potentialCompute.processAtomU(-1);
+        }
     }
     
     /**
@@ -164,25 +142,21 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
      * rejected.
      */
     public void rejectNotify() {
-        atom0.getPosition().ME(translationVector);
-        atom1.getPosition().PE(translationVector);
+        atom1.getPosition().E(oldPosition1);
+        atom2.getPosition().E(oldPosition2);
     }
         
     
     public AtomIterator affectedAtoms() {
         affectedAtomList.clear();
-        affectedAtomList.add(atom0);
         affectedAtomList.add(atom1);
+        affectedAtomList.add(atom2);
         return affectedAtomIterator;
     }
     
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         atomSource.setBox(p);
-        for(int i=0; i< pairPotential.length; i++){
-            pairPotential[i].setBox(p);
-        }
     }
     
     /**
@@ -196,27 +170,5 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;
-    }
-
-    /**
-     * Configures the move to not explicitly calculate the potential for atom
-     * pairs that are not neighbors (as determined by the potentialMaster).
-     * 
-     * Setting this has an effect only if the potentialMaster is an instance of
-     * PotentialMasterList
-     */
-    public void setDoExcludeNonNeighbors(boolean newDoExcludeNonNeighbors) {
-        if (potential == null || !(potential instanceof PotentialMasterList)) {
-            throw new RuntimeException("I need a PotentialMasterList to exclude non-neighbors");
-        }
-        doExcludeNonNeighbors = newDoExcludeNonNeighbors;
-    }
-
-    /**
-     * Returns true if the move does not explicitly calculate the potential for
-     * atom pairs that are not neighbors (as determined by the potentialMaster).
-     */
-    public boolean getDoExcludeNonNeighbors() {
-        return doExcludeNonNeighbors;
     }
 }

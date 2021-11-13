@@ -39,7 +39,13 @@ import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.mcmove.MCMoveClusterAtomHSRing;
+import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
+import etomica.virial.mcmove.MCMoveClusterAtomQ;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyPartitionScreening;
 
 import javax.swing.*;
 import java.awt.*;
@@ -102,7 +108,7 @@ public class VirialPolyhedra {
         Space space = Space3D.getInstance();
 
         P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
-        MayerFunction fTarget = new MayerGeneralAtomic(p2);
+        MayerFunction fTarget = new MayerGeneralAtomic(space, p2);
 
         ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
 //        double v0 = 32;
@@ -291,7 +297,7 @@ public class VirialPolyhedra {
 
         System.out.println(steps+" steps");
 
-        final SimulationVirial sim = new SimulationVirial(space, allSpecies, nShapes, 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
+        final SimulationVirial sim = new SimulationVirial(space, allSpecies, nShapes, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
@@ -303,48 +309,48 @@ public class VirialPolyhedra {
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
-            MCMoveClusterAtomHSTree mcMoveTree = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveTree));
+            MCMoveClusterAtomHSTree mcMoveTree = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveTree));
         }
         else if (ref == VirialHSParam.CHAINS) {
-            MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
+            MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHSRef);
+            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHS));
         }
         else if (ref == VirialHSParam.RINGS) {
-            MCMoveClusterAtomHSRing mcMoveHS = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
+            MCMoveClusterAtomHSRing mcMoveHS = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHSRef);
+            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHS));
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHST);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-chainFrac);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSC);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSC);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, chainFrac);
         }
         else if (ref == VirialHSParam.RING_TREE) {
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHST);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-ringFrac);
-            MCMoveClusterAtomHSRing mcMoveHSCR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSCR);
+            MCMoveClusterAtomHSRing mcMoveHSCR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSCR);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, ringFrac);
         }
         else if (ref == VirialHSParam.RING_CHAIN_TREES) {
-            MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSR);
+            MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHSRef);
+            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSR);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, ringFrac);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSC);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSC);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, chainFrac);
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHST);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-ringFrac-chainFrac);
         }

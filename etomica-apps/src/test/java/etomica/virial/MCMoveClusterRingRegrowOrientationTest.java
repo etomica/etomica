@@ -5,19 +5,17 @@ import etomica.atom.AtomTypeOriented;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.integrator.IntegratorMC;
+import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.mcmove.MCMoveClusterRingRegrowOrientation;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MCMoveClusterRingRegrowOrientationTest {
 
@@ -58,7 +56,7 @@ class MCMoveClusterRingRegrowOrientationTest {
             BoxCluster box = new BoxCluster(cluster, space);
             sim.addBox(box);
             box.setNMolecules(species, 2);
-            IntegratorMC integrator = new IntegratorMC(sim, null, box);
+            IntegratorMC integrator = new IntegratorMC(new PotentialComputeAggregate(), sim.getRandom(), 1, box);
             MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
 
             for (int iTemp = 40; iTemp <= 40; iTemp += 2) {

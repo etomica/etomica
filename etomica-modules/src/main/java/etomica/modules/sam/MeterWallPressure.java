@@ -4,37 +4,29 @@
 
 package etomica.modules.sam;
 
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
 public class MeterWallPressure extends DataSourceScalar {
 
+    protected final Sam sam;
 
-    public MeterWallPressure(PotentialCalculationForceSumWall pc) {
+    public MeterWallPressure(Sam sam) {
         super("Wall Pressure", Pressure.DIMENSION);
-        this.pc = pc;
+        this.sam = sam;
     }
 
-    public void setBox(Box newBox) {
-        box = newBox;
-    }
-    
     public double getDataAsScalar() {
-        double f = pc.getWallForce();
-        Vector dimensions = box.getBoundary().getBoxSize();
+        double f = sam.wallForce;
+        Vector dimensions = sam.box.getBoundary().getBoxSize();
         double A = 1;
-        for (int i=0; i<dimensions.getD(); i++) {
-            if (i == pc.getWallPotential().getWallDim()) {
+        for (int i = 0; i < dimensions.getD(); i++) {
+            if (i == 1) {
                 continue;
             }
             A *= dimensions.getX(i);
         }
         return f / A;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final PotentialCalculationForceSumWall pc;
-    protected Box box;
 }

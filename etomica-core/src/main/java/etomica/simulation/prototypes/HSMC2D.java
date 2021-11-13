@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -16,9 +15,10 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesGeneral;
@@ -38,7 +38,7 @@ public class HSMC2D extends Simulation {
     public MCMoveAtom mcMoveAtom;
     public SpeciesGeneral species, species2;
     public Box box;
-    public P2HardSphere potential11, potential12, potential22;
+    public P2HardGeneric potential11, potential12, potential22;
     public DataSourceCountSteps meterCycles;
 
     public HSMC2D() {
@@ -50,21 +50,21 @@ public class HSMC2D extends Simulation {
         addSpecies(species2);
 
         box = this.makeBox();
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        integrator = new IntegratorMC(potentialMaster, this.getRandom(), 1.0, box);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
         getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        potential11 = new P2HardSphere(space);
-        potential12 = new P2HardSphere(space, 1.2, false);
-        potential22 = new P2HardSphere(space);
+        potential11 = P2HardSphere.makePotential(1.0);
+        potential12 = P2HardSphere.makePotential(1.2);
+        potential22 = P2HardSphere.makePotential(1.0);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
-        potentialMaster.addPotential(potential11, new AtomType[]{type1, type1});
-        potentialMaster.addPotential(potential12, new AtomType[]{type1, type2});
-        potentialMaster.addPotential(potential22, new AtomType[]{type2, type2});
+        potentialMaster.setPairPotential(type1, type1, potential11);
+        potentialMaster.setPairPotential(type1, type2, potential12);
+        potentialMaster.setPairPotential(type2, type2, potential22);
         meterCycles = new DataSourceCountSteps(integrator);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));

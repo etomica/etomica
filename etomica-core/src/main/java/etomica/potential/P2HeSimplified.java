@@ -17,7 +17,11 @@ import etomica.util.Constants;
  * @author Andrew Schultz
  */
 public class P2HeSimplified extends Potential2SoftSpherical {
-    
+
+    public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+        return tf.make(new P2HeSimplified(space));
+    }
+
     public P2HeSimplified(Space space) {
         super(space);
     }
@@ -65,9 +69,9 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     }
 
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         double A = 4 * Math.PI;
         double sc = 1 / rC;
         double sc2 = sc * sc;

@@ -6,17 +6,16 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
+import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
-import etomica.config.ConformationLinear;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressureMolecular;
+import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayPlotXChart;
@@ -24,14 +23,15 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveAtomRotate;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.potential.P22CLJmuQ;
-import etomica.potential.PotentialMaster;
+import etomica.potential.P22CLJmuQAtomic;
+import etomica.potential.compute.NeighborManagerSimple;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
@@ -49,7 +49,7 @@ import etomica.util.ParseArgs;
 
 public class LJMC3DDimer extends Simulation {
 
-    public final PotentialMaster potentialMaster;
+    public final PotentialComputePairGeneral potentialMaster;
     public final IntegratorMC integrator;
 
     /**
@@ -64,13 +64,9 @@ public class LJMC3DDimer extends Simulation {
      */
     public LJMC3DDimer(SimParams params) {
         super(Space3D.getInstance());
-        double rc = 3;
-        potentialMaster = new PotentialMaster();
 
         SpeciesGeneral species = new SpeciesBuilder(space)
-                .addCount(AtomType.simpleFromSim(this), 1)
-                .addCount(AtomType.simpleFromSim(this), 1)
-                .withConformation(new ConformationLinear(space, 0.4847 + 0.6461))
+                .addAtom(new AtomTypeOriented(new ElementSimple("A"), Vector.of(1, 0, 0)), Vector.of(0, 0, 0))
                 .build();
         addSpecies(species);
 
@@ -86,22 +82,23 @@ public class LJMC3DDimer extends Simulation {
         double Q = Debye.UNIT.toSim(-2);
         double mu = Debye.UNIT.toSim(.11);
 
-        P22CLJmuQ p2 = new P22CLJmuQ(space, 3.0058, 3.56379, 51.8037, 31.5550, mu, Q, 0.4847 / (0.4847 + 0.6461));
-        potentialMaster.addPotential(p2, new ISpecies[]{species, species});
+        NeighborManagerSimple neighborManager = new NeighborManagerSimple(box);
+        potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
+        P22CLJmuQAtomic p2 = new P22CLJmuQAtomic(space, 3.0058, 3.56379, 51.8037, 31.5550, mu, Q, 0.4847, 0.6461);
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator = new IntegratorMC(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(Kelvin.UNIT.toSim(params.temperatureK));
 
-        MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(potentialMaster, random, space, 1, 1);
+        MCMoveAtom mcMoveMolecule = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
 
-        MCMoveRotateMolecule3D mcMoveRotate = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+        MCMoveAtomRotate mcMoveRotate = new MCMoveAtomRotate(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMoveRotate);
 
         BoxImposePbc bip = new BoxImposePbc(space);
         bip.setBox(box);
-        bip.setApplyToMolecules(true);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(bip,params.numAtoms));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(bip, params.numAtoms));
 
     }
 
@@ -110,8 +107,7 @@ public class LJMC3DDimer extends Simulation {
         SimParams params = new SimParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
-        }
-        else {
+        } else {
             // modify parameters here for interactive testing
         }
 
@@ -120,6 +116,7 @@ public class LJMC3DDimer extends Simulation {
         int interval = 10;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
+        if (blockSize == 0) blockSize = 1;
 
         System.out.println("Lennard-Jones Monte Carlo simulation");
         System.out.println("N: " + params.numAtoms);
@@ -138,8 +135,8 @@ public class LJMC3DDimer extends Simulation {
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
         sim.integrator.getEventManager().addListener(pump);
 
-        MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
-        meterPM.setIntegrator(sim.integrator);
+        MeterPressure meterPM = new MeterPressure(sim.box(), sim.potentialMaster);
+        meterPM.setTemperature(Kelvin.UNIT.toSim(params.temperatureK));
         AccumulatorAverageFixed accp = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpP = new DataPumpListener(meterPM, accp, params.numAtoms);
         sim.integrator.getEventManager().addListener(pumpP);
@@ -157,6 +154,14 @@ public class LJMC3DDimer extends Simulation {
         double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
 
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
+
+        DataGroup dataP = (DataGroup) accp.getData();
+        double avgP = dataP.getValue(accp.AVERAGE.index);
+        double errP = dataP.getValue(accp.ERROR.index);
+        double corP = dataP.getValue(accp.BLOCK_CORRELATION.index);
+
+        System.out.println("pressure avg: " + avgP + "  err: " + errP + "  cor: " + corP);
+
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
@@ -165,8 +170,7 @@ public class LJMC3DDimer extends Simulation {
             SimParams params = new SimParams();
             if (args.length > 0) {
                 ParseArgs.doParseArgs(params, args);
-            }
-            else {
+            } else {
                 params.density = 0.001;
                 // modify parameters here for interactive testing
             }
@@ -182,8 +186,7 @@ public class LJMC3DDimer extends Simulation {
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
             sim.integrator.getEventManager().addListener(pumpPE);
 
-            MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
-            meterPM.setIntegrator(sim.integrator);
+            MeterPressure meterPM = new MeterPressure(sim.box(), sim.potentialMaster);
             AccumulatorAverageCollapsing accp = new AccumulatorAverageCollapsing();
             AccumulatorHistory accph = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataFork df = new DataFork();

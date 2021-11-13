@@ -4,10 +4,10 @@
 
 package etomica.potential;
 
-import etomica.space.Boundary;
-import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -23,9 +23,8 @@ import etomica.units.dimensions.Length;
  * pair correlations beyond the cutoff.
  */
 public class P2SoftTruncated extends Potential2
-               implements PotentialTruncated, Potential2Soft {
+               implements Potential2Soft {
 
-    private static final long serialVersionUID = 1L;
     protected final Vector dr;
     protected final Potential2Soft wrappedPotential;
     protected final Vector[] gradient;
@@ -59,10 +58,27 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.energy(atoms) : 0;
+    }
+
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        return dr12.squared() < r2Cutoff ? wrappedPotential.u(dr12, atom1, atom2) : 0;
+    }
+
+    @Override
+    public double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2) {
+        if (dr12.squared() > r2Cutoff) return 0;
+        return wrappedPotential.udu(dr12, atom1, atom2, f1, f2);
+    }
+
+    @Override
+    public double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
+        if (dr12.squared() > r2Cutoff) return 0;
+        return wrappedPotential.uduTorque(dr12, atom1, atom2, f1, f2, t1, t2);
     }
 
     /**
@@ -70,7 +86,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.virial(atoms) : 0;
@@ -98,27 +114,24 @@ public class P2SoftTruncated extends Potential2
         if (r2 > r2Cutoff) return gradient;
         return wrappedPotential.gradient(atoms, pressureTensor);
     }
-    
-    public double hyperVirial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        return (r2 < r2Cutoff) ? wrappedPotential.hyperVirial(atoms) : 0;
-    }
-    
+
     /**
      * Returns the value of uInt for the wrapped potential.
      */
     public double integral(double rC) {
         return wrappedPotential.integral(rC);
     }
-    
+
     public double u(double r2) {
         return wrappedPotential.u(r2);
     }
 
     public double du(double r2) {
         return wrappedPotential.du(r2);
+    }
+
+    public double d2u(double r2) {
+        return wrappedPotential.d2u(r2);
     }
 
     /**
@@ -146,108 +159,17 @@ public class P2SoftTruncated extends Potential2
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public Dimension getTruncationRadiusDimension() {return Length.DIMENSION;}
-
-    /**
-     * Returns the zero-body potential that evaluates the contribution to the
-     * energy and its derivatives from pairs that are separated by a distance
-     * exceeding the truncation radius.
-     */
-    public Potential0Lrc makeLrcPotential(AtomType[] types) {
-        return new P0Lrc(space, wrappedPotential, this, types);
+    public Dimension getTruncationRadiusDimension() {
+        return Length.DIMENSION;
     }
 
-    /**
-     * Inner class that implements the long-range correction for this truncation scheme.
-     */
-    private static class P0Lrc extends Potential0Lrc implements Potential2Soft {
-
-        private static final long serialVersionUID = 1L;
-        private final double A;
-        private final int D;
-        private Potential2Soft potential;
-
-        public P0Lrc(Space space, Potential2Soft truncatedPotential,
-                     Potential2Soft potential, AtomType[] types) {
-            super(space, types, truncatedPotential);
-            this.potential = potential;
-            A = space.sphereArea(1.0);  //multiplier for differential surface element
-            D = space.D();              //spatial dimension
-        }
-
-        public double energy(IAtomList atoms) {
-            return uCorrection(nPairs()/box.getBoundary().volume());
-        }
-
-        public double virial(IAtomList atoms) {
-            return duCorrection(nPairs()/box.getBoundary().volume());
-        }
-
-        public double hyperVirial(IAtomList pair) {
-            return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
-        }
-
-        public Vector[] gradient(IAtomList atoms) {
-            throw new RuntimeException("Should not be calling gradient on zero-body potential");
-        }
-
-        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-            double virial = virial(atoms) / pressureTensor.D();
-            for (int i=0; i<pressureTensor.D(); i++) {
-                pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);
-            }
-            // we'd like to throw an exception and return the tensor, but we can't.  return null
-            // instead.  it should work about as well as throwing an exception.
-            return null;
-        }
-
-        /**
-         * Long-range correction to the energy.
-         * @param pairDensity average pairs-per-volume affected by the potential.
-         */
-        public double uCorrection(double pairDensity) {
-            double rCutoff = potential.getRange();
-            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
-            return pairDensity*integral;
-        }
-
-        /**
-         * Uses result from integration-by-parts to evaluate integral of
-         * r du/dr using integral of u.
-         * @param pairDensity average pairs-per-volume affected by the potential.
-         */
-        public double duCorrection(double pairDensity) {
-            double rCutoff = potential.getRange();
-            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
-            //need potential to be spherical to apply here
-            integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
-            return pairDensity*integral;
-        }
-
-        /**
-         * Uses result from integration-by-parts to evaluate integral of
-         * r2 d2u/dr2 using integral of u.
-         * @param pairDensity average pairs-per-volume affected by the potential.
-         */
-        public double d2uCorrection(double pairDensity) {
-            double rCutoff = potential.getRange();
-            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
-            //need potential to be spherical to apply here
-            integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
-            integral = -A*Math.pow(rCutoff, D+1)*((Potential2SoftSpherical)truncatedPotential).du(rCutoff*rCutoff) - (D+1)*integral;
-            return pairDensity*integral;
-        }
-
-        public double integral(double rC) {
-            throw new RuntimeException("nope");
-        }
-
-        public double u(double r2) {
-            throw new RuntimeException("nope");
-        }
-
-        public double du(double r2) {
-            throw new RuntimeException("nope");
-        }
-    }//end of P0lrc
+    @Override
+    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        double A = space.sphereArea(1.0);
+        double D = space.D();
+        double u = wrappedPotential.u(r2Cutoff);
+        double integral = wrappedPotential.integral(rCutoff);
+        uCorrection[0] = integral;
+        duCorrection[0] = (-A * space.powerD(rCutoff) * u - D * integral);
+    }
 }

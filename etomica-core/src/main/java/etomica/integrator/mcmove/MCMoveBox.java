@@ -4,10 +4,9 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 
 /**
  * MCMove parent class for moves that operate on a single Box.
@@ -16,13 +15,12 @@ import etomica.atom.iterator.AtomIteratorNull;
  */
 public abstract class MCMoveBox extends MCMove {
 
-    public MCMoveBox(PotentialMaster potentialMaster) {
-        this(potentialMaster, new MCMoveTracker());
+    public MCMoveBox() {
+        this(new MCMoveTracker());
     }
 
-    public MCMoveBox(PotentialMaster potentialMaster,
-            MCMoveTracker acceptanceTracker) {
-        super(potentialMaster, acceptanceTracker);
+    public MCMoveBox(MCMoveTracker acceptanceTracker) {
+        super(acceptanceTracker);
         perParticleFrequency = false;
     }
 

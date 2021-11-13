@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomType;
 import etomica.space.Space;
 
 /**
@@ -16,7 +15,6 @@ import etomica.space.Space;
  */
 public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
 
-    private static final long serialVersionUID = 1L;
     protected double shift;
  
     public P2SoftSphericalTruncatedShifted(Space _space, Potential2SoftSpherical potential,
@@ -40,6 +38,12 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
         return (r2 < r2Cutoff) ? (potential.u(r2) - shift) : 0.0;
     }
 
+    public void u012add(double r2, double[] u012) {
+        if (r2 > r2Cutoff) return;
+        potential.u012add(r2, u012);
+        u012[0] -= shift;
+    }
+
     /**
      * Mutator method for the radial cutoff distance.
      */
@@ -48,10 +52,8 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
         shift = potential.u(r2Cutoff);
     }
 
-    /**
-     * Returns null because the shift can't be corrected.
-     */
-    public Potential0Lrc makeLrcPotential(AtomType[] types) {
-        return null;
+    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        uCorrection[0] = 0;
+        duCorrection[0] = 0;
     }
 }

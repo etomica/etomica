@@ -6,13 +6,12 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
@@ -21,10 +20,10 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -54,14 +53,13 @@ public class SoftSphere3d extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        integrator = new IntegratorMC(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(temperature);
 
 
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        getController().addActivity(new ActivityIntegrate(integrator), 10000000);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
 
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -75,7 +73,7 @@ public class SoftSphere3d extends Simulation {
 
         AtomType type1 = species.getLeafType();
         //AtomType type2 = species2.getLeafType();
-        potentialMaster.addPotential(truncated, new AtomType[]{type1, type1});
+        potentialMaster.setPairPotential(type1, type1, truncated);
         // potentialMaster.addPotential(potential, new AtomType[] {type1, type2});
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
 
@@ -112,14 +110,13 @@ public class SoftSphere3d extends Simulation {
         int numAtoms = sim.box.getNMolecules(sim.species);
 
         MeterPotentialEnergyFromIntegrator meterEnergy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        DataPump pump = new DataPump(meterEnergy, null);
         AccumulatorAverageCollapsing accumulator = new AccumulatorAverageCollapsing();
+        DataPumpListener pump = new DataPumpListener(meterEnergy, accumulator);
 
         accumulator.setPushInterval(1);
-        pump.setDataSink(accumulator);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
+        sim.integrator.getEventManager().addListener(pump);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 10000000));
 
 
         double temp = sim.integrator.getTemperature();

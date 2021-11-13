@@ -8,38 +8,42 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.config.ConformationLinear;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.config.ConfigurationLatticeRandom;
-import etomica.nbr.CriterionAll;
-import etomica.nbr.CriterionBondedSimple;
-import etomica.nbr.CriterionInterMolecular;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.*;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.*;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesGeneralMutable;
 import etomica.units.Kelvin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SelfAssemblySim extends Simulation {
 
-    public final PotentialMasterList potentialMaster;
+    public final PotentialMasterBonding pcBonding;
     public final ConfigurationLatticeRandom config;
-	public IntegratorHard integratorHard;
-	public java.awt.Component display;
-	public Box box;
-	public MeterTemperature thermometer;
-	public SpeciesGeneral speciesA;
-	public SpeciesGeneralMutable speciesB;
-	public final P2SquareWell p2AA, p2AB1, p2AB2, p2B1B1, p2B1B2, p2B2B2;
-	public final P2Tether p2Bond;
+    public IntegratorHard integratorHard;
+    public java.awt.Component display;
+    public Box box;
+    public MeterTemperature thermometer;
+    public SpeciesGeneral speciesA;
+    public SpeciesGeneralMutable speciesB;
+    public NeighborListManagerHard neighborManager;
+    public final P2HardGeneric p2AA, p2AB1, p2AB2, p2B1B1, p2B1B2, p2B2B2;
+    public final P2HardGeneric p2Bond;
     public ActivityIntegrate activityIntegrate;
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
     public int nA, nB;
@@ -47,7 +51,7 @@ public class SelfAssemblySim extends Simulation {
     double sigAA, sigAB1, sigAB2, sigB1B1, sigB1B2, sigB2B2;
     double epsAA, epsAB1, epsAB2, epsB1B1, epsB1B2, epsB2B2;
     double lamAA, lamAB1, lamAB2, lamB1B1, lamB1B2, lamB2B2;
-    final public AtomType typeB1 = AtomType.simple("B1",1.0);
+    final public AtomType typeB1 = AtomType.simple("B1", 1.0);
     final public AtomType typeB2 = AtomType.simple("B2", 1.0);
     final public AtomType typeA = AtomType.simple("A", 1.0);
 
@@ -64,9 +68,6 @@ public class SelfAssemblySim extends Simulation {
         speciesB = new SpeciesGeneralMutable(this.makeSpeciesB(nB1, nB2));
         addSpecies(speciesA);
         addSpecies(speciesB);
-
-        potentialMaster = new PotentialMasterList(this, 3, space);
-        potentialMaster.setCellRange(1);
 
         double defaultEps = 50;
         sigAA = 1.0;
@@ -95,50 +96,32 @@ public class SelfAssemblySim extends Simulation {
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHard(this, potentialMaster, box);
-        integratorHard.setIsothermal(true);
-        integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
-        integratorHard.setTimeStep(0.002);
-        integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integratorHard.setThermostatInterval(100);
-        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
+        pcBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
+        neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, 3, pcBonding.getBondingInfo());
+        PotentialComputePairGeneral pcPair = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
         //potentials
-        p2AA = new P2SquareWell(space, sigAA, lamAA, epsAA, true);
-        p2AB1 = new P2SquareWell(space, sigAB1, lamAB1, epsAB1, true);
-        p2AB2 = new P2SquareWell(space, sigAB2, lamAB2, epsAB2, true);
-        p2B1B1 = new P2SquareWell(space, sigB1B1, lamB1B1, epsB1B1, true);
-        p2B1B2 = new P2SquareWell(space, sigB1B2, lamB1B2, epsB1B2, true);
-        p2B2B2 = new P2SquareWell(space, sigB2B2, lamB2B2, epsB2B2, true);
-        p2Bond = new P2Tether(space, sigAA * 0.8, true);
+        p2AA = new P2HardGeneric(new double[]{sigAA, sigAA * lamAA}, new double[]{Double.POSITIVE_INFINITY, -epsAA}, true);
+        p2AB1 = new P2HardGeneric(new double[]{sigAB1, sigAB1 * lamAB1}, new double[]{Double.POSITIVE_INFINITY, -epsAB1}, true);
+        p2AB2 = new P2HardGeneric(new double[]{sigAB2, sigAB2 * lamAB2}, new double[]{Double.POSITIVE_INFINITY, -epsAB2}, true);
+        p2B1B1 = new P2HardGeneric(new double[]{sigB1B1, sigB1B1 * lamB1B1}, new double[]{Double.POSITIVE_INFINITY, -epsB1B1}, true);
+        p2B1B2 = new P2HardGeneric(new double[]{sigB1B2, sigB1B2 * lamB1B2}, new double[]{Double.POSITIVE_INFINITY, -epsB1B2}, true);
+        p2B2B2 = new P2HardGeneric(new double[]{sigB2B2, sigB2B2 * lamB2B2}, new double[]{Double.POSITIVE_INFINITY, -epsB2B2}, true);
+        p2Bond = new P2HardGeneric(new double[]{sigAA * 0.8, sigAA}, new double[]{0, Double.POSITIVE_INFINITY}, false);
 
-       // p2Bond = new P2HardBond(space, 0.8, 0.2, true);
-        PotentialGroup p1Surfactant = potentialMaster.makePotentialGroup(1);
-        p1Surfactant.addPotential(p2Bond, ApiBuilder.makeAdjacentPairIterator());
-        potentialMaster.addPotential(p1Surfactant, new ISpecies[]{speciesB});
+        setupBonding();
 
-        potentialMaster.addPotential(p2AA, new AtomType[]{typeA, typeA});
-        potentialMaster.addPotential(p2AB1, new AtomType[]{typeA, typeB1});
-        potentialMaster.addPotential(p2AB2, new AtomType[]{typeA, typeB2});
-        potentialMaster.addPotential(p2B1B2, new AtomType[]{typeB1, typeB2});
-        potentialMaster.addPotential(p2B1B1, new AtomType[]{typeB1, typeB1});
-        potentialMaster.addPotential(p2B2B2, new AtomType[]{typeB2, typeB2});
+        pcPair.setPairPotential(typeA, typeA, p2AA);
+        pcPair.setPairPotential(typeA, typeB1, p2AB1);
+        pcPair.setPairPotential(typeA, typeB2, p2AB2);
+        pcPair.setPairPotential(typeB1, typeB2, p2B1B2);
+        pcPair.setPairPotential(typeB1, typeB1, p2B1B1);
+        pcPair.setPairPotential(typeB2, typeB2, p2B2B2);
 
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(typeB1, typeB1);
-        CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
-        nonBondedCriterion.setBonded(false);
-        sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-
-        sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(typeB1, typeB2);
-        nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
-        nonBondedCriterion.setBonded(false);
-        sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-
-        sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(typeB2, typeB2);
-        nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
-        nonBondedCriterion.setBonded(false);
-        sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-
+        integratorHard = new IntegratorHard(IntegratorHard.extractHardPotentials(pcPair), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box, getSpeciesManager(), pcBonding.getBondingInfo());
+        integratorHard.setIsothermal(true);
+        integratorHard.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
+        integratorHard.setThermostatInterval(100);
 
         // **** Setting Up the thermometer Meter *****
 
@@ -151,6 +134,7 @@ public class SelfAssemblySim extends Simulation {
     public int getNA() {
         return nA;
     }
+
     public void setNA(int nA) {
         this.nA = nA;
         box.setNMolecules(speciesA, nA);
@@ -159,6 +143,7 @@ public class SelfAssemblySim extends Simulation {
     public int getNB() {
         return nB;
     }
+
     public void setNB(int nB) {
         this.nB = nB;
         box.setNMolecules(speciesB, nB);
@@ -169,8 +154,9 @@ public class SelfAssemblySim extends Simulation {
         speciesB.setSpecies(this.makeSpeciesB(nB1, nB2));
         box.setNMolecules(speciesB, 0);
         box.setNMolecules(speciesB, nB);
-
+        setupBonding();
     }
+
     public int getNB1() {
         return nB1;
     }
@@ -180,17 +166,29 @@ public class SelfAssemblySim extends Simulation {
         speciesB.setSpecies(this.makeSpeciesB(nB1, nB2));
         box.setNMolecules(speciesB, 0);
         box.setNMolecules(speciesB, nB);
+        setupBonding();
     }
+
     public int getNB2() {
         return nB2;
+    }
+
+    public void setupBonding() {
+        List<int[]> bondList = new ArrayList<>();
+        for (int i = 0; i < nB1 + nB2 - 1; i++) {
+            bondList.add(new int[]{i, i + 1});
+        }
+        pcBonding.setBondingPotentialPair(speciesB, p2Bond, bondList);
     }
 
     public AtomType getTypeA() {
         return typeA;
     }
+
     public AtomType getTypeB1() {
         return typeB1;
     }
+
     public AtomType getTypeB2() {
         return typeB2;
     }

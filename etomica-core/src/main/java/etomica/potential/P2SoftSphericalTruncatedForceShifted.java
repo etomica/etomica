@@ -38,5 +38,13 @@ public class P2SoftSphericalTruncatedForceShifted extends
         return (r2 < r2Cutoff) ? (potential.du(r2) - fShift*Math.sqrt(r2)) : 0.0;
     }
 
+    public void u012add(double r2, double[] u012) {
+        if (r2 > r2Cutoff) return;
+        potential.u012add(r2, u012);
+        double r = Math.sqrt(r2);
+        u012[0] -= fShift * r + shift;
+        u012[1] -= fShift * r;
+    }
+
     protected double fShift;
 }

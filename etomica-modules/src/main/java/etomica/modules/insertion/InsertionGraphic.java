@@ -12,19 +12,17 @@ import etomica.atom.IAtomKinetic;
 import etomica.data.*;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorHard.Agent;
 import etomica.integrator.IntegratorMD;
 import etomica.math.DoubleRange;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
-import etomica.potential.P2HardSphere;
-import etomica.potential.P2SquareWell;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
@@ -47,15 +45,15 @@ public class InsertionGraphic extends SimulationGraphic {
     protected DeviceThermoSlider tempSlider;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
-    protected P2HardSphere potentialHS;
-    protected P2SquareWell potentialSW;
+    protected P2HardGeneric potentialHS;
+    protected P2HardGeneric potentialSW;
     public DeviceBox lamBox;
     public double lambda;
     protected Insertion sim;
     public MeterWidom meterWidom;
     protected DisplayPlotXChart widomHistPlot;
     public DisplayPlotXChart widom2Plot;
-    
+
     public InsertionGraphic(final Insertion simulation) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
@@ -86,10 +84,10 @@ public class InsertionGraphic extends SimulationGraphic {
         //combo box to select potentials
         final String repulsionOnly = "Repulsion only";
         final String repulsionAttraction = "Repulsion and attraction";
-        potentialChooser = new javax.swing.JComboBox(new String[]{
+        potentialChooser = new JComboBox(new String[]{
                 repulsionOnly, repulsionAttraction});
 
-        lamBox = new DeviceBox();
+        lamBox = new DeviceBox(sim.getController());
         // Unselectable because "Ideal gas" is selected initially
         potentialChooser.setSelectedIndex(0);
         lamBox.setEditable(false);
@@ -126,12 +124,12 @@ public class InsertionGraphic extends SimulationGraphic {
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
 
-        potentialSW = new P2SquareWell(sim.getSpace(), sigma, lambda, 1.0, true);
-        potentialHS = new P2HardSphere(sim.getSpace(), sigma, true);
+        potentialSW = sim.p2sqw;
+        potentialHS = new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY});
 
         if (potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
 
-        potentialChooserListener = new java.awt.event.ItemListener() {
+        potentialChooserListener = new ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
                 setPotential((String) evt.getItem());
@@ -147,12 +145,14 @@ public class InsertionGraphic extends SimulationGraphic {
 
         Modifier lamModifier = new Modifier() {
             public void setValue(double newValue) {
-                potentialSW.setLambda(newValue);
-                sim.potentialGhost.setLambda(newValue);
+                potentialSW.setCollisionDiameter(1, newValue);
+                sim.potentialGhost.setCollisionDiameter(1, newValue);
+                sim.integrator.reset();
+                meterWidom.reset();
             }
 
             public double getValue() {
-                return potentialSW.getLambda();
+                return potentialSW.getCollisionDiameter(1);
             }
 
             public String getLabel() {
@@ -164,33 +164,29 @@ public class InsertionGraphic extends SimulationGraphic {
             }
         };
         lamBox.setModifier(lamModifier);
-        lamBox.setController(sim.getController());
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorScheme() {
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
 
             public Color getAtomColor(IAtom a) {
                 if ((sim.integrator.getEventManager().firingEvent() || !sim.getController().isRunningActivityStep()) && a.getType().getSpecies() == sim.speciesGhost) {
-                    sim.potentialGhost.setEpsilonCore(-Double.POSITIVE_INFINITY);
+                    sim.potentialGhost.setEnergyForState(0, Double.POSITIVE_INFINITY);
                     if (potentialChooser.getSelectedItem().equals("Repulsion and attraction")) {
-                        sim.potentialGhost.setEpsilonWell(1.0);
+                        sim.potentialGhost.setEnergyForState(1, -1.0);
                     }
-                    meterPE.setBox(sim.box);
-                    meterPE.setTarget(a);
-                    double u = meterPE.getDataAsScalar();
+                    double u = sim.integrator.getPotentialCompute().computeOne(a);
                     if (u == Double.POSITIVE_INFINITY) {
-                        sim.potentialGhost.setEpsilonCore(0.0);
-                        sim.potentialGhost.setEpsilonWell(0.0);
+                        sim.potentialGhost.setEnergyForState(0, 0);
+                        sim.potentialGhost.setEnergyForState(1, 0);
                         return Color.RED;
                     }
                     if (u < -6) {
                         u = -6;
                     }
-                    sim.potentialGhost.setEpsilonCore(0.0);
-                    sim.potentialGhost.setEpsilonWell(0.0);
+                    sim.potentialGhost.setEnergyForState(0, 0);
+                    sim.potentialGhost.setEnergyForState(1, 0);
                     return new Color(0.0f, (float) ((6 + u) / 6.0), (float) (-u / 6.0));
                 }
                 return Color.BLACK;
@@ -253,7 +249,6 @@ public class InsertionGraphic extends SimulationGraphic {
 
         final IAction resetAction = new IAction() {
             public void actionPerformed() {
-                sim.integrator.reset();
                 meterWidom.reset();
                 getDisplayBox(sim.box).graphic().repaint();
             }
@@ -261,11 +256,14 @@ public class InsertionGraphic extends SimulationGraphic {
 
         this.getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
+                IAtom test = sim.box.getLeafList().get(sim.box.getLeafList().size() - 1);
+                test.getPosition().E(0);
+                sim.integrator.reset();
+                sim.integrator.resetStepCount();
                 sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
                 sim.integrator.doThermostat();
                 sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
                 resetAction.actionPerformed();
-                meterWidom.reset();
             }
         });
         this.getController().getResetAveragesButton().setPostAction(resetAction);
@@ -366,96 +364,95 @@ public class InsertionGraphic extends SimulationGraphic {
     }
 
     public void setPotential(String potentialDesc) {
-        final boolean HS = potentialDesc.equals("Repulsion only"); 
-        final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
+        final boolean HS = potentialDesc.equals("Repulsion only");
+        final boolean SW = potentialDesc.equals("Repulsion and attraction");
         sim.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 if (HS) {
-                    potentialHS.setBox(sim.box);
-                    sim.potentialWrapper.setWrappedPotential(potentialHS);
-                    if (widomHistPlot!=null) {
-                        widomHistPlot.getPlot().setXRange(0,1);
-                        widom2Plot.getPlot().setXRange(0,1);
+                    ((PotentialComputePairGeneral) sim.integrator.getPotentialCompute()).setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), potentialHS);
+                    sim.integrator.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), potentialHS);
+                    if (widomHistPlot != null) {
+                        widomHistPlot.getPlot().setXRange(0, 1);
+                        widom2Plot.getPlot().setXRange(0, 1);
                     }
-                }
-                else if (SW) {
-                    potentialSW.setBox(sim.box);
-                    sim.potentialWrapper.setWrappedPotential(potentialSW);
-                    widomHistPlot.getPlot().setXRange(-7,1);
-                    widom2Plot.getPlot().setXRange(-7,1);
-                }
-                else {
+                } else if (SW) {
+                    ((PotentialComputePairGeneral) sim.integrator.getPotentialCompute()).setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), potentialSW);
+                    sim.integrator.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), potentialSW);
+                    widomHistPlot.getPlot().setXRange(-7, 1);
+                    widom2Plot.getPlot().setXRange(-7, 1);
+                } else {
                     throw new RuntimeException("oops");
                 }
                 try {
                     sim.integrator.reset();
-                } catch(ConfigurationOverlapException e) {}
-                if (meterWidom!=null) meterWidom.reset();
+                } catch (ConfigurationOverlapException e) {
+                }
+                if (meterWidom != null) meterWidom.reset();
             }
         });
     }
-    
+
     public class MeterWidom extends DataSourceScalar implements IntegratorHard.CollisionListener {
-        protected final MeterPotentialEnergy meterPE;
         protected double lastTime, lastTime2;
         protected double sum;
         protected int currentWells, currentCores;
         public HistogramNotSoSimple hist;
         protected final Vector dr, dv;
-        
+
         public MeterWidom() {
             super("widom", Null.DIMENSION);
-            meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
             hist = new HistogramNotSoSimple(12, new DoubleRange(-10.5, 1.5));
             hist.setDoAveraging(false);
             dr = sim.getSpace().makeVector();
             dv = sim.getSpace().makeVector();
             reset();
         }
-        
+
         public void reset() {
-            meterPE.setBox(sim.box);
-            meterPE.setTarget(sim.box.getMoleculeList(sim.getSpecies(1)).get(0).getChildList().get(0));
-            sim.potentialGhost.setEpsilonWell(1.0);
-            currentWells = -(int)Math.round(meterPE.getDataAsScalar());
-            sim.potentialGhost.setEpsilonWell(0);
-            sim.potentialGhost.setEpsilonCore(1);
-            currentCores = -(int)Math.round(meterPE.getDataAsScalar());
-            sim.potentialGhost.setEpsilonCore(0);
+            IAtom ghost = sim.box.getMoleculeList(sim.getSpecies(1)).get(0).getChildList().get(0);
+            sim.potentialGhost.setEnergyForState(1, 1.0);
+            currentWells = (int) Math.round(sim.integrator.getPotentialCompute().computeOne(ghost));
+            sim.potentialGhost.setEnergyForState(0, 1.0);
+            sim.potentialGhost.setEnergyForState(1, 0.0);
+            currentCores = (int) Math.round(sim.integrator.getPotentialCompute().computeOne(ghost));
+            sim.potentialGhost.setEnergyForState(0, 0.0);
             lastTime = sim.integrator.getCurrentTime();
             lastTime2 = lastTime;
             sum = 0;
             hist.reset();
         }
 
-        public void collisionAction(Agent colliderAgent) {
-            IAtom atom = colliderAgent.atom;
+        public double getDataAsScalar() {
+            double t = sim.integrator.getCurrentTime();
+            double v = sum / (t - lastTime2);
+            lastTime2 = t;
+            sum = 0;
+            return v;
+        }
+
+        @Override
+        public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision) {
+            IAtom atom = atom1;
             if (atom.getParentGroup().getType().getIndex() != 1) {
-                atom = colliderAgent.collisionPartner;
+                atom = atom2;
                 if (atom == null) return;
             }
             if (atom.getParentGroup().getType().getIndex() == 1) {
-                dr.Ev1Mv2(colliderAgent.atom.getPosition(), colliderAgent.collisionPartner.getPosition());
-                dv.Ev1Mv2(((IAtomKinetic)colliderAgent.atom).getVelocity(), ((IAtomKinetic)colliderAgent.collisionPartner).getVelocity());
-                dr.PEa1Tv1(colliderAgent.collisionTime(), dv);
-                double r2 = dr.squared();
-                boolean core = (Math.abs(r2-1) < 1e-9); 
+                double bij = rij.dot(dv);
+                double r2 = rij.squared();
+                boolean core = (Math.abs(r2 - 1) < 1e-9);
                 if (core) {
-                    if (r2>1) {
+                    if (bij > 0) {
                         currentCores--;
                         currentWells++;
-                    }
-                    else {
+                    } else {
                         currentCores++;
                         currentWells--;
                     }
-                }
-                else {
-                    double l = sim.potentialGhost.getLambda();
-                    if (r2 < l*l) {
+                } else {
+                    if (bij < 0) {
                         currentWells++;
-                    }
-                    else {
+                    } else {
                         currentWells--;
                     }
                 }
@@ -463,57 +460,30 @@ public class InsertionGraphic extends SimulationGraphic {
                     throw new RuntimeException("oops");
                 }
                 double u = 0;
-                if (currentCores>0) u = Double.POSITIVE_INFINITY;
+                if (currentCores > 0) u = Double.POSITIVE_INFINITY;
                 else if (potentialChooser.getSelectedItem().equals("Repulsion and attraction")) u = -currentWells;
-                double t = sim.integrator.getCurrentTime()+colliderAgent.collisionTime();
-                hist.addValue(u==Double.POSITIVE_INFINITY?1:u, (t-lastTime));
-                sum += (t-lastTime)*Math.exp(-u/sim.integrator.getTemperature());
+                double t = sim.integrator.getCurrentTime() + tCollision;
+                hist.addValue(u == Double.POSITIVE_INFINITY ? 1 : u, (t - lastTime));
+                sum += (t - lastTime) * Math.exp(-u / sim.integrator.getTemperature());
                 lastTime = t;
             }
-        }
-
-        public double getDataAsScalar() {
-            double t = sim.integrator.getCurrentTime();
-            double v = sum/(t-lastTime2);
-            lastTime2 = t;
-            sum = 0;
-            return v;
         }
     }
 
     public static void main(String[] args) {
         Space space = Space2D.getInstance();
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     space = Space3D.getInstance();
                 }
-            } catch(NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+            }
         }
 
         InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(space));
-		SimulationGraphic.makeAndDisplayFrame
-		        (swmdGraphic.getPanel(), APP_NAME);
+        SimulationGraphic.makeAndDisplayFrame
+                (swmdGraphic.getPanel(), APP_NAME);
     }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            String dimStr = getParameter("dim");
-            int dim = 3;
-            if (dimStr != null) {
-                dim = Integer.valueOf(dimStr).intValue();
-            }
-            Space sp = Space.getInstance(dim);
-            InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(sp));
-
-		    getContentPane().add(swmdGraphic.getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
-    }
-
 }

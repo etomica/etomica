@@ -12,20 +12,18 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.lattice.crystal.*;
-import etomica.molecule.IMolecule;
-import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -48,7 +46,7 @@ import java.awt.*;
 public class SimEinStep2 extends Simulation {
 
     public final PotentialMasterList potentialMaster;
-    public final PotentialMasterMonatomic potentialMasterHarmonic;
+    public final PotentialComputeField potentialMasterHarmonic;
     public IntegratorMC integrator;
 
     public Box box;
@@ -62,12 +60,6 @@ public class SimEinStep2 extends Simulation {
 
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-
-        if (slanty) {
-            potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
-        } else {
-            potentialMaster = new PotentialMasterList(this, space);
-        }
 
         // TARGET
         if (slanty) {
@@ -98,9 +90,16 @@ public class SimEinStep2 extends Simulation {
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
+        int cellRange = 7; // insanely high, this lets us have neighborRange close to dimensions/2
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, cellRange, rc, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
+        potentialMaster.doOneTruncationCorrection = false;
+        potentialMaster.setDoDownNbrs(true);
+
+        // giving potentialMaster to integrator instead of potentialMasterComposite isn't quite right, but will work
+        // fine and allows us to remove the listener (so that neighbors won't get updated)
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-
-
+        integrator.getEventManager().removeListener(potentialMaster);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
@@ -109,54 +108,27 @@ public class SimEinStep2 extends Simulation {
         if (exponent > 0) {
             potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         } else {
-            potential = new P2LennardJones(space);
+            potential = new P2LennardJones(space, 1.0, 1.0);
         }
         potential = new P2SoftSphericalTruncated(space, potential, rc);
         AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
+        potentialMaster.setPairPotential(sphereType, sphereType, potential);
 
-
-        potentialMaster.lrcMaster().setEnabled(false);
-
-        int cellRange = 7;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        potentialMaster.getNeighborManager(box).reset();
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange * 2 + 1) {
-            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
-        }
-
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        double latticeEnergy = meterPE.getDataAsScalar();
-//        System.out.println("uLat "+latticeEnergy/numAtoms);
+        potentialMaster.init();
 
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
-        p1Harmonic.setSpringConstant(1);
+        p1Harmonic.setSpringConstant(lambda > 0 ? lambda : 1);
         p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
-        potentialMasterHarmonic = new PotentialMasterMonatomic(this);
-        potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType});
+        potentialMasterHarmonic = new PotentialComputeField(getSpeciesManager(), box);
+        potentialMasterHarmonic.setFieldPotential(sphereType, p1Harmonic);
 
-        MeterPotentialEnergyComposite meterPEComposite = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy, numAtoms);
-        meterPEComposite.setBox(box);
-        meterPEComposite.setLambda(lambda);
-        if (false) {
-            atomMove = new MCMoveAtom(random, null, space, 0.1, 1, false, meterPEComposite);
-        } else {
-            atomMove = new MCMoveAtomCoupled(potentialMaster, lambda == 0 ? meterPE : meterPEComposite, getRandom(), space);
-            atomMove.setStepSize(0.1);
-            atomMove.setStepSizeMax(0.5);
-            ((MCMoveAtomCoupled) atomMove).setPotential(potential);
-            ((MCMoveAtomCoupled) atomMove).setDoExcludeNonNeighbors(true);
-        }
+        PotentialComputeAggregate potentialComputeComposite = new PotentialComputeAggregate(potentialMasterHarmonic, potentialMaster);
+
+        atomMove = new MCMoveAtomCoupled(lambda == 0 ? potentialMaster : potentialComputeComposite, random, space);
+        atomMove.setStepSize(0.1);
+        atomMove.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(atomMove);
-//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-//        MeterPotentialEnergyComposite meterPEComposite2 = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy, numAtoms);
-//        meterPEComposite2.setBox(box);
-//        meterPEComposite2.setLambda(lambda);
-//        integrator.setMeterPotentialEnergy(lambda==0 ? meterPE : meterPEComposite2);
-
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
 
@@ -216,8 +188,7 @@ public class SimEinStep2 extends Simulation {
 
         //instantiate simulation
         final SimEinStep2 sim = new SimEinStep2(Space.getInstance(3), numMolecules, density, temperature, lambda, exponentN, rc, slanty);
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
-        final double latticeEnergy = meterPE.getDataAsScalar();
+        final double latticeEnergy = sim.potentialMaster.computeAll(false);
         System.out.println("uLat="+latticeEnergy/numMolecules);
 
         if (false) {
@@ -259,7 +230,7 @@ public class SimEinStep2 extends Simulation {
         sim.initialize(numMolecules*100);
         System.out.flush();
 
-        final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic, sim.box);
+        final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic);
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);
@@ -279,10 +250,11 @@ public class SimEinStep2 extends Simulation {
         // potentialMasterHarmonic really just gives us sum[r^2]
 
         DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(accumulator.ERROR.index);
-        IData dataAvg = data.getData(accumulator.AVERAGE.index);
-        IData dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index);
-        System.out.println("msd/T  "+dataAvg.getValue(0)/(temperature*numMolecules)+" "+dataErr.getValue(0)/(temperature*numMolecules)+" "+dataCorrelation.getValue(0));
+        double l = lambda > 0 ? lambda : 1;
+        double dataErr = data.getData(accumulator.ERROR.index).getValue(0) / l;
+        double dataAvg = data.getData(accumulator.AVERAGE.index).getValue(0) / l;
+        double dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index).getValue(0);
+        System.out.println("msd/T  "+dataAvg/(temperature*numMolecules)+" "+dataErr/(temperature*numMolecules)+" "+dataCorrelation);
 
 //        DataGroup dataPEInt = (DataGroup)accumulatorPEInt.getData();
 //        IData dataPEIntErr = dataPEInt.getData(accumulatorPEInt.ERROR.index);
@@ -298,67 +270,6 @@ public class SimEinStep2 extends Simulation {
         // equilibrate off the lattice to avoid anomolous contributions
         this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
-    }
-    
-    protected static class MeterPotentialEnergyComposite extends
-            MeterPotentialEnergy {
-        protected final MeterPotentialEnergy meterPE1, meterPE2;
-        protected final int nMolecules;
-        protected double lambda, latticeEnergy;
-        protected boolean hasTarget = false;
-
-        protected MeterPotentialEnergyComposite(PotentialMaster potentialMaster1, PotentialMaster potentialMaster2, double latticeEnergy, int nMolecules) {
-            super(null);
-            meterPE1 = new MeterPotentialEnergy(potentialMaster1);
-            meterPE2 = new MeterPotentialEnergy(potentialMaster2);
-            this.latticeEnergy = latticeEnergy;
-            this.nMolecules = nMolecules;
-        }
-
-        public double getLambda() {
-            return lambda;
-        }
-
-        public void setLambda(double newFrac) {
-            lambda = newFrac;
-        }
-
-        public Box getBox() {
-            return meterPE1.getBox();
-        }
-
-        public void setBox(Box box) {
-            meterPE1.setBox(box);
-            meterPE2.setBox(box);
-        }
-
-        public boolean isIncludeLrc() {
-            return meterPE1.isIncludeLrc();
-        }
-        
-        public void setIncludeLrc(boolean b) {
-            meterPE1.setIncludeLrc(b);
-            meterPE2.setIncludeLrc(b);
-        }
-
-        public void setTarget(IAtom atom) {
-            meterPE1.setTarget(atom);
-            meterPE2.setTarget(atom);
-            hasTarget = atom != null;
-        }
-
-        public void setTarget(IMolecule mole) {
-            meterPE1.setTarget(mole);
-            meterPE2.setTarget(mole);
-            hasTarget = mole != null;
-        }
-
-        public double getDataAsScalar() {
-
-//            System.out.println(hasTarget+" "+meterPE1.getDataAsScalar()+" "+meterPE2.getDataAsScalar()+" "+(latticeEnergy/(hasTarget ? nMolecules/2 : 1)));
-//            System.out.println("hi "+(lambda * meterPE1.getDataAsScalar() + (meterPE2.getDataAsScalar() - latticeEnergy/(hasTarget ? nMolecules/2 : 1))));
-            return lambda * meterPE1.getDataAsScalar() + (meterPE2.getDataAsScalar() - latticeEnergy/(hasTarget ? nMolecules/2 : 1));
-        }
     }
 
     /**

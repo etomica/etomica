@@ -7,8 +7,8 @@ package etomica.modules.multiharmonic;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
-import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.graphics.*;
@@ -16,7 +16,6 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.Space;
 import etomica.space1d.Vector1D;
 import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
@@ -36,9 +35,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
     protected final MultiharmonicMC sim;
 
     /**
-     * 
+     *
      */
-    public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
+    public MultiharmonicGraphicMC(MultiharmonicMC simulation) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
         final DisplayBox displayBox = getDisplayBox(sim.box);
@@ -61,7 +60,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 return -Math.log(x);
             }
         });
-        sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[]{sim.accumulator.AVERAGE});
+        sim.accumulator.addDataSink(log, new StatType[]{sim.accumulator.AVERAGE});
         sim.accumulator.setPushInterval(1);
         AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         history.setTimeDataSource(sim.stepCounter);
@@ -359,19 +358,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
     public static void main(String[] args) {
         final MultiharmonicMC sim = new MultiharmonicMC();
-        MultiharmonicGraphicMC simGraphic = new MultiharmonicGraphicMC(sim, sim.getSpace());
+        MultiharmonicGraphicMC simGraphic = new MultiharmonicGraphicMC(sim);
         SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
     }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            final MultiharmonicMC sim = new MultiharmonicMC();
-            MultiharmonicGraphicMC simGraphic = new MultiharmonicGraphicMC(sim, sim.getSpace());
-            getContentPane().add(simGraphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
-
 }

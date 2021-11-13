@@ -7,9 +7,7 @@ package etomica.species;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.IConformation;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -21,7 +19,6 @@ import java.util.List;
  * interest (for assigning potentials or setting the number of molecules in the box, for instance).
  *
  * @see Box
- * @see PotentialMaster
  */
 public interface ISpecies {
 
@@ -41,6 +38,10 @@ public interface ISpecies {
      */
     IMolecule makeMolecule();
 
+    default int getLeafAtomCount() {
+        return makeMolecule().getChildList().size();
+    }
+
     /**
      * Returns whether the Species is dynamic. If a Species is dynamic and has oriented molecules, then the molecules
      * will have a velocity component. If a Species is dynamic and is not oriented, its atoms will have a velocity
@@ -59,14 +60,7 @@ public interface ISpecies {
     /**
      * Returns the number of unique AtomTypes that make up this Species.
      */
-    @IgnoreProperty
-    int getAtomTypeCount();
-
-    /**
-     *
-     * @return the total number of atoms in this Species.
-     */
-    int getLeafAtomCount();
+    int getUniqueAtomTypeCount();
 
     /**
      * Returns the child type of this Species for the specified index.
@@ -80,9 +74,19 @@ public interface ISpecies {
     AtomType getLeafType();
 
     /**
-     * Get the list of AtomTypes that make up this Species.
+     * Get the list of unique AtomTypes that make up this Species.
      * <p>
      * The returned list should not be modified.
+     */
+    List<AtomType> getUniqueAtomTypes();
+
+    /**
+     * Get a list with the AtomType for each atom which makes up this Species. The list will be in the same order as
+     * the atoms within the molecule.
+     * <p>
+     * The returned list should not be modified.
+     *
+     * @return the list of AtomTypes of the atoms in this Species.
      */
     List<AtomType> getAtomTypes();
 

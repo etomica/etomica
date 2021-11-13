@@ -61,7 +61,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
         // Number density box
         JPanel historyPanel = null;
-        java.awt.Dimension d = new Dimension(600, 650);
+        Dimension d = new Dimension(600, 650);
 
         final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
         final DataPumpListener pPump, dPump, pePump;
@@ -97,9 +97,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             d.height = d.height * 2 + 40;
             historyPane.setPreferredSize(d);
 
-            MeterPressure pMeter = new MeterPressure(space);
-            pMeter.setIntegrator(sim.integrator);
-            pMeter.setBox(sim.box);
+            MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
             pPump = new DataPumpListener(pMeter, null, 1000);
             pHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, pPump, "Pressure");
 
@@ -109,12 +107,10 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             dHPB = pHPB = peHPB = null;
         }
 
-        MeterWidomInsertion meterWidom = new MeterWidomInsertion(space, sim.getRandom());
+        MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.box, sim.getRandom(), sim.integrator.getPotentialCompute(), sim.integrator.getTemperature());
         meterWidom.setNInsert(1);
         meterWidom.setSpecies(sim.species);
         meterWidom.setResidual(false);
-        meterWidom.setEnergyMeter(new MeterPotentialEnergy(sim.integrator.getPotentialMaster()));
-        meterWidom.setBox(sim.box);
         meterWidom.setTemperature(sim.integrator.getTemperature());
         final DataPumpListener widomPump = new DataPumpListener(meterWidom, null, 1);
         DataFork widomFork = null;
@@ -126,7 +122,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             widomFork = new DataFork();
             widomPump.setDataSink(widomFork);
             sim.integrator.getEventManager().addListener(widomPump);
-            dataStreamPumps.add(widomPump);
         }
         dataStreamPumps.add(widomPump);
         AccumulatorFactory muFactory = new AccumulatorFactory() {
@@ -231,7 +226,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         pSlider.setShowBorder(true);
         pSlider.setLabel("Pressure");
 
-        DeviceCheckBox pCheckbox = new DeviceCheckBox("Volume changes", new ModifierBoolean() {
+        DeviceCheckBox pCheckbox = new DeviceCheckBox(sim.getController(), "Volume changes", new ModifierBoolean() {
 
             public void setBoolean(boolean b) {
                 if (b == volumeChanges) return;
@@ -249,7 +244,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 return volumeChanges;
             }
         });
-        pCheckbox.setController(sim.getController());
 
         pPanel.add(pCheckbox.graphic(), vertGBC);
         pPanel.add(pSlider.graphic(), vertGBC);
@@ -269,7 +263,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         muSlider.setShowBorder(true);
         muSlider.setLabel("Chemical Potential");
 
-        DeviceCheckBox muCheckbox = new DeviceCheckBox("Insert/Delete", new ModifierBoolean() {
+        DeviceCheckBox muCheckbox = new DeviceCheckBox(sim.getController(), "Insert/Delete", new ModifierBoolean() {
 
             public void setBoolean(boolean b) {
                 if (b == constMu) return;
@@ -287,7 +281,6 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 return constMu;
             }
         });
-        muCheckbox.setController(sim.getController());
 
         muPanel.add(muCheckbox.graphic(), vertGBC);
         muPanel.add(muSlider.graphic(), vertGBC);
@@ -519,8 +512,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         if (untransform) {
             blockHistogramPlotAll.getPlot().setXLog(true);
             blockHistogramPlotAll.setXLabel("exp(-\u03BC/kT)");
-        }
-        else {
+        } else {
             blockHistogramPlotAll.setXLabel("-\u03BC/kT");
         }
         blockHistogramPlotAll.getPlot().setYLog(true);
@@ -533,8 +525,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         if (untransform) {
             blockHistogramPlotAllBS.getPlot().setXLog(true);
             blockHistogramPlotAllBS.setXLabel("exp(-\u03BC/kT)");
-        }
-        else {
+        } else {
             blockHistogramPlotAllBS.setXLabel("-\u03BC/kT");
         }
         blockHistogramPlotAllBS.getPlot().setYLog(true);
@@ -587,8 +578,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 DataProcessorUndo bar = new DataProcessorUndo(c);
                 accBlockHistogram.addDataSink(bar);
                 bar.setDataSink(barFork);
-            }
-            else {
+            } else {
                 accBlockHistogram.addDataSink(barFork);
             }
             if (untransform) {

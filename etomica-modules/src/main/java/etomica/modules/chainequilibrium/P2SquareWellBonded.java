@@ -9,8 +9,9 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.P2SquareWell;
-import etomica.space.Space;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.Potential2Soft;
+import etomica.space.Vector;
 
 
 /**
@@ -27,89 +28,88 @@ import etomica.space.Space;
  * The potential is similar to P2SquareWellBondedBarrier, but there is no
  * accounting for a barrier, and no possibility for one atom to dislodge the
  * bonding partner of another directly in a single collision.
- * 
+ *
  * @author David Kofke
  */
-public class P2SquareWellBonded extends P2SquareWell {
+public class P2SquareWellBonded extends P2HardGeneric implements Potential2Soft {
 
-    protected final AtomLeafAgentManager agentManager;
+    protected final AtomLeafAgentManager<IAtom[]> agentManager;
     protected Box box;
     protected double solventThermoFrac;
 
-	public P2SquareWellBonded(Space space, AtomLeafAgentManager aam, double coreDiameter, double lambda, double epsilon) {
-		super(space, coreDiameter, lambda, epsilon, true);
+    public P2SquareWellBonded(AtomLeafAgentManager<IAtom[]> aam, double coreDiameter, double lambda, double epsilon) {
+        super(new double[]{coreDiameter, coreDiameter * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon}, true);
         agentManager = aam;
         setSolventThermoFrac(0);
         ringResult = new RingResult();
-	}
-
-    public void setBox(Box newBox){
-        box = newBox;
-        super.setBox(box);
     }
-    
-	/**
-     * This function will tell the user, if passed an atom weither or not that atom can bond
-	 */
-	protected boolean full(IAtom a) {
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
-		int j = nbrs.length;	//check INDEXING
-		for(int i=0; i != j; ++i){
-			if (nbrs[i] == null) {
-				return false;
-			}
-		}
-		return true; 
-	}
-	
-	/**
+
+    public void setBox(Box newBox) {
+        box = newBox;
+    }
+
+    /**
+     * This function will tell the user, if passed an atom whether or not that atom can bond
+     */
+    protected boolean full(IAtom a) {
+        IAtom[] nbrs = agentManager.getAgent(a);
+        int j = nbrs.length;    //check INDEXING
+        for (int i = 0; i != j; ++i) {
+            if (nbrs[i] == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * This will tell you what the lowest open space is in atom a
-	 */
-	protected int lowest(IAtom a){
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
-		int j = nbrs.length;	//check INDEXING
-		for(int i=0; i != j; ++i){
-			if (nbrs[i] == null) {
-				return i;
-			}
-		}
-		return j; 
-	}
-	
-	/**
+     */
+    protected int lowest(IAtom a) {
+        IAtom[] nbrs = agentManager.getAgent(a);
+        int j = nbrs.length;    //check INDEXING
+        for (int i = 0; i != j; ++i) {
+            if (nbrs[i] == null) {
+                return i;
+            }
+        }
+        return j;
+    }
+
+    /**
      * This function tells you if two atoms are bonded
      * This could probably be public, although a public version would
      * need to first re-retrieve agents
-	 */
-	protected boolean areBonded(IAtom a, IAtom b){
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
-		int j = nbrs.length;	//check INDEXING
-		for(int i=0; i != j; ++i){
-			if (nbrs[i] == b){		
-				return true;
-			}
-		}
-		return false; 	
-	}
-    
-	/**
-     * this function will bond atoms a & b together
-	 */
-	protected void bond(IAtom a, IAtom b){
-		if (areBonded(a,b)){			// Error Checking, what about double bonds?
-			throw new RuntimeException(a+" and "+b+" are already bonded");
-		}
-		int i = lowest(a);		// (0 is the First Space) 
-		int j = lowest(b);
-        ((IAtom[])agentManager.getAgent(a))[i] = b;
-        ((IAtom[])agentManager.getAgent(b))[j] = a;
-	}
-	
+     */
+    protected boolean areBonded(IAtom a, IAtom b) {
+        IAtom[] nbrs = agentManager.getAgent(a);
+        int j = nbrs.length;    //check INDEXING
+        for (int i = 0; i != j; ++i) {
+            if (nbrs[i] == b) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * this function will bond atoms a & b together
      */
-    protected void checkRing(IAtom a, IAtom b, int maxBondCount){
-        IAtom[] aNbrs = ((IAtom[])agentManager.getAgent(a));
+    protected void bond(IAtom a, IAtom b) {
+        if (areBonded(a, b)) {            // Error Checking, what about double bonds?
+            throw new RuntimeException(a + " and " + b + " are already bonded");
+        }
+        int i = lowest(a);        // (0 is the First Space)
+        int j = lowest(b);
+        agentManager.getAgent(a)[i] = b;
+        agentManager.getAgent(b)[j] = a;
+    }
+
+    /**
+     * this function will bond atoms a & b together
+     */
+    protected void checkRing(IAtom a, IAtom b, int maxBondCount) {
+        IAtom[] aNbrs = agentManager.getAgent(a);
         if (aNbrs.length < 2) {
             ringResult.linker = null;
             ringResult.foundRing = false;
@@ -128,14 +128,13 @@ public class P2SquareWellBonded extends P2SquareWell {
         int bondCount = 1;
         IAtom prev = a;
         while (true) {
-            IAtom[] nextNbrs = ((IAtom[])agentManager.getAgent(next));
+            IAtom[] nextNbrs = agentManager.getAgent(next);
             if (nextNbrs.length == 3) {
                 // encountered a cross-linker.  rings are OK.
                 ringResult.linker = next;
                 ringResult.bondCount = bondCount;
                 return;
-            }
-            else if (nextNbrs.length == 1) {
+            } else if (nextNbrs.length == 1) {
                 // encountered a monofunctional (terminal) group.  so, no ring.
                 ringResult.linker = null;
                 ringResult.foundRing = false;
@@ -170,167 +169,87 @@ public class P2SquareWellBonded extends P2SquareWell {
             }
         }
     }
-    
-	/**
+
+    /**
      * this function unbonds two atoms
-	 */
-	protected void unbond(IAtom a, IAtom b){
-		if (!areBonded(a,b)){		// Error Checking
-            throw new RuntimeException(a+" and "+b+" are not bonded");
-		}
+     */
+    protected void unbond(IAtom a, IAtom b) {
+        if (!areBonded(a, b)) {        // Error Checking
+            throw new RuntimeException(a + " and " + b + " are not bonded");
+        }
         boolean success = false;
-		// Unbonding the Atom, Atom A's side
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
-		for(int i=0; i < nbrs.length; ++i){
-			if (nbrs[i] == b){
-				nbrs[i] = null;
+        // Unbonding the Atom, Atom A's side
+        IAtom[] nbrs = agentManager.getAgent(a);
+        for (int i = 0; i < nbrs.length; ++i) {
+            if (nbrs[i] == b) {
+                nbrs[i] = null;
                 success = true;
-			}
-		}
+            }
+        }
         if (!success) {
-            throw new RuntimeException("oops #1 "+b+" not in "+a+" list");
+            throw new RuntimeException("oops #1 " + b + " not in " + a + " list");
         }
         success = false;
-		// Unbonding the Atom, Atom B's side
-        nbrs = (IAtom[])agentManager.getAgent(b);
-		for(int i=0; i < nbrs.length; ++i){
-			if (nbrs[i] == a){
-				nbrs[i] = null;
+        // Unbonding the Atom, Atom B's side
+        nbrs = agentManager.getAgent(b);
+        for (int i = 0; i < nbrs.length; ++i) {
+            if (nbrs[i] == a) {
+                nbrs[i] = null;
                 success = true;
-			}
-		}
-        if (!success) {
-            throw new RuntimeException("oops #2 "+b+" not in "+a+" list");
-        }
-	}
-	
-	/**
-	 * Computes next time of collision of the two atoms, assuming free-flight
-	 * kinematics.
-	 */
-	public double collisionTime(IAtomList atoms, double falseTime) {
-	
-		if (ignoreOverlap) {
-			
-            IAtomKinetic atom0 = (IAtomKinetic)atoms.get(0);
-            IAtomKinetic atom1 = (IAtomKinetic)atoms.get(1);
-            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-            
-            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-            dr.PEa1Tv1(falseTime,dv);
-            boundary.nearestImage(dr);
-
-			double r2 = dr.squared();
-			double bij = dr.dot(dv);
-			boolean areBonded = areBonded(atom0, atom1);
-			//inside well but not mutually bonded; collide now if approaching
-            if (!areBonded && r2 < wellDiameterSquared) {
-                return (bij < 0) ? falseTime : Double.POSITIVE_INFINITY;
             }
-		}
-		//mutually bonded, or outside well; collide as SW
-		double time = super.collisionTime(atoms, falseTime);
-//		if(!Double.isInfinite(time)) System.out.println("Collision time: "+time+" for "+atoms.toString());
-		return time;
-	}
-
-	
-	public void bump(IAtomList pair, double falseTime) {
-
-        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
-        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-        
-        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        dr.PEa1Tv1(falseTime,dv);
-        boundary.nearestImage(dr);
-
-		double r2 = dr.squared();
-		double bij = dr.dot(dv);
-		double nudge = 0;
-		double eps = 1.0e-10;
-		
-		// ke is kinetic energy due to components of velocity
-		
-		double rm0 = atom0.getType().rm();
-		double rm1 = atom1.getType().rm();
-		
-		double reduced_m = 2.0 /  + (rm0 + rm1);
-		double ke = bij * bij * reduced_m / (4.0 * r2);
-
-		if (areBonded(atom0, atom1)) {        //atoms are bonded to each
-			if (2 * r2 < (coreDiameterSquared + wellDiameterSquared)) { // Hard-core collision															
-				lastCollisionVirial = reduced_m * bij;
-	
-			} else { 				// Well collision assume separating because mutually bonded
-				if (ke < epsilon) 		// Not enough kinetic energy to escape
-				{ 
-					lastCollisionVirial = reduced_m * bij;
-					nudge = -eps;
-				} 
-				else{ 	
-				    lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon*solventThermoFrac));
-					unbond(atom1, atom0);
-					nudge = eps;
-				}
-
-			}
         }
-		else { 	//not bonded to each other
-			//well collision; decide whether to bond or have hard repulsion
-			boolean canBond = !full(atom0) && !full(atom1);
-		    if (canBond) {
-                int maxRingBonds = 20;
-				IAtom[] aNbrs = ((IAtom[]) agentManager.getAgent(atom0));
-		        if (aNbrs.length == 3) {
-		            // cross linker
-					checkRing(atom1, atom0, maxRingBonds);
-					canBond = ringResult.linker == atom0 || (ringResult.linker != null && ringResult.foundRing);
-		        }
-		        else {
-					checkRing(atom0, atom1, maxRingBonds);
-//    		        System.out.println("checkRing "+atom0+" "+atom1+" linker0 "+ringResult.linker);
-    //                System.out.println(atom0+" "+atom1+" "+ringBonds);
-    		        if (ringResult.linker != null) {
-    		            IAtom linker0 = ringResult.linker;
-    		            int ringBonds0 = ringResult.bondCount;
-						checkRing(atom1, atom0, maxRingBonds - ringBonds0);
-//    	                System.out.println("checkRing "+atom0+" "+atom1+" linker1 "+ringResult.linker);
-    		            if (ringResult.linker == linker0) {
-    		                // ring contains only one linker and is too small
-    		                canBond = false;
-    		            }
-    		        }
-    		        else {
-    		            canBond = !ringResult.foundRing;
-    		        }
-		        }
-		    }
-			if (!canBond) { 
-				lastCollisionVirial = reduced_m * bij;
-				nudge = eps;
-			}
-			else {
-			    //neither is taken; bond to each other
-                lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon*solventThermoFrac/ reduced_m));
-				bond(atom0, atom1);
-				nudge = -eps;
-			}
-		} 
+        if (!success) {
+            throw new RuntimeException("oops #2 " + b + " not in " + a + " list");
+        }
+    }
 
-		lastCollisionVirialr2 = lastCollisionVirial / r2;
-		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		atom0.getVelocity().PEa1Tv1(rm0, dv);
-		atom1.getVelocity().PEa1Tv1(-rm1, dv);
-		atom0.getPosition().PEa1Tv1(-falseTime * rm0, dv);
-		atom1.getPosition().PEa1Tv1(falseTime * rm1, dv);
-		
-		if (nudge != 0) 
-		{
-			atom0.getPosition().PEa1Tv1(-nudge, dr);
-			atom1.getPosition().PEa1Tv1(nudge, dr);
-		}
-	}
+    @Override
+    protected int decideBump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, boolean core, double ke, double reducedMass, double bij, double r2, double[] du, double[] virial, double falseTime) {
+        int newState = oldState + (core ? -1 : +1);
+        boolean bonded = areBonded(atom1, atom2);
+        boolean canBond = !bonded && bij < 0 && !full(atom1) && !full(atom2);
+        if (canBond) {
+            int maxRingBonds = 20;
+            IAtom[] aNbrs = agentManager.getAgent(atom1);
+            if (aNbrs.length == 3) {
+                // cross linker
+                checkRing(atom2, atom1, maxRingBonds);
+                canBond = ringResult.linker == atom1 || (ringResult.linker != null && ringResult.foundRing);
+            } else {
+                checkRing(atom1, atom2, maxRingBonds);
+//    		        System.out.println("checkRing "+atom0+" "+atom1+" linker0 "+ringResult.linker);
+                //                System.out.println(atom0+" "+atom1+" "+ringBonds);
+                if (ringResult.linker != null) {
+                    IAtom linker0 = ringResult.linker;
+                    int ringBonds0 = ringResult.bondCount;
+                    checkRing(atom2, atom1, maxRingBonds - ringBonds0);
+//    	                System.out.println("checkRing "+atom0+" "+atom1+" linker1 "+ringResult.linker);
+                    if (ringResult.linker == linker0) {
+                        // ring contains only one linker and is too small
+                        canBond = false;
+                    }
+                } else {
+                    canBond = !ringResult.foundRing;
+                }
+            }
+        }
+        double uJump = (canBond || bonded) ? (getEnergyForState(atom1, atom2, newState) - getEnergyForState(atom1, atom2, oldState)) : Double.POSITIVE_INFINITY;
+        if (ke < uJump) {
+            // not enough ke; bounce off core
+            virial[0] = 2.0 * reducedMass * bij;
+            newState = oldState;
+        } else {
+            if (bonded) {
+                // capture
+                unbond(atom1, atom2);
+            } else {
+                bond(atom1, atom2);
+            }
+            virial[0] = reducedMass * (bij + (core ? +1 : -1) * Math.sqrt(bij * bij - 2.0 * r2 * uJump * solventThermoFrac / reducedMass));
+            du[0] = uJump;
+        }
+        return newState;
+    }
 
     /**
      * Returns the fraction of well energy that is gained or lost by an atom
@@ -354,11 +273,24 @@ public class P2SquareWellBonded extends P2SquareWell {
     }
 
     protected final RingResult ringResult;
-    
+
+    @Override
+    public Vector[][] gradientAndTorque(IAtomList atoms) {
+        return new Vector[0][];
+    }
+
     protected static class RingResult {
         public IAtom linker;
         public int bondCount;
         public boolean foundRing;
+    }
+
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        int s = getState(atom1, atom2, dr12);
+        if (areBonded(atom1, atom2)) {
+            return getEnergyForState(atom1, atom2, s);
+        }
+        return (0 <= s && s < 2) ? Double.POSITIVE_INFINITY : 0;
     }
 }
 

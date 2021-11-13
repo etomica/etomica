@@ -195,7 +195,7 @@ public class DCVGCMDGraphic extends SimulationGraphic {
 		diameterHash.setDiameter(sim.propene.getTypeByName("propeneCH3"), 3.75);
 		diameterHash.setDiameter(sim.propene.getTypeByName("propeneCH2"), 3.675);
 		diameterHash.setDiameter(sim.propene.getTypeByName("propeneCH"), 3.73);
-		diameterHash.setDiameter(sim.membrane.getAtomType(0), ((DCVGCMD)sim).sigma);
+		diameterHash.setDiameter(sim.membrane.getAtomType(0), sim.sigma);
 
 		//panel for Mu's
 		JPanel muPanel = new JPanel(new GridBagLayout());

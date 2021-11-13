@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.Space;
@@ -26,7 +27,7 @@ import java.util.Map;
  * @author Andrew Schultz
  */
  
-public class P1HarmonicSite extends Potential1 implements PotentialSoft {
+public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotentialField {
     
     private double w = 100.0;
     private final Vector[] force;
@@ -41,8 +42,9 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
 
     public void setAtomAgentManager(Box box, AtomLeafAgentManager<? extends Vector> agentManager) {
         boxAgentManager.put(box, agentManager);
+        atomAgentManager = agentManager;
     }
-    
+
     public void setBox(Box box) {
         atomAgentManager = boxAgentManager.get(box);
     }
@@ -63,7 +65,22 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
         Vector x0 = atomAgentManager.getAgent(a.get(0));
         return w*a.get(0).getPosition().Mv1Squared(x0);
     }
-    
+
+    public double u(IAtom a) {
+        Vector x0 = atomAgentManager.getAgent(a);
+        return w*a.getPosition().Mv1Squared(x0);
+    }
+
+    @Override
+    public double udu(IAtom a, Vector f) {
+        Vector r = a.getPosition();
+        Vector x0 = atomAgentManager.getAgent(a);
+        Vector dr = space.makeVector();
+        dr.Ev1Mv2(r,x0);
+        f.PEa1Tv1(-2*w, dr);
+        return w*dr.squared();
+    }
+
     public double virial(IAtomList a) {
         return 0.0;
     }

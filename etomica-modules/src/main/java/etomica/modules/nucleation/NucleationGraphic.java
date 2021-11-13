@@ -6,7 +6,6 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTest;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -24,7 +23,6 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.swmd.Swmd;
-import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
@@ -76,8 +74,8 @@ public class NucleationGraphic extends SimulationGraphic {
             pUnit = Bar.UNIT;
         }
 
-        ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setEpsilon(tUnit.toSim(600));
-        ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setLambda(1.5);
+        sim.p2sqw.setEnergyForState(1, -tUnit.toSim(600));
+        sim.p2sqw.setCollisionDiameter(1, 6);
 
         if (sim.getSpace().D() == 2) {
             int N = 400;
@@ -96,7 +94,7 @@ public class NucleationGraphic extends SimulationGraphic {
                 return true;
             }
         });
-        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color clusters", new ModifierBoolean() {
+        DeviceCheckBox colorCheckbox = new DeviceCheckBox(sim.getController(), "color clusters", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
                 getDisplayBox(sim.box).setColorScheme(b ? colorSchemeCluster : colorSchemeRed);
@@ -123,9 +121,6 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setEditValues(true);
         add(densitySlider);
 
-        sim.getController().setSleepPeriod(0);
-        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
-
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
 
@@ -148,8 +143,6 @@ public class NucleationGraphic extends SimulationGraphic {
 
         //meters and displays
 
-        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-
         //add meter and display for current kinetic temperature
 
         MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
@@ -159,7 +152,7 @@ public class NucleationGraphic extends SimulationGraphic {
         final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
         temperatureAverage.setPushInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        temperatureHistory.setTimeDataSource(timeCounter);
+        temperatureHistory.setTimeDataSource(meterCycles);
         temperatureFork.setDataSinks(new IDataSink[]{temperatureAverage, temperatureHistory});
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tBox.setAccumulator(temperatureAverage);
@@ -170,7 +163,7 @@ public class NucleationGraphic extends SimulationGraphic {
 
         MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        peHistory.setTimeDataSource(timeCounter);
+        peHistory.setTimeDataSource(meterCycles);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(2);
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
@@ -224,7 +217,7 @@ public class NucleationGraphic extends SimulationGraphic {
         DataPumpListener pumpCluster = new DataPumpListener(meterLargestCluster, forkCluster, 10);
         sim.integrator.getEventManager().addListener(pumpCluster);
         AccumulatorHistory clusterHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        clusterHistory.setTimeDataSource(timeCounter);
+        clusterHistory.setTimeDataSource(meterCycles);
         forkCluster.addDataSink(clusterHistory);
         DisplayPlotXChart clusterHistoryPlot = new DisplayPlotXChart();
         clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
@@ -255,6 +248,7 @@ public class NucleationGraphic extends SimulationGraphic {
 
         final IAction temperatureAction = new IAction() {
             public void actionPerformed() {
+                sim.integrator.reset();
                 resetDataAction.actionPerformed();
             }
         };
@@ -311,20 +305,23 @@ public class NucleationGraphic extends SimulationGraphic {
 //            if (d > 1) {3
             //assume one type of atom
             ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
-            ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setCoreDiameter(d);
+            double lambda = 1.5;
+            sim.p2sqw.setCollisionDiameter(0, d);
+            sim.p2sqw.setCollisionDiameter(1, d*lambda);
+            System.out.println("sqw => "+d+" "+(d*lambda));
             new BoxImposePbc(sim.box, space).actionPerformed();
             try {
                 sim.integrator.reset();
             } catch (ConfigurationOverlapException e) {
                 // can happen when increasing diameter
             }
-            meterClusterSizes.clusterer.setNbrMax(d * 1.5);
-            meterLargestCluster.clusterer.setNbrMax(d * 1.5);
+            meterClusterSizes.clusterer.setNbrMax(d * lambda);
+            meterLargestCluster.clusterer.setNbrMax(d * lambda);
             getDisplayBox(sim.box).repaint();
         }
 
         public double getValue() {
-            double sigma = ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).getCoreDiameter();
+            double sigma = sim.p2sqw.getCollisionDiameter(0);
             int N = sim.box.getLeafList().size();
             double rho = N / sim.box.getBoundary().volume();
             double density = rho * sigma * sigma * sigma;

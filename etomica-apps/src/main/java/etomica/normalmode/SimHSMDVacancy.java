@@ -6,12 +6,9 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
@@ -21,27 +18,24 @@ import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.*;
 import etomica.integrator.mcmove.MCMoveIDBiasAction;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.modifier.Modifier;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.list.NeighborListManagerHard;
 import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.statmech.HardSphereSolid;
@@ -50,23 +44,21 @@ import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
-import java.awt.*;
-
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
  
 public class SimHSMDVacancy extends Simulation {
-    
-    public final PotentialMasterList potentialMasterList;
+
+    public final PotentialComputePair potentialMasterList;
+    public final NeighborListManagerHard neighborManager;
     public IntegratorHardMDMC integrator;
     public SpeciesGeneral species;
     public Box box;
-    public P2HardSphere potential;
+    public P2HardGeneric potential;
     public IntegratorMC integratorMC;
-    public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
-    
+
 
     public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu) {
         super(Space3D.getInstance());
@@ -86,16 +78,9 @@ public class SimHSMDVacancy extends Simulation {
 
 
         double nbrRange = 1.7;
-        potentialMasterList = new PotentialMasterList(this, nbrRange, space);
-        potentialMasterList.setCellRange(2);
+        neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, nbrRange, BondingInfo.noBonding());
+        potentialMasterList = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         double sigma = 1.0;
-        integrator = new IntegratorHardMDMC(this, potentialMasterList, box);
-        integrator.setTimeStep(tStep);
-        integrator.setIsothermal(true);
-        integrator.setTemperature(1);
-        integrator.setThermostatNoDrift(true);
-        this.getController().addActivity(new ActivityIntegrate(integrator));
-
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -107,29 +92,27 @@ public class SimHSMDVacancy extends Simulation {
         double nbr1 = L / Math.sqrt(2);
         double y = 1.25 * nbr1; //nbr1+(L-nbr1)*0.6+0.06;
 
-        potential = new P2HardSphere(space, y, false);
+        potential = P2HardSphere.makePotential(y);
         AtomType leafType = species.getLeafType();
 
-        potentialMasterList.addPotential(potential, new AtomType[]{leafType, leafType});
-        integrator.setThermostat(ThermostatType.HYBRID_MC);
+        potentialMasterList.setPairPotential(leafType, leafType, potential);
+        integrator = new IntegratorHardMDMC(IntegratorHard.extractHardPotentials(potentialMasterList), neighborManager, random, tStep, 1.0, box, getSpeciesManager());
+        integrator.setIsothermal(true);
+        integrator.setThermostatNoDrift(true);
+        integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
+
         integrator.setThermostatInterval(hybridInterval);
 
+        // we just needed this to initialize coordinates, not keep track of lattice positions of atoms
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
-        // we just needed this to initial coordinates, to keep track of lattice positions of atoms
-        coordinateDefinition = null;
 
-        integrator.getEventManager().addListener(potentialMasterList.getNeighborManager(box));
-        //potentialMasterList.reset();
-
-        integratorMC = new IntegratorMC(potentialMasterList, random, 1, box);
-//        mcMoveID = new MCMoveInsertDelete1(potentialMasterList, random, space, fixedN, maxDN);
-//        mcMoveID = new MCMoveInsertDelete2(potentialMasterList, random, space, integrator, potentialTruncatedForceShifted, maxDN);
-//        mcMoveID = new MCMoveInsertDelete3(potentialMasterList, random, space, integrator, L*Math.sqrt(0.9), fixedN, maxDN);
-//        mcMoveID = new MCMoveInsertDelete4(potentialMasterList, random, space, integrator, maxDN);
-        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMasterList, random, space, integrator, y, numAtoms, numV);
-//        integrator.setMCMoveID(mcMoveID);
-//        integratorMC.getMoveEventManager().addListener(integrator);
+        NeighborCellManager neighborCellManager = new NeighborCellManager(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        PotentialComputePair potentialComputeMC = new PotentialComputePair(getSpeciesManager(), box, neighborCellManager, potentialMasterList.getPairPotentials());
+        neighborCellManager.setPotentialRange(nbrRange);
+        integratorMC = new IntegratorMC(potentialComputeMC, random, 1, box);
+        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialComputeMC, neighborCellManager, random, space, integrator, y, numAtoms, numV);
         double x = (nbr1 - 1) / 4.0;
         mcMoveID.setMaxInsertDistance(x);
         mcMoveID.makeFccVectors(nbr1);
@@ -138,11 +121,11 @@ public class SimHSMDVacancy extends Simulation {
         integratorMC.getMoveManager().addMCMove(mcMoveID);
         integratorMC.getMoveEventManager().addListener(mcMoveID);
         integrator.setIntegratorMC(integratorMC, numAtoms);
-        potentialMasterList.reset();
+        potentialMasterList.init();
 
         // we set the potential range high so that the MC move could find its neighbors.
         // now set potential range back to its appropriate value.
-        potential.setCollisionDiameter(sigma);
+        potential.setCollisionDiameter(0, sigma);
     }
 
     public static void main(String[] args) {
@@ -288,136 +271,13 @@ public class SimHSMDVacancy extends Simulation {
             
             final String APP_NAME = "HSMD Vacancy";
         	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
-        	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            ColorScheme colorScheme = new ColorScheme() {
-                public Color getAtomColor(IAtom a) {
-                    float x = (float)a.getPosition().getX(0);
-                    float L = (float)sim.box.getBoundary().getBoxSize().getX(0);
-                    x = nc*2*(x/L+0.5f);
-                    if (nc%2==0) x+=0.5f;
-                    while (x>3) x-=3;
-                    float r = 0f, g = 0f, b = 0f;
-                    if (x < 1) {
-                        r = 1-x;
-                        if (r>1) r=1;
-                        g = x;
-                        if (g<0) g=0;
-                    }
-                    else if (x < 2) {
-                        g = 2-x;
-                        b = x-1;
-                    }
-                    else {
-                        b = 3-x;
-                        if (b<0) b=0;
-                        r = x-2;
-                        if (r>1) r=1;
-                    }
-                    return new Color(r, g, b);
-                }
-            };
-            colorScheme = new ColorScheme() {
-                Vector dr = sim.space.makeVector();
-                double rc = sim.mcMoveID.getMaxDistance();
-                double rc2 = rc*rc;
-                int nmax = 12;
-                public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
-
-                    Vector pi = a.getPosition();
-                    NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
-                    Boundary boundary = sim.box.getBoundary();
-                    IAtomList nbrs = null;
-                    try {
-                        IAtomList[] nbrsArray = nbrManager.getUpList(a);
-                        if (nbrsArray==null || nbrsArray.length==0) return Color.RED;
-                        nbrs = nbrsArray[0];
-                    }
-                    catch (NullPointerException e) {
-                        // during addition
-                        return Color.RED;
-                    }
-                    if (nbrs==null) return Color.RED;
-                    int n = 0;
-                    for (int j = 0; j<nbrs.size(); j++) {
-                        IAtom nbrj = nbrs.get(j);
-                        if (nbrj == null) break;
-                        dr.Ev1Mv2(pi, nbrj.getPosition());
-                        boundary.nearestImage(dr);
-                        double r2 = dr.squared();
-                        if (r2 < rc2) {
-                            n++;
-                        }
-                    }
-                    nbrs = nbrManager.getDownList(a)[0];
-                    for (int j = 0; j<nbrs.size(); j++) {
-                        IAtom nbrj = nbrs.get(j);
-                        if (nbrj == null) break;
-                        dr.Ev1Mv2(pi, nbrj.getPosition());
-                        boundary.nearestImage(dr);
-                        double r2 = dr.squared();
-                        if (r2 < rc2) {
-                            n++;
-                        }
-                    }
-                    if (n < nmax) return Color.RED;
-                    if (n == nmax) return Color.BLUE;
-                    return Color.BLUE;
-                }
-            };
+            ColorScheme colorScheme = new ColorSchemeVacancy(sim.integrator, sim.neighborManager, sim.mcMoveID.getMaxDistance());
 
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             
-            DiameterHash dh = new DiameterHash() {
-                Vector dr = sim.space.makeVector();
-                double rc = sim.mcMoveID.getMaxDistance();
-                double rc2 = rc*rc;
-                int nmax = 12;
-                public double getDiameter(IAtom a) {
-                    Vector pi = a.getPosition();
-                    NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
-                    Boundary boundary = sim.box.getBoundary();
-                    IAtomList nbrs = null;
-                    try {
-                        IAtomList[] nbrsArray = nbrManager.getUpList(a);
-                        if (nbrsArray==null || nbrsArray.length==0) return 0;
-                        nbrs = nbrsArray[0];
-                    }
-                    catch (NullPointerException e) {
-                        // during addition
-                        return 0;
-                    }
-                    if (nbrs==null) return 0;
-                    int n = 0;
-                    for (int j = 0; j<nbrs.size(); j++) {
-                        IAtom nbrj = nbrs.get(j);
-                        if (nbrj == null) break;
-                        dr.Ev1Mv2(pi, nbrj.getPosition());
-                        boundary.nearestImage(dr);
-                        double r2 = dr.squared();
-                        if (r2 < rc2) {
-                            n++;
-                        }
-                    }
-                    nbrs = nbrManager.getDownList(a)[0];
-                    for (int j = 0; j<nbrs.size(); j++) {
-                        IAtom nbrj = nbrs.get(j);
-                        if (nbrj == null) break;
-                        dr.Ev1Mv2(pi, nbrj.getPosition());
-                        boundary.nearestImage(dr);
-                        double r2 = dr.squared();
-                        if (r2 < rc2) {
-                            n++;
-                        }
-                    }
-                    if (n < nmax) return 1.0;
-                    if (n == nmax) return 0.1;
-                    return 0.1;
-                }
-            };
+            DiameterHash dh = new DiameterHashVacancy(sim.integrator, sim.neighborManager, sim.mcMoveID.getMaxDistance());
             simGraphic.getDisplayBox(sim.box).setDiameterHash(dh);
 
-            
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -522,7 +382,7 @@ public class SimHSMDVacancy extends Simulation {
             
             simGraphic.add(muMuPlot);
 
-            DeviceBox muBox = new DeviceBox();
+            DeviceBox muBox = new DeviceBox(sim.getController());
             muBox.setPrecision(8);
             muBox.setEditable(true);
             muBox.setLabel("mu");
@@ -538,7 +398,9 @@ public class SimHSMDVacancy extends Simulation {
                     feHistogramImposed.setMu(newValue);
                     avgP.setMu(newValue);
                     pmu.setMu(newValue);
-                    mcMoveBiasAction.setMu(newValue);
+                    if (mcMoveBiasAction != null) {
+                        mcMoveBiasAction.setMu(newValue);
+                    }
                 }
                 
                 public String getLabel() {
@@ -717,7 +579,6 @@ public class SimHSMDVacancy extends Simulation {
         sim.integrator.resetStepCount();
         meterP.reset();
 
-        
         // take real data
         long t1 = System.currentTimeMillis();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
@@ -749,10 +610,10 @@ public class SimHSMDVacancy extends Simulation {
                 pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
             }
             if (Math.round(nData.getValue(i)) < numAtoms) {
-                System.out.println(String.format("%6d %20.15e %20.15e %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i)));
+                System.out.printf("%6d %20.15e %20.15e %20.15e %20.15e %20.15e\n", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i));
             }
             else {
-                System.out.println(String.format("%6d %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg));
+                System.out.printf("%6d %20.15e %20.15e %20.15e\n", n, nHistogram[i], fenData.getValue(i), pAvg);
             }
         }
         System.out.println("\nfinal daDef: "+dsfe3Data.getValue(0));

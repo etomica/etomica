@@ -17,20 +17,28 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.IPotential;
 import etomica.potential.P2PotentialGroupBuilder;
-import etomica.potential.PotentialGroup;
+import etomica.potential.PotentialMoleculePair;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesManager;
 import etomica.units.Degree;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneral;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMixBD;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -169,6 +177,7 @@ public class VirialTraPPE {
         ISpecies[] species = null;
         ClusterAbstractMultivalue targetCluster = null;
         ClusterWheatleySoftDerivativesMixBD targetClusterBD = null;
+        SpeciesManager.Builder sb = SpeciesManager.builder();
 
         boolean anyPolar = false;
         MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
@@ -180,12 +189,15 @@ public class VirialTraPPE {
             TPList[i] = new TraPPEParams(space, chemForm[i]);
         }
 
-        for(int i=0; i<chemForm.length; i++){
+        for(int i=0; i<chemForm.length; i++) {
+            sb.addSpecies(TPList[i].species);
+        }
+        SpeciesManager sm = sb.build();
 
+        for(int i=0; i<chemForm.length; i++) {
             TraPPEParams TPi = TPList[i];
-            PotentialGroup PGii = TPi.potentialGroup;
-            ISpecies speciesi = TPi.species;
-            species[i] = speciesi;
+            TPi.buildPotentials(sm);
+            PotentialMoleculePair PGii = TPi.potentialGroup;
 
             P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes,TPi.sigma,TPi.epsilon,TPi.charge);
             fAll[i][i] = new MayerGeneral(PGii);
@@ -198,7 +210,7 @@ public class VirialTraPPE {
 
                 P2PotentialGroupBuilder.ModelParams MPj = new P2PotentialGroupBuilder.ModelParams(TPj.atomTypes,TPj.sigma,TPj.epsilon,TPj.charge);
 
-                PotentialGroup PGij = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,MPi,MPj);
+                PotentialMoleculePair PGij = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,sm, MPi,MPj);
 
                 fAll[i][j] = fAll[j][i] = new MayerGeneral(PGij);
 
@@ -258,7 +270,7 @@ public class VirialTraPPE {
         // Setting Chain Ref Moves
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), space, sigmaHSRef);
+            MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
@@ -278,9 +290,9 @@ public class VirialTraPPE {
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 
@@ -404,17 +416,21 @@ public class VirialTraPPE {
      */
     public static class TraPPEParams{
 
-        protected AtomType[] atomTypes;
-        protected double[] sigma;
-        protected double[] epsilon;
-        protected double[] charge;
-        protected ISpecies species;
-        protected PotentialGroup potentialGroup;
+        public final AtomType[] atomTypes;
+        public final double[] sigma;
+        public final double[] epsilon;
+        public final double[] charge;
+        public final ISpecies species;
+        public PotentialMoleculePair potentialGroup;
         protected static Element elementM = new ElementSimple("M", 0.0);
         protected boolean polar;
+        protected final ChemForm chemForm;
+        protected final Space space;
         //Set up computing the boolean. It is hard coded for now.
 
         public TraPPEParams(Space space, ChemForm chemForm){
+            this.chemForm = chemForm;
+            this.space = space;
 
             if(chemForm == ChemForm.N2) {
 
@@ -449,10 +465,6 @@ public class VirialTraPPE {
                         .addAtom(typeN, posN1, "N1")
                         .addAtom(typeN, posN2, "N2")
                         .build();
-
-                //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
             }
 
             else if (chemForm == ChemForm.O2) {
@@ -488,11 +500,6 @@ public class VirialTraPPE {
                         .addAtom(typeO, posO1, "O1")
                         .addAtom(typeO, posO2, "O2")
                         .build();
-
-                //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
-
             }
 
             else if (chemForm == ChemForm.CO2) {
@@ -528,10 +535,6 @@ public class VirialTraPPE {
                         .addAtom(typeO, posO1, "O1")
                         .addAtom(typeO, posO2, "O2")
                         .build();
-
-                //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
             }
             else if (chemForm == ChemForm.NH3) {
 
@@ -580,12 +583,33 @@ public class VirialTraPPE {
                         .addAtom(typeH, posH3, "H3")
                         .addAtom(typeM, posM, "M")
                         .build();
-
-                //Set Potential
-                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, modelParams, null);
+            }
+            else {
+                throw new RuntimeException("unrecognized chem form");
             }
 
         }
+
+        public void buildPotentials(SpeciesManager sm) {
+            if(chemForm == ChemForm.N2) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.O2) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.CO2) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.NH3) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+
+        }
+
     }
+
 }

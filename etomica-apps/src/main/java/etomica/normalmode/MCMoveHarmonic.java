@@ -8,7 +8,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -16,7 +15,7 @@ import etomica.util.random.IRandom;
 public class MCMoveHarmonic extends MCMoveBox {
 
     public MCMoveHarmonic(IRandom random) {
-        super(null, new MCMoveTracker());
+        super();
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
     }

@@ -4,9 +4,10 @@
 
 package etomica.osmoticvirial;
 
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
+import etomica.potential.Potential2Soft;
+import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
@@ -22,17 +23,18 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
     private MCMoveGeometricClusterRestrictedGE mcMoveGeometricClusterRestrictedGE;
     private Space space;
     private final ISpecies seed;
+    private final NeighborManager[] neighborManagers = new NeighborManager[2];
+    private final Potential2Soft[][] pairPotentials;
 
-    public IntegratorRGEMC(IRandom random, Space space, ISpecies seed) {
+    public IntegratorRGEMC(IRandom random, Space space, ISpecies seed, Potential2Soft[][] pairPotentials) {
         super(random);
         this.space = space;
         this.seed = seed;
+        this.pairPotentials = pairPotentials;
     }
 
-    public void addIntegrator(Integrator newIntegrator) {
-        if (!(newIntegrator instanceof IntegratorBox)) {
-            throw new IllegalArgumentException("Sub integrators must be able to handle a box");
-        }
+    public void addIntegrator(IntegratorBox newIntegrator, NeighborManager nbrManager) {
+        neighborManagers[integrators.size()] = nbrManager;
         if (integrators.size() == 2) {
             throw new IllegalArgumentException("Only 2 sub-integrators can be added");
         }
@@ -40,8 +42,8 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
         if (integrators.size() == 2) {
 
             mcMoveGeometricClusterRestrictedGE =
-                    new MCMoveGeometricClusterRestrictedGE(((IntegratorBox) newIntegrator).getPotentialMaster(),
-                            space, random, ((IntegratorBox) integrators.get(0)).getBox(), ((IntegratorBox) integrators.get(1)).getBox(), seed);
+                    new MCMoveGeometricClusterRestrictedGE(neighborManagers[0], neighborManagers[1],
+                            space, random, ((IntegratorBox) integrators.get(0)).getBox(), ((IntegratorBox) integrators.get(1)).getBox(), seed, pairPotentials);
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(mcMoveGeometricClusterRestrictedGE);
         }

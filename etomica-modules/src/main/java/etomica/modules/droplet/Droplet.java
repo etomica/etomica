@@ -8,10 +8,12 @@ package etomica.modules.droplet;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.BondingInfo;
+import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -41,10 +43,12 @@ public class Droplet extends Simulation {
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         int numAtoms = 2000;
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+        PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         //controller and integrator
-        integrator = new IntegratorDroplet(this, potentialMaster, box);
+        integrator = new IntegratorDroplet(this, pcAgg, box);
         getController().addActivity(new ActivityIntegrate(integrator), Long.MAX_VALUE, 0.0);
         integrator.setTimeStep(0.2);
         integrator.setTemperature(0);
@@ -56,11 +60,11 @@ public class Droplet extends Simulation {
         p2.setEpsilon(1.0);
         double vol = 4.0 / 3.0 * Math.PI;
         p2.setDv(vol / numAtoms);
-        potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
+        potentialMaster.setPairPotential(leafType, leafType, p2);
 
         p1Smash = new P1Smash(space);
         p1Smash.setG(1.0);
-        potentialMaster.addPotential(p1Smash, new AtomType[]{leafType});
+        pcField.setFieldPotential(leafType, p1Smash);
 
         //construct box
         Vector dim = space.makeVector();
@@ -86,8 +90,6 @@ public class Droplet extends Simulation {
     }
 
     public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-
         Droplet sim = new Droplet();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main

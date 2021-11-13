@@ -4,42 +4,37 @@
 
 package etomica.simulation;
 
-import etomica.action.IAction;
-
 import etomica.action.controller.Controller;
-import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.IElement;
 import etomica.integrator.Integrator;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.meta.javadoc.KeepSimJavadoc;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
  * It contains boxes, species, an integrator, a random number generator,
  * and a controller.
  */
-@KeepSimJavadoc
 public class Simulation {
 
     protected final Space space;
     protected final SimulationEventManager eventManager;
-    private final Map<String, IElement> elementSymbolHash;
-    private final Map<IElement, LinkedList<AtomType>> elementAtomTypeHash;
     protected int[] seeds;
     protected IRandom random;
     private final Controller controller;
 
-    private final List<ISpecies> speciesList;
     private final List<Box> boxes;
+    private SpeciesManager speciesManager;
+    private final SpeciesManager.Builder smBuilder;
 
     /**
      * Creates a new simulation using the given space
@@ -47,16 +42,20 @@ public class Simulation {
      * @param space the space used to construct Vectors etc.
      */
     public Simulation(Space space) {
+        this(space, null);
+    }
+
+    public Simulation(Space space, SpeciesManager speciesManager) {
         this.space = space;
         boxes = new ArrayList<>();
         seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
-        speciesList = new ArrayList<>();
-        elementSymbolHash = new HashMap<>();
-        elementAtomTypeHash = new HashMap<>();
         controller = new Controller();
+        this.speciesManager = speciesManager;
+        this.smBuilder = speciesManager == null ? SpeciesManager.builder() : null;
     }
+
 
     /**
      * @return the seeds that were used for the random number generator at
@@ -102,8 +101,8 @@ public class Simulation {
         boxes.add(newBox);
         newBox.setIndex(boxes.size() - 1);
 
-        for(ISpecies aSpeciesList : speciesList) {
-            newBox.addSpeciesNotify(aSpeciesList);
+        for(ISpecies s : getSpeciesManager().getSpeciesArray()) {
+            newBox.addSpeciesNotify(s);
         }
         eventManager.boxAdded(newBox);
         return newBox;
@@ -170,7 +169,6 @@ public class Simulation {
     /**
      * @return the number of boxes that have been added to the Simulation.
      */
-    @IgnoreProperty
     public final int getBoxCount() {
         return boxes.size();
     }
@@ -179,7 +177,6 @@ public class Simulation {
      * @return the Controller used to run the simulation's Actions and
      * Activities.
      */
-    @IgnoreProperty
     public final Controller getController() {
         return controller;
     }
@@ -212,7 +209,6 @@ public class Simulation {
      * @return the Simulation's event manager, which fires events for
      * Boxes and Species being added and removed.
      */
-    @IgnoreProperty
     public final SimulationEventManager getEventManager() {
         return eventManager;
     }
@@ -229,36 +225,28 @@ public class Simulation {
         if (boxes.size() > 0) {
             throw new IllegalStateException("Cannot add species after adding a box");
         }
-        if(speciesList.contains(species)) {
-            throw new IllegalArgumentException("Species already exists");
+        if (speciesManager != null) {
+            throw new IllegalStateException("Cannot add species after SpeciesManager is built");
         }
+        this.smBuilder.addSpecies(species);
+    }
 
-        int atomTypeMaxIndex = 0;
-
-        for (ISpecies s : speciesList) {
-            atomTypeMaxIndex += s.getAtomTypeCount();
+    public final SpeciesManager getSpeciesManager() {
+        if (speciesManager == null) {
+            speciesManager = smBuilder.build();
         }
-
-        int index = speciesList.size();
-        species.setIndex(index);
-        speciesList.add(species);
-
-        for (AtomType atomType : species.getAtomTypes()) {
-            atomType.setIndex(atomTypeMaxIndex++);
-            atomTypeAddedNotify(atomType);
-        }
-
-        for(Box box : boxes) {
-            box.addSpeciesNotify(species);
-        }
+        return speciesManager;
     }
 
     /**
      * @return the number of Species in the Simulation.
      */
-    @IgnoreProperty
     public final int getSpeciesCount() {
-        return speciesList.size();
+        return getSpeciesManager().getSpeciesCount();
+    }
+
+    public final int getAtomTypeCount() {
+        return getSpeciesManager().getAtomTypeCount();
     }
 
     /**
@@ -269,11 +257,11 @@ public class Simulation {
      * @return the specified ISpecies.
      */
     public final ISpecies getSpecies(int index) {
-        return speciesList.get(index);
+        return getSpeciesManager().getSpecies(index);
     }
 
     public final List<ISpecies> getSpeciesList() {
-        return Collections.unmodifiableList(speciesList);
+        return getSpeciesManager().getSpeciesList();
     }
 
     /**
@@ -283,25 +271,7 @@ public class Simulation {
      * @return the ISpecies at index 0
      */
     public final ISpecies species() {
-        return speciesList.get(0);
-    }
-
-    private void atomTypeAddedNotify(AtomType newChildType) {
-        IElement newElement = newChildType.getElement();
-        IElement oldElement = elementSymbolHash.get(newElement.getSymbol());
-        if (oldElement != null && oldElement != newElement) {
-            // having two AtomTypes with the same Element is OK, but having
-            // two Elements with the same symbol is not allowed.
-            throw new IllegalStateException("Element symbol " + newElement.getSymbol() + " already exists in this simulation as a different element");
-        }
-        // remember the element so we can check for future duplication
-        elementSymbolHash.put(newElement.getSymbol(), newElement);
-        LinkedList<AtomType> atomTypeList = elementAtomTypeHash.get(newElement);
-        if (atomTypeList == null) {
-            atomTypeList = new LinkedList<AtomType>();
-            elementAtomTypeHash.put(newElement, atomTypeList);
-        }
-        atomTypeList.add(newChildType);
+        return getSpeciesManager().getSpecies(0);
     }
 
     /**
@@ -312,14 +282,10 @@ public class Simulation {
      * exist in the Simulation.  Return values will be like "base0, base1, base2..."
      */
     public String makeUniqueElementSymbol(String symbolBase) {
-        int n = 0;
-        while (elementSymbolHash.containsKey(symbolBase + n)) {
-            n++;
+        if (this.speciesManager != null) {
+            throw new IllegalStateException("Too late");
         }
-        // reserve this symbol so future calls to makeUniqueElementSymbol won't return it
-        // this will get replaced by the actual Element when it gets added via childTypeAddedNotify
-        elementSymbolHash.put(symbolBase + n, null);
-        return symbolBase + n;
+        return this.smBuilder.makeUniqueElementSymbol(symbolBase);
     }
 
     /**

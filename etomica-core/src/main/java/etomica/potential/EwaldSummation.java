@@ -8,6 +8,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.math.SpecialFunctions;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
@@ -16,7 +17,6 @@ import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.units.Joule;
 import etomica.util.Constants;
-import org.apache.commons.math3.special.Erf;
 
 /**Sabry*/
 //Given: rc=L/2  ,  s  ,  
@@ -140,7 +140,7 @@ public class EwaldSummation implements PotentialSoft{
                             double r2 = drTmp.squared();
                             if(r2 > rCutSquared) continue;
                             double drTmpM = Math.sqrt(r2);
-                            double tmepReal = chargeA * chargeB * Erf.erfc(alpha * drTmpM) / drTmpM; //Don't worry about 1/2 factor;j>i
+                            double tmepReal = chargeA * chargeB * SpecialFunctions.erfc(alpha * drTmpM) / drTmpM; //Don't worry about 1/2 factor;j>i
                             uReal+= (isSelf ? 0.5 : 1.0)*tmepReal;
                         }
                     }
@@ -230,10 +230,10 @@ public class EwaldSummation implements PotentialSoft{
                     box.getBoundary().nearestImage(rAB);
                     double rABMagnitudeSquared = rAB.squared();
                     double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
-                    uCorr -= chargeA*chargeB*Erf.erf(alpha*rABMagnitude)/rABMagnitude;
+                    uCorr -= chargeA * chargeB * (1 - SpecialFunctions.erfc(alpha * rABMagnitude)) / rABMagnitude;
                 }
             }
-        }		
+        }
         return uCorr;
     }
 
@@ -340,9 +340,9 @@ public class EwaldSummation implements PotentialSoft{
                                 double rAB2 = drTmp.squared();
                                 if (rAB2 > rCutSquared) continue; 
                                 double rABMagnitude = Math.sqrt(rAB2);
-                                double rAB3 = rABMagnitude*rAB2;
-                                double B = Erf.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
-                                double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
+                                double rAB3 = rABMagnitude * rAB2;
+                                double B = SpecialFunctions.erfc(alpha * rABMagnitude) + 2.0 * alpha * rABMagnitude / sqrtPI * Math.exp(-alpha2 * rAB2);
+                                double realCoeff = -chargeA * chargeB * B / rAB3; // gradU = -F
                                 gradient[i].PEa1Tv1(realCoeff, drTmp);
                                 gradient[j].PEa1Tv1(-realCoeff, drTmp);
                             }
@@ -405,8 +405,8 @@ public class EwaldSummation implements PotentialSoft{
                     box.getBoundary().nearestImage(rAB);
                     double rAB2 = rAB.squared();
                     double rABMagnitude = Math.sqrt(rAB2);
-                    double B = 2*alpha/sqrtPI * Math.exp(-alpha2*rAB2)-Erf.erf(alpha*rABMagnitude)/rABMagnitude; 
-                    double coeffAB = - chargeA*chargeB * B / rAB2; // gradU = -F
+                    double B = 2 * alpha / sqrtPI * Math.exp(-alpha2 * rAB2) - (1 - SpecialFunctions.erfc(alpha * rABMagnitude)) / rABMagnitude;
+                    double coeffAB = -chargeA * chargeB * B / rAB2; // gradU = -F
                     gradient[atomA.getLeafIndex()].PEa1Tv1(coeffAB, rAB);
                     gradient[atomB.getLeafIndex()].PEa1Tv1(-coeffAB, rAB);
                 }
@@ -463,9 +463,9 @@ public class EwaldSummation implements PotentialSoft{
                     double rABMagnitude = Math.sqrt(rAB2);
                     double rAB3 = rABMagnitude*rAB2;
                     double rAB4 = rAB2*rAB2;
-                    double rAB5 = rABMagnitude*rAB4;
-                    double erfc = Erf.erfc(alpha*rABMagnitude);
-                    double exp_Alpha2r2 = Math.exp(-alpha2*rAB2);
+                    double rAB5 = rABMagnitude * rAB4;
+                    double erfc = SpecialFunctions.erfc(alpha * rABMagnitude);
+                    double exp_Alpha2r2 = Math.exp(-alpha2 * rAB2);
                     double B0 = (6*alpha/rAB4 + 4*alpha3/rAB2)/sqrtPI * exp_Alpha2r2;
 
                     tempTensorkk.Ev1v2(drTmp, drTmp);
@@ -555,7 +555,7 @@ public class EwaldSummation implements PotentialSoft{
             double r2 = rAB.squared();
             if(r2 > rCutSquared) return 0;
             double r = Math.sqrt(r2);
-            return chargeA * chargeB * Erf.erfc(alpha * r) / r;//Don't worry about 1/2 factor!
+            return chargeA * chargeB * SpecialFunctions.erfc(alpha * r) / r;//Don't worry about 1/2 factor!
         }
 
         public double getRange() {
@@ -593,9 +593,9 @@ public class EwaldSummation implements PotentialSoft{
             }
 
             double rABMagnitude = Math.sqrt(rAB2);
-            double rAB3 = rABMagnitude*rAB2;
-            double B = Erf.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
-            double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
+            double rAB3 = rABMagnitude * rAB2;
+            double B = SpecialFunctions.erfc(alpha * rABMagnitude) + 2.0 * alpha * rABMagnitude / sqrtPI * Math.exp(-alpha2 * rAB2);
+            double realCoeff = -chargeA * chargeB * B / rAB3; // gradU = -F
             gradient2[0].Ea1Tv1(realCoeff, rAB);
             gradient2[1].Ea1Tv1(-realCoeff, rAB);
             return gradient2;

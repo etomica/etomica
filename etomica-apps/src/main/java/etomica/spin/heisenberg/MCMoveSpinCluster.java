@@ -9,10 +9,9 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.nbr.NeighborIterator;
-import etomica.nbr.site.NeighborIteratorSite;
-import etomica.nbr.site.NeighborSiteManager;
-import etomica.nbr.site.PotentialMasterSite;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -26,17 +25,19 @@ import java.util.HashSet;
 public class MCMoveSpinCluster extends MCMoveBox {
 
     protected final Space space;
+    protected final PotentialCompute potentialCompute;
+    protected final NeighborIterator nbrItertator;
     protected final IRandom random;
     protected final HashSet<IAtom> clusterAtoms, jNeighbors;
     protected final Vector reflectionVector;
     protected final AtomArrayList atomPairs;
     protected final IntegratorMC integratorMC;
-    protected final NeighborIteratorSite neighbors;
     protected double J;
     protected final AtomIteratorArrayListSimple atomIterator;
 
-    public MCMoveSpinCluster(Space space, IRandom random, PotentialMasterSite potentialMaster, IntegratorMC integratorMC, double J) {
-        super(potentialMaster);
+    public MCMoveSpinCluster(Space space, IRandom random, PotentialCompute potentialCompute, NeighborManager nbrManager, IntegratorMC integratorMC, double J) {
+        super();
+        this.potentialCompute = potentialCompute;
         this.space = space;
         this.random = random;
         clusterAtoms = new HashSet<>();
@@ -44,7 +45,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
         reflectionVector = space.makeVector();
         atomPairs = new AtomArrayList();
         this.integratorMC = integratorMC;
-        neighbors = new NeighborIteratorSite((NeighborSiteManager) potentialMaster.getBoxCellManager(integratorMC.getBox()), integratorMC.getBox());
+        nbrItertator = nbrManager.makeNeighborIterator();
         this.J = J;
         atomIterator = new AtomIteratorArrayListSimple();
     }
@@ -53,9 +54,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
     public AtomIterator affectedAtoms() {
         AtomArrayList atomList = (AtomArrayList) atomIterator.getList();
         atomList.clear();
-        for (IAtom atom : clusterAtoms) {
-            atomList.add(atom);
-        }
+        atomList.addAll(clusterAtoms);
         return atomIterator;
     }
 
@@ -103,16 +102,12 @@ public class MCMoveSpinCluster extends MCMoveBox {
     }
 
     private void gatherNeighbors(IAtom atomI) {
-        NeighborIterator.AtomPairConsumer apc = new NeighborIterator.AtomPairConsumer() {
+        nbrItertator.iterAllNeighbors(atomI.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
             @Override
-            public void accept(IAtom iAtom, IAtom iAtom2) {
-                IAtom atomJ = iAtom2;
-                if (atomJ == atomI) atomJ = iAtom;
-                if (clusterAtoms.contains(atomJ)) return;
-                jNeighbors.add(atomJ);
+            public void accept(IAtom jAtom, Vector rij) {
+                if (!clusterAtoms.contains(jAtom)) jNeighbors.add(jAtom);
             }
-        };
-        neighbors.forEachNeighbor(atomI, null, apc, apc);
+        });
     }
 
     public void setBox(Box box) {
@@ -133,6 +128,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
 
     @Override
     public void acceptNotify() {
+        potentialCompute.computeAll(false);
     }
 
     @Override

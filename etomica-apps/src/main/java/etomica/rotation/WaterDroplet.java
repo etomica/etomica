@@ -6,31 +6,29 @@ package etomica.rotation;
 
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
-
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergyFromIntegrator;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.P2WaterSPCSoft;
+import etomica.models.water.P2WaterSPC;
 import etomica.models.water.SpeciesWater3P;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
+import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -41,7 +39,7 @@ public class WaterDroplet {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesGeneral species = SpeciesWater3P.create(true, true);
+        SpeciesGeneral species = SpeciesWater3P.create(true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
@@ -49,10 +47,10 @@ public class WaterDroplet {
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater108 configFile = new ConfigurationWater108();
         configFile.initializeCoordinates(box);
-        PotentialMaster potentialMaster = new PotentialMaster();
+        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpeciesManager(), box, BondingInfo.noBonding());
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
         integrator.setIsothermal(true);
@@ -63,19 +61,38 @@ public class WaterDroplet {
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
-        P2WaterSPCSoft p2Water = new P2WaterSPCSoft(sim.getSpace());
+        double chargeOxygen = Electron.UNIT.toSim(-0.82);
+        double chargeHydrogen = Electron.UNIT.toSim(0.41);
 
-        potentialMaster.addPotential(p2Water, new ISpecies[]{species, species});
-        if (false) {
+        AtomType oType = species.getTypeByName("O");
+        AtomType hType = species.getTypeByName("H");
+        double epsOxygen = new P2WaterSPC(space).getEpsilon();
+        double sigOxygen = new P2WaterSPC(space).getSigma();
+        P2LennardJones potentialLJOO = new P2LennardJones(space, sigOxygen, epsOxygen);
+        P2Electrostatic potentialQOO = new P2Electrostatic(space);
+        potentialQOO.setCharge1(chargeOxygen);
+        potentialQOO.setCharge2(chargeOxygen);
+        potentialMaster.setPairPotential(oType, oType, new P2SoftSphericalSum(space, potentialLJOO, potentialQOO));
+
+        P2Electrostatic potentialQHH = new P2Electrostatic(space);
+        potentialQHH.setCharge1(chargeHydrogen);
+        potentialQHH.setCharge2(chargeHydrogen);
+        potentialMaster.setPairPotential(hType, hType, potentialQHH);
+
+
+        P2Electrostatic potentialQOH = new P2Electrostatic(space);
+        potentialQOH.setCharge1(chargeOxygen);
+        potentialQOH.setCharge2(chargeHydrogen);
+        potentialMaster.setPairPotential(oType, hType, potentialQOH);
+
+        if (true) {
             sim.getController().setSleepPeriod(2);
             sim.getController().addActivity(new ActivityIntegrate(integrator));
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid Fasterer", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
 
-            MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
-            meterE.setKinetic(new MeterKineticEnergyFromIntegrator(integrator));
-            meterE.setPotential(new MeterPotentialEnergyFromIntegrator(integrator));
+            MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(integrator);
             AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingAverage());
             history.setTimeDataSource(new DataSourceCountTime(integrator));
             DataPump pump = new DataPump(meterE, history);
@@ -110,16 +127,5 @@ public class WaterDroplet {
         if (graphic != null) {
             graphic.makeAndDisplayFrame();
         }
-    }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            SimulationGraphic graphic = makeWaterDroplet();
-
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
     }
 }

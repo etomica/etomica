@@ -6,20 +6,16 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.math.function.Function;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionGeometricCenter;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -36,9 +32,10 @@ import etomica.util.random.IRandom;
  * @author Tai Boon Tan, Andrew Schultz
  */
 public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
-    
+
+    protected final PotentialCompute potentialCompute;
+    protected final IntegratorMC integrator;
     protected double pressure;
-    protected MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     protected final int D;
     protected IRandom random;
@@ -51,35 +48,32 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
 
     protected final MoleculePositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;
-    
+
     protected transient double uOld;
     protected transient double uNew = Double.NaN;
-    
+
     protected Function uLatFunction = uLat0;
-    
+
     protected Box latticeBox;
 
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
-     */
-    public MCMoveVolumeMonoclinicScaled(PotentialMaster potentialMaster, IRandom random,
-                                        Space space, double pressure) {
-        this(potentialMaster, random, space, pressure, space.D());
+    public MCMoveVolumeMonoclinicScaled(PotentialCompute potentialCompute, IntegratorMC integrator,
+                                        IRandom random, double pressure) {
+        this(potentialCompute, integrator, random, pressure, integrator.getBox().getSpace().D());
     }
-    
-    public MCMoveVolumeMonoclinicScaled(PotentialMaster potentialMaster, IRandom random,
-                                        Space space, double pressure, int D) {
-        super(potentialMaster);
+
+    public MCMoveVolumeMonoclinicScaled(PotentialCompute potentialCompute, IntegratorMC integrator,
+                                        IRandom random, double pressure, int D) {
+        super();
+        this.potentialCompute = potentialCompute;
+        this.integrator = integrator;
         this.random = random;
         this.D = D;
+        Space space = integrator.getBox().getSpace();
         inflate = new BoxInflate(space);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(0.1);
         setStepSizeMin(0.0);
         setStepSize(0.01);
         setPressure(pressure);
-        energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
         
         dest = space.makeVector();
@@ -101,7 +95,6 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
     }
 
@@ -129,23 +122,7 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        uOld = energyMeter.getDataAsScalar();
-        if (uOld == Double.POSITIVE_INFINITY) {
-            PotentialCalculationEnergySum myPcSum = new PotentialCalculationEnergySum() {
-
-                public void doCalculation(IAtomList atoms,
-                        IPotentialAtomic potential) {
-                    super.doCalculation(atoms, potential);
-                    if (sum == Double.POSITIVE_INFINITY && !found) {
-                        System.out.println("atoms "+atoms+" are overlapping");
-                        found = true;
-                    }
-                }
-                boolean found = false;
-            };
-            potential.calculate(box, new IteratorDirective(), myPcSum);
-            throw new RuntimeException("oops initial inf");
-        }
+        uOld = integrator.getPotentialEnergy();
 
         double scalea = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         
@@ -155,8 +132,9 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         scaleVector.setX(2, 1/(scalea*scalea));
         
         doTransform();
-        
-        uNew = energyMeter.getDataAsScalar();
+
+        potentialCompute.init();
+        uNew = potentialCompute.computeAll(false);
         return true;
     }
     
@@ -232,6 +210,8 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         scaleVector.E(1);
         scaleVector.DE(latticeScale);
         doTransform();
+        potentialCompute.init();
+        potentialCompute.computeAll(false);
     }
 
     public double energyChange() {return uNew - uOld;}

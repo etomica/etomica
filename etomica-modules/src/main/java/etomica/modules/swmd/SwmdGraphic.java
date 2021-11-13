@@ -23,9 +23,10 @@ import etomica.integrator.IntegratorMD;
 import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.potential.P2HardSphere;
-import etomica.potential.P2Ideal;
-import etomica.potential.P2SquareWell;
+import etomica.modifier.ModifierSQWEpsilon;
+import etomica.modifier.ModifierSQWLambda;
+import etomica.potential.IPotentialHard;
+import etomica.potential.P2HardGeneric;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -38,8 +39,6 @@ import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -52,17 +51,15 @@ public class SwmdGraphic extends SimulationGraphic {
     protected DeviceThermoSlider tempSlider;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
-    protected P2HardSphere potentialHS;
-    protected P2SquareWell potentialSW;
-    protected P2Ideal potentialIdeal;
+    protected P2HardGeneric potentialHS;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
     public double lambda, epsilon, mass, sigma;
     protected Unit tUnit, eUnit, dUnit, pUnit, mUnit;
     protected Swmd sim;
-    
+
     private boolean showConfig = true;
 
-    public SwmdGraphic(final Swmd simulation, Space _space) {
+    public SwmdGraphic(final Swmd simulation) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -111,10 +108,10 @@ public class SwmdGraphic extends SimulationGraphic {
         potentialChooser = new JComboBox(new String[]{
                 idealGas, repulsionOnly, repulsionAttraction});
 
-        sigBox = new DeviceBox();
-        epsBox = new DeviceBox();
-        lamBox = new DeviceBox();
-        massBox = new DeviceBox();
+        sigBox = new DeviceBox(sim.getController());
+        epsBox = new DeviceBox(sim.getController());
+        lamBox = new DeviceBox(sim.getController());
+        massBox = new DeviceBox(sim.getController());
         // Unselectable because "Ideal gas" is selected initially
         potentialChooser.setSelectedIndex(0);
         epsBox.setEditable(false);
@@ -162,9 +159,7 @@ public class SwmdGraphic extends SimulationGraphic {
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
 
-        potentialSW = new P2SquareWell(sim.getSpace(), sigma, lambda, epsilon, true);
-        potentialHS = new P2HardSphere(sim.getSpace(), sigma, true);
-        potentialIdeal = new P2Ideal(sim.getSpace());
+        potentialHS = new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY}, true);
 
         if (potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
 
@@ -187,8 +182,8 @@ public class SwmdGraphic extends SimulationGraphic {
 
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         sigModifier.setValue(sigma);
-        ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
-        ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
+        ModifierSQWEpsilon epsModifier = new ModifierSQWEpsilon(sim.p2sqw);
+        ModifierSQWLambda lamModifier = new ModifierSQWLambda(sim.p2sqw);
         ModifierGeneral massModifier = new ModifierGeneral(sim.species.getLeafType().getElement(), "mass");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter (" + Angstrom.UNIT.symbol() + ")");
@@ -197,10 +192,6 @@ public class SwmdGraphic extends SimulationGraphic {
         lamBox.setModifier(lamModifier);
         massBox.setModifier(massModifier);
         massBox.setUnit(mUnit);
-        sigBox.setController(sim.getController());
-        epsBox.setController(sim.getController());
-        lamBox.setController(sim.getController());
-        massBox.setController(sim.getController());
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
@@ -265,8 +256,6 @@ public class SwmdGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(mbPumpListener);
         mbPumpListener.setInterval(10);
 
-        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-
         //add meter and display for current kinetic temperature
 
         MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
@@ -278,7 +267,7 @@ public class SwmdGraphic extends SimulationGraphic {
         final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
         temperatureAverage.setPushInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
-        temperatureHistory.setTimeDataSource(timeCounter);
+        temperatureHistory.setTimeDataSource(meterCycles);
         temperatureFork.setDataSinks(new IDataSink[]{temperatureAverage, temperatureHistory});
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tBox.setAccumulator(temperatureAverage);
@@ -298,9 +287,9 @@ public class SwmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setLabel("Density");
 
-        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterEnergyFromIntegrator eMeter = new MeterEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
-        energyHistory.setTimeDataSource(timeCounter);
+        energyHistory.setTimeDataSource(meterCycles);
         final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap();
         eExcludeOverlap.setDataSink(energyHistory);
         final DataPump energyPump = new DataPump(eMeter, eExcludeOverlap);
@@ -310,7 +299,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
         MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory peHistory = new AccumulatorHistory();
-        peHistory.setTimeDataSource(timeCounter);
+        peHistory.setTimeDataSource(meterCycles);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(2);
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
@@ -323,7 +312,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
         MeterKineticEnergyFromIntegrator keMeter = new MeterKineticEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory keHistory = new AccumulatorHistory();
-        keHistory.setTimeDataSource(timeCounter);
+        keHistory.setTimeDataSource(meterCycles);
         // we do this for the scaling by numAtoms rather than for the overlap exclusion
         final DataSinkExcludeOverlap keExcludeOverlap = new DataSinkExcludeOverlap();
         keExcludeOverlap.setDataSink(keHistory);
@@ -378,19 +367,20 @@ public class SwmdGraphic extends SimulationGraphic {
         // add a listener to adjust the thermostat interval for different
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
-        ChangeListener nListener = new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
+        IAction nListener = new IAction() {
+            public void actionPerformed() {
                 final int n = (int) nSlider.getValue() > 0 ? (int) nSlider.getValue() : 1;
                 sim.integrator.setThermostatInterval(n > 40 ? 1 : 40 / n);
                 eExcludeOverlap.numAtoms = n;
                 peExcludeOverlap.numAtoms = n;
                 keExcludeOverlap.numAtoms = n;
+                pMeter.reset();
 
                 getDisplayBox(sim.box).repaint();
             }
         };
-        nSlider.getSlider().addChangeListener(nListener);
-        nListener.stateChanged(null);
+        nSlider.setPostAction(nListener);
+        nListener.actionPerformed();
         JPanel nSliderPanel = new JPanel(new GridLayout(0, 1));
         nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
         nSlider.setShowBorder(false);
@@ -479,25 +469,23 @@ public class SwmdGraphic extends SimulationGraphic {
     }
 
     public void setPotential(String potentialDesc) {
-        final boolean HS = potentialDesc.equals("Repulsion only"); 
-        final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
+        final boolean HS = potentialDesc.equals("Repulsion only");
+        final boolean SW = potentialDesc.equals("Repulsion and attraction");
         sim.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
+                IPotentialHard p2;
                 if (HS) {
-                    potentialHS.setBox(sim.box);
-                    sim.potentialWrapper.setWrappedPotential(potentialHS);
+                    p2 = potentialHS;
+                } else if (SW) {
+                    p2 = sim.p2sqw;
+                } else {
+                    p2 = null;
                 }
-                else if (SW) {
-                    potentialSW.setBox(sim.box);
-                    sim.potentialWrapper.setWrappedPotential(potentialSW);
-                }
-                else {
-                    potentialIdeal.setBox(sim.box);
-                    sim.potentialWrapper.setWrappedPotential(potentialIdeal);
-                }
+                sim.integrator.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2);
                 try {
                     sim.integrator.reset();
-                } catch(ConfigurationOverlapException e) {}
+                } catch (ConfigurationOverlapException e) {
+                }
             }
         });
     }
@@ -509,14 +497,16 @@ public class SwmdGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
-            potentialHS.setCollisionDiameter(d);
-            potentialSW.setCoreDiameter(d);
+            ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
+            potentialHS.setCollisionDiameter(0, d);
+            double lambda = sim.p2sqw.getCollisionDiameter(1) / sim.p2sqw.getCollisionDiameter(0);
+            sim.p2sqw.setCollisionDiameter(0, d);
+            sim.p2sqw.setCollisionDiameter(1, d * lambda);
+            sim.integrator.setMaxCollisionDiameter(sim.species.getLeafType(), d);
             new BoxImposePbc(sim.box, space).actionPerformed();
             try {
                 sim.integrator.reset();
-            }
-            catch (ConfigurationOverlapException e){
+            } catch (ConfigurationOverlapException e) {
                 // can happen when increasing diameter
             }
             sigma = d;
@@ -530,72 +520,53 @@ public class SwmdGraphic extends SimulationGraphic {
         public Dimension getDimension() {
             return Length.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "Atom Diameter";
         }
-        
+
         public String toString() {
             return getLabel();
         }
     }
-    
+
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
         public DataSinkExcludeOverlap() {
             myData = new DataDouble();
         }
-        
+
         public IData processData(IData data) {
             if (Double.isInfinite(data.getValue(0))) {
                 return null;
             }
             myData.E(data);
-            myData.TE(1.0/numAtoms);
+            myData.TE(1.0 / numAtoms);
             return myData;
         }
 
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
-        
+
         public int numAtoms;
         protected final DataDouble myData;
     }
 
     public static void main(String[] args) {
         Space space = Space2D.getInstance();
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     space = Space3D.getInstance();
                 }
-            } catch(NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+            }
         }
 
-        SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(space), space);
-		SimulationGraphic.makeAndDisplayFrame
-		        (swmdGraphic.getPanel(), APP_NAME);
+        SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(space));
+        SimulationGraphic.makeAndDisplayFrame
+                (swmdGraphic.getPanel(), APP_NAME);
     }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            String dimStr = getParameter("dim");
-            int dim = 3;
-            if (dimStr != null) {
-                dim = Integer.valueOf(dimStr).intValue();
-            }
-            Space sp = Space.getInstance(dim);
-            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(sp), sp);
-
-		    getContentPane().add(swmdGraphic.getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
-    }
-
 }

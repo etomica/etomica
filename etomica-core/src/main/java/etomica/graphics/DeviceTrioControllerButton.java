@@ -9,7 +9,6 @@ import etomica.action.SimulationRestart;
 import etomica.action.controller.Controller;
 import etomica.data.DataPump;
 import etomica.simulation.Simulation;
-import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.Space;
 
 import javax.swing.*;
@@ -145,32 +144,4 @@ public class DeviceTrioControllerButton extends Device {
             }
         }
     }
- 
-    /**
-     * main method to show how to work with this class 
-     */        
-     public static void main(String[] args) {
-        final String APP_NAME = "Device Trio Controller Button";
-
-        etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        final HSMD2D sim = new HSMD2D(); 
-
-        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim, sp, sim.getController());
-            button.setShape("HORIZONTAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
-//        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
-//          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-
-        // Simulation Graphic will display it's own Trio button group by
-        // default.  Just remove them and put ours on for this test.
-        graphic.getPanel().controlPanel.removeAll();
-        graphic.add(button);
-
-        button.getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
-
-        graphic.makeAndDisplayFrame(APP_NAME);
-    }
-    
-       
 }//end DeviceTrioControllerButton

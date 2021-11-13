@@ -4,13 +4,12 @@
 
 package etomica.modules.mu;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.histogram.HistogramDiscrete;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterNMolecules;
@@ -26,7 +25,7 @@ import etomica.math.function.IFunction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
 import etomica.molecule.IMolecule;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.P2HardGeneric;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesGeneral;
@@ -39,7 +38,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 public class MuGraphic extends SimulationGraphic {
@@ -47,27 +45,28 @@ public class MuGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Chemical Potential";
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
-    public ItemListener potentialChooserListener;
     protected Mu sim;
 
-    public MuGraphic(final Mu simulation, Space _space) {
+    public MuGraphic(final Mu simulation) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         this.sim = simulation;
 
-        sim.p1BoundaryA.setLongWall(0, false, false);
-        sim.p1BoundaryA.setLongWall(0, true, false);
-        sim.p1BoundaryA.setBox(sim.box);
-        sim.p1BoundaryA.setDrawingThickness(3);
-    	getDisplayBox(sim.box).addDrawable(sim.p1BoundaryA);
-    	getDisplayBox(sim.box).repaint();
-    	getDisplayBox(sim.box).addDrawable(new Drawable() {
+        /**
+         sim.p1BoundaryA.setLongWall(0, false, false);
+         sim.p1BoundaryA.setLongWall(0, true, false);
+         sim.p1BoundaryA.setBox(sim.box);
+         sim.p1BoundaryA.setDrawingThickness(3);
+         getDisplayBox(sim.box).addDrawable(sim.p1BoundaryA);
+         */
+        getDisplayBox(sim.box).repaint();
+        getDisplayBox(sim.box).addDrawable(new Drawable() {
             public void draw(Graphics g, int[] origin, double toPixels) {
-                int width = (int)(sim.box.getBoundary().getBoxSize().getX(0)*toPixels);
+                int width = (int) (sim.box.getBoundary().getBoxSize().getX(0) * toPixels);
                 g.setFont(new Font(null, Font.BOLD, 12));
-                g.drawString("Ideal Gas Phase", origin[0]+width/4-50, origin[1]-5);
-                g.drawString("Real Phase", origin[0]+3*width/4-35, origin[1]-5);
+                g.drawString("Ideal Gas Phase", origin[0] + width / 4 - 50, origin[1] - 5);
+                g.drawString("Real Phase", origin[0] + 3 * width / 4 - 35, origin[1] - 5);
             }
         });
 
@@ -79,20 +78,20 @@ public class MuGraphic extends SimulationGraphic {
             }
         };
 
-    	getController().getSimRestart().setConfiguration(sim.configuration);
+        getController().getSimRestart().setConfiguration(sim.configuration);
 
-    	getDisplayBox(sim.box).addDrawable(new Drawable() {
+        getDisplayBox(sim.box).addDrawable(new Drawable() {
             public void draw(Graphics g, int[] origin, double toPixels) {
-                int x1 = origin[0]+(int)(0.5*toPixels*sim.box.getBoundary().getBoxSize().getX(0));
+                int x1 = origin[0] + (int) (0.5 * toPixels * sim.box.getBoundary().getBoxSize().getX(0));
                 int y1 = origin[1];
-                int h = (int)(toPixels*sim.box.getBoundary().getBoxSize().getX(1));
+                int h = (int) (toPixels * sim.box.getBoundary().getBoxSize().getX(1));
                 int w = 2;
                 g.setColor(Color.green);
-                g.fillRect(x1-w, y1, w, h);
+                g.fillRect(x1 - w, y1, w, h);
             }
-    	});
+        });
 
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(40 / sim.box.getBoundary().getBoxSize().getX(1)));
 
         //combo box to select potentials
 
@@ -101,11 +100,11 @@ public class MuGraphic extends SimulationGraphic {
 
         final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
         displayCycles.setPrecision(6);
-        DataPumpListener pump = new DataPumpListener(meterCycles,displayCycles);
+        DataPumpListener pump = new DataPumpListener(meterCycles, displayCycles);
         sim.integrator.getEventManager().addListener(pump);
         displayCycles.setUnit(Null.UNIT);
         displayCycles.setLabel("Simulation time");
-        
+
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         tempSlider.setIsothermalButtonsVisibility(false);
@@ -113,11 +112,12 @@ public class MuGraphic extends SimulationGraphic {
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(10.0);
         tempSlider.setSliderMajorValues(4);
-        tempSlider.setAdiabatic();
+        tempSlider.setIsothermal();
 
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 0;  gbc2.gridy = 0;
+        gbc2.gridx = 0;
+        gbc2.gridy = 0;
         statePanel.add(tempSlider.graphic(), gbc2);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
@@ -134,17 +134,18 @@ public class MuGraphic extends SimulationGraphic {
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
 
-        JPanel potentialPanelA = new JPanel(new GridLayout(0,1));
+        JPanel potentialPanelA = new JPanel(new GridLayout(0, 1));
         potentialPanelA.add(sigABox.graphic());
         potentialPanelA.add(lamABox.graphic());
         potentialPanelA.add(epsABox.graphic());
         TitledBorder border = new TitledBorder("A");
         border.setTitleJustification(TitledBorder.LEFT);
         potentialPanelA.setBorder(border);
-        gbc2.gridx = 0; gbc2.gridy = 0;
+        gbc2.gridx = 0;
+        gbc2.gridy = 0;
         potentialPanel.add(potentialPanelA, gbc2);
 
-        JPanel potentialPanelB = new JPanel(new GridLayout(0,1));
+        JPanel potentialPanelB = new JPanel(new GridLayout(0, 1));
         potentialPanelB.add(sigBBox.graphic());
         potentialPanelB.add(lamBBox.graphic());
         potentialPanelB.add(epsBBox.graphic());
@@ -161,9 +162,13 @@ public class MuGraphic extends SimulationGraphic {
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
 
-        ModifierAtomDiameter sigModifier = new ModifierAtomDiameter(this, sim.speciesA, sim.potentialAA, sim.potentialAB, sim.potentialBB);
-        ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialAA, sim.potentialAB, sim.potentialBB, sim.integrator);
-        ModifierLambda lamModifier = new ModifierLambda(sim.potentialAA, sim.potentialAB, sim.potentialBB, sim.integrator);
+        ModifierAtomDiameter sigModifier = new ModifierAtomDiameter(this, sim.speciesA, sim.potentialAA, sim.potentialAB, sim.potentialBB,
+                sim.potentialAAmu, sim.potentialABmu, sim.potentialBBmu);
+        ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialAA, sim.potentialAB, sim.potentialBB,
+                sim.potentialAAmu, sim.potentialABmu, sim.potentialBBmu,
+                sim.integrator);
+        ModifierLambda lamModifier = new ModifierLambda(sim.potentialAA, sim.potentialAB, sim.potentialBB,
+                sim.potentialAAmu, sim.potentialABmu, sim.potentialBBmu, sim.integrator);
         sigABox.setModifier(sigModifier);
         sigABox.setLabel("sigma");
         epsABox.setModifier(epsModifier);
@@ -172,9 +177,14 @@ public class MuGraphic extends SimulationGraphic {
         epsABox.setController(sim.getController());
         lamABox.setController(sim.getController());
 
-        ModifierAtomDiameter sigBModifier = new ModifierAtomDiameter(this, sim.speciesB, sim.potentialBB, sim.potentialAB, sim.potentialAA);
-        ModifierEpsilon epsBModifier = new ModifierEpsilon(sim.potentialBB, sim.potentialAB, sim.potentialAA, sim.integrator);
-        ModifierLambda lamBModifier = new ModifierLambda(sim.potentialBB, sim.potentialAB, sim.potentialAA, sim.integrator);
+        ModifierAtomDiameter sigBModifier = new ModifierAtomDiameter(this, sim.speciesB, sim.potentialBB, sim.potentialAB, sim.potentialAA,
+                sim.potentialBBmu, sim.potentialABmu, sim.potentialBBmu);
+        ModifierEpsilon epsBModifier = new ModifierEpsilon(sim.potentialBB, sim.potentialAB, sim.potentialAA,
+                sim.potentialBBmu, sim.potentialABmu, sim.potentialAAmu,
+                sim.integrator);
+        ModifierLambda lamBModifier = new ModifierLambda(sim.potentialBB, sim.potentialAB, sim.potentialAA,
+                sim.potentialBBmu, sim.potentialABmu, sim.potentialAAmu,
+                sim.integrator);
         sigBBox.setModifier(sigBModifier);
         sigBBox.setLabel("sigma");
         epsBBox.setModifier(epsBModifier);
@@ -185,10 +195,10 @@ public class MuGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.speciesA.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.speciesA.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
-		// Number density box
+        // Number density box
 
         MeterProfileByVolume densityProfileMeterA = new MeterProfileByVolume(space);
         densityProfileMeterA.setBox(sim.box);
@@ -198,7 +208,7 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageFixed densityProfileAvgA = new AccumulatorAverageFixed(10);
         densityProfileAvgA.setPushInterval(10);
         DataDump profileDumpA = new DataDump();
-        densityProfileAvgA.addDataSink(profileDumpA, new AccumulatorAverage.StatType[]{densityProfileAvgA.AVERAGE});
+        densityProfileAvgA.addDataSink(profileDumpA, new StatType[]{densityProfileAvgA.AVERAGE});
         DataPumpListener profilePumpA = new DataPumpListener(densityProfileMeterA, densityProfileAvgA, 100);
         sim.integrator.getEventManager().addListener(profilePumpA);
         dataStreamPumps.add(profilePumpA);
@@ -211,14 +221,14 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageFixed densityProfileAvgB = new AccumulatorAverageFixed(10);
         densityProfileAvgB.setPushInterval(10);
         DataDump profileDumpB = new DataDump();
-        densityProfileAvgB.addDataSink(profileDumpB, new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
+        densityProfileAvgB.addDataSink(profileDumpB, new StatType[]{densityProfileAvgB.AVERAGE});
         DataPumpListener profilePumpB = new DataPumpListener(densityProfileMeterB, densityProfileAvgB, 100);
         sim.integrator.getEventManager().addListener(profilePumpB);
         dataStreamPumps.add(profilePumpB);
 
         DisplayPlotXChart profilePlot = new DisplayPlotXChart();
-        densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgA.AVERAGE});
-        densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
+        densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new StatType[]{densityProfileAvgA.AVERAGE});
+        densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new StatType[]{densityProfileAvgB.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileMeterA.getTag()}, "A");
         profilePlot.setLegend(new DataTag[]{densityProfileMeterB.getTag()}, "B");
         profilePlot.setLabel("Density");
@@ -273,8 +283,7 @@ public class MuGraphic extends SimulationGraphic {
         densitySQWBFork.addDataSink(densitySQWBHistory);
         densitySQWBHistory.setPushInterval(100);
 
-        MeterWidomInsertion meterMuA = new MeterWidomInsertion(space, sim.getRandom());
-        meterMuA.setIntegrator(sim.integrator);
+        MeterWidomInsertion meterMuA = new MeterWidomInsertion(sim.box, sim.getRandom(), sim.potentialMasterMu, sim.integrator.getTemperature());
         meterMuA.setNInsert(1);
         meterMuA.setResidual(true);
         meterMuA.setSpecies(sim.speciesA);
@@ -297,8 +306,8 @@ public class MuGraphic extends SimulationGraphic {
         muAvgA.setPushInterval(100);
         DataProcessor uProcessorA = new DataProcessorFunction(new IFunction() {
             public double f(double x) {
-                if (x==0) return Double.POSITIVE_INFINITY;
-                return -Math.log(x)*sim.integrator.getTemperature();
+                if (x == 0) return Double.POSITIVE_INFINITY;
+                return -Math.log(x) * sim.integrator.getTemperature();
             }
         });
         muForkA.addDataSink(uProcessorA);
@@ -306,11 +315,11 @@ public class MuGraphic extends SimulationGraphic {
         uProcessorA.setDataSink(muHistogramA);
         DisplayTable muHistogramTableA = new DisplayTable();
         muHistogramA.setDataSink(muHistogramTableA.getDataTable().makeDataSink(muHistogramA.getDataInfo()));
-        muHistogramTableA.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramA.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
+        muHistogramTableA.setColumnHeader(new DataTag[]{((DataInfoFunction) muHistogramA.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
         muHistogramTableA.setColumnHeader(new DataTag[]{muHistogramA.getTag()}, "probability");
         muHistogramTableA.setLabel("Insertion Energy (A)");
         muHistogramTableA.setShowingRowLabels(false);
-        
+
         AccumulatorHistory muHistoryA = new AccumulatorHistory(new HistoryCollapsingAverage());
         muHistoryA.setTimeDataSource(meterCycles);
         muForkA.addDataSink(muHistoryA);
@@ -319,8 +328,7 @@ public class MuGraphic extends SimulationGraphic {
         DataProcessorMu muIGA = new DataProcessorMu(null, sim.integrator);
         densityIGAHistory.setDataSink(muIGA);
 
-        MeterWidomInsertion meterMuB = new MeterWidomInsertion(space, sim.getRandom());
-        meterMuB.setIntegrator(sim.integrator);
+        MeterWidomInsertion meterMuB = new MeterWidomInsertion(sim.box, sim.getRandom(), sim.potentialMasterMu, sim.integrator.getTemperature());
         meterMuB.setNInsert(1);
         meterMuB.setResidual(true);
         meterMuB.setSpecies(sim.speciesB);
@@ -343,8 +351,8 @@ public class MuGraphic extends SimulationGraphic {
         muAvgB.setPushInterval(100);
         DataProcessor uProcessorB = new DataProcessorFunction(new IFunction() {
             public double f(double x) {
-                if (x==0) return Double.POSITIVE_INFINITY;
-                return -Math.log(x)*sim.integrator.getTemperature();
+                if (x == 0) return Double.POSITIVE_INFINITY;
+                return -Math.log(x) * sim.integrator.getTemperature();
             }
         });
         muForkB.addDataSink(uProcessorB);
@@ -352,7 +360,7 @@ public class MuGraphic extends SimulationGraphic {
         uProcessorB.setDataSink(muHistogramB);
         DisplayTable muHistogramTableB = new DisplayTable();
         muHistogramB.setDataSink(muHistogramTableB.getDataTable().makeDataSink(muHistogramB.getDataInfo()));
-        muHistogramTableB.setColumnHeader(new DataTag[]{((DataInfoFunction)muHistogramB.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
+        muHistogramTableB.setColumnHeader(new DataTag[]{((DataInfoFunction) muHistogramB.getDataInfo()).getXDataSource().getIndependentTag()}, "E");
         muHistogramTableB.setColumnHeader(new DataTag[]{muHistogramB.getTag()}, "probability");
         muHistogramTableB.setLabel("Insertion Energy (B)");
         muHistogramTableB.setShowingRowLabels(false);
@@ -388,7 +396,7 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsing accumulatorPressureSQW = new AccumulatorAverageCollapsing();
         pressureSplitter.setDataSink(0, accumulatorPressureSQW);
         pressureSplitter.setDataSink(1, accumulatorPressureIG);
-        
+
         DisplayTable metricsTable = new DisplayTable();
         metricsTable.setTransposed(true);
         muAvgA.addDataSink(metricsTable.getDataTable().makeDataSink(muAvgA.getDataInfo()), new StatType[]{muAvgA.AVERAGE, muAvgA.ERROR});
@@ -410,19 +418,18 @@ public class MuGraphic extends SimulationGraphic {
         metricsTable.setRowLabels(new String[]{"Average", "Error"});
         metricsTable.setShowingRowLabels(true);
         metricsTable.setLabel("Metrics");
-        
+
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setSpecies(sim.speciesA);
         nSlider.setBox(sim.box);
         nSlider.setModifier(new ModifierNMolecule(sim.box, sim.speciesA) {
             public void setValue(double newValue) {
-                int d = (int)newValue;
+                int d = (int) newValue;
                 int oldValue = box.getNMolecules(species);
                 if (d < oldValue) {
                     box.setNMolecules(species, d);
-                }
-                else {
-                    for (int i=0; i<(d-oldValue); i++) {
+                } else {
+                    for (int i = 0; i < (d - oldValue); i++) {
                         IMolecule m = species.makeMolecule();
                         Vector p = m.getChildList().get(0).getPosition();
                         p.setX(0, -7.5);
@@ -451,13 +458,12 @@ public class MuGraphic extends SimulationGraphic {
         nSliderB.setBox(sim.box);
         nSliderB.setModifier(new ModifierNMolecule(sim.box, sim.speciesB) {
             public void setValue(double newValue) {
-                int d = (int)newValue;
+                int d = (int) newValue;
                 int oldValue = box.getNMolecules(species);
                 if (d < oldValue) {
                     box.setNMolecules(species, d);
-                }
-                else {
-                    for (int i=0; i<(d-oldValue); i++) {
+                } else {
+                    for (int i = 0; i < (d - oldValue); i++) {
                         IMolecule m = species.makeMolecule();
                         Vector p = m.getChildList().get(0).getPosition();
                         p.setX(0, -7.5);
@@ -475,12 +481,13 @@ public class MuGraphic extends SimulationGraphic {
         nSliderB.setShowValues(true);
         nSliderB.setEditValues(true);
         nSliderB.getSlider().addChangeListener(nListener);
-        
-        JPanel nSliderPanel = new JPanel(new GridLayout(0,1));
+
+        JPanel nSliderPanel = new JPanel(new GridLayout(0, 1));
         nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
         nSliderPanel.add(nSlider.graphic());
         nSliderPanel.add(nSliderB.graphic());
-        gbc2.gridx = 0;  gbc2.gridy = 1;
+        gbc2.gridx = 0;
+        gbc2.gridy = 1;
         statePanel.add(nSliderPanel, gbc2);
 
         //************* Lay out components ****************//
@@ -488,24 +495,30 @@ public class MuGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
 
-		tempSlider.setSliderPostAction(resetDataAction);
+        tempSlider.setSliderPostAction(new IAction() {
+            public void actionPerformed() {
+                resetDataAction.actionPerformed();
+                meterMuA.setTemperature(sim.integrator.getTemperature());
+                meterMuB.setTemperature(sim.integrator.getTemperature());
+            }
+        });
         tempSlider.setRadioGroupPostAction(resetDataAction);
 
         IAction resetAction = new IAction() {
-        	public void actionPerformed() {
-        	    sim.integrator.reset();
+            public void actionPerformed() {
+                sim.integrator.reset();
 
-        		getDisplayBox(sim.box).graphic().repaint();
-        		
-        		displayCycles.putData(meterCycles.getData());
-        	}
+                getDisplayBox(sim.box).graphic().repaint();
+
+                displayCycles.putData(meterCycles.getData());
+            }
         };
 
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
-        
+
         getPanel().controlPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
@@ -518,7 +531,7 @@ public class MuGraphic extends SimulationGraphic {
     }
 
     public static class DataProcessorMu extends DataProcessor {
-        private static final long serialVersionUID = 1L;
+
         protected final AccumulatorHistory muHistory;
         protected DataFunction data;
         protected DataInfoFunction dataInfo;
@@ -533,14 +546,13 @@ public class MuGraphic extends SimulationGraphic {
             double[] x = data.getData();
             double temp = integrator.getTemperature();
             IData muData = muHistory == null ? null : muHistory.getData();
-            for (int i=0; i<inputData.getLength(); i++) {
+            for (int i = 0; i < inputData.getLength(); i++) {
                 double density = inputData.getValue(i);
                 double aexp = muData == null ? 1 : muData.getValue(i);
-                if (density*aexp == 0) {
+                if (density * aexp == 0) {
                     x[i] = Double.NaN;
-                }
-                else {
-                    x[i] = temp * Math.log(density/aexp);
+                } else {
+                    x[i] = temp * Math.log(density / aexp);
                 }
             }
             return data;
@@ -548,7 +560,7 @@ public class MuGraphic extends SimulationGraphic {
 
         protected IDataInfo processDataInfo(
                 IDataInfo inputDataInfo) {
-            dataInfo = new DataInfoFunction("chemical potential", Energy.DIMENSION, ((DataInfoFunction)inputDataInfo).getXDataSource());
+            dataInfo = new DataInfoFunction("chemical potential", Energy.DIMENSION, ((DataInfoFunction) inputDataInfo).getXDataSource());
             data = new DataFunction(new int[]{inputDataInfo.getLength()});
             dataInfo.addTag(tag);
             return dataInfo;
@@ -556,12 +568,16 @@ public class MuGraphic extends SimulationGraphic {
     }
 
     public static class ModifierLambda implements Modifier {
-        public ModifierLambda(P2SquareWellOneSide p2, P2SquareWellOneSide p2Mix,
-                P2SquareWellOneSide p2Other, IntegratorBox integrator) {
+        public ModifierLambda(P2SquareWellOneSide p2, P2SquareWellOneSide p2Mix, P2SquareWellOneSide p2Other,
+                              P2HardGeneric p2mu, P2HardGeneric p2Mixmu, P2HardGeneric p2Othermu,
+                              IntegratorBox integrator) {
             this.integrator = integrator;
             this.p2 = p2;
             this.p2Mix = p2Mix;
             this.p2Other = p2Other;
+            this.p2mu = p2mu;
+            this.p2Mixmu = p2Mixmu;
+            this.p2Othermu = p2Othermu;
         }
 
         public void setValue(double newValue) {
@@ -569,89 +585,96 @@ public class MuGraphic extends SimulationGraphic {
                 // our potential neighbor range is 4, so cap lambda at 1.75 (sigma<=2)
                 throw new IllegalArgumentException();
             }
-            p2.setLambda(newValue);
-            double sigma = p2.getCoreDiameter();
-            double otherLambda = p2Other.getLambda();
-            double otherSigma = p2Other.getCoreDiameter();
-            p2Mix.setLambda((sigma*newValue+otherSigma*otherLambda)/(sigma+otherSigma));
-            ((PotentialMasterList)integrator.getPotentialMaster()).reset();
+            double sigma = p2.getCollisionDiameter(0);
+            p2.setCollisionDiameter(1, newValue * sigma);
+            double otherWell = p2Other.getCollisionDiameter(1);
+            p2Mix.setCollisionDiameter(1, 0.5 * (otherWell + newValue * sigma));
+            p2mu.setCollisionDiameter(1, newValue * sigma);
+            p2Mixmu.setCollisionDiameter(1, 0.5 * (otherWell + newValue * sigma));
+
             try {
                 integrator.reset();
-            }
-            catch (ConfigurationOverlapException e){
+            } catch (ConfigurationOverlapException e) {
                 // could already be overlapped from increasing diameter
             }
         }
 
         public double getValue() {
-            return p2.getLambda();
+            return p2.getCollisionDiameter(1) / p2.getCollisionDiameter(0);
         }
 
         public Dimension getDimension() {
             return Fraction.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "lambda";
         }
 
 
-        private static final long serialVersionUID = 1L;
         protected final IntegratorBox integrator;
         protected final P2SquareWellOneSide p2, p2Mix, p2Other;
+        protected final P2HardGeneric p2mu, p2Mixmu, p2Othermu;
     }
 
     public static class ModifierEpsilon implements Modifier {
-        public ModifierEpsilon(P2SquareWellOneSide p2, P2SquareWellOneSide p2Mix,
-                P2SquareWellOneSide p2Other, IntegratorBox integrator) {
+        public ModifierEpsilon(P2SquareWellOneSide p2, P2SquareWellOneSide p2Mix, P2SquareWellOneSide p2Other,
+                               P2HardGeneric p2mu, P2HardGeneric p2Mixmu, P2HardGeneric p2Othermu, IntegratorBox integrator) {
             this.integrator = integrator;
             this.p2 = p2;
             this.p2Mix = p2Mix;
             this.p2Other = p2Other;
+            this.p2mu = p2mu;
+            this.p2Mixmu = p2Mixmu;
+            this.p2Othermu = p2Othermu;
         }
 
         public void setValue(double newValue) {
-            if (newValue > 10 || newValue  < 0) {
+            if (newValue > 10 || newValue < 0) {
                 throw new IllegalArgumentException();
             }
-            p2.setEpsilon(newValue);
-            double otherEpsilon = p2Other.getEpsilon();
-            p2Mix.setEpsilon(Math.sqrt(newValue*otherEpsilon));
+            p2.setEnergyForState(1, -newValue);
+            double otherEpsilon = -p2Other.getEnergyForState(1);
+            p2Mix.setEnergyForState(1, -Math.sqrt(newValue * otherEpsilon));
+            p2mu.setEnergyForState(1, -newValue);
+            p2Mixmu.setEnergyForState(1, -Math.sqrt(newValue * otherEpsilon));
             try {
                 integrator.reset();
-            }
-            catch (ConfigurationOverlapException e){
+            } catch (ConfigurationOverlapException e) {
                 // could already be overlapped from increasing diameter
             }
         }
 
         public double getValue() {
-            return p2.getEpsilon();
+            return -p2.getEnergyForState(1);
         }
 
         public Dimension getDimension() {
             return Fraction.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "epsilon";
         }
 
-
-        private static final long serialVersionUID = 1L;
         protected final IntegratorBox integrator;
         protected final P2SquareWellOneSide p2, p2Mix, p2Other;
+        protected final P2HardGeneric p2mu, p2Mixmu, p2Othermu;
     }
 
     protected static class ModifierAtomDiameter implements Modifier {
 
-        public ModifierAtomDiameter(MuGraphic simGraphic, SpeciesGeneral species, P2SquareWellOneSide p2,
-                P2SquareWellOneSide p2Mix, P2SquareWellOneSide p2Other) {
+        public ModifierAtomDiameter(MuGraphic simGraphic, SpeciesGeneral species,
+                                    P2SquareWellOneSide p2, P2SquareWellOneSide p2Mix, P2SquareWellOneSide p2Other,
+                                    P2HardGeneric p2mu, P2HardGeneric p2Mixmu, P2HardGeneric p2Othermu) {
             this.simGraphic = simGraphic;
             this.species = species;
             this.p2 = p2;
             this.p2Mix = p2Mix;
             this.p2Other = p2Other;
+            this.p2mu = p2mu;
+            this.p2Mixmu = p2Mixmu;
+            this.p2Othermu = p2Othermu;
         }
 
         public void setValue(double d) {
@@ -660,29 +683,35 @@ public class MuGraphic extends SimulationGraphic {
             }
             //assume one type of atom
             Mu sim = simGraphic.sim;
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(species.getLeafType(), d);
-            p2.setCoreDiameter(d);
-            double sigmaOther = p2Other.getCoreDiameter();
-            p2Mix.setCoreDiameter(0.5*(sigmaOther+d));
-            new BoxImposePbc(sim.box, sim.getSpace()).actionPerformed();
-            ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(species.getLeafType(), d);
+            double newWell = p2.getCollisionDiameter(1) * (d / p2.getCollisionDiameter(0));
+            p2.setCollisionDiameter(0, d);
+            p2.setCollisionDiameter(1, newWell);
+            double sigmaOther = p2Other.getCollisionDiameter(0);
+            double wellOther = p2Other.getCollisionDiameter(1);
+            p2Mix.setCollisionDiameter(0, 0.5 * (sigmaOther + d));
+            p2Mix.setCollisionDiameter(1, 0.5 * (newWell + wellOther));
+            p2mu.setCollisionDiameter(0, d);
+            p2mu.setCollisionDiameter(1, newWell);
+            p2Mixmu.setCollisionDiameter(0, 0.5 * (sigmaOther + d));
+            p2Mixmu.setCollisionDiameter(1, 0.5 * (newWell + wellOther));
+
             try {
                 sim.integrator.reset();
-            }
-            catch (ConfigurationOverlapException e){
+            } catch (ConfigurationOverlapException e) {
                 // can happen when increasing diameter
             }
             simGraphic.getDisplayBox(sim.box).repaint();
         }
 
         public double getValue() {
-            return p2.getCoreDiameter();
+            return p2.getCollisionDiameter(0);
         }
 
         public Dimension getDimension() {
             return Length.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "sigma";
         }
@@ -690,29 +719,30 @@ public class MuGraphic extends SimulationGraphic {
         protected final MuGraphic simGraphic;
         protected final SpeciesGeneral species;
         protected final P2SquareWellOneSide p2, p2Mix, p2Other;
+        protected final P2HardGeneric p2mu, p2Mixmu, p2Othermu;
     }
-    
+
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
         public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
         }
-        
+
         public IData processData(IData data) {
             if (Double.isInfinite(data.getValue(0))) {
                 return null;
             }
             myData.E(data);
             int numAtoms = box.getLeafList().size();
-            myData.TE(1.0/numAtoms);
+            myData.TE(1.0 / numAtoms);
             return myData;
         }
 
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
-        
+
         protected final Box box;
         protected final DataDouble myData;
     }
@@ -723,29 +753,9 @@ public class MuGraphic extends SimulationGraphic {
             dim = Integer.parseInt(args[0]);
         }
         Space space = Space.getInstance(dim);
-        
-        MuGraphic swmdGraphic = new MuGraphic(new Mu(space), space);
-		SimulationGraphic.makeAndDisplayFrame
-		        (swmdGraphic.getPanel(), APP_NAME);
+
+        MuGraphic swmdGraphic = new MuGraphic(new Mu(space));
+        SimulationGraphic.makeAndDisplayFrame
+                (swmdGraphic.getPanel(), APP_NAME);
     }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            String dimStr = getParameter("dim");
-            int dim = 2;
-            if (dimStr != null) {
-                dim = Integer.valueOf(dimStr).intValue();
-            }
-            Space sp = Space.getInstance(dim);
-            MuGraphic swmdGraphic = new MuGraphic(new Mu(sp), sp);
-
-		    getContentPane().add(swmdGraphic.getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
-    }
-
 }

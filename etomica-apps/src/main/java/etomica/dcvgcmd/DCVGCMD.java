@@ -9,8 +9,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.ApiIndexList;
-import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
@@ -24,9 +22,11 @@ import etomica.data.meter.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.CriterionPositionWall;
-import etomica.nbr.PotentialMasterHybrid;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.BoundaryRectangularSlit;
@@ -34,11 +34,12 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
-import etomica.util.random.RandomMersenneTwister;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dual-control-volume grand-canonical molecular dynamics simulation.
@@ -88,8 +89,6 @@ public class DCVGCMD extends Simulation {
         double springConstant = 500; //for membrane-atom tether potential
         double k12 = 1; //multiplier for propene CH and CH2 interaction with membrane atoms
 
-
-        setRandom(new RandomMersenneTwister(1));
         double massC = Carbon.INSTANCE.getMass();
         double massH = Hydrogen.INSTANCE.getMass();
         ElementSimple CH3 = new ElementSimple("CH3", massC + 3 * massH);
@@ -129,12 +128,15 @@ public class DCVGCMD extends Simulation {
         double zFraction = 0.1;
         box.getBoundary().setBoxSize(new Vector3D(Lxy, Lxy, Lz));
 
-        PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
-
-        double neighborRangeFac = 1.2;
-        potentialMaster.setCellRange(1);
         double rc = 11;
-        potentialMaster.setRange(neighborRangeFac * rc);
+        double neighborRangeFac = 1.2;
+        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 1, BondingInfo.noBonding());
+        PotentialMasterList potentialMasterList = new PotentialMasterList(getSpeciesManager(), box, 1, rc * neighborRangeFac, BondingInfo.noBonding());
+        PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+
+        PotentialComputeAggregate pcAggMC = new PotentialComputeAggregate(potentialMasterCell, pmBonding, pcField);
+        PotentialComputeAggregate pcAggMD = new PotentialComputeAggregate(potentialMasterList, pmBonding, pcField);
 
         // propane
         P2LennardJones p2CH3CH3 = new P2LennardJones(space, 3.75, 98);
@@ -175,42 +177,47 @@ public class DCVGCMD extends Simulation {
         P2SoftSphericalTruncatedForceShifted p2MCH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2MCH2e, rc);
         P2SoftSphericalTruncatedForceShifted p2MCHesf = new P2SoftSphericalTruncatedForceShifted(space, p2MCHe, rc);
 
-        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propaneCH3});
-        potentialMaster.addPotential(p2CH3CH2sf, new AtomType[]{propaneCH3, propaneCH2});
-        potentialMaster.addPotential(p2CH2CH2sf, new AtomType[]{propaneCH2, propaneCH2});
+        potentialMasterCell.setPairPotential(propaneCH3, propaneCH3, p2CH3CH3sf);
+        potentialMasterCell.setPairPotential(propaneCH3, propaneCH2, p2CH3CH2sf);
+        potentialMasterCell.setPairPotential(propaneCH2, propaneCH2, p2CH2CH2sf);
 
-        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propeneCH3, propeneCH3});
-        potentialMaster.addPotential(p2CH2eCH2esf, new AtomType[]{propeneCH2, propeneCH2});
-        potentialMaster.addPotential(p2CHeCHesf, new AtomType[]{propeneCH, propeneCH});
-        potentialMaster.addPotential(p2CH3CH2esf, new AtomType[]{propeneCH3, propeneCH2});
-        potentialMaster.addPotential(p2CH3CHesf, new AtomType[]{propeneCH3, propeneCH});
-        potentialMaster.addPotential(p2CH2eCHesf, new AtomType[]{propeneCH2, propeneCH});
+        potentialMasterCell.setPairPotential(propeneCH3, propeneCH3, p2CH3CH3sf);
+        potentialMasterCell.setPairPotential(propeneCH2, propeneCH2, p2CH2eCH2esf);
+        potentialMasterCell.setPairPotential(propeneCH, propeneCH, p2CHeCHesf);
+        potentialMasterCell.setPairPotential(propeneCH3, propeneCH2, p2CH3CH2esf);
+        potentialMasterCell.setPairPotential(propeneCH3, propeneCH, p2CH3CHesf);
+        potentialMasterCell.setPairPotential(propeneCH2, propeneCH, p2CH2eCHesf);
 
-        potentialMaster.addPotential(p2CH2CHesf, new AtomType[]{propaneCH2, propeneCH});
-        potentialMaster.addPotential(p2CH2CH2esf, new AtomType[]{propaneCH2, propeneCH2});
-        potentialMaster.addPotential(p2CH3CH2esf, new AtomType[]{propaneCH2, propeneCH3});
-        potentialMaster.addPotential(p2CH3CHesf, new AtomType[]{propaneCH3, propeneCH});
-        potentialMaster.addPotential(p2CH3CH2esf, new AtomType[]{propaneCH3, propeneCH2});
-        potentialMaster.addPotential(p2CH3CH3sf, new AtomType[]{propaneCH3, propeneCH3});
+        potentialMasterCell.setPairPotential(propaneCH2, propeneCH, p2CH2CHesf);
+        potentialMasterCell.setPairPotential(propaneCH2, propeneCH2, p2CH2CH2esf);
+        potentialMasterCell.setPairPotential(propaneCH2, propeneCH3, p2CH3CH2esf);
+        potentialMasterCell.setPairPotential(propaneCH3, propeneCH, p2CH3CHesf);
+        potentialMasterCell.setPairPotential(propaneCH3, propeneCH2, p2CH3CH2esf);
+        potentialMasterCell.setPairPotential(propaneCH3, propeneCH3, p2CH3CH3sf);
 
-        if (!membraneFixed) potentialMaster.addPotential(p2MMsf, new AtomType[]{atomTypeMembrane, atomTypeMembrane});
+        if (!membraneFixed) potentialMasterCell.setPairPotential(atomTypeMembrane, atomTypeMembrane, p2MMsf);
 
-        potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propaneCH3});
-        potentialMaster.addPotential(p2MCH2sf, new AtomType[]{atomTypeMembrane, propaneCH2});
-        potentialMaster.addPotential(p2MCH3sf, new AtomType[]{atomTypeMembrane, propeneCH3});
-        potentialMaster.addPotential(p2MCH2esf, new AtomType[]{atomTypeMembrane, propeneCH2});
-        potentialMaster.addPotential(p2MCHesf, new AtomType[]{atomTypeMembrane, propeneCH});
+        potentialMasterCell.setPairPotential(atomTypeMembrane, propaneCH3, p2MCH3sf);
+        potentialMasterCell.setPairPotential(atomTypeMembrane, propaneCH2, p2MCH2sf);
+        potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH3, p2MCH3sf);
+        potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH2, p2MCH2esf);
+        potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH, p2MCHesf);
 
         P1HarmonicSite p1Membrane = new P1HarmonicSite(space);
         p1Membrane.setSpringConstant(springConstant);
 
         P2Harmonic p2BondCH3 = new P2Harmonic(space, 1000000, 1.54);
         P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 1000000, 1.33);
-        PotentialGroup p1Propane = potentialMaster.makePotentialGroup(1);
-        p1Propane.addPotential(p2BondCH3, new ApiIndexList(new int[][]{{0, 1}, {1, 2}}));
-        PotentialGroup p1Propene = potentialMaster.makePotentialGroup(1);
-        p1Propene.addPotential(p2BondCH3, new ApiIndexList(new int[][]{{0, 1}}));
-        p1Propene.addPotential(p2BondCHCH2, new ApiIndexList(new int[][]{{1, 2}}));
+        List<int[]> bondPairs = new ArrayList<>();
+        bondPairs.add(new int[]{0,1});
+        bondPairs.add(new int[]{1,2});
+        pmBonding.setBondingPotentialPair(propane, p2BondCH3, bondPairs);
+        bondPairs = new ArrayList<>();
+        bondPairs.add(new int[]{0,1});
+        pmBonding.setBondingPotentialPair(propene, p2BondCH3, bondPairs);
+        bondPairs = new ArrayList<>();
+        bondPairs.add(new int[]{1,2});
+        pmBonding.setBondingPotentialPair(propene, p2BondCHCH2, bondPairs);
 
         P3BondAngle p3Propane = new P3BondAngle(space);
         p3Propane.setAngle(thetaPropane);
@@ -218,52 +225,33 @@ public class DCVGCMD extends Simulation {
         P3BondAngle p3Propene = new P3BondAngle(space);
         p3Propene.setAngle(thetaPropene);
         p3Propene.setEpsilon(Kelvin.UNIT.toSim(70420));
-        p1Propane.addPotential(p3Propane, new Atomset3IteratorIndexList(new int[][]{{0, 1, 2}}));
-        p1Propene.addPotential(p3Propene, new Atomset3IteratorIndexList(new int[][]{{0, 1, 2}}));
-
-        potentialMaster.addPotential(p1Propane, new ISpecies[]{propane});
-        potentialMaster.addPotential(p1Propene, new ISpecies[]{propene});
+        List<int[]> triplet = new ArrayList<>();
+        triplet.add(new int[]{0,1,2});
+        pmBonding.setBondingPotentialTriplet(propane, p3Propane, triplet);
+        pmBonding.setBondingPotentialTriplet(propene, p3Propene, triplet);
 
         double neighborRangeFacHalf = (1.0 + neighborRangeFac) * 0.5;
 
-        potentialwall = new P1WCAWall(space, 2, sigma, epsilon);
-        CriterionPositionWall criterionWall = new CriterionPositionWall(this);
-        double wallCut = potentialwall.getRange() + 0.01 * Lz;
-        criterionWall.setInteractionRange(wallCut);
-        criterionWall.setNeighborRange(neighborRangeFacHalf * wallCut);
-        criterionWall.setWallDim(2);
-        potentialMaster.addPotential(potentialwall, new AtomType[]{propane.getTypeByName("propaneCH2")});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall, propaneCH2, criterionWall);
+        potentialwall = new P1WCAWall(box, sigma, epsilon);
+        pcField.setFieldPotential(propane.getTypeByName("propaneCH2"), potentialwall);
+        pcField.setFieldPotential(propene.getTypeByName("propeneCH"), potentialwall);
 
-        potentialwall1 = new P1WCAWall(space, 2, sigma, epsilon);
-        CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
-        criterionWall1.setInteractionRange(wallCut);
-        criterionWall1.setNeighborRange(neighborRangeFacHalf * wallCut);
-        criterionWall1.setWallDim(2);
-        potentialMaster.addPotential(potentialwall1, new AtomType[]{propene.getTypeByName("propeneCH")});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall1, propeneCH, criterionWall1);
-
-        integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
+        integratorDCV = new IntegratorDCVGCMD(pcAggMC, temperature,
                 propane, propene, box);
         integratorDCV.zFraction = zFraction;
-        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
-
-        potentialMaster.setRange(3.95 * neighborRangeFac);
-        integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(pcAggMD, this.getRandom(), 0.001, 1.0, box);
+        final IntegratorMC integratorMC = new IntegratorMC(pcAggMC, random, 1.0, box);
 
         getController().addActivity(new ActivityIntegrate(integratorDCV));
 
-        integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
+        integratorDCV.setIntegrators(integratorMC, integratorMD, pmBonding, getRandom());
         integratorMD.setIsothermal(false);
 
-        thermometer = new MeterTemperature(this, box, space.D());
+        thermometer = new MeterTemperature(getSpeciesManager(), box, space.D());
 
         integratorMD.setMeterTemperature(thermometer);
         //integrator.setSleepPeriod(1);
-        integratorMD.setTimeStep(0.001);
         //integrator.setInterval(10);
-        integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
 
@@ -286,15 +274,15 @@ public class DCVGCMD extends Simulation {
                 return v;
             }, box);
             p1Membrane.setAtomAgentManager(box, siteManager);
-            potentialMaster.addPotential(p1Membrane, new AtomType[]{membrane.getLeafType()});
+            pcField.setFieldPotential(membrane.getLeafType(), p1Membrane);
             integratorDCV.setDoThermalizeMembrane(true, membrane, random);
         }
 
         MyMCMove[] moves = integratorDCV.mcMoves();
-        moves[0].setSpecies(propane, temperature, p1Propane);
-        moves[1].setSpecies(propane, temperature, p1Propane);
-        moves[2].setSpecies(propene, temperature, p1Propene);
-        moves[3].setSpecies(propene, temperature, p1Propene);
+        moves[0].setSpecies(propane, temperature);
+        moves[1].setSpecies(propane, temperature);
+        moves[2].setSpecies(propene, temperature);
+        moves[3].setSpecies(propene, temperature);
         meterFlux0 = new MeterFlux(moves[0], integratorDCV);
         meterFlux1 = new MeterFlux(moves[1], integratorDCV);
         meterFlux2 = new MeterFlux(moves[2], integratorDCV);
@@ -348,8 +336,6 @@ public class DCVGCMD extends Simulation {
 
         profile2TemperaturePump = new DataPumpListener(profileTemperature2, null);
         integratorDCV.getEventManager().addListener(profile2TemperaturePump);
-
-        potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
     public static void main(String[] args) {

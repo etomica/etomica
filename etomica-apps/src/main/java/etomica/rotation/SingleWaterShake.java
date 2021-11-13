@@ -6,19 +6,20 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorVelocityVerletShake;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.ShakeListener;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.ConformationWater3P;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.IMolecule;
+import etomica.potential.BondingInfo;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -26,6 +27,8 @@ import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesAgentManager;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -48,18 +51,28 @@ public class SingleWaterShake {
         box.setNMolecules(species, 1);
         box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 0.000166;
         int maxIterations = 200;
-        final IntegratorVelocityVerletShake integrator = new IntegratorVelocityVerletShake(sim, potentialMaster, box);
+        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpeciesManager(), box, BondingInfo.noBonding());
+        final IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(potentialMaster, sim.getRandom(), timeStep, Kelvin.UNIT.toSim(271.2654804973), box);
         integrator.setTimeStep(timeStep);
-        integrator.printInterval = 0;
-        integrator.setMaxIterations(maxIterations);
         double lOH = ConformationWater3P.bondLengthOH;
         double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWater3P.angleHOH)));
-        integrator.setBondConstraints(species, new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});
+        SpeciesAgentManager<ShakeListener.BondConstraints> shakeAgents = new SpeciesAgentManager<>(new SpeciesAgentManager.AgentSource<ShakeListener.BondConstraints>() {
+            @Override
+            public ShakeListener.BondConstraints makeAgent(ISpecies type) {
+                return new ShakeListener.BondConstraints(new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});
+            }
+
+            @Override
+            public void releaseAgent(ShakeListener.BondConstraints agent, ISpecies type) {
+
+            }
+        }, sim.getSpeciesManager());
+        ShakeListener shake = new ShakeListener(sim.getSpeciesManager(), shakeAgents, integrator);
+        shake.setMaxIterations(maxIterations);
+        integrator.getEventManager().addListener(shake);
         integrator.setIsothermal(false);
-        integrator.setTemperature(Kelvin.UNIT.toSim(271.2654804973));
 //        integrator.setThermostatInterval(100);
 //        System.out.println("using rigid with dt="+dt);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
@@ -69,7 +82,7 @@ public class SingleWaterShake {
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-        if (true) {
+        if (false) {
             final boolean isWriting = false;
             final FileWriter fileWriter;
             FileReader fileReader;
@@ -93,7 +106,7 @@ public class SingleWaterShake {
             }
 
             final OrientationCalcWater3P calcer = new OrientationCalcWater3P(space);
-            final IOrientationFull3D orientation = (IOrientationFull3D) space.makeOrientation();
+            final IOrientationFull3D orientation = (IOrientationFull3D) calcer.makeOrientation(space);
             IAction writeA = new IAction() {
                 public void actionPerformed() {
                     IMolecule molecule = box.getMoleculeList().get(0);
@@ -142,7 +155,7 @@ public class SingleWaterShake {
             integrator.getEventManager().addListener(writeAListener);
             sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         } else {
-            sim.getController().setSleepPeriod(10);
+            sim.getController().setSleepPeriod(1);
             sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
@@ -151,7 +164,7 @@ public class SingleWaterShake {
         }
         return null;
     }
-    
+
     public static void main(String[] args) {
         SimulationGraphic graphic = makeSingleWater();
         if (graphic != null) {
@@ -159,14 +172,4 @@ public class SingleWaterShake {
         }
     }
 
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            SimulationGraphic graphic = makeSingleWater();
-
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
 }

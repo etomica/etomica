@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -18,6 +17,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.MoleculeOriented;
+import etomica.potential.BondingInfo;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -28,7 +28,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.random.RandomNumberGenerator;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -41,18 +41,18 @@ public class SingleWater {
     public static SimulationGraphic makeSingleWater() {
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        ((RandomNumberGenerator) sim.getRandom()).getWrappedRandom().setSeed(2000);
-        SpeciesGeneral species = SpeciesWater3P.create(true, true);
+        sim.setRandom(new RandomMersenneTwister(1));
+        SpeciesGeneral species = SpeciesWater3P.create(true);
         sim.addSpecies(species);
         final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
         box.setNMolecules(species, 1);
         box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        PotentialMaster potentialMaster = new PotentialMaster();
+        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpeciesManager(), box, BondingInfo.noBonding());
         double timeInterval = 0.00016;
         int maxIterations = 40;
-        final IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
+        final IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim.getSpeciesManager(), sim.getRandom(), potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
@@ -61,7 +61,7 @@ public class SingleWater {
 //        integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(148.5));
 //        integrator.setThermostatInterval(100);
-        sim.getController().addActivity(new ActivityIntegrate(integrator));
+        sim.getController().addActivity(new ActivityIntegrate(integrator), Integer.MAX_VALUE, 1);
 //        System.out.println("using rigid with dt="+dt);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
@@ -154,14 +154,4 @@ public class SingleWater {
         graphic.makeAndDisplayFrame();
     }
 
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            SimulationGraphic graphic = makeSingleWater();
-
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
 }

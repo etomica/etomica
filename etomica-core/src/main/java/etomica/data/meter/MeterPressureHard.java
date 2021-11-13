@@ -4,9 +4,11 @@
 
 package etomica.data.meter;
 
+import etomica.atom.IAtomKinetic;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure;
 
 /**
@@ -58,20 +60,9 @@ public class MeterPressureHard extends DataSourceScalar implements IntegratorHar
         return value;
     }
 
-    /**
-     * Implementation of CollisionListener interface
-     * Adds collision virial (from potential) to accumulator
-     */
-    public void collisionAction(IntegratorHard.Agent agent) {
-        virialSum += agent.collisionPotential.lastCollisionVirial();
-    }
-
-    /**
-     * Implementation of Meter.MeterCollisional interface.  Returns -(collision virial).
-     * Suitable for tabulation of PV
-     */
-    public double collisionValue(IntegratorHard.Agent agent) {
-        return -agent.collisionPotential.lastCollisionVirial();
+    @Override
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector dv, double virial, double tCollision) {
+        virialSum += virial;
     }
 
     public IntegratorHard getIntegrator() {

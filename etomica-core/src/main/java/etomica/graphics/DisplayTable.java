@@ -5,10 +5,7 @@
 package etomica.graphics;
 
 import etomica.data.*;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDoubleArray;
-import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 import net.miginfocom.swing.MigLayout;
@@ -535,35 +532,4 @@ public class DisplayTable extends Display implements DataTableListener {
             panel.transferFocus();
         }
     }
-
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-    	final String APP_NAME = "Display Table";
-
-    	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-        sim.integrator.setIsothermal(true);
-
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-        MeterNMolecules nMeter = new MeterNMolecules();
-        nMeter.setBox(sim.box);
-        DataTableAverages dataTable = new DataTableAverages(sim.integrator);
-        dataTable.addDataSource(pMeter);
-        dataTable.addDataSource(nMeter);
-        DisplayTable table = new DisplayTable(dataTable);
-
-        table.setRowLabels(new String[] { "Current", "Average", "Error" });
-        table.setTransposed(false);
-        table.setShowingRowLabels(true);
-//        table.setPrecision(7);
-
-        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
-
-        graphic.add(table);
-        graphic.makeAndDisplayFrame(APP_NAME);
-    }//end of main
-
 }

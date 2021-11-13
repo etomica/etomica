@@ -8,9 +8,7 @@ import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.history.HistoryComplete;
-import etomica.data.history.HistoryScrolling;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
+import etomica.data.meter.MeterPressureTensor;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
@@ -33,9 +31,9 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 10);
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
-        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);
+        ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);
 
-        final StrainColorScheme strainColor = new StrainColorScheme();    
+        final StrainColorScheme strainColor = new StrainColorScheme();
         getDisplayBox(sim.box).setColorScheme(strainColor);
         // 37 is the index of the first atom (on the left) to be colored red
         strainColor.setNumber(37);
@@ -43,9 +41,10 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         getController().getSimRestart().setConfiguration(sim.config);
 
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
+        thermoSlider.setIsothermalButtonsVisibility(false);
         thermoSlider.setMaximum(600);
         add(thermoSlider);
-        
+
         final MeterStrain meterStrain = new MeterStrain();
         meterStrain.setBox(sim.box);
         meterStrain.setAtomNumber(37);
@@ -55,8 +54,8 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(strainPump));
         AccumulatorAverageCollapsing strainAverage = new AccumulatorAverageCollapsing();
         strainFork.addDataSink(strainAverage);
-    
-        final MeterStress meterStress = new MeterStress(sim.pc);
+
+        final MeterStress meterStress = new MeterStress(sim);
         meterStress.setBox(sim.box);
         DataFork stressFork = new DataFork();
         DataPump stressPump = new DataPump(meterStress, stressFork);
@@ -68,7 +67,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         AccumulatorAverageCollapsing stressAverage = new AccumulatorAverageCollapsing();
         stressAverage.setPushInterval(10);
         stressFork.addDataSink(stressAverage);
-    
+
         final DisplayPlotXChart stressHistoryPlot = new DisplayPlotXChart();
         stressHistory.setDataSink(stressHistoryPlot.getDataSet().makeDataSink());
         stressHistoryPlot.setLabel("Stress");
@@ -84,18 +83,19 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE strainDisplay = new DisplayTextBoxesCAE();
         strainDisplay.setAccumulator(strainAverage);
         add(strainDisplay);
-        
-        final MeterPressureTensorFromIntegrator meterPressure = new MeterPressureTensorFromIntegrator(space);
-        meterPressure.setIntegrator(sim.integrator);
-        DataProcessor pressureToStress = new DataProcessor(){
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) { return dataInfo; }
-        
+
+        final MeterPressureTensor meterPressure = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
+        DataProcessor pressureToStress = new DataProcessor() {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                return dataInfo;
+            }
+
             protected IData processData(IData inputData) {
                 // xx component is the first one
                 data.x = -inputData.getValue(0);
                 return data;
             }
-            
+
             protected final IDataInfo dataInfo = new DataDouble.DataInfoDouble("Stress", Pressure2D.DIMENSION);
             protected final DataDouble data = new DataDouble();
         };
@@ -136,10 +136,21 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         integratorPanel.add("Timestep (fs)", stepSlider.graphic());
 
         Modifier nuModifier = new Modifier() {
-            public void setValue(double newValue) {sim.integrator.setThermostatInterval((int)(1.0/newValue));}
-            public double getValue() {return 1.0/sim.integrator.getThermostatInterval();}
-            public String getLabel() {return "";}
-            public Dimension getDimension() {return Null.DIMENSION;}
+            public void setValue(double newValue) {
+                sim.integrator.setThermostatInterval((int) (1.0 / newValue));
+            }
+
+            public double getValue() {
+                return 1.0 / sim.integrator.getThermostatInterval();
+            }
+
+            public String getLabel() {
+                return "";
+            }
+
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
         };
         DeviceSlider nuSlider = new DeviceSlider(sim.getController(), nuModifier);
         nuSlider.setMaximum(1);
@@ -172,7 +183,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         springConstantSlider.setNMajor(3);
         springConstantSlider.setShowValues(true);
         potentialPanel.add("Spring Constant (J/(mol A^2))", springConstantSlider.graphic());
-        
+
         ModifierGeneral cutoffModifier = new ModifierGeneral(sim.pt, "truncationRadius");
         DeviceSlider cutoffSlider = new DeviceSlider(sim.getController(), cutoffModifier);
         cutoffSlider.setMinimum(2);
@@ -190,20 +201,14 @@ public class MaterialFractureGraphic extends SimulationGraphic {
             }
         });
     }
-  
+
     /**
-    /* main method
+     * /* main method
      */
     public static void main(String[] args) {
         MaterialFracture sim = new MaterialFracture();
         MaterialFractureGraphic simGraphic = new MaterialFractureGraphic(sim);
 
         simGraphic.makeAndDisplayFrame();
-    }
-
-    public static class Applet extends javax.swing.JApplet{
-        public void init(){ 
-            getContentPane().add(new MaterialFractureGraphic(new MaterialFracture()).getPanel());
-        }
     }
 }

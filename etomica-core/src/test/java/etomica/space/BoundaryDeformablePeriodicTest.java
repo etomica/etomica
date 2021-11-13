@@ -88,7 +88,7 @@ public class BoundaryDeformablePeriodicTest {
         sim.addBox(box);
         box.setNMolecules(species, 3);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DisplayBox display = new DisplayBox(sim, box);
+        DisplayBox display = new DisplayBox(sim.getController(), box);
         simGraphic.add(display);
         simGraphic.makeAndDisplayFrame();
         return simGraphic;

@@ -4,16 +4,16 @@
 
 package etomica.graphics;
 
-import java.awt.Color;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.awt.*;
 
 /**
  * Color atoms based on how many overlaps they have with their neighbors
@@ -21,12 +21,12 @@ import etomica.space.Space;
  * @author Andrew Schultz
  */
 public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
-    
-    public ColorSchemeOverlap(Space space, PotentialMasterList potentialMaster, Box box) {
+
+    public ColorSchemeOverlap(Space space, NeighborManager neighborManager, Box box) {
         super(box);
         leafList = box.getLeafList();
         nOverlaps = new int[leafList.size()];
-        neighborManager = potentialMaster.getNeighborManager(box);
+        this.neighborIterator = neighborManager.makeNeighborIterator();
         dr = space.makeVector();
         boundary = box.getBoundary();
     }
@@ -43,19 +43,18 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
         }
         for (int i = 0; i<leafList.size(); i++) {
             IAtom atom = leafList.get(i);
-            IAtomList list = neighborManager.getDownList(atom)[0];
-            Vector p = atom.getPosition();
-            for (int j = 0; j<list.size(); j++) {
-                IAtom jAtom = list.get(j);
-                dr.Ev1Mv2(p, jAtom.getPosition());
-                boundary.nearestImage(dr);
-                double r2 = dr.squared();
-                if (r2 < sig2) {
-                    // count overlaps for both i and j
-                    nOverlaps[i]++;
-                    nOverlaps[jAtom.getLeafIndex()]++;
+            int finalI = i;
+            neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij) {
+                    double r2 = rij.squared();
+                    if (r2 < sig2) {
+                        // count overlaps for both i and j
+                        nOverlaps[finalI]++;
+                        nOverlaps[jAtom.getLeafIndex()]++;
+                    }
                 }
-            }
+            });
         }
         for (int i = 0; i<leafList.size(); i++) {
             // set appropriate color for the # of overlaps for each atom
@@ -67,8 +66,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
         sig2 = newSigma*newSigma;
     }
 
-    private static final long serialVersionUID = 1L;
-    protected final NeighborListManager neighborManager;
+    protected final NeighborIterator neighborIterator;
     protected final Boundary boundary;
     protected final IAtomList leafList;
     protected final Vector dr;

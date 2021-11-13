@@ -12,6 +12,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.modifier.ModifierSQWEpsilon;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -27,28 +28,28 @@ import java.util.ArrayList;
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the
  * simulation class.  Original module by William Scharmach and Matt Moynihan.
  * Later revamped based on module redesign by William M. Chirdon.
- * 
+ *
  * @author William Scharmach
  * @author Matt Moynihan
  * @author Andrew Schultz
  */
 public class ChainEquilibriumGraphic extends SimulationGraphic {
 
-	private static final String APP_NAME = "Stepwise Growth Polymerization";
-	private static final int REPAINT_INTERVAL = 2;
+    private static final String APP_NAME = "Stepwise Growth Polymerization";
+    private static final int REPAINT_INTERVAL = 2;
 
     protected ChainEquilibriumSim sim;
 
-    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, Space _space) {
+    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         getPanel().toolbar.addAuthor("Dr. William Chirdon");
         this.sim = simulation;
-        
+
         int dataInterval = (int) (.04 / sim.integratorHard.getTimeStep());
-        
+
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-        
+
         getDisplayBox(sim.box).setPixelUnit(new Pixel(7));
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
@@ -59,7 +60,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         // **** Stuff that Modifies the Simulation
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
-        
+
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
@@ -67,7 +68,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 //        final DeviceSlider ACSlider = sliders(eMin, eMax, "Diol-Crosslinker", sim.ACbonded);
         ABSlider.setPostAction(resetAction);
 //        ACSlider.setPostAction(resetAction);
-        
+
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
         solventThermoFrac.setModifier(new ModifierGeneral(sim.ABbonded, "solventThermoFrac"));
@@ -76,11 +77,11 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integratorHard);
         add(displayTimer);
-        
+
         DataSourceCountTime timer = new DataSourceCountTime(sim.integratorHard);
 
         DataFork tFork = new DataFork();
-        final DataPump tPump = new DataPump (sim.thermometer, tFork);
+        final DataPump tPump = new DataPump(sim.thermometer, tFork);
         tFork.addDataSink(tBox);
         add(tBox);
         dataStreamPumps.add(tPump);
@@ -103,13 +104,13 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         AccumulatorAverage accumulator = new AccumulatorAverageFixed(10);
         accumulator.setPushInterval(10);
         DataFork mwFork = new DataFork();
-        final DataPump mwPump = new DataPump(molecularCount,mwFork);
+        final DataPump mwPump = new DataPump(molecularCount, mwFork);
         mwFork.addDataSink(accumulator);
         dataStreamPumps.add(mwPump);
         IntegratorListenerAction mwPumpListener = new IntegratorListenerAction(mwPump);
         sim.integratorHard.getEventManager().addListener(mwPumpListener);
         mwPumpListener.setInterval(dataInterval);
-        
+
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
         DataFork mwAvgFork = new DataFork();
@@ -169,7 +170,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setPostAction(resetData);
 
         DisplayPlotXChart compositionPlot = new DisplayPlotXChart();
-        accumulator.addDataSink(compositionPlot.makeSink("composition"),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
+        accumulator.addDataSink(compositionPlot.makeSink("composition"), new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
         DisplayPlotXChart mwPlot = new DisplayPlotXChart();
@@ -195,7 +196,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         mw2Box.setLabel("Weight Avg Molecular Weight");
         add(mw2Box);
 
-        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
+        ((SimulationRestart) getController().getReinitButton().getAction()).setConfiguration(sim.config);
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 sim.resetBonds();
@@ -210,7 +211,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         temperatureSelect.setIsothermal();
         temperatureSelect.setSliderPostAction(resetAction);
         temperatureSelect.setRadioGroupPostAction(resetAction);
-        
+
         ColorSchemeStepWise colorScheme = new ColorSchemeStepWise(sim, sim.agentManager);
         colorScheme.setColor(sim.speciesA.getLeafType(), 1, new Color(255, 120, 120));
         colorScheme.setColor(sim.speciesB.getLeafType(), 1, new Color(120, 120, 255));
@@ -232,10 +233,21 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nMonoOlBox.setController(sim.getController());
         nMonoOlBox.setLabel("Mono-ol (light red)");
         nMonoOlBox.setModifier(new Modifier() {
-            public Dimension getDimension() {return Quantity.DIMENSION;}
-            public String getLabel() {return "n";}
-            public double getValue() {return sim.getNMonoOl();}
-            public void setValue(double newValue) {sim.setNMonoOl((int)newValue);}
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "n";
+            }
+
+            public double getValue() {
+                return sim.getNMonoOl();
+            }
+
+            public void setValue(double newValue) {
+                sim.setNMonoOl((int) newValue);
+            }
         });
         nMonoOlBox.setPostAction(reconfig);
         DeviceBox nMonoAcidBox = new DeviceBox();
@@ -243,10 +255,21 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nMonoAcidBox.setController(sim.getController());
         nMonoAcidBox.setLabel("Mono-acid (light blue)");
         nMonoAcidBox.setModifier(new Modifier() {
-            public Dimension getDimension() {return Quantity.DIMENSION;}
-            public String getLabel() {return "n";}
-            public double getValue() {return sim.getNMonoAcid();}
-            public void setValue(double newValue) {sim.setNMonoAcid((int)newValue);}
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "n";
+            }
+
+            public double getValue() {
+                return sim.getNMonoAcid();
+            }
+
+            public void setValue(double newValue) {
+                sim.setNMonoAcid((int) newValue);
+            }
         });
         nMonoAcidBox.setPostAction(reconfig);
         DeviceBox nDiolBox = new DeviceBox();
@@ -254,10 +277,21 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nDiolBox.setController(sim.getController());
         nDiolBox.setLabel("Di-ol (red)");
         nDiolBox.setModifier(new Modifier() {
-            public Dimension getDimension() {return Quantity.DIMENSION;}
-            public String getLabel() {return "n";}
-            public double getValue() {return sim.getNDiol();}
-            public void setValue(double newValue) {sim.setNDiol((int)newValue);}
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "n";
+            }
+
+            public double getValue() {
+                return sim.getNDiol();
+            }
+
+            public void setValue(double newValue) {
+                sim.setNDiol((int) newValue);
+            }
         });
         nDiolBox.setPostAction(reconfig);
         DeviceBox nDiAcidBox = new DeviceBox();
@@ -265,10 +299,21 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nDiAcidBox.setController(sim.getController());
         nDiAcidBox.setLabel("Di-acid (blue)");
         nDiAcidBox.setModifier(new Modifier() {
-            public Dimension getDimension() {return Quantity.DIMENSION;}
-            public String getLabel() {return "n";}
-            public double getValue() {return sim.getNDiAcid();}
-            public void setValue(double newValue) {sim.setNDiAcid((int)newValue);}
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "n";
+            }
+
+            public double getValue() {
+                return sim.getNDiAcid();
+            }
+
+            public void setValue(double newValue) {
+                sim.setNDiAcid((int) newValue);
+            }
         });
         nDiAcidBox.setPostAction(reconfig);
         DeviceBox nCrossLinkerBox = new DeviceBox();
@@ -276,10 +321,21 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         nCrossLinkerBox.setController(sim.getController());
         nCrossLinkerBox.setLabel("Crosslinker (green)");
         nCrossLinkerBox.setModifier(new Modifier() {
-            public Dimension getDimension() {return Quantity.DIMENSION;}
-            public String getLabel() {return "n";}
-            public double getValue() {return sim.getNCrossLinkersAcid();}
-            public void setValue(double newValue) {sim.setNCrossLinkersAcid((int)newValue);}
+            public Dimension getDimension() {
+                return Quantity.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "n";
+            }
+
+            public double getValue() {
+                return sim.getNCrossLinkersAcid();
+            }
+
+            public void setValue(double newValue) {
+                sim.setNCrossLinkersAcid((int) newValue);
+            }
         });
         nCrossLinkerBox.setPostAction(reconfig);
 
@@ -294,7 +350,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         add(mwPlot);
         JPanel conversionPanel = new JPanel(new GridBagLayout());
         conversionPanel.add(conversionPlot.graphic(), vertGBC);
-        
+
         DeviceBox conversionHistoryLength = new DeviceBox();
         conversionHistoryLength.setInteger(true);
         conversionHistoryLength.setController(sim.getController());
@@ -313,11 +369,11 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
 
             public void setValue(double newValue) {
-                conversionHistoryDiol.setHistoryLength((int)newValue);
-                conversionHistoryAcid.setHistoryLength((int)newValue);
+                conversionHistoryDiol.setHistoryLength((int) newValue);
+                conversionHistoryAcid.setHistoryLength((int) newValue);
             }
         });
-        conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
+        conversionPanel.add(conversionHistoryLength.graphic(), vertGBC);
 
         final DeviceButton atomFilterButton;
         if (space.D() == 3) {
@@ -330,8 +386,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
                     if (displayBox.getAtomTestDoDisplay() == null) {
                         displayBox.setAtomTestDoDisplay(atomFilter);
                         atomFilterButton.setLabel("Show all");
-                    }
-                    else {
+                    } else {
                         displayBox.setAtomTestDoDisplay(null);
                         atomFilterButton.setLabel("Show only longest chain");
                     }
@@ -339,16 +394,15 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
                 }
             });
             atomFilterButton.setLabel("Show only longest chain");
-        }
-        else {
+        } else {
             atomFilterButton = null;
         }
 
-        getPanel().tabbedPane.add("Conversion" , conversionPanel);
+        getPanel().tabbedPane.add("Conversion", conversionPanel);
 
-        JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
-        JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
-        JPanel controls = new JPanel(new java.awt.GridBagLayout());
+        JPanel speciesEditors = new JPanel(new GridLayout(0, 1));
+        JPanel epsilonSliders = new JPanel(new GridBagLayout());
+        JPanel controls = new JPanel(new GridBagLayout());
 
         speciesEditors.add(nMonoOlBox.graphic());
         speciesEditors.add(nMonoAcidBox.graphic());
@@ -375,6 +429,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         //set the number of significant figures displayed on the table.
         javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
             java.text.NumberFormat formatter;
+
             {
                 formatter = java.text.NumberFormat.getInstance();
                 formatter.setMaximumFractionDigits(6);
@@ -397,13 +452,13 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         }
         ChainEquilibriumSim sim = new ChainEquilibriumSim(Space.getInstance(D));
-        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim, sim.getSpace());
+        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
-    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
+    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p) {
 
-        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
+        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierSQWEpsilon(p));
         AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
         AASlider.doUpdate();
         AASlider.setShowBorder(true);
@@ -414,19 +469,5 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 //        AASlider.getSlider().setSnapToTicks(true);
 
         return AASlider;
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-			getRootPane().putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-            int D = 2;
-            String dimStr = getParameter("dim");
-            if (dimStr != null) {
-                D = Integer.parseInt(dimStr);
-            }
-	        ChainEquilibriumSim sim = new ChainEquilibriumSim(Space.getInstance(D));
-			getContentPane().add(new ChainEquilibriumGraphic(sim, sim.getSpace()).getPanel());
-        }
     }
 }

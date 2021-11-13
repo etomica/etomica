@@ -7,7 +7,6 @@ package etomica.graphics;
 import etomica.action.IAction;
 import etomica.action.controller.Controller;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Unit;
@@ -28,47 +27,52 @@ public class DeviceThermoSlider extends Device {
 
 	public DeviceThermoSlider(Controller cont, final IntegratorBox integrator) {
 		super(cont);
-        //adiabatic/isothermal radio button
-	    thermalButtons = new DeviceButtonGroup(cont, 2);
-	    thermalButtons.addButton("Adiabatic", new IAction() {
-	        public void actionPerformed() {integrator.setIsothermal(false);}
-	    });
-        thermalButtons.addButton("Isothermal", new IAction() {
-            public void actionPerformed() {integrator.setIsothermal(true);}
-        });
-        thermalButtons.setPostAction(new IAction() {
-            public void actionPerformed() {
-                configureSliderAccessibility();
-            }
-        });
+		//adiabatic/isothermal radio button
+		thermalButtons = new DeviceButtonGroup(cont, 2);
+		thermalButtons.addButton("Adiabatic", new IAction() {
+			public void actionPerformed() {
+				integrator.setIsothermal(false);
+			}
+		});
+		thermalButtons.addButton("Isothermal", new IAction() {
+			public void actionPerformed() {
+				integrator.setIsothermal(true);
+			}
+		});
+		thermalButtons.setPostAction(new IAction() {
+			public void actionPerformed() {
+				configureSliderAccessibility();
+			}
+		});
 
-        //temperature selector
-        temperatureSlider = new DeviceSlider(controller);
-        temperatureSlider.setShowValues(true);
-        temperatureSlider.setEditValues(true);
-        temperatureSlider.setMinimum(DEFAULT_MIN_TEMPERATURE);
-        temperatureSlider.setMaximum(DEFAULT_MAX_TEMPERATURE);
-        temperatureSlider.setNMajor(4);
-        temperatureSlider.setValue(300);
-        temperatureSlider.getSlider().setEnabled(false);
-        temperatureSlider.getTextField().setEnabled(false);
+		//temperature selector
+		temperatureSlider = new DeviceSlider(controller);
+		temperatureSlider.setShowValues(true);
+		temperatureSlider.setEditValues(true);
+		temperatureSlider.setMinimum(DEFAULT_MIN_TEMPERATURE);
+		temperatureSlider.setMaximum(DEFAULT_MAX_TEMPERATURE);
+		temperatureSlider.setNMajor(4);
+		temperatureSlider.setValue(300);
+		temperatureSlider.getSlider().setEnabled(false);
+		temperatureSlider.getTextField().setEnabled(false);
 
-        temperaturePanel = new JPanel(new GridBagLayout());
-        temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature", TitledBorder.CENTER, TitledBorder.TOP));
-        GridBagConstraints gbc1 = new GridBagConstraints();
-        gbc1.gridx = 0;  gbc1.gridy = 0;
-        temperaturePanel.add(thermalButtons.graphic(), gbc1);
-        gbc1.gridx = 0;  gbc1.gridy = 1;
-        temperaturePanel.add(temperatureSlider.graphic(),gbc1);
-        
-        temperatureSlider.setModifier(new ModifierGeneral(integrator, "temperature"));
-        if (integrator.isIsothermal()) {
-            setIsothermal();
-        }
-        else {
-            setAdiabatic();
-        }
-    }
+		temperaturePanel = new JPanel(new GridBagLayout());
+		temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature", TitledBorder.CENTER, TitledBorder.TOP));
+		GridBagConstraints gbc1 = new GridBagConstraints();
+		gbc1.gridx = 0;
+		gbc1.gridy = 0;
+		temperaturePanel.add(thermalButtons.graphic(), gbc1);
+		gbc1.gridx = 0;
+		gbc1.gridy = 1;
+		temperaturePanel.add(temperatureSlider.graphic(), gbc1);
+
+		temperatureSlider.setModifier(new ModifierGeneral(integrator, "temperature"));
+		if (integrator.isIsothermal()) {
+			setIsothermal();
+		} else {
+			setAdiabatic();
+		}
+	}
 
 	public void setIsothermalButtonsVisibility(boolean doShowIsothermalButtons) {
 	    thermalButtons.graphic().setVisible(doShowIsothermalButtons);

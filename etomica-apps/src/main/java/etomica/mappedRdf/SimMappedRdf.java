@@ -1,7 +1,6 @@
 package etomica.mappedRdf;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -18,6 +17,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
@@ -55,27 +55,21 @@ public class SimMappedRdf extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
-        potentialMaster.lrcMaster().setEnabled(false);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         this.getController().addActivity(new ActivityIntegrate(integrator));
-        move = new MCMoveAtom(random, potentialMaster, space);
+        move = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(move);
 
         P2LennardJones potential = new P2LennardJones(space);
         //   p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
         p2Truncated = new P2SoftSphericalTruncatedShifted(space, potential, rc);
 
-        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2Truncated);
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        potentialMaster.setCellRange(2);
-
-        potentialMaster.getNbrCellManager(box).assignCellAll();
-
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
 
     public static void main(String[] args) {
@@ -95,8 +89,6 @@ public class SimMappedRdf extends Simulation {
         double rc = params.rc;
         double rcforHandfinmap = params.rcforHandfinmap;
         boolean graphics = false;
-        boolean computeR = params.computeR;
-        boolean computeRMA = params.computeRMA;
 
         int nBlocks = params.nBlocks;
 
@@ -108,9 +100,8 @@ public class SimMappedRdf extends Simulation {
         MeterRDF  meterRDF = null;
         MeterMappedRdf meterMappedRdf = null;
 
-        double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) / 2;
         int nbins = 100;
-        double eqncutoff = halfBoxlength;
+        double eqncutoff = sim.box.getBoundary().getBoxSize().getX(0) / 2;
 
 
         if (graphics) {
@@ -151,12 +142,12 @@ public class SimMappedRdf extends Simulation {
         meterRDF.getXDataSource().setNValues(nbins);
         meterRDF.getXDataSource().setXMax(eqncutoff);
 
-        meterMappedRdf = new MeterMappedRdf(params.rcforHandfinmap,space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
+        meterMappedRdf = new MeterMappedRdf(rcforHandfinmap, sim.integrator.getPotentialCompute(), sim.box, nbins, density);
         meterMappedRdf.setBox(sim.box);
         meterMappedRdf.getXDataSource().setNValues(nbins);
         meterMappedRdf.getXDataSource().setXMax(eqncutoff);
-        meterMappedRdf.getPotentialCalculation().setPotential(sim.p2Truncated);
-        meterMappedRdf.getPotentialCalculation().setTemperature(temperature);
+        meterMappedRdf.getPotentialCallback().setPotential(sim.p2Truncated);
+        meterMappedRdf.getPotentialCallback().setTemperature(temperature);
 
         AccumulatorAverageFixed accmap = new AccumulatorAverageFixed(numSteps/(nBlocks*numAtoms));
         DataPumpListener map = new DataPumpListener(meterMappedRdf,accmap,numAtoms);
@@ -187,7 +178,7 @@ public class SimMappedRdf extends Simulation {
             double gmerr = gmdataerr.getValue(i);
 
             // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
-            System.out.println(r + " " + g*params.numAtoms*(params.numAtoms-1)/((params.numAtoms/params.density)*(params.numAtoms/params.density)) + " " + gerr*params.numAtoms*(params.numAtoms-1)/((params.numAtoms/params.density)*(params.numAtoms/params.density)) + " "  + gm+  " " + gmerr);
+            System.out.println(r + " " + g*(1-1.0/numAtoms)*density*density + " " + gerr*(1-1.0/numAtoms)*density*density + " "  + gm+  " " + gmerr);
         }
 
     }
@@ -199,8 +190,6 @@ public class SimMappedRdf extends Simulation {
         public long numSteps =  100;
         public double rc = 3;
         public int nBlocks = 100;
-        public boolean computeR = false;
-        public boolean computeRMA = true;
         public double rcforHandfinmap = 3;
 
     }

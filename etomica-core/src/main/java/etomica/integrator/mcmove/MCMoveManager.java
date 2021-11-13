@@ -4,12 +4,11 @@
 
 package etomica.integrator.mcmove;
 
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import etomica.box.Box;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.util.random.IRandom;
 
 public class MCMoveManager {
 
@@ -121,7 +120,6 @@ public class MCMoveManager {
         return selectedLink.move;
     }
 
-    @IgnoreProperty
     public MCMove getSelectedMove() {
         return selectedLink.move;
     }

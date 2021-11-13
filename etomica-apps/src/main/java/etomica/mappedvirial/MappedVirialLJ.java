@@ -5,7 +5,6 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -16,7 +15,7 @@ import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.histogram.Histogram;
 import etomica.data.meter.MeterPressure;
-import etomica.data.meter.MeterRDFPC;
+import etomica.data.meter.MeterRDFNeighbors;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
@@ -24,6 +23,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -37,35 +37,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MappedVirialLJ extends Simulation {
-    
+
     public SpeciesGeneral species;
     public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
+    public PotentialMasterCell potentialMaster;
 
     public P2SoftSphericalTruncated p2Truncated;
-    
+
     public MappedVirialLJ(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
+        box = this.makeBox();
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
-        potentialMaster.lrcMaster().setEnabled(false);
+        potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
 
         //controller and integrator
-        box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         this.getController().addActivity(new ActivityIntegrate(integrator));
-        move = new MCMoveAtom(random, potentialMaster, space);
+        move = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(move);
 
         //potentials
         P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2Truncated);
 
         //construct box
         box.setNMolecules(species, numAtoms);
@@ -75,11 +76,6 @@ public class MappedVirialLJ extends Simulation {
         inflater.actionPerformed();
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        potentialMaster.setCellRange(2);
-
-        potentialMaster.getNbrCellManager(box).assignCellAll();
-
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     
     public static void main(String[] args) throws IOException {
@@ -92,7 +88,7 @@ public class MappedVirialLJ extends Simulation {
             params.temperature = 2;
             params.density = 0.10;
             params.numSteps = 10000000;
-            params.rc = 2.5;
+            params.rc = 4;
             params.numAtoms = 200;
             params.functionsFile = "0.10";
         }
@@ -125,18 +121,16 @@ public class MappedVirialLJ extends Simulation {
 
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             
-            MeterRDFPC meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
-            meterRDF.setBox(sim.box);
+            MeterRDFNeighbors meterRDF = new MeterRDFNeighbors(sim.box, sim.potentialMaster.getCellManager());
             int nbins = (int)Math.round(rc/0.01);
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(rc);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
 
             DisplayPlot rdfPlot = new DisplayPlot();
             DataPump rdfPump = new DataPump(meterRDF,rdfPlot.getDataSet().makeDataSink());
             IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
             sim.integrator.getEventManager().addListener(rdfPumpListener);
-            rdfPumpListener.setInterval(10);
+            rdfPumpListener.setInterval(numAtoms);
             dataStreamPumps.add(rdfPump);
             
             rdfPlot.setDoLegend(false);
@@ -151,42 +145,41 @@ public class MappedVirialLJ extends Simulation {
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
-sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
-        meterMappedVirial.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
+        final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(sim.integrator.getPotentialCompute(), sim.box, nBins);
+        meterMappedVirial.getPotentialCallback().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
         if (computePMA) sim.integrator.getEventManager().addListener(pumpMappedVirial);
-        System.out.println("x0: "+meterMappedVirial.getPotentialCalculation().getX0());
-        double qu = meterMappedVirial.getPotentialCalculation().getQU();
+        System.out.println("x0: "+meterMappedVirial.getPotentialCallback().getX0());
+        double qu = meterMappedVirial.getPotentialCallback().getQU();
         System.out.println("qu: "+qu);
-        double q = meterMappedVirial.getPotentialCalculation().getQ();
+        double q = meterMappedVirial.getPotentialCallback().getQ();
         System.out.println("q: "+q);
 
-        final MeterPressure meterP = new MeterPressure(space);
-        meterP.setIntegrator(sim.integrator);
+        final MeterPressure meterP = new MeterPressure(sim.box, sim.potentialMaster);
+        meterP.setTemperature(temperature);
         final AccumulatorAverageFixed accP = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpP = new DataPumpListener(meterP, accP, numAtoms);
         if (computeP) sim.integrator.getEventManager().addListener(pumpP);
 
         MeterMeanForce meterF = null;
-        MeterRDFPC meterRDF = null;
+        MeterRDFNeighbors meterRDF = null;
         if (functionsFile != null) {
             int nbins = (int)Math.round(rc/0.01);
-            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
+            meterF = new MeterMeanForce(sim.integrator.getPotentialCompute(), sim.p2Truncated, sim.box, nbins);
             if (computeP && computePMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
 
-            meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
-            meterRDF.setBox(sim.box);
+            meterRDF = new MeterRDFNeighbors(sim.box, sim.potentialMaster.getCellManager());
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(rc);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+            sim.integrator.getEventManager().addListener(new DataPumpListener(meterRDF, null, numAtoms));
         }
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 

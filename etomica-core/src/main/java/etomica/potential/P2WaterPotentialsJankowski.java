@@ -2031,6 +2031,9 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             public IOrientation getOrientation() {
                 return orA;
             }
+
+            public void copyCoordinatesFrom(IAtom atom) {
+            }
         };
 
         comB.Ea1Tv1(mO,b1[0]);
@@ -2102,6 +2105,9 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 
             public IOrientation getOrientation() {
                 return orB;
+            }
+
+            public void copyCoordinatesFrom(IAtom atom) {
             }
         };
 

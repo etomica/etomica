@@ -9,13 +9,13 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.math.function.Function;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionGeometricCenter;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -32,9 +32,10 @@ import etomica.util.random.IRandom;
  * @author Tai Boon Tan, Andrew Schultz
  */
 public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
-    
+
+    protected final IntegratorMC integrator;
+    protected final PotentialCompute potentialCompute;
     protected double pressure;
-    protected MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     protected final int D;
     protected IRandom random;
@@ -45,35 +46,32 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
 
     protected final MoleculePositionGeometricCenter moleculeCenter;
     protected final MoleculeActionTranslateTo translateTo;
-    
+
     protected transient double uOld, vOld, vNew, vScale;
     protected transient double uNew = Double.NaN, latticeScale;
-    
+
     protected Function uLatFunction = uLat0;
-    
+
     protected Box latticeBox;
 
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
-     */
-    public MCMoveVolumeSolidNPTMolecular(PotentialMaster potentialMaster, IRandom random,
-                                         Space space, double pressure) {
-        this(potentialMaster, random, space, pressure, space.D());
+    public MCMoveVolumeSolidNPTMolecular(PotentialCompute potentialCompute, IntegratorMC integrator,
+                                         IRandom random, double pressure) {
+        this(potentialCompute, integrator, random, pressure, integrator.getBox().getSpace().D());
     }
-    
-    public MCMoveVolumeSolidNPTMolecular(PotentialMaster potentialMaster, IRandom random,
-                                         Space space, double pressure, int D) {
-        super(potentialMaster);
+
+    public MCMoveVolumeSolidNPTMolecular(PotentialCompute potentialCompute, IntegratorMC integrator,
+                                         IRandom random, double pressure, int D) {
+        super();
+        this.integrator = integrator;
+        this.potentialCompute = potentialCompute;
         this.random = random;
         this.D = D;
+        Space space = integrator.getBox().getSpace();
         inflate = new BoxInflate(space);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(0.1);
         setStepSizeMin(0.0);
         setStepSize(0.001);
         setPressure(pressure);
-        energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
         
         dest = space.makeVector();
@@ -93,7 +91,6 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
     }
 
@@ -121,7 +118,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        uOld = energyMeter.getDataAsScalar();
+        uOld = integrator.getPotentialEnergy();
         if (uOld == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("oops initial inf");
         }
@@ -129,8 +126,9 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         doTransform(vScale);
-        
-        uNew = energyMeter.getDataAsScalar();
+
+        potentialCompute.init();
+        uNew = potentialCompute.computeAll(false);
         return true;
     }
     
@@ -205,6 +203,8 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     
     public void rejectNotify() {
         doTransform(-vScale);
+        potentialCompute.init();
+        potentialCompute.computeAll(false);
     }
 
     public double energyChange() {return uNew - uOld;}

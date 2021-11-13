@@ -4,8 +4,9 @@
 
 package etomica.spin.ising;
 
-import etomica.atom.IAtomList;
-import etomica.potential.Potential1;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomOriented;
+import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -16,9 +17,8 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public class P1MagneticField extends Potential1 {
+public class P1MagneticField implements IPotentialField {
 
-    private static final long serialVersionUID = 1L;
     private final Vector direction;
     private double h;
 
@@ -26,19 +26,19 @@ public class P1MagneticField extends Potential1 {
      * @param space
      */
     public P1MagneticField(Space space) {
-        super(space);
         direction = space.makeVector();
         direction.E(0.0);
         direction.setX(0, 1.0);
     }
 
-    /* (non-Javadoc)
-     * @see etomica.Potential#energy(etomica.AtomSet)
+    /**
+     * Returns the energy between IAtom atom and the field.
      */
-    public double energy(IAtomList atoms) {
-        Vector r = atoms.get(0).getPosition();
+    public double u(IAtom atom) {
+        Vector r = ((IAtomOriented)atom).getOrientation().getDirection();
         return h * r.dot(direction);
     }
+
 
     /**
      * @return Returns the direction.

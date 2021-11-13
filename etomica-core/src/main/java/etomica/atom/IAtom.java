@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 
@@ -54,7 +53,6 @@ public interface IAtom {
     /**
      * @return the parent molecule of this IAtom.
      */
-    @IgnoreProperty
     IMolecule getParentGroup();
 
     /**
@@ -68,4 +66,6 @@ public interface IAtom {
      * alter the IAtom's position.
      */
     Vector getPosition();
+
+    void copyCoordinatesFrom(IAtom atom);
 }

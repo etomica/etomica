@@ -8,7 +8,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
-
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByElementType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
@@ -21,15 +21,10 @@ import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.math.function.Function;
-import etomica.modifier.Modifier;
-import etomica.modifier.ModifierBoolean;
-import etomica.modifier.ModifierFunctionWrapper;
-import etomica.modifier.ModifierGeneral;
-import etomica.potential.P1HardMovingBoundary;
-import etomica.potential.P2HardSphere;
+import etomica.modifier.*;
+import etomica.potential.IPotentialHard;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2Ideal;
-import etomica.potential.P2SquareWell;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
@@ -48,13 +43,13 @@ import java.util.ArrayList;
 
 
 public class PistonCylinderGraphic extends SimulationGraphic {
-    
-	private static final String APP_NAME = "Piston Cylinder";
-	private final static int REPAINT_INTERVAL = 1;
+
+    private static final String APP_NAME = "Piston Cylinder";
+    private final static int REPAINT_INTERVAL = 1;
 
     public PistonCylinder pc;
-    public P2HardSphere potentialHS;
-    public P2SquareWell potentialSW;
+    public P2HardGeneric potentialHS;
+    public P2HardGeneric potentialSW;
     public P2Ideal potentialIdeal;
     public DataSourceCountTime meterCycles;
     public DisplayTextBox displayCycles;
@@ -77,8 +72,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public Unit tUnit, dUnit, pUnit, mUnit;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
     public DeviceBox densityBox;
-	protected DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
-    public JPanel blankPanel = new JPanel();
+    protected DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
     public JScrollPane plotsPane;
     public int historyLength;
     public DataSourceWallPressure pressureMeter;
@@ -99,9 +93,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * Creates a PistonCylinder graphic instance.  init() must be called before
      * this can be used.
      */
-    public PistonCylinderGraphic(PistonCylinder sim, Space _space) {
-    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
-    	pc = sim;
+    public PistonCylinderGraphic(PistonCylinder sim) {
+        super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        pc = sim;
     }
 
     /**
@@ -111,14 +105,14 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setDoConfigButton(boolean newDoConfigButton) {
         doConfigButton = newDoConfigButton;
     }
-    
+
     /**
      * Enable the RDF plot.  This must be called before init() is called.
      */
     public void setDoRDF(boolean newDoRDF) {
         doRDF = newDoRDF;
     }
-    
+
     /**
      * Enable the RDF plot.  This must be called before init() is called.
      */
@@ -136,39 +130,35 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setRepaintInterval(int newRepaintInterval) {
         setPaintInterval(pc.box, newRepaintInterval);
     }
-    
+
     public void setDoFastButton(boolean newDoFastButton) {
         doFastButton = newDoFastButton;
     }
-    
+
     /**
      * Initialize all the bits based on previously set doConfigButton and doRDF.
      */
     public void init() {
-        
-        final IAction dataResetAction = new IAction() {
-            public void actionPerformed() {
-                getController().getResetAveragesButton().press();
-            }
-        };
+
+        final IAction dataResetAction = getController().getResetAveragesButton().getAction();
 
         displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType());
         final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
             setPaintInterval(pc.box, 1);
-            ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(space, pistonPotential));
+            ((DisplayBoxCanvasG3DSys) displayBox.canvas).addPlane(new PistonPlane(space, pistonPotential));
         }
-        
+
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
         historyLength = 100;
-        
+
         dataInterval = 10;
 
         final int p0 = 500;
-        
+
         lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
         mass = 40;
@@ -201,8 +191,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 */
 
         // Release/Hold piston button
-        fixPistonButton = new DeviceToggleButton(null);
-        ((JPanel)getController().graphic()).add(fixPistonButton.graphic());
+        fixPistonButton = new DeviceToggleButton(simulation.getController());
+        ((JPanel) getController().graphic()).add(fixPistonButton.graphic());
 
         // Simulation Time
         displayCycles = new DisplayTextBox();
@@ -212,16 +202,16 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             JPanel configPanel = new JPanel(new GridBagLayout());
 
 
-            configButton = new DeviceButton(null);
+            configButton = new DeviceButton(pc.getController());
             configButton.setLabel("Show Config");
-            configPanel.add(configButton.graphic(),horizGBC);
+            configPanel.add(configButton.graphic(), horizGBC);
 
-            velocityButton = new DeviceButton(null);
+            velocityButton = new DeviceButton(pc.getController());
             velocityButton.setLabel("Show Velocities");
-            configPanel.add(velocityButton.graphic(),horizGBC);
-            getPanel().controlPanel.add(configPanel,vertGBC);
+            configPanel.add(velocityButton.graphic(), horizGBC);
+            getPanel().controlPanel.add(configPanel, vertGBC);
         }
-        
+
         //
         // State tabbed pane page
         //
@@ -235,29 +225,28 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         tempSlider.setSliderMajorValues(4);
         tempSlider.setTemperature(300);
 
-		//pressure device
-        pressureSlider = new DeviceSlider(null);
+        //pressure device
+        pressureSlider = new DeviceSlider(simulation.getController());
         pressureSlider.setShowValues(true);
         pressureSlider.setEditValues(true);
         pressureSlider.setMinimum(0);
         pressureSlider.setMaximum(1000);
         pressureSlider.setNMajor(4);
-	    pressureSlider.setValue(p0);
+        pressureSlider.setValue(p0);
 
         // panel for pressure control / display
-        pressureSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        pressureSliderPanel = new JPanel(new GridLayout(0, 1));
         pressureSlider.setShowBorder(false);
         pressureSliderPanel.add(pressureSlider.graphic());
 
         JPanel nSliderPanel = null;
 
         if (doDensityInput) {
-            densityBox = new DeviceBox();
-            densityBox.setController(pc.getController());
+            densityBox = new DeviceBox(pc.getController());
         }
 
         if (doNMoleculeSlider) {
-            nSlider = new DeviceNSelector();
+            nSlider = new DeviceNSelector(pc.getController());
             nSlider.setLabel("Number of atoms");
             nSlider.setShowBorder(true);
             nSlider.setEditValues(true);
@@ -267,20 +256,19 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             // don't need as much thermostating.
             nSlider.getSlider().addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent evt) {
-                    int n = (int)nSlider.getValue();
-                    if(n == 0) {
+                    int n = (int) nSlider.getValue();
+                    if (n == 0) {
                         pc.integrator.setThermostatInterval(200);
+                    } else {
+                        pc.integrator.setThermostatInterval(200 / n);
                     }
-                    else {
-                    	pc.integrator.setThermostatInterval(200/n);
-                    }
-                    
+
                     displayBox.repaint();
                     dataResetAction.actionPerformed();
                 }
             });
 
-            nSliderPanel = new JPanel(new GridLayout(0,1));
+            nSliderPanel = new JPanel(new GridLayout(0, 1));
             nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
             nSlider.setShowBorder(false);
             nSlider.setNMajor(4);
@@ -291,18 +279,22 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // Add all state page sub panels onto a single panel
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 0;  gbc2.gridy = 0;
+        gbc2.gridx = 0;
+        gbc2.gridy = 0;
         statePanel.add(tempSlider.graphic(), gbc2);
-        gbc2.gridx = 0;  gbc2.gridy = 1;
+        gbc2.gridx = 0;
+        gbc2.gridy = 1;
         statePanel.add(pressureSliderPanel, gbc2);
 
         if (doNMoleculeSlider) {
-            gbc2.gridx = 0;  gbc2.gridy = 2;
+            gbc2.gridx = 0;
+            gbc2.gridy = 2;
             statePanel.add(nSliderPanel, gbc2);
         }
 
         if (doDensityInput) {
-            gbc2.gridx = 0;  gbc2.gridy = 3;
+            gbc2.gridx = 0;
+            gbc2.gridy = 3;
             gbc2.fill = GridBagConstraints.HORIZONTAL;
             statePanel.add(densityBox.graphic(), gbc2);
         }
@@ -310,30 +302,30 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         //
         // Potential tabbed pane page
         //
-        
-	    //combo box to select potentials
-	    potentialChooser = new javax.swing.JComboBox(new String[] {
-	    		IDEAL_GAS, REPULSION_ONLY, REPULSION_ATTRACTION});
+
+        //combo box to select potentials
+        potentialChooser = new JComboBox(new String[]{
+                IDEAL_GAS, REPULSION_ONLY, REPULSION_ATTRACTION});
 
 
-        sigBox = new DeviceBox();
-        epsBox = new DeviceBox();
-        lamBox = new DeviceBox();
-        massBox = new DeviceBox();
+        sigBox = new DeviceBox(simulation.getController());
+        epsBox = new DeviceBox(simulation.getController());
+        lamBox = new DeviceBox(simulation.getController());
+        massBox = new DeviceBox(simulation.getController());
         // Unselectable because "Ideal gas" is selected initially
-	    potentialChooser.setSelectedIndex(0);
-	    epsBox.setEditable(false);
-    	lamBox.setEditable(false);
+        potentialChooser.setSelectedIndex(0);
+        epsBox.setEditable(false);
+        lamBox.setEditable(false);
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
-        potentialPanel.add(potentialChooser,vertGBC);
-	    JPanel parameterPanel = new JPanel(new GridLayout(0,1));
+        potentialPanel.add(potentialChooser, vertGBC);
+        JPanel parameterPanel = new JPanel(new GridLayout(0, 1));
         parameterPanel.add(sigBox.graphic());
         parameterPanel.add(epsBox.graphic());
         parameterPanel.add(lamBox.graphic());
         parameterPanel.add(massBox.graphic());
-        potentialPanel.add(parameterPanel,vertGBC);
-        
+        potentialPanel.add(parameterPanel, vertGBC);
+
         //
         // Tabbed pane for state, potential, controls pages
         //
@@ -356,39 +348,39 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
 
         //
-	    // Configuration tabbed page
+        // Configuration tabbed page
         //
 
-	    //slider for scale of display
+        //slider for scale of display
         JPanel controlsPanel = new JPanel(new GridBagLayout());
         setupPanel.add(controlsPanel, "Controls");
         JPanel scaleSliderPanel = null;
         if (pc.getSpace().D() == 2) {
             scaleSliderPanel = new JPanel();
-    	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
-    	    scaleModulator.setFunction(new Function.Linear(0.01, 0.0));
-    	    scaleSlider = new DeviceSlider(null, scaleModulator);
-    	    scaleSlider.setShowValues(false);
-    	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));
-    	    scaleSliderPanel.add(scaleSlider.graphic());
-    	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
-    	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
-    	        	displayBox.repaint();
-    	        }
-    	    });
-    	    scaleSlider.setMinimum(10);
-    	    scaleSlider.setMaximum(100);
-    	    scaleSlider.getSlider().setValue(100);
-    	    scaleSlider.setNMajor(0);
-    	    scaleSlider.setSliderVerticalOrientation(false);
-    	    java.util.Hashtable<Integer,JLabel> scaleLabels = new java.util.Hashtable<Integer,JLabel>();
-    	    scaleLabels.put(new Integer(10), new JLabel( "min", JLabel.CENTER ));
-    	    scaleLabels.put(new Integer(100), new JLabel( "max", JLabel.CENTER ));
-    	    scaleSlider.getSlider().setLabelTable(scaleLabels);
+            ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
+            scaleModulator.setFunction(new Function.Linear(0.01, 0.0));
+            scaleSlider = new DeviceSlider(simulation.getController(), scaleModulator);
+            scaleSlider.setShowValues(false);
+            scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));
+            scaleSliderPanel.add(scaleSlider.graphic());
+            scaleSlider.getSlider().addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent evt) {
+                    displayBox.repaint();
+                }
+            });
+            scaleSlider.setMinimum(10);
+            scaleSlider.setMaximum(100);
+            scaleSlider.getSlider().setValue(100);
+            scaleSlider.setNMajor(0);
+            scaleSlider.setSliderVerticalOrientation(false);
+            java.util.Hashtable<Integer, JLabel> scaleLabels = new java.util.Hashtable<Integer, JLabel>();
+            scaleLabels.put(new Integer(10), new JLabel("min", JLabel.CENTER));
+            scaleLabels.put(new Integer(100), new JLabel("max", JLabel.CENTER));
+            scaleSlider.getSlider().setLabelTable(scaleLabels);
         }
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController());
-        
+
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
 
@@ -407,7 +399,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         add(pressureDisplayTextBox);
 
         //
-	    // Plots tabbed page
+        // Plots tabbed page
         //
 
         plotD = new DisplayPlotXChart();
@@ -423,9 +415,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // Add plots page to tabbed pane
         getPanel().tabbedPane.add("Plots", plotsPane);
 
-		//add meter and display for current kinetic temperature
+        //add meter and display for current kinetic temperature
 
-		thermometer = new MeterTemperature(pc.box, space.D());
+        thermometer = new MeterTemperature(pc.box, space.D());
 
         if (doRDF) {
             plotRDF = new DisplayPlotXChart();
@@ -439,37 +431,36 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pc.config.setBoundaryPadding(sigma);
         pc.config.initializeCoordinates(pc.box);
 
-        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(pc.config);
+        ((SimulationRestart) getController().getReinitButton().getAction()).setConfiguration(pc.config);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-        
-        ((ElementSimple)pc.species.getLeafType().getElement()).setMass(mass);
+
+        ((ElementSimple) pc.species.getLeafType().getElement()).setMass(mass);
         int D = pc.getSpace().D();
 
         tUnit = Kelvin.UNIT;
 
         if (pc.getSpace().D() == 2) {
-            dUnit = new UnitRatio(Mole.UNIT, 
-                                    new MKS().area());
-            Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
-            double[] exponents = new double[] {1.0, 1.0};
+            dUnit = new UnitRatio(Mole.UNIT,
+                    new MKS().area());
+            Unit[] units = new Unit[]{Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
+            double[] exponents = new double[]{1.0, 1.0};
             pUnit = new CompoundUnit(units, exponents);
 
-        }
-        else {
+        } else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
 
         }
-        
-        densityDisplayTextBox.setLabel("Density ("+dUnit.symbol()+")");
-        pressureDisplayTextBox.setLabel("Pressure ("+pUnit.symbol()+")");
 
-        pc.wallPotential.setLongWall(0,true,true);  // left wall
-        pc.wallPotential.setLongWall(0,false,true); // right wall
+        densityDisplayTextBox.setLabel("Density (" + dUnit.symbol() + ")");
+        pressureDisplayTextBox.setLabel("Pressure (" + pUnit.symbol() + ")");
+
+        pc.pistonPotential.setLongWall(0, true, true);  // left wall
+        pc.pistonPotential.setLongWall(0, false, true); // right wall
         // skip top wall
-        pc.wallPotential.setLongWall(1,false,false);// bottom wall
-        pc.wallPotential.setBox(pc.box);  // so it has a boundary
+        pc.pistonPotential.setLongWall(1, false, false);// bottom wall
+        pc.pistonPotential.setBox(pc.box);  // so it has a boundary
 
 /* WILL BE NEEDED IF DIMENSION RADIO BUTTONS USED
         if (displayBox.graphic() != null) {
@@ -479,18 +470,16 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 */
 
         if (D == 2) {
-            displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getBoxSize().getX(1)));
+            displayBox.setPixelUnit(new Pixel(400 / pc.box.getBoundary().getBoxSize().getX(1)));
+        } else {
+            displayBox.setPixelUnit(new Pixel(40 / pc.box.getBoundary().getBoxSize().getX(1)));
         }
-        else {
-            displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getBoxSize().getX(1)));
-        }
-        displayBox.setAlign(1,DisplayBox.BOTTOM);
+        displayBox.setAlign(1, DisplayBox.BOTTOM);
         displayBox.canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
         displayBox.getDrawables().clear();
         if (pc.getSpace().D() == 2) {
             // doesn't actually work for 3D
             displayBox.addDrawable(pistonPotential);
-            displayBox.addDrawable(pc.wallPotential);
         }
         if (scaleSlider != null) {
             // doesn't actually have any effect for 3D
@@ -507,88 +496,82 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                     densityBox.setEditable(b);
                 }
             }
+
             public boolean getBoolean() {
                 return pistonPotential.isStationary();
             }
         };
-        fixPistonButton.setController(pc.getController());
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
         fixPistonButton.setState(pistonHeld);
 
         meterCycles = new DataSourceCountTime(pc.integrator);
         displayCycles.setPrecision(6);
-        DataPump pump= new DataPump(meterCycles,displayCycles);
+        DataPump pump = new DataPump(meterCycles, displayCycles);
         pc.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
-        
+
         //  state panel
         pc.integrator.setIsothermal(tempSlider.isIsothermal());
         pc.integrator.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
         tempSlider.setUnit(tUnit);
-        tempSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
-        tempSlider.setSliderPostAction(new ActionGroupSeries(new IAction[]{
-                new IntegratorReset(pc.integrator,true), dataResetAction}));
+        tempSlider.setModifier(new ModifierGeneral(pc.integrator, "temperature"));
+        tempSlider.setSliderPostAction(new ActionGroupSeries(
+                new IntegratorReset(pc.integrator, true), dataResetAction));
         tempSlider.setRadioGroupPostAction(dataResetAction);
 
-        potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);
-        potentialHS = new P2HardSphere(pc.getSpace(),sigma,true);
+        potentialSW = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon}, true);
+        potentialHS = new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY}, true);
         potentialIdeal = new P2Ideal(pc.getSpace());
-        
-        if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
-        
-        potentialChooserListener = new java.awt.event.ItemListener() {
+
+        if (potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
+
+        potentialChooserListener = new ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
-                setPotential((String)evt.getItem());
-                if(evt.getItem() == IDEAL_GAS ||
-                   evt.getItem() == REPULSION_ONLY) {
-                	epsBox.setEditable(false);
-                	lamBox.setEditable(false);
-                }
-                else {
-                	epsBox.setEditable(true);
-                	lamBox.setEditable(true);	
+                if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
+                setPotential((String) evt.getItem());
+                if (evt.getItem() == IDEAL_GAS ||
+                        evt.getItem() == REPULSION_ONLY) {
+                    epsBox.setEditable(false);
+                    lamBox.setEditable(false);
+                } else {
+                    epsBox.setEditable(true);
+                    lamBox.setEditable(true);
                 }
             }
         };
         potentialChooser.addItemListener(potentialChooserListener);
-        setPotential((String)potentialChooser.getSelectedItem());
+        setPotential((String) potentialChooser.getSelectedItem());
 
+        pressureMeter = new DataSourceWallPressure(pc.integrator, 0.5 * potentialHS.getCollisionDiameter(0));
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         sigModifier.setValue(sigma);
-        ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
-        ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
-        ModifierGeneral massModifier = new ModifierGeneral(pc.species.getLeafType().getElement(),"mass");
+        Modifier epsModifier = new ModifierSQWEpsilon(potentialSW);
+        Modifier lamModifier = new ModifierSQWLambda(potentialSW);
+        ModifierGeneral massModifier = new ModifierGeneral(pc.species.getLeafType().getElement(), "mass");
         sigBox.setModifier(sigModifier);
-        sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
+        sigBox.setLabel("Core Diameter (" + Angstrom.UNIT.symbol() + ")");
         epsBox.setUnit(eUnit);
         epsBox.setModifier(epsModifier);
         lamBox.setModifier(lamModifier);
         massBox.setModifier(massModifier);
         massBox.setUnit(mUnit);
-        sigBox.setController(pc.getController());
-        epsBox.setController(pc.getController());
-        lamBox.setController(pc.getController());
-        massBox.setController(pc.getController());
-        sigBox.setPostAction(dataResetAction);
+        sigBox.setPostAction(new ActionGroupSeries(() -> pc.integrator.reset(), dataResetAction));
         massBox.setPostAction(dataResetAction);
-        epsBox.setPostAction(dataResetAction);
-        lamBox.setPostAction(dataResetAction);
-        
+        epsBox.setPostAction(new ActionGroupSeries(() -> pc.integrator.reset(), dataResetAction));
+        lamBox.setPostAction(new ActionGroupSeries(() -> pc.integrator.reset(), dataResetAction));
+
         pressureSlider.setUnit(pUnit);
-        pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure ("+pUnit.symbol()+")", TitledBorder.CENTER, TitledBorder.TOP));
+        pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure (" + pUnit.symbol() + ")", TitledBorder.CENTER, TitledBorder.TOP));
         Dimension pDim = Pressure.dimension(D);
         double p = pUnit.toSim(pressureSlider.getValue());
         pistonPotential.setPressure(D == 3 ? -p : p);
-        pressureSlider.setModifier(new ModifierPistonPressure(space, pistonPotential,pDim));
-        pressureSlider.setPostAction(new ActionGroupSeries(new IAction[]{new ActionPistonUpdate(pc.integrator), dataResetAction}));
-        pressureSlider.setController(pc.getController());
+        pressureSlider.setModifier(new ModifierPistonPressure(space, pistonPotential, pDim));
+        pressureSlider.setPostAction(new ActionGroupSeries(() -> pc.integrator.pistonUpdateRequested(), dataResetAction));
         pressureSlider.getSlider().setEnabled(!pistonPotential.isStationary());
         pressureSlider.getTextField().setEnabled(!pistonPotential.isStationary());
 
 
         if (doNMoleculeSlider) {
-            nSlider.setController(pc.getController());
             nSlider.setResetAction(new IAction() {
                 public void actionPerformed() {
                     pc.integrator.resetPiston();
@@ -603,11 +586,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         if (doDensityInput) {
             densityBox.setLabelType(LabelType.BORDER);
-            densityBox.setLabel("Set Density ("+dUnit.symbol()+")");
+            densityBox.setLabel("Set Density (" + dUnit.symbol() + ")");
             densityBox.setUnit(dUnit);
             densityBox.setModifier(new ModifierPistonDensity());
-            densityBox.setPostAction(new ActionGroupSeries(new IAction[]{new IntegratorReset(pc.integrator,true),
-                    getPaintAction(pc.box), dataResetAction}));
+            densityBox.setPostAction(new ActionGroupSeries(new IntegratorReset(pc.integrator, true),
+                    getPaintAction(pc.box), dataResetAction));
         }
 
         //  data panel
@@ -615,13 +598,13 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotD.getDataSet().reset();
         plotT.getDataSet().reset();
         plotP.getDataSet().reset();
-        
+
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage temperatureAvg = new AccumulatorAverageCollapsing(100);
         temperatureAvg.setPushInterval(10);
-        pump = new DataPump(thermometer,new DataFork(new IDataSink[]{temperatureHistory,temperatureAvg}));
+        pump = new DataPump(thermometer, new DataFork(new IDataSink[]{temperatureHistory, temperatureAvg}));
         dataStreamPumps.add(pump);
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
         pc.integrator.getEventManager().addListener(pumpListener);
@@ -647,13 +630,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         dataStreamPumps.add(targetTemperatureDataPump);
 
-        pressureMeter = new DataSourceWallPressure(pc.pistonPotential, pc.integrator);
         final AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage pressureAvg = new AccumulatorAverageCollapsing(100);
         pressureAvg.setPushInterval(10);
-        pump = new DataPump(pressureMeter, new DataFork(new IDataSink[]{pressureHistory,pressureAvg}));
+        pump = new DataPump(pressureMeter, new DataFork(new IDataSink[]{pressureHistory, pressureAvg}));
         dataStreamPumps.add(pump);
         pumpListener = new IntegratorListenerAction(pump);
         pc.integrator.getEventManager().addListener(pumpListener);
@@ -685,7 +667,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         densityHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage densityAvg = new AccumulatorAverageCollapsing(100);
         densityAvg.setPushInterval(10);
-        pump = new DataPump(densityMeter,new DataFork(new IDataSink[]{densityAvg, densityHistory}));
+        pump = new DataPump(densityMeter, new DataFork(new IDataSink[]{densityAvg, densityHistory}));
         dataStreamPumps.add(pump);
         pumpListener = new IntegratorListenerAction(pump);
         pc.integrator.getEventManager().addListener(pumpListener);
@@ -694,15 +676,15 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotD.setLegend(new DataTag[]{densityMeter.getTag()}, "measured");
         densityDisplayTextBox.setAccumulator(densityAvg);
         densityDisplayTextBox.setUnit(dUnit);
-        
+
         plotD.setUnit(dUnit);
         plotT.setUnit(tUnit);
         plotP.setUnit(pUnit);
 
-        plotP.getPlot().setTitle("Pressure ("+pUnit.symbol()+")");
-        plotT.getPlot().setTitle("Temperature ("+tUnit.symbol()+")");
-        plotD.getPlot().setTitle("Density ("+dUnit.symbol()+")");
- 
+        plotP.getPlot().setTitle("Pressure (" + pUnit.symbol() + ")");
+        plotT.getPlot().setTitle("Temperature (" + tUnit.symbol() + ")");
+        plotD.getPlot().setTitle("Density (" + dUnit.symbol() + ")");
+
         // Set the size of the plots and the scoll pane containing the plots.
         // Want 2 of the 3 plots displayed
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
@@ -722,18 +704,16 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         if (doRDF) {
             plotRDF.getDataSet().reset();
             double rdfCutoff = 10;
-            final MeterRDFCylinder meterRDF = new MeterRDFCylinder(pc.getSpace());
-            meterRDF.setBox(pc.box);
+            final MeterRDFCylinder meterRDF = new MeterRDFCylinder(pc.box, pistonPotential);
             meterRDF.getXDataSource().setXMax(rdfCutoff);
-            meterRDF.setPotential(pistonPotential);
             rdfPump = new DataPumpListener(meterRDF, plotRDF.getDataSet().makeDataSink(), dataInterval);
             pc.integrator.getEventManager().addListener(rdfPump);
             dataStreamPumps.add(rdfPump);
             rdfListener = new IntegratorListenerAction(meterRDF);
             rdfListener.setInterval(dataInterval);
             pc.integrator.getEventManager().addListener(rdfListener);
-            
-            
+
+
             getController().getResetAveragesButton().setPostAction(new IAction() {
                 public void actionPerformed() {
                     meterRDF.reset();
@@ -750,8 +730,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                     if (fixPistonModulator.getBoolean()) {
                         pc.integrator.getEventManager().addListener(rdfPump);
                         pc.integrator.getEventManager().addListener(rdfListener);
-                    }
-                    else {
+                    } else {
                         pc.integrator.getEventManager().removeListener(rdfPump);
                         pc.integrator.getEventManager().removeListener(rdfListener);
                     }
@@ -761,10 +740,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
 
         if (doConfigButton) {
-            configButton.setController(pc.getController());
             configButton.setAction(new ActionConfigWindow(pc.box));
 
-            velocityButton.setController(pc.getController());
             velocityButton.setAction(new ActionVelocityWindow(pc.box));
         }
 
@@ -779,8 +756,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 pc.integrator.resetPiston();
                 try {
                     pc.integrator.reset();
+                } catch (ConfigurationOverlapException e) {
                 }
-                catch (ConfigurationOverlapException e) {}
 
                 densityDisplayTextBox.putData(densityAvg.getData());
 
@@ -789,11 +766,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 pressureDisplayTextBox.putData(pressureAvg.getData());
 
                 displayBox.repaint();
-                
+
                 displayCycles.putData(meterCycles.getData());
             }
         });
-        
+
         if (doFastButton) {
             goFastButton.setAction(new IAction() {
                 public void actionPerformed() {
@@ -808,8 +785,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         targetTemperatureHistory.setActive(true);
                         targetPressureHistory.setActive(true);
                         rdfPump.setInterval(dataInterval);
-                    }
-                    else {
+                    } else {
                         isFast = true;
                         goFastButton.setLabel("Go Slower");
                         pc.integrator.setTimeStep(10);
@@ -823,33 +799,32 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         rdfPump.setInterval(10000);
                     }
                 }
-                
+
                 protected boolean isFast = false;
             });
         }
     }
-    
+
     public void setPotential(String potentialDesc) {
-        final boolean HS = potentialDesc.equals(REPULSION_ONLY); 
-        final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION); 
+        final boolean HS = potentialDesc.equals(REPULSION_ONLY);
+        final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION);
         pc.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
+                AtomType type = pc.species.getLeafType();
+                IPotentialHard p2;
                 if (HS) {
-                    potentialHS.setBox(pc.box);
-                    pc.potentialWrapper.setWrappedPotential(potentialHS);
+                    p2 = potentialHS;
+                } else if (SW) {
+                    p2 = potentialSW;
+                } else {
+                    p2 = null;
                 }
-                else if (SW) {
-                    potentialSW.setBox(pc.box);
-                    pc.potentialWrapper.setWrappedPotential(potentialSW);
-                }
-                else {
-                    potentialIdeal.setBox(pc.box);
-                    pc.potentialWrapper.setWrappedPotential(potentialIdeal);
-                }
+                pc.integrator.setPairPotential(type, type, p2);
                 try {
                     pc.integrator.reset();
-                } catch(ConfigurationOverlapException e) {}
-                
+                } catch (ConfigurationOverlapException e) {
+                }
+
                 getController().getResetAveragesButton().press();
             }
         });
@@ -874,9 +849,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             int D = pc.getSpace().D();
             if (D == 2) {
                 maxDensity = 2.0 / (Math.sqrt(3) * sigma * sigma);
-            }
-            else {
-                maxDensity = Math.sqrt(2) / (sigma*sigma*sigma);
+            } else {
+                maxDensity = Math.sqrt(2) / (sigma * sigma * sigma);
             }
             if (newValue > maxDensity && newValue > oldDensity) {
                 if (oldDensity > maxDensity) {
@@ -886,19 +860,19 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             }
             Vector boxDim = pc.box.getBoundary().getBoxSize();
             IAtomList leafList = pc.box.getLeafList();
-            double yShift = 0.5*(boxDim.getX(1)-sigma);
+            double yShift = 0.5 * (boxDim.getX(1) - sigma);
             if (D == 2) {
                 yShift = -yShift;
             }
             if (newValue > oldDensity) {
                 // scale atom positions
-                for (int i = 0; i<leafList.size(); i++) {
+                for (int i = 0; i < leafList.size(); i++) {
                     Vector pos = leafList.get(i).getPosition();
-                    double y = (pos.getX(1)+yShift) * (oldDensity / newValue) - yShift;
+                    double y = (pos.getX(1) + yShift) * (oldDensity / newValue) - yShift;
                     pos.setX(1, y);
                 }
             }
-            yShift += (D==2 ? 1:-1) * 0.5*sigma;
+            yShift += (D == 2 ? 1 : -1) * 0.5 * sigma;
             double pistonY = pc.pistonPotential.getWallPosition();
             pistonY = (pistonY + yShift) * (oldDensity / newValue) - yShift;
             pc.pistonPotential.setWallPosition(pistonY);
@@ -910,14 +884,17 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         public void setValue(double d) {
             //assume one type of atom
             PistonCylinder sim = PistonCylinderGraphic.this.pc;
-            ((DiameterHashByElementType)PistonCylinderGraphic.this.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
-            PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
-            PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
-            pc.pistonPotential.setCollisionRadius(0.5*d);
-            pc.wallPotential.setCollisionRadius(0.5*d);
+            ((DiameterHashByElementType) PistonCylinderGraphic.this.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
+            PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(0, d);
+            P2HardGeneric p2sqw = PistonCylinderGraphic.this.potentialSW;
+            double lambda = p2sqw.getCollisionDiameter(1) / p2sqw.getCollisionDiameter(0);
+            p2sqw.setCollisionDiameter(0, d);
+            p2sqw.setCollisionDiameter(1, d * lambda);
+            pc.pistonPotential.setCollisionRadius(0.5 * d);
             sigma = d;
             displayBox.repaint();
             pc.config.setBoundaryPadding(sigma);
+            pressureMeter.setCollisionRadius(0.5 * d);
         }
 
         public double getValue() {
@@ -927,93 +904,47 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         public Dimension getDimension() {
             return Length.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "Atom Diameter";
         }
-        
+
         public String toString() {
             return getLabel();
         }
     }
 
     public static void main(String[] args) {
-        int D = 3;
+        int D = 2;
         boolean doRDF = false;
         boolean doDensityInput = false;
         boolean doConfigButton = false;
         boolean doNMoleculeSlider = false;
         boolean doFastButton = false;
-        for (int i=0; i<args.length; i++) {
-            if (args[i].equals("-dim") && i+1<args.length) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-dim") && i + 1 < args.length) {
                 i++;
                 D = Integer.parseInt(args[i]);
-            }
-            else if (args[i].equals("-rdf")) {
+            } else if (args[i].equals("-rdf")) {
                 doRDF = true;
-            }
-            else if (args[i].equals("-densityInput")) {
+            } else if (args[i].equals("-densityInput")) {
                 doDensityInput = true;
-            }
-            else if (args[i].equals("-configButton")) {
+            } else if (args[i].equals("-configButton")) {
                 doConfigButton = true;
-            }
-            else if (args[i].equals("-nMoleculeSlider")) {
+            } else if (args[i].equals("-nMoleculeSlider")) {
                 doNMoleculeSlider = true;
-            }
-            else if (args[i].equals("-fastButton")) {
+            } else if (args[i].equals("-fastButton")) {
                 doFastButton = true;
             }
         }
         PistonCylinder sim = new PistonCylinder(D);
-        PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim, sim.getSpace());
+        PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
         pcg.setDoRDF(doRDF);
         pcg.setDoDensityInput(doDensityInput);
         pcg.setDoConfigButton(doConfigButton);
         pcg.setDoNMoleculeSlider(doNMoleculeSlider);
         pcg.setDoFastButton(doFastButton);
         pcg.init();
-		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            int D = 3;
-            String dimStr = getParameter("dim");
-            if (dimStr != null) {
-                D = Integer.parseInt(dimStr);
-            }
-            PistonCylinder sim = new PistonCylinder(D);
-            PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim, sim.getSpace());
-            String doConfigButtonStr = getParameter("doConfigButton");
-            if (doConfigButtonStr != null) {
-                pcg.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
-            }
-            String doRDFStr = getParameter("doRDF");
-            if (doRDFStr != null) {
-                pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
-            }
-            String doDensityInputStr = getParameter("doDensityInput");
-            if (doDensityInputStr != null) {
-                pcg.setDoDensityInput(Boolean.valueOf(doDensityInputStr).booleanValue());
-            }
-            String doNMoleculeSlider = getParameter("doNMoleculeSlider");
-            if (doNMoleculeSlider != null) {
-                pcg.setDoNMoleculeSlider(Boolean.valueOf(doNMoleculeSlider).booleanValue());
-            }
-            String doFastButton = getParameter("doFastButton");
-            if (doNMoleculeSlider != null) {
-                pcg.setDoFastButton(Boolean.valueOf(doFastButton).booleanValue());
-            }
-            pcg.init();
-            String repaintIntervalStr = getParameter("repaintInterval");
-            if (repaintIntervalStr != null) {
-                pcg.setRepaintInterval(Integer.valueOf(repaintIntervalStr).intValue());
-            }
-            getContentPane().add(pcg.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
+        SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
 }

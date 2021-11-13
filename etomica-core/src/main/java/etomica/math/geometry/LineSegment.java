@@ -6,9 +6,8 @@ package etomica.math.geometry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space1d.Vector1D;
 import etomica.space3d.Space3D;
 

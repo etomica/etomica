@@ -4,29 +4,21 @@
 
 package etomica.modules.rheology;
 
-import java.awt.GridBagConstraints;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.math.geometry.LineSegment;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import g3dsys.images.Figure;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Module for "Macromolecular dynamics related to rheological properties
@@ -69,8 +61,7 @@ public class RheologyGraphic extends SimulationGraphic {
         sliderB.setShowValues(true);
         add(sliderB);
 
-        shearBox = new DeviceBox();
-        shearBox.setController(sim.getController());
+        shearBox = new DeviceBox(sim.getController());
         shearBox.setLabelType(DeviceBox.LabelType.BORDER);
         ModifierGeneral modifierShear = new ModifierGeneral(sim.integrator, "shearRateNumber");
         shearBox.setModifier(modifierShear);

@@ -7,24 +7,17 @@ package etomica.modules.droplet;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataTensor;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Time;
 import g3dsys.images.Ellipse;
 
@@ -47,33 +40,34 @@ public class DropletGraphic extends SimulationGraphic {
 
     public DropletGraphic(final Droplet simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
-    	this.sim = simulation;
+        this.sim = simulation;
 
-    	getController().getSimRestart().setConfiguration(sim.config);
-    	getController().getReinitButton().setPostAction(new IAction() {
-    	    public void actionPerformed() {
-    	        getDisplayBox(sim.box).repaint();
-    	    }
-    	});
-    	
-    	
+        getController().getSimRestart().setConfiguration(sim.config);
+        getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                getDisplayBox(sim.box).repaint();
+            }
+        });
+
+
         IAction recenterAction = new IAction() {
             public void actionPerformed() {
                 IAtomList leafList = sim.box.getLeafList();
                 center.E(0);
-                for (int i = 0; i<leafList.size(); i++) {
+                for (int i = 0; i < leafList.size(); i++) {
                     center.PE(leafList.get(i).getPosition());
                 }
-                center.TE(1.0/leafList.size());
+                center.TE(1.0 / leafList.size());
 
-                for (int i = 0; i<leafList.size(); i++) {
+                for (int i = 0; i < leafList.size(); i++) {
                     leafList.get(i).getPosition().ME(center);
                 }
             }
+
             final Vector center = sim.getSpace().makeVector();
         };
         IntegratorListenerAction recenterActionListener = new IntegratorListenerAction(recenterAction);
@@ -87,7 +81,7 @@ public class DropletGraphic extends SimulationGraphic {
         displayTimer.setLabel("Simulation time");
         getPanel().controlPanel.add(displayTimer.graphic(), SimulationPanel.getVertGBC());
         displayTimer.setUpdateInterval(1);
-        
+
         double timeStep = sim.integrator.getTimeStep();
         DeviceSlider timeStepSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim.integrator, "timeStep"));
         timeStepSlider.setPrecision(1);
@@ -98,7 +92,7 @@ public class DropletGraphic extends SimulationGraphic {
         timeStepSlider.setShowValues(true);
         timeStepSlider.setLabel("time step");
         timeStepSlider.setShowBorder(true);
-        
+
 
         //add meter and display for current kinetic temperature
 
@@ -112,16 +106,16 @@ public class DropletGraphic extends SimulationGraphic {
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
 
-        final DiameterHashByType diameterHash = (DiameterHashByType)getDisplayBox(sim.box).getDiameterHash();
-        diameterHash.setDiameter(sim.species.getLeafType(), Math.pow(2.0/nSlider.getValue(),1.0/3.0));
+        final DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
+        diameterHash.setDiameter(sim.species.getLeafType(), Math.pow(2.0 / nSlider.getValue(), 1.0 / 3.0));
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 sim.config.initializeCoordinates(sim.box);
-                diameterHash.setDiameter(sim.species.getLeafType(), Math.pow(2.0/nSlider.getValue(),1.0/3.0));
+                diameterHash.setDiameter(sim.species.getLeafType(), Math.pow(2.0 / nSlider.getValue(), 1.0 / 3.0));
                 getDisplayBox(sim.box).repaint();
             }
         });
-        
+
         DeviceSlider defSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim.config, "deformation"));
         defSlider.setPostAction(new IAction() {
             public void actionPerformed() {
@@ -163,7 +157,7 @@ public class DropletGraphic extends SimulationGraphic {
         });
 
 
-        ModifierBoolean surfaceCohesionModifier = new ModifierBoolean(){
+        ModifierBoolean surfaceCohesionModifier = new ModifierBoolean() {
             public void setBoolean(boolean b) {
                 sim.p2.setUseSurfaceOnly(b);
                 if (!b) {
@@ -175,8 +169,7 @@ public class DropletGraphic extends SimulationGraphic {
                     cohesionEpsilon.setMinimum(0.4);
                     cohesionEpsilon.setMaximum(1);
                     cohesionEpsilon.setNMajor(3);
-                }
-                else {
+                } else {
                     cohesionEpsilon.setMaximum(20);
                     cohesionEpsilon.setMinimum(0);
                     cohesionEpsilon.setNMajor(4);
@@ -184,14 +177,17 @@ public class DropletGraphic extends SimulationGraphic {
                 }
                 cohesionEpsilon.doUpdate();
             }
-            public boolean getBoolean() {return sim.p2.getUseSurfaceOnly();}
+
+            public boolean getBoolean() {
+                return sim.p2.getUseSurfaceOnly();
+            }
         };
         DeviceToggleButton surfaceCohesionButton = new DeviceToggleButton(sim.getController(), surfaceCohesionModifier, "Use Bulk Cohesion", "Use Surface Cohesion");
-        
+
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
         JPanel controlsPanel = new JPanel(new GridBagLayout());
         controlsPanel.add(timeStepSlider.graphic(), vertGBC);
-        
+
         //************* Lay out components ****************//
 
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -206,14 +202,14 @@ public class DropletGraphic extends SimulationGraphic {
         potentialPanel.add(cohesionEpsilon.graphic(), vertGBC);
         potentialPanel.add(squeeze.graphic(), vertGBC);
         tabbedPane.add("Potential", potentialPanel);
-        
+
         DataSplitter splitter = new DataSplitter();
         DataPump deformationPump = new DataPump(sim.meterDeformation, splitter);
         dataStreamPumps.add(deformationPump);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(deformationPump));
 
         DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
-        
+
         DataFork radiusFork = new DataFork();
         splitter.setDataSink(0, radiusFork);
         AccumulatorHistory radiusHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
@@ -235,127 +231,34 @@ public class DropletGraphic extends SimulationGraphic {
         deformationHistory.setDataSink(deformPlot.getDataSet().makeDataSink());
         deformPlot.setDoLegend(false);
         add(deformPlot);
-        
+
         ColorSchemeDropletSurface colorScheme2 = new ColorSchemeDropletSurface(sim.liquidFilter);
         getDisplayBox(sim.box).setColorScheme(colorScheme2);
     }
 
     public static void main(String[] args) {
         Space sp = null;
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     sp = Space3D.getInstance();
+                } else {
+                    sp = Space2D.getInstance();
                 }
-                else {
-                	sp = Space2D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-        else {
-        	sp = Space3D.getInstance();
+            } catch (NumberFormatException e) {
+            }
+        } else {
+            sp = Space3D.getInstance();
         }
 
         Droplet sim = new Droplet();
         DropletGraphic simGraphic = new DropletGraphic(sim, sp);
         sim.getController().start();
-		SimulationGraphic.makeAndDisplayFrame
-		        (simGraphic.getPanel(), APP_NAME);
+        SimulationGraphic.makeAndDisplayFrame
+                (simGraphic.getPanel(), APP_NAME);
     }
-    
-    public static class Applet extends javax.swing.JApplet {
 
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space3D.getInstance();
-	        Droplet sim = new Droplet();
-            DropletGraphic simGraphic = new DropletGraphic(sim, sp);
-            simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
-
-		    getContentPane().add(simGraphic.getPanel());
-	    }
-    }
-    
-    /**
-     * Inner class to find the total pressure of the system from the pressure
-     * tensor.
-     */
-    public static class DataProcessorTensorSplitter extends DataProcessor {
-
-        public DataProcessorTensorSplitter() {
-            data = new DataDoubleArray(3);
-        }
-        
-        protected IData processData(IData inputData) {
-            double[] x = data.getData();
-            for (int i=0; i<x.length; i++) {
-                x[i] = ((DataTensor)inputData).x.component(i,i);
-            }
-            return data;
-        }
-
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            dataInfo = new DataDoubleArray.DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new int[]{inputDataInfo.getLength()});
-            return dataInfo;
-        }
-
-        protected final DataDoubleArray data;
-    }
-    
-    public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(Space space, Box box, int dim, IAction reconfig) {
-            this.box = box;
-            this.dim = dim;
-            this.reconfig = reconfig;
-            size = space.makeVector();
-        }
-        
-        public Dimension getDimension() {
-            return Length.DIMENSION;
-        }
-
-        public String getLabel() {
-            return "Box size";
-        }
-
-        public double getValue() {
-            return box.getBoundary().getBoxSize().getX(dim);
-        }
-
-        public void setValue(double newValue) {
-            if (newValue <= 0) {
-                throw new IllegalArgumentException("Gotta be positive");
-            }
-            //newValue+=0.01;
-            size.E(box.getBoundary().getBoxSize());
-            double oldValue = size.getX(dim);
-            size.setX(dim, newValue);
-            if (dim == 1 && size.getD() == 3) {
-                size.setX(2, newValue);
-            }
-            box.getBoundary().setBoxSize(size);
-            try {
-                reconfig.actionPerformed();
-            }
-            catch (RuntimeException e) {
-                // box is too small.  restore to original size
-                size.setX(dim, oldValue);
-                box.getBoundary().setBoxSize(size);
-                // and reconfig.  this shouldn't throw.
-                reconfig.actionPerformed();
-            }
-        }
-        
-        protected final Box box;
-        protected final int dim;
-        protected final IAction reconfig;
-        protected final Vector size;
-    }
 }
 
 

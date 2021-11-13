@@ -22,12 +22,16 @@ import etomica.util.Debug;
  * @author David Kofke
  */
 public class P2HardSphere extends Potential2HardSpherical {
-    
+
+    public static P2HardGeneric makePotential(double sigma) {
+        return new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY});
+    }
+
     /**
      * Separation at which spheres first overlap
      */
     protected double collisionDiameter;
-   
+
     /**
      * Square of collisionDiameter
      */

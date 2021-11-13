@@ -9,14 +9,13 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
+import etomica.graphics.DeviceThermoSliderGEMC;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
-import etomica.heVLE.DeviceThermoSliderGEMC;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.space.Space;
 import etomica.units.Pixel;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class SWVLE extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 200;
     public boolean showNumMoleculesPlots = true;
 
-    public SWVLE(final SWVLESim sim, Space _space) {
+    public SWVLE(final SWVLESim sim) {
         super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(8));
@@ -155,7 +154,7 @@ public class SWVLE extends SimulationGraphic {
         int D = 2;
         if (args.length > 0) D = Integer.parseInt(args[0]);
         SWVLESim sim = new SWVLESim(D);
-        SWVLE SWVLE = new SWVLE(sim, sim.getSpace());
+        SWVLE SWVLE = new SWVLE(sim);
         SWVLE.makeAndDisplayFrame();
     }
 }

@@ -5,7 +5,6 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -15,7 +14,7 @@ import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.histogram.Histogram;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterRDF;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
@@ -24,6 +23,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -60,25 +60,20 @@ public class MappedU extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
-        potentialMaster.lrcMaster().setEnabled(false);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         this.getController().addActivity(new ActivityIntegrate(integrator));
-        move = new MCMoveAtom(random, potentialMaster, space);
+        move = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(move);
 
         P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2Truncated);
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        potentialMaster.setCellRange(2);
-
-        potentialMaster.getNbrCellManager(box).assignCellAll();
-
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
 
     public static void main(String[] args) throws IOException {
@@ -159,7 +154,7 @@ public class MappedU extends Simulation {
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
-sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
@@ -167,26 +162,26 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
         if (computeUMA){
-            final MeterMappedU meterMappedU = new MeterMappedU(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
-            meterMappedU.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
+            final MeterMappedU meterMappedU = new MeterMappedU(sim.integrator.getPotentialCompute(), sim.box, nBins);
+            meterMappedU.getPotentialCallback().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
             accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
             DataPumpListener pumpMappedU = new DataPumpListener(meterMappedU, accMappedVirial, numAtoms);
             if (computeUMA) sim.integrator.getEventManager().addListener(pumpMappedU);
-            System.out.println("x0: "+meterMappedU.getPotentialCalculation().getX0());
+            System.out.println("x0: "+meterMappedU.getPotentialCallback().getX0());
 
-            qp_q = meterMappedU.getPotentialCalculation().getQP_Q();
+            qp_q = meterMappedU.getPotentialCallback().getQP_Q();
             System.out.println("qp/q: "+qp_q);
             System.out.println("rho*db2/dbeta: "+qp_q*numAtoms/2);
-            double qp = meterMappedU.getPotentialCalculation().getqp();
+            double qp = meterMappedU.getPotentialCallback().getqp();
             System.out.println("qp: "+qp);
         }
 
 
         if (computeU){
-            final MeterPotentialEnergy meterU = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            final MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             accU = new AccumulatorAverageFixed(samplesPerBlock);
-            DataPumpListener pumpU = new DataPumpListener(meterU, accU, numAtoms);
-            if (computeU) sim.integrator.getEventManager().addListener(pumpU);
+            DataPumpListener pumpU = new DataPumpListener(meterU, accU, 20);
+            sim.integrator.getEventManager().addListener(pumpU);
         }
 
         MeterMeanForce meterF = null;
@@ -194,7 +189,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         if (functionsFile != null) {
             int nbins = (int)Math.floor(halfBoxlength/0.01);
             double eqncutoff = nbins * 0.01;
-            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
+            meterF = new MeterMeanForce(sim.integrator.getPotentialCompute(), sim.p2Truncated, sim.box, nbins);
             if (computeU && computeUMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
 
             meterRDF = new MeterRDF(space);
@@ -219,7 +214,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
 
             double UavgMInt = (-1*qp_q*numAtoms/2)-(avg/numAtoms);
 
-            System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
+            System.out.printf("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor);
             System.out.println("UavgM extensive: "+ UavgMInt*numAtoms);
             System.out.println("UavgM intensive: "+ UavgMInt);
             System.out.println("errorM intensive: "+ err/numAtoms);
@@ -235,7 +230,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
 
             System.out.println("Uavg intensive "+UAvg/numAtoms);
             System.out.println("err intensive "+UErr/numAtoms);
-            System.out.print(String.format("Potential ext avg: %13.6e  err: %11.4e   cor: % 4.2f\n", UAvg, UErr, UCor));
+            System.out.printf("Potential ext avg: %13.6e  err: %11.4e   cor: % 4.2f\n", UAvg, UErr, UCor);
         }
 
         //  fwr.append(numAtoms+" "+rc+" "+density+" "+temperature+" "+UavgMInt+" "+UAvg/numAtoms+" "+err/numAtoms+" "+UErr/numAtoms+"\n");

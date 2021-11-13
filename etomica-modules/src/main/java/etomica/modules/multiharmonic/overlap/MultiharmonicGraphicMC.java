@@ -13,6 +13,7 @@ import etomica.data.histogram.HistogramExpanding;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryComplete;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -35,7 +36,7 @@ import etomica.overlap.DataOverlap.DataSourceOverlapAvgCollapsing;
 import etomica.overlap.DataOverlap.DataSourceOverlapLogAvg;
 import etomica.overlap.IntegratorOverlap;
 import etomica.overlap.MeterOverlap;
-import etomica.space.Space;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.space1d.Vector1D;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
@@ -59,17 +60,20 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
     protected boolean makeDWPlot = false;
 
     /**
-     * 
+     *
      */
-    public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
+    public MultiharmonicGraphicMC(MultiharmonicMC simulation) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
-
-        final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxA);
-        final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxB);
-        final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxA);
-        final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxB);
+        PotentialComputeField potentialMasterAinB = new PotentialComputeField(sim.potentialMasterA.getFieldPotentials(), sim.boxB);
+        PotentialComputeField potentialMasterBinA = new PotentialComputeField(sim.potentialMasterB.getFieldPotentials(), sim.boxA);
+        final MeterPotentialEnergyFromIntegrator meterPEAinA = new MeterPotentialEnergyFromIntegrator(sim.integratorA);
+        potentialMasterAinB.init();
+        potentialMasterBinA.init();
+        final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(potentialMasterAinB);
+        final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterBinA);
+        final MeterPotentialEnergyFromIntegrator meterPEBinB = new MeterPotentialEnergyFromIntegrator(sim.integratorB);
 
         final int na = 11;
         final MeterOverlap meterOverlapA = new MeterOverlap(meterPEAinA, meterPEBinA, 1.0, true);
@@ -214,7 +218,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         final DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integratorOS);
 
-        final ArrayList<DataPumpListener> allPumps = new ArrayList<DataPumpListener>();
+        final ArrayList<DataPumpListener> allPumps = new ArrayList<>();
 
         DataSourceScalar feAntibiasDataSource = new DataSourceScalar("antibias", Null.DIMENSION) {
             public double getDataAsScalar() {
@@ -470,8 +474,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         omegaBSlider.setMaximum(10.0);
         omegaBSlider.setValue(1.0);
 
-        final DeviceBox alphaCenterBox = new DeviceBox();
-        alphaCenterBox.setController(sim.getController());
+        final DeviceBox alphaCenterBox = new DeviceBox(sim.getController());
         alphaCenterBox.setModifier(new Modifier() {
 
             public void setValue(double newValue) {
@@ -504,8 +507,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         };
 
 
-        DeviceBox alphaSpanBox = new DeviceBox();
-        alphaSpanBox.setController(sim.getController());
+        DeviceBox alphaSpanBox = new DeviceBox(sim.getController());
         alphaSpanBox.setModifier(new Modifier() {
 
             public void setValue(double newValue) {
@@ -728,8 +730,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //            public void integratorInitialized(IIntegratorEvent e) {}
 //        });
 
-        DeviceBox numAlphaBox = new DeviceBox();
-        numAlphaBox.setController(sim.getController());
+        DeviceBox numAlphaBox = new DeviceBox(sim.getController());
         numAlphaBox.setInteger(true);
         numAlphaBox.setModifier(new Modifier() {
 
@@ -766,7 +767,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         });
 
-        final DeviceBox alphaChoiceBox = new DeviceBox();
+        final DeviceBox alphaChoiceBox = new DeviceBox(sim.getController());
         alphaChoiceBox.setModifier(new Modifier() {
             public void setValue(double newValue) {
                 AlphaSource alphaSource = dsvo.getAlphaSource();
@@ -1050,7 +1051,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
     public static void main(String[] args) {
         final MultiharmonicMC sim = new MultiharmonicMC();
-        MultiharmonicGraphicMC simGraphic = new MultiharmonicGraphicMC(sim, sim.getSpace());
+        MultiharmonicGraphicMC simGraphic = new MultiharmonicGraphicMC(sim);
         SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
     }
 
@@ -1060,7 +1061,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         protected final DataDouble data = new DataDouble();
 
         public DataProcessAHT(DataSourceUa uaDataSource,
-                HistoryCollapsingDiscard aHistory) {
+                              HistoryCollapsingDiscard aHistory) {
             this.uaDataSource = uaDataSource;
             this.aHistory = aHistory;
             dataInfo = new DataInfoDouble("a", Null.DIMENSION);
@@ -1077,33 +1078,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             data.x = -(ua - ua2) / ua;
             return data;
         }
-    }
-
-    public static class DataSourceFunctionRaw implements IDataSource, DataSourceIndependent {
-        protected final DataFunction data;
-        protected final DataInfoFunction dataInfo;
-        protected final DataDoubleArray xData;
-        protected final DataInfoDoubleArray xDataInfo;
-        protected final DataTag tag, xTag;
-        
-        public DataSourceFunctionRaw(double[] x, double[] y) {
-            xData = new DataDoubleArray(new int[]{x.length}, x);
-            xDataInfo = new DataInfoDoubleArray("x", Quantity.DIMENSION, new int[]{x.length});
-            xTag = new DataTag();
-            xDataInfo.addTag(xTag);
-            data = new DataFunction(new int[]{y.length}, y);
-            dataInfo = new DataInfoFunction("y", Null.DIMENSION, this);
-            tag = new DataTag();
-            dataInfo.addTag(tag);
-        }
-
-        public IData getData() {return data;}
-        public DataDoubleArray getIndependentData(int i) {return xData;}
-        public DataInfoDoubleArray getIndependentDataInfo(int i) {return xDataInfo;}
-        public int getIndependentArrayDimension() {return 1;}
-        public DataTag getIndependentTag() {return xTag;}
-        public DataTag getTag() {return tag;}
-        public IDataInfo getDataInfo() {return dataInfo;}
     }
 
     public static class DataSourceAlphaFE implements IDataSource, DataSourceIndependent {
@@ -1137,19 +1111,19 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             allData = new double[0][0];
             allLnAlpha = new double[0];
         }
-        
+
         public void setOverlapSplitter(DataSplitter splitter) {
             this.splitter = splitter;
         }
-        
+
         public void setAlpha(double newAlpha) {
-            alpha[0] = Math.log(newAlpha); 
+            alpha[0] = Math.log(newAlpha);
         }
-        
+
         public IData getData() {
             AccumulatorAverageCollapsingLog[] acc = new AccumulatorAverageCollapsingLog[splitter.getNumDataSinks()];
-            for (int i=0; i<acc.length; i++) {
-                acc[i] = (AccumulatorAverageCollapsingLog)splitter.getDataSink(i);
+            for (int i = 0; i < acc.length; i++) {
+                acc[i] = (AccumulatorAverageCollapsingLog) splitter.getDataSink(i);
             }
             if (allLnAlpha.length != acc.length) {
                 allLnAlpha = new double[splitter.getNumDataSinks()];
@@ -1165,18 +1139,18 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 dataInfo.addTag(tag);
 
                 allData = new double[nDoubles][0];
-                for (int i=0; i<nDoubles; i++) {
+                for (int i = 0; i < nDoubles; i++) {
                     allData[i] = new double[acc.length];
                 }
                 lnN = new double[nDoubles];
                 double[] n = nData.getData();
                 double ln2 = Math.log(2);
-                for (int j=0; j<nDoubles; j++) {
-                    lnN[j] = j*ln2;
-                    n[j] = 1L<<j;
+                for (int j = 0; j < nDoubles; j++) {
+                    lnN[j] = j * ln2;
+                    n[j] = 1L << j;
                 }
             }
-            for (int i=0; i<acc.length; i++) {
+            for (int i = 0; i < acc.length; i++) {
                 IData accData = null;
                 switch (which) {
                     case AVG:
@@ -1190,34 +1164,33 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                         break;
                     case BIAS:
                         accData = acc[i].getAverageLogs();
-                        for (int j=0; j<allData.length; j++) {
+                        for (int j = 0; j < allData.length; j++) {
                             allData[j][i] = -accData.getValue(j);
                         }
                         accData = acc[i].getAverages();
-                        for (int j=0; j<allData.length; j++) {
+                        for (int j = 0; j < allData.length; j++) {
                             allData[j][i] += Math.log(accData.getValue(j));
-                            if (allData[j][i] <= 0) allData[j][i] = Double.NaN; 
+                            if (allData[j][i] <= 0) allData[j][i] = Double.NaN;
                         }
                         break;
                     default:
                         throw new RuntimeException("oops");
                 }
                 if (which != BIAS) {
-                    for (int j=0; j<allData.length; j++) {
+                    for (int j = 0; j < allData.length; j++) {
                         allData[j][i] = accData.getValue(j);
                     }
                 }
             }
 
             double[] y = data.getData();
-            for (int i=0; i<acc.length; i++) {
+            for (int i = 0; i < acc.length; i++) {
                 allLnAlpha[i] = Math.log(alphaSource.getAlpha(i));
             }
-            for (int i=0; i<y.length; i++) {
+            for (int i = 0; i < y.length; i++) {
                 if (acc.length == 1) {
                     y[i] = allData[i][0];
-                }
-                else {
+                } else {
                     akima.setInputData(allLnAlpha, allData[i]);
                     y[i] = akima.doInterpolation(alpha)[0];
                 }
@@ -1249,54 +1222,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return nTag;
         }
     }
-    
-    public static class DataSourceBias extends DataSourceScalar {
 
-        protected AccumulatorAverageCollapsingLog[] acc;
-        protected double[] allData;
-        protected final AkimaSpline akima = new AkimaSpline();
-        protected final AlphaSource alphaSource;
-        protected final double[] alpha = new double[1];
-        protected double[] allLnAlpha;
-        public static final int AVG = 1, STDEV = 2, STDEV2 = 3, SKEW = 4, BIAS = 5;
-
-        public DataSourceBias(AlphaSource alphaSource) {
-            super("bias", Null.DIMENSION);
-            this.alphaSource = alphaSource;
-            allData = new double[0];
-        }
-        
-        public void setAccumulators(AccumulatorAverageCollapsingLog[] newAcc) {
-            acc = newAcc;
-            allLnAlpha = new double[acc.length];
-            allData = new double[acc.length];
-        }
-        
-        public void setAlpha(double newAlpha) {
-            alpha[0] = Math.log(newAlpha); 
-        }
-        
-        public double getDataAsScalar() {
-            int nDoubles = acc[0].getDataInfo().getLength();
-            if (nDoubles < 2) return Double.NaN;
-            for (int i=0; i<acc.length; i++) {
-                allData[i] = -acc[i].getAverageLogs().getValue(nDoubles-1);
-                allData[i] += Math.log(acc[i].getAverages().getValue(nDoubles-1));
-            }
-
-            for (int i=0; i<acc.length; i++) {
-                allLnAlpha[i] = Math.log(alphaSource.getAlpha(i));
-            }
-            akima.setInputData(allLnAlpha, allData);
-            double bias = akima.doInterpolation(alpha)[0];
-            if (bias <= 0) return Double.NaN;
-            return bias;
-        }
-    }
-    
     public static class DataSourceChiSlope extends DataSourceScalar {
         protected final DataOverlap dsvo;
-        
+
         public DataSourceChiSlope(DataOverlap dsvo) {
             super("slope", Null.DIMENSION);
             this.dsvo = dsvo;
@@ -1311,10 +1240,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             double[] lnAlpha = new double[nBennetPoints];
             double[] lnAlphaDiff = new double[nBennetPoints];
 
-            for (int j=0; j<nBennetPoints; j++) {
+            for (int j = 0; j < nBennetPoints; j++) {
                 double refOverlap = dsvo.getRefSource().getAverage(j);
                 double targetOverlap = dsvo.getTargetSource().getAverage(j);
-                lnAlphaDiff[j] += Math.log(refOverlap/targetOverlap);
+                lnAlphaDiff[j] += Math.log(refOverlap / targetOverlap);
 
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);
                 lnAlpha[j] = Math.log(jAlpha);
@@ -1325,42 +1254,38 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             if (lnAlphaDiff[0] < 0) {
                 // first new alpha is less than initial first alpha
                 return Double.NaN;
-            }
-            else if (lnAlphaDiff[nBennetPoints-1] > 0) {
+            } else if (lnAlphaDiff[nBennetPoints - 1] > 0) {
                 return Double.NaN;
-            }
-            else if (nBennetPoints > 4) {
+            } else if (nBennetPoints > 4) {
                 AkimaSpline spline = new AkimaSpline();
                 spline.setInputData(lnAlpha, lnAlphaDiff);
                 double min = lnAlpha[0];
-                double max = lnAlpha[nBennetPoints-1];
+                double max = lnAlpha[nBennetPoints - 1];
                 double ymin = lnAlphaDiff[0];
-                double ymax = lnAlphaDiff[nBennetPoints-1];
+                double ymax = lnAlphaDiff[nBennetPoints - 1];
                 double[] x = new double[1];
-                x[0] = min+(max-min)/(ymax-ymin)*(-ymin);
+                x[0] = min + (max - min) / (ymax - ymin) * (-ymin);
                 while (x[0] > min && x[0] < max) {
                     x[0] = 0.5 * (min + max);
                     double y = spline.doInterpolation(x)[0];
                     if (y == 0) {
                         break;
                     }
-                    if (y*min > 0) {
+                    if (y * min > 0) {
                         min = x[0];
                         ymin = y;
-                    }
-                    else {
+                    } else {
                         max = x[0];
                         ymax = y;
                     }
-                    x[0] = min+(max-min)/(ymax-ymin)*(-ymin);
+                    x[0] = min + (max - min) / (ymax - ymin) * (-ymin);
                 }
                 slope = spline.doInterpolationDy(x)[0] + 1;
-            }
-            else {
+            } else {
                 //linear interpolation (only 3 points)
-                for (int i=0; i<nBennetPoints; i++) {
-                    if (lnAlphaDiff[i] > 0 && lnAlphaDiff[i+1] < 0) {
-                        slope = ((lnAlphaDiff[i+1] + lnAlpha[i+1]) - (lnAlphaDiff[i] + lnAlpha[i])) / (lnAlpha[i+1] - lnAlpha[i]);
+                for (int i = 0; i < nBennetPoints; i++) {
+                    if (lnAlphaDiff[i] > 0 && lnAlphaDiff[i + 1] < 0) {
+                        slope = ((lnAlphaDiff[i + 1] + lnAlpha[i + 1]) - (lnAlphaDiff[i] + lnAlpha[i])) / (lnAlpha[i + 1] - lnAlpha[i]);
                     }
                 }
             }
@@ -1378,7 +1303,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         protected DataInfoDoubleArray alphaInfo;
         protected final double errFac;
         protected int spiffiness;
-        
+
         public DataSourceAlphaChi(DataOverlap dsvo, double errFac) {
             this.dsvo = dsvo;
             chiTag = new DataTag();
@@ -1400,16 +1325,15 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 alphaInfo = new DataInfoDoubleArray("alpha", Null.DIMENSION, new int[]{chiData.getLength()});
             }
             double[] chi = chiData.getData();
-            for (int i=0; i<chi.length; i++) {
+            for (int i = 0; i < chi.length; i++) {
                 if (spiffiness > 0 && dsvo.getRefSource() instanceof DataSourceOverlapAvgCollapsing) {
                     double avg = dsvo.getAverage(i);
                     double err = dsvo.getLogError(i);
-                    chi[i] = avg * Math.exp(errFac*err);
-                }
-                else {
+                    chi[i] = avg * Math.exp(errFac * err);
+                } else {
                     chi[i] = dsvo.getAverage(i) + errFac * dsvo.getError(i);
-                    if (chi[i] < dsvo.getAverage(i)*0.01) {
-                        chi[i] = dsvo.getAverage(i)*0.01;
+                    if (chi[i] < dsvo.getAverage(i) * 0.01) {
+                        chi[i] = dsvo.getAverage(i) * 0.01;
                     }
                 }
             }
@@ -1433,7 +1357,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         public DataDoubleArray getIndependentData(int j) {
             double[] alpha = alphaData.getData();
-            for (int i=0; i<alpha.length; i++) {
+            for (int i = 0; i < alpha.length; i++) {
                 alpha[i] = dsvo.getAlphaSource().getAlpha(i);
             }
             return alphaData;
@@ -1464,7 +1388,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         protected final DataTag chiTag, alphaTag;
         protected DataInfoFunction chiInfo;
         protected DataInfoDoubleArray alphaInfo;
-        
+
         public DataSourceAlphaAlpha(DataOverlap dsvo) {
             this.dsvo = dsvo;
             chiTag = new DataTag();
@@ -1480,7 +1404,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 alphaInfo = new DataInfoDoubleArray("alpha", Null.DIMENSION, new int[]{chiData.getLength()});
             }
             double[] chi = chiData.getData();
-            for (int i=0; i<chi.length; i++) {
+            for (int i = 0; i < chi.length; i++) {
                 chi[i] = dsvo.getAlphaSource().getAlpha(i);
             }
             return chiData;
@@ -1502,7 +1426,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         public DataDoubleArray getIndependentData(int j) {
             double[] alpha = alphaData.getData();
-            for (int i=0; i<alpha.length; i++) {
+            for (int i = 0; i < alpha.length; i++) {
                 alpha[i] = dsvo.getAlphaSource().getAlpha(i);
             }
             return alphaData;
@@ -1524,10 +1448,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             return alphaTag;
         }
     }
-    
+
     public static class DataSourceUa extends DataSourceScalar {
         protected final DataOverlap dsvo;
-        
+
         public DataSourceUa(DataOverlap dsvo) {
             super("Ua", Null.DIMENSION);
             this.dsvo = dsvo;
@@ -1543,11 +1467,11 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             double[] lnAlphaDiff = new double[numAlpha];
             double[] lnTargetAvg = new double[numAlpha];
 
-            for (int j=0; j<numAlpha; j++) {
+            for (int j = 0; j < numAlpha; j++) {
                 double refOverlap = dsvo.getRefSource().getAverage(j);
                 double targetOverlap = dsvo.getTargetSource().getAverage(j);
                 lnTargetAvg[j] = Math.log(targetOverlap);
-                lnAlphaDiff[j] = Math.log(refOverlap/targetOverlap);
+                lnAlphaDiff[j] = Math.log(refOverlap / targetOverlap);
 
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);
                 lnAlpha[j] = Math.log(jAlpha);
@@ -1557,8 +1481,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             if (lnAlphaDiff[0] < 0) {
                 // first new alpha is less than initial first alpha
                 return Double.NaN;
-            }
-            else if (lnAlphaDiff[numAlpha-1] > 0) {
+            } else if (lnAlphaDiff[numAlpha - 1] > 0) {
                 return Double.NaN;
             }
             AkimaSpline spline = new AkimaSpline();
@@ -1567,7 +1490,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             spline.setInputData(lnAlpha, lnTargetAvg);
             double lnUa = spline.doInterpolation(x)[0];
 
-            return 2*Math.exp(lnUa+x[0]);
+            return 2 * Math.exp(lnUa + x[0]);
         }
     }
 
@@ -1576,7 +1499,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         protected final IntegratorOverlap integratorOS;
         protected final DataOverlap dsvo;
         protected final AccumulatorAverage accRefUa2, accTargetUa2;
-        
+
         public DataSourceUa2(IntegratorOverlap integratorOS, DataOverlap dsvo, AccumulatorAverage accRef, AccumulatorAverage accTarget) {
             super("Ua2", Null.DIMENSION);
             this.integratorOS = integratorOS;
@@ -1590,7 +1513,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             if (numAlpha == 1) {
                 return Double.NaN;
             }
-            
+
 
             double[] lnAlpha = new double[numAlpha];
             double[] lnRefAvg = new double[numAlpha];
@@ -1598,8 +1521,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
             IData refData = ((DataGroup) accRefUa2.getData()).getData(accRefUa2.AVERAGE.index);
             IData targetData = ((DataGroup) accTargetUa2.getData()).getData(accTargetUa2.AVERAGE.index);
-            
-            for (int j=0; j<numAlpha; j++) {
+
+            for (int j = 0; j < numAlpha; j++) {
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);
 
                 lnRefAvg[j] = Math.log(refData.getValue(j));
@@ -1613,8 +1536,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             if (x[0] <= lnAlpha[0]) {
                 // first new alpha is less than initial first alpha
                 return Double.NaN;
-            }
-            else if (x[0] >= lnAlpha[numAlpha-1]) {
+            } else if (x[0] >= lnAlpha[numAlpha - 1]) {
                 return Double.NaN;
             }
             double refUa2 = Double.NaN;
@@ -1625,19 +1547,18 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 refUa2 = spline.doInterpolation(x)[0];
                 spline.setInputData(lnAlpha, lnTargetAvg);
                 targetUa2 = spline.doInterpolation(x)[0];
-            }
-            else {
+            } else {
                 //linear interpolation (only 3 points)
                 double myLnAlpha = x[0];
-                for (int i=0; i<numAlpha-1; i++) {
-                    if (lnAlpha[i+1] > myLnAlpha) {
-                        refUa2 = lnRefAvg[i] + (lnRefAvg[i+1] - lnRefAvg[i]) / (lnAlpha[i+1]-lnAlpha[i])*(myLnAlpha-lnAlpha[i]);
-                        targetUa2 = lnTargetAvg[i] + (lnTargetAvg[i+1] - lnTargetAvg[i]) / (lnAlpha[i+1]-lnAlpha[i])*(myLnAlpha-lnAlpha[i]);
+                for (int i = 0; i < numAlpha - 1; i++) {
+                    if (lnAlpha[i + 1] > myLnAlpha) {
+                        refUa2 = lnRefAvg[i] + (lnRefAvg[i + 1] - lnRefAvg[i]) / (lnAlpha[i + 1] - lnAlpha[i]) * (myLnAlpha - lnAlpha[i]);
+                        targetUa2 = lnTargetAvg[i] + (lnTargetAvg[i + 1] - lnTargetAvg[i]) / (lnAlpha[i + 1] - lnAlpha[i]) * (myLnAlpha - lnAlpha[i]);
                     }
                 }
             }
 
-            return 2*Math.exp(refUa2) + 2*Math.exp(2*x[0]+targetUa2);
+            return 2 * Math.exp(refUa2) + 2 * Math.exp(2 * x[0] + targetUa2);
         }
     }
 
@@ -1646,14 +1567,14 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         protected double[] lnAlpha;
         protected final AlphaSource alphaSource;
         protected final AkimaSpline akima;
-        
+
         public DataSinkReweightedDeltaU(AlphaSource alphaSource) {
             this.alphaSource = alphaSource;
             akima = new AkimaSpline();
             lnAlpha = new double[0];
             ratio = new double[0];
         }
-        
+
         public void reset() {
             int numAlpha = alphaSource.getNumAlpha();
             sum = new double[numAlpha];
@@ -1665,9 +1586,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 lnAlpha = new double[alphaSource.getNumAlpha()];
                 ratio = new double[alphaSource.getNumAlpha()];
             }
-            for (int i=0; i<lnAlpha.length; i++) {
+            for (int i = 0; i < lnAlpha.length; i++) {
                 lnAlpha[i] = Math.log(alphaSource.getAlpha(i));
-                ratio[i] = sum[i]/sumWeights[i];
+                ratio[i] = sum[i] / sumWeights[i];
             }
             if (lnAlpha.length == 1) return ratio[0];
             akima.setInputData(lnAlpha, ratio);
@@ -1675,10 +1596,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         }
 
         public void putData(IData data) {
-            for (int i=0; i<data.getLength(); i++) {
+            for (int i = 0; i < data.getLength(); i++) {
                 double x = data.getValue(i);
                 if (x > 0) {
-                    sum[i] += x*Math.log(x);
+                    sum[i] += x * Math.log(x);
                     sumWeights[i] += x;
                 }
             }
@@ -1689,16 +1610,4 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             sumWeights = new double[sum.length];
         }
     }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            final MultiharmonicMC sim = new MultiharmonicMC();
-            MultiharmonicGraphicMC simGraphic = new MultiharmonicGraphicMC(sim, sim.getSpace());
-            getContentPane().add(simGraphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
-
 }

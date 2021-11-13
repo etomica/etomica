@@ -4,14 +4,12 @@
 
 package etomica.math.geometry;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representation of a mathematical polytope, which is a finite region of space

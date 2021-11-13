@@ -18,8 +18,6 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.*;
@@ -37,7 +35,7 @@ import java.util.ArrayList;
 
 /**
  * Graphical and data collection bits for reverse osmosis simulation.
- * 
+ *
  * @author Andrew Schultz
  */
 public class ReverseOsmosisGraphic extends SimulationGraphic {
@@ -54,8 +52,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     protected double epsilonMembrane, massMembrane, sigmaMembrane;
     protected Unit eUnit, dUnit, pUnit;
     protected ReverseOsmosis sim;
-    
-    public ReverseOsmosisGraphic(final ReverseOsmosis simulation, Space _space) {
+
+    public ReverseOsmosisGraphic(final ReverseOsmosis simulation) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -110,10 +108,10 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         //combo box to select potentials
-        sigBox = new DeviceBox();
-        epsBox = new DeviceBox();
-        massBox = new DeviceBox();
-        tetherBox = new DeviceBox();
+        sigBox = new DeviceBox(sim.getController());
+        epsBox = new DeviceBox(sim.getController());
+        massBox = new DeviceBox(sim.getController());
+        tetherBox = new DeviceBox(sim.getController());
         membraneThicknessSlider = new DeviceSlider(sim.getController());
 
         // Simulation Time
@@ -238,10 +236,6 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         tetherBox.setModifier(tetherModifier);
         tetherBox.setLabel("Tether Constant (" + eUnit.symbol() + ")");
         tetherBox.setPostAction(resetDataAction);
-        sigBox.setController(sim.getController());
-        epsBox.setController(sim.getController());
-        massBox.setController(sim.getController());
-        tetherBox.setController(sim.getController());
         membraneThicknessSlider.setLabel("Membrane Thickness");
         membraneThicknessSlider.setShowBorder(true);
         membraneThicknessSlider.setMinimum(1);
@@ -267,11 +261,10 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.speciesMembrane.getLeafType(), Color.WHITE);
 
         //meters and displays
-        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
         //add meter and display for current kinetic temperature
 
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D());
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
         IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
@@ -282,9 +275,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         tBox.setLabel("Measured Temperature");
         tBox.setLabelPosition(CompassDirection.NORTH);
 
-        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterEnergyFromIntegrator eMeter = new MeterEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
-        energyHistory.setTimeDataSource(timeCounter);
+        energyHistory.setTimeDataSource(meterCycles);
         DataSinkExcludeOverlap foo = new DataSinkExcludeOverlap(sim.box);
         final DataPump energyPump = new DataPump(eMeter, foo);
         foo.setDataSink(energyHistory);
@@ -293,9 +286,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         energyPumpListener.setInterval(10);
         dataStreamPumps.add(energyPump);
 
-        MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory peHistory = new AccumulatorHistory();
-        peHistory.setTimeDataSource(timeCounter);
+        peHistory.setTimeDataSource(meterCycles);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(2);
         foo = new DataSinkExcludeOverlap(sim.box);
@@ -307,9 +300,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         pePumpListener.setInterval(10);
         dataStreamPumps.add(pePump);
 
-        MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
+        MeterKineticEnergyFromIntegrator keMeter = new MeterKineticEnergyFromIntegrator(sim.integrator);
         final AccumulatorHistory keHistory = new AccumulatorHistory();
-        keHistory.setTimeDataSource(timeCounter);
+        keHistory.setTimeDataSource(meterCycles);
         // we do this for the scaling by numAtoms rather than for the overlap exclusion
         foo = new DataSinkExcludeOverlap(sim.box);
         final DataPump kePump = new DataPump(keMeter, foo);
@@ -319,19 +312,19 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         kePumpListener.setInterval(10);
         dataStreamPumps.add(kePump);
 
-        MeterFlux meterFlux = new MeterFlux(sim, space);
+        MeterFlux meterFlux = new MeterFlux(sim.getSpeciesManager(), space);
         double xLength = sim.box.getBoundary().getBoxSize().getX(0);
         meterFlux.setBoundaries(0, new double[]{-0.25 * xLength, 0.25 * xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);
         meterFlux.setBox(sim.box);
         meterFlux.setSpecies(new ISpecies[]{sim.speciesSolute, sim.speciesSolvent});
         AccumulatorHistory fluxHistory = new AccumulatorHistory(new HistoryCollapsingAverage(20));
-        fluxHistory.setTimeDataSource(timeCounter);
+        fluxHistory.setTimeDataSource(meterCycles);
         DataPump fluxPump = new DataPump(meterFlux, fluxHistory);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(fluxPump));
         dataStreamPumps.add(fluxPump);
 
-        MeterOsmoticPressure meterOsmoticPressure = new MeterOsmoticPressure(sim.forceSum, sim.box);
+        MeterOsmoticPressure meterOsmoticPressure = new MeterOsmoticPressure(sim, sim.box);
         AccumulatorAverageCollapsing pressureAvg = new AccumulatorAverageCollapsing();
         pressureAvg.setPushInterval(10);
         DataFork pressureFork = new DataFork();
@@ -341,7 +334,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         dataStreamPumps.add(pressurePump);
         AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         pressureFork.addDataSink(pressureHistory);
-        pressureHistory.setTimeDataSource(timeCounter);
+        pressureHistory.setTimeDataSource(meterCycles);
 
         MeterNMolecules densitySolute = new MeterNMolecules();
         MeterNMolecules densitySolvent = new MeterNMolecules();
@@ -521,9 +514,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     }
 
     protected static class ModifierAtomDiameter implements Modifier {
-        
+
         public ModifierAtomDiameter(SpeciesGeneral species, P2LennardJones potential,
-                SpeciesGeneral[] otherSpecies, P2LennardJones[] otherPotentials, DiameterHashByType diameterManager) {
+                                    SpeciesGeneral[] otherSpecies, P2LennardJones[] otherPotentials, DiameterHashByType diameterManager) {
             this.species = species;
             this.otherSpecies = otherSpecies;
             this.potential = potential;
@@ -539,9 +532,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             diameterHash.setDiameter(species.getLeafType(), d);
             double oldSigma = potential.getSigma();
             potential.setSigma(d);
-            for (int i=0; i<otherPotentials.length; i++) {
+            for (int i = 0; i < otherPotentials.length; i++) {
                 double oldMixSigma = otherPotentials[i].getSigma();
-                otherPotentials[i].setSigma(oldMixSigma + 0.5*(d-oldSigma));
+                otherPotentials[i].setSigma(oldMixSigma + 0.5 * (d - oldSigma));
             }
 //            new BoxImposePbc(sim.box).actionPerformed();
 //            if (sim.potentialWrapper.getWrappedPotential() instanceof P2Ideal) {
@@ -559,7 +552,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 //                integrator.reset();
 //            }
 //            catch (ConfigurationOverlapException e){
-                // can happen when increasing diameter
+            // can happen when increasing diameter
 //            }
 //            getDisplayBox(integrator.getBox()).repaint();
 //            sim.config.setBoundaryPadding(sigma);
@@ -573,26 +566,26 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         public Dimension getDimension() {
             return Length.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "Atom Diameter";
         }
-        
+
         public String toString() {
             return getLabel();
         }
-        
+
         protected final SpeciesGeneral species;
         protected final SpeciesGeneral[] otherSpecies;
         protected final P2LennardJones potential;
         protected final P2LennardJones[] otherPotentials;
         protected final DiameterHashByType diameterHash;
     }
-    
+
     protected static class ModifierEpsilon implements Modifier {
-        
+
         public ModifierEpsilon(P2LennardJones potential,
-                P2LennardJones[] otherPurePotentials, P2LennardJones[] mixPotentials) {
+                               P2LennardJones[] otherPurePotentials, P2LennardJones[] mixPotentials) {
             this.potential = potential;
             this.otherPurePotentials = otherPurePotentials;
             this.mixPotentials = mixPotentials;
@@ -600,9 +593,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         public void setValue(double epsilon) {
             potential.setEpsilon(epsilon);
-            for (int i=0; i<mixPotentials.length; i++) {
+            for (int i = 0; i < mixPotentials.length; i++) {
                 double otherEpsilon = otherPurePotentials[i].getEpsilon();
-                mixPotentials[i].setEpsilon(Math.sqrt(epsilon*otherEpsilon));
+                mixPotentials[i].setEpsilon(Math.sqrt(epsilon * otherEpsilon));
             }
         }
 
@@ -614,67 +607,42 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         public Dimension getDimension() {
             return Energy.DIMENSION;
         }
-        
+
         public String getLabel() {
             return "Epsilon";
         }
-        
+
         protected final P2LennardJones potential;
         protected final P2LennardJones[] otherPurePotentials;
         protected final P2LennardJones[] mixPotentials;
     }
-    
+
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
         public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
         }
-        
+
         public IData processData(IData data) {
             myData.E(data);
-            myData.TE(1.0/box.getLeafList().size());
+            myData.TE(1.0 / box.getLeafList().size());
             return myData;
         }
 
         protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return inputDataInfo;
         }
-        
+
         protected final DataDouble myData;
         protected final Box box;
     }
 
     public static void main(String[] args) {
-        Space sp = Space3D.getInstance();
-        if(args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    sp = Space3D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-
-        ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(), sp);
-		SimulationGraphic.makeAndDisplayFrame
-		        (reverseOsmosisGraphic.getPanel(), APP_NAME);
+        ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis());
+        SimulationGraphic.makeAndDisplayFrame
+                (reverseOsmosisGraphic.getPanel(), APP_NAME);
     }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space3D sp = Space3D.getInstance();
-            ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(), sp);
-
-		    getContentPane().add(reverseOsmosisGraphic.getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
-    }
-
 }
 
 

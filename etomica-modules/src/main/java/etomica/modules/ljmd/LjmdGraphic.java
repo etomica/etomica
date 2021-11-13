@@ -13,9 +13,8 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.*;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataTensor;
 import etomica.graphics.*;
+import etomica.integrator.ActionZeroMomentum;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -38,12 +37,12 @@ public class LjmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
-    private DeviceThermoSlider temperatureSelect;
+    private final DeviceThermoSlider temperatureSelect;
     protected Ljmd sim;
-    
-    private boolean showConfig = false;
 
-    public LjmdGraphic(final Ljmd simulation, Space _space) {
+    private final boolean showConfig = false;
+
+    public LjmdGraphic(final Ljmd simulation) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -80,7 +79,6 @@ public class LjmdGraphic extends SimulationGraphic {
 
         final IAction resetDataAction = new IAction() {
             public void actionPerformed() {
-                getController().getSimRestart().getDataResetAction();
                 rdfMeter.reset();
             }
         };
@@ -150,7 +148,7 @@ public class LjmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setLabel("Number Density");
 
-        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterEnergyFromIntegrator eMeter = new MeterEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         DataPump energyPump = new DataPump(eMeter, energyHistory);
@@ -160,7 +158,7 @@ public class LjmdGraphic extends SimulationGraphic {
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 
-        MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -199,12 +197,9 @@ public class LjmdGraphic extends SimulationGraphic {
         ePlot.setDoLegend(true);
         ePlot.setLabel("Energy");
 
-        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureFromIntegrator pMeter = new MeterPressureFromIntegrator(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-        DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
-        final DataPump pPump = new DataPump(pMeter, tracer);
-        tracer.setDataSink(pAccumulator);
+        final DataPump pPump = new DataPump(pMeter, pAccumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
@@ -244,6 +239,9 @@ public class LjmdGraphic extends SimulationGraphic {
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
         nSlider.setPostAction(new IAction() {
+            final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
+            int oldN = sim.box.getMoleculeList().size();
+
             public void actionPerformed() {
                 int n = (int) nSlider.getValue();
                 if (n == 0) {
@@ -257,12 +255,13 @@ public class LjmdGraphic extends SimulationGraphic {
                 }
                 oldN = n;
                 sim.integrator.reset();
+                if (!sim.integrator.isIsothermal() && n > 1) {
+                    ActionZeroMomentum.zeroMomenta(sim.box);
+                }
                 resetDataAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
 
-            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
-            int oldN = sim.box.getMoleculeList().size();
         });
 
         //************* Lay out components ****************//
@@ -334,70 +333,28 @@ public class LjmdGraphic extends SimulationGraphic {
         add(tBox);
         add(pDisplay);
         add(peDisplay);
-
     }
 
     public static void main(String[] args) {
         Space sp = null;
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     sp = Space3D.getInstance();
+                } else {
+                    sp = Space2D.getInstance();
                 }
-                else {
-                	sp = Space2D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-        else {
-        	sp = Space2D.getInstance();
-        }
-
-        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
-		SimulationGraphic.makeAndDisplayFrame
-		        (ljmdGraphic.getPanel(), APP_NAME);
-    }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space2D.getInstance();
-            LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
-
-		    getContentPane().add(ljmdGraphic.getPanel());
-	    }
-    }
-    
-    /**
-     * Inner class to find the total pressure of the system from the pressure
-     * tensor.
-     */
-    public static class DataProcessorTensorTrace extends DataProcessor {
-
-        public DataProcessorTensorTrace() {
-            data = new DataDouble();
-        }
-        
-        protected IData processData(IData inputData) {
-            // take the trace and divide by the dimensionality
-            data.x = ((DataTensor)inputData).x.trace()/((DataTensor)inputData).x.D();
-            return data;
-        }
-
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            } catch (NumberFormatException e) {
             }
-            dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-            return dataInfo;
+        } else {
+            sp = Space3D.getInstance();
         }
 
-        protected final DataDouble data;
+        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp));
+        SimulationGraphic.makeAndDisplayFrame
+                (ljmdGraphic.getPanel(), APP_NAME);
     }
-
 }
 
 

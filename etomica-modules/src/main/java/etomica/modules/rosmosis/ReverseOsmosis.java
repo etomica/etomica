@@ -5,20 +5,18 @@
 package etomica.modules.rosmosis;
 
 import etomica.action.BoxImposePbc;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.*;
+import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -27,12 +25,11 @@ import etomica.units.Kelvin;
 
 /**
  * Reverse osmosis simulation, based on simulation code by Sohail Murad.
- * 
+ *
  * @author Andrew Schultz
  */
-public class ReverseOsmosis extends Simulation {
+public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.WallForceSource {
 
-    private static final long serialVersionUID = 1L;
     public SpeciesGeneral speciesSolvent, speciesSolute, speciesMembrane;
     public Box box;
     public IntegratorVelocityVerlet integrator;
@@ -41,8 +38,8 @@ public class ReverseOsmosis extends Simulation {
 
     public ConfigurationMembrane configMembrane;
     public P1Tether potentialTether;
-    public PotentialCalculationForceSumWallForce forceSum;
-    
+    public double wallForce;
+
     public ReverseOsmosis() {
         super(Space3D.getInstance());
 
@@ -60,14 +57,31 @@ public class ReverseOsmosis extends Simulation {
         speciesMembrane = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
+        box = this.makeBox();
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+        PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box) {
+            @Override
+            public double computeAll(boolean doForces, PotentialCallback pc) {
+                double u = super.computeAll(doForces, pc);
+                if (doForces) {
+                    wallForce = 0;
+                    int n = box.getLeafList().size();
+                    for (int i = 0; i < n; i++) {
+                        double fi = forces[i].getX(0);
+                        if (box.getLeafList().get(i).getPosition().getX(0) > 0) fi = -fi;
+                        wallForce += fi;
+                    }
+                }
+                return u;
+            }
+        };
+        PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         //controller and integrator
-        box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), box);
+        integrator = new IntegratorVelocityVerlet(pcAgg, getRandom(), 0.01, Kelvin.UNIT.toSim(125), box);
         integrator.setIsothermal(false);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.02);
 
@@ -85,29 +99,24 @@ public class ReverseOsmosis extends Simulation {
         double rCut = 0.5 * yzSize;
 
         //instantiate several potentials for selection in combo-box
+        TruncationFactory tf = new TruncationFactoryShift(space, rCut);
         potential11 = new P2LennardJones(space, sigSolute, epsSolute);
-        P2SoftSphericalTruncatedShifted pTrunc = new P2SoftSphericalTruncatedShifted(space, potential11, rCut);
-        potentialMaster.addPotential(pTrunc, new AtomType[]{speciesSolute.getLeafType(), speciesSolute.getLeafType()});
+        potentialMaster.setPairPotential(speciesSolute.getLeafType(), speciesSolute.getLeafType(), tf.make(potential11));
 
         potential22 = new P2LennardJones(space, sigSolvent, epsSolvent);
-        pTrunc = new P2SoftSphericalTruncatedShifted(space, potential22, rCut);
-        potentialMaster.addPotential(pTrunc, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
+        potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolvent.getLeafType(), tf.make(potential22));
 
         potential12 = new P2LennardJones(space, 0.5 * (sigSolvent + sigSolute), Math.sqrt(epsSolvent * epsSolute));
-        pTrunc = new P2SoftSphericalTruncatedShifted(space, potential12, rCut);
-        potentialMaster.addPotential(pTrunc, new AtomType[]{speciesSolvent.getLeafType(), speciesSolute.getLeafType()});
+        potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolute.getLeafType(), tf.make(potential12));
 
         potentialMM = new P2LennardJones(space, sigMembrane, epsMembrane);
-        pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialMM, rCut);
-        potentialMaster.addPotential(pTrunc, new AtomType[]{speciesMembrane.getLeafType(), speciesMembrane.getLeafType()});
+        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesMembrane.getLeafType(), potentialMM);
 
         potentialM1 = new P2LennardJones(space, 0.5 * (sigMembrane + sigSolute), Math.sqrt(epsMembrane * epsSolute));
-        pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM1, rCut);
-        potentialMaster.addPotential(pTrunc, new AtomType[]{speciesMembrane.getLeafType(), speciesSolute.getLeafType()});
+        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesSolute.getLeafType(), tf.make(potentialM1));
 
         potentialM2 = new P2LennardJones(space, 0.5 * (sigMembrane + sigSolvent), Math.sqrt(epsMembrane * epsSolvent));
-        pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM2, rCut);
-        potentialMaster.addPotential(pTrunc, new AtomType[]{speciesMembrane.getLeafType(), speciesSolvent.getLeafType()});
+        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesSolvent.getLeafType(), tf.make(potentialM2));
 
 
         //construct box
@@ -129,28 +138,18 @@ public class ReverseOsmosis extends Simulation {
 
         potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000);
-        potentialMaster.addPotential(potentialTether, new AtomType[]{speciesMembrane.getLeafType()});
+        pcField.setFieldPotential(speciesMembrane.getLeafType(), potentialTether);
 
-//        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
-//        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-        forceSum = new PotentialCalculationForceSumWallForce(potentialTether);
-        integrator.setForceSum(forceSum);
     }
-    
+
+    public double getWallForce() {
+        return wallForce;
+    }
+
     public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-        if(args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    space = Space3D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-            
         ReverseOsmosis sim = new ReverseOsmosis();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
-    
+
 }

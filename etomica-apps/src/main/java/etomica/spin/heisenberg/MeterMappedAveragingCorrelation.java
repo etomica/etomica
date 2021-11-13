@@ -11,10 +11,9 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.integrator.Integrator;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationTorqueSum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Vector1D;
@@ -32,9 +31,8 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     protected double temperature, beta;
     private Box box;
     protected final Space space;
-    protected final PotentialMaster potentialMaster;
-    protected PotentialCalculationTorqueSum torqueSum;
-    protected final IteratorDirective allAtoms;
+    protected final PotentialCompute potentialMaster;
+    protected final NeighborIterator nbrIterator;
     protected final int[] offset;
     protected final int formula;
     protected final int[] nPairs;
@@ -46,12 +44,13 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     protected final Vector[] dtdotkdt0k, dtdotkdetak;
 
 
-    public MeterMappedAveragingCorrelation(Simulation sim, double temperature, double interactionS, PotentialMaster potentialMaster, int formula) {
-        this.box = sim.getBox(0);
-        this.space = sim.getSpace();
+    public MeterMappedAveragingCorrelation(Box box, double temperature, double interactionS, PotentialCompute potentialMaster, NeighborManager nbrManager, int formula) {
+        this.box = box;
+        this.space = box.getSpace();
         this.temperature = temperature;
-        beta = 1/temperature;
+        beta = 1 / temperature;
         this.potentialMaster = potentialMaster;
+        nbrIterator = nbrManager.makeNeighborIterator();
         this.formula = formula;
         bt = 1 / temperature;
         J = interactionS;
@@ -69,7 +68,6 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("CIJ", Null.DIMENSION, new int[]{3 * arraySize});
         tag = new DataTag();
         dataInfo.addTag(tag);
-        allAtoms = new IteratorDirective();
         offset = new int[distance];
         for (int i = 0, o = -1; i < distance; i++) {
             offset[i] = o - i;
@@ -77,9 +75,7 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
         }
 
         leafAgentManager = new AtomLeafAgentManager<CorrelationAgent>(this, box);
-        torqueSum = new PotentialCalculationTorqueSum();
-        torqueSum.setAgentManager(leafAgentManager);
-        meterMeanField = formula == 3 ? new MeterMeanField(space, box, interactionS, potentialMaster, temperature) : null;
+        meterMeanField = formula == 3 ? new MeterMeanField(space, box, interactionS, nbrManager, temperature) : null;
 
         nbrCsum = new double[N];
         nbrSsum = new double[N];
@@ -97,8 +93,11 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     public IData getData() {
         double[] x = data.getData();
         int distance = L / 2 + 1;
-        torqueSum.reset();
-        potentialMaster.calculate(box, allAtoms, torqueSum);
+        potentialMaster.computeAll(true);
+        Vector[] torques = potentialMaster.getTorques();
+        for (int i=0; i<box.getLeafList().size(); i++) {
+            leafAgentManager.getAgent(box.getLeafList().get(i)).torque.E(torques[i]);
+        }
         IAtomList leafList = box.getLeafList();
         for (int i = 0; i < x.length; i++) {
             x[i] = 0;
@@ -110,7 +109,15 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
 
             //compute terms needed to evaluate d(eta_k)/d(theta_i) and d(theta0_k)/d(theta_i) for i nbr of k
             pcCSsum.reset();
-            potentialMaster.calculate(box, allAtoms, pcCSsum);
+            for (IAtom a1 : box.getLeafList()) {
+                IAtomOriented atom1 = (IAtomOriented) a1;
+                nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                    @Override
+                    public void accept(IAtom jAtom, Vector rij) {
+                        pcCSsum.go(atom1, (IAtomOriented) jAtom);
+                    }
+                });
+            }
 
             computeTdotDerivs(beta, meterMeanField, dtdotkdetak, dtdotkdt0k);
 

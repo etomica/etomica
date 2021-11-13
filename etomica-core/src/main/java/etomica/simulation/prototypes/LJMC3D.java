@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -23,6 +22,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -60,10 +60,10 @@ public class LJMC3D extends Simulation {
         addSpecies(species);
 
         double rc = 3;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
-
         Box box = new Box(space);
         addBox(box);
+        potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+
         box.setNMolecules(species, params.numAtoms);
         BoxInflate inflater = new BoxInflate(box, space, params.density);
         inflater.actionPerformed();
@@ -74,19 +74,14 @@ public class LJMC3D extends Simulation {
         P2LennardJones p2lj = new P2LennardJones(space);
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, p2lj, rc);
         AtomType atomType = species.getLeafType();
-        potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
+        potentialMaster.setPairPotential(atomType, atomType, p2);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        integrator.setTemperature(params.temperature);
+        integrator = new IntegratorMC(potentialMaster, random, params.temperature, box);
 
-        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
-
-        potentialMaster.setCellRange(2);
-        potentialMaster.reset();
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
 
     public static void main(String[] args) {

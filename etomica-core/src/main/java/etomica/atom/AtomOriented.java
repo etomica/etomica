@@ -12,7 +12,6 @@ import etomica.space3d.OrientationFull3D;
 public class AtomOriented extends Atom implements
         IAtomOriented {
 
-    private static final long serialVersionUID = 1L;
     protected final IOrientation iOrientation;
 
     public AtomOriented(Space space, AtomType type) {
@@ -28,13 +27,17 @@ public class AtomOriented extends Atom implements
             else {
                 iOrientation = new OrientationFull3D(space);
             }
-        }
-        else {
+        } else {
             iOrientation = space.makeOrientation();
         }
     }
 
     public IOrientation getOrientation() {
         return iOrientation;
+    }
+
+    public void copyCoordinatesFrom(IAtom atom) {
+        super.copyCoordinatesFrom(atom);
+        iOrientation.E(((IAtomOriented) atom).getOrientation());
     }
 }

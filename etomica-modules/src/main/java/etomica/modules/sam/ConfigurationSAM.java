@@ -16,7 +16,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -25,14 +24,12 @@ import etomica.species.ISpecies;
 public class ConfigurationSAM implements Configuration {
 
     public ConfigurationSAM(Simulation sim, Space space,
-                            ISpecies speciesMolecules, ISpecies speciesSurface,
-                            PotentialMasterList potentialMaster) {
+                            ISpecies speciesMolecules, ISpecies speciesSurface) {
         this.sim = sim;
         this.space = space;
         this.speciesMolecules = speciesMolecules;
         this.speciesSurface = speciesSurface;
         moleculeOffset = space.makeVector();
-        this.potentialMaster = potentialMaster;
         conformation = new ConformationChainZigZag[4];
     }
     
@@ -55,17 +52,15 @@ public class ConfigurationSAM implements Configuration {
     public void initializeCoordinates(Box box) {
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
-        potentialMaster.getNbrCellManager(pretendBox).setDoApplyPBC(true);
-        potentialMaster.getNeighborManager(pretendBox).setDoApplyPBC(false);
         box.setNMolecules(speciesMolecules, 0);
         box.setNMolecules(speciesSurface, 0);
-        int nMolecules = nCellsX*nCellsZ*basisMolecules.getScaledCoordinates().length;
+        int nMolecules = nCellsX * nCellsZ * basisMolecules.getScaledCoordinates().length;
         pretendBox.setNMolecules(speciesMolecules, nMolecules);
-        
+
         Vector dim = space.makeVector();
         dim.E(box.getBoundary().getBoxSize());
-        dim.setX(0, nCellsX*cellSizeX);
-        dim.setX(2, nCellsZ*cellSizeZ);
+        dim.setX(0, nCellsX * cellSizeX);
+        dim.setX(2, nCellsZ * cellSizeZ);
         double boxLengthY = dim.getX(1);
         box.getBoundary().setBoxSize(dim);
         pretendBox.getBoundary().setBoxSize(dim);
@@ -211,5 +206,4 @@ public class ConfigurationSAM implements Configuration {
     protected double yOffset;
     protected final Vector moleculeOffset;
     protected ConformationChainZigZag[] conformation;
-    protected PotentialMasterList potentialMaster;
 }

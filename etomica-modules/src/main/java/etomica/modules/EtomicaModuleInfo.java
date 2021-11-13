@@ -28,6 +28,7 @@ public final class EtomicaModuleInfo {
     public static final EtomicaModuleInfo[] ETOMICA_MODULES = {
             mod("Adsorption", "No description yet", etomica.modules.adsorption.AdsorptionGraphic.class),
             mod("Catalysis", "No description yet", etomica.modules.catalysis.CatalysisGraphic.class),
+            mod("Chain Equilibrium", "No description yet", etomica.modules.chainequilibrium.ChainEquilibriumGraphic.class),
             mod("Colloid", "No description yet", etomica.modules.colloid.ColloidGraphic.class),
             mod("Crystal Viewer", "Permits viewing of static 3-dimensional lattices and the planes they define. Various elementary lattices can be selected, and any plane or surface can be viewed by specifying it via its Miller indices. Image can be rotated to permit viewing from any angle.", etomica.modules.crystalviewer.CrystalViewer.class),
             mod("Discontinuous MD 2D", "No description yet", etomica.modules.swmd.SwmdGraphic.class, "2"),
@@ -36,7 +37,6 @@ public final class EtomicaModuleInfo {
             mod("Droplet", "No description yet", etomica.modules.droplet.DropletGraphic.class),
             mod("Droplet (atomic)", "No description yet", etomica.modules.droplet.DropletAtomicGraphic.class),
             mod("Ensembles", "No description yet", etomica.modules.ensembles.LJMCGraphic.class),
-            mod("Free-radical Polymerization", "No description yet", etomica.modules.chainequilibrium.FreeRadicalPolymerizationGraphic.class),
             mod("Glass", "No description yet", etomica.modules.glass.GlassGraphic.class),
             mod("Insertion", "No description yet", etomica.modules.insertion.InsertionGraphic.class),
             mod("Interfacial", "No description yet", etomica.modules.interfacial.InterfacialSWGraphic.class),
@@ -55,7 +55,6 @@ public final class EtomicaModuleInfo {
             mod("Reverse Osmosis (water)", "No description yet", etomica.modules.rosmosis.ReverseOsmosisWaterGraphic.class),
             mod("Self-Assembled Monolayer", "No description yet", etomica.modules.sam.SamGraphic.class),
             mod("Statistics", "No description yet", etomica.modules.statistics.StatisticsMCGraphic.class, "-moduleNum 1"),
-            mod("Step-wise Growth Polymerization", "No description yet", etomica.modules.chainequilibrium.ChainEquilibriumGraphic.class),
             mod("Statistics Part 2", "No description yet", etomica.modules.statistics.StatisticsMCGraphic.class, "-moduleNum 2"),
             mod("VLE", "No description yet", etomica.modules.vle.VLE.class),
             mod("B2 fit (for VLE)", "No description yet", etomica.modules.vle.B2Fit.class),

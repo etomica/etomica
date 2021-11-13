@@ -1,6 +1,6 @@
 package etomica.spin.heisenberg;
 
-import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -9,10 +9,8 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -26,10 +24,8 @@ public class MeterEnergyMeanField implements IDataSource {
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
 //    protected final PotentialCalculationTorqueSum torqueSum;
-    protected final PotentialCalculationMeanField pc;
-    protected final PotentialMaster potentialMaster;
+    protected final NeighborIterator nbrIterator;
     protected final Box box;
-    protected final IteratorDirective allAtoms;
     protected final double beta;
 //    protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
     protected final PotentialCalculationPhiij pcExtra;
@@ -46,13 +42,14 @@ public class MeterEnergyMeanField implements IDataSource {
     //    protected double[] dtdotdeta = new double[0];
 //    protected double[] dtdotdtheta0 = new double[0];
     protected double[] eta = new double[0];
+    protected final Vector[] netOrientation;
 
-    public MeterEnergyMeanField(Space space, Box box, double J, PotentialMaster potentialMaster, double temperature) {
-        this.potentialMaster = potentialMaster;
+    public MeterEnergyMeanField(Space space, Box box, double J, NeighborManager nbrManager, double temperature) {
+        nbrIterator = nbrManager.makeNeighborIterator();
         beta = 1 / temperature;
         this.J = J;
         J2 = J * J;
-        pc = new PotentialCalculationMeanField(space, J, box);
+
         pcExtra = new PotentialCalculationPhiij();
         pcCvij = new PotentialCalculationCvij();
 //        torqueSum = new PotentialCalculationTorqueSum();
@@ -63,7 +60,10 @@ public class MeterEnergyMeanField implements IDataSource {
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
-        allAtoms = new IteratorDirective();
+        netOrientation = new Vector[box.getLeafList().size()];
+        for (int i=0; i<netOrientation.length; i++) {
+            netOrientation[i] = box.getSpace().makeVector();
+        }
     }
 
     @Override
@@ -79,19 +79,33 @@ public class MeterEnergyMeanField implements IDataSource {
             bdJdtheta0 = new double[atomCount];
             eta = new double[atomCount];
         }
-        pc.reset();
+        for (int i=0; i<netOrientation.length; i++) {
+            netOrientation[i].E(0);
+        }
         pcCSsum.reset();
+        for (IAtom a1 : box.getLeafList()) {
+            IAtomOriented atom1 = (IAtomOriented) a1;
+            nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij) {
+                    IAtomOriented atom2 = (IAtomOriented) jAtom;
+                    Vector ei = atom1.getOrientation().getDirection();
+                    Vector ej = atom2.getOrientation().getDirection();
 
-        potentialMaster.calculate(box, allAtoms, pc);
-        potentialMaster.calculate(box, allAtoms, pcCSsum);
+                    netOrientation[atom1.getLeafIndex()].PEa1Tv1(J/2, ej);
+                    netOrientation[atom2.getLeafIndex()].PEa1Tv1(J/2, ei);
 
-        AtomLeafAgentManager<Vector> agentManager = pc.getAgentManager();
+                    pcCSsum.go(atom1, atom2);
+                }
+            });
+        }
+
         data.E(0);
         double sum = 0;
         double cvSum = 0;
         for (int i = 0; i < atoms.size(); i++) {
             IAtomOriented a = (IAtomOriented) atoms.get(i);
-            Vector h = agentManager.getAgent(a);
+            Vector h = netOrientation[i];
             double hmag = Math.sqrt(h.squared());
             eta[i] = hmag;
             double bh = beta * hmag;
@@ -159,12 +173,19 @@ public class MeterEnergyMeanField implements IDataSource {
 
         //handle phi_ij contribution
         cvSumExtra = 0;
-        potentialMaster.calculate(box, allAtoms, pcExtra);
-        cvSum += 2 * beta * J * cvSumExtra;// 2 is to count each ij twice for phi_ij multiplication
-
-        //handle ij contributions
         cvij = 0;
-        potentialMaster.calculate(box, allAtoms, pcCvij);
+        for (IAtom a1 : box.getLeafList()) {
+            IAtomOriented atom1 = (IAtomOriented) a1;
+            nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij) {
+                    IAtomOriented atom2 = (IAtomOriented) jAtom;
+                    pcExtra.go(atom1, atom2);
+                    pcCvij.go(atom1, atom2);
+                }
+            });
+        }
+        cvSum += 2 * beta * J * cvSumExtra;// 2 is to count each ij twice for phi_ij multiplication
 
 //        PotentialCalculationNbrCounter pcCount = new PotentialCalculationNbrCounter();
 //        potentialMaster.calculate(box, allAtoms, pcCount);
@@ -186,11 +207,8 @@ public class MeterEnergyMeanField implements IDataSource {
         return dataInfo;
     }
 
-    private class PotentialCalculationPhiij implements PotentialCalculation {
-        @Override
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented iatom = (IAtomOriented) atoms.get(0);
-            IAtomOriented jatom = (IAtomOriented) atoms.get(1);
+    private class PotentialCalculationPhiij {
+        public void go(IAtomOriented iatom, IAtomOriented jatom) {
             Vector io = iatom.getOrientation().getDirection();
             Vector jo = jatom.getOrientation().getDirection();
             cvSumExtra += io.dot(jo) * bThetadot[iatom.getLeafIndex()] * bThetadot[jatom.getLeafIndex()];
@@ -201,15 +219,14 @@ public class MeterEnergyMeanField implements IDataSource {
      * Used to compute and store sums of cos(theta) and sin(theta) over neighbors of each atom.
      * Needed for mapped-averaging calculation of heat capacity.
      */
-    public static class PotentialCalculationCSsum implements PotentialCalculation {
+    public static class PotentialCalculationCSsum {
         protected final double[] nbrCsum, nbrSsum;
         public PotentialCalculationCSsum(double[] nbrCsum, double[] nbrSsum) {
             this.nbrCsum = nbrCsum;
             this.nbrSsum = nbrSsum;
         }
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented iatom = (IAtomOriented) atoms.get(0);
-            IAtomOriented jatom = (IAtomOriented) atoms.get(1);
+
+        public void go(IAtomOriented iatom, IAtomOriented jatom) {
             int i = iatom.getLeafIndex();
             int j = jatom.getLeafIndex();
             Vector io = iatom.getOrientation().getDirection();
@@ -228,12 +245,10 @@ public class MeterEnergyMeanField implements IDataSource {
         }
     }
 
-    private class PotentialCalculationCvij implements PotentialCalculation {
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented atom0 = (IAtomOriented) atoms.get(0);
-            IAtomOriented atom1 = (IAtomOriented) atoms.get(1);
+    private class PotentialCalculationCvij {
 
-            cvij += ijContribution(atom0, atom1) + ijContribution(atom1, atom0);
+        public void go(IAtomOriented atom1, IAtomOriented atom2) {
+            cvij += ijContribution(atom1, atom2) + ijContribution(atom2, atom1);
         }
 
         private double ijContribution(IAtomOriented iatom, IAtomOriented jatom) {

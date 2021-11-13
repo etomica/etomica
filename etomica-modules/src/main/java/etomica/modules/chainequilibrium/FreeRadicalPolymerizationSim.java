@@ -12,12 +12,14 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.PotentialMaster;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.BondingInfo;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -27,37 +29,37 @@ import etomica.units.Kelvin;
 
 public class FreeRadicalPolymerizationSim extends Simulation implements AgentSource<IAtom[]> {
 
-    public final PotentialMaster potentialMaster;
+    public final PotentialComputePair potentialMaster;
     public final ConfigurationLatticeFreeRadical config;
-	public IntegratorHard integratorHard;
-	public java.awt.Component display;
-	public Box box;
-	public SpeciesGeneral speciesA; // initiator
-	public SpeciesGeneral speciesB; // monomer
-	public P2SquareWellBonded p2AA;
-	public P2SquareWellRadical p2AB, p2BB;
+    public IntegratorHard integratorHard;
+    public java.awt.Component display;
+    public Box box;
+    public SpeciesGeneral speciesA; // initiator
+    public SpeciesGeneral speciesB; // monomer
+    public P2SquareWellBonded p2AA;
+    public P2SquareWellRadical p2AB, p2BB;
 
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
 
     public FreeRadicalPolymerizationSim() {
         this(Space2D.getInstance());
     }
-    
+
     public FreeRadicalPolymerizationSim(Space space) {
         super(space);
-
         speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        potentialMaster = new PotentialMasterList(this, 3, space);
-        ((PotentialMasterList) potentialMaster).setCellRange(1);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
+
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 1, 3, BondingInfo.noBonding());
+        neighborManager.setDoDownNeighbors(true);
+        potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         double diameter = 1.0;
         double lambda = 2.0;
-
-        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
 
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
@@ -65,74 +67,66 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        integratorHard = new IntegratorHard(this, potentialMaster, box);
-        integratorHard.setIsothermal(true);
-        integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
-        integratorHard.setTimeStep(0.002);
-        integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integratorHard.setThermostatInterval(1);
-        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
-
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this, box);
+        agentManager = new AtomLeafAgentManager<>(this, box);
         resetBonds();
 
         //potentials
-        p2AA = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0);
-        p2AB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
-        p2BB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
+        p2AA = new P2SquareWellBonded(agentManager, diameter / lambda, lambda, 0);
+        p2AB = new P2SquareWellRadical(agentManager, diameter / lambda, lambda, 0.0, random);
+        p2BB = new P2SquareWellRadical(agentManager, diameter / lambda, lambda, 0.0, random);
 
-        potentialMaster.addPotential(p2AA,
-                new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-        potentialMaster.addPotential(p2AB,
-                new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
-        potentialMaster.addPotential(p2BB,
-                new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
+        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
+        potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
 
-        // **** Setting Up the thermometer Meter *****
+        integratorHard = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box, getSpeciesManager());
+        integratorHard.setIsothermal(true);
+        integratorHard.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
+        integratorHard.setThermostatInterval(1);
 
         getController().addActivity(new ActivityIntegrate(integratorHard, true));
     }
-    
+
     public void resetBonds() {
-        
+
         IMoleculeList initiators = box.getMoleculeList(speciesA);
-        for (int i = 0; i<initiators.size(); i++) {
+        for (int i = 0; i < initiators.size(); i++) {
             IAtom initiator0 = initiators.get(i).getChildList().get(0);
             IAtom[] bonds0 = agentManager.getAgent(initiator0);
-            if (i<initiators.size()-1) {
+            if (i < initiators.size() - 1) {
                 i++;
                 IAtom initiator1 = initiators.get(i).getChildList().get(0);
                 IAtom[] bonds1 = agentManager.getAgent(initiator1);
                 bonds0[0] = initiator1;
                 bonds1[0] = initiator0;
-            }
-            else {
+            } else {
                 bonds0[0] = null;
             }
         }
-        
+
         IMoleculeList monomers = box.getMoleculeList(speciesB);
-        for (int i = 0; i<monomers.size(); i++) {
-            IAtom[] bonds = agentManager.getAgent(monomers.get(i).getChildList().get(0));
+        for (IMolecule monomer : monomers) {
+            IAtom[] bonds = agentManager.getAgent(monomer.getChildList().get(0));
             bonds[0] = null;
             bonds[1] = null;
         }
     }
 
-	/**
-	 * Implementation of AtomAgentManager.AgentSource interface. Agent
+    /**
+     * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
-	 */
-	public IAtom[] makeAgent(IAtom a, Box agentBox) {
-	    if (a.getType() == speciesB.getLeafType()) {
-	        return new IAtom[2]; // monomer
-	    }
-		return new IAtom[1]; // initiator
-	}
-    
-    public void releaseAgent(IAtom[] agent, IAtom atom, Box agentBox) {}
-    
+     */
+    public IAtom[] makeAgent(IAtom a, Box agentBox) {
+        if (a.getType() == speciesB.getLeafType()) {
+            return new IAtom[2]; // monomer
+        }
+        return new IAtom[1]; // initiator
+    }
+
+    public void releaseAgent(IAtom[] agent, IAtom atom, Box agentBox) {
+    }
+
     public AtomLeafAgentManager<IAtom[]> getAgentManager() {
-    	return agentManager;
+        return agentManager;
     }
 }

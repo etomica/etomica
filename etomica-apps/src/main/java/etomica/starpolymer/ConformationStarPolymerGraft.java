@@ -23,7 +23,7 @@ public class ConformationStarPolymerGraft implements IConformation {
 
     @Override
     public void initializePositions(IAtomList atomList) {
-        IAtom core = atomList.getAtoms().get(0);
+        IAtom core = atomList.get(0);
         core.getPosition().E(0);
         Vector corePos = core.getPosition();
         graftVectors = new Vector[12];

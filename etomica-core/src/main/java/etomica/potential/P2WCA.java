@@ -80,9 +80,9 @@ public class P2WCA extends Potential2SoftSpherical {
       }
             
     /**
-     *  Returns zero, since there is no long-range correction.
+     * Returns zero, since there is no long-range correction.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         return 0.0;
     }
 

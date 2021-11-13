@@ -20,9 +20,11 @@ import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.integrator.mcmove.MCMoveAtomRotate;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.nbr.site.PotentialMasterSite;
+import etomica.nbr.list.NeighborListManagerLattice;
+import etomica.potential.BondingInfo;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -31,6 +33,7 @@ import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomNumberGenerator;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -49,11 +52,12 @@ import java.util.Calendar;
 public class Heisenberg extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
-    public PotentialMasterSite potentialMaster; // difference betweet Pmaster pmastersite
+    public PotentialComputePairGeneral potentialMaster;
+    public NeighborListManagerLattice nbrManager;
     public Box box;
     public SpeciesGeneral spins;
     public P2Spin potential;
-    public MCMoveRotate mcMove;
+    public MCMoveAtomRotate mcMove;
     private IntegratorMC integrator;
 
     /**
@@ -66,16 +70,18 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
-//        setRandom(new RandomNumberGenerator(1)); //debug only
+        setRandom(new RandomNumberGenerator(1)); //debug only
 //        System.out.println("============================the RandomSeed is one ===========================");
 
         spins = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         addSpecies(spins);
-
-        potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);
+
+        nbrManager = new NeighborListManagerLattice(getSpeciesManager(), box, 1, 1.1, BondingInfo.noBonding());
+        nbrManager.setDoDownNeighbors(true);
+        potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, nbrManager);
         int numAtoms = space.powerD(nCells);
 
         box.setNMolecules(spins, numAtoms);
@@ -84,16 +90,16 @@ public class Heisenberg extends Simulation {
         config.initializeCoordinates(box);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        mcMove = new MCMoveRotate(potentialMaster, random, space);
+        integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
+        mcMove = new MCMoveAtomRotate(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMove);
-        MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);
+        MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, nbrManager, integrator, interactionS);
         integrator.getMoveManager().addMCMove(spinMove);
         integrator.setTemperature(temperature);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
-        potentialMaster.addPotential(potential, new AtomType[]{type, type});
+        potentialMaster.setPairPotential(type, type, potential);
 
     }
 
@@ -116,7 +122,7 @@ public class Heisenberg extends Simulation {
             params.temperature = 5;
             params.nCells = 5;
             params.steps = 10000000;
-            params.doGraphic = true;
+            params.doGraphic = false;
 
         }
         final long startTime = System.currentTimeMillis();
@@ -193,7 +199,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingCV CVMeter = null;
         AccumulatorAverageCovariance CVAccumulator = null;
         if (doCV) {
-            CVMeter = new MeterMappedAveragingCV(sim, temperature, interactionS, sim.potentialMaster);
+            CVMeter = new MeterMappedAveragingCV(sim.box, temperature, interactionS);
             CVAccumulator = new AccumulatorAverageCovariance(samplePerBlock);
             DataPumpListener CVPump = new DataPumpListener(CVMeter, CVAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(CVPump);
@@ -204,7 +210,6 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageFixed FEConAccumulator = null;
         if (doConventionalE) {
             FECon = new MeterPotentialEnergy(sim.potentialMaster);
-            FECon.setBox(sim.box);
             FEConAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener FEConPump = new DataPumpListener(FECon, FEConAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(FEConPump);
@@ -214,7 +219,7 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageFixed FEMapAccumulator = null;
 
         if (doMappingE) {
-            FEMap = new MeterMappedAveragingFreeEnergy(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
+            FEMap = new MeterMappedAveragingFreeEnergy(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, sim.nbrManager);
             FEMapAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener FEMapPump = new DataPumpListener(FEMap, FEMapAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(FEMapPump);
@@ -240,7 +245,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingVSum AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
+            AEEMeter = new MeterMappedAveragingVSum(sim.box, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, sim.nbrManager, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPumpListener AEEListener = new DataPumpListener(AEEMeter, AEEAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
@@ -253,7 +258,7 @@ public class Heisenberg extends Simulation {
 
         if (doCorrelation) {
 
-            CorrelationMeter = new MeterMappedAveragingCorrelation(sim, temperature, interactionS, sim.potentialMaster, formula);
+            CorrelationMeter = new MeterMappedAveragingCorrelation(sim.box, temperature, interactionS, sim.potentialMaster, sim.nbrManager, formula);
             CorrelationAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener CorrelationPump = new DataPumpListener(CorrelationMeter, CorrelationAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(CorrelationPump);
@@ -264,7 +269,7 @@ public class Heisenberg extends Simulation {
 
         if (doDipole) {
             MeterDipoleMoment dipoleMeter = new MeterDipoleMoment(sim.box);
-            MeterMeanField meterMeanField = new MeterMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            MeterMeanField meterMeanField = new MeterMeanField(sim.space, sim.box, interactionS, sim.nbrManager, temperature);
             dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             meanFieldAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener pumpDipole = new DataPumpListener(dipoleMeter, dipoleAccumulator, sampleAtInterval);
@@ -276,7 +281,7 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageCovariance energyMFAccumulator = null;
 
         if (doEnergyMF) {
-            MeterEnergyMeanField meterEnergyMF = new MeterEnergyMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            MeterEnergyMeanField meterEnergyMF = new MeterEnergyMeanField(sim.space, sim.box, interactionS, sim.nbrManager, temperature);
             energyMFAccumulator = new AccumulatorAverageCovariance(samplePerBlock);
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);

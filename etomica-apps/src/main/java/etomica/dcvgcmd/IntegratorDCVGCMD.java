@@ -21,8 +21,8 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.nbr.PotentialMasterHybrid;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.PotentialCompute;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.random.IRandom;
@@ -41,18 +41,15 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	public double zFraction = 0.1;
 	private MyMCMove mcMove1, mcMove2, mcMove3, mcMove4;
 	private ISpecies speciesA, speciesB, speciesMembrane;
-	private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
 	private boolean thermalizeMembrane;
 	private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
 
-	public IntegratorDCVGCMD(PotentialMaster parent, double temperature,
+	public IntegratorDCVGCMD(PotentialCompute parent, double temperature,
 							 ISpecies species1, ISpecies species2, Box box) {
 		super(parent, temperature, box);
 		this.speciesA = species1;
 		this.speciesB = species2;
-		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
-				? (PotentialMasterHybrid) parent : null;
 		setMDStepRepetitions(50);
 	}
 
@@ -69,9 +66,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 
 	protected void setup() {
 		super.setup();
-		potentialMasterHybrid.setUseNbrLists(false);
 		integratormc.reset();
-		potentialMasterHybrid.setUseNbrLists(true);
 		integratormd.reset();
 	}
 
@@ -91,9 +86,6 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	}
 
 	protected void doStepInternal() {
-		if (potentialMasterHybrid != null) {
-			potentialMasterHybrid.setUseNbrLists(MDStepCount > 0);
-		}
 		double Lz = box.getBoundary().getBoxSize().getX(2);
 		if (MDStepCount == 0) {
 			MDStepCount = MDStepRepetitions;
@@ -110,9 +102,6 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 					throw new RuntimeException(i + " " + allAtoms.get(i) + " " + allAtoms.get(i).getPosition());
 				}
 			}
-			potentialMasterHybrid.setUseNbrLists(true);
-			potentialMasterHybrid.getNeighborManager(box).reset();
-
 			if (thermalizeMembrane) {
 				IMoleculeList membranes = box.getMoleculeList(speciesMembrane);
 				atomActionRandomizeVelocity.setTemperature(temperature);
@@ -165,23 +154,23 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 		return integratormd.getCurrentTime();
 	}
 
-	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd, IRandom random) {
+	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd, PotentialMasterBonding pmBonding, IRandom random) {
 		integratormc = intmc;
 		integratormd = intmd;
 		integratormc.setTemperature(temperature);
 		integratormd.setTemperature(temperature);
-		mcMove1 = new MyMCMove(this, random, space, -zFraction);
+		mcMove1 = new MyMCMove(this, pmBonding, random, space, -zFraction);
 		mcMove1.setMu(Kelvin.UNIT.toSim(-10000));
-		mcMove2 = new MyMCMove(this, random, space, +zFraction);
+		mcMove2 = new MyMCMove(this, pmBonding, random, space, +zFraction);
 		mcMove2.setMu(Kelvin.UNIT.toSim(-4419));
 		MCMoveManager moveManager = integratormc.getMoveManager();
 		moveManager.addMCMove(mcMove1);
 		moveManager.addMCMove(mcMove2);
 		mcMove1.setSpecies(speciesA);
 		mcMove2.setSpecies(speciesA);
-		mcMove3 = new MyMCMove(this, random, space, -zFraction);
+		mcMove3 = new MyMCMove(this, pmBonding, random, space, -zFraction);
 		mcMove3.setMu(Kelvin.UNIT.toSim(-10000));
-		mcMove4 = new MyMCMove(this, random, space, +zFraction);
+		mcMove4 = new MyMCMove(this, pmBonding, random, space, +zFraction);
 		mcMove4.setMu(Kelvin.UNIT.toSim(-4419));
 		moveManager.addMCMove(mcMove3);
 		moveManager.addMCMove(mcMove4);
@@ -191,9 +180,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 
 	public void reset() {
 		super.reset();
-		potentialMasterHybrid.setUseNbrLists(false);
 		integratormc.reset();
-		potentialMasterHybrid.setUseNbrLists(true);
 		integratormd.reset();
 	}
 

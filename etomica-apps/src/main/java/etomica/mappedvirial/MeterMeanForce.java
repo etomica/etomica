@@ -5,7 +5,6 @@
 package etomica.mappedvirial;
 
 import etomica.action.IAction;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -19,21 +18,16 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.math.DoubleRange;
 import etomica.potential.IteratorDirective;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.units.dimensions.Force;
 import etomica.units.dimensions.Length;
 
 public class MeterMeanForce implements IDataSource, DataSourceIndependent, IAction {
 
-    protected final PotentialMaster potentialMaster;
-    protected final PotentialCalculationForceSum pcForce;
+    protected final PotentialCompute potentialMaster;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<Vector> forceManager;
-    protected final Space space;
     protected final Potential2SoftSpherical p2;
     protected final Vector dr, fij;
     protected final DataFunction data;
@@ -42,18 +36,14 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
     protected final HistogramNotSoSimple hist, hist2;
     protected final DataDoubleArray xData;
     protected final DataInfoDoubleArray xDataInfo;
-    
-    public MeterMeanForce(Space space, PotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
-        this.space = space;
+
+    public MeterMeanForce(PotentialCompute potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
         this.p2 = p2;
         this.box = box;
         this.potentialMaster = potentialMaster;
-        pcForce = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        pcForce.setAgentManager(forceManager);
         allAtoms = new IteratorDirective();
-        dr = space.makeVector();
-        fij = space.makeVector();
+        dr = box.getSpace().makeVector();
+        fij = box.getSpace().makeVector();
 
         xData = new DataDoubleArray(nbins);
         xDataInfo = new DataInfoDoubleArray("r", Length.DIMENSION, new int[]{nbins});
@@ -78,31 +68,34 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
     }
 
     public void actionPerformed() {
-        pcForce.reset();
-        potentialMaster.calculate(box, allAtoms, pcForce);
+    }
+    
+    public IData getData() {
+        potentialMaster.computeAll(true);
+        Vector[] forces = potentialMaster.getForces();
         IAtomList list = box.getLeafList();
 
         int n = list.size();
+        double rc2 = p2.getRange()*p2.getRange();
         for (int i=0; i<n; i++) {
             IAtom a = list.get(i);
-            Vector fi = forceManager.getAgent(a);
+            Vector fi = forces[i];
             for (int j=i+1; j<n; j++) {
                 IAtom b = list.get(j);
                 dr.Ev1Mv2(b.getPosition(),a.getPosition());
                 box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
+                if (r2 > rc2) continue;
                 double r = Math.sqrt(r2);
-                if (r > p2.getRange()) continue;
-                Vector fj = forceManager.getAgent(b);
+                Vector fj = forces[j];
                 fij.Ev1Mv2(fj,fi);
                 double fdr = 0.5*fij.dot(dr)/r;
                 hist.addValue(r, fdr);
                 hist2.addValue(r, fdr*fdr);
             }
         }
-    }
-    
-    public IData getData() {
+
+
         double[] h = hist.getHistogram();
         double[] y = data.getData();
         System.arraycopy(h, 0, y, 0, h.length);

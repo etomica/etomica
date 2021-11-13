@@ -11,10 +11,8 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.modifier.Modifier;
-import etomica.modifier.ModifierGeneral;
-import etomica.modifier.ModifierNMolecule;
-import etomica.potential.P2SquareWell;
+import etomica.modifier.*;
+import etomica.potential.P2HardGeneric;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -30,28 +28,28 @@ import java.util.ArrayList;
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the
  * simulation class.  Original module by William Scharmach and Matt Moynihan.
  * Later revamped based on module redesign by William M. Chirdon.
- * 
+ *
  * @author William Scharmach
  * @author Matt Moynihan
  * @author Andrew Schultz
  */
 public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
-	private static final String APP_NAME = "Free Radical Chain Addition Polymerization";
-	private static final int REPAINT_INTERVAL = 2;
+    private static final String APP_NAME = "Free Radical Chain Addition Polymerization";
+    private static final int REPAINT_INTERVAL = 2;
 
     protected final FreeRadicalPolymerizationSim sim;
 
     public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, Space _space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
-		getPanel().toolbar.addAuthor("Dr. William Chirdon");
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        getPanel().toolbar.addAuthor("Dr. William Chirdon");
         this.sim = simulation;
-        
+
         int dataInterval = (int) (.04 / sim.integratorHard.getTimeStep());
-        
+
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-        
+
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
@@ -62,28 +60,27 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         // **** Stuff that Modifies the Simulation
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
-        
+
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
-        final DeviceSlider AASlider = sliders(eMin, eMax/2, "initiator-initiatior", sim.p2AA);
-        final DeviceSlider BSlider = sliders(eMin, eMax, "radical reaction", new P2SquareWellRadical[]{sim.p2AB,sim.p2BB});
+        final DeviceSlider AASlider = sliders(eMin, eMax / 2, "initiator-initiatior", sim.p2AA);
+        final DeviceSlider BSlider = sliders(eMin, eMax, "radical reaction", new P2SquareWellRadical[]{sim.p2AB, sim.p2BB});
         AASlider.setPostAction(resetAction);
         BSlider.setPostAction(resetAction);
-        
-        DeviceBox solventThermoFrac = new DeviceBox();
-        solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWell[]{sim.p2AA, sim.p2AB, sim.p2BB}, "solventThermoFrac"));
+
+        DeviceBox solventThermoFrac = new DeviceBox(sim.getController());
+        solventThermoFrac.setModifier(new ModifierGeneral(new P2HardGeneric[]{sim.p2AA, sim.p2AB, sim.p2BB}, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integratorHard);
         add(displayTimer);
-        
+
         DataSourceCountTime timer = new DataSourceCountTime(sim.integratorHard);
 
         DataFork tFork = new DataFork();
-        final DataPump tPump = new DataPump (new MeterTemperature(sim, sim.box, space.D()), tFork);
+        final DataPump tPump = new DataPump(new MeterTemperature(sim.getSpeciesManager(), sim.box, space.D()), tFork);
         tFork.addDataSink(tBox);
         add(tBox);
         dataStreamPumps.add(tPump);
@@ -107,13 +104,13 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         AccumulatorAverage accumulator = new AccumulatorAverageFixed(10);
         accumulator.setPushInterval(10);
         DataFork mwFork = new DataFork();
-        final DataPump mwPump = new DataPump(molecularCount,mwFork);
+        final DataPump mwPump = new DataPump(molecularCount, mwFork);
         mwFork.addDataSink(accumulator);
         dataStreamPumps.add(mwPump);
         IntegratorListenerAction mwPumpListener = new IntegratorListenerAction(mwPump);
         sim.integratorHard.getEventManager().addListener(mwPumpListener);
         mwPumpListener.setInterval(dataInterval);
-        
+
         MolecularWeightAvg molecularWeightAvg = new MolecularWeightAvg();
         mwFork.addDataSink(molecularWeightAvg);
         DataFork mwAvgFork = new DataFork();
@@ -160,7 +157,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setPostAction(resetData);
 
         DisplayPlotXChart compositionPlot = new DisplayPlotXChart();
-        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
+        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
         DisplayPlotXChart mwPlot = new DisplayPlotXChart();
@@ -185,7 +182,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         mw2Box.setLabel("Weight avg degree of polymerization");
         add(mw2Box);
 
-        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
+        ((SimulationRestart) getController().getReinitButton().getAction()).setConfiguration(sim.config);
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
                 sim.resetBonds();
@@ -200,7 +197,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         temperatureSelect.setIsothermal();
         temperatureSelect.setSliderPostAction(resetAction);
         temperatureSelect.setRadioGroupPostAction(resetAction);
-        
+
         ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim.agentManager);
         colorScheme.setBox(sim.box);
         colorScheme.setFreeRadicalColor(sim.speciesA.getLeafType(), Color.GREEN);
@@ -212,7 +209,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             colorScheme.setFullColor(sim.speciesB.getLeafType(), Color.GRAY);
         }
         getDisplayBox(sim.box).setColorScheme(colorScheme);
-        
+
         final DeviceButton atomFilterButton;
         if (space.D() == 3) {
             final AtomTestChainLength atomFilter = new AtomTestChainLength(sim.agentManager);
@@ -224,8 +221,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
                     if (displayBox.getAtomTestDoDisplay() == null) {
                         displayBox.setAtomTestDoDisplay(atomFilter);
                         atomFilterButton.setLabel("Show all");
-                    }
-                    else {
+                    } else {
                         displayBox.setAtomTestDoDisplay(null);
                         atomFilterButton.setLabel("Show only longest chain");
                     }
@@ -233,14 +229,12 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
                 }
             });
             atomFilterButton.setLabel("Show only longest chain");
-        }
-        else {
+        } else {
             atomFilterButton = null;
         }
 
-        
-        DeviceBox combinationProbabilityBox = new DeviceBox();
-        combinationProbabilityBox.setController(sim.getController());
+
+        DeviceBox combinationProbabilityBox = new DeviceBox(sim.getController());
         combinationProbabilityBox.setLabel("combination probability");
         combinationProbabilityBox.setModifier(new ModifierGeneral(new Object[]{sim.p2BB, sim.p2AB}, "combinationProbability"));
         combinationProbabilityBox.setPrecision(1);
@@ -250,10 +244,11 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         nSliderA.setBox(sim.box);
         nSliderA.setModifier(new ModifierNMolecule(sim.box, sim.speciesA) {
             public void setValue(double newValue) {
-                super.setValue(newValue*2);
+                super.setValue(newValue * 2);
             }
+
             public double getValue() {
-                return 0.5*super.getValue();
+                return 0.5 * super.getValue();
             }
         });
         nSliderA.setShowBorder(true);
@@ -277,7 +272,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         nSliderB.setSpecies(sim.speciesB);
         nSliderB.setBox(sim.box);
         nSliderB.setShowBorder(true);
-        nSliderB.setLabel("Monomers "+(space.D() == 2 ? "(black)" : "(white)"));
+        nSliderB.setLabel("Monomers " + (space.D() == 2 ? "(black)" : "(white)"));
         nSliderB.setResetAction(reset);
         nSliderB.setNMajor(4);
         nSliderB.setMaximum(1000);
@@ -296,10 +291,9 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         add(mwPlot);
         JPanel conversionPanel = new JPanel(new GridBagLayout());
         conversionPanel.add(conversionPlot.graphic(), vertGBC);
-        
-        DeviceBox conversionHistoryLength = new DeviceBox();
+
+        DeviceBox conversionHistoryLength = new DeviceBox(sim.getController());
         conversionHistoryLength.setInteger(true);
-        conversionHistoryLength.setController(sim.getController());
         conversionHistoryLength.setModifier(new Modifier() {
 
             public Dimension getDimension() {
@@ -315,16 +309,16 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
 
             public void setValue(double newValue) {
-                conversionHistory.setHistoryLength((int)newValue);
+                conversionHistory.setHistoryLength((int) newValue);
             }
         });
-        conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
+        conversionPanel.add(conversionHistoryLength.graphic(), vertGBC);
 
         getPanel().tabbedPane.add("Conversion", conversionPanel);
 
-        JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
-        JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
-        JPanel controls = new JPanel(new java.awt.GridBagLayout());
+        JPanel speciesEditors = new JPanel(new GridLayout(0, 1));
+        JPanel epsilonSliders = new JPanel(new GridBagLayout());
+        JPanel controls = new JPanel(new GridBagLayout());
 
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
@@ -350,6 +344,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         //set the number of significant figures displayed on the table.
         javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
             java.text.NumberFormat formatter;
+
             {
                 formatter = java.text.NumberFormat.getInstance();
                 formatter.setMaximumFractionDigits(6);
@@ -376,9 +371,9 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
-    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
+    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p) {
 
-        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
+        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierSQWEpsilon(p));
         AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
         AASlider.doUpdate();
         AASlider.setShowBorder(true);
@@ -391,32 +386,23 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         return AASlider;
     }
 
-    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellRadical[] potentials){
+    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellRadical[] potentials) {
 
-        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(potentials, "epsilon"));
-        AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
-        AASlider.doUpdate();
-        AASlider.setShowBorder(true);
-        AASlider.setLabel(s);
-        AASlider.setMinimum(eMin);
-        AASlider.setMaximum(eMax);
-        AASlider.setNMajor(4);
-        AASlider.getSlider().setSnapToTicks(true);
-
-        return AASlider;
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            int D = 2;
-            String dimStr = getParameter("dim");
-            if (dimStr != null) {
-                D = Integer.parseInt(dimStr);
-            }
-			getRootPane().putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-	        FreeRadicalPolymerizationSim sim = new FreeRadicalPolymerizationSim(Space.getInstance(D));
-			getContentPane().add(new FreeRadicalPolymerizationGraphic(sim, sim.getSpace()).getPanel());
+        Modifier[] m = new Modifier[potentials.length];
+        for (int i = 0; i < m.length; i++) {
+            m[i] = new ModifierSQWEpsilon(potentials[i]);
         }
+        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierArray(m));
+        AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
+        AASlider.doUpdate();
+        AASlider.setShowBorder(true);
+        AASlider.setLabel(s);
+        AASlider.setMinimum(eMin);
+        AASlider.setMaximum(eMax);
+        AASlider.setNMajor(4);
+        AASlider.getSlider().setSnapToTicks(true);
+
+        return AASlider;
     }
+
 }

@@ -8,23 +8,28 @@ import etomica.space.Space;
 
 /**
  * Simple electrostatic potential class.
+ *
  * @author Andrew Schultz
  */
 public class P2ElectrostaticWithHardCore extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+        return tf.make(new P2ElectrostaticWithHardCore(space));
+    }
+
     public P2ElectrostaticWithHardCore(Space space) {
         super(space);
     }
-    
+
     public double d2u(double r2) {
-        return +2*u(r2);
+        return +2 * u(r2);
     }
 
     public double du(double r2) {
         return -u(r2);
     }
 
-    public double uInt(double rc) {
+    public double integral(double rc) {
         // lie.  Nobody really wants to know it's infinity
         return 0;
     }

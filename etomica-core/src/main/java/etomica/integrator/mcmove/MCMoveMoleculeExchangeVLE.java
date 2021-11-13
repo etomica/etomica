@@ -6,8 +6,6 @@ package etomica.integrator.mcmove;
 
 import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.mcmove.MCMoveMoleculeExchange;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
 
@@ -15,10 +13,9 @@ public class MCMoveMoleculeExchangeVLE extends MCMoveMoleculeExchange {
     private final MeterDensity meterDensity1;
     private final MeterDensity meterDensity2;
 
-    public MCMoveMoleculeExchangeVLE(PotentialMaster potentialMaster, IRandom random,
-                                     Space space,
+    public MCMoveMoleculeExchangeVLE(IRandom random, Space space,
                                      IntegratorBox integrator1, IntegratorBox integrator2) {
-        super(potentialMaster, random, space, integrator1, integrator2);
+        super(random, space, integrator1, integrator2);
         meterDensity1 = new MeterDensity(integrator1.getBox());
         meterDensity2 = new MeterDensity(integrator2.getBox());
     }

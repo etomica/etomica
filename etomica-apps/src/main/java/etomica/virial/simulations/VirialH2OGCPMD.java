@@ -33,7 +33,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.wheatley.*;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -382,7 +383,7 @@ public class VirialH2OGCPMD {
 
         sim.initRefPref(refFileName, steps/20);
         sim.equilibrate(refFileName, steps/10);
-System.out.println("equilibration finished");
+        System.out.println("equilibration finished");
 
         if(dorefpref){
             long t2 = System.currentTimeMillis();

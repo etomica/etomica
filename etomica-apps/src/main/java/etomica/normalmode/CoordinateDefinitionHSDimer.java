@@ -12,33 +12,32 @@ import etomica.config.IConformationOriented;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.models.nitrogen.AtomActionTransformed;
-import etomica.molecule.*;
-import etomica.simulation.Simulation;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculeArrayList;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
-
-import java.io.Serializable;
+import etomica.species.SpeciesManager;
 
 /**
  * CoordinateDefinition implementation for HS Dimer. The class takes the first
  * space.D values of u to be real space displacements of the molecule center of
- * mass from its nominal position and 2 rotational displacements. 
- * 
+ * mass from its nominal position and 2 rotational displacements.
+ *
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
-        implements Serializable {
-	
-    public CoordinateDefinitionHSDimer(Simulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
-    	
-    	super(sim, box, primitive, 2, basis, _space);
-    	
-    	axis = space.makeVector();
-    	
+public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule {
+
+    public CoordinateDefinitionHSDimer(SpeciesManager sm, Box box, Primitive primitive, Basis basis, Space _space) {
+
+        super(sm, box, primitive, 2, basis, _space);
+
+        axis = space.makeVector();
+
         atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
-        
+
         orientation = space.makeOrientation();
     }
 
@@ -133,12 +132,12 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
                 cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
-                        
+
             currentList.add(molecule);
         }
 
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
+        moleculeSiteManager = new MoleculeAgentManager(sm, box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager<>(new SiteSource(space), box);
     }
     
     public void setConfiguration(Configuration configuration){

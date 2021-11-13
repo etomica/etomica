@@ -4,24 +4,28 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class P2HydrogenPatkowskiIso extends Potential2SoftSpherical {
+
+    public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+        return tf.make(new P2HydrogenPatkowskiIso(space));
+    }
 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         P2HydrogenPatkowskiIso pot1 = new P2HydrogenPatkowskiIso(space);
-        double r2limit = BohrRadius.UNIT.toSim(4.75)*BohrRadius.UNIT.toSim(4.75);
-        try{                        
-            FileWriter one = new FileWriter("core.dat");           
+        double r2limit = BohrRadius.UNIT.toSim(4.75) * BohrRadius.UNIT.toSim(4.75);
+        try {
+            FileWriter one = new FileWriter("core.dat");
             int points = 1000;
-            for (int i = 1; i<points; i++) {
-                double r2 = i*r2limit/points;
+            for (int i = 1; i < points; i++) {
+                double r2 = i * r2limit / points;
                 double u1 = pot1.u(r2);
                 double du1 = pot1.du(r2)/(Math.sqrt(r2));
                 double d2u1 = pot1.d2u(r2)/r2;
@@ -336,7 +340,7 @@ public class P2HydrogenPatkowskiIso extends Potential2SoftSpherical {
         return r2d2udr2;
     }
 
-    public double uInt(double rC) {
+    public double integral(double rC) {
         // TODO Auto-generated method stub
         return 0;
     }

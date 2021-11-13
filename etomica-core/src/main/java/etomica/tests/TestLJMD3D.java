@@ -10,11 +10,14 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Configurations;
-import etomica.data.*;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressure;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureFromIntegrator;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
@@ -33,9 +36,6 @@ public class TestLJMD3D extends Simulation {
     public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public MeterPotentialEnergy energy;
-    public AccumulatorAverageCollapsing avgEnergy;
-    public DataPump pump;
 
     public TestLJMD3D(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
@@ -43,9 +43,9 @@ public class TestLJMD3D extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
-        double sigma = 1.0;
         box = this.makeBox();
+        PotentialMasterList potentialMaster = new PotentialMasterList(this.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
+        double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.01, 1.1, box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -55,9 +55,7 @@ public class TestLJMD3D extends Simulation {
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 3);
         AtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
-
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+        potentialMaster.setPairPotential(leafType, leafType, p2);
 
         config.initializeCoordinates(box);
     }
@@ -74,20 +72,18 @@ public class TestLJMD3D extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
 
         int bs = steps / (4 * 100);
-        MeterPressure pMeter = new MeterPressure(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureFromIntegrator pMeter = new MeterPressureFromIntegrator(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 4);
         sim.integrator.getEventManager().addListener(pPump);
 
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-        energyMeter.setBox(sim.box);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 4);
         sim.integrator.getEventManager().addListener(energyPump);
 
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / params.numAtoms));
         long t2 = System.currentTimeMillis();
 
         System.out.println("runtime: " + (t2 - t1) * 0.001);

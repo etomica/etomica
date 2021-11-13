@@ -7,9 +7,7 @@ package etomica.normalmode;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.compute.PotentialCallback;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -18,8 +16,8 @@ import etomica.space.Vector;
  * Sums the force on each iterated atom and adds it to the integrator agent
  * associated with the atom.
  */
-public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
-        
+public class PotentialCalculationSolidSuperCut implements PotentialCallback {
+
     protected final CoordinateDefinition coordinateDefinition;
     protected final Vector drSite0, drSite1, drA, dr, drB, dr0;
     protected final Space space;
@@ -58,17 +56,14 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
      * Adds forces due to given potential acting on the atoms produced by the iterator.
      * Implemented for only 1- and 2-body potentials.
      */
-    public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        IAtom atom0 = atoms.get(0);
-        IAtom atom1 = atoms.get(1);
+    @Override
+    public void pairCompute(int i, int j, Vector dr, double[] u012) {
+        IAtomList atoms = coordinateDefinition.getBox().getLeafList();
+
+        IAtom atom0 = atoms.get(i);
+        IAtom atom1 = atoms.get(j);
         Vector site0 = coordinateDefinition.getLatticePosition(atom0);
         Vector site1 = coordinateDefinition.getLatticePosition(atom1);
-
-        Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
-
-        drB.Ev1Mv2(site1, site0);
-        boundary.nearestImage(drB);
-        double r2site = drB.squared();
 
         drSite0.Ev1Mv2(atom0.getPosition(), site0);
         drSite0.ME(dr0);
@@ -78,28 +73,29 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         boundary.nearestImage(drSite1);
 
         drA.Ev1Mv2(drSite1, drSite0);
+
         // dr = drB + drSite1 - drSite0
-        dr.Ev1Pv2(drB, drA);
-        boundary.nearestImage(dr);
+        drB.Ev1Mv2(dr, drA);
+        double r2site = drB.squared();
         double r2 = dr.squared();
 
+        double p1 = -u012[1]/r2*dr.dot(drB)*fac1;
+        double dadb = -u012[1]/r2*dr.dot(drA);
 
-        double u = potentialSoft.u(r2);
-        double du = potentialSoft.du(r2);
-        double p1 = -du/r2*dr.dot(drB)*fac1;
-        double dadb = -du/r2*dr.dot(drA);
-
-        pTmp1.Ea1Tv1(-du / r2, dr);
+        pTmp1.Ea1Tv1(-u012[1] / r2, dr);
         double pzxy = pTmp1.getX(2) * dr.getX(2) - (pTmp1.getX(0) * dr.getX(0) + pTmp1.getX(1) * dr.getX(1)) / 2;
 
         int n=r2Cut.length;
-        for (int i=n-1; i>=0; i--) {
-            if (r2Cut[i] < r2site) break;
-            energySum[i] += u;
-            sum1[i] += p1;
-            virialSum[i] += du;
-            pzxySum[i] += pzxy;
-            dadbSum[i] += dadb;
+        for (int k=n-1; k>=0; k--) {
+            if (r2Cut[k] < r2site) break;
+            if (k == 0 && i*j == 0 && false) {
+                System.out.println("PCSSCF "+(i+j)+" "+u012[0]);
+            }
+            energySum[k] += u012[0];
+            sum1[k] += p1;
+            virialSum[k] += u012[1];
+            pzxySum[k] += pzxy;
+            dadbSum[k] += dadb;
         }
     }
     
@@ -145,4 +141,5 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         this.box = box;
         boundary = box.getBoundary();
     }
+
 }

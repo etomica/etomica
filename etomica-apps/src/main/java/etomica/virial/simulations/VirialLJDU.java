@@ -29,8 +29,14 @@ import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.CoordinatePairSet;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import java.awt.*;
 import java.io.File;
@@ -59,7 +65,6 @@ public class VirialLJDU {
             params.doChainRef = true;
             params.uWeights = null;
             params.writeRefPref = true;
-            params.restartFilename = "foo";
         }
 
         runVirial(params);
@@ -171,7 +176,7 @@ public class VirialLJDU {
 
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             refBlocksize = Math.max(steps / (100 * 1000), 1);
             sim.accumulators[0].setBlockSize(refBlocksize);
@@ -183,7 +188,7 @@ public class VirialLJDU {
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if(false) {
-    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -196,9 +201,9 @@ public class VirialLJDU {
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 
@@ -208,13 +213,13 @@ public class VirialLJDU {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-    sim.equilibrate(null, 20, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-    return;
-}
+            return;
+        }
 
         long t1 = System.nanoTime();
         // if running interactively, don't use the file

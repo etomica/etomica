@@ -19,6 +19,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -36,6 +37,7 @@ public class TestLJMC3D extends Simulation {
     public MCMoveAtom mcMoveAtom;
     public SpeciesGeneral species;
     public Box box;
+    public PotentialMasterCell potentialMaster;
     public P2LennardJones potential;
 
     public TestLJMC3D(int numAtoms, Configuration config) {
@@ -44,12 +46,12 @@ public class TestLJMC3D extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
         box = this.makeBox();
+        potentialMaster = new PotentialMasterCell(this.getSpeciesManager(), box, 2, BondingInfo.noBonding());
         integrator = new IntegratorMC(potentialMaster, random, 1.1, box);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveAtom.setStepSize(0.2 * sigma);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
+        mcMoveAtom.setStepSize(0.275 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().setEquilibrating(false);
@@ -58,21 +60,16 @@ public class TestLJMC3D extends Simulation {
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
         potential = new P2LennardJones(space, sigma, 1.0);
+
         double truncationRadius = 3.0 * sigma;
-        if (truncationRadius > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is" + 0.5 * box.getBoundary().getBoxSize().getX(0));
-        }
+
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
-        potentialMaster.setCellRange(3);
-        potentialMaster.setRange(potentialTruncated.getRange());
         AtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+        potentialMaster.setPairPotential(leafType, leafType, potentialTruncated);
 
         config.initializeCoordinates(box);
-        potentialMaster.getNbrCellManager(box).assignCellAll();
-//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
-//        integrator.addListener(writeConfig);
+
+        potentialMaster.init();
     }
 
     public static void main(String[] args) {
@@ -86,8 +83,8 @@ public class TestLJMC3D extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
 
         int bs = params.numSteps / (100 * 2 * numAtoms);
-        MeterPressure pMeter = new MeterPressure(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressure pMeter = new MeterPressure(sim.box, sim.potentialMaster);
+        pMeter.setTemperature(sim.integrator.getTemperature());
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
         DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pPump);
@@ -95,13 +92,15 @@ public class TestLJMC3D extends Simulation {
         bs = params.numSteps / (100 * 10);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(bs);
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
         sim.integrator.getEventManager().addListener(energyPump);
 
         long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         long t2 = System.nanoTime();
         System.out.println("time: " + (t2 - t1) / 1e9);
+
+        System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
         double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
         double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);

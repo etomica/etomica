@@ -10,10 +10,10 @@ import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.math.function.Function;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
@@ -29,10 +29,9 @@ import etomica.util.random.IRandom;
  * @author David Kofke, Andrew Schultz
  */
 public class MCMoveVolumeSolid extends MCMoveBoxStep {
-    
-    private static final long serialVersionUID = 2L;
+
+    protected final IntegratorMC integrator;
     protected double pressure;
-    private MeterPotentialEnergy energyMeter;
     protected final BoxInflate inflate;
     private final int D;
     private IRandom random;
@@ -44,19 +43,16 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
 
     private transient double uOld, vOld, vNew, vScale;
     private transient double uNew = Double.NaN, latticeScale;
-    
+
     protected Function uLatFunction = uLat0;
     protected Function uLatTruncFunction = uLat0;
     protected final boolean doCorti = true;
 
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param _space the governing space for the simulation
-     */
-    public MCMoveVolumeSolid(PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
+    public MCMoveVolumeSolid(IntegratorMC integrator, CoordinateDefinition coordinateDefinition, IRandom random,
                              Space _space, double pressure) {
-        super(potentialMaster);
+        super();
 //        System.out.println("do Corti? "+doCorti);
+        this.integrator = integrator;
         this.coordinateDefinition = coordinateDefinition;
         this.random = random;
         this.D = _space.D();
@@ -64,18 +60,15 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         nominalBoxSize.E(coordinateDefinition.getBox().getBoundary().getBoxSize());
         dr = _space.makeVector();
         inflate = new BoxInflate(_space);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(0.1);
         setStepSizeMin(0.0);
         setStepSize(0.01);
         setPressure(pressure);
-        energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         inflate.setBox(p);
         affectedAtomIterator.setBox(p);
     }
@@ -119,7 +112,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
 
     public boolean doTrial() {
         vOld = box.getBoundary().volume();
-        uOld = energyMeter.getDataAsScalar();
+        uOld = integrator.getPotentialEnergy();
         vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
@@ -158,9 +151,9 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
             atomi.getPosition().PE(dr);
 //            if (i==0) System.out.println("atom 0 => "+atomi.getPosition());
         }
-        System.exit(1);
-        
-        uNew = energyMeter.getDataAsScalar();
+
+        integrator.getPotentialCompute().init();
+        uNew = integrator.getPotentialCompute().computeAll(false);
         return true;
     }
 
@@ -193,6 +186,11 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         }
         
         inflate.undo();
+
+        PotentialCompute potentialCompute = integrator.getPotentialCompute();
+        potentialCompute.init();
+        potentialCompute.computeAll(false);
+
     }
 
     public double energyChange() {return uNew - uOld;}

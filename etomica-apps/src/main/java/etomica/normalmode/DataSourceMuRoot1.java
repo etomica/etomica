@@ -28,7 +28,7 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
     protected double bALattice, volume, latticeDensity;
     protected double lastP, lastVacancyConcentration;
     protected double lastDP, lastLnTot;
-    
+
     public DataSourceMuRoot1(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
@@ -51,12 +51,12 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
         double thisMinMu = Double.isNaN(minMu) ? Double.NEGATIVE_INFINITY : minMu;
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
         int nLatticeAtoms = n0 + ratios.length;
+        int iters = 0;
         while (true) {
 
             double p = 1;
             double totMinus1 = 0;
             double vAvg = 0;
-            double l = Math.exp(myMu);
             for (int i = 0; p > 1e-14; i++) {
                 double x = Math.exp(daDef+myMu)/(nLatticeAtoms-i)*(i+1);
                 if (Double.isInfinite(x) || Double.isInfinite(p/x)) throw new RuntimeException("oops "+p+" "+x+" "+daDef+" "+myMu+" "+thisMinMu+" "+i);
@@ -125,20 +125,30 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
             if (newMu == myMu || newMu == lastMu) {
                 return newMu;
             }
-            if (newMu > maxMu) {
-                return maxMu;
+            if (newMu >= maxMu) {
+                newMu = (myMu + maxMu) / 2;
+                if (newMu == maxMu || newMu == myMu) return newMu;
             }
-            if (newMu < minMu) {
-                return minMu;
+            if (newMu <= minMu) {
+                newMu = (minMu + myMu) / 2;
+                if (newMu == minMu || newMu == myMu) return newMu;
             }
-            if (newMu > lastMu) {
-                minMu = lastMu;
+            if (newMu > myMu) {
+                minMu = Math.max(myMu, minMu);
             }
-            else {
-                maxMu = lastMu;
+            else if (newMu < myMu){
+                maxMu = Math.min(myMu, maxMu);
+            }
+            if ((newMu - myMu) * (lastMu - myMu) > 0 && iters > 10) {
+                // we're bouncing.  if bouncing hard, consider going to the middle
+                if ((newMu - myMu) / (lastMu - myMu) > 0.9) {
+                    newMu = (newMu + myMu) / 2;
+                }
             }
             lastMu = myMu;
             myMu = newMu;
+            iters++;
+            if (iters>1000) throw new RuntimeException("oops");
         }
     }
     
@@ -149,12 +159,12 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
     public double getLastVacancyConcentration() {
         return lastVacancyConcentration;
     }
-    
+
     public class DataSourceMuRootPressure extends DataSourceScalar {
         public DataSourceMuRootPressure() {
             super("P", Pressure.DIMENSION);
         }
-        
+
         public double getDataAsScalar() {
             DataSourceMuRoot1.this.getDataAsScalar();
             return DataSourceMuRoot1.this.getLastPressure();

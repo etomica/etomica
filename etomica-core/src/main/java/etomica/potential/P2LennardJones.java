@@ -11,17 +11,21 @@ import etomica.units.dimensions.Length;
 /**
  * Lennard-Jones interatomic potential.
  * Spherically symmetric potential of the form u(r) = 4*epsilon*[(sigma/r)^12 - (sigma/r)^6]
- * where epsilon describes the strength of the pair interaction, 
+ * where epsilon describes the strength of the pair interaction,
  * and sigma is the atom size parameter.
  *
  * @author David Kofke
  */
 public class P2LennardJones extends Potential2SoftSpherical {
 
+    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, TruncationFactory tf) {
+        return tf.make(new P2LennardJones(space, sigma, epsilon));
+    }
+
     public P2LennardJones(Space space) {
         this(space, 1.0, 1.0);
     }
-    
+
     public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
@@ -46,6 +50,14 @@ public class P2LennardJones extends Potential2SoftSpherical {
         return -epsilon48*s6*(s6 - 0.5);
     }
 
+    public void u012add(double r2, double[] u012) {
+        double s2 = sigmaSquared / r2;
+        double s6 = s2 * s2 * s2;
+        u012[0] += epsilon4 * s6 * (s6 - 1.0);
+        u012[1] += -epsilon48 * s6 * (s6 - 0.5);
+        u012[2] += epsilon624 * s6 * (s6 - _168div624);
+    }
+
    /**
     * The second derivative of the pair energy, times the square of the
     * separation:  r^2 d^2u/dr^2.
@@ -57,18 +69,17 @@ public class P2LennardJones extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
-        double rc = sigma/rC;
-        double sigmaD = space.powerD(sigma);
-        double rcD = space.powerD(rc);
-        double rc3 = rc*rc*rc;
-        double rc6 = rc3*rc3;
-        double rc12 = rc6*rc6;
-        return 4.0*epsilon*sigmaD*A*(rc12/(12.-D) - rc6/(6.-D))/rcD;  //complete LRC is obtained by multiplying by N1*N2/V
+        double rc = sigma / rC;
+        double rCD = space.powerD(rC);
+        double rc3 = rc * rc * rc;
+        double rc6 = rc3 * rc3;
+        double rc12 = rc6 * rc6;
+        return 4.0 * epsilon * rCD * A * (rc12 / (12. - D) - rc6 / (6. - D));
     }
 
     /**

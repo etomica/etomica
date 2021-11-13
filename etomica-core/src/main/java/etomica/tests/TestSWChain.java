@@ -5,9 +5,9 @@
 package etomica.tests;
 
 
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Configurations;
@@ -20,22 +20,22 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.CriterionAll;
-import etomica.nbr.CriterionBondedSimple;
-import etomica.nbr.CriterionInterMolecular;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardBond;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialGroup;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simple square-well chain simulation.
@@ -48,99 +48,117 @@ public class TestSWChain extends Simulation {
     public Box box;
     static int chainLength = 10;
 
-    public TestSWChain(Space _space, int numMolecules, double simTime, Configuration config) {
+    public TestSWChain(Space _space, int numMolecules, Configuration config) {
         super(_space);
 
+        int numAtoms = numMolecules * chainLength;
+        double sigma = 1.0;
+        double sqwLambda = 1.5;
+        double epsilon = 0.5;
+        double neighborRangeFac = 1.2;
+        double bondFactor = 0.15;
+        double timeStep = 0.005;
+        double nbrRange = neighborRangeFac * sqwLambda * sigma;
+
         SpeciesGeneral species = new SpeciesBuilder(space)
-                .withConformation(new ConformationLinear(space))
+                .withConformation(new ConformationLinear(space, sigma))
                 .addCount(AtomType.simpleFromSim(this), chainLength)
                 .setDynamic(true)
                 .build();
         addSpecies(species);
+        box = this.makeBox();
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
-        int numAtoms = numMolecules * chainLength;
-        double sigma = 1.0;
-        double sqwLambda = 1.5;
-        double neighborRangeFac = 1.2;
-        double bondFactor = 0.15;
-        double timeStep = 0.005;
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(getSpeciesManager());
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, nbrRange, bondingInfo);
+        neighborManager.setDoDownNeighbors(true);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+
+        P2HardGeneric p2Bond = new P2HardGeneric(new double[]{sigma - bondFactor, sigma + bondFactor, 2 * (sigma + bondFactor)}, new double[]{Double.POSITIVE_INFINITY, 0, Double.POSITIVE_INFINITY});
+        List<int[]> bondedIndices = new ArrayList<>();
+        for (int i = 0; i < chainLength - 1; i++) {
+            bondedIndices.add(new int[]{i, i + 1});
+        }
+        bondingInfo.setBondingPotentialPair(species, p2Bond, bondedIndices);
 
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+
+        P2HardGeneric potential = P2SquareWell.makePotential(sigma, sqwLambda, epsilon);
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
+
+        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
-        potentialMaster.setCellRange(2);
-        potentialMaster.setRange(neighborRangeFac * sqwLambda * sigma);
-        P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
-        PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
-        potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
 
-        potentialMaster.addPotential(potentialChainIntra, new ISpecies[]{species});
-        ((ConformationLinear) species.getConformation()).setBondLength(sigma);
-
-        P2SquareWell potential = new P2SquareWell(space, sigma, sqwLambda, 0.5, false);
-
-        AtomType sphereType = species.getAtomType(0);
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(sphereType, sphereType);
-        CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
-        nonBondedCriterion.setBonded(false);
-        sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
         box.setNMolecules(species, numMolecules);
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         config.initializeCoordinates(box);
+        new BoxImposePbc(box, space).actionPerformed();
     }
     
     public static void main(String[] args) {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numMolecules = params.numAtoms;
-        double simTime = params.numSteps/numMolecules;
         Configuration config = Configurations.fromResourceFile(String.format("SWChain%d.pos", numMolecules), TestSWChain.class);
 
         Space sp = Space3D.getInstance();
-        TestSWChain sim = new TestSWChain(sp, numMolecules, simTime, config);
+        TestSWChain sim = new TestSWChain(sp, numMolecules, config);
+        int nSteps = (int) (params.numSteps / (numMolecules * chainLength * sim.integrator.getTimeStep()));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps / 10));
+        sim.integrator.resetStepCount();
 
+        long bs = nSteps / 100;
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
+        DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
+        sim.integrator.getEventManager().addListener(pPump);
+
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
-        energyAccumulator.setBlockSize(50);
+        AccumulatorAverage uAccumulator = new AccumulatorAverageFixed(bs);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter, uAccumulator);
         sim.integrator.getEventManager().addListener(energyPump);
 
-        simTime /= chainLength;
-        int nSteps = (int) (simTime / sim.integrator.getTimeStep());
+        long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
-        
-        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
-        avgPE /= numMolecules;
-        System.out.println("Z="+Z);
-        System.out.println("PE/epsilon="+avgPE);
+        System.out.println("time: " + (System.nanoTime() - t1) / 1e9);
+
+        double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
+        double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
+        double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
+        System.out.println("P " + avgP + " " + errP + " " + corP);
+
+        double avgU = uAccumulator.getData(pAccumulator.AVERAGE).getValue(0) / numMolecules;
+        double errU = uAccumulator.getData(pAccumulator.ERROR).getValue(0) / numMolecules;
+        double corU = uAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
+        System.out.println("U " + avgU + " " + errU + " " + corU);
+
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) uAccumulator.getData()).getData(uAccumulator.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
-        Cv *= Cv/numMolecules;
-        System.out.println("Cv/k="+Cv);
-        
-        if (Double.isNaN(Z) || Math.abs(Z-4.5) > 1.5) {
+        Cv *= Cv / numMolecules;
+        System.out.println("Cv/k " + Cv);
+
+        // expected values based on 2x10^7 steps
+        // 4 sigma should fail 1 in 16,000 runs
+
+        double expectedP = 3.008496525057149e-01 - 1.570490504414807e-01 / numMolecules;
+        double stdevP = 0.006;
+        if (Double.isNaN(avgP) || Math.abs(avgP - expectedP) / stdevP > 4) {
             System.exit(1);
         }
-        if (Double.isNaN(avgPE) || Math.abs(avgPE+19.32) > 0.12) {
-            System.exit(1);
+
+        double expectedU = -1.930034804482143e+01 + 1.424254285711056e+00 / numMolecules;
+        double stdevU = 0.06;   // short sim stdev is smaller, but short avg deviates from long avg
+        if (Double.isNaN(avgU) || Math.abs(avgU - expectedU) / stdevU > 4) {
+            System.exit(2);
         }
-        // actual value ~2
-        if (Double.isNaN(Cv) || Cv < 0.5 || Cv > 4.5) {
-            System.exit(1);
-        }
+
+        // Cv is 2.0, but can be pretty far off, especially for N=4000
     }
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 100000;
+        public int numSteps = 200000;
     }
 }

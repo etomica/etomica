@@ -8,10 +8,9 @@ import etomica.action.BoxInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
@@ -24,38 +23,32 @@ import etomica.util.random.IRandom;
  * @author Tai Boon Tan
  */
 public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
-    
-    private static final long serialVersionUID = 2L;
-    private MeterPotentialEnergy energyMeter;
+
+    protected final PotentialCompute potentialCompute;
+    protected final IntegratorMC integrator;
     protected BoxInflate inflate;
-    private IRandom random;
+    private final IRandom random;
     protected final Vector scaleVector;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
     private transient double uOld;
     private transient double uNew = Double.NaN;
 
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param _space the governing space for the simulation
-     */
-    public MCMoveVolumeMonoclinic(PotentialMaster potentialMaster, IRandom random,
-                                  Space _space) {
-        super(potentialMaster);
+    public MCMoveVolumeMonoclinic(PotentialCompute potentialCompute, IntegratorMC integrator, IRandom random) {
+        super();
+        this.potentialCompute = potentialCompute;
+        this.integrator = integrator;
         this.random = random;
-        inflate = new BoxInflate(_space);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        inflate = new BoxInflate(integrator.getBox().getSpace());
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.01);
-        energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
-        scaleVector = _space.makeVector();
+        scaleVector = integrator.getBox().getSpace().makeVector();
     }
 
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         inflate.setBox(p);
         affectedAtomIterator.setBox(p);
     }
@@ -65,7 +58,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     }
     
     public boolean doTrial() {
-        uOld = energyMeter.getDataAsScalar();
+        uOld = integrator.getPotentialEnergy();
                 
         /*
          * anisotropic scaling: scaleb and scalec
@@ -84,7 +77,8 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         inflate.setVectorScale(scaleVector);
         inflate.actionPerformed();
 
-        uNew = energyMeter.getDataAsScalar();
+        potentialCompute.init();
+        uNew = potentialCompute.computeAll(false);
         return true;
     }//end of doTrial
 
@@ -96,6 +90,8 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     
     public void rejectNotify() {
         inflate.undo();
+        potentialCompute.init();
+        potentialCompute.computeAll(false);
     }
 
     public double energyChange() {return uNew - uOld;}

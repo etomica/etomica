@@ -11,8 +11,13 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
-import etomica.virial.*;
+import etomica.virial.MayerEHardSphere;
+import etomica.virial.MayerESpherical;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.Standard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,7 +50,9 @@ public class VirialLJTest {
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("LJ"))), temperature,refCluster,targetCluster);
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("LJ")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
+        sim.init();
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.integratorOS.setNumSubSteps(1000);
         // this will run a short simulation to find it

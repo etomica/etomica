@@ -1,26 +1,18 @@
 package etomica.models.clathrates;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.EwaldSummation;
-import etomica.potential.EwaldSummation.MyCharge;
-import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -28,11 +20,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.units.Calorie;
-import etomica.units.Joule;
-import etomica.units.Kelvin;
-import etomica.units.Mole;
-import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -53,9 +40,6 @@ public class ProtonDisorderGenerator extends Simulation {
     protected Box boxO, box;
     protected SpeciesGeneral speciesO;
     protected SpeciesGeneral species;
-    protected Potential2SoftSpherical potentialLJ;
-    protected EwaldSummation potentialES;
-    protected PotentialMaster potentialMaster;
 
     public ProtonDisorderGenerator(Space space, String configFile, int nBasis, int[] nC, double[] a0, boolean isIce, int numMolecule, double rCutRealES, double kCut) {
         super(space);
@@ -77,43 +61,6 @@ public class ProtonDisorderGenerator extends Simulation {
         addBox(box);
         box.setNMolecules(species, numMolecule);
 
-//		double precision = 1.0e-5 , precision_s;
-//		if (precision ==1.0e-5 ){   
-//			precision_s = 3.047059472445871 ;
-//		}	else if (precision == 5.0e-5){
-//			precision_s = 2.800672811371045;}
-//		else {throw new RuntimeException("improper precision value!");}
-
-        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-//		AtomLeafAgentManager atomAgentManager = new AtomLeafAgentManager(agentSource, box);
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<>(agentSource, box);
-
-        double sigma, epsilon;
-//		if(isIce){
-//			sigma = 3.1668; epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice			
-//		}else{			
-//			sigma = 3.154; epsilon = Kelvin.UNIT.toSim(78.0); //TIP4P
-//		}
-
-        if (isIce) {
-            sigma = 3.1668;
-            epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice
-        } else {//TIP4P
-            double A = 600E3; // kcal A^12 / mol
-            double C = 610.0; // kcal A^6 / mol
-            double s6 = A / C;
-            sigma = Math.pow(s6, 1.0 / 6.0);
-            epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
-        }
-
-        potentialLJ = new P2LennardJones(space, sigma, epsilon);
-        potentialLJ.setBox(box);
-        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
-
-//XXXX Potential Master
-        potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
-        potentialMaster.addPotential(potentialES, new AtomType[0]);
     }
 
     public static void main(String[] args) {
@@ -262,14 +209,11 @@ public class ProtonDisorderGenerator extends Simulation {
         System.out.println("P = " + Math.sqrt(dipoleP.squared()) / 0.20819434 / 2.18 + " (/2.18D) "); // in "2.18 D" units
 
 
-        MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPotentialEnergy.setBox(sim.box);
-        double E = Joule.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar() / sim.box.getMoleculeList().size()) * 1.0E-3 * Constants.AVOGADRO;
-        System.out.println("E (kJ/mol)  = " + E);
+//        System.out.println("E (kJ/mol)  = " + E);
 
         if (isGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
-            final DisplayBox display = new DisplayBox(sim, sim.box);
+            final DisplayBox display = new DisplayBox(sim.getController(), sim.box);
             simGraphic.add(display);
             ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.GREEN);
             ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("O"), Color.RED);

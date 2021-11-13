@@ -4,31 +4,31 @@
 
 package etomica.potential;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Date;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * Simplified version of ab initio, non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz JCP 131 064105 2009.
  *  
  * @author Kate Shaul
  */
-public class P3CPSNonAdditiveHeSimplified extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
+public class P3CPSNonAdditiveHeSimplified extends Potential implements PotentialSoft, IPotentialAtomicMultibody, Potential3Soft {
 
     public P3CPSNonAdditiveHeSimplified(Space space) {
         super(3, space);
@@ -130,11 +130,8 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
     }
-    
-    public double energy(double[] r2) {
-        double RAB2 = r2[0];
-        double RAC2 = r2[1];
-        double RBC2 = r2[2];
+
+    public double energy(double RAB2, double RAC2, double RBC2) {
         double RAB = Math.sqrt(RAB2);
         double RAC = Math.sqrt(RAC2);
         double RBC = Math.sqrt(RBC2);
@@ -143,6 +140,10 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
         double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    public double energy(double[] r2) {
+        return energy(r2[0], r2[1], r2[2]);
     }
     
     protected double energy(double RAB, double RAC, double RBC, double costhetaA, double costhetaB, double costhetaC) {

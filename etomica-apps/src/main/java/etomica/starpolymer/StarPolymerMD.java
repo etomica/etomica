@@ -4,48 +4,46 @@ package etomica.starpolymer;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtom;
-import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterRadiusGyration;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.*;
-import etomica.nbr.CriterionInterMolecular;
-import etomica.nbr.NeighborCriterion;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2Fene;
-import etomica.potential.P2WCA;
-import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
+import etomica.potential.compute.PotentialCompute;
+import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class StarPolymerMD extends Simulation {
 
     public Box box;
     public int f, l;
     public SpeciesGeneral species;
-    public IntegratorBox integrator;
     public IntegratorVelocityVerlet integratorMD;
     public P2Fene potentialFene;
     public P2WCA potentialWCA;
-    public PotentialMaster potentialMaster;
+    public PotentialCompute potentialMaster;
 
     public StarPolymerMD(int f, int l, double temperature, double tStep, boolean useNbrs) {
         super(Space3D.getInstance());
+        setRandom(new RandomMersenneTwister(2));
         this.f = f;
         this.l = l;
         species = SpeciesPolymerMono.create(getSpace(), AtomType.simpleFromSim(this), f, l)
@@ -56,81 +54,32 @@ public class StarPolymerMD extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector3D(1.5 * l * 2, 1.5 * l * 2, 1.5 * l * 2));
         box.setNMolecules(species, 1);
-        ArrayList<ArrayList<int[]>> pairArray = getPairArray(f, l);
-        int[][] boundedPairs = pairArray.get(0).toArray(new int[0][0]);
-        int[][] nonBoundedPairs = pairArray.get(1).toArray(new int[0][0]);
-        if (l < 30) useNbrs = false;
+        List<int[]> bondedPairs = getPairArray(f, l);
+        PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
+        PotentialMaster potentialMasterPair;
         if (useNbrs) {
-            potentialMaster = new PotentialMasterList(this, 2, space);
+            potentialMasterPair = new PotentialMasterList(getSpeciesManager(), box, 1, 2, pmBonding.getBondingInfo());
         } else {
-            potentialMaster = new PotentialMaster();
+            potentialMasterPair = new PotentialMaster(getSpeciesManager(), box, pmBonding.getBondingInfo());
         }
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        integratorMD.setTimeStep(tStep);
-        integratorMD.setTemperature(temperature);
+        potentialMaster = new PotentialComputeAggregate(pmBonding, potentialMasterPair);
+        integratorMD = new IntegratorVelocityVerlet(potentialMaster, this.getRandom(), tStep, temperature, box);
         integratorMD.setIsothermal(true);
         integratorMD.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integratorMD.setThermostatInterval(500);
 
-        integrator = integratorMD;
-        this.getController().addActivity(new ActivityIntegrate(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integratorMD));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
 
-        PotentialGroup potentialGroup = potentialMaster.makePotentialGroup(1);
-        ApiIndexList boundedIndexList = new ApiIndexList(boundedPairs);
-        ApiIndexList nonBoundedIndexList = new ApiIndexList(nonBoundedPairs);
+        P2SoftSphericalSum pBonding = new P2SoftSphericalSum(space, potentialFene, potentialWCA);
 
-        potentialGroup.addPotential(potentialFene, boundedIndexList);
+        pmBonding.setBondingPotentialPair(species, pBonding, bondedPairs);
+
         AtomType type = species.getAtomType(0);
-        potentialMaster.addPotential(potentialGroup, new ISpecies[]{species});
-        if (useNbrs) {
-            potentialMaster.addPotential(potentialWCA, new AtomType[]{type, type});
-            CriterionInterMolecular criterion = (CriterionInterMolecular) ((PotentialMasterList) potentialMaster).getCriterion(type, type);
-//CriterionSimple criterion2 = (CriterionSimple)((CriterionAdapter)criterion.getWrappedCriterion();
-//        System.out.println(criterion2);
-            criterion.setIntraMolecularCriterion(new NeighborCriterion() {
-                @Override
-                public boolean accept(IAtom atom1, IAtom atom2) {
-//                    int idx1 = atom1.getIndex();
-//                    int idx2 = atom2.getIndex();
-//                    if (idx1 > idx2) {
-//                        int temp = idx1;
-//                        idx1 = idx2;
-//                        idx2 = temp;
-//                    }
-//                    if (idx1 == 0 && idx2 % l == 1) return false;
-//                    if (idx2 - 1 == idx1 && idx1 % l != 0) return false;
-                    return true;
-                }
+        potentialMasterPair.setPairPotential(type, type, potentialWCA);
 
-                @Override
-                public boolean needUpdate(IAtom atom) {
-                    return criterion.needUpdate(atom);
-                }
-
-                @Override
-                public void setBox(Box box) {
-                    criterion.setBox(box);
-                }
-
-                @Override
-                public boolean unsafe() {
-                    return criterion.unsafe();
-                }
-
-                @Override
-                public void reset(IAtom atom) {
-                    criterion.reset(atom);
-                }
-            });
-            criterion.setIntraMolecularOnly(true);
-            integrator.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
-        } else {
-            potentialGroup.addPotential(potentialWCA, nonBoundedIndexList);
-            potentialGroup.addPotential(potentialWCA, boundedIndexList);
-        }
     }
 
     public static void main(String[] args) {
@@ -159,7 +108,7 @@ public class StarPolymerMD extends Simulation {
 
         final StarPolymerMD sim = new StarPolymerMD(f, l, temperature, tStep, useNbrs);
 
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+        final MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integratorMD);
         double u = meterPE.getDataAsScalar();
         System.out.println("Initial Potential energy: " + u);
 
@@ -169,8 +118,8 @@ public class StarPolymerMD extends Simulation {
         forkPE.addDataSink(accPE);
         forkPE.addDataSink(histPE);
         DataPumpListener pumpPF = new DataPumpListener(meterPE, forkPE, dataInterval);
-        sim.integrator.getEventManager().addListener(pumpPF);
-        sim.integrator.reset();
+        sim.integratorMD.getEventManager().addListener(pumpPF);
+        sim.integratorMD.reset();
 
         MeterRadiusGyration meterRG = new MeterRadiusGyration(sim.getSpace());
         meterRG.setBox(sim.getBox(0));
@@ -182,8 +131,8 @@ public class StarPolymerMD extends Simulation {
         rgFork.addDataSink(accRG);
         rgFork.addDataSink(histRG);
         DataPumpListener rgPump = new DataPumpListener(meterRG, rgFork, dataInterval);
-        sim.integrator.getEventManager().addListener(rgPump);
-        sim.integrator.reset();
+        sim.integratorMD.getEventManager().addListener(rgPump);
+        sim.integratorMD.reset();
 
         MeterBondLength meterBL = new MeterBondLength(sim.box, f, l);
 
@@ -204,11 +153,11 @@ public class StarPolymerMD extends Simulation {
             pePlot.setLabel("PE");
             simGraphic.add(pePlot);
 
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterBL, dataInterval));
+            sim.integratorMD.getEventManager().addListener(new IntegratorListenerAction(meterBL, dataInterval));
             DisplayPlot blPlot = new DisplayPlot();
             blPlot.getPlot().setYLog(true);
             DataPumpListener blPump = new DataPumpListener(meterBL, blPlot.getDataSet().makeDataSink(), dataInterval);
-            sim.integrator.getEventManager().addListener(blPump);
+            sim.integratorMD.getEventManager().addListener(blPump);
             blPlot.setLabel("bond length");
             simGraphic.add(blPlot);
 
@@ -222,7 +171,7 @@ public class StarPolymerMD extends Simulation {
 
         System.out.println("MD starts...");
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMD, steps));
         long t2 = System.currentTimeMillis();
         System.out.println("MD finished! ");
         System.out.println("time : " + (t2 - t1) / 1000.0);
@@ -233,14 +182,14 @@ public class StarPolymerMD extends Simulation {
             int interval = 1000;
             DataLogger dataLogger = new DataLogger();
             DataPumpListener rgPumpListener = new DataPumpListener(meterRG, dataLogger, interval);
-            sim.integrator.getEventManager().addListener(rgPumpListener);
+            sim.integratorMD.getEventManager().addListener(rgPumpListener);
             dataLogger.setFileName(fp);
             dataLogger.setAppending(false);
             DataArrayWriter writer = new DataArrayWriter();
             writer.setIncludeHeader(false);
             dataLogger.setDataSink(writer);
             long t3 = System.currentTimeMillis();
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, xsteps));
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMD, xsteps));
             dataLogger.cleanUp();
             System.out.println("Dumping finished! ");
             System.out.println("time: " + (t3 - t1) / 1000.0);
@@ -251,33 +200,20 @@ public class StarPolymerMD extends Simulation {
 
     }
 
-    private ArrayList<ArrayList<int[]>> getPairArray(int f, int l) {
-        ArrayList<ArrayList<int[]>> pairArray = new ArrayList<>(2);
-        ArrayList<int[]> boundedPairArray = new ArrayList<>();
-        ArrayList<int[]> nonBoundedPariArray = new ArrayList<>();
+    private ArrayList<int[]> getPairArray(int f, int l) {
+        ArrayList<int[]> bondedPairArray = new ArrayList<>();
 
-        for (int k = 1; k < f * l + 1; k++) {
-            int[] temp = new int[]{0, k};
-
-            if (k % l == 1) {
-                boundedPairArray.add(temp);
-            } else {
-                nonBoundedPariArray.add(temp);
+        for (int k = 0; k < f; k++) {
+            int[] temp = new int[]{0, 1+k*l};
+            bondedPairArray.add(temp);
+        }
+        for (int k = 0; k < f; k++) {
+            for (int i=0; i<l-1; i++) {
+                int a1 = 1 + k*l + i;
+                bondedPairArray.add(new int[]{a1, a1+1});
             }
         }
-        for (int i = 1; i < f * l + 1; i++) {
-            for (int j = i + 1; j < f * l + 1; j++) {
-                int[] temp = new int[]{i, j};
-                if (j != i + 1 | i % l == 0) {
-                    nonBoundedPariArray.add(temp);
-                } else {
-                    boundedPairArray.add(temp);
-                }
-            }
-        }
-        pairArray.add(boundedPairArray);
-        pairArray.add(nonBoundedPariArray);
-        return pairArray;
+        return bondedPairArray;
     }
 
     public static class PolymerParam extends ParameterBase {

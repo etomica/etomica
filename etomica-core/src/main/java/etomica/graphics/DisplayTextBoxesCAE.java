@@ -4,13 +4,13 @@
 
 package etomica.graphics;
 
-import etomica.data.*;
-import etomica.data.meter.MeterPressureHard;
+import etomica.data.AccumulatorAverage;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayTextBox.LabelType;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
@@ -203,24 +203,5 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 
     public Unit getUnit() {
         return currentBox.getUnit();
-    }
-
-    public static void main(String[] args) {
-    	final String APP_NAME = "Display Boxes CAE";
-
-        final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        sim.integrator.setIsothermal(true);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
-        AccumulatorAverageCollapsing accumulator = new AccumulatorAverageCollapsing();
-        DataPump dataPump = new DataPump(pressureMeter, accumulator);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
-        graphic.getController().getDataStreamPumps().add(dataPump);
-        DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE();
-        boxes.setAccumulator(accumulator);
-        graphic.add(boxes);
-        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
-
-        graphic.makeAndDisplayFrame(APP_NAME);
     }
 }

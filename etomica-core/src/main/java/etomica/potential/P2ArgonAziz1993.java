@@ -7,16 +7,20 @@ import etomica.space.Space;
 
 /**
  * Pair potential for argon from Aziz (1993) JCP 99(6): 4518.  This is a true pair potential, rather than a pairwise-additive potential.
- * 
+ * <p>
  * In this class, only the pair potential is valid, not the gradients, etc.  I am unlikely to ever include those...
  *
  * @author Kate Shaul
  */
 public class P2ArgonAziz1993 extends Potential2SoftSpherical {
-    
+
+    public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
+        return tf.make(new P2ArgonAziz1993(space));
+    }
+
     public P2ArgonAziz1993(Space space) {
         super(space);
-   
+
     }
 
     /**
@@ -67,10 +71,10 @@ public class P2ArgonAziz1993 extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
-        
+    public double integral(double rC) {
+
         return 0;  //complete LRC is obtained by multiplying by N1*N2/V
     }
 

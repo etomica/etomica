@@ -7,27 +7,29 @@ package etomica.modules.interfacial;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.ApiBuilder;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardBond;
-import etomica.potential.P2HardSphere;
-import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialGroup;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simulation for interfacial tension module.  Simulation itself is just a
@@ -37,16 +39,16 @@ import etomica.species.SpeciesGeneral;
  */
 public class InterfacialSW extends Simulation {
 
-    private static final long serialVersionUID = 1L;
-    public final SpeciesGeneral species;
+    public final SpeciesGeneral species, speciesGhost;
     public final SpeciesGeneral surfactant;
     public final Box box;
     public final IntegratorHard integrator;
 
-    public final AtomType leafType, headType, tailType;
-    public final P2SquareWell p2Head, p2HeadHead;
-    public final P2HardSphere p2TailTail, p2Tail, p2HeadTail;
-    public final P2HardBond p2Bond;
+    public final AtomType leafType, headType, tailType, ghostType;
+    public final P2HardGeneric p2Head, p2HeadHead;
+    public final P2HardGeneric p2TailTail, p2Tail, p2HeadTail;
+    public final P2HardGeneric p2Bond;
+    public final P2HardGeneric p2Ghost, p2GhostHead, p2GhostTail;
 
     public InterfacialSW(Space _space) {
         super(_space);
@@ -61,48 +63,101 @@ public class InterfacialSW extends Simulation {
                 .build();
         addSpecies(surfactant);
 
+        speciesGhost = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        addSpecies(speciesGhost);
+
         double pRange = 2.0;
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, pRange, space);
-
-        int N = 643;  //number of atoms
-
-        //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        if (space.D() == 2) {
-            integrator.setTemperature(0.4);
-            N = 300;
-        }
-        integrator.setIsothermal(true);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integrator.setThermostatInterval(1);
-        getController().addActivity(new ActivityIntegrate(integrator));
-        integrator.setTimeStep(0.01);
+        PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, pRange, pmBonding.getBondingInfo());
+//        NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         //species and potentials
         leafType = species.getLeafType();
         headType = surfactant.getAtomType(0); // head likes the monatomic species
         tailType = surfactant.getAtomType(1);
+        ghostType = speciesGhost.getAtomType(0);
 
         //instantiate several potentials for selection in combo-box
-        P2SquareWell p2SW = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2SW, new AtomType[]{leafType, leafType});
-        p2Head = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2Head, new AtomType[]{leafType, headType});
-        p2HeadHead = new P2SquareWell(space, 1.0, 1.5, 1.0, true);
-        potentialMaster.addPotential(p2HeadHead, new AtomType[]{headType, headType});
+        P2HardGeneric p2SW = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        potentialMaster.setPairPotential(leafType, leafType, p2SW);
+        p2Head = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        potentialMaster.setPairPotential(leafType, headType, p2Head);
+        p2HeadHead = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        potentialMaster.setPairPotential(headType, headType, p2HeadHead);
 
-        p2TailTail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2TailTail, new AtomType[]{tailType, tailType});
-        p2Tail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2Tail, new AtomType[]{leafType, tailType});
-        p2HeadTail = new P2HardSphere(space, 1.0, true);
-        potentialMaster.addPotential(p2HeadTail, new AtomType[]{headType, tailType});
+        p2TailTail = new P2HardGeneric(new double[]{1.0}, new double[]{Double.POSITIVE_INFINITY}, true);
+        potentialMaster.setPairPotential(tailType, tailType, p2TailTail);
+        p2Tail = new P2HardGeneric(new double[]{1.0}, new double[]{Double.POSITIVE_INFINITY}, true);
+        potentialMaster.setPairPotential(leafType, tailType, p2Tail);
+        p2HeadTail = new P2HardGeneric(new double[]{1.0}, new double[]{Double.POSITIVE_INFINITY}, true);
+        potentialMaster.setPairPotential(headType, tailType, p2HeadTail);
 
-        p2Bond = new P2HardBond(space, 0.8, 0.2, true);
-        PotentialGroup p1Surfactant = potentialMaster.makePotentialGroup(1);
-        p1Surfactant.addPotential(p2Bond, ApiBuilder.makeAdjacentPairIterator());
-        potentialMaster.addPotential(p1Surfactant, new ISpecies[]{surfactant});
+        p2Ghost = new P2HardGhost(true);
+        potentialMaster.setPairPotential(ghostType, leafType, p2Ghost);
+        p2GhostHead = new P2HardGhost(true);
+        potentialMaster.setPairPotential(ghostType, headType, p2GhostHead);
+        p2GhostTail = new P2HardGhost(false);
+        potentialMaster.setPairPotential(ghostType, tailType, p2GhostTail);
+
+        p2Bond = new P2HardGeneric(new double[]{0.6, 1.0, 2}, new double[]{Double.POSITIVE_INFINITY, 0, Double.POSITIVE_INFINITY}, true) {
+            @Override
+            protected double collisionTime(Vector r12, Vector v12, int collisionState, double[] cd2) {
+                double bij = r12.dot(v12);
+
+                if (bij > 0.0) {
+                    // moving apart
+                    double r2 = r12.squared();
+                    if (fixOverlap && r2 > cd2[1]) {
+                        // overlapped collide now
+                        double v2 = v12.squared();
+                        return 0.001 * Math.sqrt(r2 / v2);
+                    }
+                }
+                return super.collisionTime(r12, v12, collisionState, cd2);
+            }
+        };
+
+        List<int[]> bonds = new ArrayList<>();
+        bonds.add(new int[]{0, 1});
+        pmBonding.setBondingPotentialPair(surfactant, p2Bond, bonds);
+
+        int N = 643;  //number of atoms
+
+        //controller and integrator
+        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random,
+                0.01, space.D() == 2 ? 0.4 : 1, box, getSpeciesManager(), pmBonding.getBondingInfo()) {
+            public void doThermostat() {
+                thermostatting = true;
+                thermostatCount = thermostatInterval;
+
+                if (initialized) {
+                    IAtomList atomList = box.getLeafList();
+                    int atomCount = atomList.size();
+                    if (atomCount > 0) {
+                        int index = random.nextInt(atomList.size());
+                        IAtomKinetic a = (IAtomKinetic) atomList.get(index);
+                        double m = a.getType().getMass();
+                        if (m == Double.POSITIVE_INFINITY) return;
+                        currentKineticEnergy -= 0.5 * m * a.getVelocity().squared();
+                        randomizeMomentum(a);
+                        if (a.getType() == ghostType) {
+                            a.getVelocity().setX(0, 0);
+                        }
+                        currentKineticEnergy += 0.5 * m * a.getVelocity().squared();
+                    }
+                }
+                thermostatting = false;
+            }
+        };
+        if (space.D() == 2) {
+            N = 300;
+        }
+        integrator.setIsothermal(true);
+        integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostatInterval(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         //construct box
         Vector dim = space.makeVector();
@@ -118,21 +173,32 @@ public class InterfacialSW extends Simulation {
         } else {
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
-    
+
     public static void main(String[] args) {
         Space space = Space2D.getInstance();
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     space = Space3D.getInstance();
                 }
-            } catch(NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+            }
         }
-            
+
         InterfacialSW sim = new InterfacialSW(space);
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
+
+    private static class P2HardGhost extends P2HardGeneric {
+        public P2HardGhost(boolean sqw) {
+            super(sqw ? new double[]{1, 1.5} : new double[]{1}, sqw ? new double[]{0, 0} : new double[]{0});
+        }
+
+        @Override
+        public double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int collisionState, double falseTime) {
+            return Double.POSITIVE_INFINITY;
+        }
+    }
 }

@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -14,9 +13,11 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesGeneral;
@@ -36,9 +37,9 @@ public class HSMD2D extends Simulation {
     public SpeciesGeneral species1;
     public SpeciesGeneral species2;
     public Box box;
-    public Potential2 potential11;
-    public Potential2 potential12;
-    public Potential2 potential22;
+    public P2HardGeneric potential11;
+    public P2HardGeneric potential12;
+    public P2HardGeneric potential22;
 
     public HSMD2D() {
         super(Space2D.getInstance());
@@ -49,17 +50,12 @@ public class HSMD2D extends Simulation {
         addSpecies(species2);
 
         box = this.makeBox();
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
+
         double sigma = 1;
-
         double neighborRangeFac = 1.6;
-        potentialMaster.setRange(neighborRangeFac * sigma);
-
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setIsothermal(false);
-        integrator.setTimeStep(0.01);
-
-        potentialMaster.setRange(sigma * 1.6);
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, neighborRangeFac * sigma, BondingInfo.noBonding());
+        neighborManager.setDoDownNeighbors(true);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         getController().setSleepPeriod(1);
         getController().addActivity(new ActivityIntegrate(integrator));
@@ -67,22 +63,24 @@ public class HSMD2D extends Simulation {
         AtomType leafType2 = species2.getLeafType();
         ((ElementSimple) leafType2.getElement()).setMass(10);
 
-        potential11 = new P2HardSphere(space, sigma, false);
-        potential12 = new P2HardSphere(space, sigma, false);
-        potential22 = new P2HardSphere(space, sigma, false);
+        potential11 = P2HardSphere.makePotential(sigma);
+        potential12 = P2HardSphere.makePotential(sigma);
+        potential22 = P2HardSphere.makePotential(sigma);
 
-        potentialMaster.addPotential(potential11, new AtomType[]{leafType1, leafType1});
+        potentialMaster.setPairPotential(leafType1, leafType1, potential11);
+        potentialMaster.setPairPotential(leafType1, leafType2, potential12);
+        potentialMaster.setPairPotential(leafType2, leafType2, potential22);
 
-        potentialMaster.addPotential(potential12, new AtomType[]{leafType2, leafType2});
+        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box, getSpeciesManager());
+        integrator.setIsothermal(false);
 
-        potentialMaster.addPotential(potential22, new AtomType[]{leafType1, leafType2});
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
 
         BoxInflate bi = new BoxInflate(box, space);
         bi.setTargetDensity(0.5);
         bi.actionPerformed();
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
     }
 

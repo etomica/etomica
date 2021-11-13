@@ -7,14 +7,12 @@ package etomica.dcvgcmd;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeSetSinglet;
-import etomica.potential.IPotentialMolecular;
+import etomica.potential.PotentialMasterBonding;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -29,9 +27,10 @@ import etomica.util.random.IRandom;
  */
 public class MyMCMove extends MCMoveInsertDelete {
 
-	public MyMCMove(IntegratorBox integrator, IRandom random,
+	public MyMCMove(IntegratorBox integrator, PotentialMasterBonding pmBonding, IRandom random,
 					Space space, double zFraction) {
-		super(integrator.getPotentialMaster(), random, space);
+		super(null, random, space);
+		this.pmBonding = pmBonding;
 		position = space.makeVector();
 		setZFraction(zFraction);
 		this.integrator = integrator;
@@ -39,14 +38,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 		activeAtoms = new MoleculeArrayList();
 	}
 
-	public void setBox(Box p) {
-		super.setBox(p);
-		energyMeter.setBox(p);
-	}
-
-	public void setSpecies(ISpecies s, double temperature, IPotentialMolecular p1) {
+	public void setSpecies(ISpecies s, double temperature) {
 		super.setSpecies(s);
-		this.p1 = p1;
 		this.temperature = temperature;
 		resevoirMolecule = species.makeMolecule();
 	}
@@ -61,8 +54,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			uOld = 0.0;
 
 			IAtomList atoms = resevoirMolecule.getChildList();
-			MoleculeSetSinglet singlet = new MoleculeSetSinglet(resevoirMolecule);
-			double u = p1.energy(singlet);
+			double u = pmBonding.computeOneMolecule(resevoirMolecule);
 			Vector dr = box.getSpace().makeVector();
 			double stepSize = 0.1;
 			for (int step = 0; step < 10; step++) {
@@ -72,7 +64,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 				dr.setRandomCube(random);
 				dr.TE(stepSize);
 				r.PE(dr);
-				double uNew = p1.energy(singlet);
+				double uNew = pmBonding.computeOneOldMolecule(resevoirMolecule);
 				if (uNew > u && random.nextDouble() > Math.exp(-(uNew - u) / temperature)) {
 					r.ME(dr);
 					continue;
@@ -124,8 +116,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			}
 			testMoleculeIndex = random.nextInt(activeAtoms.size());
 			testMolecule = activeAtoms.get(testMoleculeIndex);
-			energyMeter.setTarget(testMolecule);
-			uOld = energyMeter.getDataAsScalar();
+			uOld = integrator.getPotentialCompute().computeOneOldMolecule(testMolecule);
 		}
 		uNew = Double.NaN;
 		return true;
@@ -133,8 +124,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 
 	public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
 		if (insert) {
-			energyMeter.setTarget(testMolecule);
-			uNew = energyMeter.getDataAsScalar();
+			uNew = integrator.getPotentialCompute().computeOneMolecule(testMolecule);
 //			System.out.println("uNew "+uNew);
 		} else {
 			uNew = 0;
@@ -159,21 +149,24 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}
 
 	public void acceptNotify() {
-		if (!insert) {
-			// accepted deletion - remove from box and add to reservoir
-			box.removeMolecule(testMolecule);
-
-//			System.out.println("removed "+testMolecule.getType().getIndex()+" "+testMoleculeIndex);
-			activeAtoms.remove(testMoleculeIndex);
-			deltaN--;
-		} else {
-//			System.out.println("added "+testMolecule.getType().getIndex()+" "+testMolecule.getIndex());
+		if (insert) {
+			integrator.getPotentialCompute().processAtomU(1);
 			activeAtoms.add(testMolecule);
 			randomizer.setTemperature(integrator.getTemperature());
 			for (IAtom a : testMolecule.getChildList()) {
 				randomizer.actionPerformed(a);
 			}
 			deltaN++;
+		} else {
+			integrator.getPotentialCompute().computeOneMolecule(testMolecule);
+			integrator.getPotentialCompute().processAtomU(-1);
+			// accepted deletion - remove from box and add to reservoir
+			box.removeMolecule(testMolecule);
+			// accepted deletion - remove from box and add to reservoir
+
+//			System.out.println("removed "+testMolecule.getType().getIndex()+" "+testMoleculeIndex);
+			activeAtoms.remove(testMoleculeIndex);
+			deltaN--;
 		}
 	}
 
@@ -196,6 +189,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return deltaN;
 	}
 
+	private final PotentialMasterBonding pmBonding;
 	private double zFraction, zPadding = 5;
 	private int deltaN = 0;
 	private final Vector position;
@@ -206,7 +200,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private final IntegratorBox integrator;
 	protected int testMoleculeIndex;
 	protected double temperature;
-	protected IPotentialMolecular p1;
 	protected IMolecule resevoirMolecule;
 	public long nReservoirTrials, nReservoirTrialsAccepted;
 

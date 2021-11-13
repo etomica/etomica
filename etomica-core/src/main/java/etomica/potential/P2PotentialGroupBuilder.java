@@ -3,8 +3,8 @@
 package etomica.potential;
 
 import etomica.atom.AtomType;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.space.Space;
+import etomica.species.SpeciesManager;
 
 /**
  * Creates a two-body potential group using model parameters for 1 or 2 species.
@@ -14,10 +14,10 @@ import etomica.space.Space;
 
 public class P2PotentialGroupBuilder {
 
-    public static PotentialGroup P2PotentialGroupBuilder(Space space, ModelParams MP1, ModelParams MP2){
+    public static PotentialMoleculePair P2PotentialGroupBuilder(Space space, SpeciesManager sm, ModelParams MP1, ModelParams MP2){
         boolean debug = false;
 
-        PotentialGroup potentialGroup = new PotentialGroup(2);
+        PotentialMoleculePair potentialGroup = new PotentialMoleculePair(space, sm);
         double sigmaHC = 0.1;
         if(MP2 == null) MP2 = MP1;
 
@@ -45,10 +45,10 @@ public class P2PotentialGroupBuilder {
                 double qiqj = MP1.charge[i]*MP2.charge[j];
                 AtomType[] atomList = new AtomType[] {MP1.atomTypes[i],MP2.atomTypes[j]};
 
-                P2LennardJones p2LJ;
+                P2LennardJones p2LJ = null;
                 if(MP1.epsilon[i] != 0 && MP2.epsilon[j] != 0) {
                     p2LJ = new P2LennardJones(space, sigmaij, epsilonij);
-                    potentialGroup.addPotential(p2LJ, ApiBuilder.makeIntergroupTypeIterator(atomList));
+                    potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2LJ);
                     if(debug) {System.out.println("Added p2LJ");}
                 }
 
@@ -66,7 +66,9 @@ public class P2PotentialGroupBuilder {
                         ((P2Electrostatic) p2ES).setCharge1(MP1.charge[i]);
                         ((P2Electrostatic) p2ES).setCharge2(MP2.charge[j]);
                     }
-                    potentialGroup.addPotential(p2ES, ApiBuilder.makeIntergroupTypeIterator(atomList));
+                    Potential2Soft p2 = p2ES;
+                    if (p2LJ != null) p2 = new P2SoftSphericalSum(space, p2LJ, p2ES);
+                    potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2);
                     if(debug) {System.out.println("p2ES");}
                 }
                 if(debug) {System.out.println();}

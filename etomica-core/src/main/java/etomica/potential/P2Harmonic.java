@@ -20,7 +20,6 @@ import etomica.units.dimensions.Length;
  */
 public class P2Harmonic extends Potential2SoftSpherical {
 
-    private static final long serialVersionUID = 1L;
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
 	private final boolean r0Zero;
 	private double r0;
@@ -66,9 +65,9 @@ public class P2Harmonic extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(double rC) {
         return 0.0;
     }
 

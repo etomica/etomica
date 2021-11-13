@@ -4,17 +4,13 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.units.dimensions.Angle;
 import etomica.units.dimensions.Dimension;
@@ -22,10 +18,11 @@ import etomica.units.dimensions.Energy;
 import etomica.util.random.RandomNumberGenerator;
 
 /**
- * Simple 3-body soft bond-angle potential 
+ * Simple 3-body soft bond-angle potential
+ *
  * @author andrew
  */
-public class P3BondAngle extends Potential implements PotentialSoft {
+public class P3BondAngle extends Potential implements PotentialSoft, IPotentialBondAngle {
 
     public P3BondAngle(Space space) {
         super(3, space);
@@ -46,23 +43,24 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         IAtom atom0 = atomSet.get(0);
         IAtom atom1 = atomSet.get(1);
         IAtom atom2 = atomSet.get(2);
-        dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
-        dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
+        dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+        dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
         boundary.nearestImage(dr12);
         boundary.nearestImage(dr23);
-        double costheta = -dr12.dot(dr23)/Math.sqrt(dr12.squared()*dr23.squared());
-        double dtheta;
-        // machine precision can give us numbers with magnitudes slightly greater than 1
+        double costheta = -dr12.dot(dr23) / Math.sqrt(dr12.squared() * dr23.squared());
+        return u(costheta);
+    }
+
+    public double u(double costheta) {
+        double theta;
         if (costheta > 1) {
-            dtheta = 0;
+            theta = 0;
+        } else if (costheta < -1) {
+            theta = Math.PI;
+        } else {
+            theta = Math.acos(costheta);
         }
-        else if (costheta < -1) {
-            dtheta = Math.PI;
-        }
-        else {
-            dtheta = Math.acos(costheta);
-        }
-        dtheta -= angle;
+        double dtheta = theta - angle;
         return 0.5*epsilon*dtheta*dtheta;
     }
 
@@ -130,13 +128,27 @@ public class P3BondAngle extends Potential implements PotentialSoft {
         gradient[0].TE(-epsilon*dtheta/Math.sqrt(1.0-costheta*costheta));
 
         gradient[2].Ea1Tv1(-dr12_23, dr12);
-        gradient[2].PEa1Tv1(-costheta/dr23.squared(), dr23);
-        gradient[2].TE(-epsilon*dtheta/Math.sqrt(1.0-costheta*costheta));
-        
+        gradient[2].PEa1Tv1(-costheta / dr23.squared(), dr23);
+        gradient[2].TE(-epsilon * dtheta / Math.sqrt(1.0 - costheta * costheta));
+
         gradient[1].Ea1Tv1(-1, gradient[0]);
         gradient[1].PEa1Tv1(-1, gradient[2]);
-        
+
         return gradient;
+    }
+
+    public void udu(double costheta, double[] u, double[] du) {
+        double theta;
+        if (costheta > 1) {
+            theta = 0;
+        } else if (costheta < -1) {
+            theta = Math.PI;
+        } else {
+            theta = Math.acos(costheta);
+        }
+        double dtheta = theta - angle;
+        du[0] = -epsilon * dtheta / Math.sqrt(1 - costheta * costheta);
+        u[0] = 0.5 * epsilon * dtheta * dtheta;
     }
 
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {

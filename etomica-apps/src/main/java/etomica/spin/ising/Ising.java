@@ -6,21 +6,28 @@ package etomica.spin.ising;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
+import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.nbr.site.NeighborSiteManager;
-import etomica.nbr.site.PotentialMasterSite;
+import etomica.lattice.LatticeCubicSimple;
+import etomica.nbr.list.NeighborListManagerLattice;
+import etomica.potential.BondingInfo;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
+import etomica.space2d.Vector2D;
 import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesSpheresRotating;
+import etomica.spin.heisenberg.P2Spin;
 
 
 /**
@@ -32,17 +39,19 @@ import etomica.species.SpeciesGeneral;
 public class Ising extends Simulation {
 
     private static final String APP_NAME = "Ising";
-    private static final long serialVersionUID = 2L;
-    public PotentialMasterSite potentialMaster;
+    public PotentialComputePairGeneral potentialMasterPair;
+    public PotentialComputeField potentialMasterField;
+    public PotentialComputeAggregate potentialMaster;
+    public NeighborListManagerLattice nbrManager;
     public Box box;
     public SpeciesGeneral spins;
     public P2Spin potential;
     public P1MagneticField field;
     public MCMoveSpinFlip mcmove;
     public MeterSpin meter;
-    public DataPump pump;
+    public DataPumpListener pump;
     public AccumulatorAverageCollapsing dAcc;
-    private IntegratorMC integrator;
+    public IntegratorMC integrator;
 
     public Ising() {
         this(Space2D.getInstance(), 60);
@@ -53,34 +62,38 @@ public class Ising extends Simulation {
      */
     public Ising(Space _space, int nCells) {
         super(_space);
-        spins = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        spins = SpeciesSpheresRotating.create(space, new ElementSimple(this));
         addSpecies(spins);
-        potentialMaster = new PotentialMasterSite(this, nCells, space);
+
         box = this.makeBox();
         int numAtoms = space.powerD(nCells);
         box.setNMolecules(spins, numAtoms);
-        new ConfigurationAligned().initializeCoordinates(box);
+        box.getBoundary().setBoxSize(new Vector2D(nCells, nCells));
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1), space);
+        config.initializeCoordinates(box);
 
+        nbrManager = new NeighborListManagerLattice(getSpeciesManager(), box, 1, 1.1, BondingInfo.noBonding());
+        nbrManager.setDoDownNeighbors(true);
+        potentialMasterPair = new PotentialComputePairGeneral(getSpeciesManager(), box, nbrManager);
+        potentialMasterField = new PotentialComputeField(getSpeciesManager(), box);
+        potentialMaster = new PotentialComputeAggregate(potentialMasterPair, potentialMasterField);
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
+        integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
+        mcmove = new MCMoveSpinFlip(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcmove);
 
         getController().addActivity(new ActivityIntegrate(integrator));
 
         AtomType type = spins.getLeafType();
-        potentialMaster.addPotential(field, new AtomType[]{type});
-        potentialMaster.addPotential(potential, new AtomType[]{type, type});
+        potentialMasterField.setFieldPotential(type, field);
+        potentialMasterPair.setPairPotential(type, type, potential);
 
-        meter = new MeterSpin(space);
-        meter.setBox(box);
+        meter = new MeterSpin(box);
         dAcc = new AccumulatorAverageCollapsing();
-        pump = new DataPump(meter, dAcc);
+        pump = new DataPumpListener(meter, dAcc, 10);
         dAcc.setPushInterval(10);
-        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
-        pumpListener.setInterval(10);
-        integrator.getEventManager().addListener(pumpListener);
+        integrator.getEventManager().addListener(pump);
     }
 
     public static void main(String[] args) {
@@ -92,8 +105,7 @@ public class Ising extends Simulation {
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 
         simGraphic.remove(displayBox);
-        NeighborSiteManager neighborSiteManager = (NeighborSiteManager)sim.potentialMaster.getBoxCellManager(sim.box);
-        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager, sp, sim.getController()));
+        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox, sp, sim.getController()));
         simGraphic.add(displayBox);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
         temperatureSlider.setMinimum(0.5);

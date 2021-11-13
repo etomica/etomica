@@ -24,4 +24,12 @@ public interface IntegratorListenerMD extends IntegratorListener {
     default void integratorForceComputed(IntegratorEvent e) {
     }
 
+    /**
+     * Invoked after the integrator has completed moving the atoms, but before
+     * invoking the thermostat.
+     *
+     * @param e
+     */
+    default void preThermostat(IntegratorEvent e) {
+    }
 }

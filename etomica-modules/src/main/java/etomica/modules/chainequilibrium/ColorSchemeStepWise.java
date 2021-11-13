@@ -29,7 +29,7 @@ public class ColorSchemeStepWise extends ColorScheme {
         super();
         simulation = sim;
         ISpecies lastSpecies = sim.getSpecies(sim.getSpeciesCount() - 1);
-        AtomType lastAtomType = lastSpecies.getAtomType(lastSpecies.getAtomTypeCount() - 1);
+        AtomType lastAtomType = lastSpecies.getAtomType(lastSpecies.getUniqueAtomTypeCount() - 1);
         colorMaps = new Color[lastAtomType.getIndex() + 1][4];
         this.bondingAgentManager = bondingAgentManager;
     }

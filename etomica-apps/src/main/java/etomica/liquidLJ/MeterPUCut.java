@@ -7,64 +7,50 @@ package etomica.liquidLJ;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSource;
 import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Null;
 
 /**
- * Meter for evaluation of the soft-potential pressure in a box.
- * Requires that temperature be set in order to calculation ideal-gas
- * contribution to pressure; default is to use zero temperature, which
- * causes this contribution to be omitted.
- *
- * @author David Kofke
+ * Meter for evaluation of the soft-potential pressure and energy for various
+ * cutoffs.
  */
-
 public class MeterPUCut implements IDataSource {
-    
+
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected IteratorDirective iteratorDirective;
-    protected final PotentialCalculationSumCutoff pc, pcDADv2;
-    protected PotentialMaster potentialMaster, potentialMasterDADv2;
+    protected final PotentialCallbackSumCutoff pc, pcDADv2;
+    protected final PotentialCompute potentialMaster, potentialMasterDADv2;
     protected double temperature;
-    protected Box box;
-    private final int dim;
-    
-    public MeterPUCut(Space space, double[] cutoffs) {
+    private final Box box;
+
+    public MeterPUCut(Box box, PotentialCompute potentialMaster, double temperature, double[] cutoffs) {
+        this(box, potentialMaster, null, temperature, cutoffs);
+    }
+
+    public MeterPUCut(Box box, PotentialCompute potentialMaster, PotentialCompute potentialMasterDADv2, double temperature, double[] cutoffs) {
+        this.potentialMaster = potentialMaster;
+        this.potentialMasterDADv2 = potentialMasterDADv2;
+        this.temperature = temperature;
+        this.box = box;
         data = new DataDoubleArray(new int[]{cutoffs.length,4});
         dataInfo = new DataInfoDoubleArray("PU", Null.DIMENSION, new int[]{cutoffs.length,4});
         tag = new DataTag();
         dataInfo.addTag(tag);
-    	dim = space.D();
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = false;
-        pc = new PotentialCalculationSumCutoff(space, cutoffs);
-        pcDADv2 = new PotentialCalculationSumCutoff(space, cutoffs);
-    }
-
-    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
-        potentialMaster = newPotentialMaster;
-    }
-    
-    public void setPotentialMasterDADv2(PotentialMaster newPotentialMasterDADv2) {
-        this.potentialMasterDADv2 = newPotentialMasterDADv2;
+        pc = new PotentialCallbackSumCutoff(cutoffs);
+        pcDADv2 = new PotentialCallbackSumCutoff(cutoffs);
     }
 
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
-    }
-
-    public void setBox(Box newBox) {
-        box = newBox;
-        pc.setBox(box);
-        pcDADv2.setBox(box);
     }
 
     /**
@@ -72,11 +58,12 @@ public class MeterPUCut implements IDataSource {
      * ideal-gas contribution.
      */
     public IData getData() {
-        if (potentialMaster == null || box == null) {
+        if (potentialMaster == null) {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
         pc.zeroSums();
-        potentialMaster.calculate(box, iteratorDirective, pc);
+        potentialMaster.init();
+        potentialMaster.computeAll(false, pc);
         double[] uSum = pc.getUSums();
         double[] vSum = pc.getVSums();
 
@@ -84,13 +71,15 @@ public class MeterPUCut implements IDataSource {
         double[] vSumDADv2 = vSum;
         if (potentialMasterDADv2 != null) {
             pcDADv2.zeroSums();
-            potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+            potentialMasterDADv2.init();
+            potentialMasterDADv2.computeAll(false, pcDADv2);
             uSumDADv2 = pcDADv2.getUSums();
             vSumDADv2 = pcDADv2.getVSums();
         }
 
         double[] x = data.getData();
         int j = 0;
+        int dim = box.getSpace().D();
         for (int i=0; i<uSum.length; i++) {
             double vol = box.getBoundary().volume();
             int N = box.getMoleculeList().size();

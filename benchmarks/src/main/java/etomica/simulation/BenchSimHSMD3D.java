@@ -25,7 +25,6 @@ public class BenchSimHSMD3D {
     private int numSteps;
 
     private TestHSMD3D sim;
-    private MeterPressureHard pMeter;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -35,19 +34,21 @@ public class BenchSimHSMD3D {
                 TestHSMD3D.class
         );
 
-        sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, config);
+        {
+            sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, config);
 
-        pMeter = new MeterPressureHard(sim.integrator);
-        sim.integrator.reset();
+            MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+            sim.integrator.reset();
+        }
     }
 
-    @Benchmark
+    //    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 3, timeUnit = TimeUnit.SECONDS, iterations = 5)
-    public double integratorStep() {
+    public void integratorStep() {
         sim.integrator.doStep();
-        return pMeter.getDataAsScalar();
     }
+
 }

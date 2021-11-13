@@ -13,11 +13,20 @@ import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
-import etomica.virial.*;
+import etomica.virial.CoordinatePairSet;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterChainHS;
 import etomica.virial.cluster.Standard;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
 import etomica.virial.simulations.SimulationVirialOverlap2;
-import etomica.virial.simulations.VirialLJ;
+import etomica.virial.simulations.VirialLJD;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoft;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -35,7 +44,7 @@ public class BenchSimVirialLJ {
 
     @Setup(Level.Iteration)
     public void setUp() {
-        VirialLJ.VirialLJParam params = new VirialLJ.VirialLJParam();
+        VirialLJD.VirialLJParam params = new VirialLJD.VirialLJParam();
         params.nPoints = 4;
         params.temperature = 1;
         params.numSteps = 10000000L;
@@ -64,7 +73,7 @@ public class BenchSimVirialLJ {
         new Runner(opts).run();
     }
 
-    public static SimulationVirialOverlap2 setupVirial(VirialLJ.VirialLJParam params) {
+    public static SimulationVirialOverlap2 setupVirial(VirialLJD.VirialLJParam params) {
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
         long steps = params.numSteps;
@@ -104,11 +113,13 @@ public class BenchSimVirialLJ {
 
 //        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster);
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
+        sim.init();
 
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }

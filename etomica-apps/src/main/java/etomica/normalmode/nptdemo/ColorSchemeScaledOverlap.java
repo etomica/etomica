@@ -4,18 +4,18 @@
 
 package etomica.normalmode.nptdemo;
 
-import java.awt.Color;
-
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.graphics.ColorSchemeCollectiveAgent;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManager;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
+
+import java.awt.*;
 
 /**
  * Color atoms based on being neighbors of the reference atom
@@ -23,13 +23,13 @@ import etomica.space.Space;
  * @author Andrew Schultz
  */
 public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
-    
-    public ColorSchemeScaledOverlap(Space space, PotentialMasterList potentialMaster, CoordinateDefinition coordinateDefinition) {
+
+    public ColorSchemeScaledOverlap(Space space, NeighborManager neighborManager, CoordinateDefinition coordinateDefinition) {
         super(coordinateDefinition.getBox());
         this.coordinateDefinition = coordinateDefinition;
         Box box = coordinateDefinition.getBox();
         nOverlaps = new int[box.getLeafList().size()];
-        neighborManager = potentialMaster.getNeighborManager(box);
+        neighborIterator = neighborManager.makeNeighborIterator();
         pi = space.makeVector();
         pj = space.makeVector();
         dr = space.makeVector();
@@ -81,25 +81,26 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
             pi.ME(l);
             pi.TE(latticeScale);
             pi.PE(l);
+            int finalI = i;
 
-            IAtomList list = neighborManager.getDownList(atom)[0];
-            for (int j = 0; j<list.size(); j++) {
-                IAtom jAtom = list.get(j);
+            neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij) {
+                    pj.E(jAtom.getPosition());
+                    Vector lj = coordinateDefinition.getLatticePosition(jAtom);
+                    pj.ME(lj);
+                    pj.TE(latticeScale);
+                    pj.PE(lj);
 
-                pj.E(jAtom.getPosition());
-                Vector lj = coordinateDefinition.getLatticePosition(jAtom);
-                pj.ME(lj);
-                pj.TE(latticeScale);
-                pj.PE(lj);
-
-                dr.Ev1Mv2(pi, pj);
-                boundary.nearestImage(dr);
-                double r2 = dr.squared();
-                if (r2 < sig2) {
-                    nOverlaps[i]++;
-                    nOverlaps[jAtom.getLeafIndex()]++;
+                    dr.Ev1Mv2(pi, pj);
+                    boundary.nearestImage(dr);
+                    double r2 = dr.squared();
+                    if (r2 < sig2) {
+                        nOverlaps[finalI]++;
+                        nOverlaps[jAtom.getLeafIndex()]++;
+                    }
                 }
-            }
+            });
         }
         for (int i = 0; i<leafList.size(); i++) {
             //color green the target atom 
@@ -107,8 +108,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
         }
     }
 
-    private static final long serialVersionUID = 1L;
-    private final NeighborListManager neighborManager;
+    private final NeighborIterator neighborIterator;
     protected final Vector dr;
     protected final Vector pi, pj;
     protected final int[] nOverlaps;

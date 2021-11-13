@@ -4,11 +4,11 @@
 
 package etomica.potential;
 
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.P2HardBondedList.BondArrayList;
@@ -33,7 +33,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         
         //box agent manager is used to handle multiple bonded-atoms lists across boxes
         MyBoxAgentSource bas = new MyBoxAgentSource(this);
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<BondArrayList>>(bas, sim);
+        boxAgentManager = new BoxAgentManager<>(bas, sim);
     }
 
     public double getRange() {

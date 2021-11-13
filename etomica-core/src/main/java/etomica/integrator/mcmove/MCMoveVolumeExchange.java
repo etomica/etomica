@@ -9,10 +9,8 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
 
@@ -24,9 +22,7 @@ import etomica.util.random.IRandom;
  * @author David Kofke
  */
 public class MCMoveVolumeExchange extends MCMoveStep {
-    
-    private static final long serialVersionUID = 1L;
-    private final MeterPotentialEnergy energyMeter;
+
     protected final Box firstBox;
     protected final Box secondBox;
     private final IntegratorBox integrator1;
@@ -40,23 +36,21 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private final AtomIteratorLeafAtoms box1AtomIterator;
     private final AtomIteratorLeafAtoms box2AtomIterator;
     private final IRandom random;
-    
+
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(PotentialMaster potentialMaster, IRandom random,
+    public MCMoveVolumeExchange(IRandom random,
                                 Space space,
                                 IntegratorBox integrator1,
                                 IntegratorBox integrator2) {
-        super(potentialMaster, new MCMoveStepTracker());
+        super(new MCMoveStepTracker());
         this.random = random;
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
-        ROOT = 1.0/space.D();
+        ROOT = 1.0 / space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.1);
         box1AtomIterator = new AtomIteratorLeafAtoms();
         box2AtomIterator = new AtomIteratorLeafAtoms();
-        energyMeter.setIncludeLrc(true);
         inflate1 = new BoxInflate(space);
         inflate2 = new BoxInflate(space);
         this.integrator1 = integrator1;
@@ -68,21 +62,21 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         box1AtomIterator.setBox(firstBox);
         box2AtomIterator.setBox(secondBox);
     }
-    
+
     public boolean doTrial() {
         uOld1 = integrator1.getPotentialEnergy();
         uOld2 = integrator2.getPotentialEnergy();
         hOld = uOld1 + uOld2;
         double v1Old = firstBox.getBoundary().volume();
         double v2Old = secondBox.getBoundary().volume();
-        double step = stepSize * (random.nextDouble() - 0.5); 
-        double vRatio = v1Old/v2Old * Math.exp(step);
-        double v2New = (v1Old + v2Old)/(1 + vRatio);
+        double step = stepSize * (random.nextDouble() - 0.5);
+        double vRatio = v1Old / v2Old * Math.exp(step);
+        double v2New = (v1Old + v2Old) / (1 + vRatio);
         double v1New = (v1Old + v2Old - v2New);
-        v1Scale = v1New/v1Old;
-        v2Scale = v2New/v2Old;
-        inflate1.setScale(Math.pow(v1Scale,ROOT));
-        inflate2.setScale(Math.pow(v2Scale,ROOT));
+        v1Scale = v1New / v1Old;
+        v2Scale = v2New / v2Old;
+        inflate1.setScale(Math.pow(v1Scale, ROOT));
+        inflate2.setScale(Math.pow(v2Scale, ROOT));
         // for cell-listing, this will trigger NeighborCellManager notification
         // (as a box listener)
         inflate1.actionPerformed();
@@ -91,49 +85,45 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     }//end of doTrial
 
     public double getChi(double temperature) {
-        energyMeter.setBox(firstBox);
-        uNew1 = energyMeter.getDataAsScalar();
-        energyMeter.setBox(secondBox);
-        uNew2 = energyMeter.getDataAsScalar();
+        uNew1 = integrator1.getPotentialCompute().computeAll(false);
+        uNew2 = integrator2.getPotentialCompute().computeAll(false);
         double hNew = uNew1 + uNew2;
         double B = -(hNew - hOld);
         // assume both integrators have the same temperature
         return Math.exp(B / temperature) * Math.pow(v1Scale, (firstBox.getMoleculeList().size() + 1))
-                * Math.pow(v2Scale,(secondBox.getMoleculeList().size()+1));
+                * Math.pow(v2Scale, (secondBox.getMoleculeList().size() + 1));
     }
-    
+
     public void acceptNotify() {
         if (integrator1 instanceof IntegratorMC) {
-            ((IntegratorMC)integrator1).notifyEnergyChange(uNew1-uOld1);
-        }
-        else {
-            //XXX grossly inefficient
+            ((IntegratorMC) integrator1).notifyEnergyChange(uNew1 - uOld1);
+        } else {
             integrator1.reset();
         }
         if (integrator2 instanceof IntegratorMC) {
-            ((IntegratorMC)integrator2).notifyEnergyChange(uNew2-uOld2);
-        }
-        else {
-            //XXX grossly inefficient
+            ((IntegratorMC) integrator2).notifyEnergyChange(uNew2 - uOld2);
+        } else {
             integrator2.reset();
         }
     }
-    
+
     public void rejectNotify() {
         inflate1.undo();
         inflate2.undo();
+        integrator1.getPotentialCompute().computeAll(false);
+        integrator2.getPotentialCompute().computeAll(false);
     }
 
     public double energyChange(Box box) {
-        if(this.firstBox == box) return uNew1 - uOld1;
-        else if(this.secondBox == box) return uNew2 - uOld2;
+        if (this.firstBox == box) return uNew1 - uOld1;
+        else if (this.secondBox == box) return uNew2 - uOld2;
         else return 0.0;
     }
-    
+
     public final AtomIterator affectedAtoms(Box box) {
-        if(this.firstBox == box) {
+        if (this.firstBox == box) {
             return box1AtomIterator;
-        } else if(this.secondBox == box) {
+        } else if (this.secondBox == box) {
             return box2AtomIterator;
         } else {
             return AtomIteratorNull.INSTANCE;

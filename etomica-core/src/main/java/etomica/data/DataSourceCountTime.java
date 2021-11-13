@@ -8,7 +8,10 @@ import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Time;
 
 /**
- * Data source that returns the elapsed simulation time of an MD integrator.
+ * Data source that keeps track of the elapsed simulation time of an MD
+ * integrator. More precisely, sums the integrator's interval value times the
+ * time-step each time the integrator fires an INTERVAL event. A START event
+ * from the integrator will reset the elapsedTime.
  */
 public class DataSourceCountTime extends DataSourceScalar {
 
@@ -25,5 +28,5 @@ public class DataSourceCountTime extends DataSourceScalar {
 		return integrator.getCurrentTime();
 	}
 
-	protected final IntegratorMD integrator;
+	protected IntegratorMD integrator;
 }
