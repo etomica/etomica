@@ -14,6 +14,7 @@ import etomica.potential.IPotentialHard;
 import etomica.potential.IPotentialHardField;
 import etomica.potential.compute.NeighborManagerHard;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
 
 /**
@@ -23,8 +24,8 @@ public class IntegratorHardPiston extends IntegratorHard {
 
     public IntegratorHardPiston(IPotentialHard[][] pairPotentials, IPotentialHardField[] fieldPotentials,
                                 NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box,
-                                etomica.modules.pistoncylinder.P1HardMovingBoundary pistonPotential) {
-        super(pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, null, null);
+                                etomica.modules.pistoncylinder.P1HardMovingBoundary pistonPotential, SpeciesManager sm) {
+        super(pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, sm, null);
         setTimeStep(1.0);
         this.pistonPotential = pistonPotential;
     }
