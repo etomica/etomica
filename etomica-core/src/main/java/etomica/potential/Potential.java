@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -38,15 +37,7 @@ public abstract class Potential implements IPotentialAtomic {
      * 0, 1, 2 or more atoms in the AtomSet.
      */
     public abstract double energy(IAtomList atoms);
-    
-    /**
-     * Informs the potential of the box on which it acts. Typically this
-     * requires at least that it update the nearestImageTransformer of its
-     * coordinatePair (if it uses one), e.g.:
-     * cPair.setNearestImageTransformer(box.boundary());
-     */
-    public abstract void setBox(Box box);
-    
+
     /**
      * The number of atoms on which the potential depends.
      */

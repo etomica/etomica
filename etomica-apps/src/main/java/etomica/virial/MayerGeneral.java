@@ -46,7 +46,6 @@ public class MayerGeneral implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
-        potential.setBox(newBox);
     }
 
     private final IPotentialMolecular potential;

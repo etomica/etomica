@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -182,10 +181,6 @@ public class P2HardAssociationCone implements Potential2Soft {
 
     public Dimension getThetaDimension() {
         return Angle.DIMENSION;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     @Override

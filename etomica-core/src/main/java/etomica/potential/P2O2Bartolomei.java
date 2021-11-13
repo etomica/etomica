@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -125,10 +124,6 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 
     public double getRange() {        
         return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     public int nBody() {     
@@ -762,10 +757,6 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 
         public double getRange() {
             return P2O2Bartolomei.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2O2Bartolomei.this.setBox(box);
         }
 
         public int nBody() {

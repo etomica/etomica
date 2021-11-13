@@ -140,10 +140,6 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
         return collisionRadius;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public double u(IAtom atom) {
         if (ignoreOverlap) return 0;
         Vector dimensions = boundary.getBoxSize();

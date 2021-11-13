@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.space.Space;
 
 
@@ -40,10 +39,6 @@ public class P2SoftSphericalSum extends Potential2SoftSpherical {
 
     public Potential2Soft getWrappedPotential3() {
         return potential3;
-    }
-
-    public void setBox(Box box) {
-        throw new UnsupportedOperationException();
     }
 
     public double u(double r2) {

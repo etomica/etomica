@@ -35,10 +35,6 @@ public class P3BondAngle extends Potential implements PotentialSoft, IPotentialB
         gradient[2] = space.makeVector();
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public double energy(IAtomList atomSet) {
         IAtom atom0 = atomSet.get(0);
         IAtom atom1 = atomSet.get(1);
@@ -175,7 +171,6 @@ public class P3BondAngle extends Potential implements PotentialSoft, IPotentialB
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
         positionSource.setBox(box);
-        potential.setBox(box);
         Atom atom0 = new Atom(space);
         atom0.getPosition().setX(0, 1);
         Atom atom1 = new Atom(space);

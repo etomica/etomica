@@ -6,7 +6,6 @@ package etomica.potential;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -41,9 +40,6 @@ public interface IPotentialField extends PotentialSoft {
 
     default double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    default void setBox(Box box) {
     }
 
     default double virial(IAtomList atom) {

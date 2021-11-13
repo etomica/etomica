@@ -4,24 +4,22 @@
 
 package etomica.potential;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Date;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * Ab initio non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz JCP 131 064105 2009.
@@ -40,10 +38,6 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
         
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     public void setNullRegionMethod(int nullRegionMethod) {
@@ -715,8 +709,6 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
     Integer parameters = 0;
     public  double[] params = new double[21];
     protected final Vector drAB, drAC, drBC;
-    protected Boundary boundary;
-    private static final long serialVersionUID = 1L;
     protected final Vector[] gradient;
     public static boolean bigAngle;
     protected final double[][][] alpha = new double [5][5][5];

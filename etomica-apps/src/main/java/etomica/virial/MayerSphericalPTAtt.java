@@ -85,8 +85,6 @@ public class MayerSphericalPTAtt implements MayerFunction {
 	}
 
 	public void setBox(Box newBox) {
-		potentialRef.setBox(newBox);
-		potentialFull.setBox(newBox);
 	}
 
 	public IPotential getPotential() {

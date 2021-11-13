@@ -8,7 +8,6 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
@@ -58,10 +57,6 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
     
     public double getRange() {
         return p2Classy.getRange();
-    }
-
-    public void setBox(Box box) {
-        p2Classy.setBox(box);
     }
 
     public int nBody() {

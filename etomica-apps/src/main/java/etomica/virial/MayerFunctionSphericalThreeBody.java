@@ -4,7 +4,6 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialAtomicMultibody;
 import etomica.potential.Potential3Soft;
@@ -35,10 +34,5 @@ public class MayerFunctionSphericalThreeBody extends MayerFunctionThreeBody {
 
     protected double energy(IMoleculeList molecules, double rAB2, double rAC2, double rBC2) {
         return p3 == null ? p3_.u(rAB2, rAC2, rBC2) : p3.energy(new double[]{rAB2, rAC2, rBC2});
-    }
-
-    public void setBox(Box box) {
-        p3.setBox(box);
-        super.setBox(box);
     }
 }

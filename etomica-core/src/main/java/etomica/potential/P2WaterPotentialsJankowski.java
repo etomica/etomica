@@ -8,7 +8,6 @@ import etomica.atom.*;
 import etomica.box.Box;
 import etomica.math.numerical.AkimaSpline;
 import etomica.molecule.IMolecule;
-import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -50,7 +49,6 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected static int[][][] itypus = new int[ntypemax][ntypemax][2];
     protected static double comHackDist = 0.0;
     protected static boolean flag = true, comHack = false, flip = false;
-    protected Boundary boundary;
     protected Space space;
     protected int iSurf, iEmbed;
     protected int icc;
@@ -2436,11 +2434,6 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-        pRigid.setBox(box);
     }
 
     public int nBody() {

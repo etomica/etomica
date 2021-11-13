@@ -4,8 +4,8 @@
 
 
 package etomica.potential;
+
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
@@ -354,10 +354,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             return P2HePCKLJS.this.getRange();
         }
 
-        public void setBox(Box box) {
-            P2HePCKLJS.this.setBox(box);
-        }
-
         public int nBody() {
             return 2;
         }
@@ -496,10 +492,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
 
         public double getRange() {
             return P2HePCKLJS.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2HePCKLJS.this.setBox(box);
         }
 
         public int nBody() {

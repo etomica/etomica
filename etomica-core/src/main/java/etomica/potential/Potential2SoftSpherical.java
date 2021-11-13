@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -78,10 +77,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     protected final Vector[] gradient;

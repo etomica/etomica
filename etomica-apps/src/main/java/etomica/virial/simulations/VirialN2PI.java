@@ -123,7 +123,7 @@ public class VirialN2PI {
         else {
             p2 = p2Full;
         }
-        PotentialMoleculePairPI pTar = new PotentialMoleculePairPI(space, p2, beadFac);
+        PotentialMoleculePairPI pTar = new PotentialMoleculePairPI(space, p2, beadFac, nPoints);
         MayerGeneral fTar = new MayerGeneral(pTar) {
             @Override
             public double f(IMoleculeList pair, double r2, double beta) {

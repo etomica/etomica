@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 
 /**
@@ -27,12 +26,6 @@ public class PotentialMolecularSum implements IPotentialMolecular {
             if (r < p[i].getRange()) r = p[i].getRange();
         }
         return r;
-    }
-
-    public void setBox(Box box) {
-        for (int i=0; i<p.length; i++) {
-            p[i].setBox(box);
-        }
     }
 
     public int nBody() {

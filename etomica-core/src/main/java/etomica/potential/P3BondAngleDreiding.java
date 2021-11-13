@@ -7,10 +7,9 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Simple 3-body soft bond-angle for Dreiding potential 
@@ -158,11 +157,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 
         return gradient(atoms,null);
     }
-	
-	public void setBox(Box box){
-		boundary = box.getBoundary();
-	}
-	
+
 	public double energy(IAtomList atomSet){
         IAtom atom0 = atomSet.get(0);
         IAtom atom1 = atomSet.get(1);

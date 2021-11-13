@@ -4,7 +4,10 @@
 
 package etomica.potential;
 
-import etomica.atom.*;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -18,7 +21,6 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -49,7 +51,6 @@ public class P3Induction implements IPotentialAtomic {
     protected final Vector ri, rj, rk;
     protected final Vector rij, rik;
     protected final Vector or3;
-    protected Boundary boundary;
 
     public P3Induction(Space space, Map<AtomType, MyAgent> paramsManager) {
         this.space = space;
@@ -130,10 +131,6 @@ public class P3Induction implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public int nBody() {
         return 3;
     }
@@ -182,14 +179,11 @@ public class P3Induction implements IPotentialAtomic {
 
         P2WaterSzalewicz p2sz = new P2WaterSzalewicz(space, 2);
         p2sz.setComponent(Component.INDUCTION);
-        p2sz.setBox(box);
         P2WaterSzalewicz p3sz = new P2WaterSzalewicz(space, 3);
         p3sz.setComponent(Component.INDUCTION);
-        p3sz.setBox(box);
 
         Map<AtomType, MyAgent> paramsManager = new HashMap<>();
         P3Induction p3i = new P3Induction(space, paramsManager);
-        p3i.setBox(box);
         double alphaH2O = 1.444;
 
         Vector polH2O = space.makeVector();
@@ -201,8 +195,7 @@ public class P3Induction implements IPotentialAtomic {
         paramsManager.put(species.getLeafType(), agentH2O);
 
         PNWaterGCPM pGCPM = new PNWaterGCPM(space);
-        pGCPM.setBox(box2);
-        
+
         double r = 5;
         Vector dr1 = space.makeVector();
         Vector dr2 = space.makeVector();

@@ -6,7 +6,6 @@ package etomica.modules.droplet;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -21,9 +20,6 @@ public class P1Smash implements IPotentialField {
         gradient = new Vector[1];
         gradient[0] = space.makeVector();
         g = 1;
-    }
-
-    public void setBox(Box newBox) {
     }
 
     public int nBody() {

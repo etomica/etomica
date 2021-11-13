@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -15,9 +14,6 @@ import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Potential in which attaches a harmonic spring between each affected atom a
@@ -31,22 +27,12 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotent
     
     private double w = 100.0;
     private final Vector[] force;
-    protected final Map<Box, AtomLeafAgentManager<? extends Vector>> boxAgentManager;
-    protected AtomLeafAgentManager<? extends Vector> atomAgentManager;
+    protected final AtomLeafAgentManager<? extends Vector> atomAgentManager;
     
-    public P1HarmonicSite(Space space) {
+    public P1HarmonicSite(Space space, AtomLeafAgentManager<? extends Vector> agentManager) {
         super(space);
         force = new Vector[]{space.makeVector()};
-        boxAgentManager = new HashMap<Box, AtomLeafAgentManager<? extends Vector>>();
-    }
-
-    public void setAtomAgentManager(Box box, AtomLeafAgentManager<? extends Vector> agentManager) {
-        boxAgentManager.put(box, agentManager);
         atomAgentManager = agentManager;
-    }
-
-    public void setBox(Box box) {
-        atomAgentManager = boxAgentManager.get(box);
     }
 
     public void setSpringConstant(double springConstant) {

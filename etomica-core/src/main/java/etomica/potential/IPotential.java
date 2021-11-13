@@ -5,8 +5,6 @@
 package etomica.potential;
 
 
-import etomica.box.Box;
-
 public interface IPotential {
 
     /**
@@ -14,12 +12,6 @@ public interface IPotential {
      * greater separation do not interact.
      */
     public double getRange();
-
-    /**
-     * Informs the potential of the box on which it acts so that it can
-     * properly consider the boundaries.
-     */
-    public void setBox(Box box);
 
     /**
      * The number of atoms on which the potential depends.

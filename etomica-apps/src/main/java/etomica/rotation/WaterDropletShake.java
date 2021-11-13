@@ -84,8 +84,8 @@ public class WaterDropletShake {
 
         AtomType oType = species.getTypeByName("O");
         AtomType hType = species.getTypeByName("H");
-        double epsOxygen = new P2WaterSPC(space).getEpsilon();
-        double sigOxygen = new P2WaterSPC(space).getSigma();
+        double epsOxygen = P2WaterSPC.epsilonOO;
+        double sigOxygen = P2WaterSPC.sigmaOO;
         P2LennardJones potentialLJOO = new P2LennardJones(space, sigOxygen, epsOxygen);
         P2Electrostatic potentialQOO = new P2Electrostatic(space);
         potentialQOO.setCharge1(chargeOxygen);

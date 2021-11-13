@@ -6,7 +6,6 @@ package etomica.modules.sam;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
@@ -87,8 +86,6 @@ public class P1Sinusoidal implements IPotential, IPotentialField {
     public int nBody() {
         return 1;
     }
-
-    public void setBox(Box box) {}
 
     protected final Space space;
     protected double b45;

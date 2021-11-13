@@ -5,7 +5,6 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.box.Box;
 import etomica.space.Vector;
 
 public class P1HardFieldGeneric implements IPotentialHardField {
@@ -70,9 +69,6 @@ public class P1HardFieldGeneric implements IPotentialHardField {
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
     }
 
     public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {

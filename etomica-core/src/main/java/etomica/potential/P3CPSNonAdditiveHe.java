@@ -8,8 +8,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -41,10 +39,6 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         this.sigma = sigma;
         setA();
         setAlpha();
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     public void setNullRegionMethod(int nullRegionMethod) {
@@ -700,8 +694,6 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     }
     
     protected final Vector drAB, drAC, drBC;
-    protected Boundary boundary;
-    private static final long serialVersionUID = 1L;
     protected final Vector[] gradient;
     public static boolean bigAngle;
     protected final double[][][] alpha = new double [5][5][5];

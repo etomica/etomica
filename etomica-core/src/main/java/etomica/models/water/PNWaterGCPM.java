@@ -6,7 +6,6 @@ package etomica.models.water;
 
 import Jama.Matrix;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
@@ -21,9 +20,9 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
+import org.apache.commons.math3.special.Erf;
 
 import java.util.Arrays;
-import org.apache.commons.math3.special.Erf;
 
 /**
  * GCPM Water potential class.  This class assumes assumes no periodic
@@ -461,10 +460,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public enum Component {TWO_BODY, INDUCTION, FULL}
 
     public class PNWaterGCPMCached implements IPotentialMolecular {
@@ -481,9 +476,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
         }
 
         public int nBody() {

@@ -136,17 +136,16 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double qO = -0.5 * qC;
         typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
-        p2.setBox(box);
 //        p2.setComponent(PNGCPM.Component.INDUCTION);
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);
 
-        PNCO2GCPM p2c = new PNCO2GCPM(space);
-        p2c.setBox(box);
-//        p2c.setComponent(PNCO2GCPM.Component.INDUCTION);
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
+//        PNCO2GCPM p2c = new PNCO2GCPM(space);
+//        p2c.setBox(box);
+////        p2c.setComponent(PNCO2GCPM.Component.INDUCTION);
+//        double uc = p2c.energy(molecules);
+//        System.out.println(uc);
 
     }
 
@@ -197,17 +196,16 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double qO = -0.5 * qC;
         typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
-        p2.setBox(box);
         P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);
 
-        PNCO2GCPM p2c = new PNCO2GCPM(space);
-        p2c.setBox(box);
-        PNCO2GCPM.P3GCPMAxilrodTeller p3c = p2c.makeAxilrodTeller();
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
+//        PNCO2GCPM p2c = new PNCO2GCPM(space);
+//        p2c.setBox(box);
+//        PNCO2GCPM.P3GCPMAxilrodTeller p3c = p2c.makeAxilrodTeller();
+//        double uc = p2c.energy(molecules);
+//        System.out.println(uc);
 
     }
 
@@ -239,7 +237,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         typeManager.put(speciesWaterCOM.getTypeByName("M"), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
         typeManager.put(speciesWaterCOM.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 4);
-        p2.setBox(box);
         IMoleculeList molecules = box.getMoleculeList();
         MoleculePair pair = new MoleculePair(molecules.get(0), molecules.get(1));
         double u = p2.energy(molecules);
@@ -262,7 +259,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.actionPerformed(mol2);
 
         PNWaterGCPM p2c = new PNWaterGCPM(space);
-        p2c.setBox(box);
         double uc = p2c.energy(molecules);
         System.out.println(uc);
 
@@ -638,10 +634,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public P3GCPMAxilrodTeller makeAxilrodTeller() {
         return new P3GCPMAxilrodTeller(space);
     }
@@ -698,9 +690,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(Box box) {
-        }
-
         public int nBody() {
             return 2;
         }
@@ -738,10 +727,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-
         }
 
         public int nBody() {

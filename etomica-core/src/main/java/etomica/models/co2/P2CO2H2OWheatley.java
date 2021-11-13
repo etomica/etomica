@@ -363,10 +363,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        
-    }
-
     public int nBody() {
         return 2;
     }
@@ -510,10 +506,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-            
         }
 
         public int nBody() {
@@ -877,10 +869,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(Box box) {
-            
-        }
-
         public int nBody() {
             return 2;
         }
@@ -1123,7 +1111,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         box.setNMolecules(speciesCO2, 1);
         box.setNMolecules(speciesH2O, 1);
         P2CO2H2OWheatley p2 = new P2CO2H2OWheatley(space);
-        p2.setBox(box);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented)pair.get(0);

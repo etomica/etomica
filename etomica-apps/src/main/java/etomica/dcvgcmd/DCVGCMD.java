@@ -203,9 +203,6 @@ public class DCVGCMD extends Simulation {
         potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH2, p2MCH2esf);
         potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH, p2MCHesf);
 
-        P1HarmonicSite p1Membrane = new P1HarmonicSite(space);
-        p1Membrane.setSpringConstant(springConstant);
-
         P2Harmonic p2BondCH3 = new P2Harmonic(space, 1000000, 1.54);
         P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 1000000, 1.33);
         List<int[]> bondPairs = new ArrayList<>();
@@ -273,7 +270,9 @@ public class DCVGCMD extends Simulation {
                 v.E(iAtom.getPosition());
                 return v;
             }, box);
-            p1Membrane.setAtomAgentManager(box, siteManager);
+            P1HarmonicSite p1Membrane = new P1HarmonicSite(space, siteManager);
+            p1Membrane.setSpringConstant(springConstant);
+
             pcField.setFieldPotential(membrane.getLeafType(), p1Membrane);
             integratorDCV.setDoThermalizeMembrane(true, membrane, random);
         }

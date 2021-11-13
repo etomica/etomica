@@ -6,8 +6,6 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.BohrRadius;
@@ -17,7 +15,6 @@ import etomica.units.Kelvin;
 
 public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
             
-    protected Boundary boundary;
     protected Space space;
     protected double[] q,pos;    
     public boolean parametersB = true; // set this to false if using parameters for V_12^A potential
@@ -65,10 +62,6 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-    
     public int nBody() {
         return 3;
     }

@@ -55,6 +55,7 @@ public class HTTPSoftSphereSim extends Simulation {
         rc = 0.495 * n * L;
 
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 7, rc, BondingInfo.noBonding());
+        potentialMaster.setDoDownNbrs(true);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         integrator.getEventManager().removeListener(potentialMaster);

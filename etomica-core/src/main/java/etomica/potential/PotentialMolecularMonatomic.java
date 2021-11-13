@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.AtomArrayList;
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 
@@ -36,9 +35,5 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
             atoms.add(molecules.get(i).getChildList().get(0));
         }
         return potentialAtomic.energy(atoms);
-    }
-
-    public void setBox(Box box) {
-        potentialAtomic.setBox(box);
     }
 }

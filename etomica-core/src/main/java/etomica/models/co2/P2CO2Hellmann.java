@@ -25,8 +25,8 @@ import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
-import etomica.units.dimensions.Null;
 import etomica.units.Unit;
+import etomica.units.dimensions.Null;
 import etomica.util.Constants;
 import etomica.util.random.RandomMersenneTwister;
 
@@ -304,10 +304,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        
-    }
-
     public int nBody() {
         return 2;
     }
@@ -365,10 +361,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
         
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-            
         }
 
         public int nBody() {

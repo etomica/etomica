@@ -5,7 +5,6 @@
 package etomica.models.water;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
@@ -37,7 +36,6 @@ public class PNWaterGCPMTest {
     @Test
     public void testEnergy() throws Exception {
         PNWaterGCPM potential = new PNWaterGCPM(Space3D.getInstance());
-        potential.setBox(new Box(Space3D.getInstance()));
         Assertions.assertEquals(-14.868664927613436, potential.energy(molecules), EPSILON);
     }
 

@@ -39,6 +39,5 @@ public class MayerEGeneral implements MayerFunction, java.io.Serializable {
 	}
 	
 	public void setBox(Box newBox) {
-	    potential.setBox(newBox);
 	}
 }

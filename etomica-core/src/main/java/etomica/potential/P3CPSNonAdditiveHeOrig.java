@@ -4,15 +4,13 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.dimensions.Angle;
 import etomica.units.dimensions.Dimension;
@@ -38,10 +36,6 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         gradient[2] = space.makeVector();
         
         
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     public double energy(IAtomList atomSet) {
@@ -716,7 +710,6 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
     }
 
     protected final Vector drAB, drAC, drBC;
-    protected Boundary boundary;
     protected double angle;
     protected double epsilon;
     private static final long serialVersionUID = 1L;

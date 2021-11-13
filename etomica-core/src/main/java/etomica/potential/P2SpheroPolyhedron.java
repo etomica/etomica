@@ -8,8 +8,6 @@ import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -20,7 +18,6 @@ import java.util.List;
 public class P2SpheroPolyhedron implements Potential2Soft {
 
     protected final Space space;
-    protected Boundary boundary;
     protected final Vector dr;
     protected final Vector v, w;
     protected final Vector W0, W1, W2;
@@ -260,12 +257,6 @@ public class P2SpheroPolyhedron implements Potential2Soft {
             }
         }
         throw new RuntimeException("Infinite Loop Detected!");
-    }
-    
-//    public long isum, callcount;
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     @Override

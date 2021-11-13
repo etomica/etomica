@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -26,12 +25,6 @@ public class P2Ideal extends Potential2SoftSpherical implements
         zeroVector = new Vector[1];
         zeroVector[0] = space.makeVector();
         zeroTensor = space.makeTensor();
-    }
-
-    /**
-     * Does nothing.
-     */
-    public void setBox(Box box) {
     }
 
     public void setRange(double range){

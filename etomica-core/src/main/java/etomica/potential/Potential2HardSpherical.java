@@ -6,10 +6,9 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.
@@ -42,10 +41,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
         return u(dr.squared());
-    }
-    
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     protected final Vector dr;

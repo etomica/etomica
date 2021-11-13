@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -38,11 +37,6 @@ public class P2HSDipoleAtomic implements Potential2Soft {
         this.rCut = rCut;
         hessian = new Hessian(space.makeTensor(), space.makeTensor(), space.makeTensor(),
                 space.makeTensor(), space.makeTensor(), space.makeTensor());
-    }
-
-
-    public void setBox(Box box) {
-
     }
 
     @Override

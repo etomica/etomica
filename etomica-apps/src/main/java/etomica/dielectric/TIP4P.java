@@ -28,7 +28,6 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.P2WaterTIP4P;
-import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.DipoleSourceMolecular;
 import etomica.molecule.DipoleSourceMolecularGeneric;
@@ -68,7 +67,6 @@ public class TIP4P extends Simulation {
     protected final MCMoveMoleculeRotate rotateMolecule;//rotation
     protected final Box box;
     protected SpeciesGeneral species;
-    protected P2WaterTIP4PSoft pWater;
     private final static String APP_NAME = "TIP4P water";
     private static final int PIXEL_SIZE = 15;
 

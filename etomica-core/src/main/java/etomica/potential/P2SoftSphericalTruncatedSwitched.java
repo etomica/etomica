@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -170,11 +169,6 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
      */
     public Dimension getTruncationRadiusDimension() {
         return Length.DIMENSION;
-    }
-
-    public void setBox(Box newBox) {
-        potential.setBox(newBox);
-        boundary = newBox.getBoundary();
     }
 
     protected double rCutoff, r2Cutoff;

@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.space.Space;
@@ -36,10 +35,4 @@ public class PotentialNonAdditiveDifference extends PotentialMolecular {
         }
         return u;
     }
-
-    public void setBox(Box box) {
-        pFull.setBox(box);
-        p2.setBox(box);
-    }
-
 }

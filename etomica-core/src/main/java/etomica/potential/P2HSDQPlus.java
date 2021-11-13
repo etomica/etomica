@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -38,11 +37,6 @@ public class P2HSDQPlus implements Potential2Soft {
         setAlpha(alpha);
         setKappa(kappa);
         this.D = D;
-    }
-
-
-    public void setBox(Box box) {
-
     }
 
     @Override

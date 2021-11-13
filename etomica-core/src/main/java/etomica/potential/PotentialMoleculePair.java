@@ -6,7 +6,6 @@ package etomica.potential;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Boundary;
@@ -71,11 +70,6 @@ public class PotentialMoleculePair implements IPotentialMolecular {
     @Override
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    @Override
-    public void setBox(Box box) {
-        this.boundary = box.getBoundary();
     }
 
     @Override

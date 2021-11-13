@@ -7,8 +7,6 @@ package etomica.potential;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
@@ -16,7 +14,6 @@ import etomica.units.Hartree;
 public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
 //    1 Eh (hartree) = 27.2113961eV = 627.5096 kcal/mol = 219474.7 cm^-1 
 
-    protected Boundary boundary;
     protected final static double c6 = -6.499027;
     protected final static double c8 = -124.3991;
     protected final static double c10 = -3285.828;
@@ -32,11 +29,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
-    public int nBody() {    
+    public int nBody() {
         return 1;
     }    
 

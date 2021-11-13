@@ -8,7 +8,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.potential.P2HardGeneric;
 import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
@@ -34,7 +33,6 @@ import etomica.space.Vector;
 public class P2SquareWellBonded extends P2HardGeneric implements Potential2Soft {
 
     protected final AtomLeafAgentManager<IAtom[]> agentManager;
-    protected Box box;
     protected double solventThermoFrac;
 
     public P2SquareWellBonded(AtomLeafAgentManager<IAtom[]> aam, double coreDiameter, double lambda, double epsilon) {
@@ -42,10 +40,6 @@ public class P2SquareWellBonded extends P2HardGeneric implements Potential2Soft 
         agentManager = aam;
         setSolventThermoFrac(0);
         ringResult = new RingResult();
-    }
-
-    public void setBox(Box newBox) {
-        box = newBox;
     }
 
     /**

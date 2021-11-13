@@ -4,7 +4,6 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.IPotentialMolecular;
@@ -81,12 +80,6 @@ public class PotentialNonAdditive implements IPotentialMolecular {
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        for (int i=0; i<potentials.length; i++) {
-            potentials[i].setBox(box);
-        }
     }
 
     public int nBody() {
@@ -239,10 +232,6 @@ public class PotentialNonAdditive implements IPotentialMolecular {
 
         public double getRange() {
             return PotentialNonAdditive.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            PotentialNonAdditive.this.setBox(box);
         }
 
         public double energy(IMoleculeList molecules) {

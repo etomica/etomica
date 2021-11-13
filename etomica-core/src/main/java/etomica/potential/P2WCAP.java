@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -40,11 +39,6 @@ public class P2WCAP implements Potential2Spherical {
      */
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    @Override
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     @Override

@@ -460,7 +460,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pc.pistonPotential.setLongWall(0, false, true); // right wall
         // skip top wall
         pc.pistonPotential.setLongWall(1, false, false);// bottom wall
-        pc.pistonPotential.setBox(pc.box);  // so it has a boundary
 
 /* WILL BE NEEDED IF DIMENSION RADIO BUTTONS USED
         if (displayBox.graphic() != null) {

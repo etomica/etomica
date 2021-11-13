@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -48,11 +47,6 @@ public class P2SoftTruncated extends Potential2
         return wrappedPotential;
     }
 
-    public void setBox(Box newBox) {
-        wrappedPotential.setBox(newBox);
-        boundary = newBox.getBoundary();
-    }
-    
     /**
      * Returns the energy of the wrapped potential if the separation
      * is less than the cutoff value

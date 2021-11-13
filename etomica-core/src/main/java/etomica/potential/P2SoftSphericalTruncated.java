@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
@@ -34,11 +33,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical {
      */
     public Potential2SoftSpherical getWrappedPotential() {
         return potential;
-    }
-
-    public void setBox(Box box) {
-        potential.setBox(box);
-        super.setBox(box);
     }
 
     /**

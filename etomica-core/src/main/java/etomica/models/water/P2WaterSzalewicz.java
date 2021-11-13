@@ -977,10 +977,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         return 0;
     }
 
-    public void setBox(Box box) {
-
-    }
-
     public int nBody() {
         return sitePos.length;
     }
@@ -1048,10 +1044,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
 
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-            
         }
 
         public int nBody() {

@@ -321,10 +321,6 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 		return 0;
 	}
 
-	public void setBox(Box box) {
-		// do nothing
-		
-	}
 	//******************************** inner class ********************************************//
 	public static class MyCharge{
 		public MyCharge(double charge){

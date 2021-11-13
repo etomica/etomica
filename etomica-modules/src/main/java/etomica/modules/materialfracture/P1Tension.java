@@ -6,7 +6,6 @@ package etomica.modules.materialfracture;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -19,7 +18,6 @@ public class P1Tension implements IPotentialField {
     protected final Space space;
     protected double w;
     protected final Vector[] force;
-    protected Box box;
 
     public P1Tension(Space space) {
         this.space = space;
@@ -45,10 +43,6 @@ public class P1Tension implements IPotentialField {
      */
     public Dimension getSpringConstantDimension() {
         return Null.DIMENSION;
-    }
-
-    public void setBox(Box newBox) {
-        box = newBox;
     }
 
     public double u(IAtom atom) {

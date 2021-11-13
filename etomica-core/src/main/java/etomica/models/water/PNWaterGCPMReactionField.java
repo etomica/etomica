@@ -8,7 +8,6 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -26,8 +25,9 @@ import java.util.Arrays;
  */
 public class PNWaterGCPMReactionField extends PotentialMolecular implements PotentialPolarizable {
 
-    public PNWaterGCPMReactionField(Space space) {
+    public PNWaterGCPMReactionField(Space space, Box box) {
 	    super(Integer.MAX_VALUE, space);
+        this.box = box;
     	//super(2, space);//ignore many-body interaction
 	    pair = new MoleculePair();
         sigma = 3.69;
@@ -632,17 +632,13 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
         					(-96.2805/reducedT+41.7909*reducedT-10.2099*reducedT2)*reducedRho3+(-45.2059/reducedT2+84.6395/reducedT-35.8644)*reducedRho4;
         myRqFactor = (epsilonRF-1)*2/(2*epsilonRF+1)/Math.pow(cutOffDistance, 3);  
     }
-    
-    public void setBox(Box box) {
-    	this.box = box;
-    }
+
     public void setDodebug(boolean a){
     	dodebug = a;
     }
 
-    private static final long serialVersionUID = 1L;
     protected final MoleculePair pair;
-    protected Boundary boundary;
+    protected final Box box;
     protected final double sigma;
     protected final double epsilon, gamma;
     protected final double chargeH, chargeM;
@@ -666,7 +662,6 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
     private double temperature, rho;
     protected double UpolAtkins;
     protected double myRqFactor;
-    protected Box box;
     public static boolean dodebug=false;
 
 }

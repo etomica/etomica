@@ -251,9 +251,6 @@ public class EwaldSummation implements PotentialSoft{
         return 0;
     }
 
-    public void setBox(Box box) {
-    }
-
     //******************************** inner class ********************************************//
     public static class MyCharge{
         public MyCharge(double charge){
@@ -561,8 +558,6 @@ public class EwaldSummation implements PotentialSoft{
         public double getRange() {
             return rCutRealES;
         }
-
-        public void setBox(Box box) {}
 
         public int nBody() {
             return 2;

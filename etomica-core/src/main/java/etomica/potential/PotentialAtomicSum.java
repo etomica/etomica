@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 
 /**
  * Atomic potential class that simply sums up contributions from multiple
@@ -27,12 +26,6 @@ public class PotentialAtomicSum implements IPotentialAtomic {
             if (r < p[i].getRange()) r = p[i].getRange();
         }
         return r;
-    }
-
-    public void setBox(Box box) {
-        for (int i=0; i<p.length; i++) {
-            p[i].setBox(box);
-        }
     }
 
     public int nBody() {

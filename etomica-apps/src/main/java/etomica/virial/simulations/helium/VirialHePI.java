@@ -186,13 +186,18 @@ public class VirialHePI {
         final Potential2SoftSpherical p2 = (pc == PotentialChoice.APPROX) ? p2Approx : (pc == PotentialChoice.PCKLJS ? p2Full : p2Fuller);
         final Potential2SoftSpherical p2Sub = pc == null ? null : (ps == PotentialChoice.APPROX ? p2Approx : (ps == PotentialChoice.PCKLJS ? p2Full : p2Fuller));
 
-        PotentialMoleculePairPI pTarget = new PotentialMoleculePairPI(space, p2, beadFac);
+        boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
+        if (flexApproach == FlexApproach.RIGID) {
+            doFlex = false;
+        }
+
+        PotentialMoleculePairPI pTarget = new PotentialMoleculePairPI(space, p2, beadFac, nPoints+(doFlex?1:0));
         PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetSkip = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             pTargetSkip[i] = pTarget.new PotentialMoleculePISkip(i);
         }
 
-        PotentialMoleculePairPI pTargetSubGroup = new PotentialMoleculePairPI(space, p2Sub, beadFac);
+        PotentialMoleculePairPI pTargetSubGroup = new PotentialMoleculePairPI(space, p2Sub, beadFac, nPoints+(doFlex?1:0));
         PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetSubSkip = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             pTargetSubSkip[i] = pTargetSubGroup.new PotentialMoleculePISkip(i);
@@ -202,14 +207,14 @@ public class VirialHePI {
         final P3CPSNonAdditiveHe p3Full = new P3CPSNonAdditiveHe(space);
         final Potential3Soft p3 = (pc == PotentialChoice.APPROX) ? p3Approx : p3Full;
 
-        PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac);
+        PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac, nPoints+(doFlex?1:0));
 
         PotentialMolecule3PI.PotentialMolecule3PISkip[] p3TargetSkip = new PotentialMolecule3PI.PotentialMolecule3PISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             p3TargetSkip[i] = p3Target.new PotentialMolecule3PISkip(i);
         }
         final Potential3Soft p3Sub = (ps == PotentialChoice.APPROX ? p3Approx : p3Full);
-        PotentialMolecule3PI p3TargetSub = new PotentialMolecule3PI(space, p3Sub, beadFac);
+        PotentialMolecule3PI p3TargetSub = new PotentialMolecule3PI(space, p3Sub, beadFac, nPoints+(doFlex?1:0));
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
         Potential2Spherical p2SemiClassical = (pc == PotentialChoice.APPROX) ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
@@ -254,10 +259,7 @@ public class VirialHePI {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
-        boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
-        if (flexApproach == FlexApproach.RIGID) {
-            doFlex = false;
-        }
+
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMinimalBC(true);

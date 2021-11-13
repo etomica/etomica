@@ -7,7 +7,6 @@ package etomica.spin.heisenberg;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.IPotentialTorque;
 import etomica.potential.Potential2;
@@ -136,15 +135,6 @@ public class P2Spin extends Potential2 implements Potential2Soft, IPotentialTorq
      */
     public void setCoupling(double coupling) {
         this.coupling = coupling;
-    }
-
-    /**
-     * does nothing
-     *
-     * @param box
-     */
-    public void setBox(Box box) {
-
     }
 
     /**

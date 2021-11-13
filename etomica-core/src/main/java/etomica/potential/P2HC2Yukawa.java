@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -59,10 +58,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	}
 	
 	public double getRange(){return Double.POSITIVE_INFINITY;}
-	
-	public void setBox(Box box) {
-		nearestImageTransformer = box.getBoundary();
-	}
 
 	/**
 	 * Energy method.  u(double r) form.

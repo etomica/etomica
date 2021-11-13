@@ -7,8 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -31,7 +29,6 @@ public class P3HydrogenATM implements IPotential{
             throw new RuntimeException("caught IOException: " + e.getMessage());
         }
     }        
-    protected Boundary boundary;
     protected static final double E0 = 49400; //(K Angstorm^9)
     protected Vector dr,r1,r2,r3;
 
@@ -45,10 +42,6 @@ public class P3HydrogenATM implements IPotential{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-    
     public int nBody() {
         return 3;
     }

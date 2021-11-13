@@ -117,9 +117,8 @@ public class SimEinStep2 extends Simulation {
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.init();
 
-        P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
+        P1HarmonicSite p1Harmonic = new P1HarmonicSite(space, coordinateDefinition.siteManager);
         p1Harmonic.setSpringConstant(lambda > 0 ? lambda : 1);
-        p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialComputeField(getSpeciesManager(), box);
         potentialMasterHarmonic.setFieldPotential(sphereType, p1Harmonic);
 

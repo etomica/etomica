@@ -7,8 +7,6 @@ package etomica.potential;
 import etomica.atom.DipoleSourceAtomic;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -30,7 +28,6 @@ public class P2ReactionFieldDipole implements Potential2Soft {
     protected final Vector[][] gradientAndTorque;
     protected final Vector3D[] a;
     protected DipoleSourceAtomic dipoleSource;
-    protected Boundary boundary;
     protected double cutoff2, cutoff;
     protected double epsilon;
     protected double fac;
@@ -118,10 +115,6 @@ public class P2ReactionFieldDipole implements Potential2Soft {
                 fac = 1 / (cutoff2 * cutoff);
             }
         }
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     @Override

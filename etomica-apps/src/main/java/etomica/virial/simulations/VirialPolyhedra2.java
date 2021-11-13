@@ -9,7 +9,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
 import etomica.data.histogram.HistogramReweightedData;
@@ -126,10 +125,6 @@ public class VirialPolyhedra2 {
                     uValues[i0][i1] = uValues[i1][i0] = u;
                 }
                 return uValues[i0][i1];
-            }
-
-            public void setBox(Box box) {
-                p2.setBox(box);
             }
 
             public int nBody() {

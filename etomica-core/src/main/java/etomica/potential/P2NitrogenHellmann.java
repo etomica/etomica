@@ -6,9 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.chem.elements.Nitrogen;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -97,7 +95,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
         }
     }
     
-    protected Boundary boundary;
     protected final double[][] A,alpha,b,c6;
     protected static final int [] siteID = {0,1,2,1,0};
     protected double[] q, pos;
@@ -345,10 +342,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
     public double getRange() {        
         return Double.POSITIVE_INFINITY;
     }
-    
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
 
     public int nBody() {
         return 2;
@@ -496,10 +489,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
 
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-            boundary = box.getBoundary();            
         }
 
         public int nBody() {

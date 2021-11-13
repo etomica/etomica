@@ -72,10 +72,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
         dipoleUShift = -1.75 * s2 * s1;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public double getRange() {
         return Math.sqrt(cutoff2);
     }
@@ -269,7 +265,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
         IAtomList leafAtoms = box.getLeafList();
 //        IAtomOriented atom0 = (IAtomOriented)leafAtoms.getMolecule(0);
         IAtomOriented atom1 = (IAtomOriented) leafAtoms.get(1);
-        potential.setBox(box);
 
         Vector grad1 = space.makeVector();
         Vector oldPosition = space.makeVector();

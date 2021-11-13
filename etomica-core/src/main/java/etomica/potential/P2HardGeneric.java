@@ -6,7 +6,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -216,10 +215,6 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         dr.Ev1Mv2(r2, r1);
         boundary.nearestImage(dr);
         return u(dr.squared());
-    }
-
-    public void setBox(Box box) {
-        this.boundary = box.getBoundary();
     }
 
     @Override

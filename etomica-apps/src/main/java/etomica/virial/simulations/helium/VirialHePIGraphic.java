@@ -141,12 +141,17 @@ public class VirialHePIGraphic {
         final P2HePCKLJS p2Full = new P2HePCKLJS(space);
         final Potential2SoftSpherical p2 = calcApprox ? p2Approx : p2Full;
 
-        PotentialMoleculePairPI pTarget = new PotentialMoleculePairPI(space, p2, beadFac);
+        boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
+        if (flexApproach == VirialHePI.FlexApproach.RIGID) {
+            doFlex = false;
+        }
+
+        PotentialMoleculePairPI pTarget = new PotentialMoleculePairPI(space, p2, beadFac, nPoints+(doFlex?1:0));
         PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetSkip = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             pTargetSkip[i] = pTarget.new PotentialMoleculePISkip(i);
         }
-        PotentialMoleculePairPI pTargetApprox = new PotentialMoleculePairPI(space, p2, beadFac);
+        PotentialMoleculePairPI pTargetApprox = new PotentialMoleculePairPI(space, p2, beadFac, nPoints+(doFlex?1:0));
         PotentialMoleculePairPI.PotentialMoleculePISkip[] pTargetApproxSkip = new PotentialMoleculePairPI.PotentialMoleculePISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             pTargetApproxSkip[i] = pTargetApprox.new PotentialMoleculePISkip(i);
@@ -156,13 +161,13 @@ public class VirialHePIGraphic {
         p3Approx.setParameters(temperatureK);
         final Potential3Soft p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
 
-        PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac);
+        PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac, nPoints+(doFlex?1:0));
         PotentialMolecule3PI.PotentialMolecule3PISkip[] p3TargetSkip = new PotentialMolecule3PI.PotentialMolecule3PISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             p3TargetSkip[i] = p3Target.new PotentialMolecule3PISkip(i);
         }
 
-        PotentialMolecule3PI p3TargetApprox = new PotentialMolecule3PI(space, p3Approx, beadFac);
+        PotentialMolecule3PI p3TargetApprox = new PotentialMolecule3PI(space, p3Approx, beadFac, nPoints+(doFlex?1:0));
         PotentialMolecule3PI.PotentialMolecule3PISkip[] p3TargetApproxSkip = new PotentialMolecule3PI.PotentialMolecule3PISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             p3TargetApproxSkip[i] = p3TargetApprox.new PotentialMolecule3PISkip(i);
@@ -211,10 +216,7 @@ public class VirialHePIGraphic {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
-        boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
-        if (flexApproach == VirialHePI.FlexApproach.RIGID) {
-            doFlex = false;
-        }
+
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMinimalBC(true);

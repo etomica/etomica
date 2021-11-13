@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -48,10 +47,6 @@ public class P22CLJmuQAtomic implements Potential2Soft {
 
     public void setHardCoreDiamterSq(double val) {
         hsdiasq = val;
-    }
-
-    public void setBox(Box box) {
-
     }
 
     @Override

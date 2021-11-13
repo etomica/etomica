@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -42,9 +41,6 @@ public class P2SoftSum implements Potential2Soft {
 
     public Potential2Soft getWrappedPotential3() {
         return potential3;
-    }
-
-    public void setBox(Box box) {
     }
 
     @Override

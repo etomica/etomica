@@ -30,7 +30,6 @@ public class MayerESpherical implements MayerFunction {
 	}
 	
 	public void setBox(Box newBox) {
-	    potential.setBox(newBox);
 	}
 
 	private final Potential2Spherical potential;

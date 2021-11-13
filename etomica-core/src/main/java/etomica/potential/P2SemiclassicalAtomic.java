@@ -8,7 +8,6 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -55,10 +54,6 @@ public class P2SemiclassicalAtomic implements Potential2Soft {
 
     public double getRange() {
         return p2Classy.getRange();
-    }
-
-    public void setBox(Box box) {
-        p2Classy.setBox(box);
     }
 
     public int nBody() {

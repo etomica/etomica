@@ -45,7 +45,6 @@ public class MayerGeneralAtomic implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
-        potential.setBox(newBox);
     }
 
     protected final Potential2Soft potential;
