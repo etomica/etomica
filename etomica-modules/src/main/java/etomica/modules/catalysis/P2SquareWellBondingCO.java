@@ -10,6 +10,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P2HardGeneric;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
@@ -26,6 +27,8 @@ import etomica.units.dimensions.Null;
  */
 public class P2SquareWellBondingCO extends P2HardGeneric {
 
+    protected final Boundary boundary;
+
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda
@@ -40,9 +43,10 @@ public class P2SquareWellBondingCO extends P2HardGeneric {
     protected P2SquareWellSurface potentialCS;
 
     public P2SquareWellBondingCO(Space space, AtomLeafAgentManager<CatalysisAgent> agentManager, double coreDiameter, double lambda, double epsilon,
-                                 int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr) {
+                                 int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr, Boundary boundary) {
         super(new double[]{coreDiameter, coreDiameter * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon});
         this.agentManager = agentManager;
+        this.boundary = boundary;
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
         setEpsilon(epsilon);

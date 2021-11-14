@@ -6,7 +6,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -47,7 +46,6 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     protected final double[] energies;
 
     // only used to support the energy(IAtomList) legacy method
-    protected Boundary boundary;
 
     protected final boolean fixOverlap;
 
@@ -213,8 +211,9 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         Vector r2 = atoms.get(1).getPosition();
         Vector dr = Vector.d(r1.getD());
         dr.Ev1Mv2(r2, r1);
-        boundary.nearestImage(dr);
-        return u(dr.squared());
+        throw new RuntimeException("obsolete method no longer works due to missing boundary");
+//        boundary.nearestImage(dr);
+//        return u(dr.squared());
     }
 
     @Override
