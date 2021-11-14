@@ -21,7 +21,7 @@ import etomica.units.dimensions.Energy;
  * This class is very slow.  Please do not use it.
  * @author kate
  */
-public class P3CPSNonAdditiveHeOrig implements PotentialSoft {
+public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic {
 
     public P3CPSNonAdditiveHeOrig(Space space) {
         drAB = space.makeVector();

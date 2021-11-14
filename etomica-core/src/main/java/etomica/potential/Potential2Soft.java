@@ -14,7 +14,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public interface Potential2Soft extends PotentialSoft, Potential2Spherical, IPotentialPair {
+public interface Potential2Soft extends Potential2Spherical, IPotentialPair {
 
     /**
      * The derivative of the pair energy, times the separation r: r du/dr.

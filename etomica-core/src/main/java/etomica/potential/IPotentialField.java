@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 
-public interface IPotentialField extends PotentialSoft {
+public interface IPotentialField {
 
     /**
      * Returns the energy between IAtom atom and the field.

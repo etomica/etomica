@@ -32,7 +32,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     /**
      * Returns the wrapped potential.
      */
-    public PotentialSoft getWrappedPotential() {
+    public Potential2Soft getWrappedPotential() {
         return potential;
     }
 

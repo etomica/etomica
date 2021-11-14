@@ -22,7 +22,7 @@ import etomica.units.dimensions.Length;
  * @author David Kofke
  */
 
-public class P1Harmonic extends Potential1 implements PotentialSoft, IPotentialField {
+public class P1Harmonic extends Potential1 implements IPotentialField {
 
     private final Space space;
     private double w = 100.0;

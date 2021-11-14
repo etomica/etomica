@@ -11,7 +11,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
-import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -24,7 +23,7 @@ import etomica.species.ISpecies;
  *
  * @author Andrew Schultz
  */
-public class P1Tether extends Potential1 implements AgentSource<Vector>, PotentialSoft, IPotentialField {
+public class P1Tether extends Potential1 implements AgentSource<Vector>, IPotentialField {
 
     public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);

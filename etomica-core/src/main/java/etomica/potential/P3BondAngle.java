@@ -25,7 +25,7 @@ import etomica.util.random.RandomNumberGenerator;
  *
  * @author andrew
  */
-public class P3BondAngle implements PotentialSoft, IPotentialBondAngle {
+public class P3BondAngle implements IPotentialBondAngle {
 
     public P3BondAngle(Space space) {
         dr12 = space.makeVector();

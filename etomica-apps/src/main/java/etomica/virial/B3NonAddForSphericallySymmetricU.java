@@ -4,14 +4,14 @@
 
 package etomica.virial;
 
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialSoft;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 
@@ -73,7 +73,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double computeB3NonAdd(Potential2SoftSpherical p2, PotentialSoft p3, Space space, double temp) {
+	public static double computeB3NonAdd(Potential2SoftSpherical p2, IPotentialAtomic p3, Space space, double temp) {
 
 		Atom atom1 = new Atom(space);
         Atom atom2 = new Atom(space);

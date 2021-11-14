@@ -25,7 +25,7 @@ import etomica.util.random.RandomNumberGenerator;
  *
  * @author Andrew Schultz
  */
-public class P4BondTorsion implements PotentialSoft, IPotentialBondTorsion {
+public class P4BondTorsion implements IPotentialBondTorsion {
 
     public P4BondTorsion(Space space, double a0, double a1, double a2, double a3) {
         dr21 = space.makeVector();

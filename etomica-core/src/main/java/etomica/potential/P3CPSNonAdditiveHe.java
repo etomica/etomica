@@ -20,7 +20,7 @@ import etomica.units.Kelvin;
  *  
  * @author kate, Andrew Schultz
  */
-public class P3CPSNonAdditiveHe implements PotentialSoft, IPotentialAtomicMultibody, Potential3Soft {
+public class P3CPSNonAdditiveHe implements IPotentialAtomicMultibody, Potential3Soft {
 
     public P3CPSNonAdditiveHe(Space space) {
         this(space, 0);
