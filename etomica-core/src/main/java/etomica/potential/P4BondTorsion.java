@@ -10,7 +10,10 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.space.*;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
@@ -170,10 +173,6 @@ public class P4BondTorsion implements PotentialSoft, IPotentialBondTorsion {
         // a0 + a1*(1+cos(phi)) + a2*(1-cos2phi) + a3*(1+cos3phi)
         u[0] = a0 + a1 * (1 + costheta) + a2 * (2 - 2 * cosSQtheta) + a3 * (1 + 4 * cosCBtheta - 3 * costheta);
         du[0] = 12 * a3 * cosSQtheta - 4 * a2 * costheta + a1 - 3 * a3;
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
     }
 
     protected final Vector dr21, dr23, dr34;

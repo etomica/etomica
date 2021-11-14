@@ -6,7 +6,6 @@ package etomica.potential;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 public interface IPotentialField extends PotentialSoft {
@@ -36,7 +35,7 @@ public interface IPotentialField extends PotentialSoft {
         return u(atom.get(0));
     }
 
-    default Vector[] gradient(IAtomList atoms) {
+    default private Vector[] gradient(IAtomList atoms) {
         IAtom atom = atoms.get(0);
         Vector f = Vector.d(atom.getPosition().getD());
         udu(atom, f);
@@ -44,7 +43,4 @@ public interface IPotentialField extends PotentialSoft {
         return new Vector[]{f};
     }
 
-    default Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
 }

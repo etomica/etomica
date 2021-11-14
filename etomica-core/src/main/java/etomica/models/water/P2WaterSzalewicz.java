@@ -436,14 +436,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         component = newComponent;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
-        return null;
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return null;
-    }
-
     protected static final int nlin=144;
     protected final int nlin3;
     protected final double[] aj = new double[nlin];

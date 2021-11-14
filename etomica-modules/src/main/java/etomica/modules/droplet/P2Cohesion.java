@@ -9,8 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
-import etomica.space.Tensor;
-import etomica.space.Vector;
 
 import java.util.function.Predicate;
 
@@ -30,25 +28,6 @@ public class P2Cohesion extends Potential2SoftSpherical implements
             return 0;
         }
         return super.energy(atoms);
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            gradient[0].E(0);
-            gradient[1].E(0);
-            pressureTensor.E(0);
-            return gradient;
-        }
-        return super.gradient(atoms, pressureTensor);
-    }
-
-    public Vector[] gradient(IAtomList atoms) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            gradient[0].E(0);
-            gradient[1].E(0);
-            return gradient;
-        }
-        return super.gradient(atoms);
     }
 
     public double d2u(double r2) {

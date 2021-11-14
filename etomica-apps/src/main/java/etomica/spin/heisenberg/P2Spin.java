@@ -202,20 +202,5 @@ public class P2Spin extends Potential2 implements Potential2Soft, IPotentialTorq
         return h;
     }
 
-    /**
-     * do nothing
-     */
-    public Vector[] gradient(IAtomList atoms) {
-        throw new RuntimeException("don't need to use gradient");
-    }
-
-    /**
-     * do nothing
-     */
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        throw new RuntimeException("don't need to use gradient");
-    }
-
 
 }

@@ -8,7 +8,6 @@ import etomica.atom.DipoleSourceAtomic;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
@@ -222,16 +221,6 @@ public class P2ReactionFieldDipole implements Potential2Soft {
     @Override
     public Vector[][] gradientAndTorque(IAtomList atoms) {
         return new Vector[0][];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        return new Vector[0];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return new Vector[0];
     }
 
     @Override

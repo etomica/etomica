@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -302,16 +301,6 @@ public class P2HSDipoleAtomic implements Potential2Soft {
     @Override
     public Vector[][] gradientAndTorque(IAtomList atoms) {
         return new Vector[0][];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        return new Vector[0];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return new Vector[0];
     }
 
     @Override

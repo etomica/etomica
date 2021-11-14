@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IPotentialField;
 import etomica.space.Boundary;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -104,12 +103,8 @@ public class P1WCAPorousWall implements IPotentialField {
         return r2 < poreRadius2;
     }
 
-    public Vector[] gradient(IAtomList atom) {
+    private Vector[] gradient(IAtomList atom) {
         throw new RuntimeException("nope");
-    }
-
-    public Vector[] gradient(IAtomList atom, Tensor pressureTensor) {
-        return gradient(atom);
     }
 
     /**

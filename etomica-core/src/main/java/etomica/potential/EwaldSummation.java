@@ -278,7 +278,7 @@ public class EwaldSummation implements PotentialSoft{
     //////////////////////////////////////////// begin calculating gradient //////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
         int nAtoms = box.getLeafList().size();
         double coeff = 4.0*Math.PI/volume;
         double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
@@ -481,10 +481,6 @@ public class EwaldSummation implements PotentialSoft{
         return secondDerivative;
     }
 
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
     public P2EwaldReal makeP2EwaldReal() {
         doRealSum = false;
         return new P2EwaldReal();
@@ -551,7 +547,7 @@ public class EwaldSummation implements PotentialSoft{
             return rCutRealES;
         }
 
-        public Vector[] gradient(IAtomList atoms) {
+        private Vector[] gradient(IAtomList atoms) {
             //Real gradient  //Cross Interaction
             IAtom atomA = atoms.get(0);
             double chargeA = atomAgentManager.getAgent(atomA).charge;
@@ -580,8 +576,5 @@ public class EwaldSummation implements PotentialSoft{
             return gradient2;
         }
 
-        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-            return gradient(atoms);
-        }
     }
 }

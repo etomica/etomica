@@ -10,7 +10,10 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.space.*;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
@@ -92,7 +95,7 @@ public class P4BondTorsionAlkaneXCCH implements PotentialSoft, IPotentialBondTor
         return Double.POSITIVE_INFINITY;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
         IAtom atom0 = atoms.get(0);
         IAtom atom1 = atoms.get(1);
         IAtom atom2 = atoms.get(2);
@@ -171,10 +174,6 @@ public class P4BondTorsionAlkaneXCCH implements PotentialSoft, IPotentialBondTor
         gradient[2].PEa1Tv1(-1, gradient[3]);
 
         return gradient;
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
     }
 
     protected final Vector dr21, dr23, dr34;

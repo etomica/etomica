@@ -7,12 +7,10 @@ package etomica.potential;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.util.random.IRandom;
@@ -41,10 +39,6 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
     @Override
     public void udu(double costheta, double[] u, double[] du) {
         throw new RuntimeException("Implement me");
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
     }
 
     public static void main(String[] args) {

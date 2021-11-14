@@ -8,7 +8,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
@@ -69,7 +68,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotent
         return w*dr.squared();
     }
 
-    public Vector[] gradient(IAtomList a){
+    private Vector[] gradient(IAtomList a){
         Vector r = a.get(0).getPosition();
         Vector x0 = atomAgentManager.getAgent(a.get(0));
         force[0].Ev1Mv2(r,x0);
@@ -77,9 +76,6 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotent
             
         return force;
     }
-        
-    public Vector[] gradient(IAtomList a, Tensor pressureTensor){
-        return gradient(a);
-    }
+
 }
    

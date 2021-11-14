@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -44,11 +43,7 @@ public class P1Smash implements IPotentialField {
         return Math.abs(z) * g;
     }
 
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
         IAtom a = atoms.get(0);
         if (a.getPosition().getX(2) > 0) {
             gradient[0].setX(2, g);

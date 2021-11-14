@@ -9,7 +9,6 @@ import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.spaceNd.VectorND;
 
@@ -279,13 +278,4 @@ public class P2SpheroPolyhedron implements Potential2Soft {
         return gjke(atom1q, atom2q);
     }
 
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        return new Vector[0];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return new Vector[0];
-    }
 }

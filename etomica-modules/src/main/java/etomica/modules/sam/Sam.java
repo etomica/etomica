@@ -30,7 +30,10 @@ import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
-import etomica.space.*;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
@@ -564,16 +567,6 @@ public class Sam extends Simulation {
         @Override
         public double energy(IAtomList atoms) {
             return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.energy(atoms) : p2lj.energy(atoms);
-        }
-
-        @Override
-        public Vector[] gradient(IAtomList atoms) {
-            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.gradient(atoms) : p2lj.gradient(atoms);
-        }
-
-        @Override
-        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.gradient(atoms, pressureTensor) : p2lj.gradient(atoms, pressureTensor);
         }
 
         @Override

@@ -9,7 +9,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
@@ -538,12 +537,8 @@ public class P3CPSNonAdditiveHe implements PotentialSoft, IPotentialAtomicMultib
         return Double.POSITIVE_INFINITY;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
        throw new RuntimeException("Sorry, no gradient available yet");
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
     }
 
     public static void main(String[] args) {

@@ -1071,14 +1071,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
     }
 
-    public Vector[] gradient(IAtomList atoms) {
-        return null;
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return null;
-    }
-    
     /**
      * Reads geometry.txt file and computes energy for each configuration
      */

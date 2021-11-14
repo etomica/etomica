@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -62,11 +61,7 @@ public class P1Tension implements IPotentialField {
         return 0.5 * w * aSum;
     }
 
-    public Vector[] gradient(IAtomList a, Tensor t) {
-        return gradient(a);
-    }
-    
-    public Vector[] gradient(IAtomList a) {
+    private Vector[] gradient(IAtomList a) {
         Vector r = a.get(0).getPosition();
         force[0].setX(1, 0);
         double x = r.getX(0);

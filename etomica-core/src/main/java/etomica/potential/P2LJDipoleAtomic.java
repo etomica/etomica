@@ -10,7 +10,10 @@ import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
-import etomica.space.*;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -137,11 +140,7 @@ public class P2LJDipoleAtomic implements Potential2Soft {
         return momentSq;
     }
 
-    public Vector[] gradient(IAtomList pair, Tensor pressureTensor) {
-        return gradient(pair);
-    }
-
-    public Vector[] gradient(IAtomList pair) {
+    private Vector[] gradient(IAtomList pair) {
         // do extra work to calculate torque
         gradientAndTorque(pair);
         return gradient;

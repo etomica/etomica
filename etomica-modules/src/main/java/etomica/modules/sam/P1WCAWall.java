@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -83,15 +82,11 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
         return u;
     }
 
-    public Vector[] gradient(IAtomList atom) {
+    private Vector[] gradient(IAtomList atom) {
         double rz = atom.get(0).getPosition().getX(wallDim) - wallPosition;
         double gradz = gradient(rz*rz);
         gradient[0].setX(wallDim, rz > 0 ? gradz : -gradz);
         return gradient;
-    }
-    
-    public Vector[] gradient(IAtomList atom, Tensor pressureTensor) {
-        return gradient(atom);
     }
 
     /**

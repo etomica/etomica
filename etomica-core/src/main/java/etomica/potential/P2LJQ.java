@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -117,12 +116,8 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     public double getQuadrupolarMomentSquare() {
         return Q2;
     }
-    
-    public Vector[] gradient(IAtomList pair, Tensor pressureTensor) {
-        return gradient(pair);
-    }
 
-    public Vector[] gradient(IAtomList pair) {
+    private Vector[] gradient(IAtomList pair) {
         IAtomOriented atom1 = (IAtomOriented)pair.get(0);
         IAtomOriented atom2 = (IAtomOriented)pair.get(1);
 

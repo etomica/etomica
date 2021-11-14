@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
@@ -218,13 +217,4 @@ public class P2HardAssociationCone implements Potential2Soft {
         return new Vector[0][];
     }
 
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        return new Vector[0];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return new Vector[0];
-    }
 }

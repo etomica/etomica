@@ -768,14 +768,5 @@ public class P2NitrogenHellmann implements Potential2Soft {
     }
 
 
-    public Vector[] gradient(IAtomList atoms) {
-        return gradientAndTorque(atoms)[0];
-    }
-
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradientAndTorque(atoms)[0];
-    }
-    
 }
 

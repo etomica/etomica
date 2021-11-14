@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -52,14 +51,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         }
         gradient[1].Ea1Tv1(du/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
-        return gradient;
-    }
-    
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        gradient(atoms);
-        if (!gradient[0].isZero()) {
-            pressureTensor.PEv1v2(gradient[0],dr);
-        }
         return gradient;
     }
 

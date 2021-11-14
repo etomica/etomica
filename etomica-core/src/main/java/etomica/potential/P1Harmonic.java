@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
@@ -76,16 +75,13 @@ public class P1Harmonic extends Potential1 implements PotentialSoft, IPotentialF
         return 0.5 * w * a.get(0).getPosition().Mv1Squared(x0);
     }
 
-    public Vector[] gradient(IAtomList a){
+    private Vector[] gradient(IAtomList a){
         Vector r = a.get(0).getPosition();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             
         return force;
     }
-        
-    public Vector[] gradient(IAtomList a, Tensor pressureTensor){
-        return gradient(a);
-    }
+
 }
    

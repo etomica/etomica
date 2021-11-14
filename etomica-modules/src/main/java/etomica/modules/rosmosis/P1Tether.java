@@ -13,7 +13,6 @@ import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 
@@ -61,16 +60,12 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
         return 0.5 * epsilon * x2;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
         IAtom atom = atoms.get(0);
         work.E(atom.getPosition());
         work.ME(agentManager.getAgent(atom));
         work.TE(epsilon);
         return gradient;
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
     }
 
     public Vector makeAgent(IAtom a, Box agentBox) {

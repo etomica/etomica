@@ -29,7 +29,6 @@ import etomica.math.SpecialFunctions;
 import etomica.potential.P2SpheroPolyhedron;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -100,16 +99,6 @@ public class VirialPolyhedra2 {
 
         final double[][] uValues = new double[nPoints][nPoints];
         Potential2Soft p2Wrapper = new Potential2Soft() {
-
-            @Override
-            public Vector[] gradient(IAtomList atoms) {
-                return new Vector[0];
-            }
-
-            @Override
-            public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-                return new Vector[0];
-            }
 
             @Override
             public double u(Vector dr12, IAtom atom1, IAtom atom2) {

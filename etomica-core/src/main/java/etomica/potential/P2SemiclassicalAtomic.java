@@ -9,7 +9,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Constants;
 
@@ -82,16 +81,6 @@ public class P2SemiclassicalAtomic implements Potential2Soft {
         double uFull = uC + fac * sum;
 //        System.out.println(uC+" "+uFull);
         return uFull;
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        return new Vector[0];
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return new Vector[0];
     }
 
     public interface AtomInfo {

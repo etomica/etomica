@@ -10,7 +10,10 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
-import etomica.space.*;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.dimensions.Angle;
 import etomica.units.dimensions.Dimension;
@@ -99,7 +102,7 @@ public class P3BondAngle implements PotentialSoft, IPotentialBondAngle {
         return Double.POSITIVE_INFINITY;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
         IAtom atom0 = atoms.get(0);
         IAtom atom1 = atoms.get(1);
         IAtom atom2 = atoms.get(2);
@@ -144,10 +147,6 @@ public class P3BondAngle implements PotentialSoft, IPotentialBondAngle {
         double dtheta = theta - angle;
         du[0] = -epsilon * dtheta / Math.sqrt(1 - costheta * costheta);
         u[0] = 0.5 * epsilon * dtheta * dtheta;
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
     }
 
     protected final Vector dr12, dr23;

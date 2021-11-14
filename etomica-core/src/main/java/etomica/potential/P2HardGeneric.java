@@ -6,7 +6,6 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -259,13 +258,4 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         return 0;
     }
 
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        throw new RuntimeException("nope");
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        throw new RuntimeException("nope");
-    }
 }

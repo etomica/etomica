@@ -112,15 +112,11 @@ public class P2Ideal extends Potential2SoftSpherical implements
     /**
      * Returns a zero vector.
      */
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
         zeroVector[0].E(0.0);
         return zeroVector;
     }
-    
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-        
+
 
     private static final long serialVersionUID = 1L;
     private final Vector[] zeroVector;
