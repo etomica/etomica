@@ -690,9 +690,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             return Double.POSITIVE_INFINITY;
         }
 
-        public int nBody() {
-            return 2;
-        }
     }
 
     public class P3GCPMAxilrodTeller implements IPotentialMolecular {
@@ -727,10 +724,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public int nBody() {
-            return 3;
         }
 
         public double energy(IMoleculeList molecules) {

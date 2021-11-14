@@ -126,10 +126,6 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {     
-        return 2;
-    }
-
     public double energy(IAtomList atoms) {
         IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
@@ -757,10 +753,6 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 
         public double getRange() {
             return P2O2Bartolomei.this.getRange();
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {

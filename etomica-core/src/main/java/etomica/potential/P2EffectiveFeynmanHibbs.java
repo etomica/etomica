@@ -37,11 +37,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }
-    
-    public int nBody() {
-        return 2;
-    }
-    
+
     public void setTemperature(double temperature) {
         this.temperature = temperature;
         double hbar = Constants.PLANCK_H/(2*Math.PI);

@@ -37,7 +37,6 @@ public class P2SemiclassicalAtomic implements Potential2Soft {
     public P2SemiclassicalAtomic(Space space, IPotentialTorque p2Classy, double temperature) {
         this.space = space;
         this.p2Classy = p2Classy;
-        if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
         agents = new HashMap<>();
         setTemperature(temperature);
     }
@@ -54,10 +53,6 @@ public class P2SemiclassicalAtomic implements Potential2Soft {
 
     public double getRange() {
         return p2Classy.getRange();
-    }
-
-    public int nBody() {
-        return 2;
     }
 
     public double energy(IAtomList molecules) {

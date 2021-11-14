@@ -23,10 +23,6 @@ public class P2MoleculeMonatomic implements IPotentialMolecular {
 		return wrappedPotential.getRange();
 	}
 
-	public int nBody() {
-		return 2;
-	}
-
 	public IPotentialAtomic getWrappedPotential() { 
 		return wrappedPotential; 
 		} 

@@ -118,11 +118,6 @@ public class P2ReactionFieldDipole implements Potential2Soft {
     }
 
     @Override
-    public int nBody() {
-        return 2;
-    }
-
-    @Override
     public Hessian d2u(Vector dr12, IAtom atom1, IAtom atom2) {
         double r2 = dr12.squared();
         h.o1o1.E(0);

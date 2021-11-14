@@ -132,10 +132,6 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
         return 0;
     }
 
-    public int nBody() {
-        return 1;
-    }
-
     public double getRange() {
         return collisionRadius;
     }

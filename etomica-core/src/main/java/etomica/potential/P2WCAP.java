@@ -41,11 +41,6 @@ public class P2WCAP implements Potential2Spherical {
         return Double.POSITIVE_INFINITY;
     }
 
-    @Override
-    public int nBody() {
-        return 2;
-    }
-
     /**
      * Energy of the pair as given by the u(double) method
      */

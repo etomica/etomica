@@ -127,10 +127,6 @@ public class VirialPolyhedra2 {
                 return uValues[i0][i1];
             }
 
-            public int nBody() {
-                return 2;
-            }
-            
             public double getRange() {
                 return sigmaHSRef;
             }

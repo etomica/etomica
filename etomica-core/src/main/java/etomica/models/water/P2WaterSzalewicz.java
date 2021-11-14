@@ -556,15 +556,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
 //                    for (int nl=0; nl<nlin; nl++) {
 //                        u0 += c[nl]*aj[nl];
 //                    }
-
-                    if (false) {
-                        if (nBody() == 2 && Hartree.UNIT.toSim(u0) < -2200) {
-                            System.out.println("in here "+minR+" "+Hartree.UNIT.toSim(u0));
-                        }
-                        if (nBody() == 2 && Hartree.UNIT.toSim(u0) < 1000 && minR < 1.8) {
-                            System.out.println("in here "+minR+" "+Hartree.UNIT.toSim(u0));
-                        }
-                    }
                 }
             }
         }
@@ -977,10 +968,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         return 0;
     }
 
-    public int nBody() {
-        return sitePos.length;
-    }
-
     public Vector[][] gradientAndTorque(IAtomList atoms) {
         return null;
     }
@@ -1044,10 +1031,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
 
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public int nBody() {
-            return sitePos.length;
         }
 
         public double energy(IAtomList atoms) {

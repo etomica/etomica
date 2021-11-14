@@ -69,9 +69,6 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     }
 
     public void setConstraint(IPotentialField newConstraintPotential) {
-        if (newConstraintPotential.nBody() != 1) {
-            throw new RuntimeException("must be a 1-body potential");
-        }
         constraintPotential = newConstraintPotential;
     }
 

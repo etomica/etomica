@@ -40,11 +40,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }
-    
-    public int nBody() {
-        return 2;
-    }
-    
+
     public void setNPoints(int nPoints) {
         this.nPoints = nPoints;
     }

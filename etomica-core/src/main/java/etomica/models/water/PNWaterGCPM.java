@@ -479,8 +479,5 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             return Double.POSITIVE_INFINITY;
         }
 
-        public int nBody() {
-            return 2;
-        }
     }
 }

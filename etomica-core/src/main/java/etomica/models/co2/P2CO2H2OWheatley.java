@@ -363,10 +363,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 2;
-    }
-
     public Vector[][] gradientAndTorque(IAtomList atoms) {
         IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
@@ -508,9 +504,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public int nBody() {
-            return 2;
-        }
         public double[][] d2tot = new double[2][6];
         public double energy(IAtomList atoms) {
             IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
@@ -867,10 +860,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double energy(IAtomList atoms) {

@@ -22,10 +22,6 @@ public class P1Smash implements IPotentialField {
         g = 1;
     }
 
-    public int nBody() {
-        return 1;
-    }
-
     public void setG(double newG) {
         g = newG;
     }

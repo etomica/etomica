@@ -49,11 +49,6 @@ public class P22CLJmuQAtomic implements Potential2Soft {
         hsdiasq = val;
     }
 
-    @Override
-    public int nBody() {
-        return 2;
-    }
-
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

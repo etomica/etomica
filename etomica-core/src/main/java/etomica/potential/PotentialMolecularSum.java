@@ -28,10 +28,6 @@ public class PotentialMolecularSum implements IPotentialMolecular {
         return r;
     }
 
-    public int nBody() {
-        return p[0].nBody();
-    }
-
     public double energy(IMoleculeList molecules) {
         double sum = 0;
         for (int i=0; i<p.length; i++) {

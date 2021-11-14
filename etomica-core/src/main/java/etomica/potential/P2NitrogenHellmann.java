@@ -343,10 +343,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 2;
-    }   
-     
     public double energy(IAtomList atoms) {
         IAtomOriented a0 = (IAtomOriented)atoms.get(0);
 //        int aIndex0 = a0.getLeafIndex();
@@ -491,9 +487,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
             return Double.POSITIVE_INFINITY;
         }
 
-        public int nBody() {
-            return 2;
-        }
         protected void getPerp(Vector or, Vector perp1, Vector perp2) {
             int max = 0;
             if (Math.abs(or.getX(1)) > Math.abs(or.getX(0))) max=1;

@@ -93,10 +93,6 @@ public class P1ConstraintNbr implements IPotentialAtomic, IPotentialField {
         return boxManager.get(box);
     }
 
-    public int nBody() {
-        return 1;
-    }
-
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

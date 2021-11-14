@@ -354,10 +354,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             return P2HePCKLJS.this.getRange();
         }
 
-        public int nBody() {
-            return 2;
-        }
-
         public double u(double r2) {
             double r = Math.sqrt(r2);
             r = BohrRadius.UNIT.fromSim(r);
@@ -492,10 +488,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
 
         public double getRange() {
             return P2HePCKLJS.this.getRange();
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {

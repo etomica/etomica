@@ -20,7 +20,7 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
     protected final AtomArrayList atoms;
 
     public PotentialMolecularMonatomic(Space space, IPotentialAtomic potentialAtomic) {
-        super(potentialAtomic.nBody(), space);
+        super(0, space);
         this.potentialAtomic = potentialAtomic;
         atoms = new AtomArrayList(nBody);
     }

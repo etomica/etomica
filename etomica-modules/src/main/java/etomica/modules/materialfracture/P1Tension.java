@@ -25,11 +25,7 @@ public class P1Tension implements IPotentialField {
         force[0] = space.makeVector();
         setSpringConstant(0.0);
     }
-    
-    public int nBody() {
-        return 1;
-    }
-    
+
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

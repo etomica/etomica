@@ -72,8 +72,4 @@ public class PotentialMoleculePair implements IPotentialMolecular {
         return Double.POSITIVE_INFINITY;
     }
 
-    @Override
-    public int nBody() {
-        return 2;
-    }
 }

@@ -39,11 +39,6 @@ public class P2HSDipoleAtomic implements Potential2Soft {
                 space.makeTensor(), space.makeTensor(), space.makeTensor());
     }
 
-    @Override
-    public int nBody() {
-        return 0;
-    }
-
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

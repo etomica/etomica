@@ -49,10 +49,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
         gradientAndTorque = new Vector[][]{gradient, torque};
     }
 
-    public int nBody() {
-        return 2;
-    }
-
     public void setHardCoreDiamterSq(double val) {
         hsdiasq = val;
     }

@@ -38,10 +38,4 @@ public abstract class Potential implements IPotentialAtomic {
      */
     public abstract double energy(IAtomList atoms);
 
-    /**
-     * The number of atoms on which the potential depends.
-     */
-    public final int nBody() {return nBody;}
-    
-
 }

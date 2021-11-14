@@ -83,10 +83,6 @@ public class P1Sinusoidal implements IPotential, IPotentialField {
         return 0;
     }
 
-    public int nBody() {
-        return 1;
-    }
-
     protected final Space space;
     protected double b45;
     protected final Vector offset;

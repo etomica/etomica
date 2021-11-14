@@ -260,11 +260,6 @@ public class P2SpheroPolyhedron implements Potential2Soft {
     }
 
     @Override
-    public int nBody() {
-        return 0;
-    }
-
-    @Override
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
         AtomOrientedQuaternion atom1q = (AtomOrientedQuaternion)atom1;
         AtomOrientedQuaternion atom2q = (AtomOrientedQuaternion)atom2;

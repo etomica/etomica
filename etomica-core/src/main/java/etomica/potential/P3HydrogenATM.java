@@ -42,9 +42,6 @@ public class P3HydrogenATM implements IPotential{
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 3;
-    }
     public static class P3HydrogenAtomic extends P3HydrogenATM implements IPotentialAtomic {
         public P3HydrogenAtomic(Space space) {
             super(space);     

@@ -41,7 +41,6 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
     public P2SemiclassicalMolecular(Space space, IPotentialMolecularTorque p2Classy) {
         this.space = space;
         this.p2Classy = p2Classy;
-        if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
         this.agents = new HashMap<>();
     }
     
@@ -57,10 +56,6 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
     
     public double getRange() {
         return p2Classy.getRange();
-    }
-
-    public int nBody() {
-        return 2;
     }
 
     public double energy(IMoleculeList molecules) {

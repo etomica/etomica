@@ -67,11 +67,6 @@ public class PotentialMolecule3PI implements IPotentialMolecular {
         return Double.POSITIVE_INFINITY;
     }
 
-    @Override
-    public int nBody() {
-        return 2;
-    }
-
     public class PotentialMolecule3PISkip implements IPotentialMolecular {
 
         public PotentialMolecule3PISkip(int offset) {
@@ -80,10 +75,6 @@ public class PotentialMolecule3PI implements IPotentialMolecular {
 
         public double getRange() {
             return PotentialMolecule3PI.this.getRange();
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double energy(IMoleculeList molecules) {

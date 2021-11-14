@@ -255,9 +255,6 @@ public class P3HydrogenManzhos implements IPotential{
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 3;
-    }
     public static class P3HydrogenManzhosMolecular extends P3HydrogenManzhos implements IPotentialMolecular {
         protected Vector[] v = new Vector[6];
         public P3HydrogenManzhosMolecular(Space space) {

@@ -34,10 +34,6 @@ public interface IPotentialField extends PotentialSoft {
         return udu(atom, f);
     }
 
-    default int nBody() {
-        return 1;
-    }
-
     default double getRange() {
         return Double.POSITIVE_INFINITY;
     }

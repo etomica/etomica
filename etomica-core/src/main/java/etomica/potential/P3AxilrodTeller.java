@@ -68,10 +68,6 @@ public class P3AxilrodTeller implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 3;
-    }
-
     // CO2: alpha=2.913, alpha(omega)=2.639, I=13.7eV
     // H2O: alpha=1.444, I=12.6eV
     public static class MyAgent {

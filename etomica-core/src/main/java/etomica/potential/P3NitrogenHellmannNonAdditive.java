@@ -62,10 +62,6 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 3;
-    }
-    
     public double energy(IAtomList atoms) {
         final IAtomOriented atom0 = (IAtomOriented) atoms.get(0);
         final IAtomOriented atom1 = (IAtomOriented) atoms.get(1);

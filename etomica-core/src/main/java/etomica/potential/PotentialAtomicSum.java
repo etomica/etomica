@@ -28,10 +28,6 @@ public class PotentialAtomicSum implements IPotentialAtomic {
         return r;
     }
 
-    public int nBody() {
-        return p[0].nBody();
-    }
-
     public double energy(IAtomList atoms) {
         double sum = 0;
         for (int i=0; i<p.length; i++) {

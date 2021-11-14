@@ -50,7 +50,4 @@ public interface IPotentialHardField extends IPotentialField {
      */
     int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du);
 
-    default int nBody() {
-        return 1;
-    }
 }

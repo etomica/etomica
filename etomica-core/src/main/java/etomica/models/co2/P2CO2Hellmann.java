@@ -304,10 +304,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 2;
-    }
-    
     public P2CO2SC makeSemiclassical(double temperature) {
         return new P2CO2SC(temperature);
     }
@@ -361,10 +357,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
         
         public double getRange() {
             return Double.POSITIVE_INFINITY;
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         protected void getPerp(Vector or, Vector perp1, Vector perp2) {

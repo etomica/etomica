@@ -247,10 +247,6 @@ public class EwaldSummation implements PotentialSoft{
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 0;
-    }
-
     //******************************** inner class ********************************************//
     public static class MyCharge{
         public MyCharge(double charge){
@@ -557,10 +553,6 @@ public class EwaldSummation implements PotentialSoft{
 
         public double getRange() {
             return rCutRealES;
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double virial(IAtomList atoms) {

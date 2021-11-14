@@ -121,10 +121,6 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             return P2HeSimplified.this.getRange();
         }
 
-        public int nBody() {
-            return 2;
-        }
-
         public double u(double r2) {
             if (r2 < sigmaHC2) {
                 return Double.POSITIVE_INFINITY;
@@ -178,10 +174,6 @@ public class P2HeSimplified extends Potential2SoftSpherical {
 
         public double getRange() {
             return P2HeSimplified.this.getRange();
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {

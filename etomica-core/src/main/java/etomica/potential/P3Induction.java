@@ -131,10 +131,6 @@ public class P3Induction implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 3;
-    }
-
     public static class MyAgent {
         public final double[] alpha, q;
         public final Vector[] polSite, qSite;

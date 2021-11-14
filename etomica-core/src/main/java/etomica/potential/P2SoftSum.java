@@ -43,11 +43,6 @@ public class P2SoftSum implements Potential2Soft {
         return potential3;
     }
 
-    @Override
-    public int nBody() {
-        return 0;
-    }
-
     public double u(double r2) {
         return uWrapped(r2);
     }

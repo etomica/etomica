@@ -38,10 +38,4 @@ public abstract class PotentialMolecular implements IPotentialMolecular {
      */
     public abstract double energy(IMoleculeList molecules);
 
-    /**
-     * The number of atoms on which the potential depends.
-     */
-    public final int nBody() {return nBody;}
-    
-
 }

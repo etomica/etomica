@@ -39,11 +39,6 @@ public class P2HSDQPlus implements Potential2Soft {
         this.D = D;
     }
 
-    @Override
-    public int nBody() {
-        return 0;
-    }
-
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

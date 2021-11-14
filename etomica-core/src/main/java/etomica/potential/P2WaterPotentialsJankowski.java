@@ -2436,10 +2436,6 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public int nBody() {
-        return 2;
-    }
-
     public double energy(IAtomList atoms) {
         if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
         processAtoms(atoms);

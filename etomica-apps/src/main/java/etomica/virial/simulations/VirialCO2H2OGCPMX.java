@@ -160,7 +160,7 @@ public class VirialCO2H2OGCPMX {
                         p = new PotentialMolecularSum(new IPotentialMolecular[]{pi,p3ATM});
                     }
                     else {
-                        p = pi.makeNB(i);
+                        p = pi.makeNB();
                     }
                     fNA[i] = new MayerFunctionNonAdditiveFull(p);
                 }

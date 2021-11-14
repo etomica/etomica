@@ -13,8 +13,4 @@ public interface IPotential {
      */
     public double getRange();
 
-    /**
-     * The number of atoms on which the potential depends.
-     */
-    public int nBody();
 }

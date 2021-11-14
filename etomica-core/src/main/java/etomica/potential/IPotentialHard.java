@@ -58,7 +58,4 @@ public interface IPotentialHard extends IPotentialAtomic {
      */
     int bump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, Vector r12, Vector v12, double falseTime, double[] virial, double[] du);
 
-    default int nBody() {
-        return 2;
-    }
 }

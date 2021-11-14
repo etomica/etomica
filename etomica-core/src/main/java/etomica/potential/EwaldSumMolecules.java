@@ -316,11 +316,6 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public int nBody() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	//******************************** inner class ********************************************//
 	public static class MyCharge{
 		public MyCharge(double charge){
