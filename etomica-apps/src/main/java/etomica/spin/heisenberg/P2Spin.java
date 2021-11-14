@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.potential.IPotentialAtomicSecondDerivative;
-import etomica.potential.IPotentialTorque;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
@@ -16,7 +15,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space1d.Tensor1D;
 import etomica.space1d.Vector1D;
-//TODO
 
 /**
  * Magnetic spin potential, with an energy defined by
@@ -31,7 +29,7 @@ import etomica.space1d.Vector1D;
  * @author weisong lin and David Kofke
  */
 
-public class P2Spin extends Potential2 implements Potential2Soft, IPotentialTorque, IPotentialAtomicSecondDerivative {
+public class P2Spin extends Potential2 implements Potential2Soft, IPotentialAtomicSecondDerivative {
 
     private static final long serialVersionUID = 1L;
     protected final Vector[] torque;
@@ -135,36 +133,6 @@ public class P2Spin extends Potential2 implements Potential2Soft, IPotentialTorq
      */
     public void setCoupling(double coupling) {
         this.coupling = coupling;
-    }
-
-    /**
-     * @param atoms
-     * @return gradient and torque of given pair of atoms
-     */
-
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-
-        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
-
-        double x1 = atom1.getOrientation().getDirection().getX(0);//cost1
-        double y1 = atom1.getOrientation().getDirection().getX(1);//sint1
-        double x2 = atom2.getOrientation().getDirection().getX(0);//cost2
-        double y2 = atom2.getOrientation().getDirection().getX(1);//sint2
-
-        //u=-J*cos(t1-t2) and  du/dt1 = J*sin(t1-t2) = J*(sint1*cost2- cost1*sint2 =y1*x2-x1*y2)
-        double JSin = coupling * (y1 * x2 - x1 * y2);
-
-        torque[0].E(-JSin);
-        torque[1].E(JSin);
-        return gradientAndTorque;
-    }
-
-    /**
-     * do nothing
-     */
-    public Vector[][] gradientAndTorque(IAtomList atoms, Tensor pressureTensor) {
-        return gradientAndTorque(atoms);
     }
 
     /**

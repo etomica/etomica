@@ -12,7 +12,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.IPotentialTorque;
+import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -41,7 +41,7 @@ import java.util.Arrays;
  * only 2-body (TWO_BODY) or only non-additive (NON_PAIR) via the
  * setComponent() method.
  */
-public class P2WaterSzalewicz implements IPotentialTorque {
+public class P2WaterSzalewicz implements Potential2Soft {
     public static final boolean broken3body = false;
     
     protected static final double[][] siteDoubles= new double[][]{
@@ -956,10 +956,6 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         return 0;
     }
 
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        return null;
-    }
-    
     public P2H2OSC makeSemiclassical(double temperature) {
         return new P2H2OSC(temperature);
     }

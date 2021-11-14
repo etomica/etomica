@@ -4,6 +4,7 @@
 
 package etomica.models.co2;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -12,7 +13,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.IPotentialTorque;
+import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -44,7 +45,7 @@ import java.io.IOException;
  * 
  * @author Andrew Schultz
  */
-public class P2CO2H2OWheatley implements IPotentialTorque {
+public class P2CO2H2OWheatley implements Potential2Soft {
 
     protected static final int[][] iparams = new int[][]{
         {1,4,0,0,1,0},{1,4,0,0,6,0},{1,4,0,0,12,0},{1,5,0,0,1,0},{1,5,0,0,6,0}, // 5
@@ -363,28 +364,29 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
-        Vector cm0 = atom0.getPosition();
-        Vector cm1 = atom1.getPosition();
+    public double u(Vector dr12, IAtom a1, IAtom a2) {
+        IAtomOriented atom1 = (IAtomOriented)a1;
+        IAtomOriented atom2 = (IAtomOriented)a2;
+        Vector cm0 = atom1.getPosition();
+        Vector cm1 = atom2.getPosition();
+        double bohrConv = BohrRadius.UNIT.fromSim(1);
         for (int i=0; i<3; i++) {
-            sitePos[0][i].E(cm0);
-            sitePos[1][i].E(cm1);
+            sitePos[0][i].Ea1Tv1(bohrConv, cm0);
+            sitePos[1][i].Ea1Tv1(bohrConv, cm1);
         }
         //CO2
-        Vector orCO2 = atom0.getOrientation().getDirection();
+        Vector orCO2 = atom1.getOrientation().getDirection();
         sitePos[0][1].PEa1Tv1(+sitesCO2L, orCO2);
         sitePos[0][2].PEa1Tv1(-sitesCO2L, orCO2);
-        Vector orH2O1 = atom1.getOrientation().getDirection();
-        Vector orH2O2 = ((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection();
+        Vector orH2O1 = atom2.getOrientation().getDirection();
+        Vector orH2O2 = ((OrientationFull3D)atom2.getOrientation()).getSecondaryDirection();
         double cmx = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
         sitePos[1][0].PEa1Tv1(-cmx, orH2O1);
         sitePos[1][1].PEa1Tv1(+sitesOH-cmx, orH2O1);
         sitePos[1][2].PEa1Tv1(+sitesOH-cmx, orH2O1);
         sitePos[1][1].PEa1Tv1(+sitesHH, orH2O2);
         sitePos[1][2].PEa1Tv1(-sitesHH, orH2O2);
-        
+
         getPerp(orCO2, or01, or02);
         allOr0[0] = orCO2;
         rot0.E(allOr0);
@@ -396,11 +398,14 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         allOr1[1] = orH2O2;
         rot1.E(allOr1);
         rot1.invert();
-        gradientAndTorque[0][0].E(0);
-        gradientAndTorque[0][1].E(0);
-        gradientAndTorque[1][0].E(0);
-        gradientAndTorque[1][1].E(0);
-        
+
+        CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
+        if (CO < coreCO && !debugging) return Double.POSITIVE_INFINITY;
+        boolean checkme = false;
+        if (CO < checkCoreCO) checkme = true;
+        double energy = 0;
+        minR = Double.POSITIVE_INFINITY;
+
         for (int i=0; i<iparams.length; i++) {
             int ia1 = iparams[i][0]-1;
             int ib1 = iparams[i][1]-3-1;
@@ -409,35 +414,164 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             int ir1 = iparams[i][4];
             int ir2 = iparams[i][5];
             double c1 = fparams[i];
-            
-            drij.Ev1Mv2(sitePos[1][ib1], sitePos[0][ia1]);
+
             double r21 = sitePos[1][ib1].Mv1Squared(sitePos[0][ia1]);
             double rr1 = Math.sqrt(r21);
+            if (rr1 < minR) minR = rr1;
+            if (rr1 < core && !debugging) {
+                return Double.POSITIVE_INFINITY;
+            }
+            if (rr1 < checkCore) {
+                checkme = true;
+            }
             double rval1 = 1.0/Math.pow(rr1, ir1);
             if (ia2>-1) {
                 double r22 = sitePos[1][ib2].Mv1Squared(sitePos[0][ia2]);
                 double rr2 = Math.sqrt(r22);
+                if (rr2 < minR) minR = rr2;
                 double rval2 = 1.0/Math.pow(rr2, ir2);
+                energy += rval1*rval2*c1;
+                if (rr2 < core && !debugging) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (rr2 < checkCore) {
+                    checkme = true;
+                }
             }
             else {
-                double rdu = -ir1*c1*rval1;
-//                System.out.println(ia1+" "+ib1+" "+ir1+" "+rr1+" "+rdu/rr1+" "+drij);
-
-                drij.TE(rdu/r21);
-                gradientAndTorque[0][1].PE(drij);
-//                System.out.println("grad 1 "+gradientAndTorque[0][1]);
-                gradientAndTorque[0][0].ME(drij);
-                torque.Ev1Mv2(sitePos[1][ib1], cm1);
-                torque.XE(drij);
-                gradientAndTorque[1][1].ME(torque);
-                torque.Ev1Mv2(sitePos[0][ia1], cm0);
-                torque.XE(drij);
-                gradientAndTorque[1][0].PE(torque);
+                energy += rval1*c1;
             }
         }
-        return gradientAndTorque;
+
+        if (false && checkme && !debugging && energy < 1000) {
+            Vector mine = space.makeVector();
+            debugging = true;
+            mine.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+            System.out.println("** close attraction in CO2-H2O "+energy +" "+minR+" "+Math.sqrt(mine.squared())*bohrConv);
+            for (int i=80; i<150; i++) {
+                atom2.getPosition().E(atom1.getPosition());
+                atom2.getPosition().PEa1Tv1(i*0.01, mine);
+                double uu = u(dr12, atom1, atom2);
+                System.out.print(String.format("%6.3f  %6.3f  %6.3f  %g\n", minR, CO, 0.01*i*Math.sqrt(mine.squared())*bohrConv, uu));
+            }
+            System.exit(1);
+        }
+        else if (!debugging && energy < -10000) System.out.println("-- "+energy);
+
+        return energy;
     }
-//    protected final int istart=3, istop=4;
+
+
+    public double uduTorque(Vector dr12, IAtom a1, IAtom a2, Vector f1, Vector f2, Vector t1, Vector t2) {
+        IAtomOriented atom1 = (IAtomOriented)a1;
+        IAtomOriented atom2 = (IAtomOriented)a2;
+        Vector cm0 = atom1.getPosition();
+        Vector cm1 = atom2.getPosition();
+        double bohrConv = BohrRadius.UNIT.fromSim(1);
+        for (int i=0; i<3; i++) {
+            sitePos[0][i].Ea1Tv1(bohrConv, cm0);
+            sitePos[1][i].Ea1Tv1(bohrConv, cm1);
+        }
+        //CO2
+        Vector orCO2 = atom1.getOrientation().getDirection();
+        sitePos[0][1].PEa1Tv1(+sitesCO2L, orCO2);
+        sitePos[0][2].PEa1Tv1(-sitesCO2L, orCO2);
+        Vector orH2O1 = atom2.getOrientation().getDirection();
+        Vector orH2O2 = ((OrientationFull3D)atom2.getOrientation()).getSecondaryDirection();
+        double cmx = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
+        sitePos[1][0].PEa1Tv1(-cmx, orH2O1);
+        sitePos[1][1].PEa1Tv1(+sitesOH-cmx, orH2O1);
+        sitePos[1][2].PEa1Tv1(+sitesOH-cmx, orH2O1);
+        sitePos[1][1].PEa1Tv1(+sitesHH, orH2O2);
+        sitePos[1][2].PEa1Tv1(-sitesHH, orH2O2);
+
+        getPerp(orCO2, or01, or02);
+        allOr0[0] = orCO2;
+        rot0.E(allOr0);
+        rot0.invert();
+
+        orH2O3.E(orH2O1);
+        orH2O3.XE(orH2O2);
+        allOr1[0] = orH2O1;
+        allOr1[1] = orH2O2;
+        rot1.E(allOr1);
+        rot1.invert();
+
+        CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
+        if (CO < coreCO && !debugging) return Double.POSITIVE_INFINITY;
+        boolean checkme = false;
+        if (CO < checkCoreCO) checkme = true;
+        double energy = 0;
+        minR = Double.POSITIVE_INFINITY;
+
+        for (int i=0; i<iparams.length; i++) {
+            int ia1 = iparams[i][0]-1;
+            int ib1 = iparams[i][1]-3-1;
+            int ia2 = iparams[i][2]-1;
+            int ib2 = iparams[i][3]-3-1;
+            int ir1 = iparams[i][4];
+            int ir2 = iparams[i][5];
+            double c1 = fparams[i];
+
+            double r21 = sitePos[1][ib1].Mv1Squared(sitePos[0][ia1]);
+            double rr1 = Math.sqrt(r21);
+            if (rr1 < minR) minR = rr1;
+            if (rr1 < core && !debugging) {
+                return Double.POSITIVE_INFINITY;
+            }
+            if (rr1 < checkCore) {
+                checkme = true;
+            }
+            double rval1 = 1.0/Math.pow(rr1, ir1);
+            if (ia2>-1) {
+                double r22 = sitePos[1][ib2].Mv1Squared(sitePos[0][ia2]);
+                double rr2 = Math.sqrt(r22);
+                if (rr2 < minR) minR = rr2;
+                double rval2 = 1.0/Math.pow(rr2, ir2);
+                energy += rval1*rval2*c1;
+                if (rr2 < core && !debugging) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (rr2 < checkCore) {
+                    checkme = true;
+                }
+            }
+            else {
+                energy += rval1*c1;
+                double rdu = -ir1*c1*rval1;
+//                System.out.println(ia1+" "+ib1+" "+ir1+" "+rr1+" "+rdu/rr1+" "+drij);
+                drij.Ev1Mv2(sitePos[1][ib1], sitePos[0][ia1]);
+
+                drij.TE(rdu/r21);
+                f1.PE(drij);
+//                System.out.println("grad 1 "+gradientAndTorque[0][1]);
+                f2.ME(drij);
+                torque.Ev1Mv2(sitePos[1][ib1], cm1);
+                torque.XE(drij);
+                t2.ME(torque);
+                torque.Ev1Mv2(sitePos[0][ia1], cm0);
+                torque.XE(drij);
+                t1.PE(torque);
+            }
+        }
+
+        if (false && checkme && !debugging && energy < 1000) {
+            Vector mine = space.makeVector();
+            debugging = true;
+            mine.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+            System.out.println("** close attraction in CO2-H2O "+energy +" "+minR+" "+Math.sqrt(mine.squared())*bohrConv);
+            for (int i=80; i<150; i++) {
+                atom2.getPosition().E(atom1.getPosition());
+                atom2.getPosition().PEa1Tv1(i*0.01, mine);
+                double uu = u(dr12, atom1, atom2);
+                System.out.print(String.format("%6.3f  %6.3f  %6.3f  %g\n", minR, CO, 0.01*i*Math.sqrt(mine.squared())*bohrConv, uu));
+            }
+            System.exit(1);
+        }
+        else if (!debugging && energy < -10000) System.out.println("-- "+energy);
+
+        return energy;
+    }
 
     /**
      * Creates a Feynman-Hibbs implementation of a semi-classical potential based on this model for the given temperature.

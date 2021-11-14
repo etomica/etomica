@@ -4,6 +4,7 @@
 
 package etomica.models.co2;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -11,9 +12,9 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.IPotentialTorque;
 import etomica.potential.P2SemiclassicalAtomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
+import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -37,7 +38,7 @@ import etomica.util.random.RandomMersenneTwister;
  * 
  * @author Andrew Schultz
  */
-public class P2CO2Hellmann implements IPotentialTorque {
+public class P2CO2Hellmann implements Potential2Soft {
 
     public static final double[] posA = new double[]{-1.28815171291, -1.17769797231, -0.18133162098, 0.00000000000, 0.18133162098, 1.17769797231, 1.28815171291};
     public static final double[] posB = new double[]{-1.28741781626, -1.18192825424, -0.18607849166, 0.00000000000, 0.18607849166, 1.18192825424, 1.28741781626};
@@ -136,17 +137,15 @@ public class P2CO2Hellmann implements IPotentialTorque {
 
     protected boolean debug = false;
 
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
-        Vector cm0 = atom0.getPosition();
-        Vector cm1 = atom1.getPosition();
-        Vector or0 = atom0.getOrientation().getDirection();
-        Vector or1 = atom1.getOrientation().getDirection();
-        gradientAndTorque[0][0].E(0);
-        gradientAndTorque[0][1].E(0);
-        gradientAndTorque[1][0].E(0);
-        gradientAndTorque[1][1].E(0);
+    public double uduTorque(Vector dr12, IAtom a1, IAtom a2, Vector f1, Vector f2, Vector t1, Vector t2) {
+
+        IAtomOriented atom1 = (IAtomOriented)a1;
+        IAtomOriented atom2 = (IAtomOriented)a2;
+        Vector cm0 = atom1.getPosition();
+        Vector cm1 = atom2.getPosition();
+        Vector or0 = atom1.getOrientation().getDirection();
+        Vector or1 = atom2.getOrientation().getDirection();
+        double u = 0;
         for (int i=0; i<7; i++) {
             int ii = siteID[i];
             ri.E(cm0);
@@ -159,11 +158,9 @@ public class P2CO2Hellmann implements IPotentialTorque {
                 double rij2 = drij.squared();
                 double rij = Math.sqrt(rij2);
                 if (rij < 0.9) {
-                    gradientAndTorque[0][0].E(Double.NaN);
-                    gradientAndTorque[1][0].E(Double.NaN);
-                    gradientAndTorque[0][1].E(Double.NaN);
-                    gradientAndTorque[1][1].E(Double.NaN);
-                    return gradientAndTorque;
+                    f1.E(Double.NaN);
+                    f2.E(Double.NaN);
+                    return Double.POSITIVE_INFINITY;
                 }
                 double ar = alpha[ii][jj]*rij;
                 double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
@@ -185,15 +182,15 @@ public class P2CO2Hellmann implements IPotentialTorque {
                     dsum += dterm;
                 }
                 if (sum==1) {
-                    gradientAndTorque[0][0].E(Double.NaN);
-                    gradientAndTorque[1][0].E(Double.NaN);
-                    gradientAndTorque[0][1].E(Double.NaN);
-                    gradientAndTorque[1][1].E(Double.NaN);
-                    return gradientAndTorque;
+                    f1.E(Double.NaN);
+                    f2.E(Double.NaN);
+                    return Double.POSITIVE_INFINITY;
                 }
+                double uExp = A[ii][jj]*Math.exp(-alpha[ii][jj]*rij);
                 double rij6 = rij2*rij2*rij2;
                 double expbr = Math.exp(-br);
-                double rdu6dr = (-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum))*C6[ii][jj]/rij6; 
+                double u6 = -(1-expbr*sum)*C6[ii][jj]/rij6;
+                double rdu6dr = (-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum))*C6[ii][jj]/rij6;
 
                 for (int k=7; k<=8; k++) {
                     term *= br/k;
@@ -202,29 +199,97 @@ public class P2CO2Hellmann implements IPotentialTorque {
                     dsum += dterm;
                 }
                 double rij8 = rij6*rij2;
+                double u8 = -(1-expbr*sum)*C8[ii][jj]/rij8;
                 double rdu8dr = (-expbr*br*sum + expbr*dsum + 8*(1-expbr*sum))*C8[ii][jj]/rij8;
 //                rdu8dr = (expbr*dsum);
 
+                double uCharge = q[ii]*q[jj]/rij;
                 double rduChargedr = -q[ii]*q[jj]/rij;
-                
+
+                u += uExp + u6 + u8 + uCharge;
+                if (Double.isNaN(u)) throw new RuntimeException("oops");
                 double rdudr = rduExpdr + rdu6dr + rdu8dr + rduChargedr;
                 // we're done with drij.  replace it with gradient on 1 (force on 0)
 //                System.out.println("g drij "+drij+" "+rdudr/rij2);
                 drij.TE(rdudr/rij2);
-                gradientAndTorque[0][1].PE(drij);
+                f1.PE(drij);
 //                System.out.println("grad 1 "+gradientAndTorque[0][1]);
-                gradientAndTorque[0][0].ME(drij);
+                f2.ME(drij);
                 torque.Ea1Tv1(pos[j], or1);
                 torque.XE(drij);
-                gradientAndTorque[1][1].ME(torque);
+                t2.ME(torque);
                 torque.Ea1Tv1(pos[i], or0);
                 torque.XE(drij);
-                gradientAndTorque[1][0].PE(torque);
+                t1.PE(torque);
             }
         }
-        return gradientAndTorque;
+        return u;
     }
-    
+
+    public double u(Vector dr12, IAtom a1, IAtom a2) {
+        IAtomOriented atom1 = (IAtomOriented)a1;
+        IAtomOriented atom2 = (IAtomOriented)a2;
+        Vector cm0 = atom1.getPosition();
+        Vector cm1 = atom2.getPosition();
+        Vector or0 = atom1.getOrientation().getDirection();
+        Vector or1 = atom2.getOrientation().getDirection();
+        double u = 0;
+        boolean checkme = false;
+        for (int i=0; i<7; i++) {
+            int ii = siteID[i];
+            ri.E(cm0);
+            ri.PEa1Tv1(pos[i], or0);
+            for (int j=0; j<7; j++) {
+                int jj = siteID[j];
+                rj.E(cm1);
+                rj.PEa1Tv1(pos[j], or1);
+                double rij2 = rj.Mv1Squared(ri);
+                double rij = Math.sqrt(rij2);
+//                System.out.println("rij "+rj+" "+ri+" "+rij);
+                if (rij < 0.9) return Double.POSITIVE_INFINITY;
+                if (rij < 1.2) checkme = true;
+                double uExp = A[ii][jj]*Math.exp(-alpha[ii][jj]*rij);
+
+                double sum = 1;
+                double br = b[ii][jj]*rij;
+                double term = 1;
+                for (int k=1; k<=6; k++) {
+                    term *= br/k;
+                    sum += term;
+                }
+                if (sum==1) return Double.POSITIVE_INFINITY;
+                double rij6 = rij2*rij2*rij2;
+                double expbr = Math.exp(-br);
+                double u6 = -(1-expbr*sum)*C6[ii][jj]/rij6;
+
+                for (int k=7; k<=8; k++) {
+                    term *= br/k;
+                    sum += term;
+                }
+                double rij8 = rij6*rij2;
+                double u8 = -(1-expbr*sum)*C8[ii][jj]/rij8;
+
+                double uCharge = q[ii]*q[jj]/rij;
+                u += uExp + u6 + u8 + uCharge;
+                if (debug) {
+                    System.out.println(rij+" "+(uExp+u6+u8+uCharge));
+                }
+                if (Double.isNaN(u)) throw new RuntimeException("oops");
+            }
+        }
+        if (debug) return u;
+        if (u<-1000 || Double.isNaN(u)) {
+            System.out.println(u);
+            debug = true;
+            u(dr12, a1, a2);
+            throw new RuntimeException("oops, too much");
+        }
+        if (checkme && u<10000) {
+            System.out.println(u);
+        }
+        return u;
+    }
+
     public double energy(IAtomList atoms) {
         IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
         IAtomOriented atom1 = (IAtomOriented)atoms.get(1);

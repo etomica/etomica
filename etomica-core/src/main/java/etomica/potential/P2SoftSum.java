@@ -150,11 +150,6 @@ public class P2SoftSum implements Potential2Soft {
         return d2uWrapped(dr12, atom1, atom2);
     }
 
-    @Override
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        return new Vector[0][];
-    }
-
     protected double d2uWrapped(double r2) {
         double d2u = potential1.d2u(r2);
         if (potential2 == null) return d2u;

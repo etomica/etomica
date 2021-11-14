@@ -590,9 +590,5 @@ public class Sam extends Simulation {
             return u012[0];
         }
 
-        @Override
-        public Vector[][] gradientAndTorque(IAtomList atoms) {
-            throw new RuntimeException("nope");
-        }
     }
 }

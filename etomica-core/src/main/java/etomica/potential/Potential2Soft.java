@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Vector;
 
@@ -55,10 +54,6 @@ public interface Potential2Soft extends Potential2Spherical, IPotentialPair {
 
     default double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
         return udu(dr12, atom1, atom2, f1, f2);
-    }
-
-    default Vector[][] gradientAndTorque(IAtomList atoms) {
-        throw new MethodNotImplementedException();
     }
 
 }

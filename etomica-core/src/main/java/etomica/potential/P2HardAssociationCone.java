@@ -212,9 +212,4 @@ public class P2HardAssociationCone implements Potential2Soft {
         return eTot;
     }
 
-    @Override
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        return new Vector[0][];
-    }
-
 }

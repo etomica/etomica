@@ -219,11 +219,6 @@ public class P2ReactionFieldDipole implements Potential2Soft {
     }
 
     @Override
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        return new Vector[0][];
-    }
-
-    @Override
     public double u(double r2) {
         return 0;
     }

@@ -7,7 +7,6 @@ package etomica.modules.chainequilibrium;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.potential.P2HardGeneric;
 import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
@@ -267,11 +266,6 @@ public class P2SquareWellBonded extends P2HardGeneric implements Potential2Soft 
     }
 
     protected final RingResult ringResult;
-
-    @Override
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        return new Vector[0][];
-    }
 
     protected static class RingResult {
         public IAtom linker;

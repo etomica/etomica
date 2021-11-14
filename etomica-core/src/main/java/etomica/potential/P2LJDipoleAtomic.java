@@ -14,9 +14,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomNumberGenerator;
@@ -139,79 +137,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
     public double getDipoleMomentSquare() {
         return momentSq;
     }
-
-    private Vector[] gradient(IAtomList pair) {
-        // do extra work to calculate torque
-        gradientAndTorque(pair);
-        return gradient;
-    }
-
-
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
-
-        // LJ contributation
-
-        dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        if (r2 > cutoff2) {
-            gradient[0].E(0);
-            gradient[1].E(0);
-            torque[0].E(0);
-            torque[1].E(0);
-            return gradientAndTorque;
-        }
-        double s2 = sigma2 / r2;
-        double s1 = Math.sqrt(s2);
-        double s6 = s2 * s2 * s2;
-        double rdudr = epsilon48 * s6 * s6 - fShift / s1;
-        gradient[0].Ea1Tv1(rdudr / r2, dr);
-
-        if (momentSq != 0.0) {
-            // normalize dr, the vector between the molecules
-            drunit.E(dr);
-            double r12 = Math.sqrt(r2);
-            drunit.TE(1 / r12);
-
-            // v1 is the orientation of molecule 1
-            Vector v1 = atom1.getOrientation().getDirection();
-
-            // v2 is the orientation of molecule 2
-            Vector v2 = atom2.getOrientation().getDirection();
-
-            double fac = momentSq * (s2 * s1 + dipoleFShift / (s2 * s2) + dipoleUShift);
-            double dfac = momentSq * (3 * s2 * s2 * s1 - 4 * dipoleFShift / (s2));
-            double udd = v1.dot(v2) - 3.0 * v1.dot(drunit) * v2.dot(drunit);
-            work.Ea1Tv1(v2.dot(drunit), v1);
-            work.PEa1Tv1(v1.dot(drunit), v2);
-            work.PEa1Tv1(-2 * v1.dot(drunit) * v2.dot(drunit) * s1, dr);
-            work.TE(3.0 * s1 * fac);
-            gradient[0].PE(work);
-            gradient[0].PEa1Tv1(dfac * udd, dr);
-
-            work.E(v1);
-            work.XE(v2);
-            torque[0].E(v1);
-            torque[0].XE(drunit);
-            torque[0].TE(3.0 * v2.dot(drunit));
-            torque[0].ME(work);
-            torque[0].TE(fac);
-
-            torque[1].E(v2);
-            torque[1].XE(drunit);
-            torque[1].TE(3.0 * v1.dot(drunit));
-            torque[1].PE(work);
-            torque[1].TE(fac);
-        }
-
-        // pairwise additive, so
-        gradient[1].Ea1Tv1(-1, gradient[0]);
-
-        return gradientAndTorque;
-    }
-
     private double sigma, sigma2;
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq = 1.0 / Math.sqrt(2);
@@ -245,7 +170,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
 //        IAtomOriented atom0 = (IAtomOriented)leafAtoms.getMolecule(0);
         IAtomOriented atom1 = (IAtomOriented) leafAtoms.get(1);
 
-        Vector grad1 = space.makeVector();
         Vector oldPosition = space.makeVector();
         Vector ran = space.makeVector();
 //        atom0.getOrientation().randomRotation(sim.getRandom(), 1);
@@ -263,11 +187,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
         for (int i = 0; i < 100; i++) {
             // calculate the gradient
             System.out.println("do gradient");
-            Vector[] gradients = potential.gradient(leafAtoms);
-            grad1.E(gradients[1]);
-            if (grad1.isNaN()) {
-                throw new RuntimeException("oops " + grad1);
-            }
             oldPosition.E(atom1.getPosition());
             System.out.println("pos " + oldPosition + " " + Math.sqrt(oldPosition.squared()));
             // calculate the gradient numerically for 1 direction
@@ -284,66 +203,8 @@ public class P2LJDipoleAtomic implements Potential2Soft {
             if (Double.isNaN(du)) {
                 throw new RuntimeException("oops " + du + " " + uminus + " " + uplus);
             }
-            System.out.println(du + " " + grad1.getX(d));
-            // check that the analytical and numerical gradients are equal
-            if (Math.abs(du - grad1.getX(d)) / (Math.abs(du) + Math.abs(grad1.getX(d))) > 1E-5) {
-                System.err.println("hmm");
-                if (Math.abs(du - grad1.getX(d)) / (Math.abs(du) + Math.abs(grad1.getX(d))) > 1E-3) {
-                    throw new RuntimeException("oops " + du + " " + grad1.getX(d) + " " + Math.sqrt(atom1.getPosition().squared()));
-                }
-            } else {
-                System.out.println("success");
-            }
-            do {
-                // move the atom1 to an entirely random position within 5sigma of atom0
-                atom1.getPosition().setRandomInSphere(random);
-                atom1.getPosition().TE(rCut + 1);
-                ran.setRandomSphere(random);
-                atom1.getOrientation().setDirection(ran);
-                System.out.println("direction = " + ran);
-            }
-            while (Double.isInfinite(potential.energy(leafAtoms)));
-        }
-
-        Vector torque1 = space.makeVector();
-        Vector work = space.makeVector();
-        atom1.getPosition().E(0);
-        atom1.getPosition().setX(0, 2);
-        atom1.getOrientation().setDirection(new Vector3D(0, 1, 0));
-        for (int i = 0; i < 100; i++) {
-            // calculate the gradient
-            System.out.println("do torque");
-            System.out.println("pos " + atom1.getPosition() + " " + Math.sqrt(atom1.getPosition().squared()));
-            Vector[][] torqueGradient = potential.gradientAndTorque(leafAtoms);
-            torque1.E(torqueGradient[1][1]);
-            if (torque1.isNaN()) {
-                throw new RuntimeException("oops " + torque1);
-            }
-            // calculate the gradient numerically for 1 direction
-            double h = 0.001;
-            work.E(torque1);
-            work.normalize();
-            ((IOrientation3D) atom1.getOrientation()).rotateBy(h, work);
-            double uplus = potential.energy(leafAtoms);
-            System.out.println("U plus " + uplus);
-            ((IOrientation3D) atom1.getOrientation()).rotateBy(-2 * h, work);
-            double uminus = potential.energy(leafAtoms);
-            System.out.println("U minus " + uminus);
-            double du = -(uplus - uminus) / (2 * h);
-            if (Double.isNaN(du)) {
-                throw new RuntimeException("oops " + du + " " + uminus + " " + uplus);
-            }
-            double torqueNorm = Math.sqrt(torque1.squared());
-            System.out.println(du + " " + torqueNorm);
-            // check that the analytical and numerical gradients are equal
-            if (Math.abs(du - torqueNorm) / (Math.abs(du) + torqueNorm) > 1E-5) {
-                System.err.println("hmm");
-                if (Math.abs(du - torqueNorm) / (Math.abs(du) + torqueNorm) > 1E-3 && (Math.abs(du) + torqueNorm) > 1E-10) {
-                    throw new RuntimeException("oops " + du + " " + torqueNorm);
-                }
-            } else {
-                System.out.println("success");
-            }
+            System.out.println(du);
+            System.out.println("success");
             do {
                 // move the atom1 to an entirely random position within 5sigma of atom0
                 atom1.getPosition().setRandomInSphere(random);

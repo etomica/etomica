@@ -275,9 +275,4 @@ public class P22CLJmuQAtomic implements Potential2Soft {
         return 0;
     }
 
-    @Override
-    public Vector[][] gradientAndTorque(IAtomList atoms) {
-        return new Vector[0][];
-    }
-
 }

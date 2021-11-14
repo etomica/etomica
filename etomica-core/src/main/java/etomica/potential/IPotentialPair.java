@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public interface IPotentialPair extends IPotentialTorque {
+public interface IPotentialPair extends IPotentialAtomic {
 
     /**
      * Returns the energy between IAtoms atom1 and atom2 separated by vector
@@ -30,9 +30,7 @@ public interface IPotentialPair extends IPotentialTorque {
      * Likewise, the IAtoms' actual positions (from getPosition()) ought to be
      * ignored.
      */
-    default double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2) {
-        return uduTorque(dr12, atom1, atom2, f1, f2, Vector.d(f1.getD()), Vector.d(f2.getD()));
-    }
+    double udu(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2);
 
     /**
      * Computes the forces (and adds them to f1 and f2) and torques (and
@@ -43,16 +41,7 @@ public interface IPotentialPair extends IPotentialTorque {
      * Box dimensions when a lattice sum is used.  Likewise, the IAtoms' actual
      * positions (from getPosition()) ought to be ignored.
      */
-    default double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
-        AtomPair pair = new AtomPair(atom1, atom2);
-        double u = energy(pair);
-        Vector[][] gt = gradientAndTorque(pair);
-        f1.ME(gt[0][0]);
-        f2.ME(gt[0][1]);
-        t1.PE(gt[1][0]);
-        t2.PE(gt[1][1]);
-        return u;
-    }
+    double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2);
 
     default Hessian d2u(Vector dr12, IAtom atom1, IAtom atom2) { return null; }
 
