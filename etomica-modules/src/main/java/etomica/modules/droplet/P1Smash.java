@@ -16,8 +16,6 @@ import etomica.space.Vector;
 public class P1Smash implements IPotentialField {
 
     public P1Smash(Space space) {
-        gradient = new Vector[1];
-        gradient[0] = space.makeVector();
         g = 1;
     }
 
@@ -43,17 +41,6 @@ public class P1Smash implements IPotentialField {
         return Math.abs(z) * g;
     }
 
-    private Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        if (a.getPosition().getX(2) > 0) {
-            gradient[0].setX(2, g);
-        }
-        else {
-            gradient[0].setX(2,-g);
-        }
-        return gradient;
-    }
-
     public double energy(IAtomList atoms) {
         IAtom a = atoms.get(0);
         return Math.abs(a.getPosition().getX(2))*g;
@@ -63,6 +50,5 @@ public class P1Smash implements IPotentialField {
         return Double.POSITIVE_INFINITY;
     }
     
-    protected final Vector[] gradient;
     protected double g;
 }

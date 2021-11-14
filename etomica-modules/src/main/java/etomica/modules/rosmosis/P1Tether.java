@@ -32,7 +32,6 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
         this.species = species;
         agentManager = new AtomLeafAgentManager<Vector>(this, box);
         work = _space.makeVector();
-        gradient = new Vector[]{work};
     }
 
     public void setEpsilon(double newEpsilon) {
@@ -60,14 +59,6 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
         return 0.5 * epsilon * x2;
     }
 
-    private Vector[] gradient(IAtomList atoms) {
-        IAtom atom = atoms.get(0);
-        work.E(atom.getPosition());
-        work.ME(agentManager.getAgent(atom));
-        work.TE(epsilon);
-        return gradient;
-    }
-
     public Vector makeAgent(IAtom a, Box agentBox) {
         if (a.getType().getSpecies() == species) {
             Vector vec = space.makeVector();
@@ -85,6 +76,5 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
     protected final AtomLeafAgentManager<Vector> agentManager;
     protected final ISpecies species;
     protected final Vector work;
-    protected final Vector[] gradient;
     protected double epsilon;
 }

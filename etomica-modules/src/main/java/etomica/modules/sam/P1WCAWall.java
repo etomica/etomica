@@ -17,7 +17,6 @@ import etomica.space.Vector;
 
 public class P1WCAWall extends Potential1 implements IPotentialField {
 
-    protected final Vector[] gradient;
     protected double sigma, sigma2;
     protected double epsilon;
     protected double cutoff, cutoff2;
@@ -29,8 +28,6 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
         setSigma(sigma);
         setEpsilon(epsilon);
         setWallDim(wallDim);
-        gradient = new Vector[1];
-        gradient[0] = space.makeVector();
     }
 
     @Override
@@ -57,15 +54,6 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
         return 4 * epsilon * s6 * (s6 - 1.0) + epsilon;
     }
 
-    private double gradient(double r2) {
-        if (r2 > cutoff2) {
-            return 0;
-        }
-        double s2 = sigma2 / r2;
-        double s6 = s2 * s2 * s2;
-        return -48 * epsilon * s6 * (s6 - 0.5);
-    }
-
     public double udu(IAtom atom, Vector force) {
         double rz = atom.getPosition().getX(wallDim) - wallPosition;
         double r2 = rz*rz;
@@ -80,13 +68,6 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
         fx += rz > 0 ? -gradz : +gradz;
         force.setX(0, fx);
         return u;
-    }
-
-    private Vector[] gradient(IAtomList atom) {
-        double rz = atom.get(0).getPosition().getX(wallDim) - wallPosition;
-        double gradz = gradient(rz*rz);
-        gradient[0].setX(wallDim, rz > 0 ? gradz : -gradz);
-        return gradient;
     }
 
     /**

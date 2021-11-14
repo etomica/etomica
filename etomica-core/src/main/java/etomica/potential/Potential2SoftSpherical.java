@@ -21,9 +21,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
 
     public Potential2SoftSpherical(Space space) {
         super(space);
-        gradient = new Vector[2];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
         dr = space.makeVector();
     }
 
@@ -37,31 +34,12 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     /**
-     * Gradient of the pair potential as given by the du(double) method.
-     */
-    public Vector[] gradient(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        double du = du(r2);
-        if (du == 0) {
-            gradient[0].E(0.0);
-            gradient[1].E(0.0);
-            return gradient;
-        }
-        gradient[1].Ea1Tv1(du/r2,dr);
-        gradient[0].Ea1Tv1(-1,gradient[1]);
-        return gradient;
-    }
-
-    /**
      * Returns infinity.  May be overridden to define a finite-ranged potential.
      */
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }
 
-    protected final Vector[] gradient;
     protected Boundary boundary;
     protected final Vector dr;
     

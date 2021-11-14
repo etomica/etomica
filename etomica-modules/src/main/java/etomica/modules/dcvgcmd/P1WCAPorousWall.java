@@ -103,10 +103,6 @@ public class P1WCAPorousWall implements IPotentialField {
         return r2 < poreRadius2;
     }
 
-    private Vector[] gradient(IAtomList atom) {
-        throw new RuntimeException("nope");
-    }
-
     /**
      * Returns the radius.
      *

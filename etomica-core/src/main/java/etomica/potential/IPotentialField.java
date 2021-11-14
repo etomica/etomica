@@ -34,13 +34,4 @@ public interface IPotentialField extends PotentialSoft {
     default double energy(IAtomList atom) {
         return u(atom.get(0));
     }
-
-    default private Vector[] gradient(IAtomList atoms) {
-        IAtom atom = atoms.get(0);
-        Vector f = Vector.d(atom.getPosition().getD());
-        udu(atom, f);
-        f.TE(-1);
-        return new Vector[]{f};
-    }
-
 }

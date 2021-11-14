@@ -68,14 +68,5 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotent
         return w*dr.squared();
     }
 
-    private Vector[] gradient(IAtomList a){
-        Vector r = a.get(0).getPosition();
-        Vector x0 = atomAgentManager.getAgent(a.get(0));
-        force[0].Ev1Mv2(r,x0);
-        force[0].TE(2*w);
-            
-        return force;
-    }
-
 }
    

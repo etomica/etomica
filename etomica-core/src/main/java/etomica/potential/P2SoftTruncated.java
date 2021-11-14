@@ -26,7 +26,6 @@ public class P2SoftTruncated extends Potential2
     protected final Space space;
     protected final Vector dr;
     protected final Potential2Soft wrappedPotential;
-    protected final Vector[] gradient;
     protected double rCutoff, r2Cutoff;
     protected Boundary boundary;
 
@@ -36,9 +35,6 @@ public class P2SoftTruncated extends Potential2
         this.wrappedPotential = potential;
         setTruncationRadius(truncationRadius);
         dr = space.makeVector();
-        gradient = new Vector[2];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
     }
     
     /**

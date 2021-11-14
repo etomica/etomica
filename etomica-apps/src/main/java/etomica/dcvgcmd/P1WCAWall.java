@@ -78,10 +78,6 @@ public class P1WCAWall implements IPotentialField {
         return 4 * epsilon * r6 * (r6 - 1.0) + epsilon;
     }
 
-    private Vector[] gradient(IAtomList atom) {
-        throw new RuntimeException("nope");
-    }
-
     /**
      * Returns the radius.
      *

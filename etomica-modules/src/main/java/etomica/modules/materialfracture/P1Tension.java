@@ -61,13 +61,5 @@ public class P1Tension implements IPotentialField {
         return 0.5 * w * aSum;
     }
 
-    private Vector[] gradient(IAtomList a) {
-        Vector r = a.get(0).getPosition();
-        force[0].setX(1, 0);
-        double x = r.getX(0);
-        force[0].setX(0,-w*x);
-        return force;
-    }
-
 }
    

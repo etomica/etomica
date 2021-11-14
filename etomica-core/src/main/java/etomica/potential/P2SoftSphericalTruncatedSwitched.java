@@ -25,9 +25,6 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         this.space = _space;
         this.potential = potential;
         setTruncationRadius(truncationRadius);
-        gradient = new Vector[2];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
         dr = space.makeVector();
         setSwitchFac(0.95);
     }
@@ -69,32 +66,6 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
      */
     public double getRange() {
         return rCutoff;
-    }
-
-    private Vector[] gradient(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        if (r2 < r2Cutoff) {
-            Vector[] unswitchedGradient = potential.gradient(atoms);
-            gradient[0].E(unswitchedGradient[0]);
-            gradient[1].E(unswitchedGradient[1]);
-            if (r2 > r2Switch) {
-                double r = Math.sqrt(r2);
-                double fac = getF(r);
-                double u = potential.u(r2);
-                gradient[0].TE(fac);
-                gradient[1].TE(fac);
-                // (df/dr)/r
-                fac = getdFdr(r) / r;
-                gradient[0].PEa1Tv1(-fac * u, dr);
-                gradient[1].PEa1Tv1(+fac * u, dr);
-            }
-            return gradient;
-        }
-        gradient[0].E(0);
-        gradient[1].E(0);
-        return gradient;
     }
 
     protected double getF(double r) {
@@ -163,7 +134,6 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     protected final Potential2SoftSpherical potential;
     protected final Vector dr;
     protected Boundary boundary;
-    protected final Vector[] gradient;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 

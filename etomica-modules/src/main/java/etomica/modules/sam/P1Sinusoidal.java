@@ -19,8 +19,6 @@ public class P1Sinusoidal implements IPotentialField {
         r = space.makeVector();
         waveVectors = new Vector[3];
         setCellSize(1, 1);
-        gradient = new Vector[1];
-        gradient[0] = space.makeVector();
     }
     
     public void setOffset(Vector newOffset) {
@@ -79,21 +77,9 @@ public class P1Sinusoidal implements IPotentialField {
         return b45 * (3.0 - sum);
     }
 
-    private Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        r.Ev1Mv2(a.getPosition(), offset);
-        gradient[0].E(0);
-        for (int i=0; i<3; i++) {
-            gradient[0].PEa1Tv1(Math.sin(r.dot(waveVectors[i])), waveVectors[i]);
-        }
-        gradient[0].TE(b45);
-        return gradient;
-    }
-
     protected final Space space;
     protected double b45;
     protected final Vector offset;
     protected final Vector r;
     protected final Vector[] waveVectors;
-    protected final Vector[] gradient;
 }

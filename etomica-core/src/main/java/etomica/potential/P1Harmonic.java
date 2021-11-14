@@ -75,13 +75,5 @@ public class P1Harmonic extends Potential1 implements PotentialSoft, IPotentialF
         return 0.5 * w * a.get(0).getPosition().Mv1Squared(x0);
     }
 
-    private Vector[] gradient(IAtomList a){
-        Vector r = a.get(0).getPosition();
-        force[0].Ev1Mv2(r,x0);
-        force[0].TE(w);
-            
-        return force;
-    }
-
 }
    
