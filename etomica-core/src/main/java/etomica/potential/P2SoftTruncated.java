@@ -24,6 +24,7 @@ import etomica.units.dimensions.Length;
 public class P2SoftTruncated extends Potential2
                implements Potential2Soft {
 
+    protected final Space space;
     protected final Vector dr;
     protected final Potential2Soft wrappedPotential;
     protected final Vector[] gradient;
@@ -32,6 +33,7 @@ public class P2SoftTruncated extends Potential2
 
     public P2SoftTruncated(Potential2Soft potential, double truncationRadius, Space _space) {
         super(_space);
+        this.space = _space;
         this.wrappedPotential = potential;
         setTruncationRadius(truncationRadius);
         dr = space.makeVector();
@@ -73,17 +75,6 @@ public class P2SoftTruncated extends Potential2
     public double uduTorque(Vector dr12, IAtom atom1, IAtom atom2, Vector f1, Vector f2, Vector t1, Vector t2) {
         if (dr12.squared() > r2Cutoff) return 0;
         return wrappedPotential.uduTorque(dr12, atom1, atom2, f1, f2, t1, t2);
-    }
-
-    /**
-     * Returns the 2nd derivative (r^2 d^2u/dr^2) of the wrapped potential if the separation
-     * is less than the cutoff value
-     */
-    public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        return (r2 < r2Cutoff) ? wrappedPotential.virial(atoms) : 0;
     }
 
     /**

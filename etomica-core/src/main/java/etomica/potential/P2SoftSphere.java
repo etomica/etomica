@@ -33,12 +33,11 @@ public class P2SoftSphere extends Potential2SoftSpherical {
 
     public P2SoftSphere(Space space) {
         this(space, 1.0, 1.0, 12);
-
     }
 
     public P2SoftSphere(Space space, double sigma, double epsilon, int n) {
-
         super(space);
+        this.space = space;
         setSigma(sigma);
         setEpsilon(epsilon);
         this.n = n;
@@ -189,6 +188,7 @@ public class P2SoftSphere extends Potential2SoftSpherical {
         return n;
     }
 
+    protected final Space space;
     protected double sigma, sigma2;
     protected double epsilon;
     protected final int n;

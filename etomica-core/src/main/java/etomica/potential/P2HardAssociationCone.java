@@ -219,11 +219,6 @@ public class P2HardAssociationCone implements Potential2Soft {
     }
 
     @Override
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
-    @Override
     public Vector[] gradient(IAtomList atoms) {
         return new Vector[0];
     }

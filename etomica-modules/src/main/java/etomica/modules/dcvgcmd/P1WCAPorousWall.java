@@ -97,10 +97,6 @@ public class P1WCAPorousWall implements IPotentialField {
         return 4 * epsilon * r6 * (r6 - 1.0) + epsilon;
     }
 
-    public double virial(IAtomList atoms) {
-        throw new RuntimeException("nope");
-    }
-
     private boolean inPore(Vector r) {
         double dx = r.getX(0);
         double dy = r.getX(1);

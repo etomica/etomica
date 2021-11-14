@@ -102,11 +102,6 @@ public class VirialPolyhedra2 {
         Potential2Soft p2Wrapper = new Potential2Soft() {
 
             @Override
-            public double virial(IAtomList atoms) {
-                return 0;
-            }
-
-            @Override
             public Vector[] gradient(IAtomList atoms) {
                 return new Vector[0];
             }

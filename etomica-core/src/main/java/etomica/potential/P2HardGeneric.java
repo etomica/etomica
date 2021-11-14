@@ -265,11 +265,6 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
     }
 
     @Override
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
-    @Override
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         throw new RuntimeException("nope");
     }

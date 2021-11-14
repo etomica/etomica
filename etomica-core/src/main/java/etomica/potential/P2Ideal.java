@@ -48,13 +48,6 @@ public class P2Ideal extends Potential2SoftSpherical implements
     /**
      * Returns zero.
      */
-    public double virial(IAtomList pair) {
-        return 0;
-    }
-
-    /**
-     * Returns zero.
-     */
     public double integral(double rC) {
         return 0;
     }

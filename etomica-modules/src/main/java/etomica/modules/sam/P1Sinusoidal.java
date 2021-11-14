@@ -74,10 +74,6 @@ public class P1Sinusoidal implements IPotentialField {
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     protected final Space space;
     protected double b45;
     protected final Vector offset;

@@ -50,8 +50,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	
 	public P2HC2Yukawa(Space _space, double sigma, double epsilon){
 		super(_space);
-		
-		dr = space.makeVector();
+		dr = _space.makeVector();
 		setSigma(sigma);
 		setEpsilon(epsilon);
 		setParameters(sigma);
@@ -120,7 +119,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		expZ2 = Math.exp(-z2);
 	}
 	
-    private static final long serialVersionUID = 1L;
 	private double sigma;
 	private double epsilon;
 	private double A1;

@@ -44,10 +44,6 @@ public class P1Smash implements IPotentialField {
         return Math.abs(z) * g;
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         return gradient(atoms);
     }

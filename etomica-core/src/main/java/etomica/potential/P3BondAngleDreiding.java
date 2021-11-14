@@ -37,10 +37,6 @@ public class P3BondAngleDreiding implements PotentialSoft {
 		gradient[2] = space.makeVector();
 	}
 
-	public double virial(IAtomList atomSet){
-		return 0.0;
-	}
-	
 	public Vector[] gradient(IAtomList atomSet, Tensor pressureTensor){
         IAtom atom0 = atomSet.get(0);
         IAtom atom1 = atomSet.get(1);

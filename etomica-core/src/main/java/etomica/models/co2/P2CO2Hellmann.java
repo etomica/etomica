@@ -134,10 +134,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
         }
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     public Vector[] gradient(IAtomList atoms) {
         return gradientAndTorque(atoms)[0];
     }

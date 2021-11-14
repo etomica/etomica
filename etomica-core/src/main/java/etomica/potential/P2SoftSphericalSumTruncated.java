@@ -19,10 +19,12 @@ import etomica.units.dimensions.Length;
  */
 public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
 
+    protected final Space space;
     protected double rCutoff, r2Cutoff;
 
     public P2SoftSphericalSumTruncated(Space _space, double truncationRadius, Potential2Soft... potential) {
         super(_space, potential);
+        this.space = _space;
         setTruncationRadius(truncationRadius);
     }
 

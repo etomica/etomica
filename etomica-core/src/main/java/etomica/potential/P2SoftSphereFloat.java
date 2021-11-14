@@ -33,8 +33,8 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
     }
 
     public P2SoftSphereFloat(Space space, double sigma, double epsilon, double n) {
-
         super(space);
+        this.space = space;
         setSigma(sigma);
         setEpsilon(epsilon);
         this.n = n;
@@ -128,6 +128,7 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
         return n;
     }
 
+    private final Space space;
     private double sigma, sigma2;
     private double epsilon;
     private final double n;

@@ -138,17 +138,6 @@ public class P2Spin extends Potential2 implements Potential2Soft, IPotentialTorq
     }
 
     /**
-     * no virial is use here
-     *
-     * @throws Exception when virial is used
-     */
-    public double virial(IAtomList atoms) {
-
-        throw new RuntimeException("virial is not used in p2Spin");
-
-    }
-
-    /**
      * @param atoms
      * @return gradient and torque of given pair of atoms
      */

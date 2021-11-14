@@ -546,10 +546,6 @@ public class P3CPSNonAdditiveHe implements PotentialSoft, IPotentialAtomicMultib
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 

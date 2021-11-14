@@ -25,12 +25,14 @@ import etomica.units.dimensions.Length;
 
 public class P1Harmonic extends Potential1 implements PotentialSoft, IPotentialField {
 
+    private final Space space;
     private double w = 100.0;
     private final Vector[] force;
     private final Vector x0;
 
     public P1Harmonic(Space space) {
         super(space);
+        this.space = space;
         force = new Vector[]{space.makeVector()};
         x0 = space.makeVector();
     }
@@ -72,10 +74,6 @@ public class P1Harmonic extends Potential1 implements PotentialSoft, IPotentialF
 
     public double energy(IAtomList a) {
         return 0.5 * w * a.get(0).getPosition().Mv1Squared(x0);
-    }
-
-    public double virial(IAtomList a) {
-        return 0.0;
     }
 
     public Vector[] gradient(IAtomList a){

@@ -177,10 +177,6 @@ public class P4BondTorsionAlkaneXCCH implements PotentialSoft, IPotentialBondTor
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     protected final Vector dr21, dr23, dr34;
     protected final Vector v1, v2;
     protected final Vector gtmp;

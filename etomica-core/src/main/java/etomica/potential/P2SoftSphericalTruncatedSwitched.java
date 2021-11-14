@@ -23,6 +23,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
     public P2SoftSphericalTruncatedSwitched(Space _space, Potential2SoftSpherical potential,
                                             double truncationRadius) {
         super(_space);
+        this.space = _space;
         this.potential = potential;
         setTruncationRadius(truncationRadius);
         gradient = new Vector[2];
@@ -155,15 +156,6 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         return u;
     }
 
-    public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        if (dr.squared() < r2Cutoff) {
-            return potential.virial(atoms);
-        }
-        return 0;
-    }
-
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
@@ -171,6 +163,7 @@ public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Pote
         return Length.DIMENSION;
     }
 
+    protected final Space space;
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
     protected final Vector dr;

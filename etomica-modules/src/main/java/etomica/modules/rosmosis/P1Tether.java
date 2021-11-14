@@ -29,6 +29,7 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
 
     public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);
+        this.space = _space;
         this.species = species;
         agentManager = new AtomLeafAgentManager<Vector>(this, box);
         work = _space.makeVector();
@@ -72,9 +73,6 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
     public Vector makeAgent(IAtom a, Box agentBox) {
         if (a.getType().getSpecies() == species) {
             Vector vec = space.makeVector();
@@ -88,6 +86,7 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
         /* do nothing */
     }
 
+    protected final Space space;
     protected final AtomLeafAgentManager<Vector> agentManager;
     protected final ISpecies species;
     protected final Vector work;

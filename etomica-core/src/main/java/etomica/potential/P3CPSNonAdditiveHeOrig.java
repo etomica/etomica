@@ -704,10 +704,6 @@ public class P3CPSNonAdditiveHeOrig implements PotentialSoft {
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     protected final Vector drAB, drAC, drBC;
     protected double angle;
     protected double epsilon;

@@ -147,22 +147,6 @@ public class P2LJDipoleAtomic implements Potential2Soft {
         return gradient;
     }
 
-    public double virial(IAtomList atoms) {
-        gradient(atoms);
-        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
-
-        // LJ contributation
-
-        dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-        boundary.nearestImage(dr);
-        double v = gradient[1].dot(dr);
-        if (Double.isInfinite(v)) {
-            throw new RuntimeException("oops " + v);
-        }
-        return gradient[1].dot(dr);
-    }
-
 
     public Vector[][] gradientAndTorque(IAtomList atoms) {
         IAtomOriented atom1 = (IAtomOriented) atoms.get(0);

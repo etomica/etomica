@@ -24,13 +24,15 @@ import etomica.units.dimensions.Length;
  */
  
 public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotentialField {
-    
+
+    private final Space space;
     private double w = 100.0;
     private final Vector[] force;
     protected final AtomLeafAgentManager<? extends Vector> atomAgentManager;
     
     public P1HarmonicSite(Space space, AtomLeafAgentManager<? extends Vector> agentManager) {
         super(space);
+        this.space = space;
         force = new Vector[]{space.makeVector()};
         atomAgentManager = agentManager;
     }
@@ -65,10 +67,6 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft, IPotent
         dr.Ev1Mv2(r,x0);
         f.PEa1Tv1(-2*w, dr);
         return w*dr.squared();
-    }
-
-    public double virial(IAtomList a) {
-        return 0.0;
     }
 
     public Vector[] gradient(IAtomList a){

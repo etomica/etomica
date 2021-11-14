@@ -38,10 +38,6 @@ public interface IPotentialField extends PotentialSoft {
         return Double.POSITIVE_INFINITY;
     }
 
-    default double virial(IAtomList atom) {
-        return 0;
-    }
-
     default double energy(IAtomList atom) {
         return u(atom.get(0));
     }

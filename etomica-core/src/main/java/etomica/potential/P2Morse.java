@@ -36,6 +36,7 @@ public final class P2Morse extends Potential2SoftSpherical {
 
     public P2Morse(Space space, double epsilon, double re, double a) {
         super(space);
+        this.space = space;
         setEpsilon(epsilon);
         setRe(re);
         setA(a);
@@ -118,7 +119,7 @@ public final class P2Morse extends Potential2SoftSpherical {
         a = dummy;
     }
     
-    private static final long serialVersionUID = 1L;
+    private final Space space;
     private double re;
     private double epsilon;
     private double a;

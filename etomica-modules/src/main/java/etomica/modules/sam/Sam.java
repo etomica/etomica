@@ -567,11 +567,6 @@ public class Sam extends Simulation {
         }
 
         @Override
-        public double virial(IAtomList atoms) {
-            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.virial(atoms) : p2lj.virial(atoms);
-        }
-
-        @Override
         public Vector[] gradient(IAtomList atoms) {
             return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.gradient(atoms) : p2lj.gradient(atoms);
         }

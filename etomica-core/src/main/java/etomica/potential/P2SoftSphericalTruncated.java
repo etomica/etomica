@@ -18,12 +18,13 @@ import etomica.units.dimensions.Length;
  */
 public class P2SoftSphericalTruncated extends Potential2SoftSpherical {
 
+    protected final Space space;
     protected final Potential2SoftSpherical potential;
     protected double rCutoff, r2Cutoff;
-    protected boolean makeLrc = true;
 
     public P2SoftSphericalTruncated(Space _space, Potential2SoftSpherical potential, double truncationRadius) {
         super(_space);
+        this.space = _space;
         this.potential = potential;
         setTruncationRadius(truncationRadius);
     }

@@ -25,6 +25,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
 
     public P2LJQ(Space space, double sigma, double epsilon, double momentSquared) {
         super(space);
+        this.space = space;
         setSigma(sigma);
         setEpsilon(epsilon);
         setQuadrupolarMomentSquare(momentSquared);
@@ -192,22 +193,6 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return gradient;
     }
 
-    public double virial(IAtomList atoms) {
-        gradient(atoms);
-        IAtomOriented atom1 = (IAtomOriented)atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented)atoms.get(1);
-
-        // LJ contributation
-
-        dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-        boundary.nearestImage(dr);
-        double v = gradient[1].dot(dr);
-        if (Double.isInfinite(v)) {
-            throw new RuntimeException("oops "+v);
-        }
-        return gradient[1].dot(dr);
-    }
-
     /**
      * Sets the temperature used for Boltzmann-weighting of the orientational
      * average energy used in u(double) and integral(double)
@@ -373,7 +358,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return uInt - (7.0/(25.0*temperature))*Q2*Q2/(r4*r4*r2*rC);
     }
 
-    private static final long serialVersionUID = 1L;
+    private final Space space;
     private double sigma , sigma2;
     private double epsilon, epsilon4, epsilon48;
     private double hsdiasq=1.0/Math.sqrt(2);

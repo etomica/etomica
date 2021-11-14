@@ -28,6 +28,7 @@ public class P2LennardJones extends Potential2SoftSpherical {
 
     public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
+        this.space = space;
         setSigma(sigma);
         setEpsilon(epsilon);
     }
@@ -111,7 +112,7 @@ public class P2LennardJones extends Potential2SoftSpherical {
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
    
-    private static final long serialVersionUID = 1L;
+    private final Space space;
     private double sigma, sigmaSquared;
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;

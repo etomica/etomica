@@ -1071,10 +1071,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     public Vector[] gradient(IAtomList atoms) {
         return null;
     }

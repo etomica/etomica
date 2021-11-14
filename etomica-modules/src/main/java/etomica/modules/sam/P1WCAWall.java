@@ -74,10 +74,6 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
     public Vector[] gradient(IAtomList atom, Tensor pressureTensor) {
         return gradient(atom);
     }
-    
-    public double virial(IAtomList atoms) {
-        return 0.0;
-    }
 
     /**
      * Returns the radius.

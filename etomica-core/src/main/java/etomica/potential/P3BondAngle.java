@@ -150,10 +150,6 @@ public class P3BondAngle implements PotentialSoft, IPotentialBondAngle {
         return gradient(atoms);
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
     protected final Vector dr12, dr23;
     protected Boundary boundary;
     protected double angle;

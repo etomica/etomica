@@ -73,9 +73,6 @@ public class P1Tension implements IPotentialField {
         force[0].setX(0,-w*x);
         return force;
     }
-    
-    public double virial (IAtomList a) {
-        return 0;
-    }
+
 }
    

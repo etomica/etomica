@@ -31,11 +31,11 @@ public class P2Exp6 extends Potential2SoftSpherical {
         // from default size, well depth, and well extent (which doesn't exist!
         // maybe potl cutoff?)
         this(_space, 1.0, 1.0, 1.0);
-
     }
 
     public P2Exp6(Space _space, double AA, double BB, double CC) {
         super(_space);
+        this.space = _space;
         dr01 = space.makeVector();
         setA(AA);
         setB(BB);
@@ -117,8 +117,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
         return new CompoundDimension(new Dimension[] {Energy.DIMENSION, Length.DIMENSION}, new double[] {1.0, 6.0});
     }
 
+    private final Space space;
     private double AA, BB, CC;
     protected final Vector dr01;
-
-    private static final long serialVersionUID = 1L;
 }
