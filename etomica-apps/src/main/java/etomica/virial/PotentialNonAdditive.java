@@ -28,19 +28,8 @@ public class PotentialNonAdditive implements IPotentialMolecular {
     
     public PotentialNonAdditive(IPotentialMolecular[] potentials) {
         this.potentials = potentials;
-        int nb = 0;
-        for (int i=0; i<potentials.length; i++) {
-            if (potentials[i].nBody() > nb) nb = potentials[i].nBody();
-        }
-        nBody = nb;
-        p = new IPotentialMolecular[nBody+1];
-        for (int i=0; i<potentials.length; i++) {
-            nb = potentials[i].nBody();
-            if (p[nb] != null) {
-                throw new RuntimeException("we can handle zero or one "+nb+"-body potentials, but not more");
-            }
-            p[nb] = potentials[i];
-        }
+        nBody = potentials.length - 1;
+        p = potentials;
         una = new double[nBody+1][0];
         for (int i=2; i<una.length; i++) {
             int[] ids = new int[i];

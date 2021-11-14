@@ -140,13 +140,13 @@ public class VirialCO2H2OGCPMX {
         if (nonAdditive != Nonadditive.NONE) {
             IPotentialMolecular p3ATM = pTarget.makeAxilrodTeller();
             PotentialNonAdditive pi = null;
-            IPotentialMolecular[] allPi = new IPotentialMolecular[nPoints-1];
+            IPotentialMolecular[] allPi = new IPotentialMolecular[nPoints+1];
 
             if (nonAdditive != Nonadditive.DISPERSION) {
                 // we can only handle 3-body for now
-                allPi[0] = pTarget.makeCachedPairPolarization();
-                for (int i=1; i<allPi.length; i++) {
-                    PNGCPM p = new PNGCPM(space, paramsManager, 6, 2+i);
+                allPi[2] = pTarget.makeCachedPairPolarization();
+                for (int i=3; i<allPi.length; i++) {
+                    PNGCPM p = new PNGCPM(space, paramsManager, 6, i);
                     p.setComponent(PNGCPM.Component.INDUCTION);
                     allPi[i] = p;
                 }

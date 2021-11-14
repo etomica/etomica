@@ -135,9 +135,9 @@ public class VirialCO2H2OGCPM {
             IPotentialMolecular p3 = p3ATM;
             if (nonAdditive != Nonadditive.DISPERSION) {
                 // we can only handle 3-body for now
-                PNGCPM[] allPi = new PNGCPM[3-1];
-                for (int i=0; i<allPi.length; i++) {
-                    allPi[i] = new PNGCPM(space, paramsManager, 6, 2+i);
+                PNGCPM[] allPi = new PNGCPM[4];
+                for (int i=2; i<allPi.length; i++) {
+                    allPi[i] = new PNGCPM(space, paramsManager, 6, i);
                     allPi[i].setComponent(PNGCPM.Component.INDUCTION);
                 }
     
