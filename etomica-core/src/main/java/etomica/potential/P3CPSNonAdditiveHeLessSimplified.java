@@ -26,10 +26,9 @@ import java.util.Date;
  *  
  * @author kate, Andrew Schultz
  */
-public class P3CPSNonAdditiveHeLessSimplified extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
+public class P3CPSNonAdditiveHeLessSimplified implements PotentialSoft, IPotentialAtomicMultibody {
 
     public P3CPSNonAdditiveHeLessSimplified(Space space) {
-        super(space);
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();

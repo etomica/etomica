@@ -24,10 +24,9 @@ import etomica.space.Vector;
  * @author Tai Tan
  */
 
-public class P3BondAngleDreiding extends Potential implements PotentialSoft {
+public class P3BondAngleDreiding implements PotentialSoft {
 	
 	public P3BondAngleDreiding (Space space, double thetaEq, double gamma){
-		super(space);
 		dr12 = space.makeVector();
 		dr23 = space.makeVector();
 		setAngle(thetaEq);

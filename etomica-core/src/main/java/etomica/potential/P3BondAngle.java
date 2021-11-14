@@ -22,10 +22,9 @@ import etomica.util.random.RandomNumberGenerator;
  *
  * @author andrew
  */
-public class P3BondAngle extends Potential implements PotentialSoft, IPotentialBondAngle {
+public class P3BondAngle implements PotentialSoft, IPotentialBondAngle {
 
     public P3BondAngle(Space space) {
-        super(space);
         dr12 = space.makeVector();
         dr23 = space.makeVector();
         setAngle(Math.PI);

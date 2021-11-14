@@ -12,13 +12,12 @@ import etomica.space.Space;
  * @author David Kofke
  */
 
-public abstract class Potential2 extends Potential {
+public abstract class Potential2 {
 
     /**
      * Constructs potential with given space.
      */
     public Potential2(Space space) {
-        super(space);
     }
 
 }
