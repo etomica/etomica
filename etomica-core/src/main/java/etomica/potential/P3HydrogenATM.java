@@ -38,15 +38,16 @@ public class P3HydrogenATM implements IPotential{
         r2 = space.makeVector();
         r3 = space.makeVector();
     }    
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
 
     public static class P3HydrogenAtomic extends P3HydrogenATM implements IPotentialAtomic {
         public P3HydrogenAtomic(Space space) {
             super(space);     
         }
-        
+
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
+        }
+
         public double energy(IAtomList atoms) {
             IAtom a0 = atoms.get(0);
             IAtom a1 = atoms.get(1);

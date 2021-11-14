@@ -10,7 +10,6 @@ import etomica.box.*;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.NeighborIteratorCell;
 import etomica.potential.BondingInfo;
-import etomica.potential.IPotential;
 import etomica.potential.IPotentialPair;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
@@ -165,7 +164,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
 
         double maxRange = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
                 .filter(Objects::nonNull)
-                .mapToDouble(IPotential::getRange)
+                .mapToDouble(Potential2Soft::getRange)
                 .max().orElse(0);
 
         this.neighborManager.setPotentialRange(maxRange);

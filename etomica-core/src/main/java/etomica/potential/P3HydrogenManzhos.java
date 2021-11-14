@@ -250,11 +250,6 @@ public class P3HydrogenManzhos implements IPotential{
         }
     }
 
-
-    public double getRange() {        
-        return Double.POSITIVE_INFINITY;
-    }
-
     public static class P3HydrogenManzhosMolecular extends P3HydrogenManzhos implements IPotentialMolecular {
         protected Vector[] v = new Vector[6];
         public P3HydrogenManzhosMolecular(Space space) {
@@ -262,6 +257,10 @@ public class P3HydrogenManzhos implements IPotential{
             for (int i=0; i<6; i++) {
                 v[i] = space.makeVector();
             }
+        }
+
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
         }
 
         public double energy(IMoleculeList molecules) {

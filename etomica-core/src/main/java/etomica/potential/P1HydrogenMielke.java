@@ -25,10 +25,6 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     public P1HydrogenMielke(Space space) {
     }
 
-    public double getRange() {    
-        return Double.POSITIVE_INFINITY;
-    }
-
     public double u(double rSim) {       
         // H2 singlet potential for FCI/CBS
     	if (rSim < 0) return Double.POSITIVE_INFINITY;
@@ -106,6 +102,10 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
             super(space);     
         }
 
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
+        }
+
         public double energy(IAtomList atoms) {
             AtomHydrogen m0 = (AtomHydrogen)atoms.get(0);
             double bL = m0.getBondLength();
@@ -119,6 +119,10 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     	public P2HydrogenMielkeAtomic(Space space) {
     		super(space);
     	}
+
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
+        }
 
     	public double energy(IAtomList atoms) {
     		IAtom a0 = atoms.get(0);

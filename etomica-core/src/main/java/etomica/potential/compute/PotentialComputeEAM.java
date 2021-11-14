@@ -12,7 +12,6 @@ import etomica.box.BoxMoleculeEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCell;
-import etomica.potential.IPotential;
 import etomica.potential.IPotentialEmbedding;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
@@ -205,12 +204,12 @@ public class PotentialComputeEAM implements PotentialCompute {
 
         double maxRange1 = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
                 .filter(Objects::nonNull)
-                .mapToDouble(IPotential::getRange)
+                .mapToDouble(Potential2Soft::getRange)
                 .max().orElse(0);
 
         double maxRange2 = Arrays.stream(rhoPotentials)
                 .filter(Objects::nonNull)
-                .mapToDouble(IPotential::getRange)
+                .mapToDouble(Potential2Soft::getRange)
                 .max().orElse(0);
 
         this.neighborManager.setPotentialRange(Math.max(maxRange1, maxRange2));

@@ -79,10 +79,6 @@ public class P1Sinusoidal implements IPotential, IPotentialField {
         return 0;
     }
 
-    public double getRange() {
-        return 0;
-    }
-
     protected final Space space;
     protected double b45;
     protected final Vector offset;

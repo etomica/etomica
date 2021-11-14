@@ -7,10 +7,6 @@ package etomica.potential;
 
 public interface IPotential {
 
-    /**
-     * Returns the range over which the potential applies.  IAtoms with a
-     * greater separation do not interact.
-     */
-    public double getRange();
+
 
 }
