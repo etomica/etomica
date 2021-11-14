@@ -20,6 +20,6 @@ public abstract class PotentialN extends Potential {
 	 * @param space
 	 */
 	public PotentialN(Space space){
-		super(Integer.MAX_VALUE, space);
+		super(space);
 	}
 }

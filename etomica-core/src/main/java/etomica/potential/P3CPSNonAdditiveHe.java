@@ -28,7 +28,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     }
 
     public P3CPSNonAdditiveHe(Space space, double sigma) {
-        super(3, space);
+        super(space);
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();

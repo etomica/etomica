@@ -25,7 +25,7 @@ import etomica.units.dimensions.Energy;
 public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
 
     public P3CPSNonAdditiveHeOrig(Space space) {
-        super(3, space);
+        super(space);
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();

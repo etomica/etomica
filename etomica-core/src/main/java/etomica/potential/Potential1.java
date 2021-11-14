@@ -14,7 +14,7 @@ import etomica.space.Space;
 public abstract class Potential1 extends Potential {
 
     public Potential1(Space space) {
-        super(1, space);
+        super(space);
     }
 
     /**

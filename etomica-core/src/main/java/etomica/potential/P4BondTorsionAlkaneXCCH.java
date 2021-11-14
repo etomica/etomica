@@ -26,7 +26,7 @@ import etomica.util.random.RandomNumberGenerator;
 public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft, IPotentialBondTorsion {
     public P4BondTorsionAlkaneXCCH(Space space, double a0, double a1, double a2, double a3) {
 
-        super(4, space);
+        super(space);
         dr21 = space.makeVector();
         dr23 = space.makeVector();
         dr34 = space.makeVector();

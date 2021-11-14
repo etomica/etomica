@@ -18,7 +18,7 @@ public abstract class Potential2 extends Potential {
      * Constructs potential with given space.
      */
     public Potential2(Space space) {
-        super(2, space);
+        super(space);
     }
 
 }
