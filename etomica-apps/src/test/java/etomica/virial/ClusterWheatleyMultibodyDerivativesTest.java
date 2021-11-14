@@ -43,7 +43,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
         PNWaterGCPM.PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
         PNWaterGCPM pFull = new PNWaterGCPM(space, b);
         pFull.setComponent(PNWaterGCPM.Component.INDUCTION);
-        PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
+        PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(p2, pFull);
         MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);
 
         cwmd = new ClusterWheatleyMultibodyDerivatives(npoints, fTarget,fnad, 1e-12, nder, true);

@@ -132,7 +132,7 @@ public class BenchSimVirialH2OGCPMD {
             PNWaterGCPM.PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
             PNWaterGCPM pFull = new PNWaterGCPM(space, b);
             pFull.setComponent(PNWaterGCPM.Component.INDUCTION);
-            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
+            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(p2, pFull);
             MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);
             targetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget,fnad, 0, nDer, nonAdditive == VirialH2OGCPMD.Nonadditive.TOTAL);
             targetClusterBD = new ClusterWheatleyMultibodyDerivativesBD(nPoints, fTarget,fnad,new MayerFunctionNonAdditive[0], precision, nDer, nonAdditive == VirialH2OGCPMD.Nonadditive.TOTAL);

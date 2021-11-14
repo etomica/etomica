@@ -6,15 +6,14 @@ package etomica.potential;
 
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
-import etomica.space.Space;
 
-public class PotentialNonAdditiveDifference extends PotentialMolecular {
+public class PotentialNonAdditiveDifference implements IPotentialMolecular {
 
     protected final IPotentialMolecular p2, pFull;
     protected final MoleculePair pair;
     
-    public PotentialNonAdditiveDifference(Space space, IPotentialMolecular p2, IPotentialMolecular pFull) {
-        super(space);
+    public PotentialNonAdditiveDifference(IPotentialMolecular p2, IPotentialMolecular pFull) {
+        super();
         this.p2 = p2;
         this.pFull = pFull;
         pair = new MoleculePair();

@@ -127,7 +127,7 @@ public class VirialH2OGCPMD {
             PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
             PNWaterGCPM pFull = new PNWaterGCPM(space, b);
             pFull.setComponent(Component.INDUCTION);
-            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
+            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(p2, pFull);
             MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);            
             targetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget,fnad, 0, nDer, nonAdditive == Nonadditive.TOTAL);
             targetClusterBD = new ClusterWheatleyMultibodyDerivativesBD(nPoints, fTarget,fnad,new MayerFunctionNonAdditive[0], precision, nDer, nonAdditive == Nonadditive.TOTAL);

@@ -6,7 +6,7 @@ import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
-import etomica.potential.PotentialMolecular;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -23,10 +23,11 @@ import java.util.Arrays;
  * 
  * @author Hye Min Kim
  */
-public class PNWaterGCPMReactionField extends PotentialMolecular implements PotentialPolarizable {
+public class PNWaterGCPMReactionField implements IPotentialMolecular, PotentialPolarizable {
 
     public PNWaterGCPMReactionField(Space space, Box box) {
-	    super(space);
+	    super();
+        this.space = space;
         this.box = box;
     	//super(2, space);//ignore many-body interaction
 	    pair = new MoleculePair();
@@ -633,6 +634,7 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
     	dodebug = a;
     }
 
+    protected final Space space;
     protected final MoleculePair pair;
     protected final Box box;
     protected final double sigma;

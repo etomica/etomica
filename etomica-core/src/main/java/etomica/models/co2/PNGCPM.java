@@ -17,7 +17,6 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.potential.IPotentialMolecular;
-import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -43,7 +42,7 @@ import java.util.Map;
  *
  * @author Andrew and Dave
  */
-public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
+public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
 
     public static boolean debugme = false;
     protected final double[][] pairPolarization;
@@ -60,9 +59,10 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     protected Vector oldMu;
     protected Component component;
     private double UpolAtkins;
+    protected final Space space;
 
     public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes) {
-        super(space);
+        this.space = space;
         this.typeManager = typeManager;
         this.nAtomTypes = nAtomTypes;
         pairAgents = new GCPMAgent[nAtomTypes][nAtomTypes];

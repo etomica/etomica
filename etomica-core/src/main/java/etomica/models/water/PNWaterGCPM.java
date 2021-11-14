@@ -12,7 +12,6 @@ import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.potential.IPotentialMolecular;
-import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -32,7 +31,7 @@ import java.util.Arrays;
  *
  * @author Ken
  */
-public class PNWaterGCPM extends PotentialMolecular implements PotentialPolarizable {
+public class PNWaterGCPM implements IPotentialMolecular, PotentialPolarizable {
     protected final MoleculePair pair;
     protected final double sigma;
     protected final double epsilon, gamma;
@@ -59,7 +58,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     public boolean berr = true;
 
     public PNWaterGCPM(Space space, Boundary boundary) {
-        super(space);
+        super();
         this.boundary = boundary;
         pair = new MoleculePair();
         sigma = 3.69;
