@@ -13,7 +13,7 @@ import etomica.space.Vector;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class P3HydrogenATM implements IPotential{
+public class P3HydrogenATM {
     public static void main(String[] args) {       
         try {
             FileWriter file = new FileWriter("GarberoglioATM.dat");

@@ -17,7 +17,7 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class P3HydrogenManzhos implements IPotential{
+public class P3HydrogenManzhos {
     public static void main(String[] args) {       
 
         Space space = Space3D.getInstance();

@@ -11,7 +11,6 @@ import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -83,9 +82,7 @@ public class VirialSQWBinMultiThreaded {
             final double well2 = lambda*lambda;
             
             public void setBox(Box box) {}
-            
-            public IPotential getPotential() {return null;}
-            
+
             public double f(IMoleculeList pair, double r2, double beta) {
                 if (r2 < sigma2 || r2 > well2) return 0;
                 return Y;
@@ -94,9 +91,7 @@ public class VirialSQWBinMultiThreaded {
         MayerFunction fRefPos = new MayerFunction() {
             
             public void setBox(Box box) {}
-            
-            public IPotential getPotential() {return null;}
-            
+
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < 1 ? 1 : (r2 < sigmaHS * sigmaHS ? Y : 0);
             }

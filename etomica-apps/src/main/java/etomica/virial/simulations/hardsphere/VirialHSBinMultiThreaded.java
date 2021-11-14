@@ -11,7 +11,6 @@ import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -106,11 +105,7 @@ public class VirialHSBinMultiThreaded {
             
             public void setBox(Box box) {
             }
-            
-            public IPotential getPotential() {
-                return null;
-            }
-            
+
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHS*sigmaHS ? 1 : 0;
             }

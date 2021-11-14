@@ -88,10 +88,6 @@ public class VirialPolymerOverlapMC {
             public void setBox(Box box) {
             }
 
-            public IPotential getPotential() {
-                return null;
-            }
-
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < refDiameter * refDiameter ? 1 : 0;
             }

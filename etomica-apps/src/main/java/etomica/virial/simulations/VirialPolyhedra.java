@@ -28,7 +28,6 @@ import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.IFunction;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.P2SpheroPolyhedron;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -186,7 +185,6 @@ public class VirialPolyhedra {
         MayerFunction fRefPos = new MayerFunction() {
 
             public void setBox(Box box) {}
-            public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHSRef*sigmaHSRef ? 1 : 0;

@@ -19,7 +19,10 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.*;
+import etomica.potential.P2HePCJS;
+import etomica.potential.P2HePCKLJS;
+import etomica.potential.P2HeSimplified;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -133,10 +136,6 @@ public class VirialHeD {
 
         MayerFunction fRefPos = new MayerFunction() {
             public void setBox(Box box) {
-            }
-
-            public IPotential getPotential() {
-                return null;
             }
 
             public double f(IMoleculeList pair, double r2, double beta) {

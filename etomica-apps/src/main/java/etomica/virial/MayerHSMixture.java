@@ -6,7 +6,6 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -88,10 +87,6 @@ public class MayerHSMixture implements MayerFunction {
             r2 = dr.squared();
         }
         return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
-    }
-
-    public IPotential getPotential() {
-        return null;
     }
 
     public void setBox(Box newBox) {

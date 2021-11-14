@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.molecule.IMoleculeList;
 
-public interface IPotentialMolecular extends IPotential {
+public interface IPotentialMolecular {
 
     /**
      * Returns the range over which the potential applies.  IAtoms with a

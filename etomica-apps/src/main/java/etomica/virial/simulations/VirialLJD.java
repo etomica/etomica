@@ -18,7 +18,6 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2SoftSpherical;
@@ -102,10 +101,6 @@ public class VirialLJD {
 
         MayerFunction fRefPos = new MayerFunction() {
             public void setBox(Box box) {
-            }
-
-            public IPotential getPotential() {
-                return null;
             }
 
             public double f(IMoleculeList pair, double r2, double beta) {

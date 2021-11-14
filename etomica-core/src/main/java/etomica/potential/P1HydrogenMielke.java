@@ -11,7 +11,7 @@ import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 
-public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
+public class P1HydrogenMielke implements P1IntraMolecular{
 //    1 Eh (hartree) = 27.2113961eV = 627.5096 kcal/mol = 219474.7 cm^-1 
 
     protected final static double c6 = -6.499027;

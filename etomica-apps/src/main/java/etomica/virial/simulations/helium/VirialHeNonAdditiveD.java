@@ -165,10 +165,6 @@ public class VirialHeNonAdditiveD {
             public void setBox(Box box) {
             }
 
-            public IPotential getPotential() {
-                return null;
-            }
-
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
             }

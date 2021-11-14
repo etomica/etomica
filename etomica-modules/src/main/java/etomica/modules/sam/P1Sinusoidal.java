@@ -6,13 +6,12 @@ package etomica.modules.sam;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.potential.IPotential;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class P1Sinusoidal implements IPotential, IPotentialField {
+public class P1Sinusoidal implements IPotentialField {
 
     public P1Sinusoidal(Space space) {
         this.space = space;

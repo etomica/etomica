@@ -13,7 +13,6 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -68,9 +67,7 @@ public class VirialSWWE {
             final double well2 = lambda*lambda;
             
             public void setBox(Box box) {}
-            
-            public IPotential getPotential() {return null;}
-            
+
             public double f(IMoleculeList pair, double r2, double beta) {
                 if (r2 < sigma2 || r2 > well2) return 0;
                 return 1;
@@ -79,7 +76,6 @@ public class VirialSWWE {
         MayerFunction fRefPos = new MayerFunction() {
 
             public void setBox(Box box) {}
-            public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHS*sigmaHS ? 1 : 0;

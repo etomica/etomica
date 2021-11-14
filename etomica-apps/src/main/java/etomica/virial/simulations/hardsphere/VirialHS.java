@@ -20,7 +20,6 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.IFunction;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -91,7 +90,6 @@ public class VirialHS {
         MayerFunction fRefPos = new MayerFunction() {
 
             public void setBox(Box box) {}
-            public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHS*sigmaHS ? 1 : 0;
@@ -101,11 +99,7 @@ public class VirialHS {
             
             public void setBox(Box box) {
             }
-            
-            public IPotential getPotential() {
-                return null;
-            }
-            
+
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHS*sigmaHS ? 1 : Math.pow(r2, -pow/2);
             }

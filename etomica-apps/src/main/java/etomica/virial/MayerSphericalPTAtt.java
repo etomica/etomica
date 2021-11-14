@@ -7,7 +7,6 @@ package etomica.virial;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.Potential2Spherical;
 
 /**
@@ -87,11 +86,7 @@ public class MayerSphericalPTAtt implements MayerFunction {
 	public void setBox(Box newBox) {
 	}
 
-	public IPotential getPotential() {
-		return potentialRef;
-	}
-
-	protected final Potential2Spherical potentialRef, potentialFull;
+    protected final Potential2Spherical potentialRef, potentialFull;
 	protected final int order;
 	protected final long factOrder;
 }

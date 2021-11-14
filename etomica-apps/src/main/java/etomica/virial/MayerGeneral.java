@@ -6,7 +6,6 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.IPotentialMolecular;
 
 /**
@@ -39,10 +38,6 @@ public class MayerGeneral implements MayerFunction {
             throw new  RuntimeException("bogus f: "+f+"   beta: "+beta+"   u: "+potential.energy(pair));
         }
         return f;
-    }
-
-    public IPotential getPotential() {
-        return potential;
     }
 
     public void setBox(Box newBox) {

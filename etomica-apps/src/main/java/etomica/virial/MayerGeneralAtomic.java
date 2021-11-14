@@ -7,7 +7,6 @@ package etomica.virial;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -38,10 +37,6 @@ public class MayerGeneralAtomic implements MayerFunction {
             return x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
         }
         return Math.exp(x) - 1;
-    }
-
-    public IPotential getPotential() {
-        return potential;
     }
 
     public void setBox(Box newBox) {

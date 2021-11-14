@@ -6,7 +6,6 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.Potential2Spherical;
 
 /**
@@ -30,10 +29,6 @@ public class MayerGeneralSpherical implements MayerFunction {
             return x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
         }
         return Math.exp(x) - 1.0;
-    }
-
-    public IPotential getPotential() {
-        return potential;
     }
 
     public void setBox(Box newBox) {
