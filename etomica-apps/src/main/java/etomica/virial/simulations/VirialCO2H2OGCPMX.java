@@ -146,7 +146,7 @@ public class VirialCO2H2OGCPMX {
                 // we can only handle 3-body for now
                 allPi[2] = pTarget.makeCachedPairPolarization();
                 for (int i=3; i<allPi.length; i++) {
-                    PNGCPM p = new PNGCPM(space, paramsManager, 6, i);
+                    PNGCPM p = new PNGCPM(space, paramsManager, 6);
                     p.setComponent(PNGCPM.Component.INDUCTION);
                     allPi[i] = p;
                 }

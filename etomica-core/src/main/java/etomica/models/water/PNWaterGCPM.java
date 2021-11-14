@@ -59,7 +59,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     public boolean berr = true;
 
     public PNWaterGCPM(Space space, Boundary boundary) {
-        super(Integer.MAX_VALUE, space);
+        super(space);
         this.boundary = boundary;
         pair = new MoleculePair();
         sigma = 3.69;

@@ -14,7 +14,7 @@ public class PotentialNonAdditiveDifference extends PotentialMolecular {
     protected final MoleculePair pair;
     
     public PotentialNonAdditiveDifference(Space space, IPotentialMolecular p2, IPotentialMolecular pFull) {
-        super(Integer.MAX_VALUE, space);
+        super(space);
         this.p2 = p2;
         this.pFull = pFull;
         pair = new MoleculePair();

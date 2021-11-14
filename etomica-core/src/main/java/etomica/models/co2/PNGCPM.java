@@ -62,11 +62,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     private double UpolAtkins;
 
     public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes) {
-        this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
-    }
-
-    public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes, int nBody) {
-        super(nBody, space);
+        super(space);
         this.typeManager = typeManager;
         this.nAtomTypes = nAtomTypes;
         pairAgents = new GCPMAgent[nAtomTypes][nAtomTypes];

@@ -130,9 +130,9 @@ public class VirialCO2H2OSC {
         P2WaterSzalewicz p2cH2O = new P2WaterSzalewicz(space, 2);
         IPotentialAtomic p2aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cH2O, temperature));
 
-        PotentialMolecularMonatomic p2CO2 = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cCO2 : p2aCO2);
-        PotentialMolecularMonatomic p2H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cH2O : p2aH2O);
-        PotentialMolecularMonatomic p2CO2H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cCO2H2O : p2aCO2H2O);
+        PotentialMolecularMonatomic p2CO2 = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cCO2 : p2aCO2, 2);
+        PotentialMolecularMonatomic p2H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cH2O : p2aH2O, 2);
+        PotentialMolecularMonatomic p2CO2H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cCO2H2O : p2aCO2H2O, 2);
         MayerGeneral fCO2 = new MayerGeneral(p2CO2);
         MayerGeneral fCO2H2O = new MayerGeneral(p2CO2H2O);
         MayerGeneral fH2O = new MayerGeneral(p2H2O);
@@ -153,12 +153,12 @@ public class VirialCO2H2OSC {
                 P2WaterSzalewicz p23cH2O = new P2WaterSzalewicz(space, 2);
                 p23cH2O.setComponent(comp);
                 IPotentialAtomic p23aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p23cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p23cH2O, temperature));
-                PotentialMolecularMonatomic p23H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p23cH2O : p23aH2O);
+                PotentialMolecularMonatomic p23H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p23cH2O : p23aH2O, 2);
 
                 P2WaterSzalewicz p3cH2O = new P2WaterSzalewicz(space, 3);
                 p3cH2O.setComponent(comp);
                 IPotentialAtomic p3aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p3cH2O.makeSemiclassical(temperature) : null);
-                PotentialMolecularMonatomic p3H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p3cH2O : p3aH2O);
+                PotentialMolecularMonatomic p3H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p3cH2O : p3aH2O, 3);
                 MayerFunctionMolecularThreeBody f3H2O = new MayerFunctionMolecularThreeBody(new PotentialNonAdditive(new IPotentialMolecular[]{null,null,p23H2O,p3H2O}));
                 MayerFunctionNonAdditive[][][] allFNA = new MayerFunctionNonAdditive[2][2][2];
                 allFNA[1][1][1] = f3H2O;
@@ -177,7 +177,7 @@ public class VirialCO2H2OSC {
                     p3 = new PotentialAtomicSum(new IPotentialAtomic[]{p3,new P3Induction(space, paramsManagerInd)});
                 }
 
-                MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(new PotentialMolecularMonatomic(space, p3));
+                MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(new PotentialMolecularMonatomic(space, p3, 3));
                 MayerFunctionNonAdditive[][][] allFNA = new MayerFunctionNonAdditive[2][2][2];
                 allFNA[0][0][0] = f3;
                 allFNA[0][0][1] = f3;

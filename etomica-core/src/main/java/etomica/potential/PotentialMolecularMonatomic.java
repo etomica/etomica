@@ -19,15 +19,15 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
     protected final IPotentialAtomic potentialAtomic;
     protected final AtomArrayList atoms;
 
-    public PotentialMolecularMonatomic(Space space, IPotentialAtomic potentialAtomic) {
-        super(0, space);
+    public PotentialMolecularMonatomic(Space space, IPotentialAtomic potentialAtomic, int nBody) {
+        super(space);
         this.potentialAtomic = potentialAtomic;
         atoms = new AtomArrayList(nBody);
     }
 
     public double energy(IMoleculeList molecules) {
         atoms.clear();
-        for (int i=0; i<nBody; i++) {
+        for (int i=0; i<atoms.size(); i++) {
             atoms.add(molecules.get(i).getChildList().get(0));
         }
         return potentialAtomic.energy(atoms);

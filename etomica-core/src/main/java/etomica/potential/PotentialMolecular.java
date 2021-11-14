@@ -16,17 +16,12 @@ import etomica.space.Space;
  
 public abstract class PotentialMolecular implements IPotentialMolecular {
     
-	protected final int nBody;
 	protected final Space space;
 
     /**
      * General constructor for a potential instance
-     * @param nBody number of atoms to which this potential applies at a time;
-     * for example with a pair potential nBody = 2; for a single-body potential,
-     * nBody = 1.
      */
-    public PotentialMolecular(int nBody, Space space) {
-        this.nBody = nBody;
+    public PotentialMolecular(Space space) {
         this.space = space;
     }
 

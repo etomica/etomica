@@ -26,7 +26,7 @@ import java.util.Arrays;
 public class PNWaterGCPMReactionField extends PotentialMolecular implements PotentialPolarizable {
 
     public PNWaterGCPMReactionField(Space space, Box box) {
-	    super(Integer.MAX_VALUE, space);
+	    super(space);
         this.box = box;
     	//super(2, space);//ignore many-body interaction
 	    pair = new MoleculePair();

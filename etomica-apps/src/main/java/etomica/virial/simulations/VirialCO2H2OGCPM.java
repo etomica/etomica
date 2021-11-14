@@ -137,7 +137,7 @@ public class VirialCO2H2OGCPM {
                 // we can only handle 3-body for now
                 PNGCPM[] allPi = new PNGCPM[4];
                 for (int i=2; i<allPi.length; i++) {
-                    allPi[i] = new PNGCPM(space, paramsManager, 6, i);
+                    allPi[i] = new PNGCPM(space, paramsManager, 6);
                     allPi[i].setComponent(PNGCPM.Component.INDUCTION);
                 }
     
