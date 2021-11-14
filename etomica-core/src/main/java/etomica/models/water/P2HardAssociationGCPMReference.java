@@ -6,6 +6,7 @@ package etomica.models.water;
 
 import etomica.atom.IAtomList;
 import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -16,8 +17,8 @@ public class P2HardAssociationGCPMReference extends PNWaterGCPM {
 	public static final int BONDAC = 1, BONDBC = 2, BONDCA = 3, BONDCB = 4;
 	protected boolean isAssociation;
 
-	public P2HardAssociationGCPMReference(Space space, boolean isAssociation) {
-		super(space);
+	public P2HardAssociationGCPMReference(Space space, Boundary boundary, boolean isAssociation) {
+		super(space, boundary);
 		this.isAssociation = isAssociation;
 	}
 	

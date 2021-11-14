@@ -8,6 +8,7 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import org.junit.jupiter.api.Assertions;
@@ -34,8 +35,8 @@ public class PNWaterGCPMTest {
 
 
     @Test
-    public void testEnergy() throws Exception {
-        PNWaterGCPM potential = new PNWaterGCPM(Space3D.getInstance());
+    public void testEnergy() {
+        PNWaterGCPM potential = new PNWaterGCPM(Space3D.getInstance(), new BoundaryRectangularNonperiodic(Space3D.getInstance()));
         Assertions.assertEquals(-14.868664927613436, potential.energy(molecules), EPSILON);
     }
 

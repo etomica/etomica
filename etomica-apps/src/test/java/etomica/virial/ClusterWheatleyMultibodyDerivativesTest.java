@@ -11,6 +11,8 @@ import etomica.models.water.SpeciesWater4PCOM;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialNonAdditiveDifference;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.species.SpeciesGeneral;
 import etomica.virial.cluster.ClusterWeight;
@@ -35,10 +37,11 @@ public class ClusterWheatleyMultibodyDerivativesTest {
     @BeforeEach
     public void setUp() {
         SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
-        final PNWaterGCPM pTarget = new PNWaterGCPM(space);
+        Boundary b = new BoundaryRectangularNonperiodic(space);
+        final PNWaterGCPM pTarget = new PNWaterGCPM(space, b);
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         PNWaterGCPM.PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
-        PNWaterGCPM pFull = new PNWaterGCPM(space);
+        PNWaterGCPM pFull = new PNWaterGCPM(space, b);
         pFull.setComponent(PNWaterGCPM.Component.INDUCTION);
         PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
         MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);

@@ -6,6 +6,7 @@ package etomica.models.water;
 
 import etomica.atom.IAtomList;
 import etomica.molecule.IMoleculeList;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -23,15 +24,15 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 	protected boolean bondingAngleRestriction;
 	double minE;
 
-	public PNWaterGCPMThreeSite(Space space, double minE, boolean isAssociation, boolean bondingAngleRestriction) {
-		super(space);
+	public PNWaterGCPMThreeSite(Space space, Boundary boundary, double minE, boolean isAssociation, boolean bondingAngleRestriction) {
+		super(space, boundary);
 		this.isAssociation = isAssociation;
 		this.bondingAngleRestriction = bondingAngleRestriction;
 		this.minE = minE;
 	}
 	
-	public PNWaterGCPMThreeSite(Space space, double minE, boolean isAssociation) {
-		super(space);
+	public PNWaterGCPMThreeSite(Space space, Boundary boundary, double minE, boolean isAssociation) {
+		super(space, boundary);
 		this.isAssociation = isAssociation;
 		this.minE = minE;
 	}

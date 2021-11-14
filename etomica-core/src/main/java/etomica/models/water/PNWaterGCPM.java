@@ -58,8 +58,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     private double UpolAtkins;
     public boolean berr = true;
 
-    public PNWaterGCPM(Space space) {
+    public PNWaterGCPM(Space space, Boundary boundary) {
         super(Integer.MAX_VALUE, space);
+        this.boundary = boundary;
         pair = new MoleculePair();
         sigma = 3.69;
         epsilon = Kelvin.UNIT.toSim(110);

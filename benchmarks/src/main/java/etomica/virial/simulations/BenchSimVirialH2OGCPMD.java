@@ -9,6 +9,8 @@ import etomica.math.DoubleRange;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialNonAdditiveDifference;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -109,7 +111,8 @@ public class BenchSimVirialH2OGCPMD {
 
         SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
 
-        final PNWaterGCPM pTarget = new PNWaterGCPM(space);
+        Boundary b = new BoundaryRectangularNonperiodic(space);
+        final PNWaterGCPM pTarget = new PNWaterGCPM(space, b);
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
 
@@ -127,7 +130,7 @@ public class BenchSimVirialH2OGCPMD {
 
         if (nonAdditive == VirialH2OGCPMD.Nonadditive.FULL || nonAdditive == VirialH2OGCPMD.Nonadditive.TOTAL) {
             PNWaterGCPM.PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
-            PNWaterGCPM pFull = new PNWaterGCPM(space);
+            PNWaterGCPM pFull = new PNWaterGCPM(space, b);
             pFull.setComponent(PNWaterGCPM.Component.INDUCTION);
             PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
             MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);

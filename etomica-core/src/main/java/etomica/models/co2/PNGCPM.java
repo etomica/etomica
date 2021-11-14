@@ -258,7 +258,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.setDestination(Vector.of(0, y2, 0));
         translator.actionPerformed(mol2);
 
-        PNWaterGCPM p2c = new PNWaterGCPM(space);
+        PNWaterGCPM p2c = new PNWaterGCPM(space, box.getBoundary());
         double uc = p2c.energy(molecules);
         System.out.println(uc);
 

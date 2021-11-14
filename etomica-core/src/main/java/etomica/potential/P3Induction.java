@@ -194,7 +194,7 @@ public class P3Induction implements IPotentialAtomic {
 
         paramsManager.put(species.getLeafType(), agentH2O);
 
-        PNWaterGCPM pGCPM = new PNWaterGCPM(space);
+        PNWaterGCPM pGCPM = new PNWaterGCPM(space, box2.getBoundary());
 
         double r = 5;
         Vector dr1 = space.makeVector();
