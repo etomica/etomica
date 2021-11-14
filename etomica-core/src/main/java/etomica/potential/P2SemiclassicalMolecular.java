@@ -53,10 +53,6 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
         double hbar = Constants.PLANCK_H/(2*Math.PI);
         fac = hbar*hbar/(24*temperature*temperature);
     }
-    
-    public double getRange() {
-        return p2Classy.getRange();
-    }
 
     public double energy(IMoleculeList molecules) {
         double uC = p2Classy.energy(molecules);

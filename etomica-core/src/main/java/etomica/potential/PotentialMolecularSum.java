@@ -20,14 +20,6 @@ public class PotentialMolecularSum implements IPotentialMolecular {
         this.p = p;
     }
 
-    public double getRange() {
-        double r = 0;
-        for (int i=0; i<p.length; i++) {
-            if (r < p[i].getRange()) r = p[i].getRange();
-        }
-        return r;
-    }
-
     public double energy(IMoleculeList molecules) {
         double sum = 0;
         for (int i=0; i<p.length; i++) {

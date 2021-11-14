@@ -25,10 +25,6 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
         atoms = new AtomArrayList(nBody);
     }
 
-    public double getRange() {
-        return potentialAtomic.getRange();
-    }
-
     public double energy(IMoleculeList molecules) {
         atoms.clear();
         for (int i=0; i<nBody; i++) {

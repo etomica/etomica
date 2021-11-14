@@ -19,11 +19,7 @@ public class P2MoleculeMonatomic implements IPotentialMolecular {
 		return wrappedPotential.energy(leafAtoms); 
 	}
 
-	public double getRange() {
-		return wrappedPotential.getRange();
-	}
-
-	public IPotentialAtomic getWrappedPotential() { 
+    public IPotentialAtomic getWrappedPotential() {
 		return wrappedPotential; 
 		} 
 	public void setWrappedPotential(IPotentialAtomic newWrappedPotential) { 

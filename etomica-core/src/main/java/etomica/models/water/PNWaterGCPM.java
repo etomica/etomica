@@ -457,10 +457,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         return UpolAtkins;
     }
 
-    public final double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public enum Component {TWO_BODY, INDUCTION, FULL}
 
     public class PNWaterGCPMCached implements IPotentialMolecular {
@@ -473,10 +469,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             }
             return pairPolarization[idx0][idx1];
 
-        }
-
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
         }
 
     }

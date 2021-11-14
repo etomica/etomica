@@ -259,10 +259,6 @@ public class P3HydrogenManzhos {
             }
         }
 
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
-        }
-
         public double energy(IMoleculeList molecules) {
             for (int i = 0; i<molecules.size(); i++) {
                 v[2*i] = molecules.get(i).getChildList().get(0).getPosition();

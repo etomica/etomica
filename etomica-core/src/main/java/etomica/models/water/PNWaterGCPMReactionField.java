@@ -594,10 +594,6 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
         return UpolAtkins;
     }
 
-    public final double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-    
     public void setCutOffDistance(double a){
     	cutOffDistance = a;
     	initRqFactor();

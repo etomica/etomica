@@ -67,9 +67,4 @@ public class PotentialMoleculePair implements IPotentialMolecular {
         return u;
     }
 
-    @Override
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
 }

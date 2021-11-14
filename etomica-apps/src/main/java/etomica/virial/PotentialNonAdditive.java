@@ -67,10 +67,6 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         moleculeList = new MoleculeArrayList(nBody);
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public double energy(IMoleculeList molecules) {
         
         for (int i=1; i<=nBody; i++) {
@@ -209,10 +205,6 @@ public class PotentialNonAdditive implements IPotentialMolecular {
     public class PotentialNonAdditiveNB implements IPotentialMolecular {
 
         public PotentialNonAdditiveNB() {
-        }
-
-        public double getRange() {
-            return PotentialNonAdditive.this.getRange();
         }
 
         public double energy(IMoleculeList molecules) {

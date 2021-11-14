@@ -62,19 +62,10 @@ public class PotentialMolecule3PI implements IPotentialMolecular {
 
     }
 
-    @Override
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public class PotentialMolecule3PISkip implements IPotentialMolecular {
 
         public PotentialMolecule3PISkip(int offset) {
             this.offset = offset;
-        }
-
-        public double getRange() {
-            return PotentialMolecule3PI.this.getRange();
         }
 
         public double energy(IMoleculeList molecules) {

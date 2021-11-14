@@ -30,8 +30,6 @@ public abstract class PotentialMolecular implements IPotentialMolecular {
         this.space = space;
     }
 
-    public abstract double getRange();
-    
     /**
      * Returns the interaction energy between the given molecules.  There might
      * be 0, 1, 2 or more atoms in the IMoleculeList.

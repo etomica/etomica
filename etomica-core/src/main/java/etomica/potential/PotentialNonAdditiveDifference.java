@@ -20,10 +20,6 @@ public class PotentialNonAdditiveDifference extends PotentialMolecular {
         pair = new MoleculePair();
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public double energy(IMoleculeList molecules) {
         double u = pFull.energy(molecules);
         for (int i = 0; i<molecules.size(); i++) {

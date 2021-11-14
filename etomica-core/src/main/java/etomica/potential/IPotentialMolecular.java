@@ -9,12 +9,6 @@ import etomica.molecule.IMoleculeList;
 public interface IPotentialMolecular {
 
     /**
-     * Returns the range over which the potential applies.  IAtoms with a
-     * greater separation do not interact.
-     */
-    public double getRange();
-
-    /**
      * Returns the interaction energy between the given atoms.  There might be
      * 0, 1, 2 or more molecules in the IMoleculesList.
      */

@@ -630,10 +630,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         return UpolAtkins;
     }
 
-    public final double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public P3GCPMAxilrodTeller makeAxilrodTeller() {
         return new P3GCPMAxilrodTeller(space);
     }
@@ -686,10 +682,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         }
 
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
-        }
-
     }
 
     public class P3GCPMAxilrodTeller implements IPotentialMolecular {
@@ -720,10 +712,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             xx = new double[3];
             yy = new double[3];
             zz = new double[3];
-        }
-
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
         }
 
         public double energy(IMoleculeList molecules) {

@@ -61,19 +61,10 @@ public class PotentialMoleculePairPI implements IPotentialMolecular {
 
     }
 
-    @Override
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public class PotentialMoleculePISkip implements IPotentialMolecular {
 
         public PotentialMoleculePISkip(int offset) {
             this.offset = offset;
-        }
-
-        public double getRange() {
-            return PotentialMoleculePairPI.this.getRange();
         }
 
         public double energy(IMoleculeList molecules) {
