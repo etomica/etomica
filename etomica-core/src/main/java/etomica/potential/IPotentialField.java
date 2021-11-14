@@ -22,13 +22,7 @@ public interface IPotentialField extends PotentialSoft {
      * Computes the force (and adds it to f) for IAtom atom and returns the
      * energy due to the field.
      */
-    default double udu(IAtom atom, Vector f) {
-        AtomSetSinglet singlet = new AtomSetSinglet(atom);
-        double u = energy(singlet);
-        Vector[] g1 = gradient(singlet);
-        f.ME(g1[0]);
-        return u;
-    }
+    double udu(IAtom atom, Vector f);
 
     default double uduTorque(IAtom atom, Vector f, Vector t) {
         return udu(atom, f);

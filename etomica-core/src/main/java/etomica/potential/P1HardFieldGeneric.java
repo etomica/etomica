@@ -67,6 +67,11 @@ public class P1HardFieldGeneric implements IPotentialHardField {
         return getEnergyForState(getState((IAtomKinetic) atom));
     }
 
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        throw new RuntimeException("Can't compute force with hard potential");
+    }
+
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

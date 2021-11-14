@@ -93,6 +93,11 @@ public class P1ConstraintNbr implements IPotentialAtomic, IPotentialField {
         return boxManager.get(box);
     }
 
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        return u(atom);
+    }
+
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }

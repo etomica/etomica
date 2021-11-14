@@ -39,6 +39,11 @@ public class P1MagneticField implements IPotentialField {
         return h * r.dot(direction);
     }
 
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        throw new RuntimeException("Can't compute force with spin potential");
+    }
+
 
     /**
      * @return Returns the direction.

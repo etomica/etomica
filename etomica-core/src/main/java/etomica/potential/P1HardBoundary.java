@@ -153,6 +153,11 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
         return 0;
     }
 
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        throw new RuntimeException("Can't compute force with hard potential");
+    }
+
     public double energy(IAtomList a) {
         Vector dimensions = boundary.getBoxSize();
         Vector pos = a.get(0).getPosition();

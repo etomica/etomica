@@ -4,6 +4,7 @@
 
 package etomica.modules.sam;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
@@ -24,10 +25,6 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
     protected int wallDim;
     protected double wallPosition;
 
-    public P1WCAWall(Space space, int wallDim) {
-        this(space, wallDim, 1.0, 1.0);
-    }
-
     public P1WCAWall(Space space, int wallDim, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
@@ -35,6 +32,12 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
         setWallDim(wallDim);
         gradient = new Vector[1];
         gradient[0] = space.makeVector();
+    }
+
+    @Override
+    public double u(IAtom atom) {
+        double rz = atom.getPosition().getX(wallDim) - wallPosition;
+        return energy(rz*rz);
     }
 
     public double getRange() {
@@ -62,6 +65,22 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
         double s2 = sigma2 / r2;
         double s6 = s2 * s2 * s2;
         return -48 * epsilon * s6 * (s6 - 0.5);
+    }
+
+    public double udu(IAtom atom, Vector force) {
+        double rz = atom.getPosition().getX(wallDim) - wallPosition;
+        double r2 = rz*rz;
+        if (r2 > cutoff2) {
+            return 0;
+        }
+        double s2 = sigma2 / r2;
+        double s6 = s2 * s2 * s2;
+        double u = 4 * epsilon * s6 * (s6 - 1.0) + epsilon;
+        double gradz = -48 * epsilon * s6 * (s6 - 0.5);
+        double fx = force.getX(0);
+        fx += rz > 0 ? -gradz : +gradz;
+        force.setX(0, fx);
+        return u;
     }
 
     public Vector[] gradient(IAtomList atom) {

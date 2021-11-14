@@ -48,7 +48,28 @@ public class P1Sinusoidal implements IPotentialField {
         waveVectors[1].TE(2.0*Math.PI);
         waveVectors[2].TE(2.0*Math.PI);
     }
-    
+
+    @Override
+    public double u(IAtom atom) {
+        r.Ev1Mv2(atom.getPosition(), offset);
+        double sum = 0;
+        for (int i=0; i<3; i++) {
+            sum += Math.cos(r.dot(waveVectors[i]));
+        }
+        return b45 * (3.0 - sum);
+    }
+
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        r.Ev1Mv2(atom.getPosition(), offset);
+        double sum = 0;
+        for (int i=0; i<3; i++) {
+            sum += Math.cos(r.dot(waveVectors[i]));
+            f.PEa1Tv1(-b45*Math.sin(r.dot(waveVectors[i])), waveVectors[i]);
+        }
+        return b45 * (3.0 - sum);
+    }
+
     public double energy(IAtomList atoms) {
         IAtom a = atoms.get(0);
         r.Ev1Mv2(a.getPosition(), offset);
