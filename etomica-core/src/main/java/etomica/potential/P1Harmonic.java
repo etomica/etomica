@@ -21,17 +21,14 @@ import etomica.units.dimensions.Length;
  * @author David Kofke
  */
 
-public class P1Harmonic extends Potential1 implements IPotentialField {
+public class P1Harmonic implements IPotentialField {
 
     private final Space space;
     private double w = 100.0;
-    private final Vector[] force;
     private final Vector x0;
 
     public P1Harmonic(Space space) {
-        super(space);
         this.space = space;
-        force = new Vector[]{space.makeVector()};
         x0 = space.makeVector();
     }
     public void setSpringConstant(double springConstant) {

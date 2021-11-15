@@ -6,15 +6,13 @@ package etomica.modules.sam;
 
 import etomica.atom.IAtom;
 import etomica.potential.IPotentialField;
-import etomica.potential.Potential1;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
  * 1-D potential that has a WCA form in the Z direction.
  */
 
-public class P1WCAWall extends Potential1 implements IPotentialField {
+public class P1WCAWall implements IPotentialField {
 
     protected double sigma, sigma2;
     protected double epsilon;
@@ -22,8 +20,8 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
     protected int wallDim;
     protected double wallPosition;
 
-    public P1WCAWall(Space space, int wallDim, double sigma, double epsilon) {
-        super(space);
+    public P1WCAWall(int wallDim, double sigma, double epsilon) {
+        super();
         setSigma(sigma);
         setEpsilon(epsilon);
         setWallDim(wallDim);

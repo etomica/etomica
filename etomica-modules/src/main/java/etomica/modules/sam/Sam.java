@@ -232,7 +232,7 @@ public class Sam extends Simulation {
         };
         computeField.setFieldPotential(typeS, p1SurfaceBond);
 
-        wallPotential = new P1WCAWall(space, 1, 4, 1000);
+        wallPotential = new P1WCAWall(1, 4, 1000);
         wallPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1) * 0.5);
         computeField.setFieldPotential(typeCH2, wallPotential);
         computeField.setFieldPotential(typeCH3, wallPotential);
