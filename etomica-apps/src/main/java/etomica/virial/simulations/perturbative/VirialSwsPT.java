@@ -85,8 +85,8 @@ public class VirialSwsPT {
         System.out.println("SW B"+nPoints+""+order);
         System.out.println("lambda: "+lambda);
 
-        Potential2Spherical p2Ref = new P2HardSphere(space, 1.0,false);
-    	Potential2Spherical p2Att = new P2SquareWell(space, 1.0, lambda, 1.0, false);
+        Potential2Spherical p2Ref = P2HardSphere.makePotential(1.0);
+    	Potential2Spherical p2Att = P2SquareWell.makePotential(1.0, lambda, 1.0);
         
         MayerGeneralSpherical fTargetRef = new MayerGeneralSpherical(p2Ref);
         MayerSphericalPTAtt[] fTargetAtt = new MayerSphericalPTAtt[order];
