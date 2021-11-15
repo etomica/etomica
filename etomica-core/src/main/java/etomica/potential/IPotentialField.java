@@ -27,10 +27,6 @@ public interface IPotentialField {
         return udu(atom, f);
     }
 
-    default double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     default double energy(IAtomList atom) {
         return u(atom.get(0));
     }

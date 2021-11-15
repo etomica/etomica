@@ -30,10 +30,6 @@ public class P1WCAWall implements IPotentialField {
         setEpsilon(epsilon);
     }
 
-    public double getRange() {
-        return cutoff;
-    }
-
     public double u(IAtom atom) {
         Vector r = atom.getPosition();
         double rz = r.getX(2);

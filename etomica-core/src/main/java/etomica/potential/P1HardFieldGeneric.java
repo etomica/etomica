@@ -72,10 +72,6 @@ public class P1HardFieldGeneric implements IPotentialHardField {
         throw new RuntimeException("Can't compute force with hard potential");
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {
         double v = atom.getVelocity().getX(fieldDimension);
         int newState = oldState + (v > 0 ? +1 : -1);

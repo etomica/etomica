@@ -45,10 +45,6 @@ public class P1Smash implements IPotentialField {
         IAtom a = atoms.get(0);
         return Math.abs(a.getPosition().getX(2))*g;
     }
-    
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-    
+
     protected double g;
 }

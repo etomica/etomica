@@ -34,10 +34,6 @@ public class P1WCAPorousWall implements IPotentialField {
         setZ(z);
     }
 
-    public double getRange() {
-        return cutoff;
-    }
-
     public double u(IAtom atom) {
         Vector r = atom.getPosition();
         double rz = r.getX(2);

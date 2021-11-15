@@ -16,11 +16,4 @@ public abstract class Potential1 {
     public Potential1(Space space) {
     }
 
-    /**
-     * Returns zero.
-     */
-    public double getRange() {
-        return 0.0;
-    }
-
 }

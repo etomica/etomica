@@ -97,10 +97,6 @@ public class P1ConstraintNbr implements IPotentialField {
         return u(atom);
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public void setBox(Box box) {
         boundary = box.getBoundary();
         leafList = box.getLeafList();

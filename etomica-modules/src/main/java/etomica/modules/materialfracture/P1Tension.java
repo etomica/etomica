@@ -25,10 +25,6 @@ public class P1Tension implements IPotentialField {
         setSpringConstant(0.0);
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-    
     public void setSpringConstant(double springConstant) {w = springConstant;}
     public double getSpringConstant() {return w;}
     
