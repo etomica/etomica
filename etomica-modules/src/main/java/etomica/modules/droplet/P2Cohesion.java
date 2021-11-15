@@ -6,7 +6,6 @@ package etomica.modules.droplet;
 
 import etomica.atom.AtomTest;
 import etomica.atom.IAtomList;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 
@@ -16,8 +15,7 @@ import java.util.function.Predicate;
  * Cohesive potential for mesoscale droplet simulation
  * @author Andrew Schultz
  */
-public class P2Cohesion extends Potential2SoftSpherical implements
-        IPotentialAtomic {
+public class P2Cohesion extends Potential2SoftSpherical {
 
     public P2Cohesion(Space space) {
         super(space);
