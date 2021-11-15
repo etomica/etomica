@@ -16,14 +16,13 @@ import etomica.space.Vector;
  *
  * @author Jayant K. Singh
  */
-public class P2LJQ extends Potential2 implements Potential2Soft {
+public class P2LJQ implements Potential2Soft {
 
     public P2LJQ(Space space) {
         this(space, 1, 1, 1);
     }
 
     public P2LJQ(Space space, double sigma, double epsilon, double momentSquared) {
-        super(space);
         this.space = space;
         setSigma(sigma);
         setEpsilon(epsilon);

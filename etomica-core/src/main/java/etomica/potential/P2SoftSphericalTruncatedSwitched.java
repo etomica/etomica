@@ -17,11 +17,10 @@ import etomica.units.dimensions.Length;
  * Wraps a soft-spherical potential to apply a truncation to it.  The energy
  * is switched from fully-on to 0 over a short range (i.e. from 0.95*rC to rC).
  */
-public class P2SoftSphericalTruncatedSwitched extends Potential2 implements Potential2Soft {
+public class P2SoftSphericalTruncatedSwitched implements Potential2Soft {
 
     public P2SoftSphericalTruncatedSwitched(Space _space, Potential2SoftSpherical potential,
                                             double truncationRadius) {
-        super(_space);
         this.space = _space;
         this.potential = potential;
         setTruncationRadius(truncationRadius);

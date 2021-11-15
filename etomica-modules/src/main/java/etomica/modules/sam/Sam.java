@@ -545,7 +545,7 @@ public class Sam extends Simulation {
      * Potential class that behaves like switched LJ except for the specific pair
      * of sulfur/surface atoms that are tethered.
      */
-    private static class P2Surface extends Potential2 implements Potential2Soft {
+    private static class P2Surface implements Potential2Soft {
         protected final Potential2Soft p2lj;
         protected final P2Harmonic p2Bond;
         protected final Vector dr;
@@ -553,7 +553,6 @@ public class Sam extends Simulation {
         protected final CriterionTether3 bondCriterion;
 
         public P2Surface(Space space, Potential2Soft p2lj, P2Harmonic p2Bond, CriterionTether3 bondCriterion) {
-            super(space);
             dr = space.makeVector();
             this.p2lj = p2lj;
             this.p2Bond = p2Bond;

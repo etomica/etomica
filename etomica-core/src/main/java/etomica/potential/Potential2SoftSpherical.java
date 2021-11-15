@@ -17,10 +17,9 @@ import etomica.space.Vector;
  * @author David Kofke
  */
  
-public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
+public abstract class Potential2SoftSpherical implements Potential2Soft {
 
     public Potential2SoftSpherical(Space space) {
-        super(space);
         dr = space.makeVector();
     }
 

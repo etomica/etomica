@@ -5,8 +5,6 @@
 package etomica.spin.ising;
 
 import etomica.atom.IAtomList;
-import etomica.potential.Potential2;
-import etomica.space.Space;
 
 /**
  * Magnetic spin potential, with an energy defined by
@@ -20,17 +18,15 @@ import etomica.space.Space;
  *
  * @author David Kofke
  */
-public class P2Spin extends Potential2 {
+public class P2Spin {
 
-    private static final long serialVersionUID = 1L;
     private double coupling;
 
-    public P2Spin(Space space) {
-        this(space, 1.0);
+    public P2Spin() {
+        this(1.0);
     }
 
-    public P2Spin(Space space, double coupling) {
-        super(space);
+    public P2Spin(double coupling) {
         setCoupling(coupling);
     }
 

@@ -77,7 +77,7 @@ public class Ising extends Simulation {
         potentialMasterPair = new PotentialComputePairGeneral(getSpeciesManager(), box, nbrManager);
         potentialMasterField = new PotentialComputeField(getSpeciesManager(), box);
         potentialMaster = new PotentialComputeAggregate(potentialMasterPair, potentialMasterField);
-        potential = new P2Spin(space);
+        potential = new P2Spin();
         field = new P1MagneticField(space);
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         mcmove = new MCMoveSpinFlip(random, potentialMaster, box);

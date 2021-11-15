@@ -8,13 +8,10 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.potential.IPotentialAtomicSecondDerivative;
-import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
-import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space1d.Tensor1D;
-import etomica.space1d.Vector1D;
 
 /**
  * Magnetic spin potential, with an energy defined by
@@ -29,36 +26,23 @@ import etomica.space1d.Vector1D;
  * @author weisong lin and David Kofke
  */
 
-public class P2Spin extends Potential2 implements Potential2Soft, IPotentialAtomicSecondDerivative {
+public class P2Spin implements Potential2Soft, IPotentialAtomicSecondDerivative {
 
-    private static final long serialVersionUID = 1L;
-    protected final Vector[] torque;
     protected final Tensor[] secondDerivative;
-    private final Vector[][] gradientAndTorque;
-    private final Vector[] gradient;
     protected Vector dr;
-    protected Vector dr2;
     private double coupling;
     private final Hessian h;
 
-    public P2Spin(Space space) {
-        this(space, 1.0);
+    public P2Spin() {
+        this(1.0);
     }
 
-    public P2Spin(Space space, double coupling) {
-        super(space);
+    public P2Spin(double coupling) {
         setCoupling(coupling);
-        gradient = new Vector[2];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        torque = new Vector[2];
-        torque[0] = new Vector1D();
-        torque[1] = new Vector1D();
         secondDerivative = new Tensor[3];
         this.secondDerivative[0] = new Tensor1D();
         this.secondDerivative[1] = new Tensor1D();
         this.secondDerivative[2] = new Tensor1D();
-        gradientAndTorque = new Vector[][]{gradient, torque};
         h = new Hessian(new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D());
     }
 

@@ -89,7 +89,7 @@ public class Heisenberg extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1), space);
         config.initializeCoordinates(box);
 
-        potential = new P2Spin(space, interactionS);
+        potential = new P2Spin(interactionS);
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         mcMove = new MCMoveAtomRotate(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMove);
