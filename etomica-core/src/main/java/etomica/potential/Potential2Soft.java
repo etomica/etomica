@@ -6,6 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
@@ -13,7 +14,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public interface Potential2Soft extends Potential2Spherical, IPotentialPair {
+public interface Potential2Soft extends Potential2Spherical {
 
     /**
      * The derivative of the pair energy, times the separation r: r du/dr.
@@ -36,6 +37,13 @@ public interface Potential2Soft extends Potential2Spherical, IPotentialPair {
         throw new MethodNotImplementedException();
     }
 
+    /**
+     * Returns the energy between IAtoms atom1 and atom2 separated by vector
+     * dr12 (which goes from atom1 to atom2; dr12 = r2 - r1).  PBC should not
+     * be applied to dr12; PBC has already been accounted for and dr12 may even
+     * exceed the Box dimensions when a lattice sum is used.  Likewise, the
+     * IAtoms' actual positions (from getPosition()) ought to be ignored.
+     */
     default double u(Vector dr12, IAtom atom1, IAtom atom2) {
         return u(dr12.squared());
     }
@@ -56,4 +64,37 @@ public interface Potential2Soft extends Potential2Spherical, IPotentialPair {
         return udu(dr12, atom1, atom2, f1, f2);
     }
 
+    default Hessian d2u(Vector dr12, IAtom atom1, IAtom atom2) { return null; }
+
+    /**
+     * Integral used to evaluate correction to truncation of potential.
+     */
+    default double integral(double rC) {
+        return 0;
+    }
+
+    default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+
+    }
+
+    final class Hessian {
+        public final Tensor r1r2, r1o2, r2o1, o1o1, o1o2, o2o2;
+        public Hessian(Tensor r1r2, Tensor r1o2, Tensor r2o1, Tensor o1o1, Tensor o1o2, Tensor o2o2) {
+            this.r1r2 = r1r2;
+            this.r1o2 = r1o2;
+            this.r2o1 = r2o1;
+            this.o1o1 = o1o1;
+            this.o1o2 = o1o2;
+            this.o2o2 = o2o2;
+        }
+
+        public void PE(Hessian h2) {
+            r1r2.PE(h2.r1r2);
+            r1o2.PE(h2.r1o2);
+            r2o1.PE(h2.r2o1);
+            o1o1.PE(h2.o1o1);
+            o1o2.PE(h2.o1o2);
+            o2o2.PE(h2.o2o2);
+        }
+    }
 }

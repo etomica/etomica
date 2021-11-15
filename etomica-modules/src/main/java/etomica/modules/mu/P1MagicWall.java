@@ -6,9 +6,9 @@ package etomica.modules.mu;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.potential.IPotentialPair;
 import etomica.potential.P1HardFieldGeneric;
 import etomica.potential.P2HardGeneric;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManagerHard;
 import etomica.potential.compute.PotentialComputePairGeneral;
@@ -23,7 +23,7 @@ import etomica.util.collections.Int2IntHash;
 public class P1MagicWall extends P1HardFieldGeneric {
 
     protected final NeighborManagerHard neighborManager;
-    protected final IPotentialPair[][] potentials;
+    protected final Potential2Soft[][] potentials;
     protected final Int2IntHash stateHash;
 
     public P1MagicWall(double L, PotentialComputePairGeneral potentialMaster, NeighborManagerHard neighborManager) {
@@ -125,7 +125,7 @@ public class P1MagicWall extends P1HardFieldGeneric {
     protected double getDeltaU(IAtomKinetic atom, Vector r, double falseTime, int oldState) {
 
         Boundary boundary = neighborManager.getBox().getBoundary();
-        IPotentialPair[] iPotentials = potentials[atom.getType().getIndex()];
+        Potential2Soft[] iPotentials = potentials[atom.getType().getIndex()];
         if (oldState == 0) {
             stateHash.clear();
         }

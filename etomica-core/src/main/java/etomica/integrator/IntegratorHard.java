@@ -78,7 +78,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
     }
 
     public static IPotentialHard[][] extractHardPotentials(PotentialComputePairGeneral pcPair) {
-        IPotentialPair[][] softPotentials = pcPair.getPairPotentials();
+        Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
         int n = softPotentials.length;
         IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
 

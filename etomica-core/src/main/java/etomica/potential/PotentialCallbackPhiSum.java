@@ -108,7 +108,7 @@ public class PotentialCallbackPhiSum implements PotentialCallback {
     @Override
     public void pairComputeGeneral(Potential2Soft pij, IAtom atom1, IAtom atom2, Vector drij, Vector fij, Vector tij, Vector tji) {
 
-        IPotentialPair.Hessian h = pij.d2u(drij, atom1, atom2);
+        Potential2Soft.Hessian h = pij.d2u(drij, atom1, atom2);
         computeSum(atom1.getParentGroup(), atom2.getParentGroup(), h.o1o1, h.o1o2, h.o2o2);
     }
 

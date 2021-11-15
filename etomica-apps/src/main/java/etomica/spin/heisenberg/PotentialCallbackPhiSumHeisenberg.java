@@ -3,7 +3,6 @@ package etomica.spin.heisenberg;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomOriented;
-import etomica.potential.IPotentialPair;
 import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialCallback;
 import etomica.space.Space;
@@ -28,7 +27,7 @@ public class PotentialCallbackPhiSumHeisenberg implements PotentialCallback {
 
     @Override
     public void pairComputeGeneral(Potential2Soft pij, IAtom atom1, IAtom atom2, Vector drij, Vector fij, Vector tij, Vector tji) {
-        IPotentialPair.Hessian h = pij.d2u(drij, atom1, atom2);
+        Potential2Soft.Hessian h = pij.d2u(drij, atom1, atom2);
         leafAgentManager.getAgent(atom1).phi.PE(h.o1o1);
         leafAgentManager.getAgent(atom2).phi.PE(h.o2o2);
 
