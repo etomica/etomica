@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
@@ -26,13 +25,11 @@ public class P1HarmonicSite extends Potential1 implements IPotentialField {
 
     private final Space space;
     private double w = 100.0;
-    private final Vector[] force;
     protected final AtomLeafAgentManager<? extends Vector> atomAgentManager;
     
     public P1HarmonicSite(Space space, AtomLeafAgentManager<? extends Vector> agentManager) {
         super(space);
         this.space = space;
-        force = new Vector[]{space.makeVector()};
         atomAgentManager = agentManager;
     }
 
@@ -46,11 +43,6 @@ public class P1HarmonicSite extends Potential1 implements IPotentialField {
     
     public Dimension getSpringConstantDimension() {
         return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-2});
-    }
-
-    public double energy(IAtomList a) {
-        Vector x0 = atomAgentManager.getAgent(a.get(0));
-        return w*a.get(0).getPosition().Mv1Squared(x0);
     }
 
     public double u(IAtom a) {

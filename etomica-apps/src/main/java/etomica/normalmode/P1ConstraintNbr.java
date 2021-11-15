@@ -123,8 +123,7 @@ public class P1ConstraintNbr implements IPotentialField {
     /**
      * Returns sum of energy for all triplets containing the given atom
      */
-    public double energy(IAtomList atoms) {
-        IAtom atom = atoms.get(0);
+    public double u(IAtom atom) {
         double u = energyi(atom);
         if (u == Double.POSITIVE_INFINITY) {
             return u;

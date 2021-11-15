@@ -5,7 +5,6 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -63,16 +62,6 @@ public class P1Sinusoidal implements IPotentialField {
         for (int i=0; i<3; i++) {
             sum += Math.cos(r.dot(waveVectors[i]));
             f.PEa1Tv1(-b45*Math.sin(r.dot(waveVectors[i])), waveVectors[i]);
-        }
-        return b45 * (3.0 - sum);
-    }
-
-    public double energy(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        r.Ev1Mv2(a.getPosition(), offset);
-        double sum = 0;
-        for (int i=0; i<3; i++) {
-            sum += Math.cos(r.dot(waveVectors[i]));
         }
         return b45 * (3.0 - sum);
     }

@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential;
 
-import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Vector;
 
 public interface IPotentialField {
@@ -13,9 +11,7 @@ public interface IPotentialField {
     /**
      * Returns the energy between IAtom atom and the field.
      */
-    default double u(IAtom atom) {
-        return energy(new AtomSetSinglet(atom));
-    }
+    double u(IAtom atom);
 
     /**
      * Computes the force (and adds it to f) for IAtom atom and returns the
@@ -27,7 +23,4 @@ public interface IPotentialField {
         return udu(atom, f);
     }
 
-    default double energy(IAtomList atom) {
-        return u(atom.get(0));
-    }
 }

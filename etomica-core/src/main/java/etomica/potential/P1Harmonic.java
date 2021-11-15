@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
@@ -69,10 +68,6 @@ public class P1Harmonic extends Potential1 implements IPotentialField {
         double u = 0.5 * w * dr.squared();
         f.PEa1Tv1(-w, dr);
         return u;
-    }
-
-    public double energy(IAtomList a) {
-        return 0.5 * w * a.get(0).getPosition().Mv1Squared(x0);
     }
 
 }

@@ -7,7 +7,6 @@ package etomica.modules.rosmosis;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
@@ -43,10 +42,6 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, IPotent
 
     public double u(IAtom atom) {
         return 0.5 * epsilon * atom.getPosition().Mv1Squared(agentManager.getAgent(atom));
-    }
-
-    public double energy(IAtomList atoms) {
-        return u(atoms.get(0));
     }
 
     public double udu(IAtom atom, Vector f) {

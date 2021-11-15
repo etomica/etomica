@@ -5,7 +5,6 @@
 package etomica.modules.materialfracture;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -47,14 +46,6 @@ public class P1Tension implements IPotentialField {
         double x = r.getX(0);
         f.setX(0, f.getX(0) + w * x);
         return -0.5 * w * x * x;
-    }
-
-    public double energy(IAtomList a) {
-        Vector r = a.get(0).getPosition();
-        double aSum = 0.0;
-        double x = r.getX(0);
-        aSum += x * x;
-        return 0.5 * w * aSum;
     }
 
 }

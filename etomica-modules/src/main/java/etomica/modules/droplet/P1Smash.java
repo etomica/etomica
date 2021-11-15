@@ -5,7 +5,6 @@
 package etomica.modules.droplet;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -39,11 +38,6 @@ public class P1Smash implements IPotentialField {
         double z = atom.getPosition().getX(2);
         f.setX(2, f.getX(2) - g * Math.signum(z));
         return Math.abs(z) * g;
-    }
-
-    public double energy(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        return Math.abs(a.getPosition().getX(2))*g;
     }
 
     protected double g;

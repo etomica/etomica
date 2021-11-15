@@ -23,7 +23,7 @@ import etomica.util.Debug;
  *
  * @author David Kofke
  */
-public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardField {
+public class P1HardBoundary implements Drawable, IPotentialHardField {
 
     protected double collisionRadius = 0.0;
     private final Vector work;
@@ -158,22 +158,6 @@ public class P1HardBoundary implements PotentialHard, Drawable, IPotentialHardFi
         throw new RuntimeException("Can't compute force with hard potential");
     }
 
-    public double energy(IAtomList a) {
-        Vector dimensions = boundary.getBoxSize();
-        Vector pos = a.get(0).getPosition();
-        for (int i = 0; i < work.getD(); i++) {
-            if (!isActiveDim[i][1]) {
-                continue;
-            }
-            double rx = pos.getX(i);
-            double dxHalf = 0.5 * dimensions.getX(i);
-            if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius)) {
-                 return Double.POSITIVE_INFINITY;
-            }
-        }
-        return 0;
-    }
-     
     public double energyChange() {return 0.0;}
     
     public double collisionTime(IAtomList a, double falseTime) {

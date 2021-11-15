@@ -6,7 +6,6 @@ package etomica.modules.mu;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotentialPair;
 import etomica.potential.P1HardFieldGeneric;
 import etomica.potential.P2HardGeneric;
@@ -32,12 +31,6 @@ public class P1MagicWall extends P1HardFieldGeneric {
         this.neighborManager = neighborManager;
         this.potentials = potentialMaster.getPairPotentials();
         stateHash = new Int2IntHash(10);
-    }
-
-    public double energy(IAtomList a) {
-        double e = 0.0;
-        // this is probably wrong, unfortunately
-        return e;
     }
 
     @Override

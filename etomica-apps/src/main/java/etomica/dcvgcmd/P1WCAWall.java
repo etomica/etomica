@@ -5,7 +5,6 @@
 package etomica.dcvgcmd;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.IPotentialField;
 import etomica.space.Boundary;
@@ -63,10 +62,6 @@ public class P1WCAWall implements IPotentialField {
 
         return u;
     }
-
-    public double energy(IAtomList atom) {
-        throw new RuntimeException("nope");
-    }//end of energy
 
     private double energy(double r2) {
         r2 = sigma2 / r2;

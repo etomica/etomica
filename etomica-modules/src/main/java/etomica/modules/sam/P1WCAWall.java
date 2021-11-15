@@ -5,7 +5,6 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotentialField;
 import etomica.potential.Potential1;
 import etomica.space.Space;
@@ -38,11 +37,6 @@ public class P1WCAWall extends Potential1 implements IPotentialField {
 
     public double getRange() {
         return cutoff;
-    }
-
-    public double energy(IAtomList atom) {
-        double rz = atom.get(0).getPosition().getX(wallDim) - wallPosition;
-        return energy(rz*rz);
     }
 
     private double energy(double r2) {
