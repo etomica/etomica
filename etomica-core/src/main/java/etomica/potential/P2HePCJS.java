@@ -546,7 +546,7 @@ public class P2HePCJS extends Potential2SoftSpherical {
      * @param r2 square of the distance in Angstrom^2.
      */
     public double u(double r2) {
-        if (r2 < 1e-8) return Double.MAX_VALUE;
+        if (r2 < 1e-6) return Double.MAX_VALUE;
 
         double r = Math.sqrt(r2); //distance in Angstrom
         double rBohr = BohrRadius.UNIT.fromSim(r); //distance in Bohr
