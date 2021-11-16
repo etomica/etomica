@@ -25,10 +25,7 @@ public abstract class Device {
     private final ActionSet actionSet = new ActionSet();
 
     public Device(Controller controller) {
-//        Objects.requireNonNull(controller);
-        if (controller == null) {
-            new Exception().printStackTrace();
-        }
+        Objects.requireNonNull(controller);
         this.controller = controller;
     }
     
