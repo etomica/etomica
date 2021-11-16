@@ -69,8 +69,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         ABSlider.setPostAction(resetAction);
 //        ACSlider.setPostAction(resetAction);
 
-        DeviceBox solventThermoFrac = new DeviceBox();
-        solventThermoFrac.setController(sim.getController());
+        DeviceBox solventThermoFrac = new DeviceBox(sim.getController());
         solventThermoFrac.setModifier(new ModifierGeneral(sim.ABbonded, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
@@ -228,9 +227,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
                 resetData.actionPerformed();
             }
         };
-        DeviceBox nMonoOlBox = new DeviceBox();
+        DeviceBox nMonoOlBox = new DeviceBox(sim.getController());
         nMonoOlBox.setInteger(true);
-        nMonoOlBox.setController(sim.getController());
         nMonoOlBox.setLabel("Mono-ol (light red)");
         nMonoOlBox.setModifier(new Modifier() {
             public Dimension getDimension() {
@@ -250,9 +248,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
         nMonoOlBox.setPostAction(reconfig);
-        DeviceBox nMonoAcidBox = new DeviceBox();
+        DeviceBox nMonoAcidBox = new DeviceBox(sim.getController());
         nMonoAcidBox.setInteger(true);
-        nMonoAcidBox.setController(sim.getController());
         nMonoAcidBox.setLabel("Mono-acid (light blue)");
         nMonoAcidBox.setModifier(new Modifier() {
             public Dimension getDimension() {
@@ -272,9 +269,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
         nMonoAcidBox.setPostAction(reconfig);
-        DeviceBox nDiolBox = new DeviceBox();
+        DeviceBox nDiolBox = new DeviceBox(sim.getController());
         nDiolBox.setInteger(true);
-        nDiolBox.setController(sim.getController());
         nDiolBox.setLabel("Di-ol (red)");
         nDiolBox.setModifier(new Modifier() {
             public Dimension getDimension() {
@@ -294,9 +290,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
         nDiolBox.setPostAction(reconfig);
-        DeviceBox nDiAcidBox = new DeviceBox();
+        DeviceBox nDiAcidBox = new DeviceBox(sim.getController());
         nDiAcidBox.setInteger(true);
-        nDiAcidBox.setController(sim.getController());
         nDiAcidBox.setLabel("Di-acid (blue)");
         nDiAcidBox.setModifier(new Modifier() {
             public Dimension getDimension() {
@@ -316,9 +311,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
         nDiAcidBox.setPostAction(reconfig);
-        DeviceBox nCrossLinkerBox = new DeviceBox();
+        DeviceBox nCrossLinkerBox = new DeviceBox(sim.getController());
         nCrossLinkerBox.setInteger(true);
-        nCrossLinkerBox.setController(sim.getController());
         nCrossLinkerBox.setLabel("Crosslinker (green)");
         nCrossLinkerBox.setModifier(new Modifier() {
             public Dimension getDimension() {
@@ -351,9 +345,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         JPanel conversionPanel = new JPanel(new GridBagLayout());
         conversionPanel.add(conversionPlot.graphic(), vertGBC);
 
-        DeviceBox conversionHistoryLength = new DeviceBox();
+        DeviceBox conversionHistoryLength = new DeviceBox(sim.getController());
         conversionHistoryLength.setInteger(true);
-        conversionHistoryLength.setController(sim.getController());
         conversionHistoryLength.setModifier(new Modifier() {
 
             public Dimension getDimension() {

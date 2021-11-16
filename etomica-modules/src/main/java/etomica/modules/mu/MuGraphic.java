@@ -123,14 +123,14 @@ public class MuGraphic extends SimulationGraphic {
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
 
-        DeviceBox sigABox = new DeviceBox();
-        DeviceBox epsABox = new DeviceBox();
-        DeviceBox lamABox = new DeviceBox();
+        DeviceBox sigABox = new DeviceBox(sim.getController());
+        DeviceBox epsABox = new DeviceBox(sim.getController());
+        DeviceBox lamABox = new DeviceBox(sim.getController());
 
 
-        DeviceBox sigBBox = new DeviceBox();
-        DeviceBox epsBBox = new DeviceBox();
-        DeviceBox lamBBox = new DeviceBox();
+        DeviceBox sigBBox = new DeviceBox(sim.getController());
+        DeviceBox epsBBox = new DeviceBox(sim.getController());
+        DeviceBox lamBBox = new DeviceBox(sim.getController());
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
 
@@ -173,9 +173,6 @@ public class MuGraphic extends SimulationGraphic {
         sigABox.setLabel("sigma");
         epsABox.setModifier(epsModifier);
         lamABox.setModifier(lamModifier);
-        sigABox.setController(sim.getController());
-        epsABox.setController(sim.getController());
-        lamABox.setController(sim.getController());
 
         ModifierAtomDiameter sigBModifier = new ModifierAtomDiameter(this, sim.speciesB, sim.potentialBB, sim.potentialAB, sim.potentialAA,
                 sim.potentialBBmu, sim.potentialABmu, sim.potentialBBmu);
@@ -189,9 +186,6 @@ public class MuGraphic extends SimulationGraphic {
         sigBBox.setLabel("sigma");
         epsBBox.setModifier(epsBModifier);
         lamBBox.setModifier(lamBModifier);
-        sigBBox.setController(sim.getController());
-        epsBBox.setController(sim.getController());
-        lamBBox.setController(sim.getController());
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
