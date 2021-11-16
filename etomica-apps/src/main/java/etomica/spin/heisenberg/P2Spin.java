@@ -7,7 +7,6 @@ package etomica.spin.heisenberg;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.Potential2Soft;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -26,7 +25,7 @@ import etomica.space1d.Tensor1D;
  * @author weisong lin and David Kofke
  */
 
-public class P2Spin implements Potential2Soft, IPotentialAtomicSecondDerivative {
+public class P2Spin implements Potential2Soft {
 
     protected final Tensor[] secondDerivative;
     protected Vector dr;
