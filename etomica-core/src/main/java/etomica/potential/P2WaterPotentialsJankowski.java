@@ -21,7 +21,7 @@ import etomica.units.Mole;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 
-public class P2WaterPotentialsJankowski implements IPotentialAtomic {
+public class P2WaterPotentialsJankowski implements Potential2Soft {
     
     protected static final int nsitemax = 8;
     protected static final int naamax = 14, nbbmax = 14;
@@ -2146,15 +2146,15 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         }
     }
     
-    public static void processAtoms (IAtomList atomL) {
+    public static void processAtoms (IAtom atom1, IAtom atom2) {
         Space space = Space3D.getInstance();
         Vector[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
-        atomToPosVec(atomL.get(0));
+        atomToPosVec(atom1);
         for (int i=0; i<3; i++) {
             carta[i].E(posVec[i]);
         }
 
-        atomToPosVec(atomL.get(1));
+        atomToPosVec(atom2);
         for (int i=0; i<3; i++) {
             cartb[i].E(posVec[i]);
         }
@@ -2436,9 +2436,38 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
+        processAtoms(atom1, atom2);
+        double eTot = poten(); // flexible configuration with temperature dependent
+        // bond lengths and angle
+        if (icc == 1) {
+            double eRigid = pRigid.u(dr12, atom2, atom1);
+            // rigid configuration with ground state bond lengths and angles from P2WaterSzalewicz
+            double[] oldBL = getBondLengths();
+            double[] oldAngles = getAngles();
+            setBondLengths(ccpol2BL);
+            setAngles(ccpol2Angles);
+            processAtoms(atom1, atom2);
+            setBondLengths(oldBL);
+            setAngles(oldAngles);
+            double eFlex = poten();
+            // if ccpol8s is ever used instead of ccpol2, use the following instead
+            // of the above line of code
+            // double eFlex = poten(cartaa,cartbb);
+            if (Double.isInfinite(eRigid) || Double.isInfinite(eFlex) || Double.isInfinite(eTot))
+                return Double.POSITIVE_INFINITY;
+//            if ((eTot - eFlex) < -Kelvin.UNIT.fromSim(1)*1000) {
+//                System.out.println(eRigid);
+//            }
+            eTot += eRigid - eFlex;
+        }
+        return (iMonomer == 1 ? (eTot + eMon) : eTot);
+    }
+
     public double energy(IAtomList atoms) {
         if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
-        processAtoms(atoms);
+        processAtoms(atoms.get(0), atoms.get(1));
         double eTot = poten(); // flexible configuration with temperature dependent
         // bond lengths and angle
         if (icc == 1) {
@@ -2450,7 +2479,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             double[] oldAngles = getAngles();
             setBondLengths(ccpol2BL);
             setAngles(ccpol2Angles);
-            processAtoms(atoms);
+            processAtoms(atoms.get(0), atoms.get(1));
             setBondLengths(oldBL);
             setAngles(oldAngles);
             double eFlex = poten();
