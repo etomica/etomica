@@ -82,7 +82,7 @@ public class VirialSW {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
-        Potential2Soft pTarget = new P2SquareWell(space,1.0,1.5, 1.0, false);
+        Potential2Soft pTarget = P2SquareWell.makePotential(1.0, 1.5, 1.0);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         MayerESpherical eTarget = new MayerESpherical(pTarget);
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
