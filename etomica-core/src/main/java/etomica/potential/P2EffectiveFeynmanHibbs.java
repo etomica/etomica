@@ -24,7 +24,7 @@ import etomica.util.Constants;
  *  
  * @author Andrew Schultz
  */
-public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
+public class P2EffectiveFeynmanHibbs implements Potential2Soft {
 
     protected final Potential2SoftSpherical p2Classy;
     protected final Vector dr;

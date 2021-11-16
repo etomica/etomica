@@ -252,7 +252,7 @@ public static void main(String[] args) {
 		
 	}
 
-	public static double[] getfr(int N, double del_r, double temp, Potential2Spherical p2) {
+	public static double[] getfr(int N, double del_r, double temp, Potential2Soft p2) {
 	    
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		

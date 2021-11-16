@@ -14,7 +14,15 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public interface Potential2Soft extends Potential2Spherical {
+public interface Potential2Soft extends IPotentialAtomic {
+
+    /**
+     * The pair energy u(r^2) with no truncation applied.
+     * @param r2 the square of the distance between the particles.
+     */
+    default double u(double r2) {
+        throw new MethodNotImplementedException();
+    }
 
     /**
      * The derivative of the pair energy, times the separation r: r du/dr.

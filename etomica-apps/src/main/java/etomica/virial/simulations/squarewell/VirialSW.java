@@ -13,7 +13,7 @@ import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SquareWell;
-import etomica.potential.Potential2Spherical;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -82,7 +82,7 @@ public class VirialSW {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
-        Potential2Spherical pTarget = new P2SquareWell(space,1.0,1.5, 1.0, false);
+        Potential2Soft pTarget = new P2SquareWell(space,1.0,1.5, 1.0, false);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         MayerESpherical eTarget = new MayerESpherical(pTarget);
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);

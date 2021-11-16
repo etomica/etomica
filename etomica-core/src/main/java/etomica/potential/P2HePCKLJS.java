@@ -332,7 +332,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
      *
      * @author Andrew Schultz
      */
-    public class P2HeQFH implements Potential2Spherical {
+    public class P2HeQFH implements Potential2Soft {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -468,7 +468,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         return new P2HeTI(temperature);
     }
     
-    public class P2HeTI implements Potential2Spherical {
+    public class P2HeTI implements Potential2Soft {
 
         protected final double temperature;
         protected final double mass = 4.002602;

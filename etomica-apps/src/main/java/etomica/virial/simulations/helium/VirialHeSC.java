@@ -11,7 +11,7 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
-import etomica.potential.Potential2Spherical;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -108,10 +108,10 @@ public class VirialHeSC {
         MayerGeneralSpherical fTargetApprox;
         if (semiClassical) {
             P2HeSimplified p2cApprox = new P2HeSimplified(space);
-            Potential2Spherical p2Approx = p2cApprox.makeQFH(temperature);
+            Potential2Soft p2Approx = p2cApprox.makeQFH(temperature);
             
             P2HePCKLJS p2c = new P2HePCKLJS(space);
-            Potential2Spherical p2 = p2c.makeQFH(temperature);
+            Potential2Soft p2 = p2c.makeQFH(temperature);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);

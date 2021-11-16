@@ -10,7 +10,7 @@ import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Spherical;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -106,11 +106,11 @@ public class VirialLJMultiOverlap {
         else if (mixID != 0) {
             throw new RuntimeException("Don't know how to do mix "+mixID);
         }
-        Potential2Spherical p11Target = new P2LennardJones(space, sigma11, epsilon11);
+        Potential2Soft p11Target = new P2LennardJones(space, sigma11, epsilon11);
         MayerGeneralSpherical f11Target = new MayerGeneralSpherical(p11Target);
-        Potential2Spherical p12Target = new P2LennardJones(space, sigma12, epsilon12);
+        Potential2Soft p12Target = new P2LennardJones(space, sigma12, epsilon12);
         MayerGeneralSpherical f12Target = new MayerGeneralSpherical(p12Target);
-        Potential2Spherical p22Target = new P2LennardJones(space, sigma22, epsilon22);
+        Potential2Soft p22Target = new P2LennardJones(space, sigma22, epsilon22);
         MayerGeneralSpherical f22Target = new MayerGeneralSpherical(p22Target);
         MayerESpherical e11Target = new MayerESpherical(p11Target);
         MayerESpherical e12Target = new MayerESpherical(p12Target);

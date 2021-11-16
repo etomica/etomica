@@ -226,7 +226,7 @@ public class VirialHePISysErr {
         }
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
-        Potential2Spherical p2SemiClassical = calcApprox ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
+        Potential2Soft p2SemiClassical = calcApprox ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
         final MayerGeneralSpherical fTargetSemiClassical = new MayerGeneralSpherical(p2SemiClassical);
 
         MayerGeneral[] fTargetSkip = new MayerGeneral[beadFac];

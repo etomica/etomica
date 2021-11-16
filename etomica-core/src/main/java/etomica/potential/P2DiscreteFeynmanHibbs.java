@@ -26,9 +26,9 @@ import etomica.util.Constants;
  *  
  * @author Andrew Schultz
  */
-public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
+public class P2DiscreteFeynmanHibbs implements Potential2Soft {
 
-    protected final Potential2Spherical p2Classy;
+    protected final Potential2Soft p2Classy;
     protected final Vector dr;
     protected Boundary boundary;
     protected double temperature;
@@ -36,7 +36,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
     protected double fac, stepFactor = 0.5;
     protected int nPoints = 2;
     
-    public P2DiscreteFeynmanHibbs(Space space, Potential2Spherical p2Classical) {
+    public P2DiscreteFeynmanHibbs(Space space, Potential2Soft p2Classical) {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }

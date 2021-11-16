@@ -5,10 +5,7 @@
 package etomica.virial;
 
 import etomica.potential.P2ArgonAziz1993;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 

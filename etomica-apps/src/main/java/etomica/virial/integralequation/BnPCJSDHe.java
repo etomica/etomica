@@ -6,8 +6,8 @@ package etomica.virial.integralequation;
 
 import etomica.potential.P2HePCJS;
 import etomica.potential.P2HeSimplified;
+import etomica.potential.Potential2Soft;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -80,7 +80,7 @@ public class BnPCJSDHe {
         }
     }
 
-    public static double[][] getConvergence (Potential2Spherical p2, int m, double r_max, double tol, double kT, boolean printapalooza, double core) {
+    public static double[][] getConvergence (Potential2Soft p2, int m, double r_max, double tol, double kT, boolean printapalooza, double core) {
         
         double[][] results = new double[3][m];
         if (m==2) {
@@ -193,7 +193,7 @@ public class BnPCJSDHe {
         return results;
     }
 
-    public static double[] getfr(Potential2Spherical p2, int N, double del_r, double temp, double core) {
+    public static double[] getfr(Potential2Soft p2, int N, double del_r, double temp, double core) {
         
         double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
         

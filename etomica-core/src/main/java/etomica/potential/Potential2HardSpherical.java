@@ -15,7 +15,7 @@ import etomica.space.Vector;
  * Subclasses must provide a concrete definition for the energy (method u(double)).
  */
 
-public abstract class Potential2HardSpherical implements PotentialHard, Potential2Spherical {
+public abstract class Potential2HardSpherical implements PotentialHard, Potential2Soft {
    
     public Potential2HardSpherical(Space space) {
         dr = space.makeVector();

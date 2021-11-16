@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.Potential2Spherical;
+import etomica.potential.Potential2Soft;
 /**
  * @author kofke
  *
@@ -17,7 +17,7 @@ public class MayerESpherical implements MayerFunction {
 	/**
 	 * Constructor for MayerESpherical.
 	 */
-	public MayerESpherical(Potential2Spherical potential) {
+	public MayerESpherical(Potential2Soft potential) {
 		this.potential = potential;
 	}
 
@@ -31,6 +31,6 @@ public class MayerESpherical implements MayerFunction {
 	public void setBox(Box newBox) {
 	}
 
-	private final Potential2Spherical potential;
+	private final Potential2Soft potential;
 
 }

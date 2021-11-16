@@ -69,7 +69,7 @@ public class BnPYCHe {
         P2HePCKLJS p2PCKLJS = new P2HePCKLJS(space, sigma);
         P2HePCJS p2PCJS = new P2HePCJS(space, sigma);
         Potential2SoftSpherical p2 = pc == PotentialChoice.SIMPLE ? p2Simple : (pc == PotentialChoice.PCKLJS ? p2PCKLJS : p2PCJS);
-        Potential2Spherical p2sc = pc == PotentialChoice.SIMPLE ? new P2HeSimplified(space).makeQFH(T) : new P2HePCKLJS(space, sigma).makeQFH(T);
+        Potential2Soft p2sc = pc == PotentialChoice.SIMPLE ? new P2HeSimplified(space).makeQFH(T) : new P2HePCKLJS(space, sigma).makeQFH(T);
         double rMax = params.rmax;
         while (true) {
             double[][] results = getConvergence(params.classical ? p2 : p2sc, m, rMax, tol, T, verbose, pc == PotentialChoice.SIMPLE ? 1.6 : 0);
@@ -98,7 +98,7 @@ public class BnPYCHe {
         }
     }
 
-    public static double[][] getConvergence (Potential2Spherical p2, int m, double r_max, double tol, double kT, boolean printapalooza, double core) {
+    public static double[][] getConvergence (Potential2Soft p2, int m, double r_max, double tol, double kT, boolean printapalooza, double core) {
         
         double[][] results = new double[3][m];
         if (m==2) {
@@ -211,7 +211,7 @@ public class BnPYCHe {
         return results;
     }
 
-    public static double[] getfr(Potential2Spherical p2, int N, double del_r, double temp, double core) {
+    public static double[] getfr(Potential2Soft p2, int N, double del_r, double temp, double core) {
         
         double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
         
