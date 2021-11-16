@@ -4,15 +4,14 @@
 
 package etomica.virial.cluster;
 
-import etomica.atom.AtomSetSinglet;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.IPotentialField;
 import etomica.virial.BoxCluster;
 
 
 public class ClusterExchange implements ClusterAbstract {
 	protected double beta;
-	protected IPotentialAtomic p1;
-	public ClusterExchange (IPotentialAtomic p1) {
+	protected IPotentialField p1;
+	public ClusterExchange (IPotentialField p1) {
 		this.p1 = p1;		
 	}
 
@@ -29,10 +28,8 @@ public class ClusterExchange implements ClusterAbstract {
 	public double value(BoxCluster box) {
 		int beads = box.getLeafList().size();
 		double sum = 0;
-		AtomSetSinglet atoms = new AtomSetSinglet();
 		for (int i=0; i<beads; i++) {
-			atoms.atom = box.getLeafList().get(i);
-			sum += p1.energy(atoms);
+			sum += p1.u(box.getLeafList().get(i));
 		}
 		sum /= beads;
 		sum = Math.exp(-beta*sum);

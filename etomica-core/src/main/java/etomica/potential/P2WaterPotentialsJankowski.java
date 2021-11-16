@@ -53,16 +53,16 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected int iSurf, iEmbed;
     protected int icc;
     protected int iMonomer;
-    protected IPotentialAtomic pRigid = null;
+    protected Potential2Soft pRigid = null;
     protected Box b = null;
     protected double tKelvin = -1, eMon = 0.0;
     
-    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, IPotentialAtomic pRigid) {
+    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, Potential2Soft pRigid) {
         this.space = space;
         iSurf = iSurface;
         tKelvin = Kelvin.UNIT.fromSim(tSim);
         iMonomer = iMon;
-        this.pRigid = pRigid;        
+        this.pRigid = pRigid;
         set_sites_sa = space.makeVector();
         set_sites_sitea = space.makeVectorArray(nsitemax);
         sa = space.makeVectorArray(naamax+2);
@@ -2442,7 +2442,9 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         double eTot = poten(); // flexible configuration with temperature dependent
         // bond lengths and angle
         if (icc == 1) {
-            double eRigid = pRigid.energy(atoms);
+            Vector dr = space.makeVector();
+            dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
+            double eRigid = pRigid.u(dr, atoms.get(1), atoms.get(0));
             // rigid configuration with ground state bond lengths and angles from P2WaterSzalewicz
             double[] oldBL = getBondLengths();
             double[] oldAngles = getAngles();

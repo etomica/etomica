@@ -5,12 +5,12 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.AtomOrientedQuaternion;
-import etomica.atom.AtomPair;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -21,17 +21,15 @@ public class MCMoveClusterPolyhedraChain extends MCMoveBox {
     protected final double sigma;
     protected final Vector dr;
     protected int[] seq;
-    protected IPotentialAtomic p2;
-    protected final AtomPair pair;
+    protected Potential2Soft p2;
     protected final double[][] uValues;
 
-    public MCMoveClusterPolyhedraChain(IRandom random, Box box, double sigma, IPotentialAtomic p2, double[][] uValues) {
+    public MCMoveClusterPolyhedraChain(IRandom random, Box box, double sigma, Potential2Soft p2, double[][] uValues) {
         super();
         this.random = random;
         this.sigma = sigma;
         dr = box.getSpace().makeVector();
         this.p2 = p2;
-        pair = new AtomPair();
         this.uValues = uValues;
         setBox(box);
     }
@@ -71,19 +69,20 @@ public class MCMoveClusterPolyhedraChain extends MCMoveBox {
                 uValues[i][j] = Double.NaN;
             }
         }
+        Vector dr = box.getSpace().makeVector();
         for (int i=1; i<n; i++) {
-            pair.atom0 = leafAtoms.get(seq[i-1]);
-            pair.atom1 = leafAtoms.get(seq[i]);
+            IAtom atom1 = leafAtoms.get(seq[i-1]);
+            IAtom atom2 = leafAtoms.get(seq[i]);
             Vector pos = leafAtoms.get(seq[i]).getPosition();
             Vector q = ((AtomOrientedQuaternion)leafAtoms.get(seq[i])).getQuaternion();
 
             while (true) {
-                pos.setRandomInSphere(random);
-                pos.TE(sigma);
-                pos.PE(leafAtoms.get(seq[i-1]).getPosition());
+                dr.setRandomInSphere(random);
+                dr.TE(sigma);
+                pos.Ev1Pv2(atom1.getPosition(), dr);
 
                 randomOrientation(q);
-                if (p2.energy(pair) == Double.POSITIVE_INFINITY) break;
+                if (p2.u(dr, atom1, atom2) == Double.POSITIVE_INFINITY) break;
             }
             uValues[seq[i-1]][seq[i]] = uValues[seq[i]][seq[i-1]] = Double.POSITIVE_INFINITY;
         }

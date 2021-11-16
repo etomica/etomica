@@ -6,11 +6,12 @@ package etomica.virial.mcmove;
 
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -22,11 +23,11 @@ public class MCMoveClusterPolyhedraTree extends MCMoveBox {
     protected int[][] bonds;
     protected int[] degree, a;
     protected int[] inserted;
-    protected IPotentialAtomic p2;
+    protected Potential2Soft p2;
     protected final AtomPair pair;
     protected final double[][] uValues;
 
-    public MCMoveClusterPolyhedraTree(IRandom random, Box box, double sigma, IPotentialAtomic p2, double[][] uValues) {
+    public MCMoveClusterPolyhedraTree(IRandom random, Box box, double sigma, Potential2Soft p2, double[][] uValues) {
         super();
         this.random = random;
         this.sigma = sigma;
@@ -139,20 +140,20 @@ public class MCMoveClusterPolyhedraTree extends MCMoveBox {
                     // already inserted nbr2, move along
                     continue;
                 }
-                pair.atom0 = leafAtoms.get(nbr);
-                pair.atom1 = leafAtoms.get(nbr2);
+                IAtom atom1 = leafAtoms.get(nbr);
+                IAtom atom2 = leafAtoms.get(nbr2);
                 // insert nbr2 around nbr
                 Vector q = ((AtomOrientedQuaternion)leafAtoms.get(nbr2)).getQuaternion();
                 Vector pos = leafAtoms.get(nbr2).getPosition();
 
+                Vector dr = box.getSpace().makeVector();
                 while (true) {
-                    pos.setRandomInSphere(random);
-                    pos.TE(sigma);
-                    pos.PE(leafAtoms.get(nbr).getPosition());
+                    dr.setRandomInSphere(random);
+                    dr.TE(sigma);
+                    pos.Ev1Pv2(atom1.getPosition(), dr);
 
                     randomOrientation(q);
-                    double energy = p2.energy(pair);
-                    if (energy == Double.POSITIVE_INFINITY) break;
+                    if (p2.u(dr, atom1, atom2) == Double.POSITIVE_INFINITY) break;
                 }
                 uValues[nbr2][nbr] = uValues[nbr][nbr2] = Double.POSITIVE_INFINITY;
                 
