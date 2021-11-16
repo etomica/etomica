@@ -9,7 +9,6 @@ import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
 import etomica.species.ISpecies;
 
@@ -41,7 +40,7 @@ public class DeviceCellNumXYSlider extends Device {
     
 	
 	public DeviceCellNumXYSlider(Controller cont) {
-		
+		super(cont);
         //using x-axis or y-axis radio button
         ButtonGroup numCellGroup = new ButtonGroup();
         buttonXComp = new JRadioButton("x-Cell");
@@ -70,8 +69,6 @@ public class DeviceCellNumXYSlider extends Device {
         yCellNumSlider.setValue(0);
         yCellNumSlider.getSlider().setEnabled(false);
         yCellNumSlider.getTextField().setEnabled(false);
-        
-        setController(cont);
 
         // Tie the "x-axis"/"y-axis" setting to the selectable status of
         // numCells slider

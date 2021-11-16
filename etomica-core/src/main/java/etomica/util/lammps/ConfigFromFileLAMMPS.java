@@ -271,7 +271,7 @@ public class ConfigFromFileLAMMPS {
 
         modifierConfig.setValue(0);
         ModifierConfiguration finalModifierConfig = modifierConfig;
-        DeviceToggleRadioButtons deviceDoPrevious = new DeviceToggleRadioButtons(new ModifierBoolean() {
+        DeviceToggleRadioButtons deviceDoPrevious = new DeviceToggleRadioButtons(sim.getController(), new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
                 finalModifierConfig.setDoPrevious(b);

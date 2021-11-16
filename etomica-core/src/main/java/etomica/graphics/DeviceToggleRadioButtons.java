@@ -5,6 +5,7 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
 
+import etomica.action.controller.Controller;
 import etomica.modifier.ModifierBoolean;
 
 import javax.swing.*;
@@ -23,24 +24,16 @@ public class DeviceToggleRadioButtons extends Device {
     private ModifierBoolean modifier;
     private JPanel panel;
     private JRadioButton trueButton, falseButton;
-    
-    /**
-     * Constructor with default labels of a blank title and "True" and "False" for
-     * the true/false labels.
-     */
-    public DeviceToggleRadioButtons(ModifierBoolean modifier) {
-        this(modifier, "", "True", "False");
-    }
-    
+
     /**
      * @param modifier the boolean modifier controlled by this device
      * @param title     a descriptive string.  If empty ("") provides plain border; if null, provides no border.
      * @param trueText  text associated with "true" state of modifier
      * @param falseText text associated with "false" state of modifier
      */
-    public DeviceToggleRadioButtons(final ModifierBoolean modifier, 
-                                String title, String trueText, String falseText) {
-
+    public DeviceToggleRadioButtons(Controller controller, final ModifierBoolean modifier,
+                                    String title, String trueText, String falseText) {
+        super(controller);
         java.awt.event.ActionListener al = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 modifier.setBoolean(getState());

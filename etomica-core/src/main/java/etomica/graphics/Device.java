@@ -24,10 +24,6 @@ public abstract class Device {
     protected Controller controller;
     private final ActionSet actionSet = new ActionSet();
 
-    public Device() {
-        this(null);
-    }
-
     public Device(Controller controller) {
 //        Objects.requireNonNull(controller);
         if (controller == null) {

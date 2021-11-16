@@ -9,7 +9,6 @@ import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
 import etomica.species.ISpecies;
 
@@ -36,7 +35,7 @@ public class DeviceCellNum3DSlider extends Device {
     
 	
 	public DeviceCellNum3DSlider(Controller cont) {
-		
+		super(cont);
         //n-CellNum selector
         nCellNumSlider = new DeviceSlider(controller);
         nCellNumSlider.setShowValues(true);
@@ -46,8 +45,6 @@ public class DeviceCellNum3DSlider extends Device {
         nCellNumSlider.setNMajor(5);
         nCellNumSlider.getSlider().setEnabled(true);
         nCellNumSlider.getTextField().setEnabled(true);
-
-        setController(cont);
 
         numCellPanel = new JPanel(new GridBagLayout());
         numCellPanel.setBorder(new TitledBorder(null, "Set 3D n-Cell Numbers", TitledBorder.CENTER, TitledBorder.TOP));
