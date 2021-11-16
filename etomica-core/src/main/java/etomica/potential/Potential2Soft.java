@@ -17,6 +17,12 @@ import etomica.space.Vector;
 public interface Potential2Soft extends IPotentialAtomic {
 
     /**
+     * Returns the range over which the potential applies.  IAtoms with a
+     * greater separation do not interact.
+     */
+    double getRange();
+
+    /**
      * The pair energy u(r^2) with no truncation applied.
      * @param r2 the square of the distance between the particles.
      */

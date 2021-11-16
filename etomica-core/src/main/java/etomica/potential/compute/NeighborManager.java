@@ -5,7 +5,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.list.INeighborListener;
 import etomica.potential.BondingInfo;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential2Soft;
 
 public interface NeighborManager {
 
@@ -13,7 +13,7 @@ public interface NeighborManager {
 
     BondingInfo getBondingInfo();
 
-    default void setPairPotentials(IPotentialAtomic[][] potentials) {
+    default void setPairPotentials(Potential2Soft[][] potentials) {
     }
 
     void init();

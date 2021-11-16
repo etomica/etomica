@@ -10,6 +10,7 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialHard;
+import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 import etomica.util.collections.Int2IntHash;
 
@@ -33,7 +34,7 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
     }
 
     @Override
-    public void setPairPotentials(IPotentialAtomic[][] potentials) {
+    public void setPairPotentials(Potential2Soft[][] potentials) {
         pairPotentials = potentials;
     }
 

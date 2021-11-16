@@ -8,6 +8,7 @@ import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
@@ -20,7 +21,7 @@ import java.util.List;
 
 public class NeighborListManager implements NeighborManager, NeighborManager.NeighborEventSource, IntegratorListener {
     private final NeighborCellManager cellManager;
-    private IPotentialAtomic[][] pairPotentials;
+    private Potential2Soft[][] pairPotentials;
     protected final Box box;
     protected final BondingInfo bondingInfo;
     protected final boolean isPureAtoms;
@@ -77,7 +78,7 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
     }
 
     @Override
-    public void setPairPotentials(IPotentialAtomic[][] potentials) {
+    public void setPairPotentials(Potential2Soft[][] potentials) {
         this.pairPotentials = potentials;
     }
 
