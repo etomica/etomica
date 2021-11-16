@@ -8,6 +8,7 @@ import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 
@@ -97,7 +98,7 @@ public class P1HydrogenMielke {
     }
     
     
-    public static class P1HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialAtomic {
+    public static class P1HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialField {
         public P1HydrogenMielkeAtomic(Space space) {
             super(space);     
         }
@@ -106,13 +107,16 @@ public class P1HydrogenMielke {
             return Double.POSITIVE_INFINITY;
         }
 
-        public double energy(IAtomList atoms) {
-            AtomHydrogen m0 = (AtomHydrogen)atoms.get(0);
-            double bL = m0.getBondLength();
-            double f = u(bL);
-            return f;
+        @Override
+        public double u(IAtom atom) {
+            double bL = ((AtomHydrogen)atom).getBondLength();
+            return u(bL);
         }
-		 
+
+        @Override
+        public double udu(IAtom atom, Vector f) {
+            return u(atom);
+        }
     }
     
     public static class P2HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialAtomic {

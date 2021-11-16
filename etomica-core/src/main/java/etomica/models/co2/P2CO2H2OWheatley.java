@@ -12,7 +12,6 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
@@ -589,7 +588,7 @@ public class P2CO2H2OWheatley implements Potential2Soft {
         return new P2CO2H2OSCTI(temperature);
     }
 
-    public class P2CO2H2OSC implements IPotentialAtomic {
+    public class P2CO2H2OSC implements Potential2Soft {
 
         protected final Tensor tt0Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
@@ -639,6 +638,316 @@ public class P2CO2H2OWheatley implements Potential2Soft {
         }
 
         public double[][] d2tot = new double[2][6];
+
+        public double u(Vector dr12, IAtom a1, IAtom a2) {
+            IAtomOriented atom0 = (IAtomOriented)a1;
+            IAtomOriented atom1 = (IAtomOriented)a2;
+            Vector cm0 = atom0.getPosition();
+            Vector cm1 = atom1.getPosition();
+            double bohrConv = BohrRadius.UNIT.fromSim(1);
+            for (int i=0; i<3; i++) {
+                sitePos[0][i].Ea1Tv1(bohrConv, cm0);
+                sitePos[1][i].Ea1Tv1(bohrConv, cm1);
+            }
+
+            //CO2
+            Vector orCO2 = atom0.getOrientation().getDirection();
+            sitePos[0][1].PEa1Tv1(+sitesCO2L, orCO2);
+            sitePos[0][2].PEa1Tv1(-sitesCO2L, orCO2);
+            Vector orH2O1 = atom1.getOrientation().getDirection();
+            Vector orH2O2 = ((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection();
+            double cmx = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
+            sitePos[1][0].PEa1Tv1(-cmx, orH2O1);
+            sitePos[1][1].PEa1Tv1(+sitesOH-cmx, orH2O1);
+            sitePos[1][2].PEa1Tv1(+sitesOH-cmx, orH2O1);
+            sitePos[1][1].PEa1Tv1(+sitesHH, orH2O2);
+            sitePos[1][2].PEa1Tv1(-sitesHH, orH2O2);
+
+            getPerp(orCO2, or01, or02);
+            allOr0[0] = orCO2;
+            rot0.E(allOr0);
+            rot0.invert();
+
+            orH2O3.E(orH2O1);
+            orH2O3.XE(orH2O2);
+            allOr1[0] = orH2O1;
+            allOr1[1] = orH2O2;
+            rot1.E(allOr1);
+            rot1.invert();
+
+            double d2tsum = 0, d2rsum = 0;
+            double d2x = 0, d2y = 0, d2z = 0;
+            double d2tx = 0, d2ty = 0, d2tz = 0;
+            for (int i=0; i<2; i++) {
+                for (int j=0; j<6; j++) {
+                    d2tot[i][j] = 0;
+                }
+            }
+
+            CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
+            if (CO < 4 && !debugging) return Double.POSITIVE_INFINITY;
+            double energy = 0;
+            for (int i=0; i<iparams.length; i++) {
+                int ia1 = iparams[i][0]-1;
+                int ib1 = iparams[i][1]-3-1;
+                int ia2 = iparams[i][2]-1;
+                int ib2 = iparams[i][3]-3-1;
+                int ir1 = iparams[i][4];
+                int ir2 = iparams[i][5];
+                double c1 = fparams[i];
+
+                drij.Ev1Mv2(sitePos[1][ib1], sitePos[0][ia1]);
+                double r21 = drij.squared();
+                double rr1 = Math.sqrt(r21);
+                double rval1 = 1.0/Math.pow(rr1, ir1);
+                if (rr1 < core) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (ia2>-1) {
+//                    System.out.println(ia1+" "+ib1+" "+ia2+" "+ib2+" "+ir1+" "+ir2);
+                    bdrij.Ev1Mv2(sitePos[1][ib2], sitePos[0][ia2]);
+                    double r22 = bdrij.squared();
+                    double rr2 = Math.sqrt(r22);
+                    if (rr2 < core) {
+                        return Double.POSITIVE_INFINITY;
+                    }
+                    double rval2 = 1.0/Math.pow(rr2, ir2);
+                    energy += rval1*rval2*c1;
+
+                    double adu = -c1*ir1*rval1*rval2/r21;
+                    double bdu = -c1*ir2*rval1*rval2/r22;
+                    double adu2 = -adu*(ir1+2)/r21;
+                    double abdu2 = -adu*ir2/r22;
+                    double bdu2 = -bdu*(ir2+2)/r22;
+
+                    drijRot.E(drij);
+                    rot0.transform(drijRot);
+                    ga.Ea1Tv1(adu, drijRot);
+
+                    r2a.E(drijRot);
+                    r2a.TE(drijRot);
+                    r2ab.E(drijRot);
+                    drijRot.E(bdrij);
+                    rot0.transform(drijRot);
+                    gb.Ea1Tv1(bdu, drijRot);
+                    r2ab.TE(drijRot);
+                    r2b.E(drijRot);
+                    r2b.TE(drijRot);
+
+                    double dxa = 0;
+                    if (ia1>0) {
+                        dxa = (2*ia1-3)*sitesCO2L;
+                    }
+                    double dxb = 0;
+                    if (ia2>0) {
+                        dxb = (2*ia2-3)*sitesCO2L;
+                    }
+
+                    double d2a = adu + r2a.getX(0)*adu2;
+                    double d2ab = r2ab.getX(0)*abdu2;
+                    double d2b = bdu + r2b.getX(0)*bdu2;
+
+                    double d2x0 = d2a + 2*d2ab + d2b;
+
+                    d2a = adu + r2a.getX(1)*adu2;
+                    d2ab = r2ab.getX(1)*abdu2;
+                    d2b = bdu + r2b.getX(1)*bdu2;
+
+                    double d2y0 = d2a + 2*d2ab + d2b;
+                    double d2thetaz0 = d2a*dxa*dxa + 2*d2ab*dxa*dxb + d2b*dxb*dxb - ga.getX(0)*dxa - gb.getX(0)*dxb;
+
+                    d2a = adu + r2a.getX(2)*adu2;
+                    d2ab = r2ab.getX(2)*abdu2;
+                    d2b = bdu + r2b.getX(2)*bdu2;
+
+                    double d2z0 = d2a + 2*d2ab + d2b;
+                    double d2thetay0 = d2a*dxa*dxa + 2*d2ab*dxa*dxb + d2b*dxb*dxb - ga.getX(0)*dxa - gb.getX(0)*dxb;
+                    d2tot[0][0] += d2x0;
+                    d2tot[0][1] += d2y0;
+                    d2tot[0][2] += d2z0;
+                    d2tot[0][4] += d2thetay0;
+                    d2tot[0][5] += d2thetaz0;
+
+
+                    drijRot.E(drij);
+                    rot1.transform(drijRot);
+                    ga.Ea1Tv1(adu, drijRot);
+                    double d2xyaa = drijRot.getX(0)*drijRot.getX(1)*adu2;
+                    double d2xyab = drijRot.getX(0)*abdu2;
+                    double d2xyba = drijRot.getX(1)*abdu2;
+
+                    r2a.E(drijRot);
+                    r2a.TE(drijRot);
+                    r2ab.E(drijRot);
+                    drijRot.E(bdrij);
+                    rot1.transform(drijRot);
+                    gb.Ea1Tv1(bdu, drijRot);
+                    d2xyab *= drijRot.getX(1);
+                    d2xyba *= drijRot.getX(0);
+                    double d2xybb = drijRot.getX(0)*drijRot.getX(1)*bdu2;
+                    r2ab.TE(drijRot);
+                    r2b.E(drijRot);
+                    r2b.TE(drijRot);
+
+
+                    dxa = dxb = 0;
+                    double dya = 0, dyb = 0;
+                    if (ib1>0) {
+                        // hydrogen
+                        dxa = sitesOH - cmx;
+                        dya = sitesHH;
+                        if (ib1==2) dya = -dya;
+                    }
+                    else {
+                        // oxygen
+                        dxa = -cmx;
+                    }
+                    if (ib2>0) {
+                        // hydrogen
+                        dxb = sitesOH - cmx;
+                        dyb = sitesHH;
+                        if (ib2==2) dyb = -dyb;
+                    }
+                    else {
+                        // oxygen
+                        dxb = -cmx;
+                    }
+
+                    d2a = adu + r2a.getX(0)*adu2;
+                    d2ab = r2ab.getX(0)*abdu2;
+                    d2b = bdu + r2b.getX(0)*bdu2;
+
+                    double d2x1 = d2a + 2*d2ab + d2b;
+//                    System.out.println(energy+" "+(ga.getX(0)+gb.getX(0))+" "+d2x1);
+                    double d2thetaz1 = d2a*dya*dya + 2*d2ab*dya*dyb + d2b*dyb*dyb - ga.getX(0)*dxa - gb.getX(0)*dxb;
+
+                    d2a = adu + r2a.getX(1)*adu2;
+                    d2ab = r2ab.getX(1)*abdu2;
+                    d2b = bdu + r2b.getX(1)*bdu2;
+
+                    double d2y1 = d2a + 2*d2ab + d2b;
+                    d2thetaz1 += d2a*dxa*dxa + 2*d2ab*dxa*dxb + d2b*dxb*dxb - ga.getX(1)*dya - gb.getX(1)*dyb;
+
+                    d2thetaz1 -= 2*d2xyaa*dxa*dya + 2*d2xyab*dxb*dya + 2*d2xyba*dxa*dyb + 2*d2xybb*dxb*dyb;
+
+                    d2a = adu + r2a.getX(2)*adu2;
+                    d2ab = r2ab.getX(2)*abdu2;
+                    d2b = bdu + r2b.getX(2)*bdu2;
+                    double d2thetax1 = d2a*dya*dya + 2*d2ab*dya*dyb + d2b*dyb*dyb - ga.getX(1)*dya - gb.getX(1)*dyb;
+                    double d2thetay1 = d2a*dxa*dxa + 2*d2ab*dxa*dxb + d2b*dxb*dxb - ga.getX(0)*dxa - gb.getX(0)*dxb;
+
+                    double d2z1 = d2a + 2*d2ab + d2b;
+
+                    d2tot[1][0] += d2x1;
+                    d2tot[1][1] += d2y1;
+                    d2tot[1][2] += d2z1;
+                    d2tot[1][3] += d2thetax1;
+                    d2tot[1][4] += d2thetay1;
+                    d2tot[1][5] += d2thetaz1;
+
+                    d2tsum += 0.5*(d2x0 + d2y0 + d2z0)/mass0;
+                    d2tsum += 0.5*(d2x1 + d2y1 + d2z1)/mass1;
+                    d2rsum += 0.5*(d2thetay0 + d2thetaz0)/moment0;
+                    d2rsum += 0.5*(d2thetax1/moment1.getX(0) + d2thetay1/moment1.getX(1) + d2thetaz1/moment1.getX(2));
+                }
+                else {
+                    energy += rval1*c1;
+//                    double x = sitePos[1][ib1].getX(0);
+//                    energy += x*x;
+                    double rdu = -ir1*c1*rval1;
+                    double r2d2u = ir1*(ir1+1)*c1*rval1;
+//                    System.out.println(rr1+" "+rval1*c1+" "+rdu/rr1+" "+r2d2u/(rr1*rr1));
+                    drijRot.E(drij);
+                    rot0.transform(drijRot);
+
+                    d2.E(drijRot);
+                    d2.TE(d2);
+                    double d2fac = (rdu - r2d2u)/(r21*r21);
+                    d2.TE(-d2fac);
+                    d2.PE(rdu/r21);
+                    d2tsum += 0.5*(d2.getX(0) + d2.getX(1) + d2.getX(2))/mass0;
+                    d2tot[0][0] += d2.getX(0);
+                    d2tot[0][1] += d2.getX(1);
+                    d2tot[0][2] += d2.getX(2);
+
+                    if (ia1>0) {
+                        // oxygen
+                        // d2[1] = d2u/dthetaz
+                        // d2[2] = d2u/dthetay
+                        double dx = (2*ia1-3)*sitesCO2L;
+
+                        d2.TE(dx*dx);
+                        double gdx = drijRot.getX(0)*rdu/r21*dx;
+                        double d2thetay = d2.getX(2) - gdx;
+                        double d2thetaz = d2.getX(1) - gdx;
+
+                        // d2ur0[0] = 0
+                        d2rsum += 0.5*(d2thetay + d2thetaz)/moment0;
+                        d2tot[0][4] += d2thetay;
+                        d2tot[0][5] += d2thetaz;
+                    }
+
+                    drijRot.E(drij);
+                    rot1.transform(drijRot);
+
+                    d2.E(drijRot);
+                    d2.TE(d2);
+                    d2.TE(-d2fac);
+                    d2.PE(rdu/r21);
+                    double d2xy = -d2fac*drijRot.getX(0)*drijRot.getX(1);
+                    // the sum here is the same as the sum above for CO2, except for the mass
+                    // but we need water's d2 anyway for the rotational derivatives below.
+                    d2tsum += 0.5*(d2.getX(0) + d2.getX(1) + d2.getX(2))/mass1;
+                    d2tot[1][0] += d2.getX(0);
+                    d2tot[1][1] += d2.getX(1);
+                    d2tot[1][2] += d2.getX(2);
+
+                    double dx = 0, dy = 0;
+                    if (ib1>0) {
+                        // hydrogen
+                        dx = sitesOH - cmx;
+                        dy = sitesHH;
+                        if (ib1==2) dy = -dy;
+                    }
+                    else {
+                        // oxygen
+                        dx = -cmx;
+                    }
+                    drijRot.TE(rdu/r21);
+//                    System.out.println("g "+drijRot+" "+(drijRot.getX(1)*dy+drijRot.getX(0)*dx)+" "+sitePos[1][ib1]);
+                    double d2thetax = d2.getX(2)*dy*dy - drijRot.getX(1)*dy;
+                    double d2thetay = d2.getX(2)*dx*dx - drijRot.getX(0)*dx;
+//                    System.out.println("t "+rdu/r21*(-drijRot.getX(0)*dy+drijRot.getX(1)*dx)+" "+sitePos[1][1]+" "+dx+" "+dy);
+//                    System.out.println("t1 "+rdu/r21*(-drijRot.getX(0)*dy)+" "+(d2.getX(0)*dy*dy+drijRot.getX(0)*dx*rdu/r21));
+//                    System.out.println("t2 "+rdu/r21*(+drijRot.getX(1)*dx)+" "+(d2.getX(1)*dx*dx+drijRot.getX(1)*dy*rdu/r21));
+//                    System.out.println("t "+rdu/r21*drijRot.getX(0)+" "+(d2.getX(0)*dy));
+//                    System.out.println("x "+dx+" "+(-dy));
+//                    System.out.println("gxy "+drijRot.getX(0)+" "+drijRot.getX(1));
+//                    System.out.println((drijRot.getX(1)*dy+drijRot.getX(0)*dx));
+//                    System.out.println(-d2.getX(0)+" "+(2*d2xy)+" "+(-d2.getX(1)));
+                    double d2thetaz = (d2.getX(0)*dy*dy - 2*d2xy*dx*dy + d2.getX(1)*dx*dx) - (drijRot.getX(1)*dy+drijRot.getX(0)*dx);
+//                    System.out.println(d2thetaz);
+//                    if (i==3) System.exit(1);
+                    d2rsum += 0.5*(d2thetax/moment1.getX(0) + d2thetay/moment1.getX(1) + d2thetaz/moment1.getX(2));
+                    d2tot[1][3] += d2thetax;
+                    d2tot[1][4] += d2thetay;
+                    d2tot[1][5] += d2thetaz;
+                }
+            }
+            for (int i=0; i<2; i++) {
+                for (int j=0; j<3; j++) {
+                    d2tot[i][j] *= bohrConv*bohrConv;
+                }
+            }
+            if (energy > 10000) {
+                return Double.POSITIVE_INFINITY;
+            }
+            if (d2tsum == Double.POSITIVE_INFINITY || d2rsum == Double.POSITIVE_INFINITY) { return Double.POSITIVE_INFINITY; }
+//            System.out.println(energy+" "+fac*d2tsum*bohrConv*bohrConv+" "+fac*d2rsum*bohrConv*bohrConv);
+//            System.out.println((energy + fac*(d2tsum* + d2rsum)*bohrConv*bohrConv));
+            return energy + fac*(d2tsum + d2rsum)*bohrConv*bohrConv;
+        }
+
         public double energy(IAtomList atoms) {
             IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
             IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
@@ -949,7 +1258,7 @@ public class P2CO2H2OWheatley implements Potential2Soft {
         }
     }
 
-    public class P2CO2H2OSCTI implements IPotentialAtomic {
+    public class P2CO2H2OSCTI implements Potential2Soft {
 
         protected final Vector[] gi, ti;
         protected final double mass0;
@@ -994,6 +1303,214 @@ public class P2CO2H2OWheatley implements Potential2Soft {
         
         public double getRange() {
             return Double.POSITIVE_INFINITY;
+        }
+
+        public double u(Vector dr12, IAtom a1, IAtom a2) {
+            IAtomOriented atom1 = (IAtomOriented)a1;
+            IAtomOriented atom2 = (IAtomOriented)a2;
+            Vector cm0 = atom1.getPosition();
+            Vector cm1 = atom2.getPosition();
+            double bohrConv = BohrRadius.UNIT.fromSim(1);
+            for (int i=0; i<3; i++) {
+                sitePos[0][i].Ea1Tv1(bohrConv, cm0);
+                sitePos[1][i].Ea1Tv1(bohrConv, cm1);
+            }
+
+            //CO2
+            Vector orCO2 = atom1.getOrientation().getDirection();
+            sitePos[0][1].PEa1Tv1(+sitesCO2L, orCO2);
+            sitePos[0][2].PEa1Tv1(-sitesCO2L, orCO2);
+            Vector orH2O1 = atom2.getOrientation().getDirection();
+            Vector orH2O2 = ((OrientationFull3D)atom2.getOrientation()).getSecondaryDirection();
+            double cmx = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
+            sitePos[1][0].PEa1Tv1(-cmx, orH2O1);
+            sitePos[1][1].PEa1Tv1(+sitesOH-cmx, orH2O1);
+            sitePos[1][2].PEa1Tv1(+sitesOH-cmx, orH2O1);
+            sitePos[1][1].PEa1Tv1(+sitesHH, orH2O2);
+            sitePos[1][2].PEa1Tv1(-sitesHH, orH2O2);
+
+            getPerp(orCO2, or01, or02);
+            allOr0[0] = orCO2;
+            rot0.E(allOr0);
+            rot0.invert();
+
+            orH2O3.E(orH2O1);
+            orH2O3.XE(orH2O2);
+            allOr1[0] = orH2O1;
+            allOr1[1] = orH2O2;
+            rot1.E(allOr1);
+            rot1.invert();
+
+            for (int i=0; i<2; i++) {
+                gi[i].E(0);
+                ti[i].E(0);
+            }
+
+            CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
+            if (CO < 4 && !debugging) return Double.POSITIVE_INFINITY;
+            double energy = 0;
+            for (int i=0; i<iparams.length; i++) {
+                int ia1 = iparams[i][0]-1;
+                int ib1 = iparams[i][1]-3-1;
+                int ia2 = iparams[i][2]-1;
+                int ib2 = iparams[i][3]-3-1;
+                int ir1 = iparams[i][4];
+                int ir2 = iparams[i][5];
+                double c1 = fparams[i];
+
+                drij.Ev1Mv2(sitePos[1][ib1], sitePos[0][ia1]);
+                double r21 = drij.squared();
+                double rr1 = Math.sqrt(r21);
+                double rval1 = 1.0/Math.pow(rr1, ir1);
+                if (rr1 < core) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (ia2>-1) {
+//                    System.out.println(ia1+" "+ib1+" "+ia2+" "+ib2+" "+ir1+" "+ir2);
+                    bdrij.Ev1Mv2(sitePos[1][ib2], sitePos[0][ia2]);
+                    double r22 = bdrij.squared();
+                    double rr2 = Math.sqrt(r22);
+                    if (rr2 < core) {
+                        return Double.POSITIVE_INFINITY;
+                    }
+                    double rval2 = 1.0/Math.pow(rr2, ir2);
+                    energy += rval1*rval2*c1;
+
+                    double adu = -c1*ir1*rval1*rval2/r21;
+                    double bdu = -c1*ir2*rval1*rval2/r22;
+
+                    drijRot.E(drij);
+                    rot0.transform(drijRot);
+                    ga.Ea1Tv1(adu, drijRot);
+                    gi[0].PE(ga);
+
+                    drijRot.E(bdrij);
+                    rot0.transform(drijRot);
+                    gb.Ea1Tv1(bdu, drijRot);
+                    gi[0].PE(gb);
+
+                    double dxa = 0;
+                    if (ia1>0) {
+                        dxa = (2*ia1-3)*sitesCO2L;
+                        tTmp.E(0);
+                        tTmp.setX(0, dxa);
+                        tTmp.XE(ga);
+                        ti[0].PE(tTmp);
+                    }
+                    double dxb = 0;
+                    if (ia2>0) {
+                        dxb = (2*ia2-3)*sitesCO2L;
+                        tTmp.E(0);
+                        tTmp.setX(0, dxb);
+                        tTmp.XE(gb);
+                        ti[0].PE(tTmp);
+                    }
+
+                    drijRot.E(drij);
+                    rot1.transform(drijRot);
+                    ga.Ea1Tv1(adu, drijRot);
+                    gi[1].PE(ga);
+
+                    drijRot.E(bdrij);
+                    rot1.transform(drijRot);
+                    gb.Ea1Tv1(bdu, drijRot);
+                    gi[1].PE(gb);
+
+                    dxa = dxb = 0;
+                    double dya = 0, dyb = 0;
+                    if (ib1>0) {
+                        // hydrogen
+                        dxa = sitesOH - cmx;
+                        dya = sitesHH;
+                        if (ib1==2) dya = -dya;
+                    }
+                    else {
+                        // oxygen
+                        dxa = -cmx;
+                    }
+                    if (ib2>0) {
+                        // hydrogen
+                        dxb = sitesOH - cmx;
+                        dyb = sitesHH;
+                        if (ib2==2) dyb = -dyb;
+                    }
+                    else {
+                        // oxygen
+                        dxb = -cmx;
+                    }
+
+                    tTmp.setX(0, dxa);
+                    tTmp.setX(1, dya);
+                    tTmp.setX(2, 0);
+                    tTmp.XE(ga);
+                    ti[1].PE(tTmp);
+
+                    tTmp.setX(0, dxb);
+                    tTmp.setX(1, dyb);
+                    tTmp.setX(2, 0);
+                    tTmp.XE(gb);
+                    ti[1].PE(tTmp);
+                }
+                else {
+                    energy += rval1*c1;
+//                    double x = sitePos[1][ib1].getX(0);
+//                    energy += x*x;
+                    double rdu = -ir1*c1*rval1;
+//                    System.out.println(rr1+" "+rval1*c1+" "+rdu/rr1+" "+r2d2u/(rr1*rr1));
+                    drijRot.E(drij);
+                    rot0.transform(drijRot);
+                    ga.Ea1Tv1(rdu/r21, drijRot);
+                    gi[0].PE(ga);
+
+                    if (ia1>0) {
+                        // oxygen
+                        // d2[1] = d2u/dthetaz
+                        // d2[2] = d2u/dthetay
+                        double dx = (2*ia1-3)*sitesCO2L;
+
+                        tTmp.E(0);
+                        tTmp.setX(0, dx);
+                        tTmp.XE(ga);
+                        ti[0].PE(tTmp);
+                    }
+
+                    drijRot.E(drij);
+                    rot1.transform(drijRot);
+
+                    double dx = 0, dy = 0;
+                    if (ib1>0) {
+                        // hydrogen
+                        dx = sitesOH - cmx;
+                        dy = sitesHH;
+                        if (ib1==2) dy = -dy;
+                    }
+                    else {
+                        // oxygen
+                        dx = -cmx;
+                    }
+                    drijRot.TE(rdu/r21);
+                    gi[1].PE(drijRot);
+                    tTmp.setX(0, dx);
+                    tTmp.setX(1, dy);
+                    tTmp.setX(2, 0);
+                    tTmp.XE(drijRot);
+                    ti[1].PE(tTmp);
+                }
+            }
+            if (energy > 10000) {
+                return Double.POSITIVE_INFINITY;
+            }
+            double sum = 0;
+            sum += 0.5*gi[0].squared()/mass0;
+            sum += 0.5*gi[1].squared()/mass1;
+            sum += 0.5*ti[0].squared()/moment0;
+            for (int i=0; i<3; i++) {
+                double tx = ti[1].getX(i);
+                sum += 0.5*tx*tx/moment1.getX(i);
+            }
+            sum *= bohrConv*bohrConv;
+//            System.out.println(energy+" "+fac*sum);
+            return energy + fac*sum;
         }
 
         public double energy(IAtomList atoms) {

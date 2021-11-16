@@ -122,19 +122,17 @@ public class VirialCO2H2OSC {
         SpeciesGeneral speciesCO2 = SpeciesSpheresRotating.create(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+Oxygen.INSTANCE.getMass()*2));
         SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+Hydrogen.INSTANCE.getMass()*2), false, false);
         P2CO2Hellmann p2cCO2 = new P2CO2Hellmann(space, P2CO2Hellmann.Parameters.B);
-        IPotentialAtomic p2aCO2 = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cCO2, temperature));
+        Potential2Soft p2aCO2 = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cCO2, temperature));
 
         P2CO2H2OWheatley p2cCO2H2O = new P2CO2H2OWheatley(space);
-        IPotentialAtomic p2aCO2H2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2H2O.makeSemiclassical(temperature) : p2cCO2H2O.makeSemiclassicalTI(temperature));
-        
+        Potential2Soft p2aCO2H2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2H2O.makeSemiclassical(temperature) : p2cCO2H2O.makeSemiclassicalTI(temperature));
+
         P2WaterSzalewicz p2cH2O = new P2WaterSzalewicz(space, 2);
         IPotentialAtomic p2aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cH2O, temperature));
 
-        PotentialMolecularMonatomic p2CO2 = new PotentialMolecularMonatomic(level==Level.CLASSICAL ? p2cCO2 : p2aCO2, 2);
         PotentialMolecularMonatomic p2H2O = new PotentialMolecularMonatomic(level==Level.CLASSICAL ? p2cH2O : p2aH2O, 2);
-        PotentialMolecularMonatomic p2CO2H2O = new PotentialMolecularMonatomic(level==Level.CLASSICAL ? p2cCO2H2O : p2aCO2H2O, 2);
-        MayerGeneral fCO2 = new MayerGeneral(p2CO2);
-        MayerGeneral fCO2H2O = new MayerGeneral(p2CO2H2O);
+        MayerGeneralAtomic fCO2 = new MayerGeneralAtomic(space, level==Level.CLASSICAL ? p2cCO2 : p2aCO2);
+        MayerGeneralAtomic fCO2H2O = new MayerGeneralAtomic(space, level==Level.CLASSICAL ? p2cCO2H2O : p2aCO2H2O);
         MayerGeneral fH2O = new MayerGeneral(p2H2O);
         MayerFunction[][] allF = new MayerFunction[][]{{fCO2,fCO2H2O},{fCO2H2O,fH2O}};
 

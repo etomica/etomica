@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2SemiclassicalAtomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.potential.Potential2Soft;
@@ -362,7 +361,7 @@ public class P2CO2Hellmann implements Potential2Soft {
         return new P2CO2SC(temperature);
     }
 
-    public class P2CO2SC implements IPotentialAtomic {
+    public class P2CO2SC implements Potential2Soft {
 
         protected final Vector[][] gi;
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
@@ -428,6 +427,196 @@ public class P2CO2Hellmann implements Potential2Soft {
             perp1.normalize();
             perp2.E(or);
             perp2.XE(perp1);
+        }
+
+        public double u(Vector dr12, IAtom a1, IAtom a2) {
+            IAtomOriented atom1 = (IAtomOriented) a1;
+            IAtomOriented atom2 = (IAtomOriented) a2;
+            Vector cm0 = atom1.getPosition();
+            Vector cm1 = atom2.getPosition();
+            Vector or0 = atom1.getOrientation().getDirection();
+            getPerp(or0, or01, or02);
+            allOr0[0] = or0;
+            rot0.E(allOr0);
+            rot0.invert();
+
+            Vector or1 = atom2.getOrientation().getDirection();
+            getPerp(or1, or11, or12);
+            allOr1[0] = or1;
+            rot1.E(allOr1);
+            rot1.invert();
+
+            tt0Tensor.E(0);
+            tt1Tensor.E(0);
+            rr0Tensor.E(0);
+            rr1Tensor.E(0);
+            for (int i=0; i<7; i++) {
+                gi[0][i].E(0);
+                gi[1][i].E(0);
+            }
+            for (int i=0; i<6; i++ ){
+                d2tot[0][i] = 0;
+                d2tot[1][i] = 0;
+            }
+            double u = 0;
+            for (int i=0; i<7; i++) {
+                int ii = siteID[i];
+                ri.Ea1Tv1(pos[i], or0);
+//                rTensor0.setComponent(0, 1, 0);
+//                rTensor0.setComponent(1, 0, -0);
+//                rTensor0.setComponent(0, 2, -0);
+//                rTensor0.setComponent(2, 0, 0);
+                rTensor0.setComponent(1, 2, pos[i]);
+                rTensor0.setComponent(2, 1, -pos[i]);
+                ri.PE(cm0);
+                for (int j=0; j<7; j++) {
+                    int jj = siteID[j];
+                    rj.Ea1Tv1(pos[j], or1);
+//                    rTensor1.setComponent(0, 1, 0);
+//                    rTensor1.setComponent(1, 0, -0);
+//                    rTensor1.setComponent(0, 2, -0);
+//                    rTensor1.setComponent(2, 0, 0);
+                    rTensor1.setComponent(1, 2, pos[j]);
+                    rTensor1.setComponent(2, 1, -pos[j]);
+                    rj.PE(cm1);
+                    drij.Ev1Mv2(rj, ri);
+                    double rij2 = drij.squared();
+                    double rij = Math.sqrt(rij2);
+                    if (rij < 0.9) {
+                        return Double.POSITIVE_INFINITY;
+                    }
+                    double ar = alpha[ii][jj]*rij;
+                    double uExp = A[ii][jj]*Math.exp(-alpha[ii][jj]*rij);
+                    double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
+                    double r2du2Expdr2 = A[ii][jj]*ar*ar*Math.exp(-ar);
+
+                    double sum = 1;
+                    double dsum = 0;
+                    double d2sum = 0;
+                    double br = b[ii][jj]*rij;
+                    double term = 1;
+                    double dterm = 1;
+                    double d2term = 0;
+                    for (int k=1; k<=6; k++) {
+                        term *= br/k;
+                        if (k==1) {
+                            dterm = br;
+                        }
+                        else {
+                            dterm *= br/(k-1);
+                        }
+                        if (k==2) {
+                            d2term = br*br;
+                        }
+                        else if (k>2) {
+                            d2term *= br/(k-2);
+                        }
+                        sum += term;
+                        dsum += dterm;
+                        d2sum += d2term;
+                    }
+                    if (sum==1) {
+                        return Double.POSITIVE_INFINITY;
+                    }
+                    double rij6 = rij2*rij2*rij2;
+                    double expbr = Math.exp(-br);
+                    double u6 = -(1-expbr*sum)*C6[ii][jj]/rij6;
+                    double rdu6dr = (-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum))*C6[ii][jj]/rij6;
+                    double r2du26dr2 = (expbr*br*br*sum-expbr*br*dsum -br*expbr*dsum+expbr*d2sum + 6*(-1 + br*expbr*sum-expbr*dsum+expbr*sum) + -6*(-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum)))*C6[ii][jj]/rij6;
+
+                    for (int k=7; k<=8; k++) {
+                        term *= br/k;
+                        dterm *= br/(k-1);
+                        d2term *= br/(k-2);
+                        sum += term;
+                        dsum += dterm;
+                        d2sum += d2term;
+                    }
+                    double rij8 = rij6*rij2;
+                    double u8 = -(1-expbr*sum)*C8[ii][jj]/rij8;
+                    double rdu8dr = (-expbr*br*sum + expbr*dsum + 8*(1-expbr*sum))*C8[ii][jj]/rij8;
+//                    rdu8dr = (expbr*dsum);
+                    double r2du28dr2 = (expbr*br*br*sum-expbr*br*dsum -br*expbr*dsum+expbr*d2sum + 8*(-1 + br*expbr*sum-expbr*dsum+expbr*sum) + -8*(-expbr*br*sum + expbr*dsum + 8*(1-expbr*sum)))*C8[ii][jj]/rij8;
+//                    r2du28dr2 = (-br*expbr*dsum+expbr*d2sum);
+
+                    double uCharge = q[ii]*q[jj]/rij;
+                    double rduChargedr = -q[ii]*q[jj]/rij;
+                    double r2d2uChargedr2 = 2*q[ii]*q[jj]/rij;
+
+                    u += uExp + u6 + u8 + uCharge;
+                    double rdudr = rduExpdr + rdu6dr + rdu8dr + rduChargedr;
+                    double r2d2udr2 = r2du2Expdr2 + r2du26dr2 + r2du28dr2 + r2d2uChargedr2;
+//                    System.out.println(rij+" "+foo8/rij+" "+foo82/rij2);
+//                    if (i==0) System.out.println(i+" "+j+" "+rij+" "+u+" "+rdudr/rij+" "+r2d2udr2/rij2);
+
+                    // molecule 0
+                    drijRot.E(drij);
+                    rot0.transform(drijRot);
+                    ijTensor.Ev1v2(drijRot, drijRot);
+                    ijTensor.TE((rdudr - r2d2udr2)/(rij2*rij2));
+                    ijTensor.PEa1Tt1(-rdudr/rij2, identity);
+
+                    tt0Tensor.ME(ijTensor);
+
+                    rTensor0.transpose();
+                    ijRTensor.E(rTensor0);
+                    ijRTensor.TE(ijTensor);
+                    rTensor0.transpose();
+                    ijRTensor.TE(rTensor0);
+                    rr0Tensor.ME(ijRTensor);
+
+                    drijRot.TE(rdudr/rij2);
+                    gi[0][i].ME(drijRot);
+
+
+                    // molecule 1
+                    drijRot.E(drij);
+                    rot1.transform(drijRot);
+                    ijTensor.Ev1v2(drijRot, drijRot);
+//                    System.out.println("r2 "+rij2+" "+ijTensor.component(0,0));
+                    ijTensor.TE((rdudr - r2d2udr2)/(rij2*rij2));
+                    ijTensor.PEa1Tt1(-rdudr/rij2, identity);
+
+                    // we only need tt for 0, both have the same contribution
+                    tt1Tensor.ME(ijTensor);
+//                    System.out.println("d2 "+r2d2udr2/rij2+" "+ijTensor.component(0,0)+" "+tt1Tensor.component(0,0));
+
+                    rTensor1.transpose();
+                    ijRTensor.E(rTensor1);
+                    ijRTensor.TE(ijTensor);
+                    rTensor1.transpose();
+                    ijRTensor.TE(rTensor1);
+                    rr1Tensor.ME(ijRTensor);
+
+                    drijRot.TE(rdudr/rij2);
+                    gi[1][j].PE(drijRot);
+                }
+            }
+
+            for (int i=0; i<7; i++) {
+                ri.E(0);
+                ri.setX(0, pos[i]);
+                rr0Tensor.PEv1v2(ri, gi[0][i]);
+                rr0Tensor.PEa1Tt1(-pos[i]*gi[0][i].getX(0), identity);
+
+                rj.E(0);
+                rj.setX(0, pos[i]);
+                rr1Tensor.PEv1v2(rj, gi[1][i]);
+                rr1Tensor.PEa1Tt1(-pos[i]*gi[1][i].getX(0), identity);
+
+            }
+            double sum = 0;
+            for (int i=0; i<3; i++){
+                d2tot[0][i] += tt0Tensor.component(i,i);
+                d2tot[1][i] += tt1Tensor.component(i,i);
+                sum += tt0Tensor.component(i,i)/mass;
+            }
+            for (int i=1; i<3; i++){
+                d2tot[0][3+i] += rr0Tensor.component(i,i);
+                d2tot[1][3+i] += rr1Tensor.component(i,i);
+                sum += (rr0Tensor.component(i,i) + rr1Tensor.component(i,i))/(2*moment);
+            }
+            return u + fac*sum;
         }
         
         public double energy(IAtomList atoms) {
