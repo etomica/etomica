@@ -26,6 +26,10 @@ public class IntegratorGEMC {
         MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(random, space, integrator1, integrator2);
         integratorGEMC.getMoveManager().addMCMove(volumeExchange);
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
+        integratorGEMC.getMoveManager().setFrequency(volumeExchange, 1);
+        int n1 = integrator1.getBox().getMoleculeList().size();
+        int n2 = integrator2.getBox().getMoleculeList().size();
+        integratorGEMC.getMoveManager().setFrequency(moleculeExchange, n1+n2);
         return integratorGEMC;
     }
 }
