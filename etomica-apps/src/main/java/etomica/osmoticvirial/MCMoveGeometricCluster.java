@@ -1,8 +1,6 @@
 package etomica.osmoticvirial;
 
 import etomica.atom.*;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
@@ -43,7 +41,6 @@ public class MCMoveGeometricCluster extends MCMoveBox {
     protected final IntegratorMC integratorMC;
     protected final IRandom random;
     protected Potential2Soft[][] potentials;
-    protected final AtomIteratorArrayListSimple atomIterator;
     protected final ISpecies solute;
 
     /**
@@ -73,18 +70,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
         this.integratorMC = integratorMC;
         this.random = random;
         potentials = pairPotentials;
-        atomIterator = new AtomIteratorArrayListSimple();
         this.solute = species;
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        AtomArrayList atomList = (AtomArrayList) atomIterator.getList();
-        atomList.clear();
-        for (IAtom atom : clusterAtoms) {
-            atomList.add(atom);
-        }
-        return atomIterator;
     }
 
     @Override

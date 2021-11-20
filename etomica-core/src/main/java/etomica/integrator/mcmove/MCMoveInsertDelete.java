@@ -5,9 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
@@ -32,7 +29,6 @@ import etomica.util.random.IRandom;
 public class MCMoveInsertDelete extends MCMoveBox {
 
     protected final PotentialCompute potentialMaster;
-    protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     protected final MoleculeArrayList reservoir;
     protected final MoleculeActionTranslateTo atomTranslator;
     //chemical potential
@@ -173,16 +169,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
 
     public double energyChange() {
         return uNew - uOld;
-    }
-
-    /**
-     * Returns an iterator giving molecule that is being added or deleted
-     * in the current or most recent trial.
-     */
-    public AtomIterator affectedAtoms() {
-        if (testMolecule == null) return AtomIteratorNull.INSTANCE;
-        affectedAtomIterator.setList(testMolecule.getChildList());
-        return affectedAtomIterator;
     }
 
     public boolean lastMoveInsert() {

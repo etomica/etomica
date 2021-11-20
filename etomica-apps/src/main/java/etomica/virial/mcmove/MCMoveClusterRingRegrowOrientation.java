@@ -7,8 +7,6 @@ package etomica.virial.mcmove;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.Quaternion;
@@ -33,7 +31,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	private final int P;
 	private final Space space;
 	private final IRandom random;
-	private final AtomIteratorLeafAtoms leafIterator;
 	private final Vector utilityVec1, utilityVec2, utilityVec3;
 	private IOrientation3D[][] oldOrientations;
 	private double weightOld, weightNew,kHarmonic,pacc;
@@ -47,7 +44,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		this.space = _space;
 		this.P = P;
 		this.random = random;
-		leafIterator = new AtomIteratorLeafAtoms();
 		utilityVec1 = space.makeVector();
 		utilityVec2 = space.makeVector();
 		utilityVec3 = space.makeVector();
@@ -67,7 +63,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				oldOrientations[i][j] = (IOrientation3D) space.makeOrientation();
 			}
 		}
-		leafIterator.setBox(p);
 	}
 
 	/**
@@ -356,11 +351,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	@Override
 	public double energyChange() {
 		return 0;
-	}
-
-	@Override
-	public AtomIterator affectedAtoms() {
-		return leafIterator;
 	}
 
 	public void setDoExchange(boolean[] b) {

@@ -7,7 +7,6 @@ package etomica.virial.mcmove;
 import etomica.action.MoleculeAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.CenterOfMass;
@@ -54,11 +53,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
                 constraintMap[i] = i;
             }
         }
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

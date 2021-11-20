@@ -5,7 +5,6 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.Vector;
@@ -69,11 +68,6 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveBoxStep {
     
     public void acceptNotify() {
     	((BoxCluster)box).acceptNotify();
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

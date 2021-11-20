@@ -5,7 +5,6 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Vector;
@@ -47,11 +46,6 @@ public class MCMoveClusterAtomHSTree extends MCMoveBox {
         a = new int[n-2];
         inserted = new int[n];
         bonds = new int[n*(n-1)/2][2];
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

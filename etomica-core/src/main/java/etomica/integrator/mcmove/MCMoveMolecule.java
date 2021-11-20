@@ -4,7 +4,6 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
@@ -115,10 +114,6 @@ public class MCMoveMolecule extends MCMoveBoxStep {
             atom.getPosition().E(oldPositions.get(atom.getIndex()));
             potentialCompute.updateAtom(atom);
         });
-    }
-
-    public AtomIterator affectedAtoms() {
-        throw new UnsupportedOperationException();
     }
 
     public void setBox(Box p) {

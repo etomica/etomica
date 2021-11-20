@@ -6,7 +6,6 @@ package etomica.virial.mcmove;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -80,11 +79,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveBox {
     public void setBox(Box p) {
         super.setBox(p);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

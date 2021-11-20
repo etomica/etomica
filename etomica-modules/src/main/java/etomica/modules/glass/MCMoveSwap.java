@@ -4,7 +4,6 @@
 package etomica.modules.glass;
 
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.molecule.IMolecule;
@@ -39,11 +38,6 @@ public class MCMoveSwap extends MCMoveBox {
     @Override
     public void setBox(Box box) {
         super.setBox(box);
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

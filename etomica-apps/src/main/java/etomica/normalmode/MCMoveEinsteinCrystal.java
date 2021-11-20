@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -85,8 +84,6 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
         }
         return true;
     }
-
-    public AtomIterator affectedAtoms() {return null;}
 
     public double energyChange() {return 0;}
 

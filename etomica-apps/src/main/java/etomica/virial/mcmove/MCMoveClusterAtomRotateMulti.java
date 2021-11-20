@@ -6,7 +6,6 @@ package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.IOrientation;
@@ -45,11 +44,6 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveBoxStep {
                 oldOrientations[i] = box.getSpace().makeOrientation();
             }
         }
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

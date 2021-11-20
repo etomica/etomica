@@ -6,10 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -39,8 +36,6 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected MoleculeSource moleculeSource;
     protected double uOld, uNew;
     protected final IRandom random;
-    protected final AtomIteratorArrayListSimple affectedMoleculeIterator;
-    protected final AtomArrayList affectedMoleculeList;
     protected final AtomActionTranslateBy singleAction;
     protected final MoleculePair pair;
     protected IPotentialMolecular pairPotential;
@@ -55,9 +50,6 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
 
-        affectedMoleculeList = new AtomArrayList();
-        affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
-        
         singleAction = new AtomActionTranslateBy(_space);
         groupTransVect = singleAction.getTranslationVector();
         
@@ -76,13 +68,6 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     
     public void setPotential(IPotentialMolecular newPotential){
         pairPotential = newPotential;
-    }
-    
-    public AtomIterator affectedAtoms() {
-        affectedMoleculeList.clear();
-        affectedMoleculeList.addAll(molecule0.getChildList());
-        affectedMoleculeList.addAll(molecule1.getChildList());
-        return affectedMoleculeIterator;
     }
 
     public double energyChange() {return uNew - uOld;}

@@ -7,8 +7,6 @@ package etomica.virial.mcmove;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.molecule.IMoleculeList;
@@ -35,7 +33,6 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
         setNumTrial(10);
         com = space.makeVector();
         com0 = space.makeVector();
-        leafIterator = new AtomIteratorLeafAtoms();
         myAtoms = new AtomArrayList();
         wOld = 1e-10;
 	}
@@ -82,7 +79,6 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
                 oldPositions[i][j] = space.makeVector();
             }
         }
-        leafIterator.setBox(p);
     }
 
 	public boolean doTrial() {
@@ -186,12 +182,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
     public double energyChange() {
         return 0;
     }
-    
-    public AtomIterator affectedAtoms() {
-        return leafIterator;
-    }
-    
-    private static final long serialVersionUID = 1L;
+
     protected final Space space;
     protected final IRandom random;
     protected Vector[][] oldPositions;
@@ -203,8 +194,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
     // cluster weights
     protected double weightOld, weightNew;
     protected final Vector com, com0;
-    protected final AtomIteratorLeafAtoms leafIterator;
-    protected double fac;    
+    protected double fac;
     protected final AtomArrayList myAtoms;
     protected int P = -1;
     protected IOrientation3D[][] oldOrientations;

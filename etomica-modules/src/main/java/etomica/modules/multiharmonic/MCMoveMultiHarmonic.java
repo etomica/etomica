@@ -6,9 +6,6 @@ package etomica.modules.multiharmonic;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.P1Harmonic;
@@ -28,18 +25,8 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         super();
         this.integratorMC = integratorMC;
         this.p1 = p1;
-        iterator = new AtomIteratorLeafAtoms();
         this.random = random;
         uNew = Double.NaN;
-    }
-
-    public void setBox(Box newBox) {
-        super.setBox(newBox);
-        iterator.setBox(box);
-    }
-
-    public AtomIterator affectedAtoms() {
-        return iterator;
     }
 
     public double energyChange() {
@@ -78,7 +65,6 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
 
     protected final IntegratorMC integratorMC;
     protected final P1Harmonic p1;
-    protected final AtomIteratorLeafAtoms iterator;
     protected final IRandom random;
     protected double uOld, uNew;
 }

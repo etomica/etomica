@@ -5,8 +5,6 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
@@ -30,7 +28,6 @@ import etomica.virial.BoxCluster;
 public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
     protected final PotentialCompute pc;
-    protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     protected final Vector work1, work2, work3;
     protected double[] dTheta;
     protected double wOld, wNew;
@@ -163,11 +160,6 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 	
     public double energyChange() {return uNew - uOld;}
 
-    public AtomIterator affectedAtoms() {
-        affectedAtomIterator.setList(box.getLeafList());
-        return affectedAtomIterator;
-    }
-    
     /**
      * @return Returns the atomSource.
      */

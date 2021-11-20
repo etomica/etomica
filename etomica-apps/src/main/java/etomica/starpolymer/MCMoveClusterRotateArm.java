@@ -6,7 +6,6 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
@@ -136,11 +135,6 @@ public class MCMoveClusterRotateArm extends MCMoveBoxStep {
         uNew = potentialMaster.computeOneMolecule(molecule);
         wNew = ((BoxCluster) box).getSampleCluster().value((BoxCluster) box);
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

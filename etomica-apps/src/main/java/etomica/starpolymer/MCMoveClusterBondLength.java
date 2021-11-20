@@ -6,7 +6,6 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
@@ -122,11 +121,6 @@ public class MCMoveClusterBondLength extends MCMoveBoxStep {
     @Override
     public void acceptNotify() {
 
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

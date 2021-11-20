@@ -5,7 +5,6 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Vector;
@@ -105,11 +104,6 @@ public class MCMoveClusterAtomHSRing extends MCMoveBox {
     public void setBox(Box box) {
         super.setBox(box);
         inserted = new boolean[box.getLeafList().size()];
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

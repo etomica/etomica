@@ -7,8 +7,6 @@ package etomica.spin.ising;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
@@ -27,7 +25,6 @@ import etomica.util.random.IRandom;
 public class MCMoveSpinFlip extends MCMoveBox {
 
     protected final PotentialCompute potentialCompute;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final IRandom random;
     protected IAtomOriented atom;
     protected double uOld;
@@ -106,11 +103,6 @@ public class MCMoveSpinFlip extends MCMoveBox {
         d.TE(-1);
         iOrientation.setDirection(d);
         potentialCompute.updateAtom(atom);
-    }
-
-    public AtomIterator affectedAtoms() {
-        affectedAtomIterator.setAtom(atom);
-        return affectedAtomIterator;
     }
 
     public void setBox(Box p) {

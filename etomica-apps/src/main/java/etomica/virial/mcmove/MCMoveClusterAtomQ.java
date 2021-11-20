@@ -6,7 +6,6 @@ package etomica.virial.mcmove;
 
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.Vector;
@@ -62,10 +61,6 @@ public class MCMoveClusterAtomQ extends MCMoveBox {
 
     public double energyChange() {
         return mcMove.energyChange();
-    }
-
-    public AtomIterator affectedAtoms() {
-        return mcMove.affectedAtoms();
     }
 
     public Box getBox() {

@@ -5,7 +5,6 @@
 package etomica.virial.mcmove;
 
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.util.random.IRandom;
@@ -51,11 +50,6 @@ public class MCMoveClusterAtomInBox extends MCMoveBox {
 
     public void acceptNotify() {
         ((BoxCluster)box).acceptNotify();
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

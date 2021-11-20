@@ -4,8 +4,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -33,7 +31,6 @@ public class MCMoveSpinCluster extends MCMoveBox {
     protected final AtomArrayList atomPairs;
     protected final IntegratorMC integratorMC;
     protected double J;
-    protected final AtomIteratorArrayListSimple atomIterator;
 
     public MCMoveSpinCluster(Space space, IRandom random, PotentialCompute potentialCompute, NeighborManager nbrManager, IntegratorMC integratorMC, double J) {
         super();
@@ -47,15 +44,6 @@ public class MCMoveSpinCluster extends MCMoveBox {
         this.integratorMC = integratorMC;
         nbrItertator = nbrManager.makeNeighborIterator();
         this.J = J;
-        atomIterator = new AtomIteratorArrayListSimple();
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        AtomArrayList atomList = (AtomArrayList) atomIterator.getList();
-        atomList.clear();
-        atomList.addAll(clusterAtoms);
-        return atomIterator;
     }
 
     @Override

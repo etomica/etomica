@@ -8,7 +8,6 @@ import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.Potential2Soft;
@@ -44,11 +43,6 @@ public class MCMoveClusterPolyhedraTree extends MCMoveBox {
         a = new int[n-2];
         inserted = new int[n];
         bonds = new int[n*(n-1)/2][2];
-    }
-
-    @Override
-    public AtomIterator affectedAtoms() {
-        return null;
     }
 
     @Override

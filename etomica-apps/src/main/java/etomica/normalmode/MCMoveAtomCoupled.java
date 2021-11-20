@@ -4,12 +4,9 @@
 
 package etomica.normalmode;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -27,8 +24,6 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveAtomCoupled extends MCMoveBoxStep {
 
-    protected final AtomIteratorArrayListSimple affectedAtomIterator;
-    protected final AtomArrayList affectedAtomList;
     protected final PotentialCompute potentialCompute;
     protected final Vector translationVector;
     protected IAtom atom1, atom2;
@@ -51,8 +46,6 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         setStepSizeMin(0.0);
         setStepSize(0.1);
         perParticleFrequency = true;
-        affectedAtomList = new AtomArrayList(2);
-        affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
         oldPosition1 = _space.makeVector();
         oldPosition2 = _space.makeVector();
     }
@@ -142,15 +135,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         atom1.getPosition().E(oldPosition1);
         atom2.getPosition().E(oldPosition2);
     }
-        
-    
-    public AtomIterator affectedAtoms() {
-        affectedAtomList.clear();
-        affectedAtomList.add(atom1);
-        affectedAtomList.add(atom2);
-        return affectedAtomIterator;
-    }
-    
+
     public void setBox(Box p) {
         super.setBox(p);
         atomSource.setBox(p);

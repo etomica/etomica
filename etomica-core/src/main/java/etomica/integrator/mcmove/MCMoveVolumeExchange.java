@@ -5,9 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;

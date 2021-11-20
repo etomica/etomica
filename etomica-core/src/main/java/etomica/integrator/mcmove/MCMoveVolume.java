@@ -5,8 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.math.function.Function;
@@ -29,7 +27,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected BoxInflate inflate;
     protected final int D;
     protected final IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected IFunction vBias;
 
     protected double biasOld, uOld, hOld, vNew, vScale, hNew;
@@ -47,7 +44,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
         setStepSizeMin(0.0);
         setStepSize(0.10);
         setPressure(pressure);
-        affectedAtomIterator = new AtomIteratorLeafAtoms();
         vBias = new Function.Constant(1);
     }
 
@@ -59,7 +55,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
     public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(p);
-        affectedAtomIterator.setBox(p);
     }
 
     public void setVolumeBias(IFunction vBias) {
@@ -102,10 +97,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     public double energyChange() {
         return uNew - uOld;
-    }
-
-    public AtomIterator affectedAtoms() {
-        return affectedAtomIterator;
     }
 
     public void setPressure(double p) {

@@ -7,8 +7,6 @@ package etomica.integrator.mcmove;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
@@ -25,7 +23,6 @@ import etomica.util.random.IRandom;
 public class MCMoveAtom extends MCMoveBoxStep {
 
     protected final PotentialCompute potentialCompute;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final Vector translationVector, oldPosition;
     protected final IRandom random;
     protected IAtom atom;
@@ -102,11 +99,6 @@ public class MCMoveAtom extends MCMoveBoxStep {
 //        System.out.println("rejected");
         atom.getPosition().E(oldPosition);
         potentialCompute.updateAtom(atom);
-    }
-
-    public AtomIterator affectedAtoms() {
-        affectedAtomIterator.setAtom(atom);
-        return affectedAtomIterator;
     }
 
     public void setBox(Box p) {
