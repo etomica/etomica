@@ -32,7 +32,7 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private final double ROOT;
     private final IRandom random;
 
-    private transient double hOld, v1Scale, v2Scale;
+    private transient double v1Scale, v2Scale;
 
     public MCMoveVolumeExchange(IRandom random,
                                 Space space,
@@ -57,7 +57,6 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     public boolean doTrial() {
         uOld1 = integrator1.getPotentialEnergy();
         uOld2 = integrator2.getPotentialEnergy();
-        hOld = uOld1 + uOld2;
         double v1Old = firstBox.getBoundary().volume();
         double v2Old = secondBox.getBoundary().volume();
         double step = stepSize * (random.nextDouble() - 0.5);
@@ -68,16 +67,17 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         v2Scale = v2New / v2Old;
         inflate1.setScale(Math.pow(v1Scale, ROOT));
         inflate2.setScale(Math.pow(v2Scale, ROOT));
-        // for cell-listing, this will trigger NeighborCellManager notification
-        // (as a box listener)
         inflate1.actionPerformed();
         inflate2.actionPerformed();
+        integrator1.getPotentialCompute().init();
+        integrator2.getPotentialCompute().init();
         return true;
     }//end of doTrial
 
     public double getChi(double temperature) {
         uNew1 = integrator1.getPotentialCompute().computeAll(false);
         uNew2 = integrator2.getPotentialCompute().computeAll(false);
+        double hOld = uOld1 + uOld2;
         double hNew = uNew1 + uNew2;
         double B = -(hNew - hOld);
         // assume both integrators have the same temperature
