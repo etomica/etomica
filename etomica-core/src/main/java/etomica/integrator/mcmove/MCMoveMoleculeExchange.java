@@ -46,7 +46,7 @@ public class MCMoveMoleculeExchange extends MCMove {
                                   Space space,
                                   IntegratorBox integrator1,
                                   IntegratorBox integrator2) {
-        super(null);
+        super();
         this.random = random;
         moleculeTranslator = new MoleculeActionTranslateTo(space);
         setAtomPositionDefinition(new MoleculePositionCOM(space));

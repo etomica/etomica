@@ -59,7 +59,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     public MCMoveGeometricClusterRestrictedGE(NeighborManager neighborManager1, NeighborManager neighborManager2,
                                               Space space, IRandom random, Box box1, Box box2, ISpecies seed, Potential2Soft[][] pairPotentials) {
 
-        super(null);
+        super();
         clusterAtoms1 = new HashSet<>();
         clusterAtoms2 = new HashSet<>();
         clusterAtomsList1 = new ArrayList<>();
