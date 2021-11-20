@@ -29,7 +29,6 @@ public class MCMoveMoleculeExchange extends MCMove {
     protected Box box1;
     protected Box box2;
     protected final IntegratorBox integrator1, integrator2;
-    private final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     private final MoleculeActionTranslateTo moleculeTranslator;
     private final IRandom random;
     private MoleculeSource moleculeSource;
@@ -161,12 +160,6 @@ public class MCMoveMoleculeExchange extends MCMove {
 
     public void rejectNotify() {
         iBox.removeMolecule(iMolecule);
-    }
-
-    public final AtomIterator affectedAtoms(Box box) {
-        if (this.box1 != box && this.box2 != box) return AtomIteratorNull.INSTANCE;
-        affectedAtomIterator.setList(iMolecule.getChildList());
-        return affectedAtomIterator;
     }
 
     public double energyChange(Box box) {

@@ -33,8 +33,6 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private transient double uNew1 = Double.NaN;
     private transient double uNew2 = Double.NaN;
     private final double ROOT;
-    private final AtomIteratorLeafAtoms box1AtomIterator;
-    private final AtomIteratorLeafAtoms box2AtomIterator;
     private final IRandom random;
 
     private transient double hOld, v1Scale, v2Scale;
@@ -49,8 +47,6 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.1);
-        box1AtomIterator = new AtomIteratorLeafAtoms();
-        box2AtomIterator = new AtomIteratorLeafAtoms();
         inflate1 = new BoxInflate(space);
         inflate2 = new BoxInflate(space);
         this.integrator1 = integrator1;
@@ -59,8 +55,6 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         secondBox = integrator2.getBox();
         inflate1.setBox(firstBox);
         inflate2.setBox(secondBox);
-        box1AtomIterator.setBox(firstBox);
-        box2AtomIterator.setBox(secondBox);
     }
 
     public boolean doTrial() {
@@ -110,6 +104,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     public void rejectNotify() {
         inflate1.undo();
         inflate2.undo();
+        integrator1.getPotentialCompute().init();
+        integrator2.getPotentialCompute().init();
         integrator1.getPotentialCompute().computeAll(false);
         integrator2.getPotentialCompute().computeAll(false);
     }
@@ -119,15 +115,4 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         else if (this.secondBox == box) return uNew2 - uOld2;
         else return 0.0;
     }
-
-    public final AtomIterator affectedAtoms(Box box) {
-        if (this.firstBox == box) {
-            return box1AtomIterator;
-        } else if (this.secondBox == box) {
-            return box2AtomIterator;
-        } else {
-            return AtomIteratorNull.INSTANCE;
-        }
-    }
-
 }

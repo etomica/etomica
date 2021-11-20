@@ -4,7 +4,6 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 
 /**
@@ -62,19 +61,6 @@ public abstract class MCMove {
 	 * the condition before the most recent call to doTrial.
 	 */
 	public abstract void rejectNotify();
-
-	/**
-	 * Returns an iterator that yields the atoms that were affected by the trial
-	 * move the last time doTrial was invoked (regardless of whether the move
-	 * was accepted). This information usually is not needed, but it is
-	 * available in cases where required by objects that perform some activity
-	 * while the move is in progress, or need to update after the move is
-	 * completed. Such objects can receive notification of the move's completion
-	 * by registering with the IntegratorMC as MCMoveEventListeners.  If the    
-     * move caused an atom to be removed from the box, it will not be returned
-     * because that Atom is not considered an affected Atom.                    
-	 */
-	public abstract AtomIterator affectedAtoms(Box box);
 
 	/**
 	 * Returns the change in the energy of the given box that results from the

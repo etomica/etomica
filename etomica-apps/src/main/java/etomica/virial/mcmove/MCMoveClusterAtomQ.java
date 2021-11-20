@@ -72,10 +72,6 @@ public class MCMoveClusterAtomQ extends MCMoveBox {
         return mcMove.getBox();
     }
 
-    public AtomIterator affectedAtoms(Box aBox) {
-        return mcMove.affectedAtoms(aBox);
-    }
-
     public double energyChange(Box aBox) {
         return mcMove.energyChange(aBox);
     }
