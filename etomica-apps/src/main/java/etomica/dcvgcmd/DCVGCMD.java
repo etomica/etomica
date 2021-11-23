@@ -216,12 +216,8 @@ public class DCVGCMD extends Simulation {
         bondPairs.add(new int[]{1,2});
         pmBonding.setBondingPotentialPair(propene, p2BondCHCH2, bondPairs);
 
-        P3BondAngle p3Propane = new P3BondAngle(space);
-        p3Propane.setAngle(thetaPropane);
-        p3Propane.setEpsilon(Kelvin.UNIT.toSim(62500));
-        P3BondAngle p3Propene = new P3BondAngle(space);
-        p3Propene.setAngle(thetaPropene);
-        p3Propene.setEpsilon(Kelvin.UNIT.toSim(70420));
+        P3BondAngle p3Propane = new P3BondAngle(thetaPropane, Kelvin.UNIT.toSim(62500));
+        P3BondAngle p3Propene = new P3BondAngle(thetaPropene, Kelvin.UNIT.toSim(70420));
         List<int[]> triplet = new ArrayList<>();
         triplet.add(new int[]{0,1,2});
         pmBonding.setBondingPotentialTriplet(propane, p3Propane, triplet);

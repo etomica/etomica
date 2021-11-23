@@ -207,9 +207,7 @@ public class Sam extends Simulation {
         p2BondCC = new P2Harmonic(space, 10000, bondL_CC);
         p2BondCS = new P2Harmonic(space, 10000, bondL_CS);
         // bond angle potential is the same for CCC and CCS
-        p3Bond = new P3BondAngle(space);
-        p3Bond.setAngle(Math.PI * 114.0 / 180.0);
-        p3Bond.setEpsilon(Kelvin.UNIT.toSim(62500));
+        p3Bond = new P3BondAngle(Math.PI * 114.0 / 180.0, Kelvin.UNIT.toSim(62500));
         p4BondCCCC = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
         p4BondCCCS = new P4BondTorsion(space, Kelvin.UNIT.toSim(-251.06), Kelvin.UNIT.toSim(428.73), Kelvin.UNIT.toSim(-111.85), Kelvin.UNIT.toSim(441.27));
         setChainLength(chainLength);

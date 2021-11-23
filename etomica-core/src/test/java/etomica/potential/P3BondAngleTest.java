@@ -34,9 +34,7 @@ class P3BondAngleTest {
         Box box = sim.makeBox();
         box.setNMolecules(alkane, 1);
         pmBonding = new PotentialMasterBonding(sim.getSpeciesManager(), box);
-        P3BondAngle p3 = new P3BondAngle(space);
-        p3.setAngle(Math.PI * 114.0 / 180.0);
-        p3.setEpsilon(Kelvin.UNIT.toSim(62500));
+        P3BondAngle p3 = new P3BondAngle(Math.PI * 114.0 / 180.0, Kelvin.UNIT.toSim(62500));
         List<int[]> triplets = new ArrayList<>();
         for (int i = 0; i < nSpheres - 2; i++) {
             triplets.add(new int[]{i, i + 1, i + 2});
