@@ -42,7 +42,8 @@ public class NeighborCellManager implements NeighborManager {
         boxHalf = box.getSpace().makeVector();
         numCells = new int[3];
         jump = new int[3];
-        cellNextAtom = atomCell = cellOffsets = wrapMap = cellLastAtom = new int[0];
+        cellNextAtom = null;
+        atomCell = cellOffsets = wrapMap = cellLastAtom = new int[0];
         this.isPureAtoms = sm.isPureAtoms();
         this.bondingInfo = bondingInfo;
         allCellOffsets = new int[0];
@@ -119,7 +120,7 @@ public class NeighborCellManager implements NeighborManager {
         box.getEventManager().addListener(new BoxEventListener() {
             @Override
             public void boxMoleculeAdded(BoxMoleculeEvent e) {
-                if (cellNextAtom.length == 0) return;
+                if (cellNextAtom == null) return;
                 int numAtoms = box.getLeafList().size();
                 if (cellNextAtom.length < numAtoms) {
                     cellNextAtom = Arrays.copyOf(cellNextAtom, numAtoms);
@@ -149,7 +150,7 @@ public class NeighborCellManager implements NeighborManager {
 
             @Override
             public void boxNumberMolecules(BoxMoleculeCountEvent e) {
-                if (cellNextAtom.length == 0) return;
+                if (cellNextAtom == null) return;
                 int numAtoms = box.getLeafList().size() + e.getSpecies().getLeafAtomCount() * e.getCount();
                 if (cellNextAtom.length < numAtoms) {
                     cellNextAtom = Arrays.copyOf(cellNextAtom, numAtoms);
@@ -466,7 +467,7 @@ public class NeighborCellManager implements NeighborManager {
         }
 
         final int numAtoms = box.getLeafList().size();
-        if (cellNextAtom.length < numAtoms) {
+        if (cellNextAtom == null || cellNextAtom.length < numAtoms) {
             cellNextAtom = new int[numAtoms];
             atomCell = new int[numAtoms];
         }
