@@ -17,7 +17,6 @@ public class SteepestDescent {
         double[] der = new double[n];
         double[] dir = new double[n];
         double[] x = xGuess.clone();
-        int[] d = new int[n];
         double stepSize = 1;
         double dt = 0;
         double lastVal = Double.MAX_VALUE;
@@ -26,24 +25,24 @@ public class SteepestDescent {
         int lastAvgStep = -1;
         for (int iter=0; iter<maxIter; iter++) {
             dt = 0;
-            if (iter>5 && iter>lastAvgStep+3 && Math.random() < 0.5) {
+            double dirdot = 0;
+            for (int i=0; i<n; i++) {
+                dirdot = lastDir[i]*dir[i];
+            }
+            if (dirdot < -0.2 && iter>5 && iter>lastAvgStep+3 && Math.random() < 0.5) {
+                System.arraycopy(f.gradf(x), 0, der, 0, n);
                 for (int i=0; i<n; i++) {
-                    d[i] = 1;
-                    der[i] = f.df(d, x);
                     dir[i] = totalStep*dir[i] + lastTotalStep*lastDir[i];
                     dt += dir[i]*dir[i];
-                    d[i] = 0;
                 }
                 lastAvgStep = iter;
             }
             else {
                 lastDir = dir.clone();
+                System.arraycopy(f.gradf(x), 0, der, 0, n);
                 for (int i=0; i<n; i++) {
-                    d[i] = 1;
-                    der[i] = f.df(d, x);
                     dir[i] = -der[i] * xStep[i];
                     dt += dir[i]*dir[i];
-                    d[i] = 0;
                 }
             }
             if (dt == 0) return x;
@@ -54,7 +53,7 @@ public class SteepestDescent {
                 totalD += dir[i]*der[i];
             }
             double val = f.f(x);
-            if (iter>0) System.out.println(String.format("%4d   %10.4e   %10.4e   %10.4e   %10.4e", iter, val, val-lastVal, totalD, totalStep));
+            if (iter>0) System.out.println(String.format("%4d   %10.4e   %10.4e   %10.4e   %10.4e  %7.3f", iter, val, val-lastVal, totalD, totalStep, dirdot));
             else System.out.println(String.format("%4d   %10.4e                %10.4e   %10.4e", iter, val, totalD, totalStep));
             if (lastAvgStep == iter) System.out.println("averaging last directions");
 //            System.out.println("dir: "+Arrays.toString(dir));
@@ -69,11 +68,9 @@ public class SteepestDescent {
                 }
                 totalStep += stepSize;
 //                System.out.println("x  "+Arrays.toString(x));
+                System.arraycopy(f.gradf(x), 0, der, 0, n);
                 for (int i=0; i<n; i++) {
-                    d[i] = 1;
-                    der[i] = f.df(d, x);
                     newTotalD += dir[i]*der[i];
-                    d[i] = 0;
                 }
                 val = f.f(x);
 //                System.out.println(String.format("%4d  %3d    %10.4e   %10.4e     %10.4e", iter, 1, val, newTotalD, stepSize));
@@ -107,11 +104,9 @@ public class SteepestDescent {
     
 //                System.out.println("x  "+Arrays.toString(x));
                 newTotalD = 0;
+                System.arraycopy(f.gradf(x), 0, der, 0, n);
                 for (int i=0; i<n; i++) {
-                    d[i] = 1;
-                    der[i] = f.df(d, x);
                     newTotalD += dir[i]*der[i];
-                    d[i] = 0;
                 }
                 val = f.f(x);
                 oldStepSize = newStepSize;
