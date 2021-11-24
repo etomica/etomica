@@ -21,7 +21,6 @@ import etomica.math.DoubleRange;
 import etomica.molecule.IMolecule;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2HardSphere;
-import etomica.potential.P2Ideal;
 import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.NeighborManagerSimple;
@@ -82,10 +81,9 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         box.setNMolecules(species1,numAtoms);
 
         if(computeIdeal) {
-            potential1 = new P2Ideal(space);
+            potential1 = null;
             potential2 = null;
             potential12 = null;
-            ((P2Ideal) potential1).setRange(1);
             System.out.println("P_ideal");
         }
         else{
@@ -223,7 +221,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
-        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L*sim.potential1.getRange())));
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L)));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
 

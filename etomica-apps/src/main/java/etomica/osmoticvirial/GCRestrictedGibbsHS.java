@@ -16,7 +16,10 @@ import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
-import etomica.potential.*;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialCallback;
@@ -83,7 +86,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             potential2 = P2HardSphere.makePotential(sigma2);
         }
         else{
-            potential2 = new P2Ideal(space);
+            potential2 = null;
             System.out.println("AO");
         }
 
@@ -91,13 +94,19 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         PotentialComputePair potentialMaster1, potentialMaster2;
         NeighborManager neighborManager1, neighborManager2;
+        AtomType solute = species1.getLeafType();
         if (vf != 0) {
             AtomType solvent = species2.getLeafType();
-            AtomType solute = species1.getLeafType();
-            neighborManager1 = new NeighborManagerCellMixed(getSpeciesManager(), box1, 2, BondingInfo.noBonding(), solvent);
-            neighborManager2 = new NeighborManagerCellMixed(getSpeciesManager(), box2, 2, BondingInfo.noBonding(), solvent);
+            if (computeAO) {
+                neighborManager1 = new NeighborManagerSimple(box1);
+                neighborManager2 = new NeighborManagerSimple(box2);
+            }
+            else {
+                neighborManager1 = new NeighborManagerCellMixed(getSpeciesManager(), box1, 2, BondingInfo.noBonding(), solvent);
+                neighborManager2 = new NeighborManagerCellMixed(getSpeciesManager(), box2, 2, BondingInfo.noBonding(), solvent);
+            }
             potentialMaster1 = new PotentialComputePair(getSpeciesManager(), box1, neighborManager1);
-            potentialMaster1.setPairPotential(solvent, solvent, potential2);
+            if (!computeAO) potentialMaster1.setPairPotential(solvent, solvent, potential2);
             potentialMaster1.setPairPotential(solute, solvent, potential12);
         }
         else{
@@ -105,7 +114,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             neighborManager2 = new NeighborManagerSimple(box2);
             potentialMaster1 = new PotentialComputePair(getSpeciesManager(), box1, neighborManager1);
         }
-        potentialMaster1.setPairPotential(species1.getLeafType(), species1.getLeafType(), potential1);
+        potentialMaster1.setPairPotential(solute, solute, potential1);
         potentialMaster2 = new PotentialComputePair(getSpeciesManager(), box2, neighborManager2, potentialMaster1.getPairPotentials());
 
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster1, random, space);

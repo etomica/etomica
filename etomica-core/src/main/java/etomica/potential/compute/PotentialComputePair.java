@@ -213,6 +213,7 @@ public class PotentialComputePair implements PotentialCompute {
                 if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
+                if (pij == null) return;
                 double[] u012 = new double[3];
                 double r2 = rij.squared();
                 pij.u012add(r2, u012);

@@ -24,7 +24,6 @@ import etomica.math.function.Function;
 import etomica.modifier.*;
 import etomica.potential.IPotentialHard;
 import etomica.potential.P2HardGeneric;
-import etomica.potential.P2Ideal;
 import etomica.space.Vector;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
@@ -50,7 +49,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public PistonCylinder pc;
     public P2HardGeneric potentialHS;
     public P2HardGeneric potentialSW;
-    public P2Ideal potentialIdeal;
     public DataSourceCountTime meterCycles;
     public DisplayTextBox displayCycles;
     public MeterTemperature thermometer;
@@ -520,7 +518,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         potentialSW = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon}, true);
         potentialHS = new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY}, true);
-        potentialIdeal = new P2Ideal(pc.getSpace());
 
         if (potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
 
