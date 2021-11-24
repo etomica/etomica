@@ -41,6 +41,19 @@ public class P2Harmonic extends Potential2SoftSpherical {
         setR0(r0);
     }
 
+    public void u012add(double r2, double[] u012) {
+        if (r0Zero) {
+            u012[0] = u012[1] = u012[2] = w*r2;
+            u012[0] *= 0.5;
+            return;
+        }
+        double r = Math.sqrt(r2);
+        double dx = r - r0;
+        u012[0] = 0.5*w*dx*dx;
+        u012[1] = w*r*dx;
+        u012[2] = w*r2;
+    }
+
     public double u(double r2) {
     	if(r0Zero) return 0.5*w*r2;
     	double dx = Math.sqrt(r2) - r0;
