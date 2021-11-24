@@ -340,9 +340,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
         direction.PEa1Tv1(v1overAxis, axis);
         
     }
-    public double getRange() {        
-        return Double.POSITIVE_INFINITY;
-    }
 
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
         IAtomOriented a1 = (IAtomOriented)atom1;
@@ -574,10 +571,6 @@ public class P2NitrogenHellmann implements Potential2Soft {
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
             fac = hbar*hbar/(12.00*temperature);
-        }
-
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
         }
 
         protected void getPerp(Vector or, Vector perp1, Vector perp2) {

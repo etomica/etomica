@@ -48,10 +48,6 @@ public class P22CLJmuQAtomic implements Potential2Soft {
         hsdiasq = val;
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     protected double calculateEnergy(double r2) {
         if (r2 < hsdiasq) {
             return Double.POSITIVE_INFINITY;

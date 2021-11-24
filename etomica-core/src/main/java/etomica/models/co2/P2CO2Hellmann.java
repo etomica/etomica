@@ -353,10 +353,6 @@ public class P2CO2Hellmann implements Potential2Soft {
         return u;
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public P2CO2SC makeSemiclassical(double temperature) {
         return new P2CO2SC(temperature);
     }
@@ -406,10 +402,6 @@ public class P2CO2Hellmann implements Potential2Soft {
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
             fac = hbar*hbar/(24/2)/temperature;
-        }
-        
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
         }
 
         protected void getPerp(Vector or, Vector perp1, Vector perp2) {

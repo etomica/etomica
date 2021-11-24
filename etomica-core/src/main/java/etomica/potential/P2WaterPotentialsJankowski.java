@@ -2432,10 +2432,6 @@ public class P2WaterPotentialsJankowski implements Potential2Soft {
 //
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
         if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
         processAtoms(atom1, atom2);

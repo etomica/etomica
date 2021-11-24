@@ -358,10 +358,6 @@ public class P2CO2H2OWheatley implements Potential2Soft {
     protected static final double core = 3.1, coreCO = 4;
     protected static final double checkCore = 3.2, checkCoreCO = 4.2;
     protected boolean debugging = false;
-    
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
 
     public double u(Vector dr12, IAtom a1, IAtom a2) {
         IAtomOriented atom1 = (IAtomOriented)a1;
@@ -631,10 +627,6 @@ public class P2CO2H2OWheatley implements Potential2Soft {
             r2b = space.makeVector();
             ga = space.makeVector();
             gb = space.makeVector();
-        }
-        
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
         }
 
         public double[][] d2tot = new double[2][6];
@@ -1299,10 +1291,6 @@ public class P2CO2H2OWheatley implements Potential2Soft {
             ta = space.makeVector();
             tb = space.makeVector();
             tTmp = space.makeVector();
-        }
-        
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
         }
 
         public double u(Vector dr12, IAtom a1, IAtom a2) {

@@ -20,7 +20,7 @@ public interface Potential2Soft extends IPotentialAtomic {
      * Returns the range over which the potential applies.  IAtoms with a
      * greater separation do not interact.
      */
-    double getRange();
+    default double getRange() {return Double.POSITIVE_INFINITY;}
 
     /**
      * The pair energy u(r^2) with no truncation applied.

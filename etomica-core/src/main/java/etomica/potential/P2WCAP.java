@@ -34,14 +34,6 @@ public class P2WCAP implements Potential2Soft {
     }
 
     /**
-     * Returns the range of the potential, which is the point of truncation.  This
-     * is equal to 2^(1/6) * sigma.
-     */
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
-    /**
      * Energy of the pair as given by the u(double) method
      */
     public double energy(IAtomList atoms) {

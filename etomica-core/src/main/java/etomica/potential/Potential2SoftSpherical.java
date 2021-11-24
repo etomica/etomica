@@ -32,13 +32,6 @@ public abstract class Potential2SoftSpherical implements Potential2Soft {
         return u(dr.squared());
     }
 
-    /**
-     * Returns infinity.  May be overridden to define a finite-ranged potential.
-     */
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     protected Boundary boundary;
     protected final Vector dr;
     

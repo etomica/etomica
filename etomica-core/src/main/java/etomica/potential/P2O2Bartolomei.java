@@ -122,10 +122,6 @@ public class P2O2Bartolomei implements Potential2Soft {
         this.space = space;
     }
 
-    public double getRange() {        
-        return Double.POSITIVE_INFINITY;
-    }
-
     public double energy(IAtomList atoms) {
         IAtom atom1 = atoms.get(0);
         IAtom atom2 = atoms.get(1);

@@ -119,13 +119,6 @@ public class P1HydrogenMielke {
     }
     
     public static class P2HydrogenMielkeAtomic extends P1HydrogenMielke implements Potential2Soft {
-    	public P2HydrogenMielkeAtomic() {
-    		super();
-    	}
-
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
-        }
 
     	public double u(Vector dr12, IAtom atom1, IAtom atom2) {
             double bL = Math.sqrt(dr12.squared());

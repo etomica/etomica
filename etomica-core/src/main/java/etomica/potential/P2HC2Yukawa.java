@@ -55,8 +55,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		setEpsilon(epsilon);
 		setParameters(sigma);
 	}
-	
-	public double getRange(){return Double.POSITIVE_INFINITY;}
 
 	/**
 	 * Energy method.  u(double r) form.

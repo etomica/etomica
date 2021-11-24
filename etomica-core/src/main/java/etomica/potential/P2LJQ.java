@@ -40,10 +40,6 @@ public class P2LJQ implements Potential2Soft {
         hsdiasq=val;
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
     public double energy(IAtomList pair){
         IAtomOriented atom1 = (IAtomOriented)pair.get(0);
         IAtomOriented atom2 = (IAtomOriented)pair.get(1);

@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
+
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 /**
@@ -80,15 +81,6 @@ public class P2Tether extends Potential2HardSpherical {
         return lastCollisionVirialTensor;        
     }
 
-    /**
-     * Returns the tether length. The potential range is in fact infinite, but if
-     * the integrator is generating configurations correctly, there will be no atoms
-     * interacting beyond the tetherlength distance.  
-     */
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-  
     /**
      * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
      */
