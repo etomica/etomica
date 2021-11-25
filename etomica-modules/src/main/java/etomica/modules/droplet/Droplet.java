@@ -8,10 +8,10 @@ package etomica.modules.droplet;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.potential.BondingInfo;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Vector;
@@ -43,7 +43,7 @@ public class Droplet extends Simulation {
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         int numAtoms = 2000;
-        PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputePairGeneral potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, new NeighborManagerSimple(box));
         PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
         PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
@@ -56,7 +56,7 @@ public class Droplet extends Simulation {
         //potentials
         AtomType leafType = species.getLeafType();
 
-        p2 = new P2Cohesion(space);
+        p2 = new P2Cohesion();
         p2.setEpsilon(1.0);
         double vol = 4.0 / 3.0 * Math.PI;
         p2.setDv(vol / numAtoms);
