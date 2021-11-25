@@ -25,14 +25,8 @@ import java.io.IOException;
  *
  * @author Kate Shaul
  */
-public class P2QChemInterpolated extends Potential2SoftSpherical {
+public class P2QChemInterpolated implements Potential2Soft {
     
-    public P2QChemInterpolated(Space space) {
-    	
-        super(space);
-   
-    }
-
     /**
      * The energy u.
      */
@@ -255,7 +249,7 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
 	/**
 	 * Integral used for corrections to potential truncation.
 	 */
-	public double integral(double rC) {
+	public double integral(Space space, double rC) {
 
 		return 0;  //complete LRC is obtained by multiplying by N1*N2/V
 	}
@@ -265,7 +259,7 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
     public static void main(String[] args)  {
     	
     	Space space = Space3D.getInstance();
-    	P2QChemInterpolated p2 = new P2QChemInterpolated(space);
+    	P2QChemInterpolated p2 = new P2QChemInterpolated();
     	
 		DampingParams params = new DampingParams();
 	     

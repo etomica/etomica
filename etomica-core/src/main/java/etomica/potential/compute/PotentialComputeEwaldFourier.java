@@ -237,7 +237,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                     if (B6[i][j] != 0) {
                         P2Ewald6FourierCancel pij6 = new P2Ewald6FourierCancel(sigma[i], epsilon[i], sigma[j], epsilon[j], alpha6);
                         if (pij != null) {
-                            pij = new P2SoftSphericalSum(space, pij, pij6);
+                            pij = new P2SoftSphericalSum(pij, pij6);
                         }
                         else {
                             pij = pij6;

@@ -64,8 +64,8 @@ public class MappedVirialLJ extends Simulation {
         integrator.getMoveManager().addMCMove(move);
 
         //potentials
-        P2LennardJones potential = new P2LennardJones(space);
-        p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
+        P2LennardJones potential = new P2LennardJones();
+        p2Truncated = new P2SoftSphericalTruncated(potential, rc);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2Truncated);
 
         //construct box

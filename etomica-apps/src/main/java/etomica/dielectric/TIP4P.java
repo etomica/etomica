@@ -107,8 +107,8 @@ public class TIP4P extends Simulation {
 
          PotentialMaster pm = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
 
-         TruncationFactory tf = new TruncationFactorySimple(space, truncation);
-         Potential2Soft p2OO = tf.make(new P2LennardJones(space, sigmaLJ, epsilonLJ));
+         TruncationFactory tf = new TruncationFactorySimple(truncation);
+         Potential2Soft p2OO = tf.make(new P2LennardJones(sigmaLJ, epsilonLJ));
          Potential2Soft p2MM = tf.make(new P2Ewald1Real(chargeM*chargeM, params.alpha));
          Potential2Soft p2HH = tf.make(new P2Ewald1Real(chargeH*chargeH, params.alpha));
          P2HardGeneric p2MHC = P2HardSphere.makePotential(0.1);

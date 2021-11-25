@@ -16,15 +16,13 @@ import etomica.units.dimensions.Length;
  * is based on integration of energy from cutoff to infinity, assuming no
  * pair correlations beyond the cutoff.
  */
-public class P2SoftSphericalTruncated extends Potential2SoftSpherical {
+public class P2SoftSphericalTruncated implements Potential2Soft {
 
-    protected final Space space;
-    protected final Potential2SoftSpherical potential;
+    protected final Potential2Soft potential;
     protected double rCutoff, r2Cutoff;
 
-    public P2SoftSphericalTruncated(Space _space, Potential2SoftSpherical potential, double truncationRadius) {
-        super(_space);
-        this.space = _space;
+    public P2SoftSphericalTruncated(Potential2Soft potential, double truncationRadius) {
+        super();
         this.potential = potential;
         setTruncationRadius(truncationRadius);
     }
@@ -32,7 +30,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical {
     /**
      * Returns the wrapped potential.
      */
-    public Potential2SoftSpherical getWrappedPotential() {
+    public Potential2Soft getWrappedPotential() {
         return potential;
     }
 
@@ -71,8 +69,8 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical {
     /**
      * Returns the value of integral for the wrapped potential.
      */
-    public double integral(double rC) {
-        return potential.integral(rC);
+    public double integral(Space space, double rC) {
+        return potential.integral(space, rC);
     }
 
     /**
@@ -98,10 +96,10 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical {
     }
 
     @Override
-    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+    public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
         double A = space.sphereArea(1.0);
         double D = space.D();
-        double integral = potential.integral(rCutoff);
+        double integral = potential.integral(space, rCutoff);
         uCorrection[0] = integral;
         duCorrection[0] = (-A * space.powerD(rCutoff) * potential.u(r2Cutoff) - D * integral);
     }

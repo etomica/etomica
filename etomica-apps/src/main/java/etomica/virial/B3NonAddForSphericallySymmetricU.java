@@ -9,7 +9,7 @@ import etomica.atom.AtomArrayList;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -51,7 +51,7 @@ public static void main(String[] args) {
 	
 	double[] temps = new double[] { temperature }; // Kelvin
 	
-	P2HePCKLJS p2 = new P2HePCKLJS(space);
+	P2HePCKLJS p2 = new P2HePCKLJS();
 	
 	P3CPSNonAdditiveHe p3 = new P3CPSNonAdditiveHe(space);
 	
@@ -73,7 +73,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double computeB3NonAdd(Potential2SoftSpherical p2, IPotentialAtomic p3, Space space, double temp) {
+	public static double computeB3NonAdd(Potential2Soft p2, IPotentialAtomic p3, Space space, double temp) {
 
 		Atom atom1 = new Atom(space);
         Atom atom2 = new Atom(space);

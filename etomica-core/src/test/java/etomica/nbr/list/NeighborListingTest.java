@@ -76,8 +76,8 @@ class NeighborListingTest {
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(sim.getSpace()), sim.getSpace());
         config.initializeCoordinates(box);
 
-        P2LennardJones p2lj = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(sim.getSpace(), p2lj, POTENTIAL_RANGE);
+        P2LennardJones p2lj = new P2LennardJones();
+        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(p2lj, POTENTIAL_RANGE);
         Potential2Soft[][] potentials = new Potential2Soft[][]{{p2,p2},{p2,p2}};
         nlm = new NeighborListManager(sim.getSpeciesManager(), box, 2, NBR_RANGE, BondingInfo.noBonding());
         nlm.setPairPotentials(potentials);

@@ -137,8 +137,8 @@ public class ReverseOsmosisWater extends Simulation implements MeterOsmoticPress
 
         PotentialMasterBonding pmBonding = ewaldFourier.makeIntramolecularCorrection();
 
-        TruncationFactoryForceShift tf = new TruncationFactoryForceShift(space, rCut);
-        potentialLJOO = new P2LennardJones(space, P2WaterSPC.sigmaOO, P2WaterSPC.epsilonOO);
+        TruncationFactoryForceShift tf = new TruncationFactoryForceShift(rCut);
+        potentialLJOO = new P2LennardJones(P2WaterSPC.sigmaOO, P2WaterSPC.epsilonOO);
         P2Ewald1Real p2OOqq = new P2Ewald1Real(chargeOxygen * chargeOxygen, alpha);
         Potential2Soft p2OO = tf.make(potentialLJOO, p2OOqq);
         Potential2Soft p2OHqq = P2Ewald1Real.makeTruncated(chargeOxygen * chargeHydrogen, ewaldParams.alpha, tf);
@@ -149,23 +149,23 @@ public class ReverseOsmosisWater extends Simulation implements MeterOsmoticPress
         double epsOxygen = P2WaterSPC.epsilonOO;
         double sigOxygen = P2WaterSPC.sigmaOO;
 
-        potentialLJNaNa = new P2LennardJones(space, sigSodium, epsSodium);
+        potentialLJNaNa = new P2LennardJones(sigSodium, epsSodium);
         potentialQNaNa = new P2Ewald1Real(chargeSodium * chargeSodium, ewaldParams.alpha);
         potentialMaster.setPairPotential(naType, naType, tf.make(potentialLJNaNa, potentialQNaNa));
 
-        potentialLJClCl = new P2LennardJones(space, sigChlorine, epsChlorine);
+        potentialLJClCl = new P2LennardJones(sigChlorine, epsChlorine);
         potentialQClCl = new P2Ewald1Real(chargeChlorine * chargeChlorine, ewaldParams.alpha);
         potentialMaster.setPairPotential(clType, clType, tf.make(potentialLJClCl, potentialQClCl));
 
-        potentialLJNaCl = new P2LennardJones(space, 0.5 * (sigChlorine + sigSodium), Math.sqrt(epsChlorine * epsSodium));
+        potentialLJNaCl = new P2LennardJones(0.5 * (sigChlorine + sigSodium), Math.sqrt(epsChlorine * epsSodium));
         potentialQNaCl = new P2Ewald1Real(chargeSodium * chargeChlorine, ewaldParams.alpha);
         potentialMaster.setPairPotential(naType, clType, tf.make(potentialLJNaCl, potentialQNaCl));
 
-        potentialLJOCl = new P2LennardJones(space, 0.5 * (sigOxygen + sigChlorine), Math.sqrt(epsOxygen * epsChlorine));
+        potentialLJOCl = new P2LennardJones(0.5 * (sigOxygen + sigChlorine), Math.sqrt(epsOxygen * epsChlorine));
         potentialQOCl = new P2Ewald1Real(chargeOxygen * chargeChlorine, ewaldParams.alpha);
         potentialMaster.setPairPotential(oType, clType, tf.make(potentialLJOCl, potentialQOCl));
 
-        potentialLJONa = new P2LennardJones(space, 0.5 * (sigOxygen + sigSodium), Math.sqrt(epsOxygen * epsSodium));
+        potentialLJONa = new P2LennardJones(0.5 * (sigOxygen + sigSodium), Math.sqrt(epsOxygen * epsSodium));
         potentialQONa = new P2Ewald1Real(chargeOxygen * chargeSodium, ewaldParams.alpha);
         potentialMaster.setPairPotential(oType, naType, tf.make(potentialLJONa, potentialQONa));
 
@@ -176,16 +176,16 @@ public class ReverseOsmosisWater extends Simulation implements MeterOsmoticPress
         potentialMaster.setPairPotential(hType, clType, tf.make(potentialQHCl));
 
 
-        potentialMM = new P2LennardJones(space, sigMembrane, epsMembrane);
+        potentialMM = new P2LennardJones(sigMembrane, epsMembrane);
         potentialMaster.setPairPotential(mType, mType, tf.make(potentialMM));
 
-        potentialMO = new P2LennardJones(space, 0.5 * (sigMembrane + sigOxygen), Math.sqrt(epsMembrane * epsOxygen));
+        potentialMO = new P2LennardJones(0.5 * (sigMembrane + sigOxygen), Math.sqrt(epsMembrane * epsOxygen));
         potentialMaster.setPairPotential(mType, oType, tf.make(potentialMO));
 
-        potentialMNa = new P2LennardJones(space, 0.5 * (sigMembrane + sigSodium), Math.sqrt(epsMembrane * epsSodium));
+        potentialMNa = new P2LennardJones(0.5 * (sigMembrane + sigSodium), Math.sqrt(epsMembrane * epsSodium));
         potentialMaster.setPairPotential(mType, naType, tf.make(potentialMNa));
 
-        potentialMCl = new P2LennardJones(space, 0.5 * (sigMembrane + sigChlorine), Math.sqrt(epsMembrane * epsChlorine));
+        potentialMCl = new P2LennardJones(0.5 * (sigMembrane + sigChlorine), Math.sqrt(epsMembrane * epsChlorine));
         potentialMaster.setPairPotential(mType, clType, tf.make(potentialMCl));
 
         PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box) {

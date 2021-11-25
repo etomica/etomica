@@ -139,43 +139,43 @@ public class DCVGCMD extends Simulation {
         PotentialComputeAggregate pcAggMD = new PotentialComputeAggregate(potentialMasterList, pmBonding, pcField);
 
         // propane
-        P2LennardJones p2CH3CH3 = new P2LennardJones(space, 3.75, 98);
-        P2LennardJones p2CH3CH2 = new P2LennardJones(space, (3.75 + 3.95) / 2, Math.sqrt(98 * 46));
-        P2LennardJones p2CH2CH2 = new P2LennardJones(space, 3.95, 46);
+        P2LennardJones p2CH3CH3 = new P2LennardJones(3.75, 98);
+        P2LennardJones p2CH3CH2 = new P2LennardJones((3.75 + 3.95) / 2, Math.sqrt(98 * 46));
+        P2LennardJones p2CH2CH2 = new P2LennardJones(3.95, 46);
 
         // propene
-        P2LennardJones p2CH2eCH2e = new P2LennardJones(space, 3.675, 85);
-        P2LennardJones p2CHeCHe = new P2LennardJones(space, 3.73, 47);
-        P2LennardJones p2CH3CH2e = new P2LennardJones(space, (3.75 + 3.675) / 2, Math.sqrt(85 * 98));
-        P2LennardJones p2CH3CHe = new P2LennardJones(space, (3.75 + 3.73) / 2, Math.sqrt(47 * 98));
-        P2LennardJones p2CH2eCHe = new P2LennardJones(space, (3.675 + 3.73) / 2, Math.sqrt(47 * 85));
+        P2LennardJones p2CH2eCH2e = new P2LennardJones(3.675, 85);
+        P2LennardJones p2CHeCHe = new P2LennardJones(3.73, 47);
+        P2LennardJones p2CH3CH2e = new P2LennardJones((3.75 + 3.675) / 2, Math.sqrt(85 * 98));
+        P2LennardJones p2CH3CHe = new P2LennardJones((3.75 + 3.73) / 2, Math.sqrt(47 * 98));
+        P2LennardJones p2CH2eCHe = new P2LennardJones((3.675 + 3.73) / 2, Math.sqrt(47 * 85));
 
         // propane - propene
-        P2LennardJones p2CH2CHe = new P2LennardJones(space, (3.675 + 3.73) / 2, Math.sqrt(85 * 47));
-        P2LennardJones p2CH2CH2e = new P2LennardJones(space, (3.95 + 3.675) / 2, Math.sqrt(85 * 46));
+        P2LennardJones p2CH2CHe = new P2LennardJones((3.675 + 3.73) / 2, Math.sqrt(85 * 47));
+        P2LennardJones p2CH2CH2e = new P2LennardJones((3.95 + 3.675) / 2, Math.sqrt(85 * 46));
 
-        p2MM = new P2LennardJones(space, sigma, epsilon);
-        P2LennardJones p2MCH3 = new P2LennardJones(space, (sigma + 3.75) / 2, Math.sqrt(epsilon * 98));
-        P2LennardJones p2MCH2 = new P2LennardJones(space, (sigma + 3.95) / 2, Math.sqrt(epsilon * 46));
-        P2LennardJones p2MCH2e = new P2LennardJones(space, (sigma + 3.675) / 2, k12*Math.sqrt(epsilon * 85));
-        P2LennardJones p2MCHe = new P2LennardJones(space, (sigma + 3.73) / 2, k12*Math.sqrt(epsilon * 47));
+        p2MM = new P2LennardJones(sigma, epsilon);
+        P2LennardJones p2MCH3 = new P2LennardJones((sigma + 3.75) / 2, Math.sqrt(epsilon * 98));
+        P2LennardJones p2MCH2 = new P2LennardJones((sigma + 3.95) / 2, Math.sqrt(epsilon * 46));
+        P2LennardJones p2MCH2e = new P2LennardJones((sigma + 3.675) / 2, k12*Math.sqrt(epsilon * 85));
+        P2LennardJones p2MCHe = new P2LennardJones((sigma + 3.73) / 2, k12*Math.sqrt(epsilon * 47));
 
-        P2SoftSphericalTruncatedForceShifted p2CH3CH3sf = new P2SoftSphericalTruncatedForceShifted(space, p2CH3CH3, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH3CH2sf = new P2SoftSphericalTruncatedForceShifted(space, p2CH3CH2, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH2CH2sf = new P2SoftSphericalTruncatedForceShifted(space, p2CH2CH2, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH2eCH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2CH2eCH2e, rc);
-        P2SoftSphericalTruncatedForceShifted p2CHeCHesf = new P2SoftSphericalTruncatedForceShifted(space, p2CHeCHe, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH3CH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2CH3CH2e, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH3CHesf = new P2SoftSphericalTruncatedForceShifted(space, p2CH3CHe, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH2eCHesf = new P2SoftSphericalTruncatedForceShifted(space, p2CH2eCHe, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH2CHesf = new P2SoftSphericalTruncatedForceShifted(space, p2CH2CHe, rc);
-        P2SoftSphericalTruncatedForceShifted p2CH2CH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2CH2CH2e, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH3CH3sf = new P2SoftSphericalTruncatedForceShifted(p2CH3CH3, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH3CH2sf = new P2SoftSphericalTruncatedForceShifted(p2CH3CH2, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH2CH2sf = new P2SoftSphericalTruncatedForceShifted(p2CH2CH2, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH2eCH2esf = new P2SoftSphericalTruncatedForceShifted(p2CH2eCH2e, rc);
+        P2SoftSphericalTruncatedForceShifted p2CHeCHesf = new P2SoftSphericalTruncatedForceShifted(p2CHeCHe, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH3CH2esf = new P2SoftSphericalTruncatedForceShifted(p2CH3CH2e, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH3CHesf = new P2SoftSphericalTruncatedForceShifted(p2CH3CHe, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH2eCHesf = new P2SoftSphericalTruncatedForceShifted(p2CH2eCHe, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH2CHesf = new P2SoftSphericalTruncatedForceShifted(p2CH2CHe, rc);
+        P2SoftSphericalTruncatedForceShifted p2CH2CH2esf = new P2SoftSphericalTruncatedForceShifted(p2CH2CH2e, rc);
 
-        P2SoftSphericalTruncatedForceShifted p2MMsf = new P2SoftSphericalTruncatedForceShifted(space, p2MM, rc);
-        P2SoftSphericalTruncatedForceShifted p2MCH3sf = new P2SoftSphericalTruncatedForceShifted(space, p2MCH3, rc);
-        P2SoftSphericalTruncatedForceShifted p2MCH2sf = new P2SoftSphericalTruncatedForceShifted(space, p2MCH2, rc);
-        P2SoftSphericalTruncatedForceShifted p2MCH2esf = new P2SoftSphericalTruncatedForceShifted(space, p2MCH2e, rc);
-        P2SoftSphericalTruncatedForceShifted p2MCHesf = new P2SoftSphericalTruncatedForceShifted(space, p2MCHe, rc);
+        P2SoftSphericalTruncatedForceShifted p2MMsf = new P2SoftSphericalTruncatedForceShifted(p2MM, rc);
+        P2SoftSphericalTruncatedForceShifted p2MCH3sf = new P2SoftSphericalTruncatedForceShifted(p2MCH3, rc);
+        P2SoftSphericalTruncatedForceShifted p2MCH2sf = new P2SoftSphericalTruncatedForceShifted(p2MCH2, rc);
+        P2SoftSphericalTruncatedForceShifted p2MCH2esf = new P2SoftSphericalTruncatedForceShifted(p2MCH2e, rc);
+        P2SoftSphericalTruncatedForceShifted p2MCHesf = new P2SoftSphericalTruncatedForceShifted(p2MCHe, rc);
 
         potentialMasterCell.setPairPotential(propaneCH3, propaneCH3, p2CH3CH3sf);
         potentialMasterCell.setPairPotential(propaneCH3, propaneCH2, p2CH3CH2sf);
@@ -203,8 +203,8 @@ public class DCVGCMD extends Simulation {
         potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH2, p2MCH2esf);
         potentialMasterCell.setPairPotential(atomTypeMembrane, propeneCH, p2MCHesf);
 
-        P2Harmonic p2BondCH3 = new P2Harmonic(space, 1000000, 1.54);
-        P2Harmonic p2BondCHCH2 = new P2Harmonic(space, 1000000, 1.33);
+        P2Harmonic p2BondCH3 = new P2Harmonic(1000000, 1.54);
+        P2Harmonic p2BondCHCH2 = new P2Harmonic(1000000, 1.33);
         List<int[]> bondPairs = new ArrayList<>();
         bondPairs.add(new int[]{0,1});
         bondPairs.add(new int[]{1,2});

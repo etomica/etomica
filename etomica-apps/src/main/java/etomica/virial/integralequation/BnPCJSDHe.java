@@ -7,9 +7,6 @@ package etomica.virial.integralequation;
 import etomica.potential.P2HePCJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.Potential2Soft;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -50,8 +47,7 @@ public class BnPCJSDHe {
         double tol = params.tol;
         boolean verbose = params.verbose;
         boolean calcApprox = params.calcApprox;
-        Space space = Space3D.getInstance();
-        Potential2SoftSpherical p2 = calcApprox ? new P2HeSimplified(space) : new P2HePCJS(space);
+        Potential2Soft p2 = calcApprox ? new P2HeSimplified() : new P2HePCJS();
         double rMax = params.rmax;
         while (true) {
             double[][] results = getConvergence(p2, m, rMax, tol, T, verbose, calcApprox ? 1.6 : 0);

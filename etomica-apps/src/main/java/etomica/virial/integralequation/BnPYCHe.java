@@ -4,7 +4,10 @@
 
 package etomica.virial.integralequation;
 
-import etomica.potential.*;
+import etomica.potential.P2HePCJS;
+import etomica.potential.P2HePCKLJS;
+import etomica.potential.P2HeSimplified;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -65,11 +68,11 @@ public class BnPYCHe {
             throw new RuntimeException("Don't know how to do semiclassical PCJS");
         }
         PotentialChoice pc = params.potentialChoice;
-        P2HeSimplified p2Simple = new P2HeSimplified(space);
-        P2HePCKLJS p2PCKLJS = new P2HePCKLJS(space, sigma);
-        P2HePCJS p2PCJS = new P2HePCJS(space, sigma);
-        Potential2SoftSpherical p2 = pc == PotentialChoice.SIMPLE ? p2Simple : (pc == PotentialChoice.PCKLJS ? p2PCKLJS : p2PCJS);
-        Potential2Soft p2sc = pc == PotentialChoice.SIMPLE ? new P2HeSimplified(space).makeQFH(T) : new P2HePCKLJS(space, sigma).makeQFH(T);
+        P2HeSimplified p2Simple = new P2HeSimplified();
+        P2HePCKLJS p2PCKLJS = new P2HePCKLJS(sigma);
+        P2HePCJS p2PCJS = new P2HePCJS(sigma);
+        Potential2Soft p2 = pc == PotentialChoice.SIMPLE ? p2Simple : (pc == PotentialChoice.PCKLJS ? p2PCKLJS : p2PCJS);
+        Potential2Soft p2sc = pc == PotentialChoice.SIMPLE ? new P2HeSimplified().makeQFH(T) : new P2HePCKLJS(sigma).makeQFH(T);
         double rMax = params.rmax;
         while (true) {
             double[][] results = getConvergence(params.classical ? p2 : p2sc, m, rMax, tol, T, verbose, pc == PotentialChoice.SIMPLE ? 1.6 : 0);

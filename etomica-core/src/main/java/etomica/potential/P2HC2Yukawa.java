@@ -4,10 +4,7 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
 import etomica.space.Boundary;
-import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard-Jones like potential.
@@ -28,10 +25,10 @@ import etomica.space.Vector;
  * @author msellers
  */
 
-public final class P2HC2Yukawa extends Potential2SoftSpherical {
+public final class P2HC2Yukawa implements Potential2Soft {
 
-	public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, TruncationFactory tf) {
-		return tf.make(new P2HC2Yukawa(space, sigma, epsilon));
+	public static Potential2Soft makeTruncated(double sigma, double epsilon, TruncationFactory tf) {
+		return tf.make(new P2HC2Yukawa(sigma, epsilon));
 	}
 
 	public double d2u(double r2) {
@@ -44,13 +41,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		throw new RuntimeException();
 	}
 
-	public P2HC2Yukawa(Space _space){
-		this(_space, 1.0, 1.0);
-	}
-	
-	public P2HC2Yukawa(Space _space, double sigma, double epsilon){
-		super(_space);
-		dr = _space.makeVector();
+	public P2HC2Yukawa(double sigma, double epsilon){
 		setSigma(sigma);
 		setEpsilon(epsilon);
 		setParameters(sigma);
@@ -72,23 +63,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		double uterm2 = (A2 * epsilon / r) * expZ2 * expRsigma;
 		
 		return (uterm1 - uterm2);
-	}
-		
-    /**
-     * Energy of the pair as given by the u(double) method
-     */
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        nearestImageTransformer.nearestImage(dr);
-        return u(dr.squared());
-    }
-	
-    /**
-	 * Integral from rC to infinity.
-	 */
-	public double integral(double rC) {
-
-		return 0;
 	}
 
 	/**
@@ -125,6 +99,5 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	private double z2;
 	private double expZ1;
 	private double expZ2; 
-	private final Vector dr;
 	private Boundary nearestImageTransformer;
 }	

@@ -2,7 +2,7 @@ package etomica.mappedRdf;
 
 import etomica.box.Box;
 import etomica.data.DataSourceUniform;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Boundary;
@@ -30,7 +30,7 @@ public class PotentialCallbackMappedRdf implements PotentialCallback {
     protected double c1;
     protected final int nbins;
     protected final double[] cumint;
-    protected Potential2SoftSpherical p2;
+    protected Potential2Soft p2;
 
 
     public PotentialCallbackMappedRdf(double rcforHandfinmap, Box box, int nbins, PotentialCompute potentialCompute) {
@@ -82,7 +82,7 @@ public class PotentialCallbackMappedRdf implements PotentialCallback {
         vol = newVol;
     }
 
-    public void setPotential(Potential2SoftSpherical p) {
+    public void setPotential(Potential2Soft p) {
         p2 = p;
     }
 

@@ -17,7 +17,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.math.DoubleRange;
 import etomica.potential.IteratorDirective;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.units.dimensions.Force;
@@ -28,7 +28,7 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
     protected final PotentialCompute potentialMaster;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final Potential2SoftSpherical p2;
+    protected final Potential2Soft p2;
     protected final Vector dr, fij;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;
@@ -37,7 +37,7 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
     protected final DataDoubleArray xData;
     protected final DataInfoDoubleArray xDataInfo;
 
-    public MeterMeanForce(PotentialCompute potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
+    public MeterMeanForce(PotentialCompute potentialMaster, Potential2Soft p2, Box box, int nbins) {
         this.p2 = p2;
         this.box = box;
         this.potentialMaster = potentialMaster;

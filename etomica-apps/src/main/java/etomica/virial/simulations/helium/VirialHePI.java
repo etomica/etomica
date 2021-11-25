@@ -180,11 +180,11 @@ public class VirialHePI {
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        final P2HeSimplified p2Approx = new P2HeSimplified(space);
-        final P2HePCKLJS p2Full = new P2HePCKLJS(space);
-        final P2HePCJS p2Fuller = new P2HePCJS(space);
-        final Potential2SoftSpherical p2 = (pc == PotentialChoice.APPROX) ? p2Approx : (pc == PotentialChoice.PCKLJS ? p2Full : p2Fuller);
-        final Potential2SoftSpherical p2Sub = pc == null ? null : (ps == PotentialChoice.APPROX ? p2Approx : (ps == PotentialChoice.PCKLJS ? p2Full : p2Fuller));
+        final P2HeSimplified p2Approx = new P2HeSimplified();
+        final P2HePCKLJS p2Full = new P2HePCKLJS();
+        final P2HePCJS p2Fuller = new P2HePCJS();
+        final Potential2Soft p2 = (pc == PotentialChoice.APPROX) ? p2Approx : (pc == PotentialChoice.PCKLJS ? p2Full : p2Fuller);
+        final Potential2Soft p2Sub = pc == null ? null : (ps == PotentialChoice.APPROX ? p2Approx : (ps == PotentialChoice.PCKLJS ? p2Full : p2Fuller));
 
         boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
         if (flexApproach == FlexApproach.RIGID) {

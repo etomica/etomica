@@ -3,23 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential;
 
-import etomica.space.Space;
-
 /**
  * Factory that makes (simple) truncated potentials.
  */
 public class TruncationFactorySimple implements TruncationFactory {
 
-    protected final Space space;
     protected final double rc;
 
-    public TruncationFactorySimple(Space space, double rc) {
-        this.space = space;
+    public TruncationFactorySimple(double rc) {
         this.rc = rc;
     }
 
     @Override
     public Potential2Soft make(Potential2Soft... p2) {
-        return new P2SoftSphericalSumTruncated(space, rc, p2);
+        return new P2SoftSphericalSumTruncated(rc, p2);
     }
 }

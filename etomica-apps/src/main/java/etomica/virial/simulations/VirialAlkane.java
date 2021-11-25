@@ -111,9 +111,9 @@ public class VirialAlkane {
         double epsilonCH2 = Kelvin.UNIT.toSim(46.0);
         double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
-        P2LennardJones p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
-        P2LennardJones p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
-        P2LennardJones p2CH2CH3 = new P2LennardJones(space, 0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
+        P2LennardJones p2CH2 = new P2LennardJones(sigmaCH2, epsilonCH2);
+        P2LennardJones p2CH3 = new P2LennardJones(sigmaCH3, epsilonCH3);
+        P2LennardJones p2CH2CH3 = new P2LennardJones(0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
         
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         MayerFunction fRefPos = new MayerFunction() {

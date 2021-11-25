@@ -659,7 +659,7 @@ public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibo
         	r0 = Vector.of(new double[]{0, 0, 0});
         	atom0.getPosition().E(r0);
         	
-        	P2HePCKLJS p2 = new P2HePCKLJS(space);
+        	P2HePCKLJS p2 = new P2HePCKLJS();
         	for (int i=1;i<=5;i++) {
 
             	double r01 = 1.5*i;

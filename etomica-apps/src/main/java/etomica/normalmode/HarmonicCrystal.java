@@ -17,7 +17,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -33,7 +33,7 @@ import etomica.units.dimensions.Energy;
  */
 public class HarmonicCrystal {
 
-    public HarmonicCrystal(double rho, int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space _space) {
+    public HarmonicCrystal(double rho, int[] nCells, Primitive primitive, Basis basis, Potential2Soft potential, Space _space) {
         this.potential = potential;
         this.nCells = nCells.clone();
         this.space = _space;
@@ -151,7 +151,7 @@ public class HarmonicCrystal {
         Primitive primitive = new PrimitiveCubic(sp);
         Basis basis = new BasisCubicFcc();
         
-        final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
+        final Potential2Soft potential = new P2LennardJones(1.0, 1.0);
 
         int nC = 2;
         int[] nCells = new int[] {nC, nC, nC};
@@ -185,6 +185,6 @@ public class HarmonicCrystal {
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private int maxLatticeShell;
-    private Potential2SoftSpherical potential;
+    private Potential2Soft potential;
     private final Space space;
 }

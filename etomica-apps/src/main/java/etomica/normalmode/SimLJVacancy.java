@@ -59,7 +59,7 @@ public class SimLJVacancy extends Simulation {
     public IntegratorMC integrator;
     public SpeciesGeneral species;
     public Box box;
-    public Potential2SoftSpherical p2LJ;
+    public Potential2Soft p2LJ;
     public P2SoftSphericalTruncated potential;
     public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
@@ -85,9 +85,9 @@ public class SimLJVacancy extends Simulation {
         neighborManager = new NeighborCellManager(getSpeciesManager(), box, 2, BondingInfo.noBonding());
         potentialMasterPair = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
-        p2LJ = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space, 1, 1);
+        p2LJ = ss ? new P2SoftSphere(1, 4, 12) : new P2LennardJones(1, 1);
         potentialMasterPair.doAllTruncationCorrection = false;
-        potential = new P2SoftSphericalTruncated(space, p2LJ, rc);
+        potential = new P2SoftSphericalTruncated(p2LJ, rc);
         AtomType leafType = species.getLeafType();
 
         potentialMasterPair.setPairPotential(leafType, leafType, potential);
@@ -109,7 +109,7 @@ public class SimLJVacancy extends Simulation {
             potentialMasterPair.doAllTruncationCorrection = false;
             double uUnshifted = potentialMasterPair.computeAll(false);
 
-            potential = new P2SoftSphericalTruncatedShifted(space, p2LJ, rc);
+            potential = new P2SoftSphericalTruncatedShifted(p2LJ, rc);
             potentialMasterPair.setPairPotential(leafType, leafType, potential);
             double uShifted = potentialMasterPair.computeAll(false);
             uShift = (uUnshifted - uShifted) / numAtoms;

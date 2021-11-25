@@ -68,21 +68,15 @@ public class WaterDroplet {
         AtomType hType = species.getTypeByName("H");
         double epsOxygen = P2WaterSPC.epsilonOO;
         double sigOxygen = P2WaterSPC.sigmaOO;
-        P2LennardJones potentialLJOO = new P2LennardJones(space, sigOxygen, epsOxygen);
-        P2Electrostatic potentialQOO = new P2Electrostatic(space);
-        potentialQOO.setCharge1(chargeOxygen);
-        potentialQOO.setCharge2(chargeOxygen);
-        potentialMaster.setPairPotential(oType, oType, new P2SoftSphericalSum(space, potentialLJOO, potentialQOO));
+        P2LennardJones potentialLJOO = new P2LennardJones(sigOxygen, epsOxygen);
+        P2Electrostatic potentialQOO = new P2Electrostatic(chargeOxygen, chargeOxygen);
+        potentialMaster.setPairPotential(oType, oType, new P2SoftSphericalSum(potentialLJOO, potentialQOO));
 
-        P2Electrostatic potentialQHH = new P2Electrostatic(space);
-        potentialQHH.setCharge1(chargeHydrogen);
-        potentialQHH.setCharge2(chargeHydrogen);
+        P2Electrostatic potentialQHH = new P2Electrostatic(chargeHydrogen, chargeHydrogen);
         potentialMaster.setPairPotential(hType, hType, potentialQHH);
 
 
-        P2Electrostatic potentialQOH = new P2Electrostatic(space);
-        potentialQOH.setCharge1(chargeOxygen);
-        potentialQOH.setCharge2(chargeHydrogen);
+        P2Electrostatic potentialQOH = new P2Electrostatic(chargeHydrogen, chargeOxygen);
         potentialMaster.setPairPotential(oType, hType, potentialQOH);
 
         if (true) {

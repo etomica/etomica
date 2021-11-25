@@ -172,16 +172,16 @@ public class VirialHeNonAdditiveD {
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        Potential2SoftSpherical pTarget ;
+        Potential2Soft pTarget ;
 
         if ( potential == PotentialChoice.SIMPLE ) {
-            pTarget = new P2HeSimplified(space);
+            pTarget = new P2HeSimplified();
         }
         else if ( potential==PotentialChoice.OLD ) {
-            pTarget = new P2HePCKLJS(space);
+            pTarget = new P2HePCKLJS();
         }
         else {
-            pTarget = new P2HePCJS(space);
+            pTarget = new P2HePCJS();
         }
 
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
@@ -202,12 +202,12 @@ public class VirialHeNonAdditiveD {
         ClusterAbstract targetCluster = null;
         ClusterWheatleyMultibodyDerivatives clusterDiff = null;
         if (calcDiff != PotentialChoice.NONE) {
-            Potential2SoftSpherical pTargetDiff;
+            Potential2Soft pTargetDiff;
             if ( calcDiff == PotentialChoice.OLD ) {
-                pTargetDiff = new P2HePCKLJS(space);
+                pTargetDiff = new P2HePCKLJS();
             }
             else {
-                pTargetDiff = new P2HeSimplified(space);
+                pTargetDiff = new P2HeSimplified();
             }
             MayerGeneralSpherical fTargetDiff = new MayerGeneralSpherical(pTargetDiff);
             MayerFunctionSphericalThreeBody f3TargetDiff = new MayerFunctionSphericalThreeBody(dop3AproxDiff ? p3Approx : p3);

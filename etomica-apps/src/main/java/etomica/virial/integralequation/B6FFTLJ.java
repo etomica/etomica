@@ -228,7 +228,7 @@ for (int t=0; t<temps.length; t++) {
 	    double sigma = 1.0;
 		double epsilon = 1.0;
 		Space space = Space3D.getInstance();
-		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+		P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
 		double u;
 		
 		double r = 0.0;

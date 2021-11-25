@@ -334,10 +334,10 @@ public class P2LJQ implements Potential2Soft {
         return ener;
     }
 
-    public double integral(double rC) {
-        double A = space.sphereArea(1.0);  //multiplier for differential surface element
+    public double integral(Space space, double rC) {
+        double A = this.space.sphereArea(1.0);  //multiplier for differential surface element
         double rc = sigma / rC;
-        double sigmaD = space.powerD(sigma);
+        double sigmaD = this.space.powerD(sigma);
         double rc3 = rc * rc * rc;
         double rc6 = rc3 * rc3;
         double rc12 = rc6 * rc6;

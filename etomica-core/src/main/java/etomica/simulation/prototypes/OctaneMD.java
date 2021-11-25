@@ -81,7 +81,7 @@ public class OctaneMD extends Simulation {
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
 
-        P2Harmonic p2 = new P2Harmonic(space, Kelvin.UNIT.toSim(2*27000), 1.54);
+        P2Harmonic p2 = new P2Harmonic(Kelvin.UNIT.toSim(2*27000), 1.54);
         List<int[]> pairs = new ArrayList<>();
         for (int i=0; i<nSpheres-1; i++) {
             pairs.add(new int[]{i,i+1});
@@ -123,7 +123,7 @@ public class OctaneMD extends Simulation {
         }
         double nbrRange = rc * 1.05 + 1;
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, nbrRange, pmBonding.getBondingInfo());
-        TruncationFactory tf = new TruncationFactoryForceShift(space, rc);
+        TruncationFactory tf = new TruncationFactoryForceShift(rc);
         Potential2Soft p2CH2LJ, p2CH3LJ, p2CH2CH3LJ;
         P2SoftSphere p2CH212 = null, p2CH312 = null, p2CH2CH312 = null;
         P2Ewald6Real p2CH26 = null, p2CH36 = null, p2CH2CH36 = null;
@@ -132,22 +132,22 @@ public class OctaneMD extends Simulation {
             ewald.setkCut(eparams.kCut);
             ewald.setR6Coefficient(typeCH2, sigmaCH2, epsilonCH2);
             ewald.setR6Coefficient(typeCH3, sigmaCH3, epsilonCH3);
-            p2CH212 = new P2SoftSphere(space, sigmaCH2, 4*epsilonCH2, 12);
-            p2CH312 = new P2SoftSphere(space, sigmaCH3, 4*epsilonCH3, 12);
-            p2CH2CH312 = new P2SoftSphere(space, sigmaCH2CH3, 4*epsilonCH2CH3, 12);
+            p2CH212 = new P2SoftSphere(sigmaCH2, 4*epsilonCH2, 12);
+            p2CH312 = new P2SoftSphere(sigmaCH3, 4*epsilonCH3, 12);
+            p2CH2CH312 = new P2SoftSphere(sigmaCH2CH3, 4*epsilonCH2CH3, 12);
             p2CH26 = new P2Ewald6Real(sigmaCH2, epsilonCH2, sigmaCH2, epsilonCH2, eparams.alpha);
             p2CH36 = new P2Ewald6Real(sigmaCH3, epsilonCH3, sigmaCH3, epsilonCH3, eparams.alpha);
             p2CH2CH36 = new P2Ewald6Real(sigmaCH2, epsilonCH2, sigmaCH3, epsilonCH3, eparams.alpha);
-            p2CH2LJ = new P2SoftSphericalSum(space, p2CH212, p2CH26);
-            p2CH3LJ = new P2SoftSphericalSum(space, p2CH312, p2CH36);
-            p2CH2CH3LJ = new P2SoftSphericalSum(space, p2CH2CH312, p2CH2CH36);
+            p2CH2LJ = new P2SoftSphericalSum(p2CH212, p2CH26);
+            p2CH3LJ = new P2SoftSphericalSum(p2CH312, p2CH36);
+            p2CH2CH3LJ = new P2SoftSphericalSum(p2CH2CH312, p2CH2CH36);
             pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster, ewald);
         }
         else {
             potentialMaster.doAllTruncationCorrection = true;
-            p2CH2LJ = new P2LennardJones(space, sigmaCH2, epsilonCH2);
-            p2CH3LJ = new P2LennardJones(space, sigmaCH3, epsilonCH3);
-            p2CH2CH3LJ = new P2LennardJones(space, sigmaCH2CH3, epsilonCH2CH3);
+            p2CH2LJ = new P2LennardJones(sigmaCH2, epsilonCH2);
+            p2CH3LJ = new P2LennardJones(sigmaCH3, epsilonCH3);
+            p2CH2CH3LJ = new P2LennardJones(sigmaCH2CH3, epsilonCH2CH3);
             pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
         }
 

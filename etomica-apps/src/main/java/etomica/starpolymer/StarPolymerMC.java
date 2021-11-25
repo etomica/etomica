@@ -77,10 +77,10 @@ public class StarPolymerMC extends Simulation {
 
         this.getController().addActivity(new ActivityIntegrate(integratorMC));
 
-        potentialFene = new P2Fene(space);
-        potentialWCA = new P2WCA(space);
+        potentialFene = new P2Fene();
+        potentialWCA = new P2WCA();
 
-        P2SoftSphericalSum pBonding = new P2SoftSphericalSum(space, potentialFene, potentialWCA);
+        P2SoftSphericalSum pBonding = new P2SoftSphericalSum(potentialFene, potentialWCA);
 
         pmBonding.setBondingPotentialPair(species, pBonding, bondedPairs);
 

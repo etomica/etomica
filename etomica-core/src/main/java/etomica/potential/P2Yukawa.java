@@ -17,18 +17,17 @@ import etomica.space.Space;
  *
  */
 
-public final class P2Yukawa extends Potential2SoftSpherical {
+public final class P2Yukawa implements Potential2Soft {
 
-	public static Potential2Soft makeTruncated(Space space, double kappa, double vzero, TruncationFactory tf) {
-		return tf.make(new P2Yukawa(space, kappa, vzero));
+	public static Potential2Soft makeTruncated(double kappa, double vzero, TruncationFactory tf) {
+		return tf.make(new P2Yukawa(kappa, vzero));
 	}
 
-	public P2Yukawa(Space _space) {
-		this(_space, 1.0, 1.0);
+	public P2Yukawa() {
+		this(1.0, 1.0);
 	}
 
-	public P2Yukawa(Space _space, double kappa, double vzero) {
-		super(_space);
+	public P2Yukawa(double kappa, double vzero) {
 		setKappa(kappa);
 		setVZero(vzero);
 	}
@@ -61,7 +60,7 @@ public final class P2Yukawa extends Potential2SoftSpherical {
     /**
      * Integral from rC to infinity.
      */
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
 
         return 0;
     }

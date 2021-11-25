@@ -34,12 +34,12 @@ import etomica.space.Space;
  */
 public class P2SoftSphereFloatTab extends P2SoftSphere {
 
-    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, double nn, double rc, int ntab, TruncationFactory tf) {
-        return tf.make(new P2SoftSphereFloatTab(space, sigma, epsilon, nn, rc, ntab));
+    public static Potential2Soft makeTruncated(double sigma, double epsilon, double nn, double rc, int ntab, TruncationFactory tf) {
+        return tf.make(new P2SoftSphereFloatTab(sigma, epsilon, nn, rc, ntab));
     }
 
-    public P2SoftSphereFloatTab(Space space, double sigma, double epsilon, double nn, double rc, int ntab) {
-        super(space, sigma, epsilon, ((int) nn / 2) * 2);
+    public P2SoftSphereFloatTab(double sigma, double epsilon, double nn, double rc, int ntab) {
+        super(sigma, epsilon, ((int) nn / 2) * 2);
         if (ntab > 100000) {
             System.err.println("Allocating for " + ntab + " values of r for tabulated potential is probably overkill");
         }
@@ -126,7 +126,7 @@ public class P2SoftSphereFloatTab extends P2SoftSphere {
         if (sigma > 0) populateTabulatedValues();
     }
 
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rCD = space.powerD(rC);

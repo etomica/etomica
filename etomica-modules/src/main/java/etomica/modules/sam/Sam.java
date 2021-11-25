@@ -187,11 +187,11 @@ public class Sam extends Simulation {
         }
         final double rCut = rc;
         potentialMaster.setNeighborRange(nbrCut);
-        p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
-        p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
-        p2S = new P2LennardJones(space, sigmaSulfur, epsilonSulfur);
-        p2CH2CH3 = new P2LennardJones(space, 0.5 * (sigmaCH2 + sigmaCH3), epsilonCH2CH3);
-        p2SCH2 = new P2LennardJones(space, 0.5 * (sigmaSulfur + sigmaCH2), epsilonCH2Sulfur);
+        p2CH2 = new P2LennardJones(sigmaCH2, epsilonCH2);
+        p2CH3 = new P2LennardJones(sigmaCH3, epsilonCH3);
+        p2S = new P2LennardJones(sigmaSulfur, epsilonSulfur);
+        p2CH2CH3 = new P2LennardJones(0.5 * (sigmaCH2 + sigmaCH3), epsilonCH2CH3);
+        p2SCH2 = new P2LennardJones(0.5 * (sigmaSulfur + sigmaCH2), epsilonCH2Sulfur);
         p2CH2t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
         p2CH3t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
         p2CH2CH3t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
@@ -204,8 +204,8 @@ public class Sam extends Simulation {
         potentialMaster.setPairPotential(typeS, typeCH2, p2SCH2t);
         potentialMaster.setPairPotential(typeCH2, typeCH3, p2CH2CH3t);
 
-        p2BondCC = new P2Harmonic(space, 10000, bondL_CC);
-        p2BondCS = new P2Harmonic(space, 10000, bondL_CS);
+        p2BondCC = new P2Harmonic(10000, bondL_CC);
+        p2BondCS = new P2Harmonic(10000, bondL_CS);
         // bond angle potential is the same for CCC and CCS
         p3Bond = new P3BondAngle(Math.PI * 114.0 / 180.0, Kelvin.UNIT.toSim(62500));
         p4BondCCCC = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
@@ -236,12 +236,12 @@ public class Sam extends Simulation {
         computeField.setFieldPotential(typeCH3, wallPotential);
         pcAggregate.add(computeField);
 
-        P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));
+        P2LennardJones p2Surface = new P2LennardJones(3.0, Kelvin.UNIT.toSim(50));
         p2CH2Surface = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         potentialMaster.setPairPotential(speciesSurface.getLeafType(), typeCH2, p2CH2Surface);
 
         harmonicStrength = 10000;
-        p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
+        p2SurfaceBond = new P2Harmonic(harmonicStrength, 2.5);
         p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         potentialMaster.setPairPotential(speciesSurface.getLeafType(), typeS, p2SulfurSurfaceLJ);
         criterion3 = new CriterionTether3(getSpeciesManager(), species, speciesSurface.getLeafType());

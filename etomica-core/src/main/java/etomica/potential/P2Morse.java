@@ -24,19 +24,17 @@ import etomica.units.dimensions.Length;
  */
 
 
-public final class P2Morse extends Potential2SoftSpherical {
+public final class P2Morse implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double epsilon, double re, double a, TruncationFactory tf) {
-        return tf.make(new P2Morse(space, epsilon, re, a));
+    public static Potential2Soft makeTruncated(double epsilon, double re, double a, TruncationFactory tf) {
+        return tf.make(new P2Morse(epsilon, re, a));
     }
 
-    public P2Morse(Space space) {
-        this(space, 1.0, 1.0, 1.0);
+    public P2Morse() {
+        this(1.0, 1.0, 1.0);
     }
 
-    public P2Morse(Space space, double epsilon, double re, double a) {
-        super(space);
-        this.space = space;
+    public P2Morse(double epsilon, double re, double a) {
         setEpsilon(epsilon);
         setRe(re);
         setA(a);
@@ -80,7 +78,7 @@ public final class P2Morse extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         double alpha = a * re;
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         double rC2 = rC * rC;
@@ -118,8 +116,7 @@ public final class P2Morse extends Potential2SoftSpherical {
     public final void setA(double dummy) {
         a = dummy;
     }
-    
-    private final Space space;
+
     private double re;
     private double epsilon;
     private double a;

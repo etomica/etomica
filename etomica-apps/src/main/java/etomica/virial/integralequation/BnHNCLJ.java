@@ -103,7 +103,7 @@ public static void main(String[] args) {
 		
 		Space space = Space3D.getInstance();
 		
-		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+		P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
 		
 		double r = 0.0;
 		
@@ -141,7 +141,7 @@ public static double[] getrdfdr(int N, double del_r, double reducedTemp) {
 		
 		Space space = Space3D.getInstance();
 		
-		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+		P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
 		
 		
 		

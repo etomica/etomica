@@ -99,8 +99,8 @@ public class SimEinStep1 extends Simulation {
 //        ConfigurationFile configEC = new ConfigurationFile("ec");
 //        configEC.initializeCoordinates(box);
 
-        Potential2SoftSpherical potential = exponent > 0 ? new P2SoftSphere(space, 1.0, 1.0, exponent) : new P2LennardJones(space);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
+        Potential2Soft potential = exponent > 0 ? new P2SoftSphere(1.0, 1.0, exponent) : new P2LennardJones();
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
 

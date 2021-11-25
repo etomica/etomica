@@ -5,9 +5,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 import etomica.util.Constants;
@@ -22,18 +19,17 @@ import etomica.util.Constants;
  *
  * @author Kate Shaul and Andrew Schultz
  */
-public class P2HePCKLJS extends Potential2SoftSpherical {
+public class P2HePCKLJS implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double sigma, TruncationFactory tf) {
-        return tf.make(new P2HePCKLJS(space, sigma));
+    public static Potential2Soft makeTruncated(double sigma, TruncationFactory tf) {
+        return tf.make(new P2HePCKLJS(sigma));
     }
 
-    public P2HePCKLJS(Space space) {
-        this(space, 0);
+    public P2HePCKLJS() {
+        this(0);
     }
 
-    public P2HePCKLJS(Space space, double sigma) {
-        super(space);
+    public P2HePCKLJS(double sigma) {
 
         double W4 = 0.35322e-04 / (alpha * alpha);
         double AS3 = 0.577235e-06 / (alpha * alpha * alpha);
@@ -310,15 +306,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         double d2udr2 = Hartree.UNIT.toSim(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2 + d2uSigma);
         return r*r*d2udr2;
     }
-            
-    /**
-     * Integral used for corrections to potential truncation.
-     */
-    public double integral(double rC) {
 
-        return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-    }
-    
     public P2HeQFH makeQFH(double temperature) {
         return new P2HeQFH(temperature);
     }    
@@ -342,12 +330,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
             fac = hbar*hbar/(24*mass/2)/temperature;
-        }
-
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
         }
 
         public double getRange() {
@@ -480,12 +462,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             fac = hbar*hbar/(24*mass/2)/(temperature*temperature);
         }
 
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
-        }
-
         public double getRange() {
             return P2HePCKLJS.this.getRange();
         }
@@ -583,8 +559,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     
     public static void main(String[] args) {
 
-    	Space space = Space3D.getInstance();
-    	P2HePCKLJS p2 = new P2HePCKLJS(space);
+    	P2HePCKLJS p2 = new P2HePCKLJS();
 
     	//Test separations in fortran code, in Hartrees
     	double[] VTotRet = new double [] {9.07505678537836e-01,3.30439541259472e-01,1.14486105544985e-01,3.78887051832271e-02,1.19356572795740e-02,3.51858623016233e-03,9.26991759357220e-04,1.85096029792210e-04,-1.44666519197000e-06,-2.89977763063000e-05,-3.48209516983400e-05,-3.06464226675000e-05,-2.18216351894100e-05,-1.46331763646000e-05,-6.54141208063000e-06,-3.13153787265000e-06,-5.24252133480000e-07};

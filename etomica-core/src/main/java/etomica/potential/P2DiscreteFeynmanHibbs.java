@@ -104,7 +104,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Soft {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(1);
-        final P2HePCKLJS p2 = new P2HePCKLJS(space);
+        final P2HePCKLJS p2 = new P2HePCKLJS();
         P2DiscreteFeynmanHibbs p2dfh = new P2DiscreteFeynmanHibbs(space, p2);
         P2EffectiveFeynmanHibbs p2efh = new P2EffectiveFeynmanHibbs(space, p2);
         double heMass = 4.002602;

@@ -114,18 +114,18 @@ public class VirialHePYCorrection {
         MayerGeneralSpherical fTarget;
         MayerGeneralSpherical fTargetApprox;
         if (semiClassical) {
-            P2HeSimplified p2cApprox = new P2HeSimplified(space);
+            P2HeSimplified p2cApprox = new P2HeSimplified();
             Potential2Soft p2Approx = p2cApprox.makeQFH(temperature);
             
-            P2HePCKLJS p2c = new P2HePCKLJS(space);
+            P2HePCKLJS p2c = new P2HePCKLJS();
             Potential2Soft p2 = p2c.makeQFH(temperature);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
         } else {
-            P2HeSimplified p2Approx = new P2HeSimplified(space);
+            P2HeSimplified p2Approx = new P2HeSimplified();
             
-            P2HePCKLJS p2 = new P2HePCKLJS(space);
+            P2HePCKLJS p2 = new P2HePCKLJS();
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);

@@ -80,10 +80,10 @@ public class DropletAtomic extends Simulation {
         //potentials
         AtomType leafType = species.getLeafType();
 
-        p2LJ = new P2LennardJones(space);
+        p2LJ = new P2LennardJones();
         p2LJ.setEpsilon(Kelvin.UNIT.toSim(118));
         p2LJ.setSigma(sigma);
-        p2LJt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, sigma * pRange);
+        p2LJt = new P2SoftSphericalTruncatedForceShifted(p2LJ, sigma * pRange);
         potentialMaster.setPairPotential(leafType, leafType, p2LJt);
 
         p1Smash = new P1Smash(space);

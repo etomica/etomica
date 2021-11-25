@@ -4,15 +4,11 @@
 
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataInfo;
+import etomica.data.FunctionData;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
@@ -21,12 +17,15 @@ import etomica.lattice.LatticeSumCrystal;
 import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.math.function.Function;
+import etomica.potential.Potential2Soft;
 import etomica.space.*;
 import etomica.space3d.Tensor3D;
 import etomica.units.dimensions.Dimension;
-import etomica.math.function.Function;
-import etomica.data.FunctionData;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
@@ -35,7 +34,7 @@ import etomica.data.FunctionData;
 
 public class NormalModesPotential implements NormalModes {
 
-    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space space) {
+    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2Soft potential, Space space) {
         this.space = space;
         needToCalculateModes = true;
         
@@ -235,7 +234,7 @@ public class NormalModesPotential implements NormalModes {
         needToCalculateModes = false;
     }
         
-    public void setPotential(Potential2SoftSpherical potential) {
+    public void setPotential(Potential2Soft potential) {
         needToCalculateModes = true;
         this.potential = potential;
     }
@@ -284,7 +283,7 @@ public class NormalModesPotential implements NormalModes {
 
     protected final Space space;
     private final BravaisLatticeCrystal lattice;
-    private Potential2SoftSpherical potential;
+    private Potential2Soft potential;
     private WaveVectorFactory kFactory;
     private int maxLatticeShell;
     private double[][] omega2;

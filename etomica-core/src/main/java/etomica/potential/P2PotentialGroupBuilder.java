@@ -47,27 +47,25 @@ public class P2PotentialGroupBuilder {
 
                 P2LennardJones p2LJ = null;
                 if(MP1.epsilon[i] != 0 && MP2.epsilon[j] != 0) {
-                    p2LJ = new P2LennardJones(space, sigmaij, epsilonij);
+                    p2LJ = new P2LennardJones(sigmaij, epsilonij);
                     potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2LJ);
                     if(debug) {System.out.println("Added p2LJ");}
                 }
 
-                Potential2SoftSpherical p2ES;
+                Potential2Soft p2ES;
                 if(qiqj != 0) {
                     if(debug) {System.out.print("Added ");}
                     if (qiqj < 0 && epsilonij == 0) {
-                        p2ES = new P2ElectrostaticWithHardCore(space);
+                        p2ES = new P2ElectrostaticWithHardCore(MP1.charge[i], MP2.charge[j]);
                         ((P2ElectrostaticWithHardCore) p2ES).setCharge1(MP1.charge[i]);
                         ((P2ElectrostaticWithHardCore) p2ES).setCharge2(MP2.charge[j]);
                         ((P2ElectrostaticWithHardCore) p2ES).setSigma(sigmaHC);
                         if(debug) {System.out.print("HardCore ");}
                     } else {
-                        p2ES = new P2Electrostatic(space);
-                        ((P2Electrostatic) p2ES).setCharge1(MP1.charge[i]);
-                        ((P2Electrostatic) p2ES).setCharge2(MP2.charge[j]);
+                        p2ES = new P2Electrostatic(MP1.charge[i], MP2.charge[j]);
                     }
                     Potential2Soft p2 = p2ES;
-                    if (p2LJ != null) p2 = new P2SoftSphericalSum(space, p2LJ, p2ES);
+                    if (p2LJ != null) p2 = new P2SoftSphericalSum(p2LJ, p2ES);
                     potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2);
                     if(debug) {System.out.println("p2ES");}
                 }

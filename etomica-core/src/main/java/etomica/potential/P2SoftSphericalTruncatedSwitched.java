@@ -19,7 +19,7 @@ import etomica.units.dimensions.Length;
  */
 public class P2SoftSphericalTruncatedSwitched implements Potential2Soft {
 
-    public P2SoftSphericalTruncatedSwitched(Space _space, Potential2SoftSpherical potential,
+    public P2SoftSphericalTruncatedSwitched(Space _space, Potential2Soft potential,
                                             double truncationRadius) {
         this.space = _space;
         this.potential = potential;
@@ -101,7 +101,7 @@ public class P2SoftSphericalTruncatedSwitched implements Potential2Soft {
 
     public static void main(String[] args) {
         Space sp = Space3D.getInstance();
-        P2SoftSphericalTruncatedSwitched p = new P2SoftSphericalTruncatedSwitched(sp, new P2LennardJones(sp), 2);
+        P2SoftSphericalTruncatedSwitched p = new P2SoftSphericalTruncatedSwitched(sp, new P2LennardJones(), 2);
         for (double x = 1.900001; x < 1.999999; x += 0.001) {
             System.out.println(x + " " + p.getF(x) + " " + p.getdFdr(x));
         }
@@ -130,14 +130,14 @@ public class P2SoftSphericalTruncatedSwitched implements Potential2Soft {
 
     protected final Space space;
     protected double rCutoff, r2Cutoff;
-    protected final Potential2SoftSpherical potential;
+    protected final Potential2Soft potential;
     protected final Vector dr;
     protected Boundary boundary;
     protected int taperOrder = 3;
     protected double switchFac, r2Switch;
 
     @Override
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         return 0;
     }
 

@@ -217,7 +217,7 @@ public class LjMd3Dv2y {
 
         if (params.v2 == 0 && !useRho) {
             PotentialMaster potentialMasterLJ = new PotentialMaster(sim.getSpeciesManager(), sim.box, BondingInfo.noBonding());
-            p2LJ = new P2LennardJones(sim.getSpace());
+            p2LJ = new P2LennardJones();
             potentialMasterLJ.setPairPotential(sim.species().getLeafType(), sim.species.getLeafType(), p2LJ);
             meterPU = new MeterPUCut(sim.box, sim.potentialMasterLongCut, potentialMasterLJ, temperature, cutoffs);
         }
@@ -260,7 +260,7 @@ public class LjMd3Dv2y {
             cellRange = Math.max(cellRange, 3);
 
             potentialMasterLS = new PotentialMasterCell(sim.getSpeciesManager(), sim.box, cellRange, BondingInfo.noBonding());
-            P2SoftSphericalSumTruncated p2tLS = new P2SoftSphericalSumTruncated(sim.getSpace(), rcMaxLS, sim.potential);
+            P2SoftSphericalSumTruncated p2tLS = new P2SoftSphericalSumTruncated(rcMaxLS, sim.potential);
             potentialMasterLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2tLS);
 
             final MeterPUCut meterPULS;
@@ -268,7 +268,7 @@ public class LjMd3Dv2y {
 
             if (params.v2 == 0 && !useRho) {
                 potentialMasterLJLS = new PotentialMasterCell(sim.getSpeciesManager(), sim.box, cellRange, BondingInfo.noBonding());
-                P2SoftSphericalSumTruncated p2tLJLS = new P2SoftSphericalSumTruncated(sim.getSpace(), rcMaxLS, p2LJ);
+                P2SoftSphericalSumTruncated p2tLJLS = new P2SoftSphericalSumTruncated(rcMaxLS, p2LJ);
                 potentialMasterLJLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2tLJLS);
                 potentialMasterLJLS.init();
                 meterPULS = new MeterPUCut(sim.box, potentialMasterLS, potentialMasterLJLS, temperature, cutoffsLS);
@@ -467,7 +467,7 @@ public class LjMd3Dv2y {
 
                 PotentialMaster dummy = new PotentialMaster(sim.getSpeciesManager(), sim.box, BondingInfo.noBonding());
                 dummy.doAllTruncationCorrection = true;
-                P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
+                P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.potential, cutoffsLS[i]);
                 dummy.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2t);
                 double[] ulrca = {0}, dulrca = {0};
                 dummy.computeAllTruncationCorrection(ulrca, dulrca);
@@ -511,7 +511,7 @@ public class LjMd3Dv2y {
 
                 // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
                 if (p2LJ!=null) {
-                    p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffsLS[i]);
+                    p2t = new P2SoftSphericalTruncated(p2LJ, cutoffsLS[i]);
                     dummy.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), p2t);
                     ulrca[0] = 0;
                     dulrca[0] = 0;
@@ -569,7 +569,7 @@ public class LjMd3Dv2y {
     }
 
     public static double[] uduCorrection(LjMd3D sim, Potential2Soft p, double rc) {
-        P2SoftSphericalSumTruncated pt = new P2SoftSphericalSumTruncated(Space3D.getInstance(), rc, p);
+        P2SoftSphericalSumTruncated pt = new P2SoftSphericalSumTruncated(rc, p);
         int N = sim.box.getMoleculeList().size();
         double V = sim.box.getBoundary().volume();
         int numPairs = N * (N - 1) / 2;
@@ -577,7 +577,7 @@ public class LjMd3Dv2y {
 
         double[] u = new double[1];
         double[] du = new double[1];
-        pt.u01TruncationCorrection(u, du);
+        pt.u01TruncationCorrection(sim.getSpace(), u, du);
         return new double[]{u[0] * pairDensity, du[0]*pairDensity};
     }
 }

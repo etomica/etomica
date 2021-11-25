@@ -26,15 +26,13 @@ import etomica.units.dimensions.Length;
  * This class supports floating-point exponents, but is significantly slower
  * than P2SoftSphere (which requires an integer exponent)
  */
-public class P2SoftSphereFloat extends Potential2SoftSpherical {
+public class P2SoftSphereFloat implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, int n, TruncationFactory tf) {
-        return tf.make(new P2SoftSphereFloat(space, sigma, epsilon, n));
+    public static Potential2Soft makeTruncated(double sigma, double epsilon, int n, TruncationFactory tf) {
+        return tf.make(new P2SoftSphereFloat(sigma, epsilon, n));
     }
 
-    public P2SoftSphereFloat(Space space, double sigma, double epsilon, double n) {
-        super(space);
-        this.space = space;
+    public P2SoftSphereFloat(double sigma, double epsilon, double n) {
         setSigma(sigma);
         setEpsilon(epsilon);
         this.n = n;
@@ -74,7 +72,7 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rCD = space.powerD(rC);
@@ -128,7 +126,6 @@ public class P2SoftSphereFloat extends Potential2SoftSpherical {
         return n;
     }
 
-    private final Space space;
     private double sigma, sigma2;
     private double epsilon;
     private final double n;

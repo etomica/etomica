@@ -8,7 +8,7 @@ import etomica.atom.AtomPair;
 import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
@@ -53,8 +53,8 @@ public class PotentialCallbackMappedVirial implements PotentialCallback {
         Simulation sim = new Simulation(Space3D.getInstance());
         Box box = new Box(sim.getSpace());
         PotentialCallbackMappedVirial pc = new PotentialCallbackMappedVirial(box, null, 1000000);
-        P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 2.5);
+        P2LennardJones potential = new P2LennardJones();
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(potential, 2.5);
         pc.setTemperature(1, p2Truncated);
         for (int i=10; i<30; i++) {
             double r = i*0.1;
@@ -79,7 +79,7 @@ public class PotentialCallbackMappedVirial implements PotentialCallback {
         vol = newVol;
     }
 
-    public void setTemperature(double T, Potential2SoftSpherical p2) {
+    public void setTemperature(double T, Potential2Soft p2) {
         beta = 1/T;
         double rc = p2.getRange();
         x0 = rc*0.95;

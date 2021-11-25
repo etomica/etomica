@@ -63,9 +63,9 @@ public class SimMappedRdf extends Simulation {
         move = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(move);
 
-        P2LennardJones potential = new P2LennardJones(space);
+        P2LennardJones potential = new P2LennardJones();
         //   p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
-        p2Truncated = new P2SoftSphericalTruncatedShifted(space, potential, rc);
+        p2Truncated = new P2SoftSphericalTruncatedShifted(potential, rc);
 
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2Truncated);
 

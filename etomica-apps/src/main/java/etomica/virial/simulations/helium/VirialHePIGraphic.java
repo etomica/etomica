@@ -137,9 +137,9 @@ public class VirialHePIGraphic {
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        final P2HeSimplified p2Approx = new P2HeSimplified(space);
-        final P2HePCKLJS p2Full = new P2HePCKLJS(space);
-        final Potential2SoftSpherical p2 = calcApprox ? p2Approx : p2Full;
+        final P2HeSimplified p2Approx = new P2HeSimplified();
+        final P2HePCKLJS p2Full = new P2HePCKLJS();
+        final Potential2Soft p2 = calcApprox ? p2Approx : p2Full;
 
         boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
         if (flexApproach == VirialHePI.FlexApproach.RIGID) {

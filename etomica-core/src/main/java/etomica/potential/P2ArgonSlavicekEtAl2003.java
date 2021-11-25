@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 
 /**
  * Ab initio pair potential for argon from Slavicek et al. (1993) JCP 119(4): 2102.  This is a true pair potential, rather than a pairwise-additive potential.
@@ -13,15 +11,10 @@ import etomica.space3d.Space3D;
  *
  * @author Kate Shaul
  */
-public class P2ArgonSlavicekEtAl2003 extends Potential2SoftSpherical {
+public class P2ArgonSlavicekEtAl2003 implements Potential2Soft {
 
-	public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
-		return tf.make(new P2ArgonSlavicekEtAl2003(space));
-	}
-
-	public P2ArgonSlavicekEtAl2003(Space space) {
-		super(space);
-
+	public static Potential2Soft makeTruncated(TruncationFactory tf) {
+		return tf.make(new P2ArgonSlavicekEtAl2003());
 	}
 
 	/**
@@ -88,19 +81,10 @@ public class P2ArgonSlavicekEtAl2003 extends Potential2SoftSpherical {
      
         return 0;
     }
-            
-    /**
-	 * Integral used for corrections to potential truncation.
-	 */
-	public double integral(double rC) {
 
-		return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-	}
-    
     public static void main(String[] args) {
     	
-    	Space space = Space3D.getInstance();
-    	P2ArgonSlavicekEtAl2003 p2 = new P2ArgonSlavicekEtAl2003(space);
+    	P2ArgonSlavicekEtAl2003 p2 = new P2ArgonSlavicekEtAl2003();
     	
     	//Minimum of the potential published by Slavicek et al. (2003):
    

@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
-
 /**
  * Dreiding potential.
  * 
@@ -19,16 +17,15 @@ import etomica.space.Space;
  *
  */
 
-public class P2Dreiding extends Potential2SoftSpherical {
+public class P2Dreiding implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double Re, double alpha, TruncationFactory tf) {
-        return tf.make(new P2Dreiding(space, Re, alpha));
+    public static Potential2Soft makeTruncated(double Re, double alpha, TruncationFactory tf) {
+        return tf.make(new P2Dreiding(Re, alpha));
     }
 
     private double Re, alpha;
 
-    public P2Dreiding(Space space, double Re, double alpha) {
-        super(space);
+    public P2Dreiding(double Re, double alpha) {
         setAlpha(alpha);
         setBondLength(Re);
     }
@@ -59,14 +56,7 @@ public class P2Dreiding extends Potential2SoftSpherical {
     public double d2u(double r2) {
         return 2*alpha*r2;
     }
-            
-    /**
-     * Integral used for corrections to potential truncation.
-     */
-    public double integral(double rC) {
-        return 0.0;
-    }
-    
+
     public double getAlpha(){return alpha;}
     public final void setAlpha(double a) {alpha = a;}
     

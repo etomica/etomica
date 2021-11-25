@@ -22,7 +22,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.P2HePCJS;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -145,16 +145,16 @@ public class VirialHeD {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        Potential2SoftSpherical pTarget ;
+        Potential2Soft pTarget ;
 
         if ( potential == PotentialChoice.SIMPLE ) {
-            pTarget = new P2HeSimplified(space);
+            pTarget = new P2HeSimplified();
         }
         else if ( potential==PotentialChoice.OLD ) {
-            pTarget = new P2HePCKLJS(space);
+            pTarget = new P2HePCKLJS();
         }
         else {
-            pTarget = new P2HePCJS(space);
+            pTarget = new P2HePCJS();
         }
 
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
@@ -167,12 +167,12 @@ public class VirialHeD {
         ClusterAbstract targetCluster = null;
         ClusterWheatleySoftDerivatives clusterDiff = null;
         if (calcDiff != PotentialChoice.NONE){
-            Potential2SoftSpherical pTargetDiff;
+            Potential2Soft pTargetDiff;
             if ( calcDiff == PotentialChoice.OLD ) {
-                pTargetDiff = new P2HePCKLJS(space);
+                pTargetDiff = new P2HePCKLJS();
             }
             else {
-                pTargetDiff = new P2HeSimplified(space);
+                pTargetDiff = new P2HeSimplified();
             }
             MayerGeneralSpherical fTargetDiff = new MayerGeneralSpherical(pTargetDiff);
             ClusterAbstract[] targetSubtract = new ClusterAbstract[1];

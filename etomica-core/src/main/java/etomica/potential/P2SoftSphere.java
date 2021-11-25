@@ -25,19 +25,17 @@ import etomica.units.dimensions.Length;
  *
  * @author Tai Boon Tan
  */
-public class P2SoftSphere extends Potential2SoftSpherical {
+public class P2SoftSphere implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, int n, TruncationFactory tf) {
-        return tf.make(new P2SoftSphereFloat(space, sigma, epsilon, n));
+    public static Potential2Soft makeTruncated(double sigma, double epsilon, int n, TruncationFactory tf) {
+        return tf.make(new P2SoftSphere(sigma, epsilon, n));
     }
 
-    public P2SoftSphere(Space space) {
-        this(space, 1.0, 1.0, 12);
+    public P2SoftSphere() {
+        this(1.0, 1.0, 12);
     }
 
-    public P2SoftSphere(Space space, double sigma, double epsilon, int n) {
-        super(space);
-        this.space = space;
+    public P2SoftSphere(double sigma, double epsilon, int n) {
         setSigma(sigma);
         setEpsilon(epsilon);
         this.n = n;
@@ -135,7 +133,7 @@ public class P2SoftSphere extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rCD = space.powerD(rC);
@@ -188,7 +186,6 @@ public class P2SoftSphere extends Potential2SoftSpherical {
         return n;
     }
 
-    protected final Space space;
     protected double sigma, sigma2;
     protected double epsilon;
     protected final int n;

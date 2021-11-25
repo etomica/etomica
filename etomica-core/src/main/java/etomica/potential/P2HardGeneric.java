@@ -253,9 +253,4 @@ public class P2HardGeneric implements IPotentialHard, Potential2Soft {
         return 0;
     }
 
-    @Override
-    public double integral(double rC) {
-        return 0;
-    }
-
 }

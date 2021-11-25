@@ -71,8 +71,8 @@ public class LJMC3D extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
-        P2LennardJones p2lj = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, p2lj, rc);
+        P2LennardJones p2lj = new P2LennardJones();
+        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(p2lj, rc);
         AtomType atomType = species.getLeafType();
         potentialMaster.setPairPotential(atomType, atomType, p2);
 

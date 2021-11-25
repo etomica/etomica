@@ -59,11 +59,11 @@ public class TestEAM extends Simulation {
         inflater.actionPerformed();
 
         AtomType leafType = species.getLeafType();
-        P2SoftSphereFloatTab p2 = new P2SoftSphereFloatTab(space, 1, 1.2446188036318708E7, 8.7932, 6, 1000);
-        P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(space, p2, 6);
+        P2SoftSphereFloatTab p2 = new P2SoftSphereFloatTab(1, 1.2446188036318708E7, 8.7932, 6, 1000);
+        P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(p2, 6);
         potentialMaster.setPairPotential(leafType, leafType, p2t);
-        P2SoftSphereFloatTab pRho = new P2SoftSphereFloatTab(space, 1, 26068.513192447575, 8.14475, 6, 1000);
-        P2SoftSphericalTruncated pRhot = new P2SoftSphericalTruncated(space, pRho, 6);
+        P2SoftSphereFloatTab pRho = new P2SoftSphereFloatTab(1, 26068.513192447575, 8.14475, 6, 1000);
+        P2SoftSphericalTruncated pRhot = new P2SoftSphericalTruncated(pRho, 6);
         potentialMaster.setRhoPotential(leafType, pRhot);
         EmbeddingSqrt f = new EmbeddingSqrt(6129.634374295454);
         potentialMaster.setEmbeddingPotential(leafType, f);

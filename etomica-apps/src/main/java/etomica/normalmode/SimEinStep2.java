@@ -104,13 +104,13 @@ public class SimEinStep2 extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        Potential2SoftSpherical potential = null;
+        Potential2Soft potential = null;
         if (exponent > 0) {
-            potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
+            potential = new P2SoftSphere(1.0, 1.0, exponent);
         } else {
-            potential = new P2LennardJones(space, 1.0, 1.0);
+            potential = new P2LennardJones(1.0, 1.0);
         }
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
 

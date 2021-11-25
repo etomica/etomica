@@ -118,7 +118,7 @@ public class VirialLJDQPlus {
         };
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        P2LennardJones p2lj = new P2LennardJones(space);
+        P2LennardJones p2lj = new P2LennardJones();
         P2HSDQPlus p2HSDQPlus = new P2HSDQPlus(space, 1, 1, mu, theta, alpha, kappa, D);
         P2SoftSum pTarget = new P2SoftSum(p2lj, p2HSDQPlus);
 

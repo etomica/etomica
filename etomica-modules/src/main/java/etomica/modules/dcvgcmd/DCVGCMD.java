@@ -88,7 +88,7 @@ public class DCVGCMD extends Simulation {
         double mass = 40.;
         double sigma = 3.0;
         double epsilon = 119.8;
-        potential = new P2WCA(space, sigma, epsilon);
+        potential = new P2WCA(sigma, epsilon);
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 1, BondingInfo.noBonding());
         PotentialMasterList potentialMasterList = new PotentialMasterList(getSpeciesManager(), box, 1, potential.getRange() * neighborRangeFac, BondingInfo.noBonding());
         PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
@@ -104,20 +104,20 @@ public class DCVGCMD extends Simulation {
         potentialMasterList.setPairPotential(species1.getLeafType(), species1.getLeafType(), potential);
 
         //1-1 intraspecies interaction
-        P2WCA potential11 = new P2WCA(space, sigma, epsilon);
+        P2WCA potential11 = new P2WCA(sigma, epsilon);
         potentialMasterCell.setPairPotential(species2.getLeafType(), species2.getLeafType(), potential11);
         potentialMasterList.setPairPotential(species2.getLeafType(), species2.getLeafType(), potential11);
 
         //0-1 interspecies interaction
-        potential1 = new P2WCA(space, sigma, epsilon);
+        potential1 = new P2WCA(sigma, epsilon);
         potentialMasterCell.setPairPotential(species2.getLeafType(), species1.getLeafType(), potential1);
         potentialMasterList.setPairPotential(species2.getLeafType(), species1.getLeafType(), potential1);
 
-        P2WCA potentialTubeAtom = new P2WCA(space, sigma, epsilon);
+        P2WCA potentialTubeAtom = new P2WCA(sigma, epsilon);
         potentialMasterCell.setPairPotential(tubetype, speciestype, potentialTubeAtom);
         potentialMasterList.setPairPotential(tubetype, speciestype, potentialTubeAtom);
 
-        P2WCA potentialTubeAtom1 = new P2WCA(space, sigma, epsilon);
+        P2WCA potentialTubeAtom1 = new P2WCA(sigma, epsilon);
         potentialMasterCell.setPairPotential(tubetype, speciestype1, potentialTubeAtom1);
         potentialMasterList.setPairPotential(tubetype, speciestype1, potentialTubeAtom1);
 

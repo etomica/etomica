@@ -101,8 +101,8 @@ public class ClathrateHarmonicFE extends Simulation {
 
         PotentialMasterCell pm = new PotentialMasterCell(getSpeciesManager(), box, 3, BondingInfo.noBonding());
 
-        TruncationFactory tf = new TruncationFactorySimple(space, params.rCut);
-        P2SoftSphere p2OO12 = new P2SoftSphere(space, sigma, 4*epsilon, 12);
+        TruncationFactory tf = new TruncationFactorySimple(params.rCut);
+        P2SoftSphere p2OO12 = new P2SoftSphere(sigma, 4*epsilon, 12);
         P2Ewald6Real p2OO6 = new P2Ewald6Real(sigma, epsilon, sigma, epsilon, params.alpha);
         Potential2Soft p2OO = tf.make(p2OO12, p2OO6);
         Potential2Soft p2MM = tf.make(new P2Ewald1Real(chargeM*chargeM, params.alpha));

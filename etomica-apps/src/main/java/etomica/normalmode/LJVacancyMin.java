@@ -33,7 +33,7 @@ public class LJVacancyMin extends Simulation {
     public Basis basis;
     public Primitive primitive;
     public PotentialMasterList potentialMaster;
-    public Potential2SoftSpherical potential;
+    public Potential2Soft potential;
     public SpeciesGeneral species;
     public LJVacancyMin(Space _space, int numAtoms, double density, double rc, boolean ss) {
         super(_space);
@@ -59,8 +59,8 @@ public class LJVacancyMin extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
+        potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
 

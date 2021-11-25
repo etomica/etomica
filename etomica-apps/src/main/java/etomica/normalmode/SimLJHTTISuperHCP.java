@@ -55,7 +55,7 @@ public class SimLJHTTISuperHCP extends Simulation {
     public Primitive primitive;
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
-    public Potential2SoftSpherical potential;
+    public Potential2Soft potential;
     public SpeciesGeneral species;
 
     public SimLJHTTISuperHCP(Space _space, int numAtoms, double density, double temperature, double alpha, double rc, boolean ss, int[] seeds) {
@@ -104,8 +104,8 @@ public class SimLJHTTISuperHCP extends Simulation {
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
+        potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
 
@@ -248,11 +248,11 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
 
         PotentialMasterList potentialMasterData;
-        Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
+        Potential2Soft potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
         {
             // |potential| is our local potential used for data collection.
             potentialMasterData = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 2, cutoffs[nCutoffs-1], BondingInfo.noBonding());
-            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
+            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(potential, cutoffs[nCutoffs-1]-0.01);
             AtomType sphereType = sim.species.getLeafType();
             potentialMasterData.setPairPotential(sphereType, sphereType, potentialT);
             potentialMasterData.doAllTruncationCorrection = false;
@@ -271,9 +271,9 @@ public class SimLJHTTISuperHCP extends Simulation {
         if (ss) {
             // |potential| is our local potential used for data collection.
             potentialMasterDataLJ = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 2, cutoffs[nCutoffs-1], BondingInfo.noBonding());
-            p2LJ = new P2LennardJones(sim.getSpace());
+            p2LJ = new P2LennardJones();
 
-            potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
+            potentialLJ = new P2SoftSphericalTruncated(p2LJ, cutoffs[nCutoffs-1]-0.01);
             AtomType sphereType = sim.species.getLeafType();
             potentialMasterDataLJ.setPairPotential(sphereType, sphereType, potentialLJ);
             potentialMasterDataLJ.doAllTruncationCorrection = false;
@@ -340,7 +340,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             for (int i=0; i<nCutoffsLS; i++) {
                 cutoffsLS[i] *= Math.pow(density, -1.0/3.0);
             }
-            pLS = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffsLS[nCutoffsLS-1]-0.01);
+            pLS = new P2SoftSphericalTruncated(potential, cutoffsLS[nCutoffsLS-1]-0.01);
 
             potentialMasterLS = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 3, cutoffsLS[nCutoffsLS-1], BondingInfo.noBonding());
             potentialMasterLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), pLS);
@@ -353,7 +353,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
             if (params.ss) {
                 potentialMasterLJLS = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 3, cutoffsLS[nCutoffsLS-1], BondingInfo.noBonding());
-                pLJLS = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffsLS[nCutoffsLS-1]-0.01);
+                pLJLS = new P2SoftSphericalTruncated(p2LJ, cutoffsLS[nCutoffsLS-1]-0.01);
                 potentialMasterLJLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), pLJLS);
                 if (bpharmLJ.length < cutoffsLS.length) {
                     throw new RuntimeException("I need LJ harmonic pressures for all LS cutoffs");

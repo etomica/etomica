@@ -62,7 +62,7 @@ public class TestLJMCDimerFast extends Simulation {
         box = this.makeBox();
 
         PotentialMasterBonding pmBond = new PotentialMasterBonding(getSpeciesManager(), box);
-        P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
+        P2Harmonic pBond = new P2Harmonic(100, 0.51);
         List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
                 .mapToObj(i -> new int[]{i, i+1})
                 .collect(Collectors.toList());
@@ -84,9 +84,9 @@ public class TestLJMCDimerFast extends Simulation {
         new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
-        potential = new P2LennardJones(space, sigma, 1.0);
+        potential = new P2LennardJones(sigma, 1.0);
         AtomType leafType = species.getLeafType();
-        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 3.0);
+        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(potential, 3.0);
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
 

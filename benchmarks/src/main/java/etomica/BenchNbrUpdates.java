@@ -41,7 +41,7 @@ public class BenchNbrUpdates {
         Configuration initialConfig = new ConfigurationLattice(new LatticeCubicFcc(sim.getSpace()), sim.getSpace());
         initialConfig.initializeCoordinates(box);
         PotentialMasterList pm = new PotentialMasterList(sim.getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
-        pm.setPairPotential(species.getLeafType(), species.getLeafType(), new P2SoftSphericalTruncated(sim.getSpace(), new P2LennardJones(sim.getSpace()), 3));
+        pm.setPairPotential(species.getLeafType(), species.getLeafType(), new P2SoftSphericalTruncated(new P2LennardJones(), 3));
         RandomPositionSource rand = new RandomPositionSourceRectangular(sim.getSpace(), sim.getRandom());
         rand.setBox(box);
         Configuration randConfig = b -> {

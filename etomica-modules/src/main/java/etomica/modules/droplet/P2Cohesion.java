@@ -39,10 +39,6 @@ public class P2Cohesion implements Potential2Soft {
         return r2*fac*(1-r2/epsilonSq)*dv;
     }
 
-    public double integral(double rc) {
-        return 0;
-    }
-
     public double u(double r2) {
         if (r2 > epsilonSq) {
             return 0;

@@ -163,9 +163,9 @@ public class VirialPolymerOverlapMC {
         }
 
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
-        P2Fene potentialFene = new P2Fene(space);
-        P2WCA potentialWCA = new P2WCA(space);
-        P2SoftSphericalSum pBonding = new P2SoftSphericalSum(space, potentialFene, potentialWCA);
+        P2Fene potentialFene = new P2Fene();
+        P2WCA potentialWCA = new P2WCA();
+        P2SoftSphericalSum pBonding = new P2SoftSphericalSum(potentialFene, potentialWCA);
 
         List<int[]> bondedPairs = getPairArray(f, l);
 

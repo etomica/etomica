@@ -16,19 +16,18 @@ import etomica.units.dimensions.Length;
  *
  * @author David Kofke
  */
-public class P2LennardJones extends Potential2SoftSpherical {
+public class P2LennardJones implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double sigma, double epsilon, TruncationFactory tf) {
-        return tf.make(new P2LennardJones(space, sigma, epsilon));
+    public static Potential2Soft makeTruncated(double sigma, double epsilon, TruncationFactory tf) {
+        return tf.make(new P2LennardJones(sigma, epsilon));
     }
 
-    public P2LennardJones(Space space) {
-        this(space, 1.0, 1.0);
+    public P2LennardJones() {
+        this(1.0, 1.0);
     }
 
-    public P2LennardJones(Space space, double sigma, double epsilon) {
-        super(space);
-        this.space = space;
+    public P2LennardJones(double sigma, double epsilon) {
+        super();
         setSigma(sigma);
         setEpsilon(epsilon);
     }
@@ -72,7 +71,7 @@ public class P2LennardJones extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         int D = space.D();                 //spatial dimension
         double rc = sigma / rC;
@@ -112,7 +111,6 @@ public class P2LennardJones extends Potential2SoftSpherical {
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
    
-    private final Space space;
     private double sigma, sigmaSquared;
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;

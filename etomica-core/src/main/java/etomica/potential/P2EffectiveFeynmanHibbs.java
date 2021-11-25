@@ -26,14 +26,14 @@ import etomica.util.Constants;
  */
 public class P2EffectiveFeynmanHibbs implements Potential2Soft {
 
-    protected final Potential2SoftSpherical p2Classy;
+    protected final Potential2Soft p2Classy;
     protected final Vector dr;
     protected Boundary boundary;
     protected double temperature;
     protected double mass;
     protected double fac;
     
-    public P2EffectiveFeynmanHibbs(Space space, Potential2SoftSpherical p2Classical) {
+    public P2EffectiveFeynmanHibbs(Space space, Potential2Soft p2Classical) {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }
@@ -96,7 +96,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Soft {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(20);
-        final P2HePCKLJS p2 = new P2HePCKLJS(space);
+        final P2HePCKLJS p2 = new P2HePCKLJS();
         P2EffectiveFeynmanHibbs p2fh = new P2EffectiveFeynmanHibbs(space, p2);
         double heMass = 4.002602;
         p2fh.setMass(heMass);

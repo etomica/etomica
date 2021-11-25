@@ -61,8 +61,8 @@ public class TestLJMD3DEwald extends Simulation {
         integrator = new IntegratorVelocityVerlet(aggregate, random, 0.01, 1.1, box);
         double alpha6 = ewaldParams.alpha;
         P2Ewald6Real ewaldReal = new P2Ewald6Real(1, 1, 1, 1, alpha6);
-        P2SoftSphere pCore12 = new P2SoftSphere(space, 1, 4, 12);
-        P2SoftSphericalSumTruncated trunc = new P2SoftSphericalSumTruncated(space, ewaldParams.rCut, ewaldReal, pCore12);
+        P2SoftSphere pCore12 = new P2SoftSphere(1, 4, 12);
+        P2SoftSphericalSumTruncated trunc = new P2SoftSphericalSumTruncated(ewaldParams.rCut, ewaldReal, pCore12);
         AtomType leafType = species.getLeafType();
 
         pair.setPairPotential(leafType, leafType, trunc);

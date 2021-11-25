@@ -75,38 +75,38 @@ public class SimGlass extends Simulation {
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
             sigmaB = 0.88;
-            P2LennardJones potentialAA = new P2LennardJones(space);
-            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            P2LennardJones potentialAA = new P2LennardJones();
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2TruncatedAA);
-            P2LennardJones potentialAB = new P2LennardJones(space, 0.8, 1.5);
-            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            P2LennardJones potentialAB = new P2LennardJones(0.8, 1.5);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(potentialAB, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2TruncatedAB);
-            P2LennardJones potentialBB = new P2LennardJones(space, sigmaB, 0.5);
-            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            P2LennardJones potentialBB = new P2LennardJones(sigmaB, 0.5);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, 2.5);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
         } else if (potentialChoice == PotentialChoice.WCA) {
             neighborManager.setNeighborRange(2);
             // https://doi.org/10.1103/PhysRevX.1.021013
             sigmaB = D == 2 ? 1.4 : 1.0 / 1.2; // changes 1/1.4 to 1.4
             double mA = D == 2 ? 1 : 2;
-            P2WCA potentialAA = new P2WCA(space, 1, 1);
+            P2WCA potentialAA = new P2WCA(1, 1);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), potentialAA);
-            P2WCA potentialAB = new P2WCA(space, D == 2 ? 1.1 : 0.5 + 0.5 * sigmaB, 1);
+            P2WCA potentialAB = new P2WCA(D == 2 ? 1.1 : 0.5 + 0.5 * sigmaB, 1);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), potentialAB);
-            P2WCA potentialBB = new P2WCA(space, sigmaB, 1);
+            P2WCA potentialBB = new P2WCA(sigmaB, 1);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), potentialBB);
             ((ElementSimple) speciesA.getLeafType().getElement()).setMass(mA);
         } else if (potentialChoice == PotentialChoice.SS) {
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
             sigmaB = 1.0 / 1.4;
-            P2SoftSphere potentialAA = new P2SoftSphere(space, 1, 1, 12);
-            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            P2SoftSphere potentialAA = new P2SoftSphere(1, 1, 12);
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2TruncatedAA);
-            P2SoftSphere potentialAB = new P2SoftSphere(space, 0.5 + 0.5 * sigmaB, 1, 12);
-            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            P2SoftSphere potentialAB = new P2SoftSphere(0.5 + 0.5 * sigmaB, 1, 12);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(potentialAB, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2TruncatedAB);
-            P2SoftSphere potentialBB = new P2SoftSphere(space, sigmaB, 1, 12);
-            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            P2SoftSphere potentialBB = new P2SoftSphere(sigmaB, 1, 12);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, 2.5);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
         } else if (potentialChoice == PotentialChoice.HS) {
             chs = 50;
@@ -128,14 +128,14 @@ public class SimGlass extends Simulation {
             // T. B. Schrøder, cond-mat/0005127.
             // https://doi.org/10.1063/1.1605094
             sigmaB = 5.0 / 6.0;
-            P2LennardJones potentialAA = new P2LennardJones(space);
-            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            P2LennardJones potentialAA = new P2LennardJones();
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2TruncatedAA);
-            P2LennardJones potentialAB = new P2LennardJones(space, (1 + sigmaB) / 2, 1);
-            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            P2LennardJones potentialAB = new P2LennardJones((1 + sigmaB) / 2, 1);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(potentialAB, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2TruncatedAB);
-            P2LennardJones potentialBB = new P2LennardJones(space, sigmaB, 1);
-            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            P2LennardJones potentialBB = new P2LennardJones(sigmaB, 1);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, 2.5);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
             ((ElementSimple) speciesA.getLeafType().getElement()).setMass(2);
         }

@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.space.Space;
 
-
 /**
  * Wraps up to 3 soft-spherical potential and sums them.  This class can
  * happily take a 1 or 2 potentials and use them at no additional cost
@@ -14,12 +13,11 @@ import etomica.space.Space;
  * overhead for this class is much smaller than the overhead if holding and
  * iterating over an array of potentials.
  */
-public class P2SoftSphericalSum extends Potential2SoftSpherical {
+public class P2SoftSphericalSum implements Potential2Soft {
 
     private final Potential2Soft potential1, potential2, potential3;
 
-    public P2SoftSphericalSum(Space _space, Potential2Soft... potential) {
-        super(_space);
+    public P2SoftSphericalSum(Potential2Soft... potential) {
         if (potential.length > 3) throw new RuntimeException("This class only handles up to 3 potentials");
         this.potential1 = potential[0];
         this.potential2 = potential.length > 1 ? potential[1] : null;
@@ -89,16 +87,16 @@ public class P2SoftSphericalSum extends Potential2SoftSpherical {
         return d2u + potential3.d2u(r2);
     }
 
-    public double integral(double rC) {
-        return integralWrapped(rC);
+    public double integral(Space space, double rC) {
+        return integralWrapped(space, rC);
     }
 
-    public double integralWrapped(double rC) {
-        double d2u = potential1.integral(rC);
+    public double integralWrapped(Space space, double rC) {
+        double d2u = potential1.integral(space, rC);
         if (potential2 == null) return d2u;
-        d2u += potential2.integral(rC);
+        d2u += potential2.integral(space, rC);
         if (potential3 == null) return d2u;
-        return d2u + potential3.integral(rC);
+        return d2u + potential3.integral(space, rC);
     }
 
     /**

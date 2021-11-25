@@ -17,16 +17,9 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
 
     protected double shift;
  
-    public P2SoftSphericalTruncatedShifted(Space _space, Potential2SoftSpherical potential,
+    public P2SoftSphericalTruncatedShifted(Potential2Soft potential,
                                            double truncationRadius) {
-        super(_space, potential, truncationRadius);
-    }
-
-    /**
-     * Returns the wrapped potential.
-     */
-    public Potential2SoftSpherical getWrappedPotential() {
-        return potential;
+        super(potential, truncationRadius);
     }
 
     /**
@@ -52,7 +45,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
         shift = potential.u(r2Cutoff);
     }
 
-    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+    public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
         uCorrection[0] = 0;
         duCorrection[0] = 0;
     }

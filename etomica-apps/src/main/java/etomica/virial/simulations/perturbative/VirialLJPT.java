@@ -115,7 +115,7 @@ public class VirialLJPT {
         };
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2Soft pTargetR = new P2WCA(space, 1, 1);
+        Potential2Soft pTargetR = new P2WCA(1, 1);
         Potential2Soft pTargetP = new P2WCAP(space, 1, 1);
 
         MayerGeneralSpherical fTargetR = new MayerGeneralSpherical(pTargetR);

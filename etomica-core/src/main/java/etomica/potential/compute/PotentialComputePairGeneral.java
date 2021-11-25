@@ -378,7 +378,6 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         return this.neighborManager.makeIntegratorListener();
     }
 
-
     public void computeAllTruncationCorrection(double[] uCorrection, double[] duCorrection) {
         if (!doAllTruncationCorrection) {
             return;
@@ -399,7 +398,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
 
                 double[] u = new double[1];
                 double[] du = new double[1];
-                p.u01TruncationCorrection(u, du);
+                p.u01TruncationCorrection(space, u, du);
                 uCor += pairDensity * u[0];
                 duCor += pairDensity * du[0];
 
@@ -424,7 +423,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             } else {
                 pairDensity = atomCountByType[j] / box.getBoundary().volume();
             }
-            double integral = p.integral(p.getRange());
+            double integral = p.integral(space, p.getRange());
             uCorrection += pairDensity * integral;
         }
         return uCorrection;

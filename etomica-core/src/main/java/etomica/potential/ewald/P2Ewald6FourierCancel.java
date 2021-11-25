@@ -1,16 +1,13 @@
 package etomica.potential.ewald;
 
 import etomica.potential.Potential2Soft;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.TruncationFactory;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 
 import static etomica.math.SpecialFunctions.factorial;
 
-public class P2Ewald6FourierCancel extends Potential2SoftSpherical {
+public class P2Ewald6FourierCancel implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6, TruncationFactory tf) {
+    public static Potential2Soft makeTruncated(double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6, TruncationFactory tf) {
         return tf.make(new P2Ewald6FourierCancel(sigmaI, epsilonI, sigmaJ, epsilonJ, alpha6));
     }
 
@@ -19,7 +16,7 @@ public class P2Ewald6FourierCancel extends Potential2SoftSpherical {
     private final double Bij, f6;
 
     public P2Ewald6FourierCancel(double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6) {
-        super(Space3D.getInstance());
+        super();
         this.alpha6Sq = alpha6 * alpha6;
         this.alpha66 = alpha6Sq * alpha6Sq * alpha6Sq;
         double localBij = 0;
@@ -62,11 +59,6 @@ public class P2Ewald6FourierCancel extends Potential2SoftSpherical {
     }
 
     @Override
-    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
-
-    }
-
-    @Override
     public double d2u(double r2) {
         double a2 = r2 * alpha6Sq;
         double a4 = a2*a2;
@@ -75,8 +67,4 @@ public class P2Ewald6FourierCancel extends Potential2SoftSpherical {
         return (-Bij * alpha66 *(42 + 42*a2 + 21*a4 + (7+2*a2)*a6)*e + 42*f6)/a6;
     }
 
-    @Override
-    public double integral(double rC) {
-        return 0;
-    }
 }

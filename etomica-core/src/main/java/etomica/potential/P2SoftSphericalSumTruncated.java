@@ -19,12 +19,10 @@ import etomica.units.dimensions.Length;
  */
 public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
 
-    protected final Space space;
     protected double rCutoff, r2Cutoff;
 
-    public P2SoftSphericalSumTruncated(Space _space, double truncationRadius, Potential2Soft... potential) {
-        super(_space, potential);
-        this.space = _space;
+    public P2SoftSphericalSumTruncated(double truncationRadius, Potential2Soft... potential) {
+        super(potential);
         setTruncationRadius(truncationRadius);
     }
 
@@ -64,7 +62,7 @@ public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
         return super.d2uWrapped(r2);
     }
 
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         throw new RuntimeException("nope");
     }
 
@@ -91,11 +89,11 @@ public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
     }
 
     @Override
-    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+    public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
         double A = space.sphereArea(1.0);
         double D = space.D();
         double u = uWrapped(r2Cutoff);
-        double integral = integralWrapped(rCutoff);
+        double integral = integralWrapped(space, rCutoff);
         uCorrection[0] = integral;
         duCorrection[0] = (-A * space.powerD(rCutoff) * u - D * integral);
     }

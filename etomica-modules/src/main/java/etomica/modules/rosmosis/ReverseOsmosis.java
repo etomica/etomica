@@ -99,23 +99,23 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
         double rCut = 0.5 * yzSize;
 
         //instantiate several potentials for selection in combo-box
-        TruncationFactory tf = new TruncationFactoryShift(space, rCut);
-        potential11 = new P2LennardJones(space, sigSolute, epsSolute);
+        TruncationFactory tf = new TruncationFactoryShift(rCut);
+        potential11 = new P2LennardJones(sigSolute, epsSolute);
         potentialMaster.setPairPotential(speciesSolute.getLeafType(), speciesSolute.getLeafType(), tf.make(potential11));
 
-        potential22 = new P2LennardJones(space, sigSolvent, epsSolvent);
+        potential22 = new P2LennardJones(sigSolvent, epsSolvent);
         potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolvent.getLeafType(), tf.make(potential22));
 
-        potential12 = new P2LennardJones(space, 0.5 * (sigSolvent + sigSolute), Math.sqrt(epsSolvent * epsSolute));
+        potential12 = new P2LennardJones(0.5 * (sigSolvent + sigSolute), Math.sqrt(epsSolvent * epsSolute));
         potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolute.getLeafType(), tf.make(potential12));
 
-        potentialMM = new P2LennardJones(space, sigMembrane, epsMembrane);
+        potentialMM = new P2LennardJones(sigMembrane, epsMembrane);
         potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesMembrane.getLeafType(), potentialMM);
 
-        potentialM1 = new P2LennardJones(space, 0.5 * (sigMembrane + sigSolute), Math.sqrt(epsMembrane * epsSolute));
+        potentialM1 = new P2LennardJones(0.5 * (sigMembrane + sigSolute), Math.sqrt(epsMembrane * epsSolute));
         potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesSolute.getLeafType(), tf.make(potentialM1));
 
-        potentialM2 = new P2LennardJones(space, 0.5 * (sigMembrane + sigSolvent), Math.sqrt(epsMembrane * epsSolvent));
+        potentialM2 = new P2LennardJones(0.5 * (sigMembrane + sigSolvent), Math.sqrt(epsMembrane * epsSolvent));
         potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesSolvent.getLeafType(), tf.make(potentialM2));
 
 

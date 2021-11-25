@@ -5,7 +5,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -16,14 +15,10 @@ import etomica.util.Constants;
  *
  * @author Andrew Schultz
  */
-public class P2HeSimplified extends Potential2SoftSpherical {
+public class P2HeSimplified implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, TruncationFactory tf) {
-        return tf.make(new P2HeSimplified(space));
-    }
-
-    public P2HeSimplified(Space space) {
-        super(space);
+    public static Potential2Soft makeTruncated(TruncationFactory tf) {
+        return tf.make(new P2HeSimplified());
     }
 
     /**
@@ -71,7 +66,7 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         double A = 4 * Math.PI;
         double sc = 1 / rC;
         double sc2 = sc * sc;
@@ -109,12 +104,6 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
             fac = hbar*hbar/(24*mass/2)/temperature;
-        }
-
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
         }
 
         public double getRange() {
@@ -164,12 +153,6 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
             fac = hbar*hbar/(24*mass/2)/(temperature*temperature);
-        }
-
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
         }
 
         public double getRange() {

@@ -66,9 +66,9 @@ class EwaldSummationTest {
         pair = new PotentialMaster(sim.getSpeciesManager(), box, BondingInfo.noBonding());
 
         double alpha = 5.6 / boxlength;
-        P2SoftSphericalTruncated p2hh = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QH, alpha), rCutRealES);
-        P2SoftSphericalTruncated p2ho = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QO, alpha), rCutRealES);
-        P2SoftSphericalTruncated p2oo = new P2SoftSphericalTruncated(space, new P2Ewald1Real(P2WaterSPCE.QO * P2WaterSPCE.QO, alpha), rCutRealES);
+        P2SoftSphericalTruncated p2hh = new P2SoftSphericalTruncated(new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QH, alpha), rCutRealES);
+        P2SoftSphericalTruncated p2ho = new P2SoftSphericalTruncated(new P2Ewald1Real(P2WaterSPCE.QH * P2WaterSPCE.QO, alpha), rCutRealES);
+        P2SoftSphericalTruncated p2oo = new P2SoftSphericalTruncated(new P2Ewald1Real(P2WaterSPCE.QO * P2WaterSPCE.QO, alpha), rCutRealES);
         AtomType hType = species.getTypeByName("H");
         AtomType oType = species.getTypeByName("O");
         pair.setPairPotential(hType, hType, p2hh);

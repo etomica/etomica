@@ -67,7 +67,7 @@ public class LJMD extends Simulation {
         getController().addActivity(new ActivityIntegrate(integrator));
 
         double sigma = 1.0;
-        Potential2Soft potential = P2LennardJones.makeTruncated(space, sigma, 1.0, new TruncationFactoryForceShift(space, rc));
+        Potential2Soft potential = P2LennardJones.makeTruncated(sigma, 1.0, new TruncationFactoryForceShift(rc));
 
         AtomType leafType = species.getLeafType();
 

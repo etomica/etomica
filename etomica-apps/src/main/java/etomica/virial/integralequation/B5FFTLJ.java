@@ -101,7 +101,7 @@ public static void main(String[] args) {
 		double[] E7ar = new double[N];
 		
 		Space space = Space3D.getInstance();
-		P2LennardJones p2 = new P2LennardJones(space, 1, 1);
+		P2LennardJones p2 = new P2LennardJones(1, 1);
 		
 		double[] E6axr = new double[N];
 		double[] E7axr = new double[N];
@@ -203,7 +203,7 @@ public static void main(String[] args) {
 	    double sigma = 1.0;
 		double epsilon = 1.0;
 		Space space = Space3D.getInstance();
-		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+		P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
 		double u;
 		
 	

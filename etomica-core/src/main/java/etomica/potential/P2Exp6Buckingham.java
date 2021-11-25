@@ -22,14 +22,13 @@ import etomica.units.dimensions.Length;
  * @author Hye Min
  */
 
-public class P2Exp6Buckingham extends Potential2SoftSpherical {
+public class P2Exp6Buckingham implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double epsilon, double alpha, double rm, double rmax, TruncationFactory tf) {
-        return tf.make(new P2Exp6Buckingham(space, epsilon, alpha, rm, rmax));
+    public static Potential2Soft makeTruncated(double epsilon, double alpha, double rm, double rmax, TruncationFactory tf) {
+        return tf.make(new P2Exp6Buckingham(epsilon, alpha, rm, rmax));
     }
 
-    public P2Exp6Buckingham(Space _space, double epsilon, double alpha, double rm, double rmax) {
-        super(_space);
+    public P2Exp6Buckingham(double epsilon, double alpha, double rm, double rmax) {
         setEpsilon(epsilon);
         setAlpha(alpha);
         setRm(rm);
@@ -87,7 +86,7 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) { // need long range correction!!!!
+    public double integral(Space space, double rC) { // need long range correction!!!!
         throw new MethodNotImplementedException("Integral for long-range correction for Exp-6 not yet implemented");
     }
 

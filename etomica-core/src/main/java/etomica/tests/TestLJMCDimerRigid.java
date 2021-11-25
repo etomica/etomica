@@ -72,9 +72,9 @@ public class TestLJMCDimerRigid extends Simulation {
         new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
-        potential = new P2LennardJones(space, sigma, 1.0);
+        potential = new P2LennardJones(sigma, 1.0);
         AtomType leafType = species.getLeafType();
-        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(space, potential, 3.0);
+        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(potential, 3.0);
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
         if (!cellListing) {

@@ -73,8 +73,8 @@ public class P2SoftTruncated implements Potential2Soft {
     /**
      * Returns the value of uInt for the wrapped potential.
      */
-    public double integral(double rC) {
-        return wrappedPotential.integral(rC);
+    public double integral(Space space, double rC) {
+        return wrappedPotential.integral(space, rC);
     }
 
     public double u(double r2) {
@@ -119,12 +119,12 @@ public class P2SoftTruncated implements Potential2Soft {
     }
 
     @Override
-    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
-        double A = space.sphereArea(1.0);
-        double D = space.D();
+    public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
+        double A = this.space.sphereArea(1.0);
+        double D = this.space.D();
         double u = wrappedPotential.u(r2Cutoff);
-        double integral = wrappedPotential.integral(rCutoff);
+        double integral = wrappedPotential.integral(space, rCutoff);
         uCorrection[0] = integral;
-        duCorrection[0] = (-A * space.powerD(rCutoff) * u - D * integral);
+        duCorrection[0] = (-A * this.space.powerD(rCutoff) * u - D * integral);
     }
 }

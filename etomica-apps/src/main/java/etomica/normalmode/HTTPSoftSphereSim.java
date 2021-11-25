@@ -71,12 +71,12 @@ public class HTTPSoftSphereSim extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
+        Potential2Soft potential = new P2SoftSphere(1.0, 1.0, 12);
         if (potentialMaster instanceof PotentialMasterList) {
-            potential = new P2SoftSphericalTruncated(space, potential, rc);
+            potential = new P2SoftSphericalTruncated(potential, rc);
 
         } else {
-            potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
+            potential = new P2SoftSphericalTruncatedShifted(potential, rc);
         }
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);

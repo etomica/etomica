@@ -60,11 +60,11 @@ public class TestLJMC3DNew extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
-        potential = new P2LennardJones(space, sigma, 1.0);
+        potential = new P2LennardJones(sigma, 1.0);
 
         double truncationRadius = 3.0 * sigma;
 
-        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         AtomType leafType = species.getLeafType();
         compute.setPairPotential(leafType, leafType, potentialTruncated);
 

@@ -66,8 +66,8 @@ public static void main(String[] args) {
 		double[] d1r = dst.reverse(fffk, del_r);
 
 		
-		Space space = Space3D.getInstance();	
-		P2LennardJones p2 = new P2LennardJones(space, 1, 1);
+		Space space = Space3D.getInstance();
+		P2LennardJones p2 = new P2LennardJones(1, 1);
 		
 		double C3 = 0;
 		double D4 = 0;
@@ -123,7 +123,7 @@ public static void main(String[] args) {
 	    double sigma = 1.0;
 		double epsilon = 1.0;
 		Space space = Space3D.getInstance();
-		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+		P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
 		double u;
 		
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space

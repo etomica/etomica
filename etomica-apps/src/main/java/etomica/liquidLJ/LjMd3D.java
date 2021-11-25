@@ -32,7 +32,7 @@ public class LjMd3D extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public SpeciesGeneral species;
     public Box box;
-    public Potential2SoftSpherical potential;
+    public Potential2Soft potential;
     public IntegratorMC integratorMC;
     public MCMoveVolume mcMoveVolume;
 
@@ -64,10 +64,10 @@ public class LjMd3D extends Simulation {
         integrator.setIsothermal(true);
         this.getController().addActivity(new ActivityIntegrate(integrator));
 
-        potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
+        potential = ss ? new P2SoftSphere(1, 4, 12) : new P2LennardJones();
         AtomType leafType = species.getLeafType();
         TruncationFactory f;
-        P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(space, potential, rcShort);
+        P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(potential, rcShort);
 
         potentialMasterList.setPairPotential(leafType, leafType, potentialTruncatedForceShifted);
         integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);

@@ -316,7 +316,7 @@ public class CalcFFT {
 		double dr = 0.01;
 		
         Space space = Space3D.getInstance();
-        Potential2Soft p2 = new P2LennardJones(space, 1, 1);
+        Potential2Soft p2 = new P2LennardJones(1, 1);
 		CalcFFT calcFFT = new CalcFFT(makeF(p2, 1.0), dr, power);
 //		List myList = new ArrayList();
 //		List mySubList = new ArrayList();

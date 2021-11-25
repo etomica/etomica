@@ -70,8 +70,8 @@ public class MaterialFracture extends Simulation {
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integrator.setThermostatNoDrift(true);
         getController().addActivity(new ActivityIntegrate(integrator));
-        p2LJ = new P2LennardJones(space, 3, 2000);
-        pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
+        p2LJ = new P2LennardJones(3, 2000);
+        pt = new P2SoftSphericalTruncatedForceShifted(p2LJ, 7);
 
         box.setNMolecules(species, 198);
 

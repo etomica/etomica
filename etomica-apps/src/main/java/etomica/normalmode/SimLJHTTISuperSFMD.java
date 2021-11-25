@@ -26,7 +26,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -51,7 +51,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
     public Basis basis;
     public Primitive primitive;
     public PotentialMasterList potentialMaster;
-    public Potential2SoftSpherical potential;
+    public Potential2Soft potential;
     public SpeciesGeneral species;
 
     public SimLJHTTISuperSFMD(Space _space, int numAtoms, double density, double temperature, double rc, int[] seeds) {
@@ -83,8 +83,8 @@ public class SimLJHTTISuperSFMD extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        potential = new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
+        potential = new P2LennardJones(1.0, 1.0);
+        potential = new P2SoftSphericalTruncatedForceShifted(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
 

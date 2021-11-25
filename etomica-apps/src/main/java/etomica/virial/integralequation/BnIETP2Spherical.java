@@ -4,7 +4,10 @@
 
 package etomica.virial.integralequation;
 
-import etomica.potential.*;
+import etomica.potential.P2EffectiveFeynmanHibbs;
+import etomica.potential.P2HePCKLJS;
+import etomica.potential.P2LennardJones;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -35,7 +38,7 @@ public static void main(String[] args) {
         boolean LJ = false;
         double[] temps;
         double[] simTemps;
-        Potential2SoftSpherical p2;
+        Potential2Soft p2;
 		if (LJ) {
 		// To make sure that everything is working fine:
 		System.out.println("Literature values for LJ with sigma = 1 and T* = 1");
@@ -46,7 +49,7 @@ public static void main(String[] args) {
 		System.out.println("B4PY(v) = -6.627 (imprecise value from Henderson, Kim, and Oden (1966))");
 		System.out.println("B5PY(c) = -37.402 (Barker et al 1966)\n");
 
-		p2 = new P2LennardJones(space, 1.0, 1.0);
+		p2 = new P2LennardJones(1.0, 1.0);
 		//temps = new double[] { 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 50, 100};
 		
 		temps = new double[] { 0.6, 0.8, 1.0, 1.05, 1.1, 1.15, 1.2, 1.3, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 30, 50, 100, 500};
@@ -56,7 +59,7 @@ public static void main(String[] args) {
 		
 		} else {
 		
-			p2 = new P2HePCKLJS(space);
+			p2 = new P2HePCKLJS();
 		
 			if (PercusYevick) {
 				temps = new double[] {20.0,24.5561,30.0,40.0,50.0,63.15,75.0,83.15,98.15,103.15,113.15,123.15,143.15,148.15,158.15,173.15,183.15,198.15,223.15,248.15,253.15,273.15,273.16,293.16,298.15,323.15,323.16,348.15,350,373.15,375,398.15,400,423.15,425,450,475,500};
@@ -139,7 +142,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double[][] getConvergence (Potential2SoftSpherical p2, int power, int m, double r_max, double temp, boolean printapalooza) {
+	public static double[][] getConvergence (Potential2Soft p2, int power, int m, double r_max, double temp, boolean printapalooza) {
 	
 		double [][] results = new double[3][m];
 		double [] newBPY = new double[m];
@@ -197,7 +200,7 @@ public static void main(String[] args) {
 	}
 
 
-	public static double[] computeB(int m, int N, double del_r, double temp, Potential2SoftSpherical p2) {
+	public static double[] computeB(int m, int N, double del_r, double temp, Potential2Soft p2) {
 		
 		// Get Mayer function for this discretization
 		
@@ -280,7 +283,7 @@ public static void main(String[] args) {
 		
 	}
 	
-	public static double[] getrdfdr(int N, double del_r, double temp, Potential2SoftSpherical p2) {		
+	public static double[] getrdfdr(int N, double del_r, double temp, Potential2Soft p2) {
 		
 		double[] rdfdr = new double[N];  // Holds discretization of Mayer function in r-space
 		

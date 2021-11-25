@@ -98,7 +98,7 @@ public class BenchSimVirialLJ {
         };
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        P2LennardJones pTarget = new P2LennardJones(space);
+        P2LennardJones pTarget = new P2LennardJones();
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
 //        if (doChainRef) System.out.println("HS Chain reference");
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);

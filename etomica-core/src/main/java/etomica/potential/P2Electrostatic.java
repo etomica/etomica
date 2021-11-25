@@ -4,25 +4,18 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
-
 /**
  * Simple electrostatic potential class.
  *
  * @author Andrew Schultz
  */
-public class P2Electrostatic extends Potential2SoftSpherical {
+public class P2Electrostatic implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double q1, double q2, TruncationFactory tf) {
-        return tf.make(new P2Electrostatic(space, q1, q2));
+    public static Potential2Soft makeTruncated(double q1, double q2, TruncationFactory tf) {
+        return tf.make(new P2Electrostatic(q1, q2));
     }
 
-    public P2Electrostatic(Space space) {
-        super(space);
-    }
-
-    public P2Electrostatic(Space space, double q1, double q2) {
-        this(space);
+    public P2Electrostatic(double q1, double q2) {
         setCharge1(q1);
         setCharge2(q2);
     }
@@ -33,11 +26,6 @@ public class P2Electrostatic extends Potential2SoftSpherical {
 
     public double du(double r2) {
         return -u(r2);
-    }
-
-    public double integral(double rc) {
-        // lie.  Nobody really wants to know it's infinity
-        return 0;
     }
 
     public double u(double r2) {

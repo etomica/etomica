@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 
@@ -21,8 +20,8 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum {
     protected double switchFac, r2Switch;
     protected double a, b, c;
 
-    public P2SoftSphericalSumTruncatedSwitched(Space _space, double truncationRadius, Potential2Soft... potential) {
-        super(_space, potential);
+    public P2SoftSphericalSumTruncatedSwitched(double truncationRadius, Potential2Soft... potential) {
+        super(potential);
         setTruncationRadius(truncationRadius);
         setTaperOrder(3);
         setSwitchFac(0.95);
@@ -168,7 +167,7 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum {
     }
 
     @Override
-    public double integral(double rC) {
+    public double integral(Space space, double rC) {
         throw new RuntimeException("nope");
     }
 
@@ -180,7 +179,7 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum {
 
         double[] thisU012 = new double[3];
         uduWrapped(r2, thisU012);
-        if (dr.squared() < r2Switch) {
+        if (r2 < r2Switch) {
             u012[0] += thisU012[0];
             u012[1] += thisU012[1];
             u012[2] += thisU012[2];
@@ -198,9 +197,8 @@ public class P2SoftSphericalSumTruncatedSwitched extends P2SoftSphericalSum {
     }
 
     public static void main(String[] args) {
-        Space sp = Space3D.getInstance();
-        P2LennardJones p = new P2LennardJones(sp);
-        P2SoftSphericalSumTruncatedSwitched pt = new P2SoftSphericalSumTruncatedSwitched(sp, 2, p);
+        P2LennardJones p = new P2LennardJones();
+        P2SoftSphericalSumTruncatedSwitched pt = new P2SoftSphericalSumTruncatedSwitched(2, p);
         for (double x = 1.900001; x < 1.999999; x += 0.001) {
             System.out.println(x + " " + pt.getF(x) + " " + pt.getdFdr(x));
         }

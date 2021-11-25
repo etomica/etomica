@@ -1,13 +1,11 @@
 package etomica.potential.ewald;
 
 import etomica.potential.Potential2Soft;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.TruncationFactory;
-import etomica.space3d.Space3D;
 
 import static etomica.math.SpecialFunctions.erfc;
 
-public class P2Ewald1Real extends Potential2SoftSpherical {
+public class P2Ewald1Real implements Potential2Soft {
 
     public static Potential2Soft makeTruncated(double qiqj, double alpha, TruncationFactory tf) {
         return tf.make(new P2Ewald1Real(qiqj, alpha));
@@ -19,7 +17,7 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
     private static final double SQRT_PI = Math.sqrt(Math.PI);
 
     public P2Ewald1Real(double qiqj, double alpha) {
-        super(Space3D.getInstance());
+        super();
         this.qiqj = qiqj;
         this.alpha = alpha;
     }
@@ -62,8 +60,4 @@ public class P2Ewald1Real extends Potential2SoftSpherical {
         return -derfc * (2 + alpha * alpha * 2 * r2) + 2 * u;
     }
 
-    @Override
-    public double integral(double rC) {
-        return 0;
-    }
 }

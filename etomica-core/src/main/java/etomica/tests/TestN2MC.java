@@ -116,47 +116,47 @@ public class TestN2MC extends Simulation {
                 ewald.setAlpha6(p.alpha);
                 ewald.setR6Coefficient(typeN, sigma, epsilon);
 
-                P2SoftSphere pNN12 = new P2SoftSphere(space, sigma, 4 * epsilon, 12);
+                P2SoftSphere pNN12 = new P2SoftSphere(sigma, 4 * epsilon, 12);
                 P2Ewald6Real pNN6 = new P2Ewald6Real(sigma, epsilon, sigma, epsilon, p.alpha);
-                pNNt = new P2SoftSphericalSumTruncated(space, p.rCut, new Potential2SoftSpherical[]{pNN12, pNN6, pNN1});
+                pNNt = new P2SoftSphericalSumTruncated(p.rCut, pNN12, pNN6, pNN1);
             } else {
-                P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
-                pNNt = new P2SoftSphericalSumTruncated(space, p.rCut, pNNLJ, pNN1);
+                P2LennardJones pNNLJ = new P2LennardJones(sigma, epsilon);
+                pNNt = new P2SoftSphericalSumTruncated(p.rCut, pNNLJ, pNN1);
             }
 
             P2Ewald1Real pNM1 = new P2Ewald1Real(qN * qM, p.alpha);
-            pNMt = new P2SoftSphericalTruncated(space, pNM1, p.rCut);
+            pNMt = new P2SoftSphericalTruncated(pNM1, p.rCut);
 
             P2Ewald1Real pMM1 = new P2Ewald1Real(qM * qM, p.alpha);
-            pMMt = new P2SoftSphericalTruncated(space, pMM1, p.rCut);
+            pMMt = new P2SoftSphericalTruncated(pMM1, p.rCut);
         } else if (trunc == Truncation.CUT) {
 
             double rc = 49.9999;
 
             if (!droplet) {
                 // let's pretend force-shifting is adequate
-                P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
-                P2SoftSphericalTruncatedForceShifted pNN1sf = new P2SoftSphericalTruncatedForceShifted(space, new P2Electrostatic(space, qN, qN), rc);
+                P2LennardJones pNNLJ = new P2LennardJones(sigma, epsilon);
+                P2SoftSphericalTruncatedForceShifted pNN1sf = new P2SoftSphericalTruncatedForceShifted(new P2Electrostatic(qN, qN), rc);
 
-                pNNt = new P2SoftSphericalSumTruncated(space, rc, pNNLJ, pNN1sf);
+                pNNt = new P2SoftSphericalSumTruncated(rc, pNNLJ, pNN1sf);
 
-                P2Electrostatic pNM1 = new P2Electrostatic(space, qN, qM);
-                pNMt = new P2SoftSphericalSumTruncatedForceShifted(space, rc, pNM1);
+                P2Electrostatic pNM1 = new P2Electrostatic(qN, qM);
+                pNMt = new P2SoftSphericalSumTruncatedForceShifted(rc, pNM1);
 
-                P2Electrostatic pMM1 = new P2Electrostatic(space, qM, qM);
-                pMMt = new P2SoftSphericalSumTruncatedForceShifted(space, rc, pMM1);
+                P2Electrostatic pMM1 = new P2Electrostatic(qM, qM);
+                pMMt = new P2SoftSphericalSumTruncatedForceShifted(rc, pMM1);
             } else {
                 // don't even need to worry about force-shifting because molecules can't escape the droplet
-                P2LennardJones pNNLJ = new P2LennardJones(space, sigma, epsilon);
-                P2SoftSphericalSumTruncated pNN1sf = new P2SoftSphericalSumTruncated(space, rc, new P2Electrostatic(space, qN, qN));
+                P2LennardJones pNNLJ = new P2LennardJones(sigma, epsilon);
+                P2SoftSphericalSumTruncated pNN1sf = new P2SoftSphericalSumTruncated(rc, new P2Electrostatic(qN, qN));
 
-                pNNt = new P2SoftSphericalSumTruncated(space, rc, pNNLJ, pNN1sf);
+                pNNt = new P2SoftSphericalSumTruncated(rc, pNNLJ, pNN1sf);
 
-                P2Electrostatic pNM1 = new P2Electrostatic(space, qN, qM);
-                pNMt = new P2SoftSphericalSumTruncated(space, rc, pNM1);
+                P2Electrostatic pNM1 = new P2Electrostatic(qN, qM);
+                pNMt = new P2SoftSphericalSumTruncated(rc, pNM1);
 
-                P2Electrostatic pMM1 = new P2Electrostatic(space, qM, qM);
-                pMMt = new P2SoftSphericalSumTruncated(space, rc, pMM1);
+                P2Electrostatic pMM1 = new P2Electrostatic(qM, qM);
+                pMMt = new P2SoftSphericalSumTruncated(rc, pMM1);
             }
         } else {
             throw new RuntimeException("unknown truncation scheme");

@@ -6,6 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 
@@ -158,16 +159,16 @@ public class P2SoftSum implements Potential2Soft {
         return d2u + potential3.d2u(r2);
     }
 
-    public double integral(double rC) {
-        return integralWrapped(rC);
+    public double integral(Space space, double rC) {
+        return integralWrapped(space, rC);
     }
 
-    public double integralWrapped(double rC) {
-        double d2u = potential1.integral(rC);
+    public double integralWrapped(Space space, double rC) {
+        double d2u = potential1.integral(space, rC);
         if (potential2 == null) return d2u;
-        d2u += potential2.integral(rC);
+        d2u += potential2.integral(space, rC);
         if (potential3 == null) return d2u;
-        return d2u + potential3.integral(rC);
+        return d2u + potential3.integral(space, rC);
     }
 
     /**

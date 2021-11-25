@@ -5,7 +5,9 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -15,6 +17,10 @@ import etomica.space.Vector;
  * @author David Kofke
  */
 public interface Potential2Soft extends IPotentialAtomic {
+
+    default double energy(IAtomList atoms) {
+        throw new RuntimeException("call u instead");
+    }
 
     /**
      * Returns the range over which the potential applies.  IAtoms with a
@@ -83,11 +89,11 @@ public interface Potential2Soft extends IPotentialAtomic {
     /**
      * Integral used to evaluate correction to truncation of potential.
      */
-    default double integral(double rC) {
+    default double integral(Space space, double rC) {
         return 0;
     }
 
-    default void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+    default void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
 
     }
 

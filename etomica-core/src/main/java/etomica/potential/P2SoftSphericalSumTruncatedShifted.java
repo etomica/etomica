@@ -17,8 +17,8 @@ public class P2SoftSphericalSumTruncatedShifted extends P2SoftSphericalSumTrunca
 
     protected double shift;
 
-    public P2SoftSphericalSumTruncatedShifted(Space _space, double truncationRadius, Potential2Soft... potential) {
-        super(_space, truncationRadius, potential);
+    public P2SoftSphericalSumTruncatedShifted(double truncationRadius, Potential2Soft... potential) {
+        super(truncationRadius, potential);
     }
 
     public double u(double r2) {
@@ -35,11 +35,11 @@ public class P2SoftSphericalSumTruncatedShifted extends P2SoftSphericalSumTrunca
     }
 
     @Override
-    public void u01TruncationCorrection(double[] uCorrection, double[] duCorrection) {
+    public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
         double A = space.sphereArea(1.0);
         double D = space.D();
         double u = uWrapped(r2Cutoff);
-        double integral = integralWrapped(rCutoff);
+        double integral = integralWrapped(space, rCutoff);
         uCorrection[0] = integral - space.sphereVolume(rCutoff) * shift;
         duCorrection[0] = -A * space.powerD(rCutoff) * u - D * integral;
     }

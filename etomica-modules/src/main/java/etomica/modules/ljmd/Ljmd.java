@@ -52,8 +52,8 @@ public class Ljmd extends Simulation {
         //   integrator.setDoSleep(false);
 
         //instantiate several potentials for selection in combo-box
-        P2LennardJones potential = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, 2.5);
+        P2LennardJones potential = new P2LennardJones();
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(potential, 2.5);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2Truncated);
 
         //construct box

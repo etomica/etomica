@@ -73,7 +73,7 @@ public class OctaneMC extends Simulation {
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
 
-        P2Harmonic p2 = new P2Harmonic(space, Kelvin.UNIT.toSim(2*270000), 1.54);
+        P2Harmonic p2 = new P2Harmonic(Kelvin.UNIT.toSim(2*270000), 1.54);
         List<int[]> pairs = new ArrayList<>();
         for (int i=0; i<nSpheres-1; i++) {
             pairs.add(new int[]{i,i+1});
@@ -120,10 +120,10 @@ public class OctaneMC extends Simulation {
         double sigmaCH2 = 3.95;
         double sigmaCH3 = 3.75;
         double sigmaCH2CH3 = (sigmaCH2+sigmaCH3)/2;
-        TruncationFactory tf = new TruncationFactoryForceShift(space, rc);
-        P2LennardJones p2CH2LJ = new P2LennardJones(space, sigmaCH2, epsilonCH2);
-        P2LennardJones p2CH3LJ = new P2LennardJones(space, sigmaCH3, epsilonCH3);
-        P2LennardJones p2CH2CH3LJ = new P2LennardJones(space, sigmaCH2CH3, epsilonCH2CH3);
+        TruncationFactory tf = new TruncationFactoryForceShift(rc);
+        P2LennardJones p2CH2LJ = new P2LennardJones(sigmaCH2, epsilonCH2);
+        P2LennardJones p2CH3LJ = new P2LennardJones(sigmaCH3, epsilonCH3);
+        P2LennardJones p2CH2CH3LJ = new P2LennardJones(sigmaCH2CH3, epsilonCH2CH3);
         Potential2Soft p2CH2 = tf.make(p2CH2LJ);
         Potential2Soft p2CH3 = tf.make(p2CH3LJ);
         Potential2Soft p2CH2CH3 = tf.make(p2CH2CH3LJ);

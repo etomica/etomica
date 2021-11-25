@@ -120,7 +120,7 @@ public class B3LJ {
 		double sigma = 1.0;
 	    double epsilon = 1.0;
 		Space space = Space3D.getInstance();
-		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+		P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		
 		for (int n = 0; n<N; n++) {
@@ -145,7 +145,7 @@ public class B3LJ {
         double sigma = 1.0;
         double epsilon = 1.0;
         Space space = Space3D.getInstance();
-        P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+        P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
         double[] dfdT = new double[N];  // Holds discretization of Mayer function in r-space
 
         // eqn below is inf*0 for r=0
@@ -169,7 +169,7 @@ public class B3LJ {
         double sigma = 1.0;
         double epsilon = 1.0;
         Space space = Space3D.getInstance();
-        P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
+        P2LennardJones p2 = new P2LennardJones(sigma, epsilon);
         double[] d2fdT2 = new double[N];  // Holds discretization of Mayer function in r-space
 
         // eqn below is inf*0 for r=0

@@ -42,7 +42,7 @@ public class VirialLJTest {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
-        Potential2Soft pTarget = new P2LennardJones(space,1.0,1.0);
+        Potential2Soft pTarget = new P2LennardJones(1.0,1.0);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         MayerESpherical eTarget = new MayerESpherical(pTarget);
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);

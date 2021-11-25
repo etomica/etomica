@@ -30,7 +30,7 @@ public class ClusterWheatleySoftDerivativesTest {
     public void setup() {
         Space space = Space.getInstance(3);
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("")));
-        P2LennardJones plj = new P2LennardJones(space);
+        P2LennardJones plj = new P2LennardJones();
         MayerFunction f = new MayerGeneralSpherical(plj);
         cwsd = new ClusterWheatleySoftDerivatives(npoints, f, 1e-12, 5);
         ClusterWeight cl = new ClusterWeightAbs(cwsd);

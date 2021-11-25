@@ -3,30 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.potential;
 
-import etomica.space.Space;
-
 /**
  * Factory that makes truncated and switched potentials.
  */
 public class TruncationFactorySwitch implements TruncationFactory {
 
-    protected final Space space;
     protected final double rc;
     protected final double switchFac;
 
-    public TruncationFactorySwitch(Space space, double rc) {
-        this(space, rc, 0.95);
+    public TruncationFactorySwitch(double rc) {
+        this(rc, 0.95);
     }
 
-    public TruncationFactorySwitch(Space space, double rc, double switchFac) {
-        this.space = space;
+    public TruncationFactorySwitch(double rc, double switchFac) {
         this.rc = rc;
         this.switchFac = switchFac;
     }
 
     @Override
     public P2SoftSphericalSumTruncatedSwitched make(Potential2Soft... p2) {
-        P2SoftSphericalSumTruncatedSwitched pTrunc = new P2SoftSphericalSumTruncatedSwitched(space, rc, p2);
+        P2SoftSphericalSumTruncatedSwitched pTrunc = new P2SoftSphericalSumTruncatedSwitched(rc, p2);
         pTrunc.setSwitchFac(switchFac);
         return pTrunc;
     }

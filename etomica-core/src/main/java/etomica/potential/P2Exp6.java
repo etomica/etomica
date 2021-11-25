@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -20,23 +19,20 @@ import etomica.units.dimensions.Length;
  * @author Tai Tan
  */
 
-public class P2Exp6 extends Potential2SoftSpherical {
+public class P2Exp6 implements Potential2Soft {
 
-    public static Potential2Soft makeTruncated(Space space, double AA, double BB, double CC, TruncationFactory tf) {
-        return tf.make(new P2Exp6(space, AA, BB, CC));
+    public static Potential2Soft makeTruncated(double AA, double BB, double CC, TruncationFactory tf) {
+        return tf.make(new P2Exp6(AA, BB, CC));
     }
 
     public P2Exp6(Space _space) {
         // these defaults probably aren't appropriate -- need to develop A,B,C
         // from default size, well depth, and well extent (which doesn't exist!
         // maybe potl cutoff?)
-        this(_space, 1.0, 1.0, 1.0);
+        this(1.0, 1.0, 1.0);
     }
 
-    public P2Exp6(Space _space, double AA, double BB, double CC) {
-        super(_space);
-        this.space = _space;
-        dr01 = space.makeVector();
+    public P2Exp6(double AA, double BB, double CC) {
         setA(AA);
         setB(BB);
         setC(CC);
@@ -77,7 +73,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
     /**
      * Integral used for corrections to potential truncation.
      */
-    public double integral(double rC) { // need long range correction!!!!
+    public double integral(Space space, double rC) { // need long range correction!!!!
         throw new MethodNotImplementedException("Integral for long-range correction for Exp-6 not yet implemented");
     }
 
@@ -117,7 +113,5 @@ public class P2Exp6 extends Potential2SoftSpherical {
         return new CompoundDimension(new Dimension[] {Energy.DIMENSION, Length.DIMENSION}, new double[] {1.0, 6.0});
     }
 
-    private final Space space;
     private double AA, BB, CC;
-    protected final Vector dr01;
 }
