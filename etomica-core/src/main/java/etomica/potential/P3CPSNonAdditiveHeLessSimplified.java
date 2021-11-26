@@ -31,11 +31,6 @@ public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibo
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new Vector[3];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        gradient[2] = space.makeVector();
-        
     }
 
     public void setNullRegionMethod(int nullRegionMethod) {
@@ -721,7 +716,6 @@ public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibo
     Integer parameters = 0;
     public  double[] params = new double[21];
     protected final Vector drAB, drAC, drBC;
-    protected final Vector[] gradient;
     public static boolean bigAngle;
     protected final double[][][] alpha = new double [5][5][5];
     protected final double[][][] A = new double [5][5][5];

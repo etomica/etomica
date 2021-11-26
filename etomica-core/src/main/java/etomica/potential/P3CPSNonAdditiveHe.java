@@ -30,10 +30,6 @@ public class P3CPSNonAdditiveHe implements IPotentialAtomicMultibody, Potential3
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new Vector[3];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        gradient[2] = space.makeVector();
         this.sigma = sigma;
         setA();
         setAlpha();
@@ -696,7 +692,6 @@ public class P3CPSNonAdditiveHe implements IPotentialAtomicMultibody, Potential3
     }
     
     protected final Vector drAB, drAC, drBC;
-    protected final Vector[] gradient;
     public static boolean bigAngle;
     protected final double[][][] alpha = new double [5][5][5];
     protected final double[][][] A = new double [5][5][5];

@@ -28,10 +28,6 @@ public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic, Potential3Soft 
         drBC = space.makeVector();
         drAC = space.makeVector();
         setAngle(Math.PI);
-        gradient = new Vector[3];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        gradient[2] = space.makeVector();
 
         setA();
         setAlpha();
@@ -703,15 +699,9 @@ public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic, Potential3Soft 
         return Double.POSITIVE_INFINITY;
     }
 
-    private Vector[] gradient(IAtomList atoms) {
-       throw new RuntimeException("Sorry, no gradient available yet");
-    }
-
     protected final Vector drAB, drAC, drBC;
     protected double angle;
     protected double epsilon;
-    private static final long serialVersionUID = 1L;
-    protected final Vector[] gradient;
     public static boolean bigAngle;
     protected double[][][] alpha = new double [5][5][5];
     protected double[][][] A = new double [5][5][5];

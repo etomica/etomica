@@ -31,11 +31,6 @@ public class P3CPSNonAdditiveHeSimplified implements IPotentialAtomicMultibody, 
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new Vector[3];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        gradient[2] = space.makeVector();
-
     }
 
     public void setNullRegionMethod(int nullRegionMethod) {
@@ -222,10 +217,6 @@ public class P3CPSNonAdditiveHeSimplified implements IPotentialAtomicMultibody, 
         return Double.POSITIVE_INFINITY;
     }
 
-    private Vector[] gradient(IAtomList atoms) {
-       throw new RuntimeException("Sorry, no gradient available yet");
-    }
-
 	public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
@@ -385,13 +376,8 @@ System.out.println();
     }
     
     protected final Vector drAB, drAC, drBC;
-    protected final Vector[] gradient;
     public static boolean bigAngle;
-    
-    
-    
-    
-    
+
     //Energies in Hartrees, and distances in Bohr radii.
     //Default parameter values fitted for nonadditive classical B3 at 100 K with training set 6 at 100 K
     protected double A=-371.6663602;
@@ -399,7 +385,6 @@ System.out.println();
     protected double Z=1.00129424; 
     protected double B=-33.79160965;
     protected double b=1.09675524;
-    protected final double[][] Rpow = new double[3][9];
     protected double exitflag;
     protected double fval;
     public double[] params = new double[7];//first two are fval and exitflag
