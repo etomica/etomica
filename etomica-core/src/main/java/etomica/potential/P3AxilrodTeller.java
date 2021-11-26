@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -18,7 +19,7 @@ import java.util.Map;
  * 
  * @author Andrew Schultz
  */
-public class P3AxilrodTeller implements IPotentialAtomic {
+public class P3AxilrodTeller implements IPotentialAtomic, Potential3Soft {
 
     protected final Map<AtomType, MyAgent> paramsManager;
     protected final Space space;
@@ -30,6 +31,45 @@ public class P3AxilrodTeller implements IPotentialAtomic {
         this.paramsManager = paramsManager;
         dr1 = space.makeVector();
         dr2 = space.makeVector();
+    }
+
+    @Override
+    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+
+        double RAB2 = dr12.squared();
+        double RAC2 = dr13.squared();
+        double RBC2 = dr23.squared();
+        if (RAB2*RAC2*RBC2 == 0) return 0;
+
+        double RAB = Math.sqrt(RAB2);
+        double RAC = Math.sqrt(RAC2);
+        double RBC = Math.sqrt(RBC2);
+
+        double costhetaA = (RAB2 + RAC2 - RBC2)/(2*RAC*RAB);
+        double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
+        double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
+
+        IAtom[] atoms = new IAtom[]{atom1, atom2, atom3};
+        double ep = 1;
+        double es = 0;
+        double[] eps = new double[3];
+        double ap = 1;
+        double cp = 3 * costhetaA * costhetaB * costhetaC;
+        for (int i=0; i<3; i++) {
+            MyAgent ag = paramsManager.get(atoms[i].getType());
+            eps[(i+1)%3] += ag.E;
+            eps[(i+2)%3] += ag.E;
+            ep *= ag.E;
+            es += ag.E;
+
+            ap *= ag.alpha;
+        }
+        double e123 = ep*es;
+        for (int i=0; i<3; i++) {
+            e123 /= eps[i];
+        }
+
+        return 1.5*e123*ap*(cp+1)/(RAB*RAB2*RAC*RAC2*RBC*RBC2);
     }
 
     public double energy(IAtomList atoms) {
