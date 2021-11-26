@@ -25,7 +25,7 @@ import java.util.Date;
  *  
  * @author kate, Andrew Schultz
  */
-public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibody {
+public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibody, Potential3Soft {
 
     public P3CPSNonAdditiveHeLessSimplified(Space space) {
         drAB = space.makeVector();
@@ -41,8 +41,30 @@ public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibo
     public void setNullRegionMethod(int nullRegionMethod) {
         this.nullRegionMethod = nullRegionMethod;
     }
-    
-  
+
+    public double u(double RAB2, double RAC2, double RBC2) {
+        double RAB = Math.sqrt(RAB2);
+        double RAC = Math.sqrt(RAC2);
+        double RBC = Math.sqrt(RBC2);
+        // this fails for R=0, but we bail in that case anyway (below)
+        double costhetaA = (RAB2 + RAC2 - RBC2)/(2*RAC*RAB);
+        double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
+        double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
+        return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+        double RAB = Math.sqrt(dr12.squared());
+        double RAC = Math.sqrt(dr13.squared());
+        double RBC = Math.sqrt(dr23.squared());
+
+        double costhetaA =  dr12.dot(dr13)/(RAB*RAC);
+        double costhetaB = -dr12.dot(dr23)/(RAB*RBC);
+        double costhetaC =  dr13.dot(dr23)/(RAC*RBC);
+
+        return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
     public double energy(IAtomList atomSet) {
         IAtom atomA = atomSet.get(0);
         IAtom atomB = atomSet.get(1);
@@ -62,7 +84,7 @@ public class P3CPSNonAdditiveHeLessSimplified implements IPotentialAtomicMultibo
 
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
     }
-    
+
     public double energy(double[] r2) {
         double RAB2 = r2[0];
         double RAC2 = r2[1];

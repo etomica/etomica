@@ -123,7 +123,19 @@ public class P3CPSNonAdditiveHeSimplified implements IPotentialAtomicMultibody, 
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
     }
 
-    public double energy(double RAB2, double RAC2, double RBC2) {
+	public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+		double RAB = Math.sqrt(dr12.squared());
+		double RAC = Math.sqrt(dr13.squared());
+		double RBC = Math.sqrt(dr23.squared());
+
+		double costhetaA =  dr12.dot(dr13)/(RAB*RAC);
+		double costhetaB = -dr12.dot(dr23)/(RAB*RBC);
+		double costhetaC =  dr13.dot(dr23)/(RAC*RBC);
+
+		return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+	}
+
+	public double u(double RAB2, double RAC2, double RBC2) {
         double RAB = Math.sqrt(RAB2);
         double RAC = Math.sqrt(RAC2);
         double RBC = Math.sqrt(RBC2);
@@ -135,7 +147,7 @@ public class P3CPSNonAdditiveHeSimplified implements IPotentialAtomicMultibody, 
     }
 
     public double energy(double[] r2) {
-        return energy(r2[0], r2[1], r2[2]);
+        return u(r2[0], r2[1], r2[2]);
     }
     
     protected double energy(double RAB, double RAC, double RBC, double costhetaA, double costhetaB, double costhetaC) {

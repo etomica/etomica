@@ -21,7 +21,7 @@ import etomica.units.dimensions.Energy;
  * This class is very slow.  Please do not use it.
  * @author kate
  */
-public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic {
+public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic, Potential3Soft {
 
     public P3CPSNonAdditiveHeOrig(Space space) {
         drAB = space.makeVector();
@@ -32,13 +32,8 @@ public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic {
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
-        
-        
-    }
 
-    public double energy(IAtomList atomSet) {
-    	
-    	setA();
+        setA();
         setAlpha();
         setBeta3();
         setZ3();
@@ -46,41 +41,54 @@ public class P3CPSNonAdditiveHeOrig implements IPotentialAtomic {
         setBeta4211();
         setZ4220();
         setZ4211();
-        
-        //Operate on duplicate of atomSet
-        
-        IAtomList atomSet2 = atomSet;
-        
-        IAtom atomA = atomSet2.get(0);
-        IAtom atomB = atomSet2.get(1);
-        IAtom atomC = atomSet2.get(2);
-        
-       
-        drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
-        drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());
-        drBC.Ev1Mv2(atomB.getPosition(),atomC.getPosition());
-        
-        drAB.TE(1.0/AngstromPerBohrRadius);
-        drAC.TE(1.0/AngstromPerBohrRadius);
-        drBC.TE(1.0/AngstromPerBohrRadius);
-        
-        
-        double RAB = Math.sqrt(drAB.squared());
-        double RAC = Math.sqrt(drAC.squared());
-        double RBC = Math.sqrt(drBC.squared());
-        
-        //Supplementary 0 energy region 
-        
+    }
+
+    public double energy(IAtomList atomSet) {
+
+        IAtom atomA = atomSet.get(0);
+        IAtom atomB = atomSet.get(1);
+        IAtom atomC = atomSet.get(2);
+
+        drAB.Ev1Mv2(atomA.getPosition(), atomB.getPosition());
+        drAC.Ev1Mv2(atomA.getPosition(), atomC.getPosition());
+        drBC.Ev1Mv2(atomB.getPosition(), atomC.getPosition());
+        return u(drAB, drAC, drBC, atomA, atomB, atomC);
+    }
+
+    @Override
+    public double u(double RAB2, double RAC2, double RBC2) {
+        double RAB = Math.sqrt(RAB2) / AngstromPerBohrRadius;
+        double RAC = Math.sqrt(RAC2) / AngstromPerBohrRadius;
+        double RBC = Math.sqrt(RBC2) / AngstromPerBohrRadius;
+        // this fails for R=0, but we bail in that case anyway (below)
+        double costhetaA = (RAB2 + RAC2 - RBC2)/(2*RAC*RAB);
+        double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
+        double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
+        return u(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    @Override
+    public double u(Vector drAB, Vector drAC, Vector drBC, IAtom atom1, IAtom atom2, IAtom atom3) {
+
+        double RAB = Math.sqrt(drAB.squared()) / AngstromPerBohrRadius;
+        double RAC = Math.sqrt(drAC.squared()) / AngstromPerBohrRadius;
+        double RBC = Math.sqrt(drBC.squared()) / AngstromPerBohrRadius;
+
+        //Supplementary 0 energy region
+
         if (RAB<2.23 || RAC<2.23 || RBC<2.23) {
-        	return 0.0;
+            return 0.0;
         }
-        
+
         double costhetaA =  drAB.dot(drAC)/(RAB*RAC);
         double costhetaB = -drAB.dot(drBC)/(RAB*RBC);
         double costhetaC =  drAC.dot(drBC)/(RAC*RBC);
-        
-        
-        
+
+        return u(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+
+    public double u(double RAB, double RAC, double RBC, double costhetaA, double costhetaB, double costhetaC) {
         double thetaA; double thetaB; double thetaC;
         
         if (costhetaA > 1) { thetaA = 0;}
