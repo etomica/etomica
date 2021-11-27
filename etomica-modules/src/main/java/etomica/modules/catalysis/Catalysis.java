@@ -125,7 +125,7 @@ public class Catalysis extends Simulation {
         p1HardWallC.setActive(2, false, false);
         pcField.setFieldPotential(speciesC.getLeafType(), p1HardWallC);
 
-        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), IntegratorHard.extractFieldPotentials(pcField),
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), pcField.getFieldPotentials(),
                 neighborManager, random, 0.005, Kelvin.UNIT.toSim(600), box, getSpeciesManager(), null);
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);

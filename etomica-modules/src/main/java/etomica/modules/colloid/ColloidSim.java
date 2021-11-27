@@ -114,7 +114,7 @@ public class ColloidSim extends Simulation {
 
 
         //controller and integrator
-        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), IntegratorHard.extractFieldPotentials(pcField), neighborManager, random, 0.02, 2, box, getSpeciesManager(), null);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), pcField.getFieldPotentials(), neighborManager, random, 0.02, 2, box, getSpeciesManager(), null);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(2);
         integrator.setIsothermal(true);

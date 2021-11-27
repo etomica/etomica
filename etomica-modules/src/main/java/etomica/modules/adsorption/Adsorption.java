@@ -87,7 +87,7 @@ public class Adsorption extends Simulation {
         computeWall.setFieldPotential(speciesA.getLeafType(), p1WallA);
         computeWall.setFieldPotential(speciesB.getLeafType(), p1WallB);
 
-        integratorMD = new IntegratorHard(computePair.getPairPotentials(), IntegratorHard.extractFieldPotentials(computeWall), neighborManager, random, 0.005, 1, box, getSpeciesManager(), null);
+        integratorMD = new IntegratorHard(computePair.getPairPotentials(), computeWall.getFieldPotentials(), neighborManager, random, 0.005, 1, box, getSpeciesManager(), null);
         integratorMD.setTimeStep(0.005);
         integratorMD.setIsothermal(true);
         integratorMD.setThermostatInterval(50);
