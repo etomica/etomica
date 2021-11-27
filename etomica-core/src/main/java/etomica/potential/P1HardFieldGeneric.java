@@ -7,7 +7,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.space.Vector;
 
-public class P1HardFieldGeneric implements IPotentialHardField {
+public class P1HardFieldGeneric implements IPotentialField {
 
     protected int fieldDimension;
     protected double[] collisionPositions;

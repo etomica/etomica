@@ -10,7 +10,6 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -96,7 +95,7 @@ public class PistonCylinder extends Simulation {
 //        potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
         ((BoundaryPistonCylinder) box.getBoundary()).setPistonPotential(pistonPotential);
 
-        integrator = new IntegratorHardPiston(potentialMaster.getPairPotentials(), IntegratorHard.extractFieldPotentials(pcField),
+        integrator = new IntegratorHardPiston(potentialMaster.getPairPotentials(), pcField.getFieldPotentials(),
                 neighborManager, random, 1.0, 1.0, box, pistonPotential, getSpeciesManager());
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
