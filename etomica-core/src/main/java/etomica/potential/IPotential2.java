@@ -17,7 +17,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public interface Potential2Soft extends IPotentialAtomic {
+public interface IPotential2 extends IPotentialAtomic {
 
     default double energy(IAtomList atoms) {
         throw new RuntimeException("call u instead");

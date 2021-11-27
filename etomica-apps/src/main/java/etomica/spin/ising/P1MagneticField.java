@@ -6,7 +6,7 @@ package etomica.spin.ising;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomOriented;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -17,7 +17,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public class P1MagneticField implements IPotentialField {
+public class P1MagneticField implements IPotential1 {
 
     private final Vector direction;
     private double h;

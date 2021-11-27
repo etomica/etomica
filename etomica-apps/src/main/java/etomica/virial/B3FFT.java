@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.math.numerical.SineTransform;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 
 /**
  * This is a main method to compute B3, dB3/dT and d2B3/dT2 for a spherical potential via FFT
@@ -30,7 +30,7 @@ public class B3FFT {
      *                      results[1] are the estimates of error in B3 and its derivatives
      *                      results[2] are the error in B3, the final n and final rMax used
      */
-    public static double[][] go(Potential2Soft p2, int n, double rMax, double tol0, double kT, boolean verbose, boolean printapalooza) {
+    public static double[][] go(IPotential2 p2, int n, double rMax, double tol0, double kT, boolean verbose, boolean printapalooza) {
         double tol = tol0;
         while (true) {
             double[][] results = getConvergence(p2, n, rMax, tol, kT, printapalooza);
@@ -51,7 +51,7 @@ public class B3FFT {
         }
     }
 
-    public static double[][] getConvergence(Potential2Soft p2, int n, double r_max, double tol, double kT, boolean printapalooza) {
+    public static double[][] getConvergence(IPotential2 p2, int n, double r_max, double tol, double kT, boolean printapalooza) {
         int d = 0;
 
         double[] errorB = new double[3];
@@ -178,7 +178,7 @@ public class B3FFT {
      * Returns a discretized f function containing N points with a
      * separation interval of del_r
      */
-    public static double[] getfr(Potential2Soft p2, int N, double del_r, double reducedTemp) {
+    public static double[] getfr(IPotential2 p2, int N, double del_r, double reducedTemp) {
 
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		
@@ -200,7 +200,7 @@ public class B3FFT {
 	 * Returns a discretized df/dT function containing N points with a
 	 * separation interval of del_r
 	 */
-    public static double[] getdfdT(Potential2Soft p2, int N, double del_r, double reducedTemp) {
+    public static double[] getdfdT(IPotential2 p2, int N, double del_r, double reducedTemp) {
         double[] dfdT = new double[N];  // Holds discretization of Mayer function in r-space
 
         // eqn below is inf*0 for r=0
@@ -223,7 +223,7 @@ public class B3FFT {
      * Returns a discretized df/dT function containing N points with a
      * separation interval of del_r
      */
-    public static double[] getd2fdT2(Potential2Soft p2, int N, double del_r, double reducedTemp) {
+    public static double[] getd2fdT2(IPotential2 p2, int N, double del_r, double reducedTemp) {
         double[] d2fdT2 = new double[N];  // Holds discretization of Mayer function in r-space
 
         // eqn below is inf*0 for r=0

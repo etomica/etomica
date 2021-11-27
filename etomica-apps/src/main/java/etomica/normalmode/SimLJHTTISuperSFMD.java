@@ -24,9 +24,9 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.BondingInfo;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -51,7 +51,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
     public Basis basis;
     public Primitive primitive;
     public PotentialMasterList potentialMaster;
-    public Potential2Soft potential;
+    public IPotential2 potential;
     public SpeciesGeneral species;
 
     public SimLJHTTISuperSFMD(Space _space, int numAtoms, double density, double temperature, double rc, int[] seeds) {

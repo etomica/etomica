@@ -6,7 +6,7 @@ package etomica.modules.dcvgcmd;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 
@@ -16,7 +16,7 @@ import etomica.space.Vector;
  * of the hole is discontinuous; an atom in the hole that attempts to move out
  * the hole and into the wall will experience a discontinuity.
  */
-public class P1WCAPorousWall implements IPotentialField {
+public class P1WCAPorousWall implements IPotential1 {
 
     private double sigma, sigma2;
     private double epsilon;

@@ -7,8 +7,8 @@ package etomica.modules.mu;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
-import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 
 /**
@@ -18,7 +18,7 @@ import etomica.space.Vector;
  * Suitable for use in space of any dimension.
  * Can be used with negative value for epsilon to produce square-shoulder potential.
  */
-public class P2SquareWellOneSide extends P2HardGeneric implements Potential2Soft {
+public class P2SquareWellOneSide extends P2HardGeneric implements IPotential2 {
 
     public P2SquareWellOneSide(double coreDiameter, double lambda, double epsilon) {
         super(new double[]{coreDiameter, coreDiameter * lambda}, new double[]{Double.POSITIVE_INFINITY, -epsilon}, true);

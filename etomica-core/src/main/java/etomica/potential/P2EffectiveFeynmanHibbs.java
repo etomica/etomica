@@ -24,16 +24,16 @@ import etomica.util.Constants;
  *  
  * @author Andrew Schultz
  */
-public class P2EffectiveFeynmanHibbs implements Potential2Soft {
+public class P2EffectiveFeynmanHibbs implements IPotential2 {
 
-    protected final Potential2Soft p2Classy;
+    protected final IPotential2 p2Classy;
     protected final Vector dr;
     protected Boundary boundary;
     protected double temperature;
     protected double mass;
     protected double fac;
     
-    public P2EffectiveFeynmanHibbs(Space space, Potential2Soft p2Classical) {
+    public P2EffectiveFeynmanHibbs(Space space, IPotential2 p2Classical) {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }

@@ -25,7 +25,7 @@ import java.io.IOException;
  *
  * @author Kate Shaul
  */
-public class P2QChemInterpolated implements Potential2Soft {
+public class P2QChemInterpolated implements IPotential2 {
     
     /**
      * The energy u.

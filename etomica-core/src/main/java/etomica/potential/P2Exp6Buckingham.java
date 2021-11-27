@@ -22,9 +22,9 @@ import etomica.units.dimensions.Length;
  * @author Hye Min
  */
 
-public class P2Exp6Buckingham implements Potential2Soft {
+public class P2Exp6Buckingham implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double epsilon, double alpha, double rm, double rmax, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double epsilon, double alpha, double rm, double rmax, TruncationFactory tf) {
         return tf.make(new P2Exp6Buckingham(epsilon, alpha, rm, rmax));
     }
 

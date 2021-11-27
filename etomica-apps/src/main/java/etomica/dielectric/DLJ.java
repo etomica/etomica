@@ -77,7 +77,7 @@ public class DLJ extends Simulation {
 
         // dipolar LJ potential
         P2HSDipoleAtomic pDHS = new P2HSDipoleAtomic(space, 0.5*sigmaLJ, mu, truncation);
-        Potential2Soft pLJ = P2LennardJones.makeTruncated(sigmaLJ, epsilonLJ, new TruncationFactorySimple(truncation));
+        IPotential2 pLJ = P2LennardJones.makeTruncated(sigmaLJ, epsilonLJ, new TruncationFactorySimple(truncation));
         // add reaction field potential
         DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, mu);// add reaction field potential
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, dipoleSourceDLJ);

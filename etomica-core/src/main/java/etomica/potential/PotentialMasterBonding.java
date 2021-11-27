@@ -41,7 +41,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         return bondingInfo;
     }
 
-    public void setBondingPotentialPair(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
+    public void setBondingPotentialPair(ISpecies species, IPotential2 potential, List<int[]> bondedIndices) {
         bondingInfo.setBondingPotentialPair(species, potential, bondedIndices);
     }
 
@@ -97,7 +97,7 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         double[] uTot = {0};
         for (int i = 0; i < speciesList.size(); i++) {
-            Map<Potential2Soft, List<int[]>> potentials = bondingInfo.bondedPairs[i];
+            Map<IPotential2, List<int[]>> potentials = bondingInfo.bondedPairs[i];
             IMoleculeList molecules = box.getMoleculeList(speciesList.get(i));
             potentials.forEach((potential, pairs) -> {
                 for (IMolecule molecule : molecules) {
@@ -188,7 +188,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         return uTot[0];
     }
 
-    private double handleComputeOneBonded(Potential2Soft pij, IAtom iAtom, IAtom jAtom) {
+    private double handleComputeOneBonded(IPotential2 pij, IAtom iAtom, IAtom jAtom) {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector dr = space.makeVector();
@@ -253,7 +253,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         return potential.u(costheta);
     }
 
-    private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, Potential2Soft potential, Vector[] forces, PotentialCallback pc) {
+    private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, IPotential2 potential, Vector[] forces, PotentialCallback pc) {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector dr = Vector.d(ri.getD());
@@ -413,7 +413,7 @@ public class PotentialMasterBonding implements PotentialCompute {
 
     public static double computeOneMolecule(Boundary boundary, IMolecule molecule, FullBondingInfo bondingInfo) {
         final double[] u = {0};
-        Map<Potential2Soft, List<int[]>> potentials = bondingInfo.bondedPairs[molecule.getType().getIndex()];
+        Map<IPotential2, List<int[]>> potentials = bondingInfo.bondedPairs[molecule.getType().getIndex()];
         potentials.forEach((potential, pairs) -> {
             for (int[] pair : pairs) {
                 IAtom iAtom = molecule.getChildList().get(pair[0]);
@@ -482,8 +482,8 @@ public class PotentialMasterBonding implements PotentialCompute {
     public static class FullBondingInfo implements BondingInfo {
         public boolean isOnlyRigidMolecules = true;
         public final int[][][] bondedAtoms;
-        public final Map<Potential2Soft, List<int[]>>[] bondedPairs;
-        public final Map<Potential2Soft, int[][][]>[] bondedPairPartners;
+        public final Map<IPotential2, List<int[]>>[] bondedPairs;
+        public final Map<IPotential2, int[][][]>[] bondedPairPartners;
         public final Map<IPotentialBondAngle, List<int[]>>[] bondedTriplets;
         public final Map<IPotentialBondAngle, int[][][]>[] bondedTripletPartners;
         public final Map<IPotentialBondTorsion, List<int[]>>[] bondedQuads;
@@ -543,7 +543,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             return partners;
         }
 
-        public void setBondingPotentialPair(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
+        public void setBondingPotentialPair(ISpecies species, IPotential2 potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
 
             int[][][] partners = handledIndices(species, bondedIndices);

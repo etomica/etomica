@@ -11,8 +11,8 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
+import etomica.potential.IPotential2;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -41,7 +41,7 @@ import java.util.Arrays;
  * only 2-body (TWO_BODY) or only non-additive (NON_PAIR) via the
  * setComponent() method.
  */
-public class P2WaterSzalewicz implements Potential2Soft {
+public class P2WaterSzalewicz implements IPotential2 {
     public static final boolean broken3body = false;
     
     protected static final double[][] siteDoubles= new double[][]{

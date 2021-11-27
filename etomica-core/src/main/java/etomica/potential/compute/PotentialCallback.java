@@ -4,7 +4,7 @@
 package etomica.potential.compute;
 
 import etomica.atom.IAtom;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -23,7 +23,7 @@ public interface PotentialCallback {
      * @param tij  torque on j due to i
      * @param tji  torque on i due to j
      */
-    default void pairComputeGeneral(Potential2Soft pij, IAtom atom1, IAtom atom2, Vector drij, Vector fij, Vector tij, Vector tji) {}
+    default void pairComputeGeneral(IPotential2 pij, IAtom atom1, IAtom atom2, Vector drij, Vector fij, Vector tij, Vector tji) {}
 
     default void pairComputeHessian(int i, int j, Tensor phi) {}
 }

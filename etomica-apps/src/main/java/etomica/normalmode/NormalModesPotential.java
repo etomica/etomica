@@ -18,7 +18,7 @@ import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.function.Function;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.space.*;
 import etomica.space3d.Tensor3D;
 import etomica.units.dimensions.Dimension;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 public class NormalModesPotential implements NormalModes {
 
-    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2Soft potential, Space space) {
+    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, IPotential2 potential, Space space) {
         this.space = space;
         needToCalculateModes = true;
         
@@ -234,7 +234,7 @@ public class NormalModesPotential implements NormalModes {
         needToCalculateModes = false;
     }
         
-    public void setPotential(Potential2Soft potential) {
+    public void setPotential(IPotential2 potential) {
         needToCalculateModes = true;
         this.potential = potential;
     }
@@ -283,7 +283,7 @@ public class NormalModesPotential implements NormalModes {
 
     protected final Space space;
     private final BravaisLatticeCrystal lattice;
-    private Potential2Soft potential;
+    private IPotential2 potential;
     private WaveVectorFactory kFactory;
     private int maxLatticeShell;
     private double[][] omega2;

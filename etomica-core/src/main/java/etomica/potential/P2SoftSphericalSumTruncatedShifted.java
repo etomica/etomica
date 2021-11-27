@@ -17,7 +17,7 @@ public class P2SoftSphericalSumTruncatedShifted extends P2SoftSphericalSumTrunca
 
     protected double shift;
 
-    public P2SoftSphericalSumTruncatedShifted(double truncationRadius, Potential2Soft... potential) {
+    public P2SoftSphericalSumTruncatedShifted(double truncationRadius, IPotential2... potential) {
         super(truncationRadius, potential);
     }
 

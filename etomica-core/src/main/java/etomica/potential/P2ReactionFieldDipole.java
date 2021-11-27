@@ -21,7 +21,7 @@ import etomica.space3d.Vector3D;
  * The zero-body potential is provided by the method makeP0.
  */
 
-public class P2ReactionFieldDipole implements Potential2Soft {
+public class P2ReactionFieldDipole implements IPotential2 {
     protected final Vector iDipole, cavityDipole;
     protected final Vector dr;
     protected final Vector[][] gradientAndTorque;

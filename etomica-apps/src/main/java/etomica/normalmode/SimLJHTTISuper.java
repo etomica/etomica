@@ -52,7 +52,7 @@ public class SimLJHTTISuper extends Simulation {
     public Primitive primitive;
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
-    public Potential2Soft potential;
+    public IPotential2 potential;
     public SpeciesGeneral species;
     public SimLJHTTISuper(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
@@ -221,7 +221,7 @@ public class SimLJHTTISuper extends Simulation {
             boxReflected.getLeafList().get(a.getLeafIndex()).getPosition().E(a.getPosition());
         }
         PotentialMasterList potentialMasterData;
-        Potential2Soft potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
+        IPotential2 potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
         {
             // |potential| is our local potential used for data collection.
             potentialMasterData = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 2, cutoffs[nCutoffs-1], BondingInfo.noBonding());

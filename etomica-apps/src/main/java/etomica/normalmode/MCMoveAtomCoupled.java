@@ -10,7 +10,7 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -32,7 +32,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected AtomSource atomSource;
     protected final IRandom random;
     protected Vector oldPosition1, oldPosition2;
-    protected IPotentialField constraintPotential;
+    protected IPotential1 constraintPotential;
     protected boolean callComputeManyAtoms;
 
     public MCMoveAtomCoupled(PotentialCompute potentialCompute, IRandom random, Space _space) {
@@ -61,7 +61,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         callComputeManyAtoms = doCallComputeManyAtoms;
     }
 
-    public void setConstraint(IPotentialField newConstraintPotential) {
+    public void setConstraint(IPotential1 newConstraintPotential) {
         constraintPotential = newConstraintPotential;
     }
 

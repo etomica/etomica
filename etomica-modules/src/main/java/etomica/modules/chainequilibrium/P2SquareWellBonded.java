@@ -7,8 +7,8 @@ package etomica.modules.chainequilibrium;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
-import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 
 
@@ -29,7 +29,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public class P2SquareWellBonded extends P2HardGeneric implements Potential2Soft {
+public class P2SquareWellBonded extends P2HardGeneric implements IPotential2 {
 
     protected final AtomLeafAgentManager<IAtom[]> agentManager;
     protected double solventThermoFrac;

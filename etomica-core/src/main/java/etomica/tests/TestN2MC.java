@@ -86,7 +86,7 @@ public class TestN2MC extends Simulation {
         new BoxInflate(box, space, 100.0 / (100 * 100 * 100)).actionPerformed();
         System.out.println("box size: " + box.getBoundary().getBoxSize());
 
-        Potential2Soft pNNt, pNMt, pMMt;
+        IPotential2 pNNt, pNMt, pMMt;
         double sigma = 3.31;
         double epsilon = Kelvin.UNIT.toSim(36);
         double qN = Electron.UNIT.toSim(-0.482);

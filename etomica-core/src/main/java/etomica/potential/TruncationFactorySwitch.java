@@ -21,7 +21,7 @@ public class TruncationFactorySwitch implements TruncationFactory {
     }
 
     @Override
-    public P2SoftSphericalSumTruncatedSwitched make(Potential2Soft... p2) {
+    public P2SoftSphericalSumTruncatedSwitched make(IPotential2... p2) {
         P2SoftSphericalSumTruncatedSwitched pTrunc = new P2SoftSphericalSumTruncatedSwitched(rc, p2);
         pTrunc.setSwitchFac(switchFac);
         return pTrunc;

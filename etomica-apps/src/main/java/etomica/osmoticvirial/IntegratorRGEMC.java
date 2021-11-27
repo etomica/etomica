@@ -6,7 +6,7 @@ package etomica.osmoticvirial;
 
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -24,9 +24,9 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
     private Space space;
     private final ISpecies seed;
     private final NeighborManager[] neighborManagers = new NeighborManager[2];
-    private final Potential2Soft[][] pairPotentials;
+    private final IPotential2[][] pairPotentials;
 
-    public IntegratorRGEMC(IRandom random, Space space, ISpecies seed, Potential2Soft[][] pairPotentials) {
+    public IntegratorRGEMC(IRandom random, Space space, ISpecies seed, IPotential2[][] pairPotentials) {
         super(random);
         this.space = space;
         this.seed = seed;

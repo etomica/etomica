@@ -12,7 +12,7 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -40,7 +40,7 @@ public class PotentialComputeFieldTest {
         box.getBoundary().setBoxSize(Vector.of(10, 10, 10));
         box.setNMolecules(species, 100);
         PotentialComputeField pcOne = new PotentialComputeField(sim.getSpeciesManager(), box);
-        IPotentialField p1 = new IPotentialField() {
+        IPotential1 p1 = new IPotential1() {
             @Override
             public double u(IAtom atom) {
                 double x = atom.getPosition().getX(0);

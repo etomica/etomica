@@ -26,8 +26,8 @@ import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
+import etomica.potential.IPotential2;
 import etomica.potential.P2SpheroPolyhedron;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -98,7 +98,7 @@ public class VirialPolyhedra2 {
         }
 
         final double[][] uValues = new double[nPoints][nPoints];
-        Potential2Soft p2Wrapper = new Potential2Soft() {
+        IPotential2 p2Wrapper = new IPotential2() {
 
             @Override
             public double u(Vector dr12, IAtom atom1, IAtom atom2) {

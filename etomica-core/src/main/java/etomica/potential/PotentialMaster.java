@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 public class PotentialMaster implements PotentialCompute {
     protected final BondingInfo bondingInfo;
-    protected final Potential2Soft[][] pairPotentials;
+    protected final IPotential2[][] pairPotentials;
     protected final Box box;
     protected final Vector dr;
     protected double[] uAtom;
@@ -46,10 +46,10 @@ public class PotentialMaster implements PotentialCompute {
     public long numMC, tMC;
 
     public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
-        this(sm, box, bondingInfo, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
+        this(sm, box, bondingInfo, new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
     }
 
-    public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo, Potential2Soft[][] pairPotentials) {
+    public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo, IPotential2[][] pairPotentials) {
         space = box.getSpace();
         this.bondingInfo = bondingInfo;
         this.pairPotentials = pairPotentials;
@@ -148,12 +148,12 @@ public class PotentialMaster implements PotentialCompute {
         return energyTot;
     }
 
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
     }
 
-    public Potential2Soft[][] getPairPotentials() {
+    public IPotential2[][] getPairPotentials() {
         return pairPotentials;
     }
 
@@ -162,7 +162,7 @@ public class PotentialMaster implements PotentialCompute {
 
     }
 
-    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij, PotentialCallback pc, boolean skipIntra) {
+    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, IPotential2 pij, PotentialCallback pc, boolean skipIntra) {
         if (pc != null && pc.skipPair(iAtom, jAtom)) return 0;
         numAll++;
         dr.Ev1Mv2(rj, ri);
@@ -221,11 +221,11 @@ public class PotentialMaster implements PotentialCompute {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
-            Potential2Soft[] ip = pairPotentials[iType];
+            IPotential2[] ip = pairPotentials[iType];
             for (int j = i + 1; j < atoms.size(); j++) {
                 IAtom jAtom = atoms.get(j);
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 if (pij == null) continue;
 
                 if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
@@ -295,7 +295,7 @@ public class PotentialMaster implements PotentialCompute {
             for (int j = i + 1; j < atoms.length; j++) {
                 IAtom atom2 = atoms[j];
                 if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) continue;
-                Potential2Soft pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
+                IPotential2 pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
                 if (pij == null) continue;
                 Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
@@ -307,7 +307,7 @@ public class PotentialMaster implements PotentialCompute {
         return uIntra;
     }
 
-    protected double handleComputeOne(Potential2Soft pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom, boolean skipIntra) {
+    protected double handleComputeOne(IPotential2 pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom, boolean skipIntra) {
         numMC++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
@@ -351,7 +351,7 @@ public class PotentialMaster implements PotentialCompute {
     protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
         int iType = atom.getType().getIndex();
         int i = atom.getLeafIndex();
-        Potential2Soft[] ip = pairPotentials[iType];
+        IPotential2[] ip = pairPotentials[iType];
         double u = 0;
         Boundary boundary = box.getBoundary();
         long t1 = System.nanoTime();
@@ -359,7 +359,7 @@ public class PotentialMaster implements PotentialCompute {
             if (i == j) continue;
             IAtom jAtom = box.getLeafList().get(j);
             int jType = jAtom.getType().getIndex();
-            Potential2Soft pij = ip[jType];
+            IPotential2 pij = ip[jType];
             if (pij == null) continue;
             if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
             if (bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom)) continue;
@@ -431,7 +431,7 @@ public class PotentialMaster implements PotentialCompute {
         double duCor = 0;
         for (int i = 0; i < atomCountByType.length; i++) {
             for (int j = i; j < atomCountByType.length; j++) {
-                Potential2Soft p = pairPotentials[i][j];
+                IPotential2 p = pairPotentials[i][j];
                 if (p == null) continue;
                 int numPairs;
                 if (j == i) {
@@ -460,7 +460,7 @@ public class PotentialMaster implements PotentialCompute {
         int iType = box.getLeafList().get(iAtom).getType().getIndex();
         double uCorrection = 0;
         for (int j = 0; j < atomCountByType.length; j++) {
-            Potential2Soft p = pairPotentials[iType][j];
+            IPotential2 p = pairPotentials[iType][j];
             double pairDensity;
             if (iType == j) {
                 pairDensity = (atomCountByType[j] - 1) / box.getBoundary().volume();

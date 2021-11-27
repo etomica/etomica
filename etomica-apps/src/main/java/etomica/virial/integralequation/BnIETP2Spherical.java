@@ -4,10 +4,10 @@
 
 package etomica.virial.integralequation;
 
+import etomica.potential.IPotential2;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -38,7 +38,7 @@ public static void main(String[] args) {
         boolean LJ = false;
         double[] temps;
         double[] simTemps;
-        Potential2Soft p2;
+        IPotential2 p2;
 		if (LJ) {
 		// To make sure that everything is working fine:
 		System.out.println("Literature values for LJ with sigma = 1 and T* = 1");
@@ -142,7 +142,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double[][] getConvergence (Potential2Soft p2, int power, int m, double r_max, double temp, boolean printapalooza) {
+	public static double[][] getConvergence (IPotential2 p2, int power, int m, double r_max, double temp, boolean printapalooza) {
 	
 		double [][] results = new double[3][m];
 		double [] newBPY = new double[m];
@@ -200,7 +200,7 @@ public static void main(String[] args) {
 	}
 
 
-	public static double[] computeB(int m, int N, double del_r, double temp, Potential2Soft p2) {
+	public static double[] computeB(int m, int N, double del_r, double temp, IPotential2 p2) {
 		
 		// Get Mayer function for this discretization
 		
@@ -255,7 +255,7 @@ public static void main(String[] args) {
 		
 	}
 
-	public static double[] getfr(int N, double del_r, double temp, Potential2Soft p2) {
+	public static double[] getfr(int N, double del_r, double temp, IPotential2 p2) {
 	    
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		
@@ -283,7 +283,7 @@ public static void main(String[] args) {
 		
 	}
 	
-	public static double[] getrdfdr(int N, double del_r, double temp, Potential2Soft p2) {
+	public static double[] getrdfdr(int N, double del_r, double temp, IPotential2 p2) {
 		
 		double[] rdfdr = new double[N];  // Holds discretization of Mayer function in r-space
 		

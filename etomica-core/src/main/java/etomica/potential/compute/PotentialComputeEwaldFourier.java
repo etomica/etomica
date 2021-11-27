@@ -11,8 +11,8 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.math.Complex;
 import etomica.molecule.IMolecule;
+import etomica.potential.IPotential2;
 import etomica.potential.P2SoftSphericalSum;
-import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.ewald.P2Ewald1FourierCancel;
 import etomica.potential.ewald.P2Ewald6FourierCancel;
@@ -230,7 +230,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                             }
                         }
                     }
-                    Potential2Soft pij = null;
+                    IPotential2 pij = null;
                     if (qi*qj != 0) {
                         pij = new P2Ewald1FourierCancel(qi * qj, alpha);
                     }

@@ -17,7 +17,7 @@ import etomica.units.dimensions.Length;
  *
  * @author David Kofke (edited by Eric C. Cichowski and Todd Schmidt)
  */
-public class P2WCA implements Potential2Soft {
+public class P2WCA implements IPotential2 {
 
     /**
      * Constructs potential using default sigma and epsilon given by Default class.

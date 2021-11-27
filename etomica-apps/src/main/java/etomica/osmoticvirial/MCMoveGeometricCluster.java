@@ -6,7 +6,7 @@ import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.PotentialCompute;
@@ -40,7 +40,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
     protected final AtomArrayList atomPairs;
     protected final IntegratorMC integratorMC;
     protected final IRandom random;
-    protected Potential2Soft[][] potentials;
+    protected IPotential2[][] potentials;
     protected final ISpecies solute;
 
     /**
@@ -51,7 +51,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
      *                any molecule in the box could be used for initial trial
      */
     public MCMoveGeometricCluster(PotentialCompute potentialCompute, NeighborManager neighborManager, Space space, IRandom random,
-                                  IntegratorMC integratorMC, ISpecies species, Potential2Soft[][] pairPotentials) {
+                                  IntegratorMC integratorMC, ISpecies species, IPotential2[][] pairPotentials) {
         super();
         clusterAtoms = new HashSet<>();
         jNeighbors = new AtomArrayList();
@@ -125,7 +125,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
     private double computeEnergy(Vector dr12, IAtom atomI, IAtom atomJ) {
         int iIndex = atomI.getType().getIndex();
         int jIndex = atomJ.getType().getIndex();
-        Potential2Soft p = potentials[iIndex][jIndex];
+        IPotential2 p = potentials[iIndex][jIndex];
         if (p == null) {
             return 0;
         }

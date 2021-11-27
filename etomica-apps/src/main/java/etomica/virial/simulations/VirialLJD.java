@@ -18,9 +18,9 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -109,7 +109,7 @@ public class VirialLJD {
         };
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2Soft pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones() : new P2SoftSphere(1, 4, 12);
+        IPotential2 pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones() : new P2SoftSphere(1, 4, 12);
 
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         if (doChainRef) System.out.println("HS Chain reference");

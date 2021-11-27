@@ -17,30 +17,30 @@ import etomica.species.SpeciesManager;
 public class PotentialMoleculePair implements IPotentialMolecular {
     protected final Space space;
     protected Boundary boundary;
-    protected final Potential2Soft[][] atomPotentials;
+    protected final IPotential2[][] atomPotentials;
 
     public PotentialMoleculePair(Space space, SpeciesManager sm) {
         this(space, makeAtomPotentials(sm));
     }
 
-    public PotentialMoleculePair(Space space, Potential2Soft[][] atomPotentials) {
+    public PotentialMoleculePair(Space space, IPotential2[][] atomPotentials) {
         this.space = space;
         this.atomPotentials = atomPotentials;
     }
 
-    private static Potential2Soft[][] makeAtomPotentials(SpeciesManager sm) {
+    private static IPotential2[][] makeAtomPotentials(SpeciesManager sm) {
         // we could try to store the potentials more compactly, but it doesn't really matter
         ISpecies species = sm.getSpecies(sm.getSpeciesCount() - 1);
         int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        return new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
+        return new IPotential2[lastTypeIndex + 1][lastTypeIndex + 1];
     }
 
-    public void setAtomPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p2) {
+    public void setAtomPotential(AtomType atomType1, AtomType atomType2, IPotential2 p2) {
         atomPotentials[atomType1.getIndex()][atomType2.getIndex()] = p2;
         atomPotentials[atomType2.getIndex()][atomType1.getIndex()] = p2;
     }
 
-    public Potential2Soft[][] getAtomPotentials() {
+    public IPotential2[][] getAtomPotentials() {
         return atomPotentials;
     }
 
@@ -54,9 +54,9 @@ public class PotentialMoleculePair implements IPotentialMolecular {
         IAtomList atoms2 = molecule2.getChildList();
         double u = 0;
         for (IAtom a0 : atoms1) {
-            Potential2Soft[] p0 = atomPotentials[a0.getType().getIndex()];
+            IPotential2[] p0 = atomPotentials[a0.getType().getIndex()];
             for (IAtom a1 : atoms2) {
-                Potential2Soft p2 = p0[a1.getType().getIndex()];
+                IPotential2 p2 = p0[a1.getType().getIndex()];
                 if (p2 == null) continue;
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(a1.getPosition(), a0.getPosition());

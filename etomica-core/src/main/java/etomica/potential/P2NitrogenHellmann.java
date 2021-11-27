@@ -59,7 +59,7 @@ import java.io.IOException;
 //
 
 
-public class P2NitrogenHellmann implements Potential2Soft {
+public class P2NitrogenHellmann implements IPotential2 {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space);
@@ -530,7 +530,7 @@ public class P2NitrogenHellmann implements Potential2Soft {
         return new P2N2QFH(temperature);
     }
     
-    public class P2N2QFH implements Potential2Soft {
+    public class P2N2QFH implements IPotential2 {
         protected final Vector[][] gi;
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;

@@ -24,7 +24,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.NeighborManagerIntra;
 import etomica.potential.compute.PotentialCompute;
@@ -87,7 +87,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected HistogramNotSoSimple targPiHist;
     protected double[] boxLengths = new double[]{0, 0};
     protected PotentialMasterBonding.FullBondingInfo bondingInfo;
-    protected Potential2Soft[][] pairPotentials;
+    protected IPotential2[][] pairPotentials;
 
     /**
      * This constructor will create your simulation class, but you may call
@@ -175,7 +175,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         boxLengths[1] = targetLength;
     }
 
-    public void setIntraPairPotentials(Potential2Soft[][] pairPotentials) {
+    public void setIntraPairPotentials(IPotential2[][] pairPotentials) {
         if (initialized) throw new RuntimeException("too late");
         this.pairPotentials = pairPotentials;
     }

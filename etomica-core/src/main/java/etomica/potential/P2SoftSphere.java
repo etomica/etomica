@@ -25,9 +25,9 @@ import etomica.units.dimensions.Length;
  *
  * @author Tai Boon Tan
  */
-public class P2SoftSphere implements Potential2Soft {
+public class P2SoftSphere implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double sigma, double epsilon, int n, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double sigma, double epsilon, int n, TruncationFactory tf) {
         return tf.make(new P2SoftSphere(sigma, epsilon, n));
     }
 

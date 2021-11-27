@@ -8,7 +8,7 @@ import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborManagerHard;
 import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
@@ -25,7 +25,7 @@ import java.util.List;
 public class IntegratorHardMDMC extends IntegratorHard {
     protected List<IAction> thermostatActions;
 
-    public IntegratorHardMDMC(Potential2Soft[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
+    public IntegratorHardMDMC(IPotential2[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
         super(pairPotentials, neighborManager, random, timeStep, temperature, box, sm);
         thermostatActions = new ArrayList<>();
     }

@@ -10,7 +10,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -22,11 +22,11 @@ public class MCMoveClusterPolyhedraTree extends MCMoveBox {
     protected int[][] bonds;
     protected int[] degree, a;
     protected int[] inserted;
-    protected Potential2Soft p2;
+    protected IPotential2 p2;
     protected final AtomPair pair;
     protected final double[][] uValues;
 
-    public MCMoveClusterPolyhedraTree(IRandom random, Box box, double sigma, Potential2Soft p2, double[][] uValues) {
+    public MCMoveClusterPolyhedraTree(IRandom random, Box box, double sigma, IPotential2 p2, double[][] uValues) {
         super();
         this.random = random;
         this.sigma = sigma;

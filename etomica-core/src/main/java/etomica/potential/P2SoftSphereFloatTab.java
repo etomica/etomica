@@ -34,7 +34,7 @@ import etomica.space.Space;
  */
 public class P2SoftSphereFloatTab extends P2SoftSphere {
 
-    public static Potential2Soft makeTruncated(double sigma, double epsilon, double nn, double rc, int ntab, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double sigma, double epsilon, double nn, double rc, int ntab, TruncationFactory tf) {
         return tf.make(new P2SoftSphereFloatTab(sigma, epsilon, nn, rc, ntab));
     }
 

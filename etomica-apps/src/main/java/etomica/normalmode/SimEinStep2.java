@@ -104,7 +104,7 @@ public class SimEinStep2 extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        Potential2Soft potential = null;
+        IPotential2 potential = null;
         if (exponent > 0) {
             potential = new P2SoftSphere(1.0, 1.0, exponent);
         } else {

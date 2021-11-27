@@ -5,8 +5,8 @@
 package etomica.virial;
 
 import etomica.math.numerical.SineTransform;
+import etomica.potential.IPotential2;
 import etomica.potential.P2QChemInterpolated;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
@@ -208,7 +208,7 @@ public static void main(String[] args) {
 		return B;
 	}
 	
-	public static double computeB2QM(Potential2Soft p2, double temp) {
+	public static double computeB2QM(IPotential2 p2, double temp) {
 
 		
 		 double del_r = 0.0001;
@@ -260,7 +260,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double[] getConvergence (Potential2Soft p2, int power, double r_max, double temp, boolean printapalooza, boolean allFFT) {
+	public static double[] getConvergence (IPotential2 p2, int power, double r_max, double temp, boolean printapalooza, boolean allFFT) {
 		
 		r_max = 200;
 
@@ -312,7 +312,7 @@ public static void main(String[] args) {
 		return results;
 	}
 
-	public static double[] getfr(Potential2Soft p2, int N, double del_r, double temp) {
+	public static double[] getfr(IPotential2 p2, int N, double del_r, double temp) {
 		
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		

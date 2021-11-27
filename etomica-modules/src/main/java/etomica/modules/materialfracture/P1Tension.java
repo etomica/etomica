@@ -5,13 +5,13 @@
 package etomica.modules.materialfracture;
 
 import etomica.atom.IAtom;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 
-public class P1Tension implements IPotentialField {
+public class P1Tension implements IPotential1 {
 
     protected final Space space;
     protected double w;

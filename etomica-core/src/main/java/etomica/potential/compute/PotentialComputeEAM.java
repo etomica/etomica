@@ -12,8 +12,8 @@ import etomica.box.BoxMoleculeEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborIteratorCell;
+import etomica.potential.IPotential2;
 import etomica.potential.IPotentialEmbedding;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -32,8 +32,8 @@ public class PotentialComputeEAM implements PotentialCompute {
 
     private final NeighborIterator neighborIterator;
     protected final IPotentialEmbedding[] embeddingPotentials;
-    protected final Potential2Soft[][] pairPotentials;
-    protected final Potential2Soft[] rhoPotentials;
+    protected final IPotential2[][] pairPotentials;
+    protected final IPotential2[] rhoPotentials;
     protected final Box box;
     private final NeighborManager neighborManager;
     private final NeighborIteratorCell.SuperNbrConsumer nbrConsumer1, nbrConsumerEmbedding;
@@ -56,8 +56,8 @@ public class PotentialComputeEAM implements PotentialCompute {
     public PotentialComputeEAM(SpeciesManager sm, Box box, NeighborManager neighborManager) {
         space = box.getSpace();
         int typeCount = sm.getAtomTypeCount();
-        pairPotentials = new Potential2Soft[typeCount][typeCount];
-        rhoPotentials = new Potential2Soft[typeCount];
+        pairPotentials = new IPotential2[typeCount][typeCount];
+        rhoPotentials = new IPotential2[typeCount];
         embeddingPotentials = new IPotentialEmbedding[typeCount];
         this.neighborManager = neighborManager;
         this.neighborManager.setPairPotentials(pairPotentials);
@@ -98,7 +98,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                 int j = jAtom.getLeafIndex();
                 int iType = iAtom.getType().getIndex();
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = pairPotentials[iType][jType];
+                IPotential2 pij = pairPotentials[iType][jType];
                 double r2 = rij.squared();
                 double uij = 0;
                 if (pij != null) {
@@ -112,8 +112,8 @@ public class PotentialComputeEAM implements PotentialCompute {
                         duAtom.add(0.5 * uij);
                     }
                 }
-                Potential2Soft irp = rhoPotentials[iType];
-                Potential2Soft jrp = rhoPotentials[jType];
+                IPotential2 irp = rhoPotentials[iType];
+                IPotential2 jrp = rhoPotentials[jType];
                 if (jrp != null) {
                     double jrc = jrp.getRange();
                     if (r2 < jrc * jrc) {
@@ -187,14 +187,14 @@ public class PotentialComputeEAM implements PotentialCompute {
         return energyTot;
     }
 
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
 
         updateMaxRange();
     }
 
-    public void setRhoPotential(AtomType atomType, Potential2Soft pRho) {
+    public void setRhoPotential(AtomType atomType, IPotential2 pRho) {
         rhoPotentials[atomType.getIndex()] = pRho;
 
         updateMaxRange();
@@ -204,12 +204,12 @@ public class PotentialComputeEAM implements PotentialCompute {
 
         double maxRange1 = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
                 .filter(Objects::nonNull)
-                .mapToDouble(Potential2Soft::getRange)
+                .mapToDouble(IPotential2::getRange)
                 .max().orElse(0);
 
         double maxRange2 = Arrays.stream(rhoPotentials)
                 .filter(Objects::nonNull)
-                .mapToDouble(Potential2Soft::getRange)
+                .mapToDouble(IPotential2::getRange)
                 .max().orElse(0);
 
         this.neighborManager.setPotentialRange(Math.max(maxRange1, maxRange2));
@@ -255,13 +255,13 @@ public class PotentialComputeEAM implements PotentialCompute {
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
-            Potential2Soft[] ip = pairPotentials[iType];
-            Potential2Soft irp = rhoPotentials[iType];
+            IPotential2[] ip = pairPotentials[iType];
+            IPotential2 irp = rhoPotentials[iType];
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
                 int j = jAtom.getLeafIndex();
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 double[] u012 = new double[3];
                 double r2 = rij.squared();
                 if (pij != null) {
@@ -294,7 +294,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                     }
 
                     if (iType != jType) {
-                        Potential2Soft jrp = rhoPotentials[jType];
+                        IPotential2 jrp = rhoPotentials[jType];
                         if (jrp != null && embeddingPotentials[iType] != null) {
                             double jrc = jrp.getRange();
                             if (r2 < jrc * jrc) {
@@ -308,7 +308,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                         rhoSum[finalI] += u012[0];
                     }
                 } else if (iType != jType) {
-                    Potential2Soft jrp = rhoPotentials[jType];
+                    IPotential2 jrp = rhoPotentials[jType];
                     if (jrp != null && embeddingPotentials[iType] != null) {
                         double jrc = jrp.getRange();
                         if (r2 < jrc * jrc) {
@@ -339,7 +339,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                 IAtom iAtom = atoms.get(i);
                 int iType = iAtom.getType().getIndex();
 
-                Potential2Soft irp = rhoPotentials[iType];
+                IPotential2 irp = rhoPotentials[iType];
                 double iCutoff2 = irp.getRange() * irp.getRange();
                 int finalI = i;
                 neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
@@ -498,7 +498,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         double duCor = 0;
         for (int i = 0; i < atomCountByType.length; i++) {
             for (int j = i; j < atomCountByType.length; j++) {
-                Potential2Soft p = pairPotentials[i][j];
+                IPotential2 p = pairPotentials[i][j];
                 int numPairs;
                 if (j == i) {
                     numPairs = atomCountByType[i] * (atomCountByType[j] - 1) / 2;
@@ -526,7 +526,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         int iType = box.getLeafList().get(iAtom).getType().getIndex();
         double uCorrection = 0;
         for (int j = 0; j < atomCountByType.length; j++) {
-            Potential2Soft p = pairPotentials[iType][j];
+            IPotential2 p = pairPotentials[iType][j];
             double pairDensity;
             if (iType == j) {
                 pairDensity = (atomCountByType[j] - 1) / box.getBoundary().volume();

@@ -124,9 +124,9 @@ public class OctaneMC extends Simulation {
         P2LennardJones p2CH2LJ = new P2LennardJones(sigmaCH2, epsilonCH2);
         P2LennardJones p2CH3LJ = new P2LennardJones(sigmaCH3, epsilonCH3);
         P2LennardJones p2CH2CH3LJ = new P2LennardJones(sigmaCH2CH3, epsilonCH2CH3);
-        Potential2Soft p2CH2 = tf.make(p2CH2LJ);
-        Potential2Soft p2CH3 = tf.make(p2CH3LJ);
-        Potential2Soft p2CH2CH3 = tf.make(p2CH2CH3LJ);
+        IPotential2 p2CH2 = tf.make(p2CH2LJ);
+        IPotential2 p2CH3 = tf.make(p2CH3LJ);
+        IPotential2 p2CH2CH3 = tf.make(p2CH2CH3LJ);
 
         potentialMaster.setPairPotential(typeCH2, typeCH2, p2CH2);
         potentialMaster.setPairPotential(typeCH2, typeCH3, p2CH2CH3);

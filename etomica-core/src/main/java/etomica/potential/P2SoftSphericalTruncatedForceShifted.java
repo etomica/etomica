@@ -14,7 +14,7 @@ package etomica.potential;
 public class P2SoftSphericalTruncatedForceShifted extends
         P2SoftSphericalTruncatedShifted {
 
-    public P2SoftSphericalTruncatedForceShifted(Potential2Soft potential, double truncationRadius) {
+    public P2SoftSphericalTruncatedForceShifted(IPotential2 potential, double truncationRadius) {
         super(potential, truncationRadius);
     }
 

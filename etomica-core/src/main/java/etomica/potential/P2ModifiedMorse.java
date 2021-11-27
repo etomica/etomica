@@ -25,9 +25,9 @@ import etomica.util.Constants;
  */
 
 
-public final class P2ModifiedMorse implements Potential2Soft {
+public final class P2ModifiedMorse implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double epsilon, double re, double a, double z1, double z2, double coulombicCutoff, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double epsilon, double re, double a, double z1, double z2, double coulombicCutoff, TruncationFactory tf) {
         return tf.make(new P2ModifiedMorse(epsilon, re, a, z1, z2, coulombicCutoff));
     }
 

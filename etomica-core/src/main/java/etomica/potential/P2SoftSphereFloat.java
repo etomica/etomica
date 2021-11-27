@@ -26,9 +26,9 @@ import etomica.units.dimensions.Length;
  * This class supports floating-point exponents, but is significantly slower
  * than P2SoftSphere (which requires an integer exponent)
  */
-public class P2SoftSphereFloat implements Potential2Soft {
+public class P2SoftSphereFloat implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double sigma, double epsilon, int n, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double sigma, double epsilon, int n, TruncationFactory tf) {
         return tf.make(new P2SoftSphereFloat(sigma, epsilon, n));
     }
 

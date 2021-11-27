@@ -32,7 +32,7 @@ public class LjMd3D extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public SpeciesGeneral species;
     public Box box;
-    public Potential2Soft potential;
+    public IPotential2 potential;
     public IntegratorMC integratorMC;
     public MCMoveVolume mcMoveVolume;
 

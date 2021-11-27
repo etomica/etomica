@@ -59,7 +59,7 @@ public class SimLJVacancy extends Simulation {
     public IntegratorMC integrator;
     public SpeciesGeneral species;
     public Box box;
-    public Potential2Soft p2LJ;
+    public IPotential2 p2LJ;
     public P2SoftSphericalTruncated potential;
     public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;

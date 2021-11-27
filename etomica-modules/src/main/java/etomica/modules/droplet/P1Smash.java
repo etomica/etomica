@@ -5,14 +5,14 @@
 package etomica.modules.droplet;
 
 import etomica.atom.IAtom;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
  * Gravity-like potential that pushes the molecules toward the center.
  */
-public class P1Smash implements IPotentialField {
+public class P1Smash implements IPotential1 {
 
     public P1Smash(Space space) {
         g = 1;

@@ -16,7 +16,7 @@ import etomica.space.Vector;
  *
  * @author Jayant K. Singh
  */
-public class P2LJQ implements Potential2Soft {
+public class P2LJQ implements IPotential2 {
 
     public P2LJQ(Space space) {
         this(space, 1, 1, 1);

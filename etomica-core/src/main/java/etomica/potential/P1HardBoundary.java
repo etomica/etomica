@@ -23,7 +23,7 @@ import etomica.util.Debug;
  *
  * @author David Kofke
  */
-public class P1HardBoundary implements Drawable, IPotentialField {
+public class P1HardBoundary implements Drawable, IPotential1 {
 
     protected double collisionRadius = 0.0;
     private final Vector work;

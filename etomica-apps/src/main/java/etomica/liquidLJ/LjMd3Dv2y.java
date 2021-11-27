@@ -568,7 +568,7 @@ public class LjMd3Dv2y {
         return uduCorrection(sim, sim.potential, rc);
     }
 
-    public static double[] uduCorrection(LjMd3D sim, Potential2Soft p, double rc) {
+    public static double[] uduCorrection(LjMd3D sim, IPotential2 p, double rc) {
         P2SoftSphericalSumTruncated pt = new P2SoftSphericalSumTruncated(rc, p);
         int N = sim.box.getMoleculeList().size();
         double V = sim.box.getBoundary().volume();

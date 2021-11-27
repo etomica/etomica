@@ -19,8 +19,8 @@ import etomica.graph.property.IsBiconnected;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.IFunction;
 import etomica.math.numerical.SineTransform;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -54,7 +54,7 @@ public class CalcFFT {
     protected final HashMap<Object,double[]> rDistributionErrorHash;
     protected final HashMap<Object,double[]> kDistributionHash;
 
-    public static IFunction makeF(final Potential2Soft p2, final double temperature) {
+    public static IFunction makeF(final IPotential2 p2, final double temperature) {
         IFunction f = new IFunction() {
             
             public double f(double r) {
@@ -316,7 +316,7 @@ public class CalcFFT {
 		double dr = 0.01;
 		
         Space space = Space3D.getInstance();
-        Potential2Soft p2 = new P2LennardJones(1, 1);
+        IPotential2 p2 = new P2LennardJones(1, 1);
 		CalcFFT calcFFT = new CalcFFT(makeF(p2, 1.0), dr, power);
 //		List myList = new ArrayList();
 //		List mySubList = new ArrayList();

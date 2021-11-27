@@ -1,13 +1,13 @@
 package etomica.potential.ewald;
 
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.TruncationFactory;
 
 import static etomica.math.SpecialFunctions.factorial;
 
-public class P2Ewald6FourierCancel implements Potential2Soft {
+public class P2Ewald6FourierCancel implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double sigmaI, double epsilonI, double sigmaJ, double epsilonJ, double alpha6, TruncationFactory tf) {
         return tf.make(new P2Ewald6FourierCancel(sigmaI, epsilonI, sigmaJ, epsilonJ, alpha6));
     }
 

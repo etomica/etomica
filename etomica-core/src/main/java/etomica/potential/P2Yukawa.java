@@ -17,9 +17,9 @@ import etomica.space.Space;
  *
  */
 
-public final class P2Yukawa implements Potential2Soft {
+public final class P2Yukawa implements IPotential2 {
 
-	public static Potential2Soft makeTruncated(double kappa, double vzero, TruncationFactory tf) {
+	public static IPotential2 makeTruncated(double kappa, double vzero, TruncationFactory tf) {
 		return tf.make(new P2Yukawa(kappa, vzero));
 	}
 

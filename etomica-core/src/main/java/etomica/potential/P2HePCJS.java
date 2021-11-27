@@ -15,9 +15,9 @@ import etomica.units.Kelvin;
  *
  * @author Navneeth Gokul
  */
-public class P2HePCJS implements Potential2Soft {
+public class P2HePCJS implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double sigma, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double sigma, TruncationFactory tf) {
         return tf.make(new P2HePCJS(sigma));
     }
 

@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.PotentialMaster;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
@@ -21,10 +21,10 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
     private final NeighborListManager nbrManager;
 
     public PotentialMasterList(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
-        this(sm, box, cellRange, nbrRange, bondingInfo, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
+        this(sm, box, cellRange, nbrRange, bondingInfo, new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
     }
 
-    public PotentialMasterList(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo, Potential2Soft[][] pairPotentials) {
+    public PotentialMasterList(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo, IPotential2[][] pairPotentials) {
         super(sm, box, bondingInfo, pairPotentials);
         this.nbrManager = new NeighborListManager(sm, box, cellRange, nbrRange, bondingInfo);
         this.nbrManager.setPairPotentials(this.pairPotentials);
@@ -63,7 +63,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
-            Potential2Soft[] iPotentials = pairPotentials[iType];
+            IPotential2[] iPotentials = pairPotentials[iType];
             int iNumNbrs = nbrManager.numAtomNbrsUp[i];
             int[] iNbrs = nbrManager.nbrs[i];
             Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[i];
@@ -71,7 +71,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
                 int jj = iNbrs[j];
                 IAtom jAtom = atoms.get(jj);
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = iPotentials[jType];
+                IPotential2 pij = iPotentials[jType];
                 Vector rj = jAtom.getPosition();
                 Vector jbo = iNbrBoxOffsets[j];
                 uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij, pc, false);
@@ -112,7 +112,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
     protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
         int iType = atom.getType().getIndex();
         int i = atom.getLeafIndex();
-        Potential2Soft[] ip = pairPotentials[iType];
+        IPotential2[] ip = pairPotentials[iType];
         double u = 0;
         long t1 = System.nanoTime();
         Vector ri = atom.getPosition();
@@ -126,7 +126,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
             IAtom jAtom = atoms.get(jj);
             if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
             int jType = jAtom.getType().getIndex();
-            Potential2Soft pij = ip[jType];
+            IPotential2 pij = ip[jType];
             Vector rj = jAtom.getPosition();
             Vector jbo = iNbrBoxOffsets[j];
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom);
@@ -139,7 +139,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
             IAtom jAtom = atoms.get(jj);
             if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
             int jType = jAtom.getType().getIndex();
-            Potential2Soft pij = ip[jType];
+            IPotential2 pij = ip[jType];
             Vector rj = jAtom.getPosition();
             Vector jbo = iNbrBoxOffsets[iNbrs.length - 1 - j];
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom);

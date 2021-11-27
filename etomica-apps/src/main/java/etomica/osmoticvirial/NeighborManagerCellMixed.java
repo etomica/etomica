@@ -9,7 +9,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborIterator;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -17,7 +17,7 @@ import etomica.species.SpeciesManager;
 public class NeighborManagerCellMixed extends NeighborCellManager {
 
     protected final AtomType cellType;
-    protected Potential2Soft[][] pairPotentials;
+    protected IPotential2[][] pairPotentials;
 
     public NeighborManagerCellMixed(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo, AtomType cellType) {
         super(sm, box, cellRange, bondingInfo);
@@ -25,7 +25,7 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
     }
 
     @Override
-    public void setPairPotentials(Potential2Soft[][] potentials) {
+    public void setPairPotentials(IPotential2[][] potentials) {
         pairPotentials = potentials;
         setPotentialRange(0);
     }
@@ -33,7 +33,7 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
     @Override
     public void setPotentialRange(double newRange) {
         if (pairPotentials == null) return;
-        Potential2Soft p = pairPotentials[cellType.getIndex()][cellType.getIndex()];
+        IPotential2 p = pairPotentials[cellType.getIndex()][cellType.getIndex()];
         if (p != null) {
             super.setPotentialRange(p.getRange());
         }

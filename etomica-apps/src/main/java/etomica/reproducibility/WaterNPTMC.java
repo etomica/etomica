@@ -87,10 +87,10 @@ public class WaterNPTMC extends Simulation {
         TruncationFactory tf = new TruncationFactorySimple(params.rCut);
         P2LennardJones p2OOLJ = new P2LennardJones(sigmaLJ, epsilonLJ);
         P2Ewald1Real p2OOqq = new P2Ewald1Real(chargeO*chargeO, params.alpha);
-        Potential2Soft p2OO = tf.make(p2OOLJ, p2OOqq);
-        Potential2Soft p2HH = tf.make(new P2Ewald1Real(chargeH*chargeH, params.alpha));
+        IPotential2 p2OO = tf.make(p2OOLJ, p2OOqq);
+        IPotential2 p2HH = tf.make(new P2Ewald1Real(chargeH*chargeH, params.alpha));
         P2HardGeneric p2MHC = P2HardSphere.makePotential(0.1);
-        Potential2Soft p2OH = tf.make(p2MHC, new P2Ewald1Real(chargeH*chargeO, params.alpha));
+        IPotential2 p2OH = tf.make(p2MHC, new P2Ewald1Real(chargeH*chargeO, params.alpha));
         pm.setPairPotential(oType, oType, p2OO);
         pm.setPairPotential(hType, hType, p2HH);
         pm.setPairPotential(oType, hType, p2OH);

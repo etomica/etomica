@@ -11,9 +11,9 @@ import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
+import etomica.potential.IPotential2;
 import etomica.potential.P2SemiclassicalAtomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
-import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -37,7 +37,7 @@ import etomica.util.random.RandomMersenneTwister;
  * 
  * @author Andrew Schultz
  */
-public class P2CO2Hellmann implements Potential2Soft {
+public class P2CO2Hellmann implements IPotential2 {
 
     public static final double[] posA = new double[]{-1.28815171291, -1.17769797231, -0.18133162098, 0.00000000000, 0.18133162098, 1.17769797231, 1.28815171291};
     public static final double[] posB = new double[]{-1.28741781626, -1.18192825424, -0.18607849166, 0.00000000000, 0.18607849166, 1.18192825424, 1.28741781626};
@@ -357,7 +357,7 @@ public class P2CO2Hellmann implements Potential2Soft {
         return new P2CO2SC(temperature);
     }
 
-    public class P2CO2SC implements Potential2Soft {
+    public class P2CO2SC implements IPotential2 {
 
         protected final Vector[][] gi;
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;

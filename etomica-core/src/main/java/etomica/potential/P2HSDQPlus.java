@@ -17,7 +17,7 @@ import etomica.space.Vector;
  * date:May 2015
  *
  */
-public class P2HSDQPlus implements Potential2Soft {
+public class P2HSDQPlus implements IPotential2 {
 
     private double sigma , sigma2, epsilon;
     private double dipole, theta, kappa, alpha, D;

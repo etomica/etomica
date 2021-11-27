@@ -17,7 +17,7 @@ import etomica.space.Vector;
  * date:May 2015
  *
  */
-public class P2HSDipoleAtomic implements Potential2Soft {
+public class P2HSDipoleAtomic implements IPotential2 {
 
     public P2HSDipoleAtomic(Space space, double sigma, double dipole, double rCut) {
         this.space = space;

@@ -8,7 +8,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -16,7 +16,7 @@ import etomica.space.Vector;
 import java.util.HashMap;
 import java.util.Map;
 
-public class P1ConstraintNbr implements IPotentialField {
+public class P1ConstraintNbr implements IPotential1 {
 
     protected final Vector drj, drk;
     protected int[][] neighborAtoms;

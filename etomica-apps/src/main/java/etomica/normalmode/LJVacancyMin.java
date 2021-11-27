@@ -33,7 +33,7 @@ public class LJVacancyMin extends Simulation {
     public Basis basis;
     public Primitive primitive;
     public PotentialMasterList potentialMaster;
-    public Potential2Soft potential;
+    public IPotential2 potential;
     public SpeciesGeneral species;
     public LJVacancyMin(Space _space, int numAtoms, double density, double rc, boolean ss) {
         super(_space);

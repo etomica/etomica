@@ -15,9 +15,9 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -85,8 +85,8 @@ public class VirialSwsPT {
         System.out.println("SW B"+nPoints+""+order);
         System.out.println("lambda: "+lambda);
 
-        Potential2Soft p2Ref = P2HardSphere.makePotential(1.0);
-    	Potential2Soft p2Att = P2SquareWell.makePotential(1.0, lambda, 1.0);
+        IPotential2 p2Ref = P2HardSphere.makePotential(1.0);
+    	IPotential2 p2Att = P2SquareWell.makePotential(1.0, lambda, 1.0);
         
         MayerGeneralSpherical fTargetRef = new MayerGeneralSpherical(p2Ref);
         MayerSphericalPTAtt[] fTargetAtt = new MayerSphericalPTAtt[order];

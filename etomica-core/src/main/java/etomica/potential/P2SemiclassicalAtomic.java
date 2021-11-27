@@ -26,14 +26,14 @@ import java.util.Map;
  *
  * @author Andrew Schultz
  */
-public class P2SemiclassicalAtomic implements Potential2Soft {
+public class P2SemiclassicalAtomic implements IPotential2 {
 
-    protected final Potential2Soft p2Classy;
+    protected final IPotential2 p2Classy;
     protected final Map<AtomType, AtomInfo> agents;
     protected final Space space;
     protected double temperature, fac;
 
-    public P2SemiclassicalAtomic(Space space, Potential2Soft p2Classy, double temperature) {
+    public P2SemiclassicalAtomic(Space space, IPotential2 p2Classy, double temperature) {
         this.space = space;
         this.p2Classy = p2Classy;
         agents = new HashMap<>();

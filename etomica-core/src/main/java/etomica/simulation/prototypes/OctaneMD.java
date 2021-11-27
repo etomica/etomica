@@ -124,7 +124,7 @@ public class OctaneMD extends Simulation {
         double nbrRange = rc * 1.05 + 1;
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, nbrRange, pmBonding.getBondingInfo());
         TruncationFactory tf = new TruncationFactoryForceShift(rc);
-        Potential2Soft p2CH2LJ, p2CH3LJ, p2CH2CH3LJ;
+        IPotential2 p2CH2LJ, p2CH3LJ, p2CH2CH3LJ;
         P2SoftSphere p2CH212 = null, p2CH312 = null, p2CH2CH312 = null;
         P2Ewald6Real p2CH26 = null, p2CH36 = null, p2CH2CH36 = null;
         if (s>0) {
@@ -161,9 +161,9 @@ public class OctaneMD extends Simulation {
         nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
         integrator.getEventManager().addListener(nhc);
 
-        Potential2Soft p2CH2 = tf.make(p2CH2LJ);
-        Potential2Soft p2CH3 = tf.make(p2CH3LJ);
-        Potential2Soft p2CH2CH3 = tf.make(p2CH2CH3LJ);
+        IPotential2 p2CH2 = tf.make(p2CH2LJ);
+        IPotential2 p2CH3 = tf.make(p2CH3LJ);
+        IPotential2 p2CH2CH3 = tf.make(p2CH2CH3LJ);
 
         potentialMaster.setPairPotential(typeCH2, typeCH2, p2CH2);
         potentialMaster.setPairPotential(typeCH2, typeCH3, p2CH2CH3);

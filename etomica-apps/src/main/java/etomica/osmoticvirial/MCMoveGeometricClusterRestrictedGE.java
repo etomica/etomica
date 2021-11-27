@@ -5,7 +5,7 @@ import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.integrator.mcmove.MCMove;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
@@ -38,7 +38,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected final ArrayList<Vector> jNbrVecs, pairNbrVecs;
     protected final AtomArrayList atomPairs;
     protected final IRandom random;
-    protected Potential2Soft[][] potentials;
+    protected IPotential2[][] potentials;
     protected final Box box1, box2;
     protected double temperature;
     protected IAtom atom;
@@ -54,7 +54,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
      *                any molecule in the box could be used for initial trial
      */
     public MCMoveGeometricClusterRestrictedGE(NeighborManager neighborManager1, NeighborManager neighborManager2,
-                                              Space space, IRandom random, Box box1, Box box2, ISpecies seed, Potential2Soft[][] pairPotentials) {
+                                              Space space, IRandom random, Box box1, Box box2, ISpecies seed, IPotential2[][] pairPotentials) {
 
         super();
         clusterAtoms1 = new HashSet<>();
@@ -184,7 +184,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     private double computeEnergy(Vector dr12, IAtom atomI, IAtom atomJ){
         int iIndex = atomI.getType().getIndex();
         int jIndex = atomJ.getType().getIndex();
-        Potential2Soft p = potentials[iIndex][jIndex];
+        IPotential2 p = potentials[iIndex][jIndex];
         if(p == null) {
             return 0;
         }

@@ -7,18 +7,18 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential2;
 import etomica.potential.IPotentialMolecular;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 
 public class PotentialMoleculePairPI implements IPotentialMolecular {
     protected final Space space;
-    protected final Potential2Soft atomPotential;
+    protected final IPotential2 atomPotential;
     protected final double[][] uBeads;
     protected final int nMolecules;
 
-    public PotentialMoleculePairPI(Space space, Potential2Soft atomPotential, int beadFac, int nMolecules) {
+    public PotentialMoleculePairPI(Space space, IPotential2 atomPotential, int beadFac, int nMolecules) {
         this.space = space;
         this.atomPotential = atomPotential;
         uBeads = new double[beadFac][0];

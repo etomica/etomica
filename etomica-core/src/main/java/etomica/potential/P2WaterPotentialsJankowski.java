@@ -21,7 +21,7 @@ import etomica.units.Mole;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 
-public class P2WaterPotentialsJankowski implements Potential2Soft {
+public class P2WaterPotentialsJankowski implements IPotential2 {
     
     protected static final int nsitemax = 8;
     protected static final int naamax = 14, nbbmax = 14;
@@ -53,11 +53,11 @@ public class P2WaterPotentialsJankowski implements Potential2Soft {
     protected int iSurf, iEmbed;
     protected int icc;
     protected int iMonomer;
-    protected Potential2Soft pRigid = null;
+    protected IPotential2 pRigid = null;
     protected Box b = null;
     protected double tKelvin = -1, eMon = 0.0;
     
-    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, Potential2Soft pRigid) {
+    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, IPotential2 pRigid) {
         this.space = space;
         iSurf = iSurface;
         tKelvin = Kelvin.UNIT.fromSim(tSim);

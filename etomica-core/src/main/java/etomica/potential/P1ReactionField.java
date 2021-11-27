@@ -7,7 +7,7 @@ import etomica.atom.DipoleSourceAtomic;
 import etomica.atom.IAtom;
 import etomica.space.Vector;
 
-public class P1ReactionField implements IPotentialField {
+public class P1ReactionField implements IPotential1 {
 
     protected final DipoleSourceAtomic dipoleSource;
     protected double epsilon;

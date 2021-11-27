@@ -15,7 +15,7 @@ import etomica.units.dimensions.Length;
  *
  * @author David Kofke
  */
-public class P2Fene implements Potential2Soft {
+public class P2Fene implements IPotential2 {
 
     private double r0, r02, h, prefactor;
     

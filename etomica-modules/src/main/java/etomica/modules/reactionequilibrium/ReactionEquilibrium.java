@@ -17,7 +17,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManagerSimpleHard;
 import etomica.potential.compute.PotentialComputePairGeneral;
@@ -119,7 +119,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         for (IAtom a : box.getLeafList()) {
             agentManager.setAgent(a, null);
         }
-        Potential2Soft[][] allp = potentialMaster.getPairPotentials();
+        IPotential2[][] allp = potentialMaster.getPairPotentials();
         for (int i = 0; i < box.getLeafList().size(); i++) {
             IAtom iAtom = box.getLeafList().get(i);
             int iType = iAtom.getType().getIndex();

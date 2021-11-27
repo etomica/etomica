@@ -9,7 +9,7 @@ import etomica.atom.IAtomList;
 import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 public class PotentialComputeField implements PotentialCompute {
 
-    protected final IPotentialField[] potentials;
+    protected final IPotential1[] potentials;
     protected final Box box;
     protected Vector[] forces, torques;
     protected double[] uAtom;
@@ -28,10 +28,10 @@ public class PotentialComputeField implements PotentialCompute {
     protected double energyTot = Double.NaN;
 
     public PotentialComputeField(SpeciesManager sm, Box box) {
-        this(new IPotentialField[sm.getAtomTypeCount()], box);
+        this(new IPotential1[sm.getAtomTypeCount()], box);
     }
 
-    public PotentialComputeField(IPotentialField[] p1, Box box) {
+    public PotentialComputeField(IPotential1[] p1, Box box) {
         potentials = p1;
         this.box = box;
         torques = forces = new Vector[0];
@@ -80,11 +80,11 @@ public class PotentialComputeField implements PotentialCompute {
 
     }
 
-    public void setFieldPotential(AtomType atomType, IPotentialField p) {
+    public void setFieldPotential(AtomType atomType, IPotential1 p) {
         potentials[atomType.getIndex()] = p;
     }
 
-    public IPotentialField[] getFieldPotentials() {
+    public IPotential1[] getFieldPotentials() {
         return potentials;
     }
 
@@ -150,7 +150,7 @@ public class PotentialComputeField implements PotentialCompute {
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
-            IPotentialField ip = potentials[iType];
+            IPotential1 ip = potentials[iType];
             if (ip == null) continue;
             double u;
             if (doForces) {
@@ -182,7 +182,7 @@ public class PotentialComputeField implements PotentialCompute {
 
     protected double computeOneInternal(IAtom iAtom) {
         int iType = iAtom.getType().getIndex();
-        IPotentialField ip = potentials[iType];
+        IPotential1 ip = potentials[iType];
         if (ip == null) return 0;
         uAtomsChanged.add(iAtom.getLeafIndex());
         double u = ip.u(iAtom);

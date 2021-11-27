@@ -19,9 +19,9 @@ import etomica.util.Constants;
  *
  * @author Kate Shaul and Andrew Schultz
  */
-public class P2HePCKLJS implements Potential2Soft {
+public class P2HePCKLJS implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double sigma, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double sigma, TruncationFactory tf) {
         return tf.make(new P2HePCKLJS(sigma));
     }
 
@@ -320,7 +320,7 @@ public class P2HePCKLJS implements Potential2Soft {
      *
      * @author Andrew Schultz
      */
-    public class P2HeQFH implements Potential2Soft {
+    public class P2HeQFH implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -450,7 +450,7 @@ public class P2HePCKLJS implements Potential2Soft {
         return new P2HeTI(temperature);
     }
     
-    public class P2HeTI implements Potential2Soft {
+    public class P2HeTI implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;

@@ -1,13 +1,13 @@
 package etomica.potential.ewald;
 
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.TruncationFactory;
 
 import static etomica.math.SpecialFunctions.erfc;
 
-public class P2Ewald1Real implements Potential2Soft {
+public class P2Ewald1Real implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double qiqj, double alpha, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double qiqj, double alpha, TruncationFactory tf) {
         return tf.make(new P2Ewald1Real(qiqj, alpha));
     }
 

@@ -15,7 +15,7 @@ public class TruncationFactoryForceShift implements TruncationFactory {
     }
 
     @Override
-    public Potential2Soft make(Potential2Soft... p2) {
+    public IPotential2 make(IPotential2... p2) {
         return new P2SoftSphericalSumTruncatedForceShifted(rc, p2);
     }
 }

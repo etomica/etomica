@@ -11,9 +11,9 @@ package etomica.potential;
  *
  * @author Kate Shaul
  */
-public class P2ArgonAziz1993 implements Potential2Soft {
+public class P2ArgonAziz1993 implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(TruncationFactory tf) {
+    public static IPotential2 makeTruncated(TruncationFactory tf) {
         return tf.make(new P2ArgonAziz1993());
     }
 

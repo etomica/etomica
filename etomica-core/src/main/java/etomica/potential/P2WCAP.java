@@ -15,7 +15,7 @@ import etomica.units.dimensions.Length;
 /**
  * LJ potential minus WCA.
  */
-public class P2WCAP implements Potential2Soft {
+public class P2WCAP implements IPotential2 {
 
     protected Boundary boundary;
     protected final Vector dr;

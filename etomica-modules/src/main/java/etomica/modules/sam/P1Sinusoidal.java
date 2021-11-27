@@ -5,11 +5,11 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtom;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
 import etomica.space.Vector;
 
-public class P1Sinusoidal implements IPotentialField {
+public class P1Sinusoidal implements IPotential1 {
 
     public P1Sinusoidal(Space space) {
         this.space = space;

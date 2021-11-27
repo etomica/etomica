@@ -16,12 +16,12 @@ import etomica.units.dimensions.Length;
  * is based on integration of energy from cutoff to infinity, assuming no
  * pair correlations beyond the cutoff.
  */
-public class P2SoftSphericalTruncated implements Potential2Soft {
+public class P2SoftSphericalTruncated implements IPotential2 {
 
-    protected final Potential2Soft potential;
+    protected final IPotential2 potential;
     protected double rCutoff, r2Cutoff;
 
-    public P2SoftSphericalTruncated(Potential2Soft potential, double truncationRadius) {
+    public P2SoftSphericalTruncated(IPotential2 potential, double truncationRadius) {
         super();
         this.potential = potential;
         setTruncationRadius(truncationRadius);
@@ -30,7 +30,7 @@ public class P2SoftSphericalTruncated implements Potential2Soft {
     /**
      * Returns the wrapped potential.
      */
-    public Potential2Soft getWrappedPotential() {
+    public IPotential2 getWrappedPotential() {
         return potential;
     }
 

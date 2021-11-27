@@ -19,9 +19,9 @@ import etomica.units.dimensions.Length;
  * @author Tai Tan
  */
 
-public class P2Exp6 implements Potential2Soft {
+public class P2Exp6 implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double AA, double BB, double CC, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double AA, double BB, double CC, TruncationFactory tf) {
         return tf.make(new P2Exp6(AA, BB, CC));
     }
 

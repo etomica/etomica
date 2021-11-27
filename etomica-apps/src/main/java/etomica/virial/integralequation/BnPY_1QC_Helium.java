@@ -4,9 +4,9 @@
 
 package etomica.virial.integralequation;
 
+import etomica.potential.IPotential2;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -40,7 +40,7 @@ public static void main(String[] args) {
 		double r_max = 100; // Defines range of separation distance, r = [0 rmax]
         boolean LJ = false;
         double[] temps; double[] kTs;
-        Potential2Soft p2;
+        IPotential2 p2;
 
         if (LJ) {
 			sigma = Math.pow((10.24*1e24/Constants.AVOGADRO),1.0/3.0); //Angstroms
@@ -126,7 +126,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double[][] getConvergence (Potential2Soft p2, int power, int m, double r_max, double kT, boolean printapalooza) {
+	public static double[][] getConvergence (IPotential2 p2, int power, int m, double r_max, double kT, boolean printapalooza) {
 		
 		double [][] results = new double[3][m];
 		double [] newBPY = new double[m];
@@ -177,7 +177,7 @@ public static void main(String[] args) {
 		
 		return results;
 	}
-	public static double[] computeB(int m, int N, double del_r, double kT, Potential2Soft p2) {
+	public static double[] computeB(int m, int N, double del_r, double kT, IPotential2 p2) {
 
         // Get Mayer function for this discretization
         double[] fr = getfr(N, del_r, kT, p2);
@@ -207,7 +207,7 @@ public static void main(String[] args) {
 		
 	}
 
-	public static double[] getfr(int N, double del_r, double kT, Potential2Soft p2) {
+	public static double[] getfr(int N, double del_r, double kT, IPotential2 p2) {
 	    
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		
@@ -235,7 +235,7 @@ public static void main(String[] args) {
 		
 	}
 	
-	public static double[] getrdudr(int N, double del_r, Potential2Soft p2) {
+	public static double[] getrdudr(int N, double del_r, IPotential2 p2) {
 		
 		double[] rdudr = new double[N];  
 		
@@ -251,7 +251,7 @@ public static void main(String[] args) {
 		
 	}
 	
-	public static double[] getr2d2udr2(int N, double del_r, Potential2Soft p2) {
+	public static double[] getr2d2udr2(int N, double del_r, IPotential2 p2) {
 		
 		double[] r2d2udr2 = new double[N];  
 		

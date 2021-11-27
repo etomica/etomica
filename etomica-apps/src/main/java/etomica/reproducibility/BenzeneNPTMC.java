@@ -128,7 +128,7 @@ public class BenzeneNPTMC extends Simulation {
         double sigma = 3.695;
         TruncationFactory tf = new TruncationFactorySimple(rc);
         P2LennardJones p2LJ = new P2LennardJones(sigma, epsilon);
-        Potential2Soft p2 = tf.make(p2LJ);
+        IPotential2 p2 = tf.make(p2LJ);
 
         potentialMaster.setPairPotential(typeCH, typeCH, p2);
 

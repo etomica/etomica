@@ -139,7 +139,7 @@ public class VirialHePIGraphic {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         final P2HeSimplified p2Approx = new P2HeSimplified();
         final P2HePCKLJS p2Full = new P2HePCKLJS();
-        final Potential2Soft p2 = calcApprox ? p2Approx : p2Full;
+        final IPotential2 p2 = calcApprox ? p2Approx : p2Full;
 
         boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
         if (flexApproach == VirialHePI.FlexApproach.RIGID) {
@@ -174,7 +174,7 @@ public class VirialHePIGraphic {
         }
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
-        Potential2Soft p2SemiClassical = calcApprox ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
+        IPotential2 p2SemiClassical = calcApprox ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
         final MayerGeneralSpherical fTargetSemiClassical = new MayerGeneralSpherical(p2SemiClassical);
 
         MayerGeneral[] fTargetSkip = new MayerGeneral[beadFac];

@@ -24,9 +24,9 @@ import etomica.units.dimensions.Length;
  */
 
 
-public final class P2Morse implements Potential2Soft {
+public final class P2Morse implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double epsilon, double re, double a, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double epsilon, double re, double a, TruncationFactory tf) {
         return tf.make(new P2Morse(epsilon, re, a));
     }
 

@@ -22,8 +22,8 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.math.function.Function;
 import etomica.modifier.*;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
-import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
@@ -807,7 +807,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pc.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 AtomType type = pc.species.getLeafType();
-                Potential2Soft p2;
+                IPotential2 p2;
                 if (HS) {
                     p2 = potentialHS;
                 } else if (SW) {

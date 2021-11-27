@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
+import etomica.potential.IPotential2;
 import etomica.potential.P2ArgonAziz1993;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -81,7 +81,7 @@ public class B2ForSphericallySymmetricUByTrapezoidRule {
 
 	}
 
-    public static double[] getResults (Potential2Soft p2, double power, double r_max, double temp, boolean printapalooza) {
+    public static double[] getResults (IPotential2 p2, double power, double r_max, double temp, boolean printapalooza) {
     	
     	double B2 = 0;
 		int count = 0;
@@ -142,7 +142,7 @@ public class B2ForSphericallySymmetricUByTrapezoidRule {
 		
     }
 
-	public static double[] getfr(Potential2Soft p2, int N, double del_r, double temp) {
+	public static double[] getfr(IPotential2 p2, int N, double del_r, double temp) {
 		
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		

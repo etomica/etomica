@@ -21,7 +21,7 @@ public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
 
     protected double rCutoff, r2Cutoff;
 
-    public P2SoftSphericalSumTruncated(double truncationRadius, Potential2Soft... potential) {
+    public P2SoftSphericalSumTruncated(double truncationRadius, IPotential2... potential) {
         super(potential);
         setTruncationRadius(truncationRadius);
     }

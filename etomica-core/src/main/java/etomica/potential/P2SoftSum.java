@@ -17,11 +17,11 @@ import etomica.space.Vector;
  * overhead for this class is much smaller than the overhead if holding and
  * iterating over an array of potentials.
  */
-public class P2SoftSum implements Potential2Soft {
+public class P2SoftSum implements IPotential2 {
 
-    private final Potential2Soft potential1, potential2, potential3;
+    private final IPotential2 potential1, potential2, potential3;
 
-    public P2SoftSum(Potential2Soft... potential) {
+    public P2SoftSum(IPotential2... potential) {
         if (potential.length > 3) throw new RuntimeException("This class only handles up to 3 potentials");
         this.potential1 = potential[0];
         this.potential2 = potential.length > 1 ? potential[1] : null;
@@ -31,15 +31,15 @@ public class P2SoftSum implements Potential2Soft {
     /**
      * Returns the wrapped potential.
      */
-    public Potential2Soft getWrappedPotential1() {
+    public IPotential2 getWrappedPotential1() {
         return potential1;
     }
 
-    public Potential2Soft getWrappedPotential2() {
+    public IPotential2 getWrappedPotential2() {
         return potential2;
     }
 
-    public Potential2Soft getWrappedPotential3() {
+    public IPotential2 getWrappedPotential3() {
         return potential3;
     }
 

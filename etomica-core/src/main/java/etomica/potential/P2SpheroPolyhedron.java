@@ -14,7 +14,7 @@ import etomica.spaceNd.VectorND;
 
 import java.util.List;
 
-public class P2SpheroPolyhedron implements Potential2Soft {
+public class P2SpheroPolyhedron implements IPotential2 {
 
     protected final Space space;
     protected final Vector dr;

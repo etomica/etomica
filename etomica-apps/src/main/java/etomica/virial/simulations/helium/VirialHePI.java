@@ -183,8 +183,8 @@ public class VirialHePI {
         final P2HeSimplified p2Approx = new P2HeSimplified();
         final P2HePCKLJS p2Full = new P2HePCKLJS();
         final P2HePCJS p2Fuller = new P2HePCJS();
-        final Potential2Soft p2 = (pc == PotentialChoice.APPROX) ? p2Approx : (pc == PotentialChoice.PCKLJS ? p2Full : p2Fuller);
-        final Potential2Soft p2Sub = pc == null ? null : (ps == PotentialChoice.APPROX ? p2Approx : (ps == PotentialChoice.PCKLJS ? p2Full : p2Fuller));
+        final IPotential2 p2 = (pc == PotentialChoice.APPROX) ? p2Approx : (pc == PotentialChoice.PCKLJS ? p2Full : p2Fuller);
+        final IPotential2 p2Sub = pc == null ? null : (ps == PotentialChoice.APPROX ? p2Approx : (ps == PotentialChoice.PCKLJS ? p2Full : p2Fuller));
 
         boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
         if (flexApproach == FlexApproach.RIGID) {
@@ -217,7 +217,7 @@ public class VirialHePI {
         PotentialMolecule3PI p3TargetSub = new PotentialMolecule3PI(space, p3Sub, beadFac, nPoints+(doFlex?1:0));
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
-        Potential2Soft p2SemiClassical = (pc == PotentialChoice.APPROX) ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
+        IPotential2 p2SemiClassical = (pc == PotentialChoice.APPROX) ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
         final MayerGeneralSpherical fTargetSemiClassical = new MayerGeneralSpherical(p2SemiClassical);
 
         MayerGeneral[] fTargetSkip = new MayerGeneral[beadFac];

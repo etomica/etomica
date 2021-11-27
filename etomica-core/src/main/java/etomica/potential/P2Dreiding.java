@@ -17,9 +17,9 @@ package etomica.potential;
  *
  */
 
-public class P2Dreiding implements Potential2Soft {
+public class P2Dreiding implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(double Re, double alpha, TruncationFactory tf) {
+    public static IPotential2 makeTruncated(double Re, double alpha, TruncationFactory tf) {
         return tf.make(new P2Dreiding(Re, alpha));
     }
 

@@ -116,7 +116,7 @@ public class VirialN2PI {
         final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads);
         // Temperature value for PI with SCB was T*P^2.
         // Should be just T*P for SCB-TI as the internal set temperature method squares the argument.
-        final Potential2Soft p2;
+        final IPotential2 p2;
         if (scBeads) {
             p2 = p2PISC;
         }

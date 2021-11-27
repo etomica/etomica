@@ -9,9 +9,9 @@ package etomica.potential;
  *
  * @author Andrew Schultz
  */
-public class P2ElectrostaticWithHardCore implements Potential2Soft {
+public class P2ElectrostaticWithHardCore implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(TruncationFactory tf, double charge1, double charge2) {
+    public static IPotential2 makeTruncated(TruncationFactory tf, double charge1, double charge2) {
         return tf.make(new P2ElectrostaticWithHardCore(charge1, charge2));
     }
 

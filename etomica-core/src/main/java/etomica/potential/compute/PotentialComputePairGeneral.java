@@ -10,7 +10,7 @@ import etomica.box.*;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.NeighborIteratorCell;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Vector1D;
@@ -26,7 +26,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
 
     protected final boolean isPureAtoms;
     private final NeighborIterator neighborIterator;
-    protected final Potential2Soft[][] pairPotentials;
+    protected final IPotential2[][] pairPotentials;
     protected final Box box;
     private final NeighborManager neighborManager;
     private final NeighborIteratorCell.SuperNbrConsumer nbrConsumer;
@@ -45,10 +45,10 @@ public class PotentialComputePairGeneral implements PotentialCompute {
     public boolean doOneTruncationCorrection = false;
 
     public PotentialComputePairGeneral(SpeciesManager sm, Box box, NeighborManager neighborManager) {
-        this(sm, new Potential2Soft[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
+        this(sm, new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()], box, neighborManager);
     }
 
-    public PotentialComputePairGeneral(SpeciesManager sm, Potential2Soft[][] p2, Box box, NeighborManager neighborManager) {
+    public PotentialComputePairGeneral(SpeciesManager sm, IPotential2[][] p2, Box box, NeighborManager neighborManager) {
         isPureAtoms = sm.isPureAtoms();
         space = box.getSpace();
         pairPotentials = p2;
@@ -112,7 +112,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         this.nbrConsumer = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
             public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
-                Potential2Soft pij = pairPotentials[atom1.getType().getIndex()][jAtom.getType().getIndex()];
+                IPotential2 pij = pairPotentials[atom1.getType().getIndex()][jAtom.getType().getIndex()];
                 if (pij == null) return 0;
                 double uij = pij.u(rij, atom1, jAtom);
                 uAtomsChanged.add(jAtom.getLeafIndex());
@@ -157,19 +157,19 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         return energyTot;
     }
 
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
 
         double maxRange = Arrays.stream(pairPotentials).flatMap(Arrays::stream)
                 .filter(Objects::nonNull)
-                .mapToDouble(Potential2Soft::getRange)
+                .mapToDouble(IPotential2::getRange)
                 .max().orElse(0);
 
         this.neighborManager.setPotentialRange(maxRange);
     }
 
-    public Potential2Soft[][] getPairPotentials() {
+    public IPotential2[][] getPairPotentials() {
         return pairPotentials;
     }
 
@@ -217,13 +217,13 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
-            Potential2Soft[] ip = pairPotentials[iType];
+            IPotential2[] ip = pairPotentials[iType];
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
                 int j = jAtom.getLeafIndex();
                 if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 if (pij == null) return;
                 double uij;
                 if (doForces) {
@@ -345,7 +345,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             for (int j = i + 1; j < atoms.length; j++) {
                 IAtom atom2 = atoms[j];
                 if (bondingInfo.skipBondedPair(false, atom1, atom2)) continue;
-                Potential2Soft pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
+                IPotential2 pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
                 if (pij == null) continue;
                 Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
@@ -386,7 +386,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         double duCor = 0;
         for (int i = 0; i < atomCountByType.length; i++) {
             for (int j = i; j < atomCountByType.length; j++) {
-                Potential2Soft p = pairPotentials[i][j];
+                IPotential2 p = pairPotentials[i][j];
                 if (p == null) continue;
                 int numPairs;
                 if (j == i) {
@@ -416,7 +416,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
         int iType = box.getLeafList().get(iAtom).getType().getIndex();
         double uCorrection = 0;
         for (int j = 0; j < atomCountByType.length; j++) {
-            Potential2Soft p = pairPotentials[iType][j];
+            IPotential2 p = pairPotentials[iType][j];
             double pairDensity;
             if (iType == j) {
                 pairDensity = (atomCountByType[j] - 1) / box.getBoundary().volume();

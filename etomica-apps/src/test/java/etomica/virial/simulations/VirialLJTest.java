@@ -7,8 +7,8 @@ package etomica.virial.simulations;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -42,7 +42,7 @@ public class VirialLJTest {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
-        Potential2Soft pTarget = new P2LennardJones(1.0,1.0);
+        IPotential2 pTarget = new P2LennardJones(1.0,1.0);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         MayerESpherical eTarget = new MayerESpherical(pTarget);
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);

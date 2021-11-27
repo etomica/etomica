@@ -71,7 +71,7 @@ public class HTTPSoftSphereSim extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        Potential2Soft potential = new P2SoftSphere(1.0, 1.0, 12);
+        IPotential2 potential = new P2SoftSphere(1.0, 1.0, 12);
         if (potentialMaster instanceof PotentialMasterList) {
             potential = new P2SoftSphericalTruncated(potential, rc);
 

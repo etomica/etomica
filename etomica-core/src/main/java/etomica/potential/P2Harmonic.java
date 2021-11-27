@@ -17,7 +17,7 @@ import etomica.units.dimensions.Length;
  * @author Jhumpa Adhikari
  * @author David Kofke
  */
-public class P2Harmonic implements Potential2Soft {
+public class P2Harmonic implements IPotential2 {
 
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
 	private final boolean r0Zero;

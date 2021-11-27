@@ -15,9 +15,9 @@ import etomica.util.Constants;
  *
  * @author Andrew Schultz
  */
-public class P2HeSimplified implements Potential2Soft {
+public class P2HeSimplified implements IPotential2 {
 
-    public static Potential2Soft makeTruncated(TruncationFactory tf) {
+    public static IPotential2 makeTruncated(TruncationFactory tf) {
         return tf.make(new P2HeSimplified());
     }
 
@@ -94,7 +94,7 @@ public class P2HeSimplified implements Potential2Soft {
      *
      * @author Andrew Schultz
      */
-    public class P2HeQFH implements Potential2Soft {
+    public class P2HeQFH implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -143,7 +143,7 @@ public class P2HeSimplified implements Potential2Soft {
     public P2HeTI makeTI(double temperature) {
         return this.new P2HeTI(temperature);
     }
-    public class P2HeTI implements Potential2Soft {
+    public class P2HeTI implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;

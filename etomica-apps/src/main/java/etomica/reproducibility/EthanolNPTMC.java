@@ -227,7 +227,7 @@ public class EthanolNPTMC extends Simulation {
                 double s = (sigma[i]+sigma[j])/2;
                 P2LennardJones p2LJ = new P2LennardJones(s, e);
                 allPLJ.add(p2LJ);
-                Potential2Soft p2 = tf.make(p2LJ);
+                IPotential2 p2 = tf.make(p2LJ);
                 allSigma.add(s);
 
                 potentialMaster.setPairPotential(species.getAtomType(i), species.getAtomType(j), p2);

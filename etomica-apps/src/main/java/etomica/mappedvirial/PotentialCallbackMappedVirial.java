@@ -6,9 +6,9 @@ package etomica.mappedvirial;
 
 import etomica.atom.AtomPair;
 import etomica.box.Box;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
 import etomica.simulation.Simulation;
@@ -79,7 +79,7 @@ public class PotentialCallbackMappedVirial implements PotentialCallback {
         vol = newVol;
     }
 
-    public void setTemperature(double T, Potential2Soft p2) {
+    public void setTemperature(double T, IPotential2 p2) {
         beta = 1/T;
         double rc = p2.getRange();
         x0 = rc*0.95;

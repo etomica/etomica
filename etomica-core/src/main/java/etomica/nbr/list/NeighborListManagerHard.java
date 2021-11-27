@@ -6,7 +6,7 @@ package etomica.nbr.list;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborIteratorHard;
 import etomica.potential.compute.NeighborManagerHard;
 import etomica.space.Vector;
@@ -45,7 +45,7 @@ public class NeighborListManagerHard extends NeighborListManager implements Neig
     }
 
     @Override
-    protected int addAsNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, Vector jbo, Potential2Soft[] iPotentials, Vector dr) {
+    protected int addAsNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, Vector jbo, IPotential2[] iPotentials, Vector dr) {
         if (numAtomNbrsUp[i] >= maxNab) return 1;
         nbrs[i][numAtomNbrsUp[i]] = j;
         int state = iPotentials[jAtom.getType().getIndex()].getState(iAtom, jAtom, dr);

@@ -10,8 +10,8 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
-import etomica.potential.IPotentialField;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential1;
+import etomica.potential.IPotential2;
 import etomica.potential.compute.NeighborManagerHard;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -22,7 +22,7 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorHardPiston extends IntegratorHard {
 
-    public IntegratorHardPiston(Potential2Soft[][] pairPotentials, IPotentialField[] fieldPotentials,
+    public IntegratorHardPiston(IPotential2[][] pairPotentials, IPotential1[] fieldPotentials,
                                 NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box,
                                 etomica.modules.pistoncylinder.P1HardMovingBoundary pistonPotential, SpeciesManager sm) {
         super(pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, sm, null);
@@ -74,7 +74,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         for (int iLeaf = 0; iLeaf < nAtoms; iLeaf++) {
             IAtomKinetic atom1 = (IAtomKinetic) leafList.get(iLeaf);
 
-            Potential2Soft atom1Potential = collisionPotentials[iLeaf];
+            IPotential2 atom1Potential = collisionPotentials[iLeaf];
             if (atom1Potential == null) {
                 downColliders.add(atom1);
             }

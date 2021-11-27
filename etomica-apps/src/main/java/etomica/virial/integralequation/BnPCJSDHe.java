@@ -4,9 +4,9 @@
 
 package etomica.virial.integralequation;
 
+import etomica.potential.IPotential2;
 import etomica.potential.P2HePCJS;
 import etomica.potential.P2HeSimplified;
-import etomica.potential.Potential2Soft;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -47,7 +47,7 @@ public class BnPCJSDHe {
         double tol = params.tol;
         boolean verbose = params.verbose;
         boolean calcApprox = params.calcApprox;
-        Potential2Soft p2 = calcApprox ? new P2HeSimplified() : new P2HePCJS();
+        IPotential2 p2 = calcApprox ? new P2HeSimplified() : new P2HePCJS();
         double rMax = params.rmax;
         while (true) {
             double[][] results = getConvergence(p2, m, rMax, tol, T, verbose, calcApprox ? 1.6 : 0);
@@ -76,7 +76,7 @@ public class BnPCJSDHe {
         }
     }
 
-    public static double[][] getConvergence (Potential2Soft p2, int m, double r_max, double tol, double kT, boolean printapalooza, double core) {
+    public static double[][] getConvergence (IPotential2 p2, int m, double r_max, double tol, double kT, boolean printapalooza, double core) {
         
         double[][] results = new double[3][m];
         if (m==2) {
@@ -189,7 +189,7 @@ public class BnPCJSDHe {
         return results;
     }
 
-    public static double[] getfr(Potential2Soft p2, int N, double del_r, double temp, double core) {
+    public static double[] getfr(IPotential2 p2, int N, double del_r, double temp, double core) {
         
         double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
         

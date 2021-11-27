@@ -19,10 +19,10 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HePCJS;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -145,7 +145,7 @@ public class VirialHeD {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        Potential2Soft pTarget ;
+        IPotential2 pTarget ;
 
         if ( potential == PotentialChoice.SIMPLE ) {
             pTarget = new P2HeSimplified();
@@ -167,7 +167,7 @@ public class VirialHeD {
         ClusterAbstract targetCluster = null;
         ClusterWheatleySoftDerivatives clusterDiff = null;
         if (calcDiff != PotentialChoice.NONE){
-            Potential2Soft pTargetDiff;
+            IPotential2 pTargetDiff;
             if ( calcDiff == PotentialChoice.OLD ) {
                 pTargetDiff = new P2HePCKLJS();
             }

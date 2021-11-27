@@ -20,8 +20,8 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMolecule;
 import etomica.potential.BondingInfo;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialCallback;
@@ -47,7 +47,7 @@ import java.util.Set;
 public class AshtonWildingOsmoticVirial extends Simulation {
 
     protected Box box;
-    protected Potential2Soft potential1, potential2, potential12;
+    protected IPotential2 potential1, potential2, potential12;
     protected IntegratorMC integrator;
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete;

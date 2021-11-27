@@ -5,14 +5,14 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtom;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Vector;
 
 /**
  * 1-D potential that has a WCA form in the Z direction.
  */
 
-public class P1WCAWall implements IPotentialField {
+public class P1WCAWall implements IPotential1 {
 
     protected double sigma, sigma2;
     protected double epsilon;

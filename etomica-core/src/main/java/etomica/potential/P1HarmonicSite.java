@@ -21,7 +21,7 @@ import etomica.units.dimensions.Length;
  * @author Andrew Schultz
  */
  
-public class P1HarmonicSite implements IPotentialField {
+public class P1HarmonicSite implements IPotential1 {
 
     private final Space space;
     private double w = 100.0;

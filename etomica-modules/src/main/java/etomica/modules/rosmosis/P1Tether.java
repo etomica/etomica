@@ -8,7 +8,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -21,7 +21,7 @@ import etomica.species.ISpecies;
  *
  * @author Andrew Schultz
  */
-public class P1Tether implements AgentSource<Vector>, IPotentialField {
+public class P1Tether implements AgentSource<Vector>, IPotential1 {
 
     public P1Tether(Box box, ISpecies species, Space _space) {
         super();

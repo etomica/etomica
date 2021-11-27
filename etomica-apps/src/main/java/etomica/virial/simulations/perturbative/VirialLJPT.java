@@ -18,9 +18,9 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential2;
 import etomica.potential.P2WCA;
 import etomica.potential.P2WCAP;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -115,8 +115,8 @@ public class VirialLJPT {
         };
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2Soft pTargetR = new P2WCA(1, 1);
-        Potential2Soft pTargetP = new P2WCAP(space, 1, 1);
+        IPotential2 pTargetR = new P2WCA(1, 1);
+        IPotential2 pTargetP = new P2WCAP(space, 1, 1);
 
         MayerGeneralSpherical fTargetR = new MayerGeneralSpherical(pTargetR);
         MayerGeneralSpherical fTargetP = new MayerGeneralSpherical(pTargetP);

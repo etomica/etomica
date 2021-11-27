@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 
 /**
  * Mayer function class that returns temperature expansion bond of the desired
@@ -20,7 +20,7 @@ public class MayerSphericalPTAtt implements MayerFunction {
 	/**
 	 * Constructor takes reference potential, attractive component and order in temperature.
 	 */
-	public MayerSphericalPTAtt(Potential2Soft potentialRef, Potential2Soft potentialFull, int order) {
+	public MayerSphericalPTAtt(IPotential2 potentialRef, IPotential2 potentialFull, int order) {
 		this.potentialRef = potentialRef;
 		this.potentialFull = potentialFull;
 		this.order = order;
@@ -86,7 +86,7 @@ public class MayerSphericalPTAtt implements MayerFunction {
 	public void setBox(Box newBox) {
 	}
 
-    protected final Potential2Soft potentialRef, potentialFull;
+    protected final IPotential2 potentialRef, potentialFull;
 	protected final int order;
 	protected final long factOrder;
 }

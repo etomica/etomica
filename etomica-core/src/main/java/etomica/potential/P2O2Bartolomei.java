@@ -17,7 +17,7 @@ import etomica.units.ElectronVolt;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class P2O2Bartolomei implements Potential2Soft {
+public class P2O2Bartolomei implements IPotential2 {
     
     public static void main (String [] args) {        
         int [] is = new int [] {0,1,2};

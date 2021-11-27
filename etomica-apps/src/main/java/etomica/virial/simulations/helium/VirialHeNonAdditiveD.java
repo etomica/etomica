@@ -172,7 +172,7 @@ public class VirialHeNonAdditiveD {
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        Potential2Soft pTarget ;
+        IPotential2 pTarget ;
 
         if ( potential == PotentialChoice.SIMPLE ) {
             pTarget = new P2HeSimplified();
@@ -202,7 +202,7 @@ public class VirialHeNonAdditiveD {
         ClusterAbstract targetCluster = null;
         ClusterWheatleyMultibodyDerivatives clusterDiff = null;
         if (calcDiff != PotentialChoice.NONE) {
-            Potential2Soft pTargetDiff;
+            IPotential2 pTargetDiff;
             if ( calcDiff == PotentialChoice.OLD ) {
                 pTargetDiff = new P2HePCKLJS();
             }

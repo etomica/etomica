@@ -11,9 +11,9 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.BondingInfo;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -78,7 +78,7 @@ class NeighborListingTest {
 
         P2LennardJones p2lj = new P2LennardJones();
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(p2lj, POTENTIAL_RANGE);
-        Potential2Soft[][] potentials = new Potential2Soft[][]{{p2,p2},{p2,p2}};
+        IPotential2[][] potentials = new IPotential2[][]{{p2,p2},{p2,p2}};
         nlm = new NeighborListManager(sim.getSpeciesManager(), box, 2, NBR_RANGE, BondingInfo.noBonding());
         nlm.setPairPotentials(potentials);
         nlm.setDoDownNeighbors(true);

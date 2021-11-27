@@ -7,7 +7,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.space.Vector;
 
-public interface IPotentialField {
+public interface IPotential1 {
 
     /**
      * Returns the energy between IAtom atom and the field.

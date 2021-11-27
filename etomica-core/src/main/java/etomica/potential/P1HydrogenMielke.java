@@ -97,7 +97,7 @@ public class P1HydrogenMielke {
     }
     
     
-    public static class P1HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialField {
+    public static class P1HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotential1 {
         public P1HydrogenMielkeAtomic() {
             super();
         }
@@ -118,7 +118,7 @@ public class P1HydrogenMielke {
         }
     }
     
-    public static class P2HydrogenMielkeAtomic extends P1HydrogenMielke implements Potential2Soft {
+    public static class P2HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotential2 {
 
     	public double u(Vector dr12, IAtom atom1, IAtom atom2) {
             double bL = Math.sqrt(dr12.squared());

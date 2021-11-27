@@ -17,9 +17,9 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
 import etomica.potential.BondingInfo;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialCallback;
@@ -49,7 +49,7 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected SpeciesGeneral species2;
     protected Box box1, box2;
     protected P2HardGeneric potential1, potential12;
-    protected Potential2Soft potential2;
+    protected IPotential2 potential2;
 
 
     /**

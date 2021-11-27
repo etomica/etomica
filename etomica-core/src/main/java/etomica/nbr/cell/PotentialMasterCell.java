@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.BondingInfo;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.potential.PotentialMaster;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
@@ -31,7 +31,7 @@ public class PotentialMasterCell extends PotentialMaster {
     }
 
     @Override
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
         super.setPairPotential(atomType1, atomType2, p12);
         cellManager.setPotentialRange(getRange());
     }
@@ -77,13 +77,13 @@ public class PotentialMasterCell extends PotentialMaster {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
-            Potential2Soft[] ip = pairPotentials[iType];
+            IPotential2[] ip = pairPotentials[iType];
             int j = i;
             Vector jbo = boxOffsets[atomCell[i]];
             while ((j = cellNextAtom[j]) > -1) {
                 IAtom jAtom = atoms.get(j);
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc, skipIntra);
@@ -97,7 +97,7 @@ public class PotentialMasterCell extends PotentialMaster {
                 for (j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                     IAtom jAtom = atoms.get(j);
                     int jType = jAtom.getType().getIndex();
-                    Potential2Soft pij = ip[jType];
+                    IPotential2 pij = ip[jType];
                     if (pij == null) continue;
                     boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                     uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc, skipIntra);
@@ -134,7 +134,7 @@ public class PotentialMasterCell extends PotentialMaster {
         int i = iAtom.getLeafIndex();
         Vector ri = iAtom.getPosition();
         IAtomList atoms = box.getLeafList();
-        Potential2Soft[] ip = pairPotentials[iType];
+        IPotential2[] ip = pairPotentials[iType];
 
         Vector[] boxOffsets = cellManager.getBoxOffsets();
         int[] atomCell = cellManager.getAtomCell();
@@ -151,7 +151,7 @@ public class PotentialMasterCell extends PotentialMaster {
             if (j != i) {
                 IAtom jAtom = atoms.get(j);
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
@@ -166,7 +166,7 @@ public class PotentialMasterCell extends PotentialMaster {
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                 IAtom jAtom = atoms.get(j);
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
@@ -180,7 +180,7 @@ public class PotentialMasterCell extends PotentialMaster {
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                 IAtom jAtom = atoms.get(j);
                 int jType = jAtom.getType().getIndex();
-                Potential2Soft pij = ip[jType];
+                IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);

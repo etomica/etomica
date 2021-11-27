@@ -4,14 +4,14 @@
 
 package etomica.virial.cluster;
 
-import etomica.potential.IPotentialField;
+import etomica.potential.IPotential1;
 import etomica.virial.BoxCluster;
 
 
 public class ClusterExchange implements ClusterAbstract {
 	protected double beta;
-	protected IPotentialField p1;
-	public ClusterExchange (IPotentialField p1) {
+	protected IPotential1 p1;
+	public ClusterExchange (IPotential1 p1) {
 		this.p1 = p1;		
 	}
 

@@ -58,7 +58,7 @@ public class MethaneGEMC extends Simulation {
         double epsilon = Kelvin.UNIT.toSim(148);
         double sigma = 3.73;
         P2LennardJones p2lj = new P2LennardJones(sigma, epsilon);
-        Potential2Soft p2 = shift ? new P2SoftSphericalTruncatedShifted(p2lj, rc) : new P2SoftSphericalTruncated(p2lj, rc);
+        IPotential2 p2 = shift ? new P2SoftSphericalTruncatedShifted(p2lj, rc) : new P2SoftSphericalTruncated(p2lj, rc);
         AtomType atomType = species.getLeafType();
 
         potentialMaster = new PotentialMasterCell[2];

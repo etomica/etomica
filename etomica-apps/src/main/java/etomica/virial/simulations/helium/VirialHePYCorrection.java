@@ -15,9 +15,9 @@ import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
+import etomica.potential.IPotential2;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
-import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -115,10 +115,10 @@ public class VirialHePYCorrection {
         MayerGeneralSpherical fTargetApprox;
         if (semiClassical) {
             P2HeSimplified p2cApprox = new P2HeSimplified();
-            Potential2Soft p2Approx = p2cApprox.makeQFH(temperature);
+            IPotential2 p2Approx = p2cApprox.makeQFH(temperature);
             
             P2HePCKLJS p2c = new P2HePCKLJS();
-            Potential2Soft p2 = p2c.makeQFH(temperature);
+            IPotential2 p2 = p2c.makeQFH(temperature);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);

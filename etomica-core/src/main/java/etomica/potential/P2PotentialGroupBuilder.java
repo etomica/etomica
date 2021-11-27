@@ -52,7 +52,7 @@ public class P2PotentialGroupBuilder {
                     if(debug) {System.out.println("Added p2LJ");}
                 }
 
-                Potential2Soft p2ES;
+                IPotential2 p2ES;
                 if(qiqj != 0) {
                     if(debug) {System.out.print("Added ");}
                     if (qiqj < 0 && epsilonij == 0) {
@@ -64,7 +64,7 @@ public class P2PotentialGroupBuilder {
                     } else {
                         p2ES = new P2Electrostatic(MP1.charge[i], MP2.charge[j]);
                     }
-                    Potential2Soft p2 = p2ES;
+                    IPotential2 p2 = p2ES;
                     if (p2LJ != null) p2 = new P2SoftSphericalSum(p2LJ, p2ES);
                     potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2);
                     if(debug) {System.out.println("p2ES");}

@@ -140,9 +140,9 @@ public class ReverseOsmosisWater extends Simulation implements MeterOsmoticPress
         TruncationFactoryForceShift tf = new TruncationFactoryForceShift(rCut);
         potentialLJOO = new P2LennardJones(P2WaterSPC.sigmaOO, P2WaterSPC.epsilonOO);
         P2Ewald1Real p2OOqq = new P2Ewald1Real(chargeOxygen * chargeOxygen, alpha);
-        Potential2Soft p2OO = tf.make(potentialLJOO, p2OOqq);
-        Potential2Soft p2OHqq = P2Ewald1Real.makeTruncated(chargeOxygen * chargeHydrogen, ewaldParams.alpha, tf);
-        Potential2Soft p2HHqq = P2Ewald1Real.makeTruncated(chargeHydrogen * chargeHydrogen, ewaldParams.alpha, tf);
+        IPotential2 p2OO = tf.make(potentialLJOO, p2OOqq);
+        IPotential2 p2OHqq = P2Ewald1Real.makeTruncated(chargeOxygen * chargeHydrogen, ewaldParams.alpha, tf);
+        IPotential2 p2HHqq = P2Ewald1Real.makeTruncated(chargeHydrogen * chargeHydrogen, ewaldParams.alpha, tf);
         potentialMaster.setPairPotential(oType, oType, p2OO);
         potentialMaster.setPairPotential(oType, hType, p2OHqq);
         potentialMaster.setPairPotential(hType, hType, p2HHqq);

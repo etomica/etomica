@@ -8,7 +8,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.space.Vector;
 import etomica.util.collections.Int2IntHash;
 
@@ -20,7 +20,7 @@ import etomica.util.collections.Int2IntHash;
 public class NeighborManagerSimpleHard extends NeighborManagerSimple implements NeighborManagerHard {
 
     public Int2IntHash[] stateHash;
-    protected Potential2Soft[][] pairPotentials;
+    protected IPotential2[][] pairPotentials;
 
     public NeighborManagerSimpleHard(Box box) {
         super(box);
@@ -32,7 +32,7 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
     }
 
     @Override
-    public void setPairPotentials(Potential2Soft[][] potentials) {
+    public void setPairPotentials(IPotential2[][] potentials) {
         pairPotentials = potentials;
     }
 
@@ -49,10 +49,10 @@ public class NeighborManagerSimpleHard extends NeighborManagerSimple implements 
             stateHash[i] = new Int2IntHash(10);
             IAtomKinetic iAtom = (IAtomKinetic) atoms.get(i);
             Vector ri = iAtom.getPosition();
-            Potential2Soft[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
+            IPotential2[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
             for (int j = i + 1; j < stateHash.length; j++) {
                 IAtomKinetic jAtom = (IAtomKinetic) atoms.get(j);
-                Potential2Soft p2 = iPotentials[jAtom.getType().getIndex()];
+                IPotential2 p2 = iPotentials[jAtom.getType().getIndex()];
                 if (p2 == null) continue;
                 Vector rj = jAtom.getPosition();
                 Vector dr = Vector.d(ri.getD());

@@ -12,7 +12,7 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.potential.Potential2Soft;
+import etomica.potential.IPotential2;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -44,7 +44,7 @@ import java.io.IOException;
  * 
  * @author Andrew Schultz
  */
-public class P2CO2H2OWheatley implements Potential2Soft {
+public class P2CO2H2OWheatley implements IPotential2 {
 
     protected static final int[][] iparams = new int[][]{
         {1,4,0,0,1,0},{1,4,0,0,6,0},{1,4,0,0,12,0},{1,5,0,0,1,0},{1,5,0,0,6,0}, // 5
@@ -584,7 +584,7 @@ public class P2CO2H2OWheatley implements Potential2Soft {
         return new P2CO2H2OSCTI(temperature);
     }
 
-    public class P2CO2H2OSC implements Potential2Soft {
+    public class P2CO2H2OSC implements IPotential2 {
 
         protected final Tensor tt0Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
@@ -1250,7 +1250,7 @@ public class P2CO2H2OWheatley implements Potential2Soft {
         }
     }
 
-    public class P2CO2H2OSCTI implements Potential2Soft {
+    public class P2CO2H2OSCTI implements IPotential2 {
 
         protected final Vector[] gi, ti;
         protected final double mass0;
