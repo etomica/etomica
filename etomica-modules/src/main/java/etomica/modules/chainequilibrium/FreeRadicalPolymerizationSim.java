@@ -79,7 +79,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
         potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2BB);
 
-        integratorHard = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box, getSpeciesManager());
+        integratorHard = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box, getSpeciesManager());
         integratorHard.setIsothermal(true);
         integratorHard.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);

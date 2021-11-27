@@ -54,7 +54,7 @@ public class Swmd extends Simulation {
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2sqw);
 
         //controller and integrator
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager,
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager,
                 random, 1.0, Kelvin.UNIT.toSim(300), box, getSpeciesManager());
         integrator.setIsothermal(false);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);

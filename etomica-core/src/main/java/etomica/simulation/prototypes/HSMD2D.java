@@ -71,7 +71,7 @@ public class HSMD2D extends Simulation {
         potentialMaster.setPairPotential(leafType1, leafType2, potential12);
         potentialMaster.setPairPotential(leafType2, leafType2, potential22);
 
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box, getSpeciesManager());
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1, box, getSpeciesManager());
         integrator.setIsothermal(false);
 
         box.setNMolecules(species1, 512);

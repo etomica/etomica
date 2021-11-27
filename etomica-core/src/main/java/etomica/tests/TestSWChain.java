@@ -86,7 +86,7 @@ public class TestSWChain extends Simulation {
         P2HardGeneric potential = P2SquareWell.makePotential(sigma, sqwLambda, epsilon);
         potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
 
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
 

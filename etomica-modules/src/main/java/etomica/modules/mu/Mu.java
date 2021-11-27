@@ -90,7 +90,7 @@ public class Mu extends Simulation {
         int N = 300;  //number of atoms
 
         //controller and integrator
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), IntegratorHard.extractFieldPotentials(pcField), neighborManager, random, 0.01, 1, box, getSpeciesManager(), null);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), IntegratorHard.extractFieldPotentials(pcField), neighborManager, random, 0.01, 1, box, getSpeciesManager(), null);
         integrator.setTemperature(1);
         integrator.setIsothermal(true);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);

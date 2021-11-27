@@ -126,7 +126,7 @@ public class InterfacialSW extends Simulation {
         int N = 643;  //number of atoms
 
         //controller and integrator
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random,
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random,
                 0.01, space.D() == 2 ? 0.4 : 1, box, getSpeciesManager(), pmBonding.getBondingInfo()) {
             public void doThermostat() {
                 thermostatting = true;

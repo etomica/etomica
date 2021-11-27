@@ -148,7 +148,7 @@ public class SimGlass extends Simulation {
         new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
 
         integrator = potentialChoice == PotentialChoice.HS ?
-                new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), (NeighborManagerHard) neighborManager, random, tStep, temperature, box, getSpeciesManager()) :
+                new IntegratorHard(potentialMaster.getPairPotentials(), (NeighborManagerHard) neighborManager, random, tStep, temperature, box, getSpeciesManager()) :
                 new IntegratorVelocityVerlet(potentialMaster, random, tStep, temperature, box);
         integrator.setIsothermal(true);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);

@@ -89,7 +89,7 @@ public class OsmosisSim extends Simulation {
         box.setNMolecules(speciesSolvent, initialSolvent);
         box.setNMolecules(speciesSolute, initialSolute);
 
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), IntegratorHard.extractFieldPotentials(pcField),
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), IntegratorHard.extractFieldPotentials(pcField),
                 neighborManager, random, 0.05, 1.0, box, getSpeciesManager(), null);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
 

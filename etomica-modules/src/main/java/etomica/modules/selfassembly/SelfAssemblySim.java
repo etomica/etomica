@@ -118,7 +118,7 @@ public class SelfAssemblySim extends Simulation {
         pcPair.setPairPotential(typeB1, typeB1, p2B1B1);
         pcPair.setPairPotential(typeB2, typeB2, p2B2B2);
 
-        integratorHard = new IntegratorHard(IntegratorHard.extractHardPotentials(pcPair), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box, getSpeciesManager(), pcBonding.getBondingInfo());
+        integratorHard = new IntegratorHard(pcPair.getPairPotentials(), neighborManager, random, 0.002, Kelvin.UNIT.toSim(300), box, getSpeciesManager(), pcBonding.getBondingInfo());
         integratorHard.setIsothermal(true);
         integratorHard.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(100);

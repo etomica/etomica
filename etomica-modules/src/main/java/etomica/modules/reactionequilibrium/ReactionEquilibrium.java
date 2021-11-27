@@ -77,7 +77,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), ABbonded);
         potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), BBbonded);
 
-        integratorHard1 = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster),
+        integratorHard1 = new IntegratorHard(potentialMaster.getPairPotentials(),
                 neighborManager, random, 0.05, 1.0, box, getSpeciesManager());
         integratorHard1.setMaxCollisionDiameter(speciesA.getLeafType(), diameter);
         integratorHard1.setMaxCollisionDiameter(speciesB.getLeafType(), diameter);

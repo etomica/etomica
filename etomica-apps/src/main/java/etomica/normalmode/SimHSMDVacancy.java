@@ -96,7 +96,7 @@ public class SimHSMDVacancy extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMasterList.setPairPotential(leafType, leafType, potential);
-        integrator = new IntegratorHardMDMC(IntegratorHard.extractHardPotentials(potentialMasterList), neighborManager, random, tStep, 1.0, box, getSpeciesManager());
+        integrator = new IntegratorHardMDMC(potentialMasterList.getPairPotentials(), neighborManager, random, tStep, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
         integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);

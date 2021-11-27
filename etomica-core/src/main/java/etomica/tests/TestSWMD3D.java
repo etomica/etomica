@@ -65,7 +65,7 @@ public class TestSWMD3D extends Simulation {
         potentialMaster.setPairPotential(type1, type1, P2SquareWell.makePotential(sigma, 1.5, 0.5));
         potentialMaster.setPairPotential(type1, type2, P2SquareWell.makePotential(sigma, 1.5, 0.5));
         potentialMaster.setPairPotential(type2, type2, P2SquareWell.makePotential(sigma, 1.5, 0.5));
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.005, 1.0, box, getSpeciesManager());
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.005, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(true);
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);

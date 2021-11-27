@@ -60,7 +60,7 @@ public class Insertion extends Simulation {
         potentialGhost = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{0, 0});
         potentialCompute.setPairPotential(species.getLeafType(), speciesGhost.getLeafType(), potentialGhost);
 
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialCompute), neighborManager, random, 0.2, 1.0, box, getSpeciesManager());
+        integrator = new IntegratorHard(potentialCompute.getPairPotentials(), neighborManager, random, 0.2, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(false);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
         integrator.setThermostatNoDrift(true);

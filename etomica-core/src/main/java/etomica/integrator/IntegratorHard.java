@@ -9,7 +9,10 @@ import etomica.box.BoxMoleculeEvent;
 import etomica.molecule.IMolecule;
 import etomica.nbr.list.INeighborListener;
 import etomica.nbr.list.NeighborListManager;
-import etomica.potential.*;
+import etomica.potential.IPotentialField;
+import etomica.potential.IPotentialHardField;
+import etomica.potential.Potential2Soft;
+import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.*;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
@@ -49,45 +52,6 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
     private long nanoTime() {
         return writeTiming ? System.nanoTime() : 0;
-    }
-
-    public static Potential2Soft[][] extractHardPotentials(PotentialComputePair pcPair) {
-        Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
-        int n = softPotentials.length;
-        Potential2Soft[][] pairPotentials = new Potential2Soft[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = softPotentials[i][j];
-            }
-        }
-        return pairPotentials;
-    }
-
-    public static Potential2Soft[][] extractHardPotentials(PotentialMaster pcPair) {
-        Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
-        int n = softPotentials.length;
-        Potential2Soft[][] pairPotentials = new Potential2Soft[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = softPotentials[i][j];
-            }
-        }
-        return pairPotentials;
-    }
-
-    public static Potential2Soft[][] extractHardPotentials(PotentialComputePairGeneral pcPair) {
-        Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
-        int n = softPotentials.length;
-        Potential2Soft[][] pairPotentials = new Potential2Soft[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = softPotentials[i][j];
-            }
-        }
-        return pairPotentials;
     }
 
     public static IPotentialHardField[] extractFieldPotentials(PotentialComputeField pcField) {

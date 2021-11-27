@@ -100,7 +100,7 @@ public class HSMD3D extends Simulation {
 
         potentialMaster.setPairPotential(leafType, leafType, potential);
 
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1, box, getSpeciesManager());
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1, box, getSpeciesManager());
         integrator.setIsothermal(false);
 
         ActivityIntegrate ai2 = new ActivityIntegrate(integrator);

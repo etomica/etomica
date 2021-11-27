@@ -97,7 +97,7 @@ public class ChainHSMD3D extends Simulation {
         AtomType leafType = species.getAtomType(0);
         potentialMaster.setPairPotential(leafType, leafType, potential);
 
-        integrator = new IntegratorHard(IntegratorHard.extractHardPotentials(potentialMaster), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
         integrator.setIsothermal(false);
 
         MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
