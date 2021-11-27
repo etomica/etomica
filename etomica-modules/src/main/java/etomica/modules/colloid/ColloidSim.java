@@ -18,8 +18,8 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.nbr.list.NeighborListManagerHard;
 import etomica.potential.BondingInfo;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.P1HardFieldGeneric;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
@@ -62,7 +62,7 @@ public class ColloidSim extends Simulation {
         box = this.makeBox();
 
         NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, 6, BondingInfo.noBonding()) {
-            protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
+            protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
                 int idx1 = iAtom.getParentGroup().getIndex();
                 int idx2 = jAtom.getParentGroup().getIndex();
                 int chainIdx1 = idx1 / chainLength;

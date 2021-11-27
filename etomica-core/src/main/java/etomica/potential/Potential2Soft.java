@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
@@ -117,4 +118,56 @@ public interface Potential2Soft extends IPotentialAtomic {
             o2o2.PE(h2.o2o2);
         }
     }
+
+    /**
+     * Returns the state of the pair of atoms (atom1 and atom2) at distance r12
+     */
+    default int getState(IAtom atom1, IAtom atom2, Vector r12) {
+        throw new RuntimeException("Atom pairs have a state only for hard potentials");
+    }
+
+    /**
+     * Returns the pair energy for the given state
+     */
+    default double getEnergyForState(int state) {
+        throw new RuntimeException("Atom pairs have a state only for hard potentials");
+    }
+
+    /**
+     * Computes the collision time for a given atom pair.
+     *
+     * @param atom1     the first atom
+     * @param atom2     the second atom
+     * @param r12       the position vector between the atoms (r2 - r1)
+     * @param v12       the velocity difference between the atoms (v2 - v1)
+     * @param state     the current state of the pair (overlapped, in well, etc).
+     *                  the numbering scheme of states is an implementation
+     *                  detail of the potential class, returned by getState or bump.
+     * @param falseTime false-positioning time of the integration
+     * @return the next collision time for a pair of atoms.
+     */
+    default double collisionTime(IAtomKinetic atom1, IAtomKinetic atom2, Vector r12, Vector v12, int state, double falseTime) {
+        throw new RuntimeException("Atom pairs have a collision time only for hard potentials");
+    }
+
+    /**
+     * Handles the collision between a pair of atoms.  The atom positions and velocities
+     * are updated and the new state is returned.
+     *
+     * @param atom1     the first atom
+     * @param atom2     the second atom
+     * @param oldState  the state of the pair before the collision
+     * @param r12       the vector between the pair at the collision (r2 - r1)
+     * @param v12       the velocity difference between the atoms (v2 - v1)
+     * @param falseTime the time into the future when the particles collide
+     *                  the particle positions will be updated such that
+     *                  r(falsetime) = r(0) + vnew * falsetime
+     * @param virial    out parameter for the collision virial
+     * @param du        the change in energy from this collision
+     * @return the new state of the pair
+     */
+    default int bump(IAtomKinetic atom1, IAtomKinetic atom2, int oldState, Vector r12, Vector v12, double falseTime, double[] virial, double[] du) {
+        throw new RuntimeException("Atom pairs can bump only for hard potentials");
+    }
+
 }

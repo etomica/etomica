@@ -7,7 +7,6 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.BondingInfo;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2Soft;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
@@ -208,7 +207,7 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
                 int j = i;
                 int iCell = atomCell[i];
                 Vector jbo = boxOffsets[iCell];
-                IPotentialAtomic[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
+                Potential2Soft[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
                 while ((j = cellNextAtom[j]) > -1) {
                     IAtom jAtom = atoms.get(j);
                     tooMuch += checkNbrPair(i, j, iAtom, jAtom, rc2, jbo, iPotentials);
@@ -266,7 +265,7 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
         nbrs[j][downSlot] = i;
     }
 
-    protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
+    protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
 
         boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
@@ -281,7 +280,7 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
         return addAsNbrPair(i, j, iAtom, jAtom, jbo, iPotentials, dr);
     }
 
-    protected int addAsNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, Vector jbo, IPotentialAtomic[] iPotentials, Vector dr) {
+    protected int addAsNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, Vector jbo, Potential2Soft[] iPotentials, Vector dr) {
         if (numAtomNbrsUp[i] >= maxNab) return 1;
         nbrs[i][numAtomNbrsUp[i]] = j;
         nbrBoxOffsets[i][numAtomNbrsUp[i]] = jbo;

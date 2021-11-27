@@ -25,8 +25,8 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierSQWEpsilon;
 import etomica.modifier.ModifierSQWLambda;
-import etomica.potential.IPotentialHard;
 import etomica.potential.P2HardGeneric;
+import etomica.potential.Potential2Soft;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -473,7 +473,7 @@ public class SwmdGraphic extends SimulationGraphic {
         final boolean SW = potentialDesc.equals("Repulsion and attraction");
         sim.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
-                IPotentialHard p2;
+                Potential2Soft p2;
                 if (HS) {
                     p2 = potentialHS;
                 } else if (SW) {

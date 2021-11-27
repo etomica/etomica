@@ -26,11 +26,11 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
     protected final PotentialMasterBonding.FullBondingInfo bondingInfo;
     protected double[] collisionTimes, nullCollisionTimes;
     protected int[] collisionPartners;
-    protected IPotentialHard[] collisionPotentials;
+    protected Potential2Soft[] collisionPotentials;
     protected Vector[] collisionVector;
     protected int[] eventBinsFirstAtom, eventBinsNextAtom, eventBinsPrevAtom;
     protected int[] collisionOldState;
-    protected final IPotentialHard[][] pairPotentials;
+    protected final Potential2Soft[][] pairPotentials;
     protected final IPotentialHardField[] fieldPotentials;
     protected final double[] maxSigma;
     protected double tBase, tMax;
@@ -51,40 +51,40 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         return writeTiming ? System.nanoTime() : 0;
     }
 
-    public static IPotentialHard[][] extractHardPotentials(PotentialComputePair pcPair) {
+    public static Potential2Soft[][] extractHardPotentials(PotentialComputePair pcPair) {
         Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
         int n = softPotentials.length;
-        IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
+        Potential2Soft[][] pairPotentials = new Potential2Soft[n][n];
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
+                pairPotentials[i][j] = softPotentials[i][j];
             }
         }
         return pairPotentials;
     }
 
-    public static IPotentialHard[][] extractHardPotentials(PotentialMaster pcPair) {
+    public static Potential2Soft[][] extractHardPotentials(PotentialMaster pcPair) {
         Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
         int n = softPotentials.length;
-        IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
+        Potential2Soft[][] pairPotentials = new Potential2Soft[n][n];
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
+                pairPotentials[i][j] = softPotentials[i][j];
             }
         }
         return pairPotentials;
     }
 
-    public static IPotentialHard[][] extractHardPotentials(PotentialComputePairGeneral pcPair) {
+    public static Potential2Soft[][] extractHardPotentials(PotentialComputePairGeneral pcPair) {
         Potential2Soft[][] softPotentials = pcPair.getPairPotentials();
         int n = softPotentials.length;
-        IPotentialHard[][] pairPotentials = new IPotentialHard[n][n];
+        Potential2Soft[][] pairPotentials = new Potential2Soft[n][n];
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                pairPotentials[i][j] = (IPotentialHard) softPotentials[i][j];
+                pairPotentials[i][j] = softPotentials[i][j];
             }
         }
         return pairPotentials;
@@ -100,7 +100,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         return fieldPotentials;
     }
 
-    private static PotentialCompute makeTotalCompute(Box box, IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IPotentialHardField[] fieldPotentials, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+    private static PotentialCompute makeTotalCompute(Box box, Potential2Soft[][] pairPotentials, NeighborManagerHard neighborManager, IPotentialHardField[] fieldPotentials, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
         int n = pairPotentials.length;
         Potential2Soft[][] softPotentials = new Potential2Soft[n][n];
         for (int i = 0; i < n; i++) {
@@ -132,19 +132,19 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
      * @param temperature      used by thermostat and/or to initialize velocities
      * @param box
      */
-    public IntegratorHard(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
+    public IntegratorHard(Potential2Soft[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
         this(pairPotentials, neighborManager, random, timeStep, temperature, box, sm, null);
     }
 
-    public IntegratorHard(IPotentialHard[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+    public IntegratorHard(Potential2Soft[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
         this(pairPotentials, null, neighborManager, random, timeStep, temperature, box, sm, bondingInfo);
     }
 
-    public IntegratorHard(IPotentialHard[][] pairPotentials, IPotentialHardField[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+    public IntegratorHard(Potential2Soft[][] pairPotentials, IPotentialHardField[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
         this(makeTotalCompute(box, pairPotentials, neighborManager, fieldPotentials, sm, bondingInfo), pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, bondingInfo);
     }
 
-    public IntegratorHard(PotentialCompute pc, IPotentialHard[][] pairPotentials, IPotentialHardField[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+    public IntegratorHard(PotentialCompute pc, Potential2Soft[][] pairPotentials, IPotentialHardField[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
         super(pc, random, timeStep, temperature, box);
         this.pairPotentials = pairPotentials;
         this.fieldPotentials = fieldPotentials;
@@ -178,7 +178,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         return new PotentialComputeAggregate(pcField, pcPair);
     }
 
-    public void setPairPotential(AtomType type1, AtomType type2, IPotentialHard p2) {
+    public void setPairPotential(AtomType type1, AtomType type2, Potential2Soft p2) {
         pairPotentials[type1.getIndex()][type2.getIndex()] = p2;
         if (potentialCompute instanceof PotentialComputeAggregate) {
             for (PotentialCompute pc : ((PotentialComputeAggregate) potentialCompute).getPotentialComputes()) {
@@ -255,7 +255,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
                     bondState[i] = new Int2IntHash(2);
                 }
             }
-            collisionPotentials = new IPotentialHard[nAtoms];
+            collisionPotentials = new Potential2Soft[nAtoms];
             collisionVector = new Vector[nAtoms];
             for (int i = 0; i < nAtoms; i++) {
                 collisionVector[i] = space.makeVector();
@@ -308,7 +308,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
                         Vector dr = space.makeVector();
                         dr.Ev1Mv2(rj, ri);
                         box.getBoundary().nearestImage(dr);
-                        int s = ((IPotentialHard) potential).getState(iAtom, jAtom, dr);
+                        int s = potential.getState(iAtom, jAtom, dr);
                         bondState[i].put(j, s);
                         bondState[j].put(i, s);
                     }
@@ -518,7 +518,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
                     Vector dr = space.makeVector();
                     dr.Ev1Mv2(rj, ri);
                     box.getBoundary().nearestImage(dr);
-                    myDown.accept(jAtom, dr, bondState[j].get(i), (IPotentialHard) potential);
+                    myDown.accept(jAtom, dr, bondState[j].get(i), potential);
                 }
             });
         }
@@ -603,7 +603,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
                     Vector dr = space.makeVector();
                     dr.Ev1Mv2(rj, ri);
                     box.getBoundary().nearestImage(dr);
-                    myUp.accept(jAtom, dr, bondState[i].get(j), (IPotentialHard) potential);
+                    myUp.accept(jAtom, dr, bondState[i].get(j), potential);
                 }
             });
         }
@@ -737,7 +737,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
             long t1b = nanoTime();
             IAtomKinetic cAtom = (IAtomKinetic) atoms.get(c);
             if (cPartner >= 0) {
-                IPotentialHard pHard = collisionPotentials[c];
+                Potential2Soft pHard = collisionPotentials[c];
                 IAtomKinetic partnerAtom = (IAtomKinetic) atoms.get(cPartner);
                 Vector dr = collisionVector[c];
                 Vector dv = space.makeVector();
@@ -911,6 +911,6 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
     // called by neighbor consumer and also bonded callback
     private interface MyConsumer {
-        void accept(IAtom jAtom, Vector rij, int state, IPotentialHard pij);
+        void accept(IAtom jAtom, Vector rij, int state, Potential2Soft pij);
     }
 }

@@ -11,9 +11,9 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.NeighborListManagerHard;
 import etomica.potential.BondingInfo;
-import etomica.potential.IPotentialHard;
 import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2Soft;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -75,7 +75,7 @@ public class TestSnapshots {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            integrator = new IntegratorHard(new IPotentialHard[][]{{potential}}, neighborManager, random, 0.01, 1.0, box(), getSpeciesManager());
+            integrator = new IntegratorHard(new Potential2Soft[][]{{potential}}, neighborManager, random, 0.01, 1.0, box(), getSpeciesManager());
         }
 
     }

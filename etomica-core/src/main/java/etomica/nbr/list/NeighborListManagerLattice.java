@@ -7,7 +7,7 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.math.function.IFunction;
 import etomica.potential.BondingInfo;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential2Soft;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
@@ -16,7 +16,7 @@ public class NeighborListManagerLattice extends NeighborListManager {
         super(sm, box, cellRange, nbrRange, bondingInfo);
     }
 
-    protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotentialAtomic[] iPotentials) {
+    protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
 
         Vector dr = space.makeVector();

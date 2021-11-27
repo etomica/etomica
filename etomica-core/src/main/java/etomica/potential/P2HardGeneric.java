@@ -13,7 +13,7 @@ import etomica.space.Vector;
  * are defined at construction.  This implements Potential2Soft so that it can be
  * used in a PotentialCompute to get the energy.
  */
-public class P2HardGeneric implements IPotentialHard, Potential2Soft {
+public class P2HardGeneric implements Potential2Soft {
 
     /**
      * Setting fixOverlapDefault to true will cause any P2HardGeneric to be
