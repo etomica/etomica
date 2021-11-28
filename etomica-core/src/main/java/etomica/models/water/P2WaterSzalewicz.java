@@ -5,6 +5,7 @@
 package etomica.models.water;
 
 import etomica.atom.AtomPair;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -13,6 +14,7 @@ import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotential2;
 import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential3Soft;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -299,8 +301,8 @@ public class P2WaterSzalewicz implements IPotential2 {
     protected final double bohrConv = BohrRadius.UNIT.fromSim(1);
     protected final Space space;
     
-    public P2WaterSzalewicz(Space space, int nBody) {
-        this.space = space;
+    public P2WaterSzalewicz(int nBody) {
+        this.space = Space3D.getInstance();
         sitePos = new Vector[nBody][sites.length];
         com0 = new Vector[nBody];
         for (int j=0; j<nBody; j++) {
@@ -369,7 +371,60 @@ public class P2WaterSzalewicz implements IPotential2 {
         nlin3 = inew;
         aj3 = new double[nlin3];
     }
-    
+
+    public static P2WaterSzalewicz2 make2Body() {
+        return make2Body(Component.ALL);
+    }
+
+    public static P2WaterSzalewicz2 make2Body(Component comp) {
+        return new P2WaterSzalewicz2(comp);
+    }
+
+    public static class P2WaterSzalewicz2 extends P2WaterSzalewicz implements IPotential2 {
+        public P2WaterSzalewicz2(Component comp) {
+            super(2);
+            setComponent(comp);
+        }
+
+        @Override
+        public double u(double r2) {
+            throw new RuntimeException("Not a spherical potential");
+        }
+
+        @Override
+        public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+            Vector zero = space.makeVector();
+            return energy(new IAtom[]{atom1, atom2}, new Vector[]{zero, dr12});
+        }
+    }
+
+    public static P2WaterSzalewicz3 make3Body() {
+        return make3Body(Component.ALL);
+    }
+
+    public static P2WaterSzalewicz3 make3Body(Component comp) {
+        return new P2WaterSzalewicz3(comp);
+    }
+
+    public static class P2WaterSzalewicz3 extends P2WaterSzalewicz implements Potential3Soft {
+        public P2WaterSzalewicz3(Component comp) {
+            super(3);
+            setComponent(comp);
+        }
+
+        @Override
+        public double u(double r212, double r213, double r223) {
+            throw new RuntimeException("Not a spherical potential");
+        }
+
+        @Override
+        public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+            Vector zero = space.makeVector();
+            return energy(new IAtom[]{atom1, atom2, atom3}, new Vector[]{zero, dr12, dr13});
+        }
+    }
+
+
     protected void fill(int iat, int jat, int kat, int ip, int jp, int kp, int nr) {
         int[] ntype = new int[]{1,2,2,3,3,4,4,4,4,5,5,5,5,6,6,6,6};
 
@@ -443,10 +498,20 @@ public class P2WaterSzalewicz implements IPotential2 {
     public static boolean debug = false;
 
     public double energy(IAtomList atoms) {
-        for (int i = 0; i<atoms.size(); i++) {
-            rTmp.Ea1Tv1(bohrConv, atoms.get(i).getPosition());
+        IAtom[] a = new IAtom[atoms.size()];
+        Vector[] p = new Vector[atoms.size()];
+        for (int i=0; i<a.length; i++) {
+            p[i] = space.makeVector();
+            p[i].E(a[i].getPosition());
+        }
+        return energy(a, p);
+    }
+
+    public double energy(IAtom[] atoms, Vector[] pos) {
+        for (int i = 0; i<atoms.length; i++) {
+            rTmp.Ea1Tv1(bohrConv, pos[i]);
             // everything after this is in Bohr
-            OrientationFull3D ori = (OrientationFull3D)((IAtomOriented)atoms.get(i)).getOrientation();
+            OrientationFull3D ori = (OrientationFull3D)((IAtomOriented)atoms[i]).getOrientation();
             allOr[0] = ori.getDirection();
             allOr[1] = ori.getSecondaryDirection();
             or2.E(allOr[0]);
@@ -467,8 +532,8 @@ public class P2WaterSzalewicz implements IPotential2 {
         double u0 = 0;
         if (component != Component.INDUCTION && component != Component.NON_PAIR && component != Component.THREE_BODY) {
 
-            for (int iA = 0; iA<atoms.size()-1; iA++) {
-                for (int iB = iA+1; iB<atoms.size(); iB++) {
+            for (int iA = 0; iA<atoms.length-1; iA++) {
+                for (int iB = iA+1; iB<atoms.length; iB++) {
                     double minR = 10000;
                     double E_ele=0;
                     double E_ind=0;
@@ -554,13 +619,13 @@ public class P2WaterSzalewicz implements IPotential2 {
         }
         double u3 = 0;
         if (component != Component.TWO_BODY && component != Component.INDUCTION) {
-            for (int i = 0; i<atoms.size()-2; i++) {
+            for (int i = 0; i<atoms.length-2; i++) {
                 com3[0] = com0[i];
                 sitePos3[0] = sitePos[i];
-                for (int j = i+1; j<atoms.size()-1; j++) {
+                for (int j = i+1; j<atoms.length-1; j++) {
                     com3[1] = com0[j];
                     sitePos3[1] = sitePos[j];
-                    for (int k = j+1; k<atoms.size(); k++) {
+                    for (int k = j+1; k<atoms.length; k++) {
                         com3[2] = com0[k];
                         sitePos3[2] = sitePos[k];
                         u3 += fit3b();
@@ -1375,9 +1440,8 @@ public class P2WaterSzalewicz implements IPotential2 {
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
 //        ((OrientationFull3D)atom1.getOrientation()).setDirections(space.makeVector(new double[]{0,1,0}),
 //                                                                  space.makeVector(new double[]{-1,0,0}));
-        P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);
-        P2WaterSzalewicz p3 = new P2WaterSzalewicz(space, 3);
-        p3.setComponent(Component.ALL);
+        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body();
+        P2WaterSzalewicz.P2WaterSzalewicz3 p3 = P2WaterSzalewicz.make3Body();
 
         System.out.println("or0: "+((IAtomOriented)pair.get(0)).getOrientation().getDirection()+" "+((OrientationFull3D)((IAtomOriented)pair.get(0)).getOrientation()).getSecondaryDirection());
         System.out.println("or1: "+atom1.getOrientation().getDirection()+" "+((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection());
@@ -1424,10 +1488,8 @@ public class P2WaterSzalewicz implements IPotential2 {
         AtomPair pair13 = new AtomPair(atom1, atom3);
         AtomPair pair23 = new AtomPair(atom2, atom3);
         atom2.getPosition().setX(0, 10);
-        P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);
-        p2.setComponent(Component.NON_PAIR);
-        P2WaterSzalewicz p3 = new P2WaterSzalewicz(space, 3);
-        p3.setComponent(Component.NON_PAIR);
+        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body(Component.NON_PAIR);
+        P2WaterSzalewicz.P2WaterSzalewicz3 p3 = P2WaterSzalewicz.make3Body(Component.NON_PAIR);
 
 
         atom1.getPosition().setX(0, BohrRadius.UNIT.toSim(-5));
@@ -1482,8 +1544,7 @@ public class P2WaterSzalewicz implements IPotential2 {
         Vector o1 = Vector.of(new double[]{-1, 0, 0});
         atom0.getOrientation().setDirection(o1);
         atom1.getOrientation().setDirection(o1);
-        P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);
-        p2.setComponent(Component.TWO_BODY);
+        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body(Component.TWO_BODY);
         P2H2OSC p2SC = p2.makeSemiclassical(temperature);
 //        System.out.println("or: "+atom0.getOrientation().getDirection()+" "+atom1.getOrientation().getDirection());
         double lu = 0, lg = 0;
@@ -1596,7 +1657,7 @@ public class P2WaterSzalewicz implements IPotential2 {
         Vector p1 = atom1.getPosition();
         IOrientation or0 = atom0.getOrientation();
         OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
-        P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);
+        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body();
         System.exit(1);
         P2H2OSC p2SC = p2.makeSemiclassical(temperature);
         P2H2OSC p2CSC = p2.makeSemiclassical(Double.POSITIVE_INFINITY);

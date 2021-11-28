@@ -173,10 +173,8 @@ public class P3Induction implements IPotentialAtomic {
         MoleculePair mPair13 = new MoleculePair(molecule1, molecule3);
         MoleculePair mPair23 = new MoleculePair(molecule2, molecule3);
 
-        P2WaterSzalewicz p2sz = new P2WaterSzalewicz(space, 2);
-        p2sz.setComponent(Component.INDUCTION);
-        P2WaterSzalewicz p3sz = new P2WaterSzalewicz(space, 3);
-        p3sz.setComponent(Component.INDUCTION);
+        P2WaterSzalewicz.P2WaterSzalewicz2 p2sz = P2WaterSzalewicz.make2Body(Component.INDUCTION);
+        P2WaterSzalewicz.P2WaterSzalewicz3 p3sz = P2WaterSzalewicz.make3Body(Component.INDUCTION);
 
         Map<AtomType, MyAgent> paramsManager = new HashMap<>();
         P3Induction p3i = new P3Induction(space, paramsManager);
