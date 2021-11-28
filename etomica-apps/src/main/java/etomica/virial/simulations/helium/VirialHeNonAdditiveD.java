@@ -189,7 +189,7 @@ public class VirialHeNonAdditiveD {
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        IPotentialAtomicMultibody p3 = new P3CPSNonAdditiveHe(space);
+        P3CPSNonAdditiveHe p3 = new P3CPSNonAdditiveHe(space);
         P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
 

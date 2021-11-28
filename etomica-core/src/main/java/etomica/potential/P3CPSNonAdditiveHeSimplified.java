@@ -25,7 +25,7 @@ import java.util.Date;
  *  
  * @author Kate Shaul
  */
-public class P3CPSNonAdditiveHeSimplified implements IPotentialAtomicMultibody, Potential3Soft {
+public class P3CPSNonAdditiveHeSimplified implements Potential3Soft {
 
     public P3CPSNonAdditiveHeSimplified(Space space) {
         drAB = space.makeVector();
@@ -221,7 +221,7 @@ public class P3CPSNonAdditiveHeSimplified implements IPotentialAtomicMultibody, 
         Space space = Space3D.getInstance();
 
         P3CPSNonAdditiveHeSimplified potential = new P3CPSNonAdditiveHeSimplified(space);
-        System.out.println(potential.energy(new double[]{4.326850577421106e+00, 4.713606275205238e+03, 4.961477925052809e+03}));
+		System.out.println(potential.u(4.326850577421106e+00, 4.713606275205238e+03, 4.961477925052809e+03));
         System.exit(1);
 //        potential.setParameters("paramsOriginalSimpler.dat");
         //potential.setParameters("fminconSamplingB3NonAdd/params3Sets_RelErrSqrt_EM18_IG2_1e4Iter_100_K_0.dat");
