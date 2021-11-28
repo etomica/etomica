@@ -4,7 +4,6 @@
 package etomica.models.water;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -128,16 +127,6 @@ public class P2H2OSzalewiczSC extends P2WaterSzalewicz {
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public double energy(IAtomList atoms) {
-        IAtom[] a = new IAtom[atoms.size()];
-        Vector[] p = new Vector[atoms.size()];
-        for (int i = 0; i < a.length; i++) {
-            p[i] = space.makeVector();
-            p[i].E(a[i].getPosition());
-        }
-        return energy(a, p);
     }
 
     public double energy(IAtom[] atoms, Vector[] pos) {

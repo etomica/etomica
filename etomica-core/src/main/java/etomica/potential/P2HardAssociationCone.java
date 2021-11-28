@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -52,48 +51,6 @@ public class P2HardAssociationCone implements IPotential2 {
         return sigma*cutoffFactor;
     }
 
-
-    /**
-     * Returns the pair potential energy.
-     */
-    public double energy(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
-        dr.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        double eTot = 0.0;
-                 
-       // FLAG = false;
-        if(r2 > cutoffLJSquared) {
-            eTot = 0.0;
-        }
-        else {
-            double s2 = sigmaSquared/r2;
-            double s6 = s2*s2*s2;
-            eTot = epsilon4*s6*(s6 - 1.0);
-        }
-                  
-        if (r2 < wellCutoffSquared) {
-            Vector e1 = atom0.getOrientation().getDirection();
-            double er1 = e1.dot(dr);
-
-            if ( er1 > 0.0 && er1*er1 > ec2*r2) {
-                Vector e2 = atom1.getOrientation().getDirection();
-                double er2 = e2.dot(dr);
-                if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
-                //if(er2 < 0.0 && er2*er2 > ec2*r2) {
-                	//System.out.println ("haha " + eTot);
-                	//if (eTot < -2) {
-                		//FLAG = true;
-                	//}
-                //}
-                
-            }
-        }
-        return eTot;
-    }
-    
     /**
      * Accessor method for Lennard-Jones size parameter
      */

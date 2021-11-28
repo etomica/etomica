@@ -4,31 +4,14 @@
 
 package etomica.potential;
 
-import etomica.atom.*;
-import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Hydrogen;
-import etomica.chem.elements.Oxygen;
-import etomica.models.water.ConformationWaterGCPM;
-import etomica.models.water.P2WaterSzalewicz;
-import etomica.models.water.P2WaterSzalewicz.Component;
-import etomica.models.water.PNWaterGCPM;
-import etomica.models.water.SpeciesWater4P;
-import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
-import etomica.simulation.Simulation;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresRotating;
-import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -137,98 +120,5 @@ public class P3Induction implements Potential3Soft {
             this.q = q;
             this.qSite = qSite;
         }
-    }
-    
-    public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
-        sim.addSpecies(species);
-        Box box = new Box(space);
-        Box box2 = new Box(space);
-        sim.addBox(box);
-        box.setNMolecules(species, 3);
-        box.getBoundary().setBoxSize(Vector.of(new double[]{10000, 10000, 10000}));
-        SpeciesGeneral water4P = SpeciesWater4P.create(new ConformationWaterGCPM(space));
-        sim.addSpecies(water4P);
-        sim.addBox(box2);
-        box2.setNMolecules(water4P, 3);
-        box2.getBoundary().setBoxSize(Vector.of(new double[]{10000, 10000, 10000}));
-        IAtomList triplet = box.getLeafList();
-        IAtomOriented atom1 = (IAtomOriented)triplet.get(0);
-        IAtomOriented atom2 = (IAtomOriented)triplet.get(1);
-        IAtomOriented atom3 = (IAtomOriented)triplet.get(2);
-        AtomPair pair12 = new AtomPair(atom1, atom2);
-        AtomPair pair13 = new AtomPair(atom1, atom3);
-        AtomPair pair23 = new AtomPair(atom2, atom3);
-
-        IMoleculeList moleculeTriplet = box2.getMoleculeList();
-        IMolecule molecule1 = moleculeTriplet.get(0);
-        IMolecule molecule2 = moleculeTriplet.get(1);
-        IMolecule molecule3 = moleculeTriplet.get(2);
-        MoleculePair mPair12 = new MoleculePair(molecule1, molecule2);
-        MoleculePair mPair13 = new MoleculePair(molecule1, molecule3);
-        MoleculePair mPair23 = new MoleculePair(molecule2, molecule3);
-
-        P2WaterSzalewicz.P2WaterSzalewicz2 p2sz = P2WaterSzalewicz.make2Body(Component.INDUCTION);
-        P2WaterSzalewicz.P2WaterSzalewicz3 p3sz = P2WaterSzalewicz.make3Body(Component.INDUCTION);
-
-        Map<AtomType, MyAgent> paramsManager = new HashMap<>();
-        P3Induction p3i = new P3Induction(space, paramsManager);
-        double alphaH2O = 1.444;
-
-        Vector polH2O = space.makeVector();
-        double[] qH2O = P2WaterSzalewicz.getQ();
-        Vector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
-        polH2O.E(qSiteH2O[0]);
-        MyAgent agentH2O = new MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
-
-        paramsManager.put(species.getLeafType(), agentH2O);
-
-        PNWaterGCPM pGCPM = new PNWaterGCPM(space, box2.getBoundary());
-
-        double r = 5;
-        Vector dr1 = space.makeVector();
-        Vector dr2 = space.makeVector();
-        for (int i=0; i<10; i++) {
-            r *= 2;
-            atom2.getPosition().setX(0, r);
-            atom3.getPosition().setX(0, 2*r);
-            
-            if (i==0) dr1.setX(0, r);
-            else dr1.setX(0, r/2);
-            if (i==0) dr2.setX(0, 2*r);
-            else dr2.setX(0, r);
-            for (int j=0; j<4; j++) {
-                molecule2.getChildList().get(j).getPosition().PE(dr1);
-                molecule3.getChildList().get(j).getPosition().PE(dr2);
-            }
-            
-            double u2sz = p2sz.energy(pair12) + p2sz.energy(pair13) + p2sz.energy(pair23);
-            double u3sz = p3sz.energy(triplet);
-            double u2gcpm = pGCPM.energy(mPair12) + pGCPM.energy(mPair13) + pGCPM.energy(mPair23);
-            double u3gcpm = pGCPM.energy(moleculeTriplet);
-            System.out.println(r+" "+(u3sz-u2sz)+" "+p3i.u(null, null, null, atom1, atom2, atom3)+" "+(u3gcpm-u2gcpm));
-        }
-        
-        RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
-        for (int j=0; j<10; j++) {
-            System.out.println();
-            r = 5;
-            for (int i=0; i<10; i++) {
-                r *= 2;
-                atom2.getPosition().setX(0, r);
-                atom3.getPosition().setX(0, r);
-                atom3.getPosition().setX(1, r);
-                double u2sz = p2sz.energy(pair12) + p2sz.energy(pair13) + p2sz.energy(pair23);
-                double u3sz = p3sz.energy(triplet);
-                double u2gcpm = pGCPM.energy(mPair12) + pGCPM.energy(mPair13) + pGCPM.energy(mPair23);
-                double u3gcpm = pGCPM.energy(moleculeTriplet);
-                System.out.println(r+" "+(u3sz-u2sz)+" "+p3i.u(null, null, null, atom1, atom2, atom3)+" "+(u3gcpm-u2gcpm));
-            }
-            atom2.getOrientation().randomRotation(random, 1);
-            atom3.getOrientation().randomRotation(random, 1);
-        }
-        
     }
 }

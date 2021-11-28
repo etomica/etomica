@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -31,15 +30,6 @@ public class P2WCAP implements IPotential2 {
         dr = space.makeVector();
         setSigma(sigma);
         setEpsilon(epsilon);
-    }
-
-    /**
-     * Energy of the pair as given by the u(double) method
-     */
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        return u(dr.squared());
     }
 
     /**

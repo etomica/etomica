@@ -45,19 +45,6 @@ public class P2Spin implements IPotential2 {
         h = new Hessian(new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D(), new Tensor1D());
     }
 
-    /**
-     * Returns the energy for the given pair of atoms.
-     *
-     * @param atoms
-     * @throws ClassCastException if atoms is not an instance of AtomPair
-     */
-
-    public double energy(IAtomList atoms) {
-        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
-        return -coupling * atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
-    }
-
     @Override
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
         IAtomOriented atom1o = (IAtomOriented) atom1;

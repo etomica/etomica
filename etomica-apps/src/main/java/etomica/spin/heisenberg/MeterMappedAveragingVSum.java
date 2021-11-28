@@ -12,7 +12,6 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.potential.compute.PotentialCompute;
@@ -703,9 +702,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
 
     private class PotentialCalculationPhiijMF {
         private final Vector myWorkVector = space.makeVector();
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            go((IAtomOriented) atoms.get(0), (IAtomOriented) atoms.get(1));
-        }
 
         public void go(IAtomOriented iatom, IAtomOriented jatom) {
             Vector io = iatom.getOrientation().getDirection();

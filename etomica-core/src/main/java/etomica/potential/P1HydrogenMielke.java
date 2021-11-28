@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
@@ -125,9 +124,6 @@ public class P1HydrogenMielke {
             return u(bL);
     	}
 
-        public double energy(IAtomList atoms) {
-            throw new RuntimeException("Don't call us.  We'll call you.");
-        }
     }
     
 }

@@ -4,29 +4,22 @@
 
 package etomica.models.water;
 
-import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotential2;
 import etomica.potential.Potential3Soft;
-import etomica.simulation.Simulation;
-import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.IOrientation3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresRotating;
-import etomica.units.*;
-import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
+import etomica.units.BohrRadius;
+import etomica.units.CompoundUnit;
+import etomica.units.Hartree;
+import etomica.units.Unit;
 
 import java.util.Arrays;
 
@@ -501,16 +494,6 @@ public class P2WaterSzalewicz implements IPotential2 {
     protected final double[] aj = new double[nlin];
     protected static final double core = 1.2;
     public static boolean debug = false;
-
-    public double energy(IAtomList atoms) {
-        IAtom[] a = new IAtom[atoms.size()];
-        Vector[] p = new Vector[atoms.size()];
-        for (int i=0; i<a.length; i++) {
-            p[i] = space.makeVector();
-            p[i].E(a[i].getPosition());
-        }
-        return energy(a, p);
-    }
 
     public double energy(IAtom[] atoms, Vector[] pos) {
         for (int i = 0; i<atoms.length; i++) {
@@ -1025,276 +1008,4 @@ public class P2WaterSzalewicz implements IPotential2 {
     public double getRange() {
         return 0;
     }
-
-    public static void main1(String[] args) {
-        double bohrConv = BohrRadius.UNIT.fromSim(1);
-        Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
-        sim.addSpecies(species);
-        Box box = new Box(space);
-        sim.addBox(box);
-        box.setNMolecules(species, 2);
-        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
-        IAtomList pair = box.getLeafList();
-        IAtomOriented atom1 = (IAtomOriented)pair.get(0);
-        IAtomOriented atom2 = (IAtomOriented)pair.get(1);
-        atom2.getPosition().setX(0, 10/bohrConv);
-//        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
-//        ((OrientationFull3D)atom1.getOrientation()).setDirections(space.makeVector(new double[]{0,1,0}),
-//                                                                  space.makeVector(new double[]{-1,0,0}));
-        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body();
-        P2WaterSzalewicz.P2WaterSzalewicz3 p3 = P2WaterSzalewicz.make3Body();
-
-        System.out.println("or0: "+((IAtomOriented)pair.get(0)).getOrientation().getDirection()+" "+((OrientationFull3D)((IAtomOriented)pair.get(0)).getOrientation()).getSecondaryDirection());
-        System.out.println("or1: "+atom1.getOrientation().getDirection()+" "+((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection());
-        Vector d1 = Vector.of(new double[]{2.9073039245633998, 0.0000000000000000, 0.0000000000000000});
-        Vector d2 = Vector.of(new double[]{0.0000000000000000, 0.41344259999999999, 0.0000000000000000});
-        d1.normalize();
-        d2.normalize();
-        d1.E(new double[]{1.1732683191861213, 2.4157477549321920, -1.1135620079348942});
-        d2.E(new double[]{-0.32459448670357105, 0.21889876419541379, 0.13287789029829400});
-        d1.normalize();
-        d2.normalize();
-        ((OrientationFull3D)atom1.getOrientation()).setDirections(d1, d2);
-        d1.E(new double[]{-1.7732319827848091, 2.1369384176381891, -0.86113799372272015});
-        d2.E(new double[]{-0.23318742162778205, -5.7913734915365112E-002, 0.33645862925105652});
-        d1.normalize();
-        d2.normalize();
-        ((OrientationFull3D)atom2.getOrientation()).setDirections(d1, d2);
-
-        atom1.getPosition().setX(0, BohrRadius.UNIT.toSim(5));
-        atom2.getPosition().setX(0, BohrRadius.UNIT.toSim(-1));
-        atom2.getPosition().setX(1, BohrRadius.UNIT.toSim(4));
-        System.out.print(String.format("%20.15e\n", Hartree.UNIT.fromSim(p2.energy(pair))));
-
-//        for (int i=20; i<=20; i++) {
-//            atom1.getPosition().setX(0, i*0.25);
-//            System.out.print(String.format("%5.2f  %20.15e\n", i*0.25, Hartree.UNIT.fromSim(p3.energy(pair))));
-//        }
-    }
-    
-    public static void main3(String[] args) {
-        Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
-        sim.addSpecies(species);
-        Box box = new Box(space);
-        sim.addBox(box);
-        box.setNMolecules(species, 3);
-        box.getBoundary().setBoxSize(Vector.of(new double[]{1000, 1000, 1000}));
-        IAtomList triplet = box.getLeafList();
-        IAtomOriented atom1 = (IAtomOriented)triplet.get(0);
-        IAtomOriented atom2 = (IAtomOriented)triplet.get(1);
-        IAtomOriented atom3 = (IAtomOriented)triplet.get(2);
-        AtomPair pair12 = new AtomPair(atom1, atom2);
-        AtomPair pair13 = new AtomPair(atom1, atom3);
-        AtomPair pair23 = new AtomPair(atom2, atom3);
-        atom2.getPosition().setX(0, 10);
-        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body(Component.NON_PAIR);
-        P2WaterSzalewicz.P2WaterSzalewicz3 p3 = P2WaterSzalewicz.make3Body(Component.NON_PAIR);
-
-
-        atom1.getPosition().setX(0, BohrRadius.UNIT.toSim(-5));
-        atom2.getPosition().setX(0, BohrRadius.UNIT.toSim(5));
-        atom3.getPosition().setX(1, BohrRadius.UNIT.toSim(50));
-//        double u3 = Hartree.UNIT.fromSim(p3.energy(triplet)-(p2.energy(pair12)+p2.energy(pair13)+p2.energy(pair23)));
-//        System.out.println("u3 "+BohrRadius.UNIT.toSim(50)+" "+u3);
-//        System.exit(1);
-        for (int i=0; i<100; i++) {
-            double r = 2*Math.pow(1.06, i);
-            System.out.print(String.format("%6.3f  ", BohrRadius.UNIT.toSim(r)));
-            atom3.getPosition().setX(1, BohrRadius.UNIT.toSim(r));
-            double utot = 0;
-            for (int j=0; j<2; j++) {
-                for (int k=0; k<2; k++) {
-                    for (int l=0; l<2; l++) {
-                        double una = p3.energy(triplet)-(p2.energy(pair12)+p2.energy(pair13)+p2.energy(pair23));
-//                        System.out.print(String.format("%10.4e  ", una));
-                        utot += una;
-                        atom3.getOrientation().getDirection().TE(-1);
-                    }
-                    atom2.getOrientation().getDirection().TE(-1);
-                }
-                atom1.getOrientation().getDirection().TE(-1);
-            }
-            System.out.print(String.format("%20.15e\n", Kelvin.UNIT.fromSim(utot/8)-0*6.583231966245653e+01));
-        }
-
-//        for (int i=20; i<=20; i++) {
-//            atom1.getPosition().setX(0, i*0.25);
-//            System.out.print(String.format("%5.2f  %20.15e\n", i*0.25, Hartree.UNIT.fromSim(p3.energy(pair))));
-//        }
-    }
-
-    /*
-     * Randomly moves molcules all over, computing and checking 2nd derivative
-     */
-    public static void main2(String[] args) {
-        Space space = Space3D.getInstance();
-        double temperature = Kelvin.UNIT.toSim(200);
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
-        sim.addSpecies(speciesH2O);
-        Box box = new Box(space);
-        sim.addBox(box);
-        box.setNMolecules(speciesH2O, 2);
-        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
-        IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.get(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.get(1);
-//        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
-        Vector o1 = Vector.of(new double[]{-1, 0, 0});
-        atom0.getOrientation().setDirection(o1);
-        atom1.getOrientation().setDirection(o1);
-        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body(Component.TWO_BODY);
-        P2H2OSzalewiczSC p2SC = p2.makeSemiclassical(temperature);
-//        System.out.println("or: "+atom0.getOrientation().getDirection()+" "+atom1.getOrientation().getDirection());
-        double lu = 0, lg = 0;
-        double dx = 0.0001;
-        Vector x = null;
-        Vector y = null;
-        Vector z = Vector.of(new double[]{0, 0, 1});
-        atom1.getPosition().setX(0, 5);
-//        ((OrientationFull3D)atom1.getOrientation()).rotateBy(-Math.atan2(p2.sitesHH*0.5,p2.sitesOH-cmx), z);
-//        ((OrientationFull3D)atom1.getOrientation()).rotateBy(Math.PI/2, y);
-        Vector vdx = space.makeVector();
-//        ((OrientationFull3D)atom1.getOrientation()).rotateBy(0.28, z);
-
-        RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
-        random = new RandomMersenneTwister(5);
-        Vector[] xyzAxes = new Vector[]{x,y,z};
-        double[] u = new double[3];
-        for (int j=0; j<100; j++) {
-            int imol = random.nextInt(2);
-//            imol = 1;
-            IAtomOriented iAtom = imol == 0 ? atom0 : atom1;
-            x = iAtom.getOrientation().getDirection();
-            xyzAxes[0] = x;
-            y = ((OrientationFull3D)iAtom.getOrientation()).getSecondaryDirection();
-            xyzAxes[1] = y;
-            z.E(x);
-            z.XE(y);
-//            System.out.println(x+" "+y+" "+z);
-            boolean rot = random.nextInt(2) == 0;
-//            rot = true;
-            double d2 = 0;
-            int xyz = random.nextInt(3);
-//            xyz = 2;
-            vdx.E(xyzAxes[xyz]);
-            if (random.nextInt(2)==0) {
-                if (rot) {
-                    ((IOrientation3D)iAtom.getOrientation()).rotateBy(0.5, vdx);
-                }
-                else {
-                    iAtom.getPosition().PEa1Tv1(0.5, vdx);
-                    atom0.getPosition().TE(0.8);
-                    atom1.getPosition().TE(0.8);
-                }
-                continue;
-            }
-            if (rot) {
-//                System.out.println("vdx "+vdx);
-//                if (imol==1 && xyz==0) dx *= 0.1;
-                for (int i=0; i<3; i++) {
-                    ((IOrientation3D)iAtom.getOrientation()).rotateBy(dx, vdx);
-                    u[i] = p2.energy(pair);
-                    
-//                    if (imol==1 && xyz==0) System.out.println(u[i]);
-                    if (i==1) {
-                        p2SC.energy(pair);
-                        d2 = p2SC.d2tot[imol][3+xyz];
-                    }
-                }
-            }
-            else {
-                for (int i=0; i<3; i++) {
-                    iAtom.getPosition().PEa1Tv1(dx, vdx);
-                    u[i] = p2.energy(pair);
-                    if (i==1) {
-                        p2SC.energy(pair);
-                        d2 = p2SC.d2tot[imol][xyz];
-                    }
-                    else {
-                        p2SC.energy(pair);
-                    }
-                }
-            }
-            double d2fd = (u[0] - 2*u[1] + u[2])/(dx*dx);
-//            if (d2==0 && d2fd==0) continue;
-            double check = Math.abs(d2)+Math.abs(d2fd)==0 ? 0 : (d2fd-d2)/(0.5*(Math.abs(d2)+Math.abs(d2fd)));
-            System.out.print(String.format("%d %d %d %d %+10.4e %+10.4e %10.4e\n", j, imol, rot?1:0, xyz, d2, d2fd, check));
-            if (Math.abs(check) > 0.01) {
-                throw new RuntimeException("oops");
-            }
-        }
-    }
-    
-    public static void main(String[] args) {
-        double s = 0;
-        double bohrConv = BohrRadius.UNIT.toSim(1);
-        for (int i=0; i<P2WaterSzalewicz.pol.length; i++) {
-            s += P2WaterSzalewicz.pol[i];
-        }
-        double[] q = P2WaterSzalewicz.getQ();
-        Vector[] sp = P2WaterSzalewicz.getSites(Space3D.getInstance());
-        Vector d = Space3D.getInstance().makeVector();
-        for (int i=0; i<q.length; i++) {
-            d.PEa1Tv1(q[i], sp[i]);
-        }
-        System.out.println("total polarizability "+s*bohrConv*bohrConv*bohrConv);
-        System.out.println("total dipole "+Debye.UNIT.fromSim(d.getX(2)));
-        System.exit(1);
-        Space space = Space3D.getInstance();
-        double temperature = Kelvin.UNIT.toSim(200);
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
-        sim.addSpecies(speciesH2O);
-        Box box = new Box(space);
-        sim.addBox(box);
-        box.setNMolecules(speciesH2O, 2);
-        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
-        IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.get(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.get(1);
-        Vector p1 = atom1.getPosition();
-        IOrientation or0 = atom0.getOrientation();
-        OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
-        P2WaterSzalewicz.P2WaterSzalewicz2 p2 = P2WaterSzalewicz.make2Body();
-        System.exit(1);
-        P2H2OSzalewiczSC p2SC = p2.makeSemiclassical(temperature);
-        P2H2OSzalewiczSC p2CSC = p2.makeSemiclassical(Double.POSITIVE_INFINITY);
-//        ((OrientationFull3D)atom1.getOrientation()).setDirections(o1, o2);
-        System.out.println("H2O 0: "+or0.getDirection());
-
-        p1.setX(0, BohrRadius.UNIT.toSim(9));
-        double uc = p2.energy(pair);
-        double usc = p2SC.energy(pair);
-        double ucsc = p2CSC.energy(pair);
-        System.out.println("rO:  9,0,0");
-        System.out.println("O-H: "+or1.getDirection());
-        System.out.println("H-H: "+or1.getSecondaryDirection());
-        System.out.println(String.format("uc:     %+22.15e", uc));
-        System.out.println(String.format("uFH:    %+22.15e", usc));
-        System.out.println(String.format("uFH-uc: %+22.15e", usc-uc));
-        System.out.println(String.format("uFHc:   %+22.15e", ucsc));
-
-        System.out.println();
-        p1.setX(0, BohrRadius.UNIT.toSim(6));
-        p1.setX(1, BohrRadius.UNIT.toSim(6));
-        p1.setX(2, BohrRadius.UNIT.toSim(0));
-        or1.setDirections(Vector.of(new double[]{0, 0, 1}),Vector.of(new double[]{1, 0, 0}));
-        uc = p2.energy(pair);
-        usc = p2SC.energy(pair);
-        ucsc = p2CSC.energy(pair);
-        System.out.println("rO:  6,6,0");
-        System.out.println("O-H: "+or1.getDirection());
-        System.out.println("H-H: "+or1.getSecondaryDirection());
-        System.out.println(String.format("uc:     %+22.15e", uc));
-        System.out.println(String.format("uFH:    %+22.15e", usc));
-        System.out.println(String.format("uFH-uc: %+22.15e", usc-uc));
-        System.out.println(String.format("uFHc:   %+22.15e", ucsc));
-
-    }
-
 }

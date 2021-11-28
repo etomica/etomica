@@ -30,10 +30,6 @@ public class P2HardSphereMC extends P2HardGeneric {
         chainLength = newChainLength;
     }
 
-    public double energy(IAtomList pair) {
-        throw new RuntimeException("nope");
-    }
-
     public double u(double r2) {
         return 0;
     }

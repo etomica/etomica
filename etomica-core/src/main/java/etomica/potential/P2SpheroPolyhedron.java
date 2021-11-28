@@ -7,7 +7,6 @@ package etomica.potential;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.spaceNd.VectorND;
@@ -49,25 +48,6 @@ public class P2SpheroPolyhedron implements IPotential2 {
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public double energy(IAtomList atoms) {
-        AtomOrientedQuaternion atom0 = (AtomOrientedQuaternion)atoms.get(0);
-        AtomOrientedQuaternion atom1 = (AtomOrientedQuaternion)atoms.get(1);
-        AtomTypeSpheroPolyhedron atomType0 = (AtomTypeSpheroPolyhedron)atom0.getType();
-        AtomTypeSpheroPolyhedron atomType1 = (AtomTypeSpheroPolyhedron)atom1.getType();
-        Vector position0 = atom0.getPosition();
-        Vector position1 = atom1.getPosition();
-        
-        dr.Ev1Mv2(position0, position1);
-        double r2 = dr.squared();
-        double din = atomType0.getInnerRadius() + atomType1.getInnerRadius();
-        if (r2 < din*din) return Double.POSITIVE_INFINITY;
-
-        double dout = atomType0.getOuterRadius() + atomType1.getOuterRadius();
-        if (r2 > dout*dout) return 0;
-
-        return gjke(atom0, atom1);
     }
 
     protected void inverseProduct4D(Vector q0, Vector q1, Vector q2) {

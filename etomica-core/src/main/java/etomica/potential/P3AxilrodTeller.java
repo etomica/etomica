@@ -19,7 +19,7 @@ import java.util.Map;
  * 
  * @author Andrew Schultz
  */
-public class P3AxilrodTeller implements IPotentialAtomic, Potential3Soft {
+public class P3AxilrodTeller implements Potential3Soft {
 
     protected final Map<AtomType, MyAgent> paramsManager;
     protected final Space space;

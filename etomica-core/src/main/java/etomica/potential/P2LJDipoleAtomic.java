@@ -5,19 +5,10 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresRotating;
-import etomica.util.random.RandomNumberGenerator;
 
 /**
  * r^-12 potential plus a point dipole, force shifted, as used in
@@ -73,41 +64,6 @@ public class P2LJDipoleAtomic implements IPotential2 {
         return Math.sqrt(cutoff2);
     }
 
-    public double energy(IAtomList pair) {
-        IAtomOriented atom1 = (IAtomOriented) pair.get(0);
-        IAtomOriented atom2 = (IAtomOriented) pair.get(1);
-
-        // LJ contributation
-
-        dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        if (r2 < hsdiasq) {
-            return Double.POSITIVE_INFINITY;
-        }
-        if (r2 > cutoff2) {
-            return 0;
-        }
-        double s2 = sigma2 / (r2);
-        double s1 = Math.sqrt(s2);
-        double s6 = s2 * s2 * s2;
-        double ener = epsilon4 * s6 * s6 + fShift / s1 + uShift;
-
-        if (momentSq != 0.0) {
-            // v1 is the orientation of molecule 1
-            Vector v1 = atom1.getOrientation().getDirection();
-
-            // v2 is the orientation of molecule 2
-            Vector v2 = atom2.getOrientation().getDirection();
-
-            // we didn't normalize dr, so divide by r2 here
-            double udd = v1.dot(v2) - 3.0 * v1.dot(dr) * v2.dot(dr) * s2;
-            double fac = s2 * s1 + dipoleFShift / (s2 * s2) + dipoleUShift;
-            ener += momentSq * fac * udd;
-        }
-        return ener;
-    }
-
     public double getSigma() {
         return sigma;
     }
@@ -149,73 +105,6 @@ public class P2LJDipoleAtomic implements IPotential2 {
     protected double cutoff2;
     protected double dipoleFShift, dipoleUShift;
     protected double fShift, uShift;
-
-    public static void main(String[] args) {
-        RandomNumberGenerator random = new RandomNumberGenerator();
-        Space3D space = Space3D.getInstance();
-        Simulation sim = new Simulation(space);
-        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple(sim), true, true);
-        sim.addSpecies(species);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        sim.addBox(box);
-        box.setNMolecules(species, 2);
-
-        double rCut = 2.5;
-        P2LJDipoleAtomic potential = new P2LJDipoleAtomic(sim.getSpace());
-        potential.setTruncationRadius(rCut);
-        potential.setEpsilon(1);
-        potential.setDipoleMomentSquare(1);
-
-        IAtomList leafAtoms = box.getLeafList();
-//        IAtomOriented atom0 = (IAtomOriented)leafAtoms.getMolecule(0);
-        IAtomOriented atom1 = (IAtomOriented) leafAtoms.get(1);
-
-        Vector oldPosition = space.makeVector();
-        Vector ran = space.makeVector();
-//        atom0.getOrientation().randomRotation(sim.getRandom(), 1);
-//        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
-//        atom1.getOrientation().randomRotation(sim.getRandom(), 1);
-
-        atom1.getPosition().setX(0, 1);
-//        for (int i=0; i<101; i++) {
-//            atom1.getPosition().setX(0, 1+i*(rCut-1)*0.01);
-//            double u = potential.energy(leafAtoms);
-//            Vector[] gradient = potential.gradient(leafAtoms);
-//            System.out.println(atom1.getPosition().get(0)+" "+u+" "+gradient[0]);
-//        }
-//        System.exit(1);
-        for (int i = 0; i < 100; i++) {
-            // calculate the gradient
-            System.out.println("do gradient");
-            oldPosition.E(atom1.getPosition());
-            System.out.println("pos " + oldPosition + " " + Math.sqrt(oldPosition.squared()));
-            // calculate the gradient numerically for 1 direction
-            int d = random.nextInt(3);
-            double h = 0.00001;
-            System.out.println("d=" + d);
-            atom1.getPosition().setX(d, oldPosition.getX(d) + h);
-            double uplus = potential.energy(leafAtoms);
-            System.out.println("U plus " + uplus);
-            atom1.getPosition().setX(d, oldPosition.getX(d) - h);
-            double uminus = potential.energy(leafAtoms);
-            System.out.println("U minus " + uminus);
-            double du = (uplus - uminus) / (2 * h);
-            if (Double.isNaN(du)) {
-                throw new RuntimeException("oops " + du + " " + uminus + " " + uplus);
-            }
-            System.out.println(du);
-            System.out.println("success");
-            do {
-                // move the atom1 to an entirely random position within 5sigma of atom0
-                atom1.getPosition().setRandomInSphere(random);
-                atom1.getPosition().TE(rCut + 1);
-                ran.setRandomSphere(random);
-                atom1.getOrientation().setDirection(ran);
-                System.out.println("direction = " + ran);
-            }
-            while (Double.isInfinite(potential.energy(leafAtoms)));
-        }
-    }
 
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {
         // LJ contributation

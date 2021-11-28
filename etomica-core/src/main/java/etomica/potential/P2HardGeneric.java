@@ -5,7 +5,6 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.space.Vector;
 
 /**
@@ -203,16 +202,6 @@ public class P2HardGeneric implements IPotential2 {
 
     public double getRange() {
         return Math.sqrt(collisionDistances2[collisionDistances2.length - 1]);
-    }
-
-    public double energy(IAtomList atoms) {
-        Vector r1 = atoms.get(0).getPosition();
-        Vector r2 = atoms.get(1).getPosition();
-        Vector dr = Vector.d(r1.getD());
-        dr.Ev1Mv2(r2, r1);
-        throw new RuntimeException("obsolete method no longer works due to missing boundary");
-//        boundary.nearestImage(dr);
-//        return u(dr.squared());
     }
 
     @Override

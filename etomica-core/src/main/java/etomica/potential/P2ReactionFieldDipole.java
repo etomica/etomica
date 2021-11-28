@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.DipoleSourceAtomic;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -211,11 +210,6 @@ public class P2ReactionFieldDipole implements IPotential2 {
         double idotj = iDipole.dot(dipoleSource.getDipole(atom2));
 //        System.out.println(idotj+" "+(-fac*idotj)+" data");
         return -fac * idotj;
-    }
-
-    @Override
-    public double energy(IAtomList atoms) {
-        return 0;
     }
 
     @Override

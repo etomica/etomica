@@ -6,7 +6,6 @@ package etomica.modules.mu;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Vector;
@@ -42,22 +41,6 @@ public class P2SquareWellOneSide extends P2HardGeneric implements IPotential2 {
             return Double.POSITIVE_INFINITY;
         }
         return super.collisionTime(atom1, atom2, r12, v12, collisionState, falseTime);
-    }
-
-    @Override
-    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
-        double x1 = atom1.getPosition().getX(0);
-        double x2 = atom2.getPosition().getX(0);
-        if (x1 < 0 || x2 < 0) {
-            // on is ideal-gas
-            return 0;
-        }
-        return super.u(dr12, atom1, atom2);
-    }
-
-    @Override
-    public double energy(IAtomList pair) {
-        throw new RuntimeException("nope");
     }
 
 }

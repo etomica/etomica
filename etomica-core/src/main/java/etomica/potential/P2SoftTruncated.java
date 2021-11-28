@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -40,17 +39,6 @@ public class P2SoftTruncated implements IPotential2 {
      */
     public IPotential2 getWrappedPotential() {
         return wrappedPotential;
-    }
-
-    /**
-     * Returns the energy of the wrapped potential if the separation
-     * is less than the cutoff value
-     */
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        return (r2 < r2Cutoff) ? wrappedPotential.energy(atoms) : 0;
     }
 
     @Override

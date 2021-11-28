@@ -6,7 +6,6 @@ package etomica.modules.colloid;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Vector;
@@ -41,10 +40,6 @@ public class P2SquareWellMonomer extends P2HardGeneric implements IPotential2 {
         boolean bonded = (chainIdx1 == chainIdx2) && Math.abs(childIdx1 - childIdx2) == 1;
         if (grafted || bonded) return 0;
         return u(dr12.squared());
-    }
-
-    public double energy(IAtomList pair) {
-        throw new RuntimeException("nope");
     }
 
     @Override

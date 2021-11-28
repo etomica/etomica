@@ -7,7 +7,6 @@ package etomica.modules.catalysis;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Boundary;
@@ -166,20 +165,6 @@ public class P2SquareWellBonding extends P2HardGeneric {
             return new double[]{minOCOr2};
         }
         return collisionDistances2;
-    }
-
-    public double energy(IAtomList pair) {
-        IAtom atom0 = pair.get(0);
-        IAtom atom1 = pair.get(1);
-
-        Vector dr = Vector.d(atom1.getPosition().getD());
-        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        if (r2 > wellDiameterSquared) return 0.0;
-        if (r2 < coreDiameterSquared) return Double.POSITIVE_INFINITY;
-        CatalysisAgent agent0 = agentManager.getAgent(atom0);
-        return agent0.bondedAtom1 == atom1 || agent0.bondedAtom2 == atom1 ? -epsilonBonding : -epsilon;
     }
 
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {

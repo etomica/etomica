@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -105,20 +104,6 @@ public class P2SoftSphericalTruncatedSwitched implements IPotential2 {
         for (double x = 1.900001; x < 1.999999; x += 0.001) {
             System.out.println(x + " " + p.getF(x) + " " + p.getdFdr(x));
         }
-    }
-
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-        if (dr.squared() > r2Cutoff) {
-            return 0;
-        }
-        double u = potential.u(r2);
-        if (dr.squared() > r2Switch) {
-            u *= getF(Math.sqrt(r2));
-        }
-        return u;
     }
 
     /**

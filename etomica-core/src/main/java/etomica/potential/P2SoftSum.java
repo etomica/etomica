@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -180,11 +179,6 @@ public class P2SoftSum implements IPotential2 {
         r = Math.max(r, potential2.getRange());
         if (potential3 == null) return r;
         return Math.max(r, potential3.getRange());
-    }
-
-    @Override
-    public double energy(IAtomList atoms) {
-        return 0;
     }
 
 }

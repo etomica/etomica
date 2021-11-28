@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -120,14 +119,6 @@ public class P2O2Bartolomei implements IPotential2 {
 
     public P2O2Bartolomei(Space space) {
         this.space = space;
-    }
-
-    public double energy(IAtomList atoms) {
-        IAtom atom1 = atoms.get(0);
-        IAtom atom2 = atoms.get(1);
-        Vector dr12 = space.makeVector();
-        dr12.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
-        return u(dr12, atom1, atom2);
     }
 
     @Override

@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -64,11 +63,6 @@ public class P22CLJmuQAtomic implements IPotential2 {
         double s2 = 1 / r2;
         double s6 = s2 * s2 * s2;
         return -4 * s6 * (12 * s6 - 6) * s2;
-    }
-
-    @Override
-    public double energy(IAtomList atoms) {
-        return 0;
     }
 
     @Override

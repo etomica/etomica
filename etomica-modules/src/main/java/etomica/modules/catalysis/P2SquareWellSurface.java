@@ -7,7 +7,6 @@ package etomica.modules.catalysis;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Vector;
@@ -86,23 +85,6 @@ public class P2SquareWellSurface extends P2HardGeneric {
             }
         }
         return newState;
-    }
-
-    public double energy(IAtomList pair) {
-        IAtom atom0 = pair.get(0);
-        IAtom atom1 = pair.get(1);
-        double rm0 = atom0.getType().rm();
-        CatalysisAgent agent;
-        if (rm0 == 0) {
-            agent = agentManager.getAgent(atom1);
-        } else {
-            agent = agentManager.getAgent(atom0);
-        }
-        if (!agent.isRadical && agent.bondedAtom2 != null) {
-            // turn off C-surface attraction for OCO
-            return 0;
-        }
-        return super.energy(pair);
     }
 
     public double u(Vector dr12, IAtom atom1, IAtom atom2) {

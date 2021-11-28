@@ -7,7 +7,6 @@ package etomica.modules.catalysis;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Boundary;
@@ -163,17 +162,6 @@ public class P2SquareWellBondingCO extends P2HardGeneric {
             }
         }
         return newState;
-    }
-
-    public double energy(IAtomList pair) {
-        IAtom atom0 = pair.get(0);
-        IAtom atom1 = pair.get(1);
-
-        CatalysisAgent agent0 = agentManager.getAgent(atom0);
-        if (agent0.bondedAtom1 == atom1 || agent0.bondedAtom2 == atom1) {
-            return -epsilonBonding;
-        }
-        return super.energy(pair);
     }
 
     public double u(double r2) {

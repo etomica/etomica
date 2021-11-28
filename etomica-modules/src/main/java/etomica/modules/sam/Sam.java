@@ -562,11 +562,6 @@ public class Sam extends Simulation {
         }
 
         @Override
-        public double energy(IAtomList atoms) {
-            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.energy(atoms) : p2lj.energy(atoms);
-        }
-
-        @Override
         public double u(Vector dr12, IAtom atom1, IAtom atom2) {
             double r2 = dr12.squared();
             return bondCriterion.accept(atom1, atom2) ? p2Bond.u(r2) : p2lj.u(r2);

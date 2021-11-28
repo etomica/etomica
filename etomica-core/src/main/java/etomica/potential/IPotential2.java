@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomList;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -17,11 +16,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public interface IPotential2 extends IPotentialAtomic {
-
-    default double energy(IAtomList atoms) {
-        throw new RuntimeException("call u instead");
-    }
+public interface IPotential2 {
 
     /**
      * Returns the range over which the potential applies.  IAtoms with a

@@ -8,7 +8,6 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
 import etomica.data.histogram.HistogramReweightedData;
@@ -113,10 +112,6 @@ public class VirialPolyhedra2 {
 
             public double getRange() {
                 return sigmaHSRef;
-            }
-            
-            public double energy(IAtomList atoms) {
-                return u(null, atoms.get(0), atoms.get(1));
             }
         };
         MayerFunction fTarget = new MayerGeneralAtomic(space, p2Wrapper);

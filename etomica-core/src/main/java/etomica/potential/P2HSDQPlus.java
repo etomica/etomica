@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -109,11 +108,6 @@ public class P2HSDQPlus implements IPotential2 {
 
     public void setKappa(double kappa){
         this.kappa = kappa;
-    }
-
-    @Override
-    public double energy(IAtomList atoms) {
-        return 0;
     }
 
     @Override

@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -288,11 +287,6 @@ public class P2HSDipoleAtomic implements IPotential2 {
     private double rCut;
     protected final Vector[] a;
     protected final Hessian hessian;
-
-    @Override
-    public double energy(IAtomList atoms) {
-        return 0;
-    }
 
     @Override
     public double u(double r2) {
