@@ -32,8 +32,7 @@ public class MeterRDFCylinder extends MeterRDF {
     public void reset() {
         super.reset();
         // make a new iterator with a new filter.  xMax might have changed
-        ApiFilteredCylinder.AtomFilterInCylinder filter = new ApiFilteredCylinder.AtomFilterInCylinder(box.getBoundary(), pistonPotential, xDataSource.getXMax());
-        iterator = new ApiFilteredCylinder(filter);
+        test = new AtomPairTestInCylinder(box.getBoundary(), pistonPotential, getXDataSource().getXMax());
     }
 
     public IData getData() {

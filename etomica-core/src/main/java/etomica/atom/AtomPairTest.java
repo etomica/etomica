@@ -1,15 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.atom;
 
-import etomica.molecule.IMoleculeList;
-
 /**
- * Interface for a class that can perform an action on an atom set.
+ * Interface for a class that determines if a pair of atom satisfies a test.
  */
-public interface MoleculesetAction {
-    
-	public void actionPerformed(IMoleculeList atoms);
+public interface AtomPairTest {
+
+    /**
+     * Returns true if the pair of atoms passes the test.
+     */
+    boolean test(IAtom atom1, IAtom atom2);
+
 }
