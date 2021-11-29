@@ -11,7 +11,6 @@ import etomica.action.controller.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.*;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
@@ -383,11 +382,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			nSlider.setMaximum(60);
 			nSlider.setPostAction(new IAction() {
 				public void actionPerformed() {
-					AtomLeafAgentManager agentManager = sim.getAgentManager();
-					AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
-					iter.reset();
-					for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {
-						//                      System.out.println(iter.peek().toString());
+					AtomLeafAgentManager<IAtom> agentManager = sim.getAgentManager();
+
+					for (IAtom a : sim.box.getLeafList()) {
 						agentManager.setAgent(a, null);
 					}
 					try {

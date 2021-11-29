@@ -4,8 +4,8 @@
 
 package etomica.spin.heisenberg;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.IDataSource;
@@ -21,8 +21,6 @@ import etomica.units.dimensions.Undefined;
  */
 public class MeterSpinMSquare extends DataSourceScalar implements IDataSource {
 
-    private static final long serialVersionUID = 1L;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private final Vector sum;
     private final double dipoleMagnitude;
     private Box box;
@@ -43,13 +41,8 @@ public class MeterSpinMSquare extends DataSourceScalar implements IDataSource {
      */
     public double getDataAsScalar() {
         sum.E(0.0);
-        int count = 0;
-        iterator.setBox(box);
-        iterator.reset();
-        for (IAtomOriented atom = (IAtomOriented) iterator.nextAtom(); atom != null;
-             atom = (IAtomOriented) iterator.nextAtom()) {
-            sum.PE(atom.getOrientation().getDirection());
-            count++;
+        for (IAtom a : box.getLeafList()) {
+            sum.PE(((IAtomOriented)a).getOrientation().getDirection());
         }
         return sum.squared() * dipoleMagnitude * dipoleMagnitude;
     }

@@ -4,17 +4,17 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 
  /**
   * An atom iterator of the elements from an AtomArrayList (in proper
   * sequence).  Iterator will fail if element are added to or removed 
   * from list while iteration is proceeding.
   */
-public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serializable {
+public class AtomIteratorArrayListSimple implements AtomIterator {
 
     /**
      * Constructs new iterator with an empty list.
@@ -92,8 +92,6 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  		cursor = 0;
  	}
  	
-    private static final long serialVersionUID = 2L;
-
     /**
      * Index of element to be returned by subsequent call to next.
      */

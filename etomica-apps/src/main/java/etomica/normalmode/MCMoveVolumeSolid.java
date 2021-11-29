@@ -7,8 +7,6 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -35,7 +33,6 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     protected final BoxInflate inflate;
     private final int D;
     private IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
     protected final CoordinateDefinition coordinateDefinition;
     protected final Vector dr;
@@ -64,13 +61,11 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         setStepSizeMin(0.0);
         setStepSize(0.01);
         setPressure(pressure);
-        affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
     public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(p);
-        affectedAtomIterator.setBox(p);
     }
 
     /**
@@ -194,10 +189,6 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     }
 
     public double energyChange() {return uNew - uOld;}
-    
-    public AtomIterator affectedAtoms() {
-        return affectedAtomIterator;
-    }
 
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}

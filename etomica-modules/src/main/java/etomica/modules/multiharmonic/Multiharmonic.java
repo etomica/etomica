@@ -7,7 +7,6 @@ package etomica.modules.multiharmonic;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
@@ -53,11 +52,7 @@ public class Multiharmonic extends Simulation {
 
         box.setNMolecules(species, 20);
 
-        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-        iterator.setBox(box);
-        iterator.reset();
-        for (IAtom a = iterator.nextAtom(); a != null;
-             a = iterator.nextAtom()) {
+        for (IAtom a : box.getLeafList()) {
             a.getPosition().setX(0, x0);
         }
         getController().setSleepPeriod(1);

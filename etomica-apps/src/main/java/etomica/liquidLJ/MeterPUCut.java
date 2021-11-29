@@ -11,7 +11,6 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.IteratorDirective;
 import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Null;
 
@@ -24,7 +23,6 @@ public class MeterPUCut implements IDataSource {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected IteratorDirective iteratorDirective;
     protected final PotentialCallbackSumCutoff pc, pcDADv2;
     protected final PotentialCompute potentialMaster, potentialMasterDADv2;
     protected double temperature;
@@ -43,8 +41,6 @@ public class MeterPUCut implements IDataSource {
         dataInfo = new DataInfoDoubleArray("PU", Null.DIMENSION, new int[]{cutoffs.length,4});
         tag = new DataTag();
         dataInfo.addTag(tag);
-        iteratorDirective = new IteratorDirective();
-        iteratorDirective.includeLrc = false;
         pc = new PotentialCallbackSumCutoff(cutoffs);
         pcDADv2 = new PotentialCallbackSumCutoff(cutoffs);
     }

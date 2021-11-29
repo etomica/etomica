@@ -7,9 +7,11 @@ package etomica.modules.reactionequilibrium;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
@@ -22,10 +24,10 @@ import etomica.species.ISpecies;
 import etomica.units.dimensions.*;
 
 public final class MeterDimerFraction implements IDataSource {
-    public MeterDimerFraction(AtomLeafAgentManager aam) {
+    public MeterDimerFraction(AtomLeafAgentManager<IAtom> aam) {
         data = new DataTable(1,5);
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
-        dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
+        DataInfoTable dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         agentManager = aam;
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -53,7 +55,7 @@ public final class MeterDimerFraction implements IDataSource {
         int nLeaf = leafAtoms.size();
         for (int i=0; i<nLeaf; i++) {
             IAtom a = leafAtoms.get(i);
-        	IAtom partner = (IAtom)agentManager.getAgent(a);
+        	IAtom partner = agentManager.getAgent(a);
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
             if(a.getType().getSpecies() == speciesA) {
                if(partner == null) {
@@ -104,7 +106,6 @@ public final class MeterDimerFraction implements IDataSource {
      */
     public void setBox(Box box) {
         this.box = box;
-        iterator.setBox(box);
     }
 
     public String getName() {
@@ -119,10 +120,8 @@ public final class MeterDimerFraction implements IDataSource {
     private Box box;
     private ISpecies speciesA;
     private final DataTable data;
-    private final DataInfoTable dataInfo;
-    private int[] count = new int[5];
-    private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    protected final AtomLeafAgentManager agentManager;
+    private final int[] count = new int[5];
+    protected final AtomLeafAgentManager<IAtom> agentManager;
     private final DataTag tag;
     private final DataGroup dataGroup;
     private final DataDouble dataDensity;

@@ -6,8 +6,6 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -39,7 +37,6 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     protected BoxInflate inflate;
     protected final int D;
     protected IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected double temperature;
     protected final Vector boxSize;
     protected final Vector dest, comOld;
@@ -72,8 +69,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         setStepSizeMin(0.0);
         setStepSize(0.001);
         setPressure(pressure);
-        affectedAtomIterator = new AtomIteratorLeafAtoms();
-        
+
         dest = space.makeVector();
         comOld = space.makeVector();
         boxSize = space.makeVector();
@@ -87,11 +83,6 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     
     public void setLatticeBox(Box newLatticeBox) {
         latticeBox = newLatticeBox;
-    }
-    
-    public void setBox(Box p) {
-        super.setBox(p);
-        affectedAtomIterator.setBox(p);
     }
 
     /**
@@ -208,10 +199,6 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     }
 
     public double energyChange() {return uNew - uOld;}
-    
-    public AtomIterator affectedAtoms() {
-        return affectedAtomIterator;
-    }
 
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}

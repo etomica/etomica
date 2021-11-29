@@ -4,12 +4,13 @@
 
 package etomica.atom.iterator;
 
-import etomica.simulation.Simulation;
 import etomica.UnitTestUtil;
+import etomica.simulation.Simulation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static etomica.atom.iterator.IteratorTestAbstract.*;
+import static etomica.atom.iterator.IteratorTestAbstract.countTest;
+import static etomica.atom.iterator.IteratorTestAbstract.testNoIterates;
 
 
 /**

@@ -4,9 +4,8 @@
 
 package etomica.data.meter;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.units.dimensions.Energy;
@@ -17,25 +16,12 @@ import etomica.units.dimensions.Energy;
  * box.
  */
 public class MeterKineticEnergy extends DataSourceScalar {
-    private final AtomIteratorBoxDependent iterator;
+
     private final Box box;
 
-    public MeterKineticEnergy(Box box, AtomIteratorBoxDependent iterator) {
+    public MeterKineticEnergy(Box box) {
         super("Kinetic Energy", Energy.DIMENSION);
         this.box = box;
-        this.iterator = iterator;
-        iterator.setBox(box); // note if iterator is made non-final again this has to be done in getDataAsScalar
-    }
-
-    public MeterKineticEnergy(Box box) {
-        this(box, new AtomIteratorLeafAtoms());
-    }
-
-    /**
-     * Returns the iterator that defines the atoms summed for their kinetic energy.
-     */
-    public AtomIteratorBoxDependent getIterator() {
-        return iterator;
     }
 
     /**
@@ -44,11 +30,10 @@ public class MeterKineticEnergy extends DataSourceScalar {
      */
     public double getDataAsScalar() {
         double ke = 0.0;
-        iterator.reset();
-        for (IAtomKinetic atom = (IAtomKinetic) iterator.nextAtom(); atom != null; atom = (IAtomKinetic) iterator.nextAtom()) {
+        for (IAtom atom : box.getLeafList()) {
             double mass = atom.getType().getMass();
             if (mass == Double.POSITIVE_INFINITY) continue;
-            ke += 0.5 * mass * (atom.getVelocity().squared());
+            ke += 0.5 * mass * (((IAtomKinetic)atom).getVelocity().squared());
         }
         return ke;
     }

@@ -11,7 +11,6 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.potential.IteratorDirective;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Energy;
@@ -31,9 +30,7 @@ public class MeterPotentialEnergyCutoff implements IDataSource {
         tag = new DataTag();
         data = new DataDoubleArray(cutoffs.length);
         dataInfo.addTag(tag);
-        iteratorDirective.includeLrc = false;
         potential = potentialMaster;
-        iteratorDirective.setDirection(IteratorDirective.Direction.UP);
         energy = new PotentialCallbackEnergySumCutoff(cutoffs);
     }
     
@@ -72,7 +69,6 @@ public class MeterPotentialEnergyCutoff implements IDataSource {
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final DataDoubleArray data;
-    protected final IteratorDirective iteratorDirective = new IteratorDirective();
     protected final PotentialCallbackEnergySumCutoff energy;
     protected final PotentialCompute potential;
 }

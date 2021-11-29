@@ -16,7 +16,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -52,7 +51,6 @@ public abstract class CoordinateDefinition {
     }
     
     public void initializeCoordinates(int[] nCells) {
-        MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
         IMoleculeList moleculeList = box.getMoleculeList();
         if (moleculeList.size() == 0) {
             throw new RuntimeException("There are no atoms yet!");
@@ -103,7 +101,6 @@ public abstract class CoordinateDefinition {
         cells = new BasisCell[totalCells];
         int iCell = -1;
         // Place molecules
-        atomIterator.reset();
         indexIterator.reset();
         Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;

@@ -5,8 +5,6 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflate;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -29,7 +27,6 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     protected BoxInflate inflate;
     private final IRandom random;
     protected final Vector scaleVector;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
     private transient double uOld;
     private transient double uNew = Double.NaN;
@@ -43,14 +40,12 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.01);
-        affectedAtomIterator = new AtomIteratorLeafAtoms();
         scaleVector = integrator.getBox().getSpace().makeVector();
     }
 
     public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(p);
-        affectedAtomIterator.setBox(p);
     }
      
     public void setInflater(BoxInflate newInflate) {
@@ -95,8 +90,4 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     }
 
     public double energyChange() {return uNew - uOld;}
-    
-    public AtomIterator affectedAtoms() {
-        return affectedAtomIterator;
-    }
 }

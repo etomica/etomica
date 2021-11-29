@@ -9,7 +9,6 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataSourceUniform.LimitType;
@@ -223,8 +222,7 @@ public class SwmdGraphic extends SimulationGraphic {
         //velocity distribution
         double vMin = 0;
         double vMax = 10;
-        DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100, new DoubleRange(0, vMax)));
-        meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
+        DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(sim.box, new HistogramSimple(100, new DoubleRange(0, vMax)));
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         IntegratorListenerAction velocityPumpListener = new IntegratorListenerAction(velocityPump);

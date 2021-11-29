@@ -6,7 +6,6 @@ package etomica.integrator.mcmove;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
@@ -27,7 +26,6 @@ import java.util.List;
 public class MCMoveMoleculeRotate extends MCMoveBoxStep {
 
     protected final PotentialCompute potentialCompute;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final List<Vector> oldPositions = new ArrayList<>();
     protected final IRandom random;
     protected IMolecule molecule;

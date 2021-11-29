@@ -11,7 +11,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.potential.IteratorDirective;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
 import etomica.space.Space;
@@ -42,8 +41,6 @@ public class MeterRDFNeighbors implements IDataSource, DataSourceIndependent {
         rData = (DataDoubleArray)xDataSource.getData();
         data = new DataFunction(new int[] {rData.getLength()});
         dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
-        
-        allAtoms = new IteratorDirective();
 
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -137,7 +134,6 @@ public class MeterRDFNeighbors implements IDataSource, DataSourceIndependent {
     protected DataFunction data;
     private IDataInfo dataInfo;
     protected DataDoubleArray rData;
-    protected IteratorDirective allAtoms;
     protected final DataSourceUniform xDataSource;
     protected double xMax;
     protected final DataTag tag;

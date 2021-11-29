@@ -10,7 +10,7 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.math.geometry.Plane;
 import etomica.molecule.IMolecule;
-import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -40,7 +40,6 @@ import java.util.HashMap;
  */
 public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
-    private static final long serialVersionUID = 2L;
     private Plane plane;
     private ArrayList<ISpecies> species;
     private HashMap<ISpecies,Float> allocation;
@@ -194,12 +193,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 		    latticeDimensions[side] = calculateLatticeDimensions(maxMolecules[side], halfShape);
         }
 
-        MoleculeIteratorArrayListSimple[] atomIterator = new MoleculeIteratorArrayListSimple[numSpecies];
-        for (int i = 0; i < numSpecies; i++) {
-            atomIterator[i] = new MoleculeIteratorArrayListSimple(box.getMoleculeList(species.get(i)));
-            atomIterator[i].reset();
-        }
-
+        int[] molIdx = new int[numSpecies];
         for(int side = LEFT; side <= RIGHT; side++) {
 
 	        // determine lattice constant
@@ -235,12 +229,14 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
 	        // Place molecules
 	        for (int i = 0; i < numSpecies; i++) {
+                IMoleculeList imolecules = box.getMoleculeList(species.get(i));
 	        	for (int y = 0; y < molecules[side][i]; y++) {
-	                IMolecule a = atomIterator[i].nextMolecule();
+	                IMolecule a = imolecules.get(molIdx[i]);
+                    molIdx[i]++;
 
 			        int[] idx = indexIterator.next();
 
-			        atomActionTranslateTo.setDestination((Vector)myLat.site(idx));
+			        atomActionTranslateTo.setDestination(myLat.site(idx));
 			        atomActionTranslateTo.actionPerformed(a);
 	
 		        }

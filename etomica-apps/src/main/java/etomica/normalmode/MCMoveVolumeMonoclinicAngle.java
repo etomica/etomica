@@ -5,8 +5,6 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflateAnisotropic;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -28,7 +26,6 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     protected final IntegratorMC integrator;
     protected final BoxInflateAnisotropic inflate;
     private final IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
     private transient double uOld;
     private transient double uNew = Double.NaN;
@@ -43,7 +40,6 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.01);
-        affectedAtomIterator = new AtomIteratorLeafAtoms();
         cVec = integrator.getBox().getSpace().makeVector();
         setBox(integrator.getBox());
     }
@@ -51,7 +47,6 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(p);
-        affectedAtomIterator.setBox(p);
     }
      
     public boolean doTrial() {
@@ -84,8 +79,4 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     }
 
     public double energyChange() {return uNew - uOld;}
-    
-    public AtomIterator affectedAtoms() {
-        return affectedAtomIterator;
-    }
 }

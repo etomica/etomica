@@ -1,11 +1,8 @@
 package etomica.osmoticvirial;
 
-import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.iterator.MpiIntraspeciesAA;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -16,30 +13,29 @@ import etomica.units.dimensions.Length;
  * as required by Ashton and Wilding's method
  */
 public class MeterRminSpecies extends DataSourceScalar {
-    protected AtomType type1, type2;
-    protected MpiIntraspeciesAA iterator;
-    protected Vector dr;
-    protected Boundary boundary;
+    protected final Vector dr;
+    protected final Box box;
+    protected final ISpecies species;
 
     public MeterRminSpecies(Space space, Box box, ISpecies species){
         super("RminSpecies", Length.DIMENSION);
         dr = space.makeVector();
-        iterator = new MpiIntraspeciesAA(species);
-        iterator.setBox(box);
-        boundary = box.getBoundary();
+        this.box = box;
+        this.species = species;
     }
 
     @Override
     public double getDataAsScalar() {
         double rminSq = Double.POSITIVE_INFINITY;
-        iterator.reset();
-        for (IMoleculeList pair = iterator.next(); pair != null;
-             pair = iterator.next()) {
-            if (type1 != null && (pair.get(0).getType() != type1 || pair.get(1).getType() != type2)) continue;
-            dr.Ev1Mv2(pair.get(1).getChildList().get(0).getPosition(), pair.get(0).getChildList().get(0).getPosition());
-            boundary.nearestImage(dr);
-            double r2 = dr.squared();
-            if (rminSq > r2) rminSq = r2;
+        IMoleculeList molecules = box.getMoleculeList(species);
+        for (int i=0; i<molecules.size(); i++) {
+            Vector pi = molecules.get(i).getChildList().get(0).getPosition();
+            for (int j=i+1; j<molecules.size(); j++) {
+                dr.Ev1Mv2(molecules.get(j).getChildList().get(0).getPosition(), pi);
+                box.getBoundary().nearestImage(dr);
+                double r2 = dr.squared();
+                if (rminSq > r2) rminSq = r2;
+            }
         }
         return Math.sqrt(rminSq);
     }

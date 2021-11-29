@@ -4,7 +4,6 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
@@ -27,7 +26,6 @@ import java.util.List;
 public class MCMoveMolecule extends MCMoveBoxStep {
 
     protected final PotentialCompute potentialCompute;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final Vector translationVector;
     protected final List<Vector> oldPositions = new ArrayList<>();
     protected final IRandom random;

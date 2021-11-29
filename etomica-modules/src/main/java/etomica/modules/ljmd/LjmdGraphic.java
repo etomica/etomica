@@ -6,7 +6,6 @@ package etomica.modules.ljmd;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
@@ -86,8 +85,7 @@ public class LjmdGraphic extends SimulationGraphic {
         //velocity distribution
         double vMin = 0;
         double vMax = 4;
-        DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100, new DoubleRange(0, 4)));
-        meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
+        DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(sim.box, new HistogramSimple(100, new DoubleRange(0, 4)));
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         IntegratorListenerAction velocityPumpListener = new IntegratorListenerAction(velocityPump);
