@@ -40,6 +40,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
         setBox(box);
         r0 = box.getSpace().makeVector();
         rotationTensor = box.getSpace().makeRotationTensor();
+        setStepSizeMax(Math.PI);
     }
 
     public void setBox(Box p) {
