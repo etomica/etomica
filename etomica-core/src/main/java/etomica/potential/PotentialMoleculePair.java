@@ -8,7 +8,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -16,7 +15,6 @@ import etomica.species.SpeciesManager;
 
 public class PotentialMoleculePair implements IPotentialMolecular {
     protected final Space space;
-    protected Boundary boundary;
     protected final IPotential2[][] atomPotentials;
 
     public PotentialMoleculePair(Space space, SpeciesManager sm) {
@@ -60,7 +58,6 @@ public class PotentialMoleculePair implements IPotentialMolecular {
                 if (p2 == null) continue;
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
-                boundary.nearestImage(dr);
                 u += p2.u(dr.squared());
             }
         }
