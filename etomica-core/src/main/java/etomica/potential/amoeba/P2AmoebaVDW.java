@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential.amoeba;
+
 import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.TruncationFactory;
 import etomica.space.Space;
-import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
@@ -52,9 +52,6 @@ public class P2AmoebaVDW implements IPotential2 {
         double s = r/sigma;
         double s2 = s*s;
         double s6 = s2*s2*s2;
-        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-        double u = epsilon*a7*((1+gamma)/(s6*s + gamma) - 2);
-        System.out.println(r+" "+" "+r2+" "+u+" "+kcalpmole.fromSim(u));
         return epsilon*a7*((1+gamma)/(s6*s + gamma) - 2);
     }
 

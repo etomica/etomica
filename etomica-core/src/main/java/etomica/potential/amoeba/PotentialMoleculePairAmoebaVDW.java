@@ -19,7 +19,7 @@ import etomica.util.collections.IntArrayList;
 public class PotentialMoleculePairAmoebaVDW implements IPotentialMolecular {
     protected final Space space;
     protected final IPotential2[][] atomPotentials;
-    protected double[] reduction;
+    protected final double[] reduction;
     protected final IntArrayList[][] bonding;
 
     public PotentialMoleculePairAmoebaVDW(Space space, SpeciesManager sm, IntArrayList[][] bonding) {
@@ -65,10 +65,8 @@ public class PotentialMoleculePairAmoebaVDW implements IPotentialMolecular {
         if (red != 0) {
             IntArrayList b = bonding[a.getParentGroup().getType().getIndex()][a.getIndex()];
             if (b.size() == 1) {
-                System.out.print(a.getLeafIndex()+" "+b.getInt(0)+" "+r1);
                 r1.TE(red);
                 r1.PEa1Tv1(1-red, a.getParentGroup().getChildList().get(b.getInt(0)).getPosition());
-                System.out.println(" "+a.getParentGroup().getChildList().get(b.getInt(0)).getPosition()+" "+r1);
             }
         }
         return r1;
