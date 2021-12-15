@@ -6,9 +6,7 @@ package etomica.virial.mcmove;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.molecule.*;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.compute.PotentialCompute;
@@ -61,7 +59,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveBox {
         super();
         this.random = random;
         this.pc = pc;
-        ((MCMoveStepTracker)getTracker()).setTunable(false);
         positionDefinition = new MoleculePositionGeometricCenter(space);
         probabilityBins = new double[nBins+1];
         binSize = new double[nBins];
@@ -74,11 +71,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveBox {
         dr23 = space.makeVector();
         dr34 = space.makeVector();
         oldCenter = space.makeVector();
-    }
-
-    public void setBox(Box p) {
-        super.setBox(p);
-        ((MCMoveStepTracker)getTracker()).setTunable(false);
     }
 
     @Override
