@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
-import etomica.molecule.MoleculePair;
 import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.IPotentialMolecular;
@@ -37,7 +36,6 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected double uOld, uNew;
     protected final IRandom random;
     protected final AtomActionTranslateBy singleAction;
-    protected final MoleculePair pair;
     protected IPotentialMolecular pairPotential;
     protected boolean doExcludeNonNeighbors, doIncludePair;
     protected IAtom[] atoms;
@@ -54,9 +52,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         groupTransVect = singleAction.getTranslationVector();
         
         moveMoleculeAction = new MoleculeChildAtomAction(singleAction);
-        
-        pair = new MoleculePair();
-        
+
         perParticleFrequency = true;
         //energyMeter.setIncludeLrc(false);
     }
@@ -79,9 +75,6 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         molecule1 = moleculeSource.getMolecule();
         if(molecule0==null || molecule1==null || molecule0==molecule1) return false;
         
-        //make sure we don't double count the molecule0-molecule1 interaction
-        pair.mol0 = molecule0;
-        pair.mol1 = molecule1;
         atoms = new IAtom[molecule0.getChildList().size()+molecule1.getChildList().size()];
         int idx = 0;
         for (IAtom a : molecule0.getChildList()) atoms[idx++] = a;

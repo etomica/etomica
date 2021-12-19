@@ -7,7 +7,7 @@ package etomica.models.water;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
+import etomica.molecule.MoleculeArrayList;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -30,7 +30,9 @@ public class PNWaterGCPMTest {
         act.setDestination(new Vector3D(4, 4, 4));
         act.actionPerformed(mol2);
 
-        molecules = new MoleculePair(mol1, mol2);
+        molecules = new MoleculeArrayList();
+        molecules.add(mol1);
+        molecules.add(mol2);
     }
 
 

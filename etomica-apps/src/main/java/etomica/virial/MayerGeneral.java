@@ -27,7 +27,7 @@ public class MayerGeneral implements MayerFunction {
 
     public double f(IMoleculeList pair, double r2, double beta) {
         double x = -beta*potential.energy(pair);
-        double f = -2;
+        double f;
         if (Math.abs(x) < 0.01) {
             f = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
         }

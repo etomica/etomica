@@ -11,7 +11,6 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeSetSinglet;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -143,7 +142,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }
 
     public void acceptNotify() {
-        if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(new MoleculeSetSinglet(testMolecule)))
+        if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(testMolecule))
             System.out.println("accepted insertion of " + testMolecule);
         if (insert) {
             potentialMaster.processAtomU(1);

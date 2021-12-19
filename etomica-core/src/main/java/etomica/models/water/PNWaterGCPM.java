@@ -9,8 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
 import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.space.Boundary;
@@ -32,7 +32,6 @@ import java.util.Arrays;
  * @author Ken
  */
 public class PNWaterGCPM implements IPotentialMolecular, PotentialPolarizable {
-    protected final MoleculePair pair;
     protected final double sigma;
     protected final double epsilon, gamma;
     protected final double chargeH, chargeM;
@@ -60,7 +59,6 @@ public class PNWaterGCPM implements IPotentialMolecular, PotentialPolarizable {
     public PNWaterGCPM(Space space, Boundary boundary) {
         super();
         this.boundary = boundary;
-        pair = new MoleculePair();
         sigma = 3.69;
         epsilon = Kelvin.UNIT.toSim(110);
         gamma = 12.75;
@@ -109,10 +107,8 @@ public class PNWaterGCPM implements IPotentialMolecular, PotentialPolarizable {
 
         if (component != Component.INDUCTION) {
             for (int i = 0; i < molecules.size() - 1; i++) {
-                pair.mol0 = molecules.get(i);
                 for (int j = i + 1; j < molecules.size(); j++) {
-                    pair.mol1 = molecules.get(j);
-                    sum += getNonPolarizationEnergy(pair);
+                    sum += getNonPolarizationEnergy(molecules.get(i), molecules.get(j));
                     if (Double.isInfinite(sum)) {
                         return sum;
                     }
@@ -143,10 +139,10 @@ public class PNWaterGCPM implements IPotentialMolecular, PotentialPolarizable {
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
-    public double getNonPolarizationEnergy(IMoleculeList atoms) {
+    public double getNonPolarizationEnergy(IMolecule molecule1, IMolecule molecule2) {
 
-        IAtomList water1Atoms = atoms.get(0).getChildList();
-        IAtomList water2Atoms = atoms.get(1).getChildList();
+        IAtomList water1Atoms = molecule1.getChildList();
+        IAtomList water2Atoms = molecule2.getChildList();
 
         Vector O1r = water1Atoms.get(SpeciesWater4P.indexO).getPosition();
         Vector O2r = water2Atoms.get(SpeciesWater4P.indexO).getPosition();

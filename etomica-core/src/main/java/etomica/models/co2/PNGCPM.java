@@ -15,7 +15,6 @@ import etomica.models.water.SpeciesWater4P;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
 import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
@@ -46,7 +45,6 @@ public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
 
     public static boolean debugme = false;
     protected final double[][] pairPolarization;
-    protected final MoleculePair pair;
     protected final double coreFac;
     protected final Vector rijVector;
     protected final Vector work, shift;
@@ -66,7 +64,6 @@ public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
         this.typeManager = typeManager;
         this.nAtomTypes = nAtomTypes;
         pairAgents = new GCPMAgent[nAtomTypes][nAtomTypes];
-        pair = new MoleculePair();
         coreFac = 0.57 * 0.57;
 
         oldMu = space.makeVector();
@@ -234,7 +231,6 @@ public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
         typeManager.put(speciesWaterCOM.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 4);
         IMoleculeList molecules = box.getMoleculeList();
-        MoleculePair pair = new MoleculePair(molecules.get(0), molecules.get(1));
         double u = p2.energy(molecules);
         System.out.println(u);
 
@@ -268,10 +264,8 @@ public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
         double sum = 0;
         if (component != Component.INDUCTION) {
             for (int i = 0; i < molecules.size() - 1; i++) {
-                pair.mol0 = molecules.get(i);
                 for (int j = i + 1; j < molecules.size(); j++) {
-                    pair.mol1 = molecules.get(j);
-                    sum += getNonPolarizationEnergy(pair);
+                    sum += getNonPolarizationEnergy(molecules.get(i), molecules.get(j));
                     if (Double.isInfinite(sum)) {
                         return sum;
                     }
@@ -328,9 +322,9 @@ public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
-    public double getNonPolarizationEnergy(IMoleculeList molecules) {
-        IAtomList atoms1 = molecules.get(0).getChildList();
-        IAtomList atoms2 = molecules.get(1).getChildList();
+    public double getNonPolarizationEnergy(IMolecule molecule1, IMolecule molecule2) {
+        IAtomList atoms1 = molecule1.getChildList();
+        IAtomList atoms2 = molecule2.getChildList();
 
         Vector C1r = atoms1.get(0).getPosition();
         Vector C2r = atoms2.get(0).getPosition();
