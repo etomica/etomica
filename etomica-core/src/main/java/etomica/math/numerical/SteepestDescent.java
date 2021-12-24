@@ -13,6 +13,10 @@ public class SteepestDescent {
     }
     
     public double[] minimize(double[] xGuess, double[] xStep, double tol, int maxIter) {
+        return minimize(xGuess, xStep, tol, maxIter, false);
+    }
+
+    public double[] minimize(double[] xGuess, double[] xStep, double tol, int maxIter, boolean verbose) {
         final int n = xGuess.length;
         double[] der = new double[n];
         double[] dir = new double[n];
@@ -53,8 +57,12 @@ public class SteepestDescent {
                 totalD += dir[i]*der[i];
             }
             double val = f.f(x);
-            if (iter>0) System.out.println(String.format("%4d   %10.4e   %10.4e   %10.4e   %10.4e  %7.3f", iter, val, val-lastVal, totalD, totalStep, dirdot));
-            else System.out.println(String.format("%4d   %10.4e                %10.4e   %10.4e", iter, val, totalD, totalStep));
+            if (verbose) {
+                if (iter > 0)
+                    System.out.println(String.format("%4d   %10.4e   %10.4e   %10.4e   %10.4e  %7.3f", iter, val, val - lastVal, totalD, totalStep, dirdot));
+                else
+                    System.out.println(String.format("%4d   %10.4e                %10.4e   %10.4e", iter, val, totalD, totalStep));
+            }
             if (lastAvgStep == iter) System.out.println("averaging last directions");
 //            System.out.println("dir: "+Arrays.toString(dir));
             if (lastVal - val < tol) return x;
