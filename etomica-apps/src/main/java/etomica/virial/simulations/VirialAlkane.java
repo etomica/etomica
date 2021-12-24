@@ -97,7 +97,7 @@ public class VirialAlkane {
         long steps = params.numSteps;
         double refFreq = params.refFreq;
         double sigmaCH2 = 3.95;
-        double sigmaCH3 = 3.75;
+        double sigmaCH3 = nSpheres > 1 ? 3.75 : 3.73;
         double sigmaHSRef = sigmaCH3 + 0.5*nSpheres;
 
         Space space = Space3D.getInstance();
@@ -109,7 +109,7 @@ public class VirialAlkane {
         System.out.println(nSpheres+"-mer(TraPPE-UA) B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
         double epsilonCH2 = Kelvin.UNIT.toSim(46.0);
-        double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
+        double epsilonCH3 = Kelvin.UNIT.toSim(nSpheres > 1 ? 98.0 : 148);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
         P2LennardJones p2CH2 = new P2LennardJones(sigmaCH2, epsilonCH2);
         P2LennardJones p2CH3 = new P2LennardJones(sigmaCH3, epsilonCH3);
@@ -207,7 +207,7 @@ public class VirialAlkane {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm,
                 alkaneFlex ? (nPoints+1) : nPoints,temperature, refCluster, targetCluster);
         sim.setExtraTargetClusters(targetDiagrams);
-        sim.setDoWiggle(true);
+        sim.setDoWiggle(nSpheres > 2);
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTarget.getAtomPotentials());
         sim.setRandom(new RandomMersenneTwister(2));
@@ -359,10 +359,10 @@ public class VirialAlkane {
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
         System.out.println("MC Move step sizes (ref)    "
-                +sim.mcMoveRotate[0].getStepSize()+" "
+                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[0].getStepSize()))+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
-                +sim.mcMoveRotate[1].getStepSize()+" "
+                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize()))+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
