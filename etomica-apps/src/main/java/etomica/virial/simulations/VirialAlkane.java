@@ -241,11 +241,13 @@ public class VirialAlkane {
         steps /= 1000;
 
         AtomType typeCH3 = species.getAtomType(0);
-        AtomType typeCH2 = species.getAtomType(1);
-        pTarget.setAtomPotential(typeCH2, typeCH2, p2CH2);
-        pTarget.setAtomPotential(typeCH2, typeCH3, p2CH2CH3);
         pTarget.setAtomPotential(typeCH3, typeCH3, p2CH3);
-        
+        AtomType typeCH2 = nSpheres > 2 ?  species.getAtomType(1) : null;
+        if (nSpheres>2) {
+            pTarget.setAtomPotential(typeCH2, typeCH2, p2CH2);
+            pTarget.setAtomPotential(typeCH2, typeCH3, p2CH2CH3);
+        }
+
         sim.integratorOS.setNumSubSteps(1000);
 
         // create the intramolecular potential here, add to it and add it to
@@ -280,7 +282,7 @@ public class VirialAlkane {
 
 
             DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
-            diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
+            if (nSpheres>2) diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
             diameterManager.setDiameter(typeCH3, 0.2 * sigmaCH3);
             displayBox1.setDiameterHash(diameterManager);
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
