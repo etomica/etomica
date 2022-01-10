@@ -13,21 +13,15 @@ import etomica.data.meter.MeterPressureTensor;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
+import etomica.space.*;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -47,22 +41,36 @@ public class SimLJPropsCij extends Simulation {
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
     public SpeciesGeneral species;
+    protected  CoordinateDefinition.BasisCell[] cells0;
 
-    public SimLJPropsCij(Space _space, int numAtoms, double density, double temperature, double rc, boolean isLRC, double ex, double gamma) {
+
+    public SimLJPropsCij(Space _space, int nMol, double density0, double temperature, double rC, boolean isLRC, double strain_x, double strain_yz) {
         super(_space);
-
+//        setRandom(new RandomMersenneTwister(1)); // set seed
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-
         potentialMaster = new PotentialMasterList(this, space);
 
-        // TARGET
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        double L = Math.pow(4.0/density0, 1.0/3.0);
+
+        System.out.println(" rC = "+rC);
+        int n = (int) Math.round(Math.pow(nMol/4, 1.0/3.0));
+
+        nCells = new int[]{n, n, n};
+        Basis basisFCC = new BasisCubicFcc();
+        Vector[] cellDim = new Vector[3];
+        cellDim[0] = Vector.of(new double[]{L, 0, 0});
+        cellDim[1] = Vector.of(new double[]{0, L, 0});
+        cellDim[2] = Vector.of(new double[]{0, 0, L});
+        primitive = new PrimitiveGeneral(space, cellDim);
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
         box = this.makeBox(boundary);
-        box.setNMolecules(species, numAtoms);
+        box.setNMolecules(species, nMol);
+
+        CoordinateDefinitionLeaf coordinateDefinition0 = new CoordinateDefinitionLeaf(box, primitive, basisFCC, space);
+        coordinateDefinition0.initializeCoordinates(new int[]{n, n, n});
+        cells0 = coordinateDefinition0.getBasisCells();
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
@@ -71,39 +79,52 @@ public class SimLJPropsCij extends Simulation {
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
-//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        primitive = new PrimitiveCubic(space, n * L);
-
-        nCells = new int[]{n, n, n};
-        Basis basisFCC = new BasisCubicFcc();
-        basis = new BasisBigCell(space, basisFCC, nCells);
-
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
+        potential = new P2SoftSphericalTruncated(space, potential, rC);
         atomMove.setPotential(potential);
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
 
-        potentialMaster.lrcMaster().setEnabled(false);
+        potentialMaster.lrcMaster().setEnabled(isLRC);
 
-        int cellRange = 2;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
-        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+        int cellRange = 4;
+        potentialMaster.setRange(rC);
+        potentialMaster.setCellRange(cellRange);
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange * 2 + 1) {
-            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
+        if (potentialCells < cellRange*2+1) {
+            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
         }
-
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addActivity(new ActivityIntegrate(integrator));
 
-        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+        if(!isLRC){
+            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        }
+
+        if (strain_x != 0 || strain_yz !=0) {
+            cellDim[0] = Vector.of(new double[]{(1+strain_x)*n*L, 0              , 0});
+            cellDim[1] = Vector.of(new double[]{0               , n*L            , strain_yz/2*n*L});
+            cellDim[2] = Vector.of(new double[]{0               , strain_yz/2*n*L, n*L});
+
+            ((BoundaryDeformablePeriodic)boundary).setEdgeVector(0, cellDim[0]);
+            ((BoundaryDeformablePeriodic)boundary).setEdgeVector(1, cellDim[1]);
+            ((BoundaryDeformablePeriodic)boundary).setEdgeVector(2, cellDim[2]);
+
+            cellDim[0] = Vector.of(new double[]{(1+strain_x)*L, 0            , 0});
+            cellDim[1] = Vector.of(new double[]{0             , L            , strain_yz/2*L});
+            cellDim[2] = Vector.of(new double[]{0             , strain_yz/2*L, L});
+
+            primitive = new PrimitiveGeneral(space, cellDim);
+            coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basisFCC, space);
+            coordinateDefinition.initializeCoordinates(new int[]{n, n, n});
+
+        } else {
+            coordinateDefinition = coordinateDefinition0;
+        }
 
     }
     // End of Constructor
@@ -118,32 +139,39 @@ public class SimLJPropsCij extends Simulation {
         SimOverlapParam params = new SimOverlapParam();
         ParseArgs.doParseArgs(params, args);
         long numSteps = params.numSteps;
-        final int numAtoms = params.numAtoms;
-        double density = params.density;
-        double rc = params.rc;
+        int nMol = params.nMol;
+        double density0 = params.density0;
+        double rc = params.rC;
         double temperature = params.temperature;
-        double dbP = params.dbP;
-        double dU_est = params.dU_est;
-        double ddbP = params.ddbP;
-        double dP = dbP * temperature;
-        double ddP = -(ddbP * density * density * temperature) / numAtoms; // ddP is dP/dV NOT dP/drho
         boolean isLRC = params.isLRC;
         boolean isGraphic = params.isGraphic;
-        double dSigma11 = params.dSigma11;
-        double dc11 = params.dc11;
-        double gamma = params.gamma;
-        double ex = params.ex;
+        double strain_x = params.strain_x;
+        double strain_yz = params.strain_yz;
+        double[] elasticParams = new double[11];
+        elasticParams[0] = params.gV;   elasticParams[1] = params.gVV;
+        elasticParams[2] = params.gx1;  elasticParams[3] = params.gy1;  elasticParams[4]  = params.gy4;
+        elasticParams[5] = params.gx11; elasticParams[6] = params.gy11; elasticParams[7]  = params.gx44;
+        elasticParams[8] = params.gy44; elasticParams[9] = params.gx12; elasticParams[10] = params.gz12;
+        System.out.println(" HMA Elastic Parameters:");
+        System.out.println(" gV: "   + params.gV +   " gVV: "  + params.gVV);
+        System.out.println(" gx1: "  + params.gx1 +  " gy1: "  + params.gy1  + " gy4 "  + params.gy4);
+        System.out.println(" gx11: " + params.gx11 + " gy11: " + params.gy11 + " gx44 " + params.gx44);
+        System.out.println(" gy44: " + params.gy44 + " gx12: " + params.gx12 + " gz12 " + params.gz12);
+        System.out.println();
 
-        System.out.println(numAtoms + " atoms at density " + density + " and temperature " + temperature + " rc = " + rc);
-        System.out.println(numSteps + " MC steps");
-        System.out.println(" ex = " + ex + " gamma = " + gamma + " dSigma11 = " + dSigma11 + " dc11 = " + dc11);
+        System.out.println(" " + nMol + " atoms " + " temperature " + temperature + " rc " + rc);
+        System.out.println(" " + numSteps + " MC steps");
+        System.out.println(" strain_x  " + strain_x + " strain_yz  " + strain_yz);
 
-        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), numAtoms, density, temperature, rc, isLRC, ex, gamma);
-
-
+        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nMol, density0, temperature, rc, isLRC, strain_x, strain_yz);
+        sim.integrator.reset(); // so we can ask it for the PE (the integrator already gets reset at the start of the simulation)
+        double volume = sim.box.getBoundary().volume();
+        double density = nMol/volume;
+        System.out.println(" density0 " + density0 + " density " + density + " volume " + volume + "\n");
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         double ULat = meterPE.getDataAsScalar();
+        System.out.println(" u_lat " + (ULat / nMol));
         //P
         MeterPressure meterP = new MeterPressure(sim.space);
         meterP.setBox(sim.box);
@@ -151,39 +179,35 @@ public class SimLJPropsCij extends Simulation {
         meterP.setPotentialMaster(sim.potentialMaster);
         double PLat = meterP.getDataAsScalar();
         meterP.setTemperature(temperature);
+        System.out.println(" P_lat " + PLat);
 
-        //Sigma
+        //Pij
         MeterPressureTensor meterPij = new MeterPressureTensor(sim.potentialMaster, sim.space);
         meterPij.setBox(sim.box);
         meterPij.setTemperature(0);
-//        meterSigma.getPotentialCalculation().setIntegrator(sim.integrator);
-        IData dataSigma11_lat = meterPij.getData();
+//        meterPij.getPotentialCalculation().setIntegrator(sim.integrator);
+        IData dataPij_lat = meterPij.getData();
         meterPij.setTemperature(temperature);
-        dataSigma11_lat.TE(-1);
-        double sigma11_lat = dataSigma11_lat.getValue(0);
-        System.out.println("sigma11_lat = " + sigma11_lat);
+        double P1_lat = -dataPij_lat.getValue(0);
+        double P4_lat = -dataPij_lat.getValue(5);
+        System.out.println(" P1_lat " + P1_lat);
+        System.out.println(" P4_lat " + P4_lat);
 
-        System.out.println(" Lattice Energy/N = " + (ULat / numAtoms));
-        System.out.println(" Lattice Pressure = " + PLat);
+        //Elastic constants
+        MeterSolidPropsLJ meterElasticLat = new MeterSolidPropsLJ(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator), sim.potentialMaster, sim.coordinateDefinition, temperature, elasticParams);
+        IData dataCijLat = meterElasticLat.getData();
+        double B_lat = dataCijLat.getValue(17) - density*temperature;
+        double C11_lat = dataCijLat.getValue(19) - 2*density*temperature;
+        double C12_lat = dataCijLat.getValue(25);
+        double C44_lat = dataCijLat.getValue(31) - density*temperature;
 
+        System.out.println(" B_lat   " + B_lat);
+        System.out.println(" C11_lat " + C11_lat);
+        System.out.println(" C12_lat " + C12_lat);
+        System.out.println(" C44_lat " + C44_lat);
+        System.out.println();
 
-        System.out.println(" Uharm = " + 1.5 * (numAtoms - 1.0) / numAtoms * temperature + "  Pharm = " + dP + " dPharm/dRho = " + ddP);// This is dP/dV NOT dP/drho
-//        System.out.println("dU_est = " + dU_est);
-        double volume = sim.box.getBoundary().volume();
-        System.out.println(" volume = " + volume);
-        MeterSolidPropsLJ meterUP = new MeterSolidPropsLJ(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator),
-                sim.potentialMaster, sim.coordinateDefinition, temperature, dP, dU_est, ddP, ULat, PLat, dSigma11, dc11, gamma, ex);
-
-
-
-
-
-
-
-
-
-
-
+        MeterSolidPropsLJ meterElastic = new MeterSolidPropsLJ(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator), sim.potentialMaster, sim.coordinateDefinition, temperature, elasticParams);
 
         if (isGraphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -208,9 +232,6 @@ public class SimLJPropsCij extends Simulation {
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame(("LJ") + " FCC");
-
-
-
             //PE
             DataSourceCountSteps timeSource = new DataSourceCountSteps(sim.integrator);
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -220,7 +241,6 @@ public class SimLJPropsCij extends Simulation {
             DisplayPlot historyPE = new DisplayPlot();
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());
             historyPE.setLabel("PE");
-
             //Pressure
             AccumulatorHistory accP = new AccumulatorHistory(new HistoryCollapsingAverage());
             accP.setTimeDataSource(timeSource);
@@ -229,13 +249,10 @@ public class SimLJPropsCij extends Simulation {
             DisplayPlot historyP = new DisplayPlot();
             accP.setDataSink(historyP.getDataSet().makeDataSink());
             historyP.setLabel("P");
-
-
-            // P11
+            // P1
             DisplayPlot historyPij = new DisplayPlot();
             historyPij.setLabel("Pij");
-
-            // Conv P11
+            // Conv P1
             AccumulatorHistory accPij = new AccumulatorHistory(new HistoryCollapsingAverage());
             accPij.setTimeDataSource(timeSource);
             DataSplitter splitter = new DataSplitter();
@@ -244,54 +261,27 @@ public class SimLJPropsCij extends Simulation {
             sim.integrator.getEventManager().addListener(pumpPij);
             accPij.setDataSink(historyPij.getDataSet().makeDataSink());
             historyPij.setLegend(new DataTag[]{accPij.getTag()}, "Conv");
-
-            // Mapped P11
+            // Mapped P1
             DataSplitter splitterM = new DataSplitter();
-            DataPumpListener pumpPijM = new DataPumpListener(meterUP, splitterM, 10);
-            //along dr
-            AccumulatorHistory accPijM1 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            accPijM1.setTimeDataSource(timeSource);
-            splitterM.setDataSink(11, accPijM1);
-            sim.integrator.getEventManager().addListener(pumpPijM);
-            accPijM1.setDataSink(historyPij.getDataSet().makeDataSink());
-            historyPij.setLegend(new DataTag[]{accPijM1.getTag()}, "HMA: along dr  ");
-
-            //along dr0
-            AccumulatorHistory accPijM2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            accPijM2.setTimeDataSource(timeSource);
-            splitterM.setDataSink(12, accPijM2);
-            accPijM2.setDataSink(historyPij.getDataSet().makeDataSink());
-            historyPij.setLegend(new DataTag[]{accPijM2.getTag()}, "HMA: along dr0");
-
-
+            DataPumpListener pumpPijM = new DataPumpListener(meterElastic, splitterM, 10);
+            //add
             simGraphic.add(historyPE);
             simGraphic.add(historyP);
             simGraphic.add(historyPij);
             return;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-//Initialization
+//Equilibration
+        final long startTime = System.currentTimeMillis();
         System.out.flush();
-        long Ninit = numSteps / 5;
-        sim.initialize(Ninit);
+        sim.initialize(numSteps/5); //20%
+
 
         int numBlocks = 100;
-        int interval = numAtoms;
+        int interval = nMol;
         long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size " + blockSize + " interval " + interval + "\n");
-
+        System.out.println(" block size " + blockSize + " interval " + interval);
         //U
         AccumulatorAverageFixed accumulatorPE = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPEPump = new DataPumpListener(meterPE, accumulatorPE, interval);
@@ -301,113 +291,203 @@ public class SimLJPropsCij extends Simulation {
         DataPumpListener accumulatorPPump = new DataPumpListener(meterP, accumulatorP, interval);
         sim.integrator.getEventManager().addListener(accumulatorPPump);
 
-        //Sigma
-        AccumulatorAverageFixed accumulatorSigma = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorSigmaPump = new DataPumpListener(meterPij, accumulatorSigma, interval);
-        sim.integrator.getEventManager().addListener(accumulatorSigmaPump);
+        //Pij
+        AccumulatorAverageFixed accumulatorPij = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPijPump = new DataPumpListener(meterPij, accumulatorPij, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPijPump);
 
         //Mapped
-        AccumulatorAverageFixed accumulatorUP = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorUPPump = new DataPumpListener(meterUP, accumulatorUP, interval);
+        AccumulatorAverageCovariance accumulatorElastic = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorUPPump = new DataPumpListener(meterElastic, accumulatorElastic, interval);
         sim.integrator.getEventManager().addListener(accumulatorUPPump);
 
+// Short run for P1_avg: to solve the Var(x) issue
+        long Nshort = numSteps/10;
+        System.out.println(" N_short_sim = " + Nshort);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Nshort));
+        DataGroup dataElastic0 = (DataGroup) accumulatorElastic.getData();
+        IData dataElasticAvg0 = dataElastic0.getData(accumulatorElastic.AVERAGE.index);
+        double Ushift  =  dataElasticAvg0.getValue(1); //U_hma
+        double Pshift  =  dataElasticAvg0.getValue(3); //P_hma
+        meterElastic.setShift(Ushift, Pshift);
+        accumulatorElastic.reset();
 
-        final long startTime = System.currentTimeMillis();
-/** RUN ... */
+
+// Production run ...
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
+        DataGroup dataElastic = (DataGroup) accumulatorElastic.getData();
+        IData dataElasticAvg = dataElastic.getData(accumulatorElastic.AVERAGE.index);
+        IData dataElasticCov = dataElastic.getData(accumulatorElastic.COVARIANCE.index);
+        IData dataElasticErr = dataElastic.getData(accumulatorElastic.ERROR.index);
+        IData dataElasticCorr = dataElastic.getData(accumulatorElastic.BLOCK_CORRELATION.index);
 
-        //U
+/** First Derivatives*/
+  //Bulk
+        double U_conv =  dataElasticAvg.getValue(0) + Ushift; double errU_conv =  dataElasticErr.getValue(0); double corrU_conv =  dataElasticCorr.getValue(0);
+        double U_hma  =  dataElasticAvg.getValue(1) + Ushift; double errU_hma  =  dataElasticErr.getValue(1); double corrU_hma  =  dataElasticCorr.getValue(1);
+        double P_conv =  dataElasticAvg.getValue(2) + Pshift; double errP_conv =  dataElasticErr.getValue(2); double corrP_conv =  dataElasticCorr.getValue(2);
+        double P_hma  =  dataElasticAvg.getValue(3) + Pshift; double errP_hma  =  dataElasticErr.getValue(3); double corrP_hma  =  dataElasticCorr.getValue(3);
+        //Normal stress
+        double P1_conv =  dataElasticAvg.getValue(4) - Pshift; double errP1_conv =  dataElasticErr.getValue(4); double corrP1_conv =  dataElasticCorr.getValue(4);
+        double P1_hma  =  dataElasticAvg.getValue(5) - Pshift; double errP1_hma  =  dataElasticErr.getValue(5); double corrP1_hma  =  dataElasticCorr.getValue(5);
+        double P2_conv =  dataElasticAvg.getValue(6) - Pshift; double errP2_conv =  dataElasticErr.getValue(6); double corrP2_conv =  dataElasticCorr.getValue(6);
+        double P2_hma  =  dataElasticAvg.getValue(7) - Pshift; double errP2_hma  =  dataElasticErr.getValue(7); double corrP2_hma  =  dataElasticCorr.getValue(7);
+        double P3_conv =  dataElasticAvg.getValue(8) - Pshift; double errP3_conv =  dataElasticErr.getValue(8); double corrP3_conv =  dataElasticCorr.getValue(8);
+        double P3_hma  =  dataElasticAvg.getValue(9) - Pshift; double errP3_hma  =  dataElasticErr.getValue(9); double corrP3_hma  =  dataElasticCorr.getValue(9);
+        //Shear stress
+        double P4_conv =  dataElasticAvg.getValue(10); double errP4_conv =  dataElasticErr.getValue(10); double corrP4_conv =  dataElasticCorr.getValue(10);
+        double P4_hma  =  dataElasticAvg.getValue(11); double errP4_hma  =  dataElasticErr.getValue(11); double corrP4_hma  =  dataElasticCorr.getValue(11);
+        double P5_conv =  dataElasticAvg.getValue(12); double errP5_conv =  dataElasticErr.getValue(12); double corrP5_conv =  dataElasticCorr.getValue(12);
+        double P5_hma  =  dataElasticAvg.getValue(13); double errP5_hma  =  dataElasticErr.getValue(13); double corrP5_hma  =  dataElasticCorr.getValue(13);
+        double P6_conv =  dataElasticAvg.getValue(14); double errP6_conv =  dataElasticErr.getValue(14); double corrP6_conv =  dataElasticCorr.getValue(14);
+        double P6_hma  =  dataElasticAvg.getValue(15); double errP6_hma  =  dataElasticErr.getValue(15); double corrP6_hma  =  dataElasticCorr.getValue(15);
 
-        DataGroup dataPE = (DataGroup) accumulatorPE.getData();
-        IData dataPEAvg = dataPE.getData(accumulatorPE.AVERAGE.index);
-        IData dataPEErr = dataPE.getData(accumulatorPE.ERROR.index);
-        IData dataPECorrelation = dataPE.getData(accumulatorPE.BLOCK_CORRELATION.index);
-        double peAvg = dataPEAvg.getValue(0);
-        double peErr = dataPEErr.getValue(0);
-        double peCor = dataPECorrelation.getValue(0);
-        System.out.println(" Udirect/N = " + peAvg / numAtoms + "  Err = " + peErr / numAtoms + "  cor: " + peCor);
-        //P
-        DataGroup dataP = (DataGroup) accumulatorP.getData();
-        IData dataPAvg = dataP.getData(accumulatorP.AVERAGE.index);
-        IData dataPErr = dataP.getData(accumulatorP.ERROR.index);
-        IData dataPCorrelation = dataP.getData(accumulatorP.BLOCK_CORRELATION.index);
-        double pAvg = dataPAvg.getValue(0);
-        double pErr = dataPErr.getValue(0);
-        double pCor = dataPCorrelation.getValue(0);
-        System.out.println(" Pdirect = " + pAvg + "  Err = " + pErr + "  cor: " + pCor);
+/** Second Derivatives*/
+        int nd = dataElasticAvg.getLength();
+        double varU_conv  = dataElasticCov.getValue(0*(nd+1));
+        double varU_hma   = dataElasticCov.getValue(1*(nd+1));
+        double varP_conv  = dataElasticCov.getValue(2*(nd+1));
+        double varP_hma   = dataElasticCov.getValue(3*(nd+1));
+        double varP1_conv = dataElasticCov.getValue(4*(nd+1));
+        double varP1_hma  = dataElasticCov.getValue(5*(nd+1));
+        double varP2_conv = dataElasticCov.getValue(6*(nd+1));
+        double varP2_hma  = dataElasticCov.getValue(7*(nd+1));
+        double varP3_conv = dataElasticCov.getValue(8*(nd+1));
+        double varP3_hma  = dataElasticCov.getValue(9*(nd+1));
+        double varP4_conv = dataElasticCov.getValue(10*(nd+1));
+        double varP4_hma  = dataElasticCov.getValue(11*(nd+1));
+        double varP5_conv = dataElasticCov.getValue(12*(nd+1));
+        double varP5_hma  = dataElasticCov.getValue(13*(nd+1));
+        double varP6_conv = dataElasticCov.getValue(14*(nd+1));
+        double varP6_hma  = dataElasticCov.getValue(15*(nd+1));
+
+        double covP1P2_conv = dataElasticCov.getValue(4*nd+6);
+        double covP1P3_conv = dataElasticCov.getValue(4*nd+8);
+        double covP2P3_conv = dataElasticCov.getValue(6*nd+8);
+        double covP1P2_hma = dataElasticCov.getValue(5*nd+7);
+        double covP1P3_hma = dataElasticCov.getValue(5*nd+9);
+        double covP2P3_hma = dataElasticCov.getValue(7*nd+9);
+
+        double covUP_conv = dataElasticCov.getValue(0*nd+2);
+        double covUP_hma = dataElasticCov.getValue(1*nd+3);
+        double covUP1_conv = dataElasticCov.getValue(0*nd+4);
+        double covUP1_hma = dataElasticCov.getValue(1*nd+5);
+        double covUP2_conv = dataElasticCov.getValue(0*nd+6);
+        double covUP2_hma = dataElasticCov.getValue(1*nd+7);
+        double covUP3_conv = dataElasticCov.getValue(0*nd+8);
+        double covUP3_hma = dataElasticCov.getValue(1*nd+9);
 
 
-        //Sigma
-        DataGroup dataSigma11 = (DataGroup) accumulatorSigma.getData();
-        IData dataSigma11Avg = dataSigma11.getData(accumulatorSigma.AVERAGE.index);
-        IData dataSigma11Err = dataSigma11.getData(accumulatorSigma.ERROR.index);
-        IData dataSigma11Correlation = dataSigma11.getData(accumulatorSigma.BLOCK_CORRELATION.index);
+//Bulk
+        double Cv_conv =  varU_conv/temperature/temperature;
+        double Cv_hma  =  dataElasticAvg.getValue(16) + varU_hma/temperature/temperature;
+        double B_conv  = dataElasticAvg.getValue(17) - volume/temperature*varP_conv;
+        double B_hma   = dataElasticAvg.getValue(18) - volume/temperature*varP_hma;
+//Cij
+        //normal
+        double C11_conv = dataElasticAvg.getValue(19) - volume/temperature*varP1_conv;
+        double C11_hma  = dataElasticAvg.getValue(20) - volume/temperature*varP1_hma;
+        double C22_conv = dataElasticAvg.getValue(21) - volume/temperature*varP2_conv;
+        double C22_hma  = dataElasticAvg.getValue(22) - volume/temperature*varP2_hma;
+        double C33_conv = dataElasticAvg.getValue(23) - volume/temperature*varP3_conv;
+        double C33_hma  = dataElasticAvg.getValue(24) - volume/temperature*varP3_hma;
 
-        density = numAtoms / volume;
+        double C12_conv = dataElasticAvg.getValue(25) - volume/temperature*covP1P2_conv;
+        double C12_hma  = dataElasticAvg.getValue(26) - volume/temperature*covP1P2_hma;
+        double C13_conv = dataElasticAvg.getValue(27) - volume/temperature*covP1P3_conv;
+        double C13_hma  = dataElasticAvg.getValue(28) - volume/temperature*covP1P3_hma;
+        double C23_conv = dataElasticAvg.getValue(29) - volume/temperature*covP2P3_conv;
+        double C23_hma  = dataElasticAvg.getValue(30) - volume/temperature*covP2P3_hma;
+        //shear
+        double C44_conv = dataElasticAvg.getValue(31) - volume/temperature*varP4_conv;
+        double C44_hma  = dataElasticAvg.getValue(32) - volume/temperature*varP4_hma;
+        double C55_conv = dataElasticAvg.getValue(33) - volume/temperature*varP5_conv;
+        double C55_hma  = dataElasticAvg.getValue(34) - volume/temperature*varP5_hma;
+        double C66_conv = dataElasticAvg.getValue(35) - volume/temperature*varP6_conv;
+        double C66_hma  = dataElasticAvg.getValue(36) - volume/temperature*varP6_hma;
 
-        double sigma11Avg = dataSigma11Avg.getValue(0);
-        double sigma11Err = dataSigma11Err.getValue(0);
-        double sigma11Cor = dataSigma11Correlation.getValue(0);
-        System.out.println(" Sigma11Direct= " + sigma11Avg + "  Err = " + sigma11Err + "  cor: " + sigma11Cor);
+//b_mn
+        double bV_conv = density + 1.0/temperature/temperature*covUP_conv;
+        double bV_hma  = dataElasticAvg.getValue(37) + 1.0/temperature/temperature*covUP_hma;
+
+        double b11_conv = -density + 1.0/temperature/temperature*covUP1_conv;
+        double b11_hma = dataElasticAvg.getValue(38) + 1.0/temperature/temperature*covUP1_hma;
+        double b22_conv = -density + 1.0/temperature/temperature*covUP2_conv;
+        double b22_hma = dataElasticAvg.getValue(39) + 1.0/temperature/temperature*covUP2_hma;
+        double b33_conv = -density + 1.0/temperature/temperature*covUP3_conv;
+        double b33_hma = dataElasticAvg.getValue(40) + 1.0/temperature/temperature*covUP3_hma;
 
 
-        DataGroup dataUP = (DataGroup) accumulatorUP.getData();
-        IData dataUPAvg = dataUP.getData(accumulatorUP.AVERAGE.index);
-        IData dataUPErr = dataUP.getData(accumulatorUP.ERROR.index);
-        IData dataUPCorr = dataUP.getData(accumulatorUP.BLOCK_CORRELATION.index);
 
-        double dU = dataUPAvg.getValue(0);
-        double Ur = dataUPAvg.getValue(1); //U + 0.5*fdr
-        double Pvir = dataUPAvg.getValue(2);   //fr/3/volume
-        double Pr = dataUPAvg.getValue(3);
+        System.out.println("\n++++ First Derivatives ++++");
+        System.out.println(" U_conv   " + U_conv + " +/- " + errU_conv + "   corr: " + corrU_conv);
+        System.out.println(" U_hma    " + U_hma  + " +/- " + errU_hma  + "   corr: " + corrU_hma);
+        System.out.println(" P_conv   " + P_conv + " +/- " + errP_conv + "   corr: " + corrP_conv);
+        System.out.println(" P_hma    " + P_hma  + " +/- " + errP_hma  + "   corr: " + corrP_hma);
+        System.out.println(" P1_conv  " + P1_conv + " +/- " + errP1_conv + "   corr: " + corrP1_conv);
+        System.out.println(" P1_hma   " + P1_hma  + " +/- " + errP1_hma  + "   corr: " + corrP1_hma);
+        System.out.println(" P2_conv  " + P2_conv + " +/- " + errP2_conv + "   corr: " + corrP2_conv);
+        System.out.println(" P2_hma   " + P2_hma  + " +/- " + errP2_hma  + "   corr: " + corrP2_hma);
+        System.out.println(" P4_conv  " + P4_conv + " +/- " + errP4_conv + "   corr: " + corrP4_conv);
+        System.out.println(" P4_hma   " + P4_hma  + " +/- " + errP4_hma  + "   corr: " + corrP4_hma);
+
+        System.out.println("\n++++ Second Derivatives ++++");
+        System.out.println(" Cv_conv  " + Cv_conv);
+        System.out.println(" Cv_hma   " + Cv_hma);
+        System.out.println(" B_conv   " + B_conv);
+        System.out.println(" B_hma    " + B_hma);
         System.out.println();
-        System.out.println("************************************************************************");
+        System.out.println(" C11_conv     " + C11_conv);
+        System.out.println(" C11_conv_avg " + 1.0/3.0*(C11_conv+C22_conv+C33_conv));
+        System.out.println(" C11_hma      " + C11_hma);
+        System.out.println(" C11_hma_avg  " + 1.0/3.0*(C11_hma + C22_hma + C33_hma));
+        System.out.println();
+        System.out.println(" C12_conv     " + C12_conv);
+        System.out.println(" C12_conv_avg " + 1.0/3.0*(C12_conv+C13_conv+C23_conv));
+        System.out.println(" C12_hma      " + C12_hma);
+        System.out.println(" C12_hma_avg  " + 1.0/3.0*(C12_hma + C13_hma + C23_hma));
+        System.out.println();
+        System.out.println(" C44_conv     " + C44_conv);
+        System.out.println(" C44_conv_avg " + 1.0/3.0*(C44_conv+C55_conv+C66_conv));
+        System.out.println(" C44_hma      " + C44_hma);
+        System.out.println(" C44_hma_avg  " + 1.0/3.0*(C44_hma + C55_hma + C66_hma));
+        System.out.println();
+        System.out.println(" bV_conv " + bV_conv);
+        System.out.println(" bV_hma  " + bV_hma);
+        System.out.println(" b11_conv     " + b11_conv);
+        System.out.println(" b11_conv_avg " + 1.0/3.0*(b11_conv+b22_conv+b33_conv));
+        System.out.println(" b11_hma      " + b11_hma);
+        System.out.println(" b11_hma_avg  " + 1.0/3.0*(b11_hma+b22_hma+b33_hma));
 
-
-        System.out.println(" U/N   " + (ULat + dU) / numAtoms + "  +/- " + dataUPErr.getValue(0) / numAtoms + "  corr: " + dataUPCorr.getValue(0) + " dU = " + dU / numAtoms);
-        System.out.println(" Um/N  " + (ULat + 1.5 * (numAtoms - 1) * temperature + Ur) / numAtoms + "  +/- "
-                + dataUPErr.getValue(1) / numAtoms + "  corr: " + dataUPCorr.getValue(1) + "   Uanh = " + Ur / numAtoms);
-
-        System.out.println("************************************************************************");
-        System.out.println(" P  " + (density * temperature + Pvir) + "  +/- " + dataUPErr.getValue(2) + "  corr: " + dataUPCorr.getValue(2));
-        System.out.println(" Pm " + (dP + Pr) + "  +/- " + dataUPErr.getValue(3) + "  corr: " + dataUPCorr.getValue(3));
-        System.out.println("************************************************************************");
-
-
-        double sigma11_conv =  dataUPAvg.getValue(10);
-        double sigma11r  = dataUPAvg.getValue(11);
-        double sigma11r2 = dataUPAvg.getValue(12);
-
-        System.out.println(" sigma11_conv    : " + sigma11_conv + " +/- " + dataUPErr.getValue(10) + "   corr: " + dataUPCorr.getValue(10) +
-                "    dSigma11_conv: " + (sigma11_conv - sigma11_lat));
-        //Mapping along dr
-        System.out.println(" sigma11_mapped1 : " + sigma11r + " +/- " + dataUPErr.getValue(11) + "   corr: " + dataUPCorr.getValue(11));
-        //Mapping along dr0
-        System.out.println(" sigma11_mapped2 : " + sigma11r2 + " +/- " + dataUPErr.getValue(12) + "   corr: " + dataUPCorr.getValue(12));
-        //Difference from Conv
-        System.out.println("      diff1 = " + (sigma11r - sigma11_conv) + "   diff2 = " + (sigma11r2 - sigma11_conv));
 
         long endTime = System.currentTimeMillis();
-        System.out.println("time: " + (endTime - startTime) / 1000.0);
+        System.out.println("\n Time: " + (endTime - startTime) / 1000.0);
     }
 
-
     public static class SimOverlapParam extends ParameterBase {
-        int n = 5;
-        public int numAtoms = 4 * n * n * n;
-        public double density = 1.0;
-        public long numSteps = 1000000;
-        public double temperature = 1.0; //Tm=0.930 at rho=1.0
-        public double dbP = 9.6 / temperature;
+        int nC = 5;
+        public int nBasis = 4;
+        public int nMol = nBasis*nC*nC*nC;
+        public double density0 = 1.0; //To fix NNs
+        public long numSteps = 10000;
+        public double temperature = 0.1;
         public boolean isLRC = false;
-        public boolean isGraphic = true;
-        public double dU_est = 272.814649;
-        public double ddbP = 6.933;
-        public double rc = 2.5;
-        public double ex = 0.0;
-        public double gamma = 0.0;
-        public double dSigma11 = 1.4;
-        public double dc11 = 0.7542631471006018;
+        public boolean isGraphic = false;
+        public double rC = 3.0;
+        public double strain_x = 0.0;
+        public double strain_yz = 0.0;
+        //HMA Elastic Parameters
+        public double gV   = 3.111187957436236;
+        public double gVV  = 0.602314743869597;
+        public double gx1  = 3.577223322454191;
+        public double gy1  = 2.853464500952745;
+        public double gy4  = 2.232158262013541;
+        public double gx11 = 15.125133239539247;
+        public double gy11 = 4.801957350451653;
+        public double gx44 = 10.768595700746864;
+        public double gy44 =  3.233644482570479;
+        public double gx12 = -4.114446785996284;
+        public double gz12 = -0.393648131801667;
     }
 }

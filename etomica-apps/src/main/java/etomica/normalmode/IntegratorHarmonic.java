@@ -95,7 +95,7 @@ public class IntegratorHarmonic extends IntegratorMD {
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
 
-        double sqrtT = Math.sqrt(temperature);
+        double sqrtT_2 = Math.sqrt(temperature/2.0);
 
         int totalWV = waveVectors.length;
 
@@ -104,10 +104,10 @@ public class IntegratorHarmonic extends IntegratorMD {
 
             for (int j = 0; j < coordinateDim; j++) {
                 if (omega[iVector][j] == Double.POSITIVE_INFINITY) continue;
-
+                double facQ = sqrtT_2/omega[iVector][j];
                 //generate real and imaginary parts of random normal-mode coordinate Q
-                Qr[iVector][j] = Math.cos(-omega[iVector][j] * currentTime) * sqrtT;
-                Qi[iVector][j] = Math.sin(-omega[iVector][j] * currentTime) * sqrtT;
+                Qr[iVector][j] = Math.cos(-omega[iVector][j] * currentTime) * facQ;
+                Qi[iVector][j] = Math.sin(-omega[iVector][j] * currentTime) * facQ;
 
             }
         }
@@ -152,7 +152,7 @@ public class IntegratorHarmonic extends IntegratorMD {
 
             } else {
 
-                for (int iVector = 0; iVector < totalWV; iVector++) {
+                for (int iVector = totalWV-2; iVector < totalWV; iVector++) {
 
                     double kR = waveVectors[iVector].dot(cell.cellPosition);//getLatticePositions()[atomCount]);
                     double coskR = Math.cos(kR);

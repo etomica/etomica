@@ -65,7 +65,7 @@ public class MeterSolidProps implements IDataSource {
     	if(isLJ){
         	double fe = 1.00000;
         	double fee = 1.00000;
-    		pcSolidProps = new PotentialCalculationLJSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, fe,fee);
+    		pcSolidProps = new PotentialCalculationLJSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,null);
     	}else{
     		pcSolidProps = new PotentialCalculationEFSSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature, f1, isLS);
     	}

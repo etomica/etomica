@@ -29,27 +29,17 @@ public class MeterSolidPropsLJ implements IDataSource {
     protected final AtomLeafAgentManager<Vector> forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
-    protected double ULat, PLat;
     protected double volume, density;
-    protected int nMol, nRowsA, nColumnsA, nCells, nBasis;
-    protected double dP, ddP, f1, f2, dc11;
-    protected double fe, fee;
-    protected double dU_est;
-    protected double dSigma11, gamma , ex;
-    //    protected double[][] A;
-//    protected final IVectorMutable[] posCells;
-//    protected final IVectorMutable[] kVectors;
-//    protected final int[] kDeg;
-//    protected final  BasisCell[] cells;
-    protected double gruneisen_knu;
+    protected int nMol, nCells;
+    protected double gV, gVV, gx1, gy1, gy4, gx11, gy11, gx12, gz12, gx44, gy44;
+    protected double Ushift, Pshift;
 
     protected final double temperature;
     private final PotentialCalculation pcSolidProps;
     protected  PotentialCalculationForceSum pcForceSum;
 
-    public MeterSolidPropsLJ(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double dP, double dU, double ddP, double ULat, double PLat, double dSigma11, double dc11, double gamma, double ex) {
-        int nData = 13;
-//        int nData = 18;
+    public MeterSolidPropsLJ(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double[] elasticParams) {
+        int nData = 41;
         data = new DataDoubleArray(nData);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -64,253 +54,171 @@ public class MeterSolidPropsLJ implements IDataSource {
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
         this.temperature = temperature;
-        this.dP = dP;
-        this.dU_est = dU;
-        this.ddP = ddP;
-        this.ULat = ULat;
-        this.PLat = PLat;
-        this.dSigma11 = dSigma11;
-        this.dc11 = dc11;
-        this.gamma = gamma;
-        this.ex = ex;
-
-
         volume = coordinateDefinition.getBox().getBoundary().volume();
         nMol = coordinateDefinition.getBox().getLeafList().size();
         density = nMol/volume;
-        dP = 9.530521593903*temperature;
-//        f1 = (-1.0/volume + dP/temperature)/3.0/(nMol-1.0);
-        f1 = (dP/temperature-density)/3.0/(nMol-1.0);
-        f2 = (1.0/volume/volume + ddP/temperature)/3.0/(nMol-1.0)  +  f1*f1;
 
-        fe  = -(1+dSigma11/temperature*volume)/(3.0*(nMol-1));
-        fee = fe*fe + (1-dc11*volume/temperature)/(3.0*(nMol-1));
+        gV   = elasticParams[0];  gVV  = elasticParams[1];
+        gx1  = elasticParams[2];  gy1  = elasticParams[3];   gy4 = elasticParams[4];
+        gx11 = elasticParams[5];  gy11 = elasticParams[6];  gx44 = elasticParams[7];
+        gy44 = elasticParams[8];  gx12 = elasticParams[9];  gz12 = elasticParams[10];
 
-        pcSolidProps = new PotentialCalculationLJSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, fe, fee);
-
-
-//        pcUP.setAgentManager(forceManager);
-
-//        this.A = A;
-//        nRowsA = A.length;
-//        nColumnsA = A[0].length;
-//        kDeg = new int[nRowsA];
-//        kVectors = new IVectorMutable[nRowsA];
-//        for(int k=0;k<nRowsA;k++){
-//        	kDeg[k] = (int)A[k][0];
-//        	kVectors[k] = space.makeVector();
-//        	kVectors[k].setX(0, A[k][1]); kVectors[k].setX(1, A[k][2]); kVectors[k].setX(2, A[k][3]);
-//        }
-//
-//        cells  = coordinateDefinition.getBasisCells();
-//        nCells = cells.length;
-//        int cornerAtomIdx;
-//        posCells = new IVectorMutable[nCells];
-//        for(int l=0;l<nCells;l++){
-//        	posCells[l] = space.makeVector();
-//        	cornerAtomIdx = cells[l].molecules.getMolecule(0).getIndex();
-//        	posCells[l].E(coordinateDefinition.getBox().getLeafList().getAtom(cornerAtomIdx).getPosition());
-//        }
-//
-//        nBasis = cells[0].molecules.getMoleculeCount();
+        this.Ushift = 0;
+        this.Pshift = 0;
+        pcSolidProps = new PotentialCalculationLJSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature, elasticParams);
     }
 
 
-    //U_direct is computed in the main classes using MeterPotentialEnergyFromIntegrator.
     public IData getData() {
         Box box = coordinateDefinition.getBox();
         double[] sum;
         ((PotentialCalculationLJSP)pcSolidProps).reset();
         potentialMaster.calculate(box, id, pcSolidProps);
         sum = ((PotentialCalculationLJSP)pcSolidProps).getSum();
-
         potentialMaster.calculate(box, id, pcForceSum);
-
         double[] x = data.getData();
-        //ALL with "ij" pairs.
-        double fdr      = sum[0];
-        double fr       = sum[1];
-        double fR       = sum[2];
-//        double T1PhiT1  = sum[3];
-//        double T1Phidr  = sum[4];
-//        double rPhir    = sum[5];
-//        double drPhidr  = sum[6];
-        double fxrx     = sum[7];
-        double fxRx     = sum[8];
-//        double fxrz     = sum[9];
-//        double fxRz     = sum[10];
-//        double T2PhiT2  = sum[11];
-//        double T3PhiT3  = sum[12];
-//        double fxdrx    = sum[13];
 
+        double Fr      = sum[0];
+        double Fdr     = sum[1];
+        double rPhir   = sum[2];
+        double drPhidr = sum[3];
+        double rPhidr  = sum[4];
 
+        double Fdr1 = sum[5];
+        double Fdr2 = sum[6];
+        double Fdr3 = sum[7];
+        double Fdr4 = sum[8];
+        double Fdr5 = sum[9];
+        double Fdr6 = sum[10];
 
-        double dU    = meterPE.getDataAsScalar() - ULat;
-        double Ur   = dU + 0.5*fdr;
-//        double Ur2   = dU*(2.0 + 1/(3*(nMol-1.0)*temperature)*fdr);
+        double Fdr11 = sum[11];
+        double Fdr22 = sum[12];
+        double Fdr33 = sum[13];
+        double Fdr12 = sum[14];
+        double Fdr13 = sum[15];
+        double Fdr23 = sum[16];
+        double Fdr44 = sum[17];
+        double Fdr55 = sum[18];
+        double Fdr66 = sum[19];
 
-//        double Ur2   = dU + dU_est/(3*(nMol-1.0)*temperature)*fdr;
-//
-        double Pvir = fr/3.0/volume;
-//        double Pr   = 1.0/3.0/volume*fR + f1*fdr - PLat;
-        double Pr   = Pvir + f1*fdr;
+        double Fxrx = sum[20];
+        double Fyry = sum[21];
+        double Fzrz = sum[22];
 
-        double sig11r = - (fxrx + fe*fdr)/volume;
-        fe  = -(1+ dSigma11 /temperature*volume)/(3.0*(nMol-1));
+        double Fxry = sum[23];
+        double Fxrz = sum[24];
+        double Fyrz = sum[25];
 
-//        System.out.println(dU/nMol  + "   " + ((3.0/2.0*(nMol-1.0)*temperature +Ur)/nMol));
-//        x[10] = Ur2;
+        double x_Phixx_x = sum[26];
+        double y_Phiyy_y = sum[27];
+        double z_Phizz_z = sum[28];
 
-//U
-        x[0] =  dU;//U
-        x[1] = Ur; //Um
-//P
-        x[2] = Pvir;//P
-        x[3] = Pr; //Pm
-//
-//        x[4] = dU*dU/temperature/temperature;//Cv
-//        x[5] = -1.0/2.0/temperature*(0.5*fdr+drPhidr) + Ur*Ur/temperature/temperature;//Cvm
-//
-//        x[6] = 2.0/3.0*Pvir + 1.0/9.0/volume*rPhir - volume/temperature*Pvir*Pvir; //B
-//        x[7] = -volume*(-2.0/9.0/volume/volume*fR + f2*fdr  - T1PhiT1) - volume/temperature*Pr*Pr; //Bm
-//
-//        x[8] = 1.0/temperature/temperature*dU*Pvir; //dPdT
-//        x[9] = 1.0/temperature*(f1/2.0*fdr - 1.0/2.0*T1Phidr) + 1.0/temperature/temperature*Ur*Pr; //dPdTm
-//
+        double x_Phixy_y = sum[29];
+        double x_Phixz_z = sum[30];
+        double y_Phiyz_z = sum[31];
 
+        double x_Phiyx_y = sum[32];
+        double x_Phizx_z = sum[33];
+        double y_Phizy_z = sum[34];
 
-//Sigma_11
-        x[10] = density*temperature + 1/volume*fxrx;//conv
-        x[11] = (nMol-1)/volume*temperature - dSigma11 + 1/volume*fxrx - (dSigma11/temperature*volume+1)/(3.0*(nMol-1)*volume)*fdr;//Map1 (along dr)
-        x[12] =  -dSigma11 + 1/volume*fxRx - (dSigma11 /temperature*volume+1)/(3.0*(nMol-1)*volume)*fdr;//Map2 (along dr0)
-////sigma_12
-//        x[13] = -1/volume*fxrz;//conv
-//        x[14] = -1/volume*fxrz + dSigma/temperature/(3.0*(nMol-1))*fdr;//Map1
-//
-//        x[15] = -1/volume*fxRz + dSigma/temperature/(3.0*(nMol-1))*fdr;//Map2
-//
-//        double dx,dy,dz;
-//        double sig11C = -1/volume*fxrx;
-//        x[16] =   1/volume*T2PhiT2 - volume/temperature*sig11C*sig11C; //c11C
-//        x[17] = -2*fe/volume*fxdrx - fee/volume*fdr + 1/volume*T3PhiT3 - volume/temperature*sig11r*sig11r;//c11M
-//
-//
-//        int iBasis;
-//        IVectorMutable rBasis, rLatBasis;
-//        IVectorMutable  drBasis = space.makeVector();
-//        IAtom atomBasis;
-//        IVectorMutable[] dr_kR     = new IVectorMutable[nBasis];
-//        IVectorMutable[] dr_kI     = new IVectorMutable[nBasis];
-//        IVectorMutable[] eVec_knuR = new IVectorMutable[nBasis];
-//        IVectorMutable[] eVec_knuI = new IVectorMutable[nBasis];
-//        IVectorMutable[] f_kR      = new IVectorMutable[nBasis];
-//        IVectorMutable[] f_kI      = new IVectorMutable[nBasis];
-//        IVectorMutable[] sumk_R    = new IVectorMutable[nBasis];
-//        IVectorMutable[] sumk_I    = new IVectorMutable[nBasis];
-//
-//        for(int b=0;b<nBasis;b++){
-//          dr_kR[b] = space.makeVector();     dr_kI[b] = space.makeVector();
-//      	  eVec_knuR[b] = space.makeVector(); eVec_knuI[b] = space.makeVector();
-//	      f_kR[b] = space.makeVector();      f_kI[b] = space.makeVector();
-//          sumk_R[b] = space.makeVector();    sumk_I[b] = space.makeVector();
-//        }
-//        double sumFR = 0;
-//
-//
-//
-//        for(int l=0;l<nCells;l++){
-//
-//          for(int b=0;b<nBasis;b++){
-//            sumk_R[b].E(0);
-//            sumk_I[b].E(0);
-//          }
-//
-//
-//
-//  	      for(int k=0;k<nRowsA;k++){
-//
-//	        for(int b=0;b<nBasis;b++){
-//	          dr_kR[b].E(0);
-//	          dr_kI[b].E(0);
-//	        }
-//	        for(int lp=0;lp<nCells;lp++){
-//	          for(int b=0;b<nBasis;b++){
-//	            iBasis  = cells[lp].molecules.getMolecule(b).getIndex();
-//	            atomBasis= coordinateDefinition.getBox().getLeafList().getAtom(iBasis);
-//	            rLatBasis = coordinateDefinition.getLatticePosition(atomBasis);
-//	            rBasis =   atomBasis.getPosition();
-//	            drBasis.Ev1Mv2(rBasis, rLatBasis);
-//
-////	            if(lp==l && b==0 && k==0) System.out.println(drBasis);
-//                box.getBoundary().nearestImage(drBasis);
-//	            dr_kR[b].PEa1Tv1( Math.cos(kVectors[k].dot(posCells[lp])), drBasis);
-//	            dr_kI[b].PEa1Tv1(-Math.sin(kVectors[k].dot(posCells[lp])), drBasis);
-//	          }//b
-//	        }//l_prime
-//
-//
-//
-//	        for (int b=0;b<nBasis;b++){
-//	          f_kR[b].E(0);
-//	          f_kI[b].E(0);
-//	        }
-//
-//	//mode
-//
-//  	        for(int nu=0;nu<3*nBasis;nu++){
-//	          gruneisen_knu = A[k][4+nu*25]/(3*volume);
-////	          System.out.println(gruneisen_knu);
-////	          if(kDeg[k]==2) System.out.println(gruneisen_knu);
-//
-//	          for (int b=0;b<nBasis;b++){
-//	            for(int i=0;i<3;i++){
-//	              eVec_knuR[b].setX(i, A[k][5 + nu*(2*3*nBasis+1) + b*6 + i*2]);
-//	              eVec_knuI[b].setX(i, A[k][5 + nu*(2*3*nBasis+1) + b*6 + i*2 + 1]);
-//	            }//i
-//	          }//n
-//	          double krDotR = 0, krDotI = 0;
-//	          for (int b=0;b<nBasis;b++){
-//	            krDotR += eVec_knuR[b].dot(dr_kR[b]) + eVec_knuI[b].dot(dr_kI[b]);
-//	            krDotI += eVec_knuR[b].dot(dr_kI[b]) - eVec_knuI[b].dot(dr_kR[b]);
-////	            tmpSum += eVec_knuR[b].dot(eVec_knuR[b]) + eVec_knuI[b].dot(eVec_knuI[b]);//Is is NORMALIZED, yay!
-//	          }
-//	          for (int b=0;b<nBasis;b++){
-//	            f_kR[b].PEa1Tv1( gruneisen_knu*krDotR , eVec_knuR[b] );
-//	            f_kR[b].PEa1Tv1(-gruneisen_knu*krDotI , eVec_knuI[b] );
-//                f_kI[b].PEa1Tv1( gruneisen_knu*krDotR , eVec_knuI[b] );
-//	            f_kI[b].PEa1Tv1( gruneisen_knu*krDotI , eVec_knuR[b] );
-//	          }
-//	        }//nu
-//
-//
-//            for(int b=0;b<nBasis;b++){
-//              sumk_R[b].PEa1Tv1( Math.cos(kVectors[k].dot(posCells[l])), f_kR[b]);
-//	          sumk_R[b].PEa1Tv1(-Math.sin(kVectors[k].dot(posCells[l])), f_kI[b]);
-//	          sumk_I[b].PEa1Tv1(Math.cos(kVectors[k].dot(posCells[l])), f_kI[b]);
-//	          sumk_I[b].PEa1Tv1(Math.sin(kVectors[k].dot(posCells[l])), f_kR[b]);
-//	          if(kDeg[k] == 2){
-//	            sumk_R[b].PEa1Tv1( Math.cos(kVectors[k].dot(posCells[l])), f_kR[b]);
-//		        sumk_R[b].PEa1Tv1(-Math.sin(kVectors[k].dot(posCells[l])), f_kI[b]);
-//		        sumk_I[b].PEa1Tv1(-Math.cos(kVectors[k].dot(posCells[l])), f_kI[b]);
-//		        sumk_I[b].PEa1Tv1(-Math.sin(kVectors[k].dot(posCells[l])), f_kR[b]);
-//	          }
-//	        }//b
-////  	      System.out.println("WWWW");//(0.010067032676144283, 0.0030921968986246107, -0.041397144041727785)
-//  	      }//k
-//
-//          for(int b=0;b<nBasis;b++){ //(0.007455269472657289, -0.008813100713411792, -0.007843585115492768)
-//            sumk_R[b].TE(1.0/nCells);
-//            sumk_I[b].TE(1.0/nCells);
-//          }
-//          for(int b=0;b<nBasis;b++){
-//            iBasis  = cells[l].molecules.getMolecule(b).getIndex();
-//            atomBasis= coordinateDefinition.getBox().getLeafList().getAtom(iBasis);
-//            sumFR += sumk_R[b].dot(((IntegratorVelocityVerlet.MyAgent)forceManager.getAgent(atomBasis)).force);
-//          }
-//
-//        }//l
-//	      System.out.println(f1*fdr +"  "+ -0.5*sumFR);
-//	      pcForceSum.reset();
+        double dr1_Phi_dr1 = sum[35];
+        double dr2_Phi_dr2 = sum[36];
+        double dr3_Phi_dr3 = sum[37];
+
+        double dr1_Phi_dr2 = sum[38];
+        double dr1_Phi_dr3 = sum[39];
+        double dr2_Phi_dr3 = sum[40];
+
+        double dr4_Phi_dr4 = sum[41];
+        double dr5_Phi_dr5 = sum[42];
+        double dr6_Phi_dr6 = sum[43];
+
+        double rx1_Phi_dr1 = sum[44];
+        double ry2_Phi_dr2 = sum[45];
+        double rz3_Phi_dr3 = sum[46];
+
+        double rx1_Phi_dr2 = sum[47];
+        double rx1_Phi_dr3 = sum[48];
+        double ry2_Phi_dr3 = sum[49];
+
+        double ry2_Phi_dr1 = sum[50];
+        double rz3_Phi_dr1 = sum[51];
+        double rz3_Phi_dr2 = sum[52];
+
+        double ry3z2_Phi_dr4 = sum[53];
+        double rx3z1_Phi_dr5 = sum[54];
+        double rx2y1_Phi_dr6 = sum[55];
+        //b_mn
+        double Fdr1G = sum[56];
+        double Fdr2G = sum[57];
+        double Fdr3G = sum[58];
+
+        double drPhidr1 = sum[59];
+        double drPhidr2 = sum[60];
+        double drPhidr3 = sum[61];
+
+        double rx1_Phi_dr = sum[62];
+        double ry2_Phi_dr = sum[63];
+        double rz3_Phi_dr = sum[64];
+
+        double U = meterPE.getDataAsScalar();
+        //U
+        x[0] = U - Ushift;
+        x[1] = U + 1.0/2.0*Fdr + 3.0/2.0*(nMol-1.0)*temperature - Ushift;
+        //P: shiftP=P
+        x[2] = 1.0/3.0/volume*Fr + density*temperature - this.Pshift;
+        double fV = gV-1.0/3.0;//gV/volume-1.0/3.0/volume;
+        x[3] = 1.0/3.0/volume*Fr + fV/volume*Fdr + 3*(nMol-1)*temperature/volume*gV + temperature/volume - this.Pshift;
+
+        //P1, P2, P3: shiftP = -P
+        x[4] = -1.0/volume*Fxrx - density*temperature + this.Pshift;//P1
+        x[5] = -1.0/volume*(Fxrx+Fdr1 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;
+        x[6] = -1.0/volume*Fyry - density*temperature + this.Pshift;//P2
+        x[7] = -1.0/volume*(Fyry+Fdr2 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;
+        x[8] = -1.0/volume*Fzrz - density*temperature + this.Pshift;//P3
+        x[9] = -1.0/volume*(Fzrz+Fdr3 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;
+        //P4, P5, P5: no shift (<P4>=<P5>=<P6>=0)
+        x[10] = -1.0/volume*Fyrz;//P4
+        x[11] = -1.0/volume*(Fyrz+Fdr4);
+        x[12] = -1.0/volume*Fxrz;//P5
+        x[13] = -1.0/volume*(Fxrz+Fdr5);
+        x[14] = -1.0/volume*Fxry;//P6
+        x[15] = -1.0/volume*(Fxry+Fdr6);
+        //Cv
+        x[16] = -1.0/4.0/temperature*(Fdr+drPhidr) + 3.0/2.0*(nMol-1.0);
+        //B
+        double d2UdeV_vir = 1.0/9.0*rPhir + 2.0/9.0*Fr;
+        x[17] = 1.0/volume*d2UdeV_vir + density*temperature;
+        double hVV = gVV+gV*gV+2.0/9.0;
+        x[18] = 1.0/volume*(d2UdeV_vir + fV*fV*drPhidr - hVV*Fdr + 2.0/3.0*fV*rPhidr) - 3.0*(nMol-1)*temperature*gVV/volume + temperature/volume;
+        //C11, C22, C33
+        x[19] = 1.0/volume*x_Phixx_x + 2*density*temperature; //C11
+        x[20] = 1.0/volume*(x_Phixx_x - Fdr11+dr1_Phi_dr1 + 2*rx1_Phi_dr1 - (nMol-1.0)*temperature*(gx11 +2*gy11)) + 2*temperature/volume;
+        x[21] = 1.0/volume*y_Phiyy_y  + 2*density*temperature;//C22
+        x[22] = 1.0/volume*(y_Phiyy_y - Fdr22+dr2_Phi_dr2 + 2*ry2_Phi_dr2) - (nMol-1.0)/volume*temperature*(gx11 +2*gy11) + 2*temperature/volume;
+        x[23] = 1.0/volume*z_Phizz_z + 2*density*temperature;//C33
+        x[24] = 1.0/volume*(z_Phizz_z - Fdr33+dr3_Phi_dr3 + 2*rz3_Phi_dr3) - (nMol-1.0)/volume*temperature*(gx11 +2*gy11) + 2*temperature/volume;
+        //C12, C13, C23
+        x[25] = 1.0/volume*x_Phixy_y;//C12
+        x[26] = 1.0/volume*(x_Phixy_y - Fdr12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (nMol-1.0)*temperature*(gz12+2*gx12));
+        x[27] = 1.0/volume*x_Phixz_z;//C13
+        x[28] = 1.0/volume*(x_Phixz_z - Fdr13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (nMol-1.0)*temperature*(gz12+2*gx12));
+        x[29] = 1.0/volume*y_Phiyz_z;//C23
+        x[30] = 1.0/volume*(y_Phiyz_z - Fdr23 + dr2_Phi_dr3 + ry2_Phi_dr3 + rz3_Phi_dr2 - (nMol-1.0)*temperature*(gz12+2*gx12));
+        //C44, C55, C66
+        x[31] = 1.0/volume*y_Phizy_z + density*temperature;//C44
+        x[32] = 1.0/volume*(y_Phizy_z - Fdr44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (nMol-1)*temperature*(gx44+2*gy44)) + temperature/volume;
+        x[33] = 1.0/volume*x_Phizx_z + density*temperature;//C55
+        x[34] = 1.0/volume*(x_Phizx_z - Fdr55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (nMol-1)*temperature*(gx44+2*gy44)) + temperature/volume;
+        x[35] = 1.0/volume*x_Phiyx_y + density*temperature;//C66
+        x[36] = 1.0/volume*(x_Phiyx_y - Fdr66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (nMol-1)*temperature*(gx44+2*gy44)) + temperature/volume;
+        //b_V
+        x[37] = 1.0/2.0/volume/temperature*(gV*Fdr-fV*drPhidr-1.0/3.0*rPhidr) + 3.0*(nMol-1)*gV/volume + 1.0/volume; //bV_hma
+        //b_mn
+        x[38] = 1.0/2.0/volume/temperature*(-Fdr1G+drPhidr1+rx1_Phi_dr) - (nMol-1)/volume*(gx1+2*gy1)-1/volume;
+        x[39] = 1.0/2.0/volume/temperature*(-Fdr2G+drPhidr2+ry2_Phi_dr) - (nMol-1)/volume*(gx1+2*gy1)-1/volume;
+        x[40] = 1.0/2.0/volume/temperature*(-Fdr3G+drPhidr3+rz3_Phi_dr) - (nMol-1)/volume*(gx1+2*gy1)-1/volume;
+
         return data;
     }
 
@@ -321,4 +229,10 @@ public class MeterSolidPropsLJ implements IDataSource {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
+
+    public void setShift(double Ushift , double Pshift){
+        this.Ushift = Ushift;
+        this.Pshift = Pshift;
+    }
+
 }
