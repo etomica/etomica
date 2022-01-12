@@ -51,6 +51,7 @@ public class MeterPressureStuff implements IDataSource {
 
         pcPressure = new PotentialCalculationPressureTensor(space);
         pcPressure.setTemperature(0);
+        pcPressure.setBox(coordinateDefinition.getBox());       // setting box.
 
         int n = 6;
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});

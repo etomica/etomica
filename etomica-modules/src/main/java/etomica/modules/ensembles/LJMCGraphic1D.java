@@ -6,6 +6,8 @@ package etomica.modules.ensembles;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.DiameterHash;
+import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -18,6 +20,7 @@ import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class LJMCGraphic1D extends SimulationGraphic {
@@ -42,6 +45,7 @@ public class LJMCGraphic1D extends SimulationGraphic {
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
+        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.5);
 
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 
@@ -78,7 +82,12 @@ public class LJMCGraphic1D extends SimulationGraphic {
 
         // Below is a block of code corresponding to the Harmonically-Mapped Average Pressure.
         // TODO: Clean up this section. Does every single method need to be called right here?
-        MeterPressureHMA pMeterHMA = new MeterPressureHMA(space, sim.potentialMaster, sim.coordinates, true);
+        final MeterPressureHMA pMeterHMA;
+        try {
+            pMeterHMA = new MeterPressureHMA(space, sim.potentialMaster, sim.coordinates, true, 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         pMeterHMA.setTemperature(sim.integrator.getTemperature());
         pMeterHMA.setTruncationRadius(4.1); // Avoid using multiples of the lattice constant.
         pMeterHMA.setPRes();
@@ -226,7 +235,7 @@ public class LJMCGraphic1D extends SimulationGraphic {
             sp = Space1D.getInstance();
         }
 
-        LJMC1D sim = new LJMC1D(sp);
+        LJMC1D sim = new LJMC1D(sp, 10.0, 20, 3.0, 1.5, new int[]{8});
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
         LJMCGraphic1D ljmcGraphic = new LJMCGraphic1D(sim);
         SimulationGraphic.makeAndDisplayFrame

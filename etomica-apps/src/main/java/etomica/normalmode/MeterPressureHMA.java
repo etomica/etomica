@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.Math;
@@ -26,7 +27,7 @@ import etomica.units.dimensions.Null;
  * contribution to pressure; default is to use zero temperature, which
  * causes this contribution to be omitted.
  *
- * @author David Kofke
+ * @author Sykhere Brown
  */
 
 public class MeterPressureHMA implements IDataSource {
@@ -51,7 +52,8 @@ public class MeterPressureHMA implements IDataSource {
     protected Vector dr;
     private FileWriter fileWriter;
 
-    public MeterPressureHMA(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
+    // Constructor.
+    public MeterPressureHMA(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2, int modeNumber) throws IOException {
         this.coordinateDefinition = coordinateDefinition;
         this.potentialMaster = potentialMaster;
         this.doD2 = doD2;
@@ -86,6 +88,18 @@ public class MeterPressureHMA implements IDataSource {
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
         dr = space.makeVector();
+
+        // The code below is for storing the results of the simulation.
+        String path = "/Users/sykherebrown/Masters Research/1D Harmonic Crystal Output/";;
+        String filename = "1DHarmonicCrystalPressurePairMode_Q2_andQ5.txt";
+        // String filename = "1DHarmonicCrystalPressureData.txt";
+        File file = new File(path + filename);
+        fileWriter = new FileWriter(file);
+
+        fileWriter.write(
+                 "NormalMode1" + "," + "ConventionalPressure" +
+                "," + "pressureHMANormalMode" + ","
+                + "pressureHMARealSpace" +  "\n");
 
     }
 
@@ -170,7 +184,7 @@ public class MeterPressureHMA implements IDataSource {
         double pressureConventional = temperature * rho - pc.getVirialSum() / (dim * V);
         double uSum = pc.getEnergySum();
 
-        double pressureQuasiHarmonic = betaHarmonicPressure * temperature;
+        double pressureQuasiHarmonic = betaHarmonicPressure * temperature + temperature / V ;
         x[0] = uSum / N;
         x[1] = (pressureConventional  - latticePressure - pressureQuasiHarmonic) / (temperature);
         double buc = (0.5 * pc.getDADBSum() + (uSum - latticeEnergy)) / temperature / N;
@@ -178,13 +192,33 @@ public class MeterPressureHMA implements IDataSource {
         x[3] = pressureQuasiHarmonic + latticePressure;
         double fV = (betaHarmonicPressure + 1.0 / V - rho) / (dim * (N - 1));
         double Zc = (-pc.getVirialSum() / (dim * V) + fV * pc.getDADBSum() - latticePressure) / (rho * temperature);
-        double pressureHMAFromNormalMode = pressureQuasiHarmonic + temperature / V  - pc.getVirialSum() / (dim * V) - pc.getDADBSum() / V + calculateNormalModeSum();
+        double pressureHMAFromNormalMode = pressureQuasiHarmonic - pc.getVirialSum() / (dim * V) - pc.getDADBSum() / V + calculateNormalModeSum();
         x[4] = (pressureHMAFromNormalMode - latticePressure - pressureQuasiHarmonic) / (temperature);
-        double pressureHMAFromRealSpace = pressureQuasiHarmonic + temperature / V - pc.getVirialSum() / (dim * V) + fV * pc.getDADBSum();
+        double pressureHMAFromRealSpace = pressureQuasiHarmonic - pc.getVirialSum() / (dim * V) + fV * pc.getDADBSum();
         x[5] = (pressureHMAFromRealSpace - latticePressure - pressureQuasiHarmonic) / (temperature);
         x[6] = (4 * buc - Zc) * rho * rho / 2;
 
+        double[] q = MCMoveHarmonicStep.q;
+//        System.out.println(Math.sqrt(q[0] * q[0] + q[1]*q[1]) + "," + x[1] + "," + x[4] + "," + x[5]);
+        try {
+            fileWriter.write(q[0] + "," + x[1] + "," + x[4] + "," + x[5] + "\n");
+//            fileWriter.write(q[0] + "," + (-pc.getVirialSum()/(dim*V) - latticePressure)  + ","
+//                    + pc.getDADBSum()/V +  "\n");
+            fileWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         return data;
+    }
+
+    public void closeFile() {
+        try {
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private double calculateNormalModeSum() {

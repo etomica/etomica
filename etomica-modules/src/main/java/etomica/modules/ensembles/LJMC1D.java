@@ -109,89 +109,108 @@ public class LJMC1D extends Simulation {
     public static void main(String[] args) throws IOException {
         Space space = Space.getInstance(1);
 
-        String path = "";
+//        String path = "/Users/sykherebrown/Masters Research/1D Harmonic Crystal Output/";
 
-        double[] temperatureList = new double[] { 0.1, 0.5, 1.0, 2.0, 3.0 };
-        int [] systemSizeList = new int[] { 75, 150 };
-        double [] truncationRadiusList = new double[] { 1.1, 2.1, 3.1, 4.1 };
-        double [] rhoList = new double[] { 0.2, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0 };
+        double[] temperatureList = new double[] { 0.01 };
+        int [] systemSizeList = new int[] { 10 };
+        double [] truncationRadiusList = new double[] { 2.1 };
+        double [] rhoList = new double[] { 1.25 };
+        int [] modesList = new int[] { 1 };
 
-        long steps = 1000000;
+//        double[] temperatureList = new double[] { 1.0 };
+//        int [] systemSizeList = new int[] { 75 };
+//        double [] truncationRadiusList = new double[] { 2.1 };
+//        double [] rhoList = new double[] { 1.25 };
+//        int [] modesList = new int[] { 0, 10, 20, 30, 40, 50, 60, 70 };
+
+        long steps = 10000;
 
         // Creating File and FileWriter objects.
-        String filename = "1DHarmonicCrystalPressureDataAnharmonicDividedByTemp.txt";
-        // String filename = "1DHarmonicCrystalPressureData.txt";
-        File file = new File(path + filename);
-        FileWriter fileWriter = new FileWriter(file);
-        fileWriter.write("temperature" + "," + "N" + "," + "truncationRadius" + "," + "rho" +
-                "," + "pressureConventional" + "," + "pressureConventionalError" + "," +
-                "pressureHMANormalMode" + "," + "pressureHMANormalModeError" + ","
-                + "pressureHMARealSpace" + "," + "pressureHMARealSpaceError" + "\n");
+//        String filename = "1DHarmonicCrystalPressureNormalModes.txt";
+//        // String filename = "1DHarmonicCrystalPressureData.txt";
+//        File file = new File(path + filename);
+//        FileWriter fileWriter = new FileWriter(file);
+//
+//        fileWriter.write("Temperature" + "," + "N" + "," + "TruncationRadius" + "," + "Rho" +
+//                "," + "NormalMode" + "," + "ConventionalPressure" + "," + "ConventionalPressureError" +
+//                "," + "pressureHMANormalMode" + "," + "pressureHMANormalModeError" + ","
+//                + "pressureHMARealSpace" + "," + "pressureHMARealSpaceError" + "\n");
 
 
-        // TODO: The code below is deeply nested, is there a better way to configure the code?
-        for(double temperature : temperatureList) {
-            for(int N : systemSizeList) {
-                for(double truncationRadius : truncationRadiusList) {
-                    for(double rho : rhoList) {
+        // The code below is deeply nested, is there a better way to configure the code?
+        for(int mode : modesList) {
+            for(double temperature : temperatureList) {
+                for(int N : systemSizeList) {
+                    for(double truncationRadius : truncationRadiusList) {
+                        for(double rho : rhoList) {
 
-                        double latticeConstant = 1 / rho;
+                            double latticeConstant = 1 / rho;
 
-                        if (truncationRadius / latticeConstant <= 1.001)
-                            continue;
+                            if (truncationRadius / latticeConstant <= 1.001)
+                                continue;
 
-                        LJMC1D sim = new LJMC1D(space, temperature, N, truncationRadius, rho, new int[]{1, 2});
+                            LJMC1D sim = new LJMC1D(space, temperature, N, truncationRadius, rho, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-                        // Equilibration first. What exactly is this doing?
-                        // TODO: Find out what this block of code does.
-                        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/10));
+                            MeterPressureHMA pMeterHMA = new MeterPressureHMA(space, sim.potentialMaster, sim.coordinates, true, mode);
+                            pMeterHMA.setTemperature(sim.integrator.getTemperature());
+                            pMeterHMA.setTruncationRadius(truncationRadius);
+                            pMeterHMA.setPRes();        // shouldn't this be done automatically?
+                            pMeterHMA.calculateGij();
 
-                        MeterPressureHMA pMeterHMA = new MeterPressureHMA(space, sim.potentialMaster, sim.coordinates, true);
-                        pMeterHMA.setTemperature(sim.integrator.getTemperature());
-                        pMeterHMA.setTruncationRadius(truncationRadius);
-                        pMeterHMA.setPRes();        // shouldn't this be done automatically?
-                        pMeterHMA.calculateGij();
+                            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/10));
 
-                        // NOTE: The pressures that are being written to the file need to be obtained from the AccumulatorAverageFixed().
-                        final AccumulatorAverageFixed pAccumulatorConventional = new AccumulatorAverageFixed();
-                        final AccumulatorAverageFixed pAccumulatorHMARealSpace = new AccumulatorAverageFixed();
-                        final AccumulatorAverageFixed pAccumulatorHMANormalMode = new AccumulatorAverageFixed();
+                            // NOTE: The pressures that are being written to the file need to be obtained from the AccumulatorAverageFixed().
+                            final AccumulatorAverageFixed pAccumulatorConventional = new AccumulatorAverageFixed();
+                            final AccumulatorAverageFixed pAccumulatorHMARealSpace = new AccumulatorAverageFixed();
+                            final AccumulatorAverageFixed pAccumulatorHMANormalMode = new AccumulatorAverageFixed();
 
-                        // TODO: Pump directly into the Accumulator from the Meter.
-                        DataSplitter splitter = new DataSplitter();
-                        final DataPumpListener pPump = new DataPumpListener(pMeterHMA, splitter, N);
-                        splitter.setDataSink(1, pAccumulatorConventional);
-                        splitter.setDataSink(4, pAccumulatorHMANormalMode);
-                        splitter.setDataSink(5, pAccumulatorHMARealSpace);
+                            // TODO: Pump directly into the Accumulator from the Meter.
+                            DataSplitter splitter = new DataSplitter();
+                            final DataPumpListener pPump = new DataPumpListener(pMeterHMA, splitter, N);
+                            splitter.setDataSink(1, pAccumulatorConventional);
+                            splitter.setDataSink(4, pAccumulatorHMANormalMode);
+                            splitter.setDataSink(5, pAccumulatorHMARealSpace);
 
-                        sim.integrator.getEventManager().addListener(pPump);
+                            sim.integrator.getEventManager().addListener(pPump);
 
-                        // Production code.
-                        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+                            // Production code.
+                            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
-                        // TODO: Is the standard deviation of the pressure more useful, compared to the error?
-                        int pressureIndex = pAccumulatorConventional.AVERAGE.index;      // index 1 represents the pressure's average.
-                        int errorIndex = pAccumulatorConventional.ERROR.index;          // index 2 represents the error in the pressure's average.
+                            // TODO: Is the standard deviation of the pressure more useful, compared to the error?
+                            int pressureIndex = pAccumulatorConventional.AVERAGE.index;      // index 1 represents the pressure's average.
+                            int errorIndex = pAccumulatorConventional.STANDARD_DEVIATION.index;          // index 2 represents the error in the pressure's average.
 
-                        double pressureConventional = pAccumulatorConventional.getData().getValue(pressureIndex);
-                        double pressureConventionalError = pAccumulatorConventional.getData().getValue(errorIndex);
+                            double pressureConventional = pAccumulatorConventional.getData().getValue(pressureIndex);
+                            double pressureConventionalError = pAccumulatorConventional.getData().getValue(errorIndex);
 
-                        double pressureHMANormalMode = pAccumulatorHMANormalMode.getData().getValue(pressureIndex);
-                        double pressureHMANormalModeError = pAccumulatorHMANormalMode.getData().getValue(errorIndex);
+                            double pressureHMANormalMode = pAccumulatorHMANormalMode.getData().getValue(pressureIndex);
+                            double pressureHMANormalModeError = pAccumulatorHMANormalMode.getData().getValue(errorIndex);
 
-                        double pressureHMARealSpace = pAccumulatorHMARealSpace.getData().getValue(pressureIndex);
-                        double pressureHMARealSpaceError = pAccumulatorHMARealSpace.getData().getValue(errorIndex);
+                            double pressureHMARealSpace = pAccumulatorHMARealSpace.getData().getValue(pressureIndex);
+                            double pressureHMARealSpaceError = pAccumulatorHMARealSpace.getData().getValue(errorIndex);
 
-                        // Does this run? Is this only being called once? Is it being called multiple times?
-                        fileWriter.write(temperature + "," + N + "," + truncationRadius + "," + rho +
-                                "," + pressureConventional + "," + pressureConventionalError + "," +
-                                pressureHMANormalMode + "," + pressureHMANormalModeError + ","
-                                + pressureHMARealSpace + "," + pressureHMARealSpaceError + "\n");
-                        fileWriter.flush();
+                            // Does this run? Is this only being called once? Is it being called multiple times?
+                            double[] q = sim.mcMoveHarmonicStep.q;
+
+//                            fileWriter.write(temperature + "," + N + "," + truncationRadius + "," + rho +
+//                                    "," + q[0] + "," + pressureConventional + "," + pressureConventionalError +
+//                                    "," + pressureHMANormalMode + "," + pressureHMANormalModeError + ","
+//                                    + pressureHMARealSpace + "," + pressureHMARealSpaceError + "\n");
+//
+//                            fileWriter.flush();
+
+                            pMeterHMA.closeFile();
+                            System.out.println(temperature + "," + N + "," + truncationRadius + "," + rho + "," + pressureConventional + "," + pressureConventionalError +
+                                    "," + pressureHMANormalMode + "," + pressureHMANormalModeError + ","
+                                    + pressureHMARealSpace + "," + pressureHMARealSpaceError + "\n");
+                        }
                     }
                 }
             }
+
         }
-        fileWriter.close();
+
+
+        // fileWriter.close();
     }
 }

@@ -97,7 +97,7 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
         }
 
         energyNew = energyMeter.getDataAsScalar();
-        System.out.println(q[0] + " " + q[1] + " " + energyNew);
+        // System.out.println(q[0] + " " + q[1] + " " + energyNew);
         return true;
     }
 
@@ -129,10 +129,11 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     protected final AtomIteratorLeafAtoms iterator;
-    protected double[] uOld, u, q, qOld;
+    protected double[] uOld, u, qOld;
     private double[][] eigenVectors;
     protected final IRandom random;
     protected double energyOld, energyNew, latticeEnergy;
     protected final MeterPotentialEnergy energyMeter;
     protected int[] modes;
+    public static double[] q;
 }
