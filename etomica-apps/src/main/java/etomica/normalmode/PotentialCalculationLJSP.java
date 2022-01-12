@@ -185,8 +185,6 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 
 			double dW  = potentialSoft.du(rij2);
 	        double d2W = potentialSoft.d2u(rij2);
-			double dWlat  = potentialSoft.du(Rij2)*Math.sqrt(rij2/Rij2);
-
 
 			sum[0] += g[j].dot(rij );  //Fr
 	        sum[1] += g[j].dot(drij); //Fdr
