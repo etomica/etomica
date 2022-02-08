@@ -8,6 +8,8 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.molecule.MoleculePositionCOMPBC;
 import etomica.potential.PotentialMaster;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -27,7 +29,6 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     protected final IRandom random;
     protected final Space space;
     protected ISpecies species;
-    protected double dt = 0;
     protected Vector[][] position = null;
     protected final IntArrayList [] bonding;
     double uOld = 0;
@@ -69,6 +70,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<moleculeList.size(); i++) {
+            Vector com = space.makeVector();
             if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
@@ -77,8 +79,9 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
                 position[i][j] = space.makeVector();
                 position[i][j].E(molecule.getChildList().getAtoms().get(j).getPosition());
             }
+            com.E(MoleculePositionCOMPBC.com(box.getBoundary(), molecule));
             modifiedIndex = 0;
-            dt = stepSize * (random.nextDouble() - 0.5);
+            double dt = stepSize * random.nextDouble();
             do{
                 b = random.nextInt(bonding.length);
             }while (bonding[b].size() < 2);
@@ -99,6 +102,10 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
             rotationTensor.setRotationAxis(axis, dt);
             transform(rotationTensor, bonding[b].getInt(a), molecule);
             transformBondedAtoms(rotationTensor, bonding[b].getInt(a), molecule);
+            com.ME(MoleculePositionCOMPBC.com(box.getBoundary(), molecule));
+            for(int j = 0; j < molecule.getChildList().size(); j++) {
+                molecule.getChildList().getAtoms().get(j).getPosition().PE(com);
+            }
         }
         ((BoxCluster)box).trialNotify();
         uNew = potential.computeAll(false);
