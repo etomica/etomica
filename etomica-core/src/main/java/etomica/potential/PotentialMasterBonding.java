@@ -489,7 +489,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             return etomica.util.Arrays.addInt(a, i);
         }
 
-        private int[][][] handledIndices(ISpecies species, List<int[]> bondedIndices) {
+        private int[][][] handledIndices(ISpecies species, List<int[]> bondedIndices, boolean excludeNonBonded) {
             isOnlyRigidMolecules = false;
             int speciesIndex = species.getIndex();
             if (bondedAtoms[speciesIndex] == null) {
@@ -509,8 +509,10 @@ public class PotentialMasterBonding implements PotentialCompute {
                 Arrays.sort(indicesSorted);
                 for (int i = 0; i < indicesSorted.length; i++) {
                     int ii = indicesSorted[i];
-                    for (int j = i + 1; j < indicesSorted.length; j++) {
-                        speciesAtoms[ii] = addIfMissing(speciesAtoms[ii], indicesSorted[j]);
+                    if(excludeNonBonded){
+                        for (int j = i + 1; j < indicesSorted.length; j++) {
+                            speciesAtoms[ii] = addIfMissing(speciesAtoms[ii], indicesSorted[j]);
+                        }
                     }
                     partners[ii] = etomica.util.Arrays.addObject(partners[ii], indices);
                 }
@@ -521,7 +523,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         public void setBondingPotentialPair(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
 
-            int[][][] partners = handledIndices(species, bondedIndices);
+            int[][][] partners = handledIndices(species, bondedIndices, true);
             bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
             bondedPairPartners[speciesIndex].put(potential, partners);
         }
@@ -529,15 +531,19 @@ public class PotentialMasterBonding implements PotentialCompute {
         public void setBondingPotentialTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
 
-            int[][][] partners = handledIndices(species, bondedIndices);
+            int[][][] partners = handledIndices(species, bondedIndices, true);
             bondedTriplets[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
             bondedTripletPartners[speciesIndex].put(potential, partners);
         }
 
         public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
+            setBondingPotentialQuad(species, potential, bondedIndices, true);
+        }
+
+        public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices, boolean excludeNonBonding) {
             int speciesIndex = species.getIndex();
 
-            int[][][] partners = handledIndices(species, bondedIndices);
+            int[][][] partners = handledIndices(species, bondedIndices, excludeNonBonding);
             bondedQuadPartners[speciesIndex].put(potential, partners);
             bondedQuads[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
         }
