@@ -98,8 +98,13 @@ public class VirialAlkaneAmber {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-
+            params.nPoints = 2;
+            params.temperature = 400.0;// Kelvin
+            params.numSteps = 1000000;
+            params.refFreq = -1;
+            params.file = "C";
         }
+
         final int nPoints = params.nPoints;
         //int nSpheres = params.nSpheres;
         double temperature = params.temperature;
@@ -111,7 +116,7 @@ public class VirialAlkaneAmber {
         ISpecies alkane = speciesManager.getSpecies(0);
         AtomType C = alkane.getAtomType(0);
         AtomType H = alkane.getAtomType(1);
-        PotentialMasterBonding potentialMasterBonding = stuff.potentialMasterBonding;
+        PotentialMasterBonding.FullBondingInfo fullBondingInfo = stuff.fullBondingInfo;
         Potential2Soft [][] potential2Soft = stuff.potential2Soft;
 
         IntArrayList[] bonding = new IntArrayList[speciesManager.getSpecies(0).getLeafAtomCount()];
@@ -119,7 +124,7 @@ public class VirialAlkaneAmber {
             bonding[atomIndex] = new IntArrayList();
         }
 
-        for(int[][][] bondType : potentialMasterBonding.getBondingInfo().bondedPairPartners[0].values()){
+        for(int[][][] bondType : fullBondingInfo.bondedPairPartners[0].values()){
             for(int atomIndex = 0; atomIndex < bondType.length; atomIndex++){
                 for(int[] bonds: bondType[atomIndex]){
                     int second = bonds[0] + bonds[1] - atomIndex;
@@ -128,8 +133,8 @@ public class VirialAlkaneAmber {
             }
         }
 
-        System.out.println("Bonding Length" + bonding.length);
-        System.out.println("Bonding[0] Size" + bonding[0].size());
+        //System.out.println("Bonding Length" + bonding.length);
+        //System.out.println("Bonding[0] Size" + bonding[0].size());
 
         double sigmaHSRef = 5;
 
@@ -141,7 +146,7 @@ public class VirialAlkaneAmber {
         potentialMoleculePair.setAtomPotential(C, H, potential2Soft[0][1]);
         potentialMoleculePair.setAtomPotential(H, H, potential2Soft[1][1]);
 
-        System.out.println("nPoints"+nPoints+" at "+temperature+"K");
+        System.out.println("B" + nPoints + " at " + temperature +"K");
         temperature = Kelvin.UNIT.toSim(temperature);
 
         MayerGeneral fTarget = new MayerGeneral(potentialMoleculePair);
@@ -190,7 +195,7 @@ public class VirialAlkaneAmber {
             System.out.println();
             iGraph++;
         }
-        System.out.println();
+        //System.out.println();
         Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
         if (disconnectedGraphs.size() > 0) {
             System.out.println("extra clusters:");
@@ -215,9 +220,11 @@ public class VirialAlkaneAmber {
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
 
+        long t1 = System.currentTimeMillis();
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesManager, alkaneFlex ? (nPoints+1) : nPoints, temperature, refCluster, targetCluster);
-        sim.setRandom(new RandomMersenneTwister(3000));
         sim.setExtraTargetClusters(targetDiagrams);
+        sim.setDoFasterer(true);
         sim.init();
 
         if (alkaneFlex) {
@@ -246,33 +253,35 @@ public class VirialAlkaneAmber {
 
         sim.integratorOS.setNumSubSteps(1000);
 
-        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+        sim.integratorsFasterer[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
         //sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
         //sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 
         MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), space, sigmaHSRef);
-        sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+        sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
-        PotentialComputeIntramolecular potentialComputeIntramolecular0 = new PotentialComputeIntramolecular(space, sim.box[0], speciesManager, potentialMasterBonding.getBondingInfo(), potential2Soft);
-        PotentialComputeIntramolecular potentialComputeIntramolecular1 = new PotentialComputeIntramolecular(space, sim.box[1], speciesManager, potentialMasterBonding.getBondingInfo(), potential2Soft);
-        PotentialMasterBonding potentialMasterBonding0 = new PotentialMasterBonding(speciesManager, sim.box[0], potentialMasterBonding.getBondingInfo());
-        PotentialMasterBonding potentialMasterBonding1 = new PotentialMasterBonding(speciesManager, sim.box[1], potentialMasterBonding.getBondingInfo());
+        PotentialComputeIntramolecular potentialComputeIntramolecular0 = new PotentialComputeIntramolecular(space, sim.box[0], speciesManager, fullBondingInfo, potential2Soft);
+        PotentialComputeIntramolecular potentialComputeIntramolecular1 = new PotentialComputeIntramolecular(space, sim.box[1], speciesManager, fullBondingInfo, potential2Soft);
+        PotentialMasterBonding potentialMasterBonding0 = new PotentialMasterBonding(speciesManager, sim.box[0], fullBondingInfo);
+        PotentialMasterBonding potentialMasterBonding1 = new PotentialMasterBonding(speciesManager, sim.box[1], fullBondingInfo);
         PotentialComputeAggregate potentialComputeAggregate0 = new PotentialComputeAggregate(potentialComputeIntramolecular0, potentialMasterBonding0);
         PotentialComputeAggregate potentialComputeAggregate1 = new PotentialComputeAggregate(potentialComputeIntramolecular1, potentialMasterBonding1);
 
         MCMoveClusterAngle mcMoveClusterAngle0 = new MCMoveClusterAngle(potentialComputeAggregate0, space, bonding, sim.getRandom(), 1);
         MCMoveClusterAngle mcMoveClusterAngle1 = new MCMoveClusterAngle(potentialComputeAggregate1, space, bonding, sim.getRandom(), 1);
 
-        sim.integrators[0].getMoveManager().addMCMove(mcMoveClusterAngle0);
-        sim.integrators[1].getMoveManager().addMCMove(mcMoveClusterAngle1);
+        sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveClusterAngle0);
+        sim.integratorsFasterer[1].getMoveManager().addMCMove(mcMoveClusterAngle1);
 
         MCMoveClusterTorsion mcMoveClusterTorsion0 = new MCMoveClusterTorsion(potentialComputeAggregate0, space,bonding, sim.getRandom(), 2*Math.PI);
         MCMoveClusterTorsion mcMoveClusterTorsion1 = new MCMoveClusterTorsion(potentialComputeAggregate1, space,bonding, sim.getRandom(), 2*Math.PI);
 
-        sim.integrators[0].getMoveManager().addMCMove(mcMoveClusterTorsion0);
-        sim.integrators[1].getMoveManager().addMCMove(mcMoveClusterTorsion1);
+        if(fullBondingInfo.bondedQuads[0].size() > 0) {
+            sim.integratorsFasterer[0].getMoveManager().addMCMove(mcMoveClusterTorsion0);
+            sim.integratorsFasterer[1].getMoveManager().addMCMove(mcMoveClusterTorsion1);
+        }
 
-        ((MCMoveStepTracker) mcMoveClusterAngle0.getTracker()).setNoisyAdjustment(true);
+        //((MCMoveStepTracker) mcMoveClusterAngle0.getTracker()).setNoisyAdjustment(true);
 //
 //        IntegratorVelocityVerletFasterer integratorMD0 = new IntegratorVelocityVerletFasterer(potentialComputeAggregate0, sim.getRandom(), 0.0005, temperature, sim.box[0]);
 //        IntegratorVelocityVerletFasterer integratorMD1 = new IntegratorVelocityVerletFasterer(potentialComputeAggregate1, sim.getRandom(), 0.0005, temperature, sim.box[1]);
@@ -406,10 +415,13 @@ public class VirialAlkaneAmber {
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.getController().runActivityBlocking(ai);
 
+        System.out.println("Acceptance of Torsion Move "+ mcMoveClusterTorsion0.getTracker().acceptanceProbability());
+        //System.out.println("Histogram of Torsion angles involving only C atoms");
+        //mcMoveClusterTorsion0.printHistogram();
+
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         sim.printResults(refIntegral);
-        System.out.println("Acceptance of Torsion Move"+ mcMoveClusterTorsion0.getTracker().acceptanceProbability());
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
         IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
@@ -450,6 +462,9 @@ public class VirialAlkaneAmber {
             }
             System.out.println();
         }
+
+        long t2 = System.currentTimeMillis();
+        System.out.println("time: "+(t2-t1)*0.001);
     }
 
     /**
@@ -458,8 +473,8 @@ public class VirialAlkaneAmber {
     public static class VirialAlkaneAmberParam extends ParameterBase {
         public int nPoints = 2;
         //public int nSpheres = 3;
-        public double temperature = 298.0;// Kelvin
-        public long numSteps = 1000000;
+        public double temperature = 300.0;// Kelvin
+        public long numSteps = 100000000;
         public double refFreq = -1;
         public String file = "CCCCCC";
     }
