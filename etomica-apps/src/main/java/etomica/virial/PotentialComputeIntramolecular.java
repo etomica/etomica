@@ -71,7 +71,9 @@ public class PotentialComputeIntramolecular implements PotentialCompute {
                 Potential2Soft[] p0 = atomPotentials[a0.getType().getIndex()];
                 for (int j = i + 1; j < atoms.size(); j++) {
                     IAtom a1 = atoms.get(j);
-                    if (bondingInfo.skipBondedPair(isPureAtoms, a0, a1)) continue;
+                    if (bondingInfo.skipBondedPair(isPureAtoms, a0, a1)) {
+                        continue;
+                    }
                     Potential2Soft p2 = p0[a1.getType().getIndex()];
                     if (p2 == null) continue;
                     Vector dr = space.makeVector();
