@@ -39,6 +39,8 @@ import java.util.List;
 
 public class ParserAMBER {
     public static Stuff makeStuffFromLines(String smiles, List<String> lines, Options opts) {
+
+        System.out.println("Smiles " + smiles);
         String heading = null;
         AtomType[] atomTypes = null;
         P2Harmonic[] p2Bonds = null;
@@ -106,19 +108,19 @@ public class ParserAMBER {
                         A = new double[uniqueAtoms + (uniqueAtoms * (uniqueAtoms - 1) / 2)];
                         B = new double[uniqueAtoms + (uniqueAtoms * (uniqueAtoms - 1) / 2)];
                         p2LennardJones = new P2LennardJones[uniqueAtoms + (uniqueAtoms * (uniqueAtoms - 1) / 2)];
-                        System.out.println(String.format("Num Atoms %d", numAtoms));
+                        //System.out.println(String.format("Num Atoms %d", numAtoms));
                         numBondsIH = Integer.parseInt(fields[2]);
-                        System.out.println(String.format("Num Bonds including Hydrogen %d", numBondsIH));
+                        //System.out.println(String.format("Num Bonds including Hydrogen %d", numBondsIH));
                         numBondsWH = Integer.parseInt(fields[3]);
-                        System.out.println(String.format("Num Bonds without Hydrogen %d", numBondsWH));
+                        //System.out.println(String.format("Num Bonds without Hydrogen %d", numBondsWH));
                         numAnglesIH = Integer.parseInt(fields[4]);
-                        System.out.println(String.format("Num Angles including Hydrogen %d", numAnglesIH));
+                        //System.out.println(String.format("Num Angles including Hydrogen %d", numAnglesIH));
                         numAnglesWH = Integer.parseInt(fields[5]);
-                        System.out.println(String.format("Num Angles without Hydrogen %d", numAnglesWH));
+                        //System.out.println(String.format("Num Angles without Hydrogen %d", numAnglesWH));
                         numTorsionsIH = Integer.parseInt(fields[6]);
-                        System.out.println(String.format("Num Torsions including Hydrogen %d", numTorsionsIH));
+                        //System.out.println(String.format("Num Torsions including Hydrogen %d", numTorsionsIH));
                         numTorsionsWH = Integer.parseInt(fields[7]);
-                        System.out.println(String.format("Num Torsions without Hydrogen %d", numTorsionsWH));
+                        //System.out.println(String.format("Num Torsions without Hydrogen %d", numTorsionsWH));
                     }
                     if (i == 1) {
                         uniqueBonds = Integer.parseInt(fields[5]);
@@ -129,7 +131,7 @@ public class ParserAMBER {
                         }
                         w = new double[uniqueBonds];
                         r0 = new double[uniqueBonds];
-                        System.out.println(String.format("Num Unique Bonds %d", uniqueBonds));
+                        //System.out.println(String.format("Num Unique Bonds %d", uniqueBonds));
                         uniqueAngles = Integer.parseInt(fields[6]);
                         p3Bonds = new P3BondAngle[uniqueAngles];
                         bondedTriplets = new ArrayList[p3Bonds.length];
@@ -138,7 +140,7 @@ public class ParserAMBER {
                         }
                         k_epsilon = new double[uniqueAngles];
                         angle = new double[uniqueAngles];
-                        System.out.println(String.format("Num Unique Angles %d", uniqueAngles));
+                        //System.out.println(String.format("Num Unique Angles %d", uniqueAngles));
                         uniqueTorsions = Integer.parseInt(fields[7]);
                         p4Bonds = new P4BondTorsion[uniqueTorsions];
                         bondedQuads = new ArrayList[p4Bonds.length];
@@ -148,7 +150,7 @@ public class ParserAMBER {
                         k = new double[uniqueTorsions];
                         n = new double[uniqueTorsions];
                         phi = new double[uniqueTorsions];
-                        System.out.println(String.format("Num Unique Torsions %d", uniqueTorsions));
+                        //System.out.println(String.format("Num Unique Torsions %d", uniqueTorsions));
                     }
                     ++i;
                     a = linesIterator.next();
@@ -157,14 +159,14 @@ public class ParserAMBER {
             if (a.matches("%FLAG ATOMIC_NUMBER")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Atomic Number");
+                //System.out.println("Atomic Number");
                 iter = 0;
                 while (!a.contains("%")) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
                     for (int i = 0; i < fields.length; ++i) {
                         atomicNumber[10 * iter + i] = Integer.parseInt(fields[i]);
-                        System.out.println(atomicNumber[10 * iter + i]);
+                        //System.out.println(atomicNumber[10 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -173,14 +175,14 @@ public class ParserAMBER {
             if (a.matches("%FLAG MASS")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Mass");
+                //System.out.println("Mass");
                 iter = 0;
                 while (!a.contains("%")) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
                     for (int i = 0; i < fields.length; i++) {
                         mass[5 * iter + i] = Double.parseDouble(fields[i]);
-                        System.out.println(mass[5 * iter + i]);
+                        //System.out.println(mass[5 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -189,7 +191,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG ATOM_TYPE_INDEX")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Atom Type");
+                //System.out.println("Atom Type");
                 iter = 0;
                 while (!a.contains("%")) {
                     //System.out.println(a);
@@ -197,7 +199,7 @@ public class ParserAMBER {
                     for (int i = 0; i < fields.length; ++i) {
                         atomTypeId[10 * iter + i] = Integer.parseInt(fields[i]);
                         //atomTypes[10 * iter + i] = new AtomType(new ElementSimple(String.format("%d", atomTypeId[10 * iter + i])));
-                        System.out.println(atomTypeId[10 * iter + i]);
+                        //System.out.println(atomTypeId[10 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -206,14 +208,14 @@ public class ParserAMBER {
             if (a.matches("%FLAG BOND_FORCE_CONSTANT")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Bond Force Constant (in kcal/mol/A^2)");
+                //System.out.println("Bond Force Constant (in kcal/mol/A^2)");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
                     for (int i = 0; i < fields.length; ++i) {
                         w[10 * iter + i] = Double.parseDouble(fields[i]);
-                        System.out.println(w[10 * iter + i]);
+                        //System.out.println(w[10 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -222,7 +224,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG BOND_EQUIL_VALUE")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Bond Equilibrium Distance (in A)");
+                //System.out.println("Bond Equilibrium Distance (in A)");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
@@ -230,7 +232,7 @@ public class ParserAMBER {
                     for (int i = 0; i < fields.length; ++i) {
                         r0[10 * iter + i] = Double.parseDouble(fields[i]);
                         p2Bonds[10 * iter + i] = new P2Harmonic(opts.space, eUnit.toSim(w[10 * iter + i]), r0[10 * iter + i]);
-                        System.out.println(r0[10 * iter + i]);
+                        //System.out.println(r0[10 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -239,14 +241,14 @@ public class ParserAMBER {
             if (a.matches("%FLAG ANGLE_FORCE_CONSTANT")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Angle Force Constant (in kcal*rad^2/mol)");
+                //System.out.println("Angle Force Constant (in kcal*rad^2/mol)");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
                     for (int i = 0; i < fields.length; ++i) {
                         k_epsilon[10 * iter + i] = Double.parseDouble(fields[i]);
-                        System.out.println(k_epsilon[i]);
+                        //System.out.println(k_epsilon[i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -255,7 +257,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG ANGLE_EQUIL_VALUE")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Angle Equilibrium Angles (in radians)");
+                //System.out.println("Angle Equilibrium Angles (in radians)");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
@@ -265,7 +267,7 @@ public class ParserAMBER {
                         p3Bonds[10 * iter + i] = new P3BondAngle(opts.space);
                         p3Bonds[10 * iter + i].setEpsilon(eUnit.toSim(k_epsilon[10 * iter + i]));
                         p3Bonds[10 * iter + i].setAngle(angle[10 * iter + i]);
-                        System.out.println(angle[10 * iter + i]);
+                        //System.out.println(angle[10 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -274,15 +276,15 @@ public class ParserAMBER {
             if (a.matches("%FLAG DIHEDRAL_FORCE_CONSTANT")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Dihedral Force Constant (in kcal/mol)");
+                //System.out.println("Dihedral Force Constant (in kcal/mol)");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
-                    System.out.println("|"+fields[0]+"|");
+                    //System.out.println("|"+fields[0]+"|");
                     for (int i = 0; i < fields.length; ++i) {
                         k[5 * iter + i] = Double.parseDouble(fields[i]);
-                        System.out.println(k[5 * iter + i]);
+                        //System.out.println(k[5 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -291,14 +293,14 @@ public class ParserAMBER {
             if (a.matches("%FLAG DIHEDRAL_PERIODICITY")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Dihedral Periodicity");
+                //System.out.println("Dihedral Periodicity");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
                     for (int i = 0; i < fields.length; ++i) {
                         n[5 * iter + i] = Double.parseDouble(fields[i]);
-                        System.out.println(n[10 * iter + i]);
+                        //System.out.println(n[10 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -307,7 +309,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG DIHEDRAL_PHASE")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Dihedral Phase Shift (in radians)");
+                //System.out.println("Dihedral Phase Shift (in radians)");
                 iter = 0;
                 while (!a.contains("%") && a.length()>0) {
                     //System.out.println(a);
@@ -320,38 +322,41 @@ public class ParserAMBER {
                         }
                         if (n[5 * iter + i] == 0) {
                             p4Bonds[5 * iter + i] = new P4BondTorsion(opts.space, foo, 0, 0, 0);
-                            System.out.println("Phi = Pi, n=0");
+                            //System.out.println("Phi = Pi, n=0");
                         }
                         if (n[5 * iter + i] == 1) {
                             p4Bonds[5 * iter + i] = new P4BondTorsion(opts.space, 0, foo, 0, 0);
-                            System.out.println("Phi = Pi, n=1");
+                            //System.out.println("Phi = Pi, n=1");
                         }
                         if (n[5 * iter + i] == 2) {
-                            p4Bonds[5 * iter + i] = new P4BondTorsion(opts.space, 0, 0, foo, 0);
-                            System.out.println("Phi = Pi, n=2");
+                            p4Bonds[5 * iter + i] = new P4BondTorsion(opts.space, 0, 0, -foo, 0);
+                            //System.out.println("Phi = Pi, n=2");
                         }
                         if (n[5 * iter + i] == 3) {
                             p4Bonds[5 * iter + i] = new P4BondTorsion(opts.space, 0, 0, 0, foo);
-                            System.out.println("Phi = Pi, n=3");
+                            //System.out.println("Phi = Pi, n=3");
                         }
                         //System.out.println("Phi = Pi");
-                        System.out.println(phi[5 * iter + i]);
+                        //System.out.println(phi[5 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
+                }
+                for (double i =0; i < 3.2; i+=0.01) {
+                    //System.out.println(i + "\t" + p4Bonds[0].u(Math.cos(i)) + "\t" + p4Bonds[1].u(Math.cos(i)) + "\t" + p4Bonds[2].u(Math.cos(i)));
                 }
             }
             if (a.matches("%FLAG LENNARD_JONES_ACOEF")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Lennard Jones A coefficient (4*epsilon*sigma^12)");
+                //System.out.println("Lennard Jones A coefficient (4*epsilon*sigma^12)");
                 iter = 0;
                 while (!a.contains("%")) {
                     //System.out.println(a);
                     String[] fields = a.split("\\s+");
                     for (int i = 0; i < fields.length; ++i) {
                         A[5 * iter + i] = Double.parseDouble(fields[i]);
-                        System.out.println(A[5 * iter + i]);
+                        //System.out.println(A[5 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -360,7 +365,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG LENNARD_JONES_BCOEF")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Lennard Jones B coefficient (4*epsilon*sigma^6)");
+                //System.out.println("Lennard Jones B coefficient (4*epsilon*sigma^6)");
                 iter = 0;
                 while (!a.contains("%")) {
                     //System.out.println(a);
@@ -370,7 +375,7 @@ public class ParserAMBER {
                         sigma[5 * iter + i] = Math.pow(A[5 * iter + i] / B[5 * iter + i], 1.0 / 6.0);
                         epsilon[5 * iter + i] = (B[5 * iter + i] * B[5 * iter + i]) / (4 * A[5 * iter + i]);
                         p2LennardJones[5 * iter + i] = new P2LennardJones(opts.space, sigma[5 * iter + i], eUnit.toSim(epsilon[5 * iter + i]));
-                        System.out.println(B[5 * iter + i]);
+                        //System.out.println(B[5 * iter + i]);
                     }
                     ++iter;
                     a = linesIterator.next();
@@ -379,7 +384,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG BONDS_INC_HYDROGEN")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Bonds including Hydrogen");
+                //System.out.println("Bonds including Hydrogen");
                 iter = 0;
                 int[] elements = new int[3 * numBondsIH];
                 while (!a.contains("%") && a.length()>0) {
@@ -398,7 +403,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG BONDS_WITHOUT_HYDROGEN")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Bonds without Hydrogen");
+                //System.out.println("Bonds without Hydrogen");
                 iter = 0;
                 int[] elements = new int[3 * numBondsWH];
                 while (!a.contains("%") && a.length()>0) {
@@ -417,7 +422,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG ANGLES_INC_HYDROGEN")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Angles including Hydrogen");
+                //System.out.println("Angles including Hydrogen");
                 iter = 0;
                 int[] elements = new int[4 * numAnglesIH];
                 while (!a.contains("%") && a.length()>0) {
@@ -437,7 +442,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG ANGLES_WITHOUT_HYDROGEN")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Angles without Hydrogen");
+                //System.out.println("Angles without Hydrogen");
                 iter = 0;
                 int[] elements = new int[4 * numAnglesWH];
                 while (!a.contains("%") && a.length()>0) {
@@ -456,7 +461,7 @@ public class ParserAMBER {
             if (a.matches("%FLAG DIHEDRALS_INC_HYDROGEN")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Dihedrals including Hydrogen");
+                //System.out.println("Dihedrals including Hydrogen");
                 iter = 0;
                 int[] elements = new int[5 * numTorsionsIH];
                 while (!a.contains("%") && a.length()>0) {
@@ -470,13 +475,14 @@ public class ParserAMBER {
                     a = linesIterator.next();
                 }
                 for (int i = 0; i < elements.length; i = i + 5) {
+                    elements[i+2] = Math.abs(elements[i+2]);
                     bondedQuads[elements[i + 4] - 1].add(new int[]{elements[i] / 3, elements[i + 1] / 3, elements[i + 2] / 3, elements[i + 3] / 3});
                 }
             }
             if (a.matches("%FLAG DIHEDRALS_WITHOUT_HYDROGEN")) {
                 linesIterator.next();
                 a = linesIterator.next();
-                System.out.println("Dihedrals without Hydrogen");
+                //System.out.println("Dihedrals without Hydrogen");
                 iter = 0;
                 int[] elements = new int[5 * numTorsionsWH];
                 while (!a.contains("%") && a.length()>0) {
@@ -489,8 +495,8 @@ public class ParserAMBER {
                     a = linesIterator.next();
                 }
                 for (int i = 0; i < elements.length; i = i + 5) {
-                    if(elements[i+2]>-1)
-                        bondedQuads[elements[i + 4] - 1].add(new int[]{elements[i] / 3, elements[i + 1] / 3, elements[i + 2] / 3, elements[i + 3] / 3});
+                    elements[i+2] = Math.abs(elements[i+2]);
+                    bondedQuads[elements[i + 4] - 1].add(new int[]{elements[i] / 3, elements[i + 1] / 3, elements[i + 2] / 3, elements[i + 3] / 3});
                     //System.out.println(bondedQuads[elements[i + 4] - 1]);
                 }
             }
@@ -498,8 +504,8 @@ public class ParserAMBER {
         }
         //System.out.println(bondedPairs[0]);
         Element C = Carbon.INSTANCE;
+        Element H = Hydrogen.INSTANCE;
         AtomType atomTypeC = new AtomType(C);
-        ElementSimple H = new ElementSimple("H", 12);
         AtomType atomTypeH = new AtomType(H);
         for (int i = 0; i < atomTypeId.length; ++i){
             if(atomTypeId[i] == 1)
@@ -518,15 +524,15 @@ public class ParserAMBER {
         SpeciesManager speciesManager = SpeciesManager.builder().addSpecies(speciesGeneral).build();
         Box box = new Box(opts.space);
         box.addSpeciesNotify(speciesGeneral);
-        PotentialMasterBonding pBonding = new PotentialMasterBonding(speciesManager, box);
+        PotentialMasterBonding.FullBondingInfo fullBondingInfo = new PotentialMasterBonding.FullBondingInfo(speciesManager);
         for (int i = 0; i < p2Bonds.length; ++i) {
-            pBonding.setBondingPotentialPair(speciesGeneral, p2Bonds[i], bondedPairs[i]);
+            fullBondingInfo.setBondingPotentialPair(speciesGeneral, p2Bonds[i], bondedPairs[i]);
         }
         for (int i = 0; i < p3Bonds.length; ++i) {
-            pBonding.setBondingPotentialTriplet(speciesGeneral, p3Bonds[i], bondedTriplets[i]);
+            fullBondingInfo.setBondingPotentialTriplet(speciesGeneral, p3Bonds[i], bondedTriplets[i]);
         }
         for (int i = 0; i < p4Bonds.length; ++i) {
-            pBonding.setBondingPotentialQuad(speciesGeneral, p4Bonds[i], bondedQuads[i]);
+            fullBondingInfo.setBondingPotentialQuad(speciesGeneral, p4Bonds[i], bondedQuads[i]);
         }
         PotentialComputePair potentialComputePair = new PotentialComputePair(speciesManager, box, new NeighborManagerSimple(box));
         potentialComputePair.setPairPotential(atomTypeC, atomTypeC, p2LennardJones[0]);
@@ -539,7 +545,7 @@ public class ParserAMBER {
         potential2Softs[1][0] = p2LennardJones[1];
         potential2Softs[1][1] = p2LennardJones[2];
 
-        return new ParserAMBER.Stuff(pBonding, potential2Softs, speciesManager, box);
+        return new ParserAMBER.Stuff(fullBondingInfo, potential2Softs, speciesManager, box);
     }
 
     public static ParserAMBER.Stuff makeStuff(String smiles, Options opts) {
@@ -572,12 +578,12 @@ public class ParserAMBER {
     public enum Truncation {NONE, TRUNCATED, SHIFTED, FORCE_SHIFTED, SWITCHED}
 
     public static class Stuff {
-        public final PotentialMasterBonding potentialMasterBonding;
+        public final PotentialMasterBonding.FullBondingInfo fullBondingInfo;
         public final Potential2Soft [][] potential2Soft;
         public final SpeciesManager speciesManager;
         public final Box box;
-        public Stuff(PotentialMasterBonding potentialMasterBonding, Potential2Soft [][] potential2Soft, SpeciesManager speciesManager, Box box) {
-            this.potentialMasterBonding = potentialMasterBonding;
+        public Stuff(PotentialMasterBonding.FullBondingInfo fullBondingInfo, Potential2Soft [][] potential2Soft, SpeciesManager speciesManager, Box box) {
+            this.fullBondingInfo = fullBondingInfo;
             this.potential2Soft = potential2Soft;
             this.speciesManager = speciesManager;
             this.box = box;
