@@ -7,6 +7,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.BondingInfo;
 import etomica.potential.IPotential2;
 import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
@@ -14,38 +15,44 @@ import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.IntArrayList;
 
-public class PotentialMoleculePairAmoebaVDW extends PotentialMoleculeAmoebaVDW implements IPotentialMolecular {
+public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW implements IPotentialMolecular {
 
-    public PotentialMoleculePairAmoebaVDW(Space space, SpeciesManager sm, IntArrayList[][] bonding) {
+    protected final BondingInfo bondingInfo;
+
+    public PotentialMoleculeIntraAmoebaVDW(Space space, SpeciesManager sm, IntArrayList[][] bonding, BondingInfo bondingInfo) {
         super(space, sm, bonding);
+        this.bondingInfo = bondingInfo;
     }
 
-    public PotentialMoleculePairAmoebaVDW(Space space, IPotential2[][] atomPotentials, IntArrayList[][] bonding) {
+    public PotentialMoleculeIntraAmoebaVDW(Space space, IPotential2[][] atomPotentials, IntArrayList[][] bonding, BondingInfo bondingInfo) {
         super(space, atomPotentials, bonding);
+        this.bondingInfo = bondingInfo;
     }
 
     @Override
     public double energy(IMoleculeList molecules) {
-        return energy(molecules.get(0), molecules.get(1));
+        return energy(molecules.get(0));
     }
 
 
-    public double energy(IMolecule molecule1, IMolecule molecule2) {
-        IAtomList atoms1 = molecule1.getChildList();
-        IAtomList atoms2 = molecule2.getChildList();
+    public double energy(IMolecule molecule) {
+        IAtomList atoms = molecule.getChildList();
         double u = 0;
-        Vector[] r2 = new Vector[atoms2.size()];
-        for (IAtom a2 : atoms2) {
-            r2[a2.getIndex()] = getReducedPosition(a2);
+        Vector[] r = new Vector[atoms.size()];
+        for (IAtom a : atoms) {
+            r[a.getIndex()] = getReducedPosition(a);
         }
-        for (IAtom a1 : atoms1) {
-            Vector r1 = getReducedPosition(a1);
+        for (int i=0; i<atoms.size(); i++) {
+            IAtom a1 = atoms.get(i);
+            Vector r1 = r[i];
             IPotential2[] p1 = atomPotentials[a1.getType().getIndex()];
-            for (IAtom a2 : atoms2) {
+            for (int j=i+1; j<atoms.size(); j++) {
+                IAtom a2 = atoms.get(j);
+                if (bondingInfo.skipBondedPair(false, a1, a2)) continue;
                 IPotential2 p2 = p1[a2.getType().getIndex()];
                 if (p2 == null) continue;
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(r2[a2.getIndex()], r1);
+                dr.Ev1Mv2(r[j], r1);
                 double uu = p2.u(dr.squared());
                 u += uu;
             }
