@@ -9,13 +9,12 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential2;
-import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.IntArrayList;
 
-public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW implements IPotentialMolecular {
+public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW implements IPotentialMoleculeSingle {
 
     protected final BondingInfo bondingInfo;
 
@@ -34,7 +33,7 @@ public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW 
         return energy(molecules.get(0));
     }
 
-
+    @Override
     public double energy(IMolecule molecule) {
         IAtomList atoms = molecule.getChildList();
         double u = 0;
