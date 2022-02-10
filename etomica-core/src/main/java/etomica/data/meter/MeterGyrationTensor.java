@@ -25,14 +25,13 @@ import etomica.units.dimensions.Length;
 
 public class MeterGyrationTensor implements IDataSource {
     public MeterGyrationTensor(Space space){
-        data = new DataDoubleArray(space.getD());
-        dataInfo = new DataDoubleArray.DataInfoDoubleArray("Gyration Tensor", Area.DIMENSION, new int[]{space.getD()});
+        data = new DataDoubleArray(4);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("Gyration Tensor", Area.DIMENSION, new int[]{4});
         tag = new DataTag();
         iterator = new MoleculeIteratorAllMolecules();
         cm = space.makeVector();
         realPos = space.makeVector();
         dr = space.makeVector();
-        EVT = new Matrix(space.getD(), space.getD());
     }
 
 
@@ -102,11 +101,6 @@ public class MeterGyrationTensor implements IDataSource {
             cm.TE(1.0 / nLeafAtoms);
             // calculate Gyration Tensor for this chain
             double [][] GT = new double[box.getSpace().getD()][box.getSpace().getD()];
-            for(int i = 0; i < box.getSpace().getD(); i++){
-                for(int j = 0; j < box.getSpace().getD(); j++){
-                    GT[i][j] = 0.0;
-                }
-            }
             for (int iChild = 0; iChild < childList.size(); iChild++) {
                 IAtom a = childList.get(iChild);
                 Vector position = a.getPosition();
@@ -124,9 +118,16 @@ public class MeterGyrationTensor implements IDataSource {
             double lamdbaX2 = EVT.get(0,0);
             double lamdbaY2 = EVT.get(1,1);
             double lamdbaZ2 = EVT.get(2,2);
-            x[0] = lamdbaZ2 - (lamdbaX2 + lamdbaY2)/2;
-            x[1] = lamdbaY2 - lamdbaX2;
-            x[2] = (3.0/2.0)*((lamdbaX2*lamdbaX2 + lamdbaY2*lamdbaY2 + lamdbaZ2*lamdbaZ2)/((lamdbaX2 + lamdbaY2 + lamdbaZ2)*(lamdbaX2 + lamdbaY2 + lamdbaZ2))) - (1.0/2.0);
+            /*
+            Shape descriptors from: https://en.wikipedia.org/wiki/Gyration_tensor
+            x[0]: Asphericity
+            x[1]: Acylindricity
+            x[2]: Anisotropy
+             */
+            x[0] = lamdbaX2 + lamdbaY2 + lamdbaZ2;
+            x[1] = (lamdbaZ2 - (lamdbaX2 + lamdbaY2)/2)/x[0];
+            x[2] = (lamdbaY2 - lamdbaX2)/x[0];
+            x[3] = (3.0/2.0)*((lamdbaX2*lamdbaX2 + lamdbaY2*lamdbaY2 + lamdbaZ2*lamdbaZ2)/(x[0]*x[0])) - (1.0/2.0);
         }
         return data;
     }
@@ -158,7 +159,6 @@ public class MeterGyrationTensor implements IDataSource {
     private MoleculeIteratorAllMolecules iterator;
     private final Vector cm, realPos;
     private final Vector dr;
-    private final Matrix EVT;
     protected DataDoubleArray data;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
 
