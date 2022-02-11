@@ -8,13 +8,14 @@ import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialMolecular;
+import etomica.potential.amoeba.PotentialMoleculePairAmoebaMPole.Axis;
 import etomica.potential.amoeba.PotentialMoleculePairAmoebaMPole.Multipole;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
-import etomica.units.*;
+import etomica.units.Electron;
 import etomica.util.collections.IntArrayList;
 
 import java.util.Arrays;
@@ -22,16 +23,16 @@ import java.util.Arrays;
 public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecular {
     protected final Space space;
     protected final IntArrayList[][] bonding;
-    protected final int[][][] axisAtoms;
+    protected final Axis[][] axis;
     protected final Multipole[][] multipoles;
     protected final double[] polarizability;
     protected final double[] damping, pdamp;
     protected double tol;
 
-    public PotentialMoleculePairAmoebaPolarization(Space space, IntArrayList[][] bonding, int[][][] axisAtoms, Multipole[][] multipoles, double[] polarizability, double[] damping, double tol) {
+    public PotentialMoleculePairAmoebaPolarization(Space space, IntArrayList[][] bonding, Axis[][] axis, Multipole[][] multipoles, double[] polarizability, double[] damping, double tol) {
         this.space = space;
         this.bonding = bonding;
-        this.axisAtoms = axisAtoms;
+        this.axis = axis;
         this.multipoles = multipoles;
         this.polarizability = polarizability;
         this.damping = damping;
@@ -40,42 +41,6 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
             pdamp[i] = Math.pow(polarizability[i], 1.0/6.0);
         }
         this.tol = tol;
-    }
-
-    protected Tensor getRotmat(IAtom a) {
-        IAtomList atoms = a.getParentGroup().getChildList();
-        int[] myAxisAtoms = axisAtoms[a.getParentGroup().getType().getIndex()][a.getIndex()];
-//        System.out.println(a.getLeafIndex()+" "+myAxisAtoms[0]+" "+myAxisAtoms[1]);
-        IAtom zAtom = atoms.get(myAxisAtoms[0]);
-        IAtom xAtom = atoms.get(myAxisAtoms[1]);
-        Vector zAxis = new Vector3D();
-        zAxis.Ev1Mv2(zAtom.getPosition(), a.getPosition());
-//        System.out.println("z "+zAtom.getPosition()+" "+zAxis);
-        zAxis.normalize();
-        Tensor t = new Tensor3D();
-        t.setComponent(0, 2, zAxis.getX(0));
-        t.setComponent(1, 2, zAxis.getX(1));
-        t.setComponent(2, 2, zAxis.getX(2));
-
-        Vector xAxis = new Vector3D();
-        xAxis.Ev1Mv2(xAtom.getPosition(), a.getPosition());
-        xAxis.PEa1Tv1(-xAxis.dot(zAxis), zAxis);
-        xAxis.normalize();
-        t.setComponent(0, 0, xAxis.getX(0));
-        t.setComponent(1, 0, xAxis.getX(1));
-        t.setComponent(2, 0, xAxis.getX(2));
-
-        Vector yAxis = new Vector3D();
-        yAxis.E(zAxis);
-        yAxis.XE(xAxis);
-
-        t.setComponent(0, 1, yAxis.getX(0));
-        t.setComponent(1, 1, yAxis.getX(1));
-        t.setComponent(2, 1, yAxis.getX(2));
-
-//        System.out.println("rotmat "+a.getLeafIndex()+" "+t);
-
-        return t;
     }
 
     protected Tensor transformQ(Tensor Q, Tensor rot) {
@@ -94,16 +59,11 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
         return A;
     }
 
-    protected double doubledot(Tensor A, Tensor B) {
-        Tensor x = new Tensor3D();
-        x.E(A);
-        x.TE(B);
-        return x.trace();
-    }
-
     @Override
     public double energy(IMoleculeList molecules) {
-        return energy(molecules.toArray(new IMolecule[0]));
+        IMolecule[] m = new IMolecule[molecules.size()];
+        for (int i=0; i<m.length; i++) m[i] = molecules.get(i);
+        return energy(m);
     }
 
     public double[] dampthole(int i, int k, int order, double r) {
@@ -134,6 +94,7 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
 
     protected Vector[][] computeField(IMolecule[] molecules, Multipole[][] mpoles) {
         Vector[][] field = new Vector[mpoles.length][];
+        double rmin = Double.POSITIVE_INFINITY;
         for (int i=0; i<molecules.length; i++) {
             IAtomList atoms1 = molecules[i].getChildList();
             field[i] = new Vector[atoms1.size()];
@@ -191,6 +152,16 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
                         Vector fkd2 = new Vector3D();
                         fkd2.Ea1Tv1(Electron.UNIT.fromSim(1), fkd);
 
+                        if (r < 0.6) {
+                            if (polarizability[a1.getType().getIndex()] != 0 && fid.squared() != 0) return null;
+                            if (polarizability[a2.getType().getIndex()] != 0 && fkd.squared() != 0) return null;
+                            if (polarizability[a1.getType().getIndex()] * polarizability[a2.getType().getIndex()] != 0) return null;
+                        }
+                        if (r < 0.2) {
+                            // very close but apparently not interacting???
+                            System.err.println("close ! "+a1.getLeafIndex()+" "+a2.getLeafIndex()+" "+r);
+                        }
+                        rmin = Math.min(r, rmin);
                         //TODO incorporate dscale for larger molecules
                         field[i][j].PE(fid);
                         field[k][l].PE(fkd);
@@ -199,6 +170,7 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
                 }
             }
         }
+//        System.out.println("rmin "+rmin);
         return field;
     }
 
@@ -267,7 +239,8 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
             mpoles[i] = new Multipole[atoms.size()];
 
             for (IAtom a : atoms) {
-                Tensor rot = getRotmat(a);
+                Axis myAxis = axis[a.getParentGroup().getType().getIndex()][a.getIndex()];
+                Tensor rot = PotentialMoleculePairAmoebaMPole.getRotmat(a, myAxis);
                 int ia = a.getIndex();
                 mpoles[i][ia] = new Multipole();
                 Multipole myMultipole = multipoles[molecules[i].getType().getIndex()][ia];
@@ -290,6 +263,7 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
 
         double lastRes = Double.POSITIVE_INFINITY;
         Vector[][] field0 = computeField(molecules, mpoles);
+        if (field0 == null) return Double.POSITIVE_INFINITY;
         for (int iter=0; ; iter++) {
             Vector[][] ifield = computeField2(molecules, uind);
             Vector f = new Vector3D();
@@ -330,8 +304,8 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
 //            System.out.println(iter+" "+Math.sqrt(res));
             if (res < tol || res >= lastRes) break;
             lastRes = res;
-            Vector foo = new Vector3D();
-            foo.Ea1Tv1(Debye.UNIT.fromSim(1), uind[0][0]);
+//            Vector foo = new Vector3D();
+//            foo.Ea1Tv1(Debye.UNIT.fromSim(1), uind[0][0]);
 //            System.out.println("induced dipole "+foo);
         }
 
@@ -350,7 +324,6 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
         IAtomList atoms2 = molecule2.getChildList();
         double u = 0;
 
-        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
         for (IAtom a1 : atoms1) {
             int i1 = a1.getIndex();
             Multipole ampole1 = mpole1[i1];
@@ -403,7 +376,8 @@ public class PotentialMoleculePairAmoebaPolarization implements IPotentialMolecu
 //                System.out.printf("mp %d %d  % 10.7e\n", a1.getLeafIndex(), a2.getLeafIndex(), 0.5*kcalpmole.fromSim(uqmu + umuq + uumu + umuu + umuQ + uQmu));
             }
         }
-//        System.out.println("total polarization "+kcalpmole.fromSim(u));
+//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+//        System.out.println("polarization tot "+kcalpmole.fromSim(u));
         return u;
     }
 }
