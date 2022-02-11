@@ -59,17 +59,19 @@ public class SteepestDescent {
             double val = f.f(x);
             if (verbose) {
                 if (iter > 0)
-                    System.out.println(String.format("%4d   %10.4e   %10.4e   %10.4e   %10.4e  %7.3f", iter, val, val - lastVal, totalD, totalStep, dirdot));
+                    System.out.println(String.format("%4d   % 10.4e   % 10.4e   % 10.4e   % 10.4e  %10.4e % 7.3f", iter, val, val - lastVal, totalD, totalStep, stepSize, dirdot));
                 else
-                    System.out.println(String.format("%4d   %10.4e                %10.4e   %10.4e", iter, val, totalD, totalStep));
+                    System.out.println(String.format("%4d   % 10.4e                 % 10.4e   % 10.4e", iter, val, totalD, totalStep));
             }
             if (lastAvgStep == iter) System.out.println("averaging last directions");
 //            System.out.println("dir: "+Arrays.toString(dir));
             if (lastVal - val < tol) return x;
+//            System.out.println(0+" "+val+" "+totalD);
             lastVal = val;
             double newTotalD = 0;
             lastTotalStep = totalStep;
             totalStep = 0;
+
             while (true) {
                 for (int i=0; i<n; i++) {
                     x[i] += dir[i]*stepSize;
@@ -83,9 +85,10 @@ public class SteepestDescent {
                 val = f.f(x);
 //                System.out.println(String.format("%4d  %3d    %10.4e   %10.4e     %10.4e", iter, 1, val, newTotalD, stepSize));
                 
-                if (newTotalD > -0.5*totalD || val > lastVal) {
+                if (newTotalD > 0 || val > lastVal) {
                     // way too far
 //                    System.out.println("way too far, iter="+iter+" initial step");
+//                    System.out.println("way too far, iter="+iter+" initial step "+stepSize+" "+(val-lastVal)+" "+newTotalD);
                     for (int i=0; i<n; i++) {
                         x[i] -= dir[i]*stepSize;
                     }
@@ -99,7 +102,6 @@ public class SteepestDescent {
                 if ((val < lastVal && val > lastVal - tol) || Math.abs(stepSize) < 1e-14) return x;
                 break;
             }
-            
             double oldStepSize = stepSize;
             for (int j=0; j<4; j++) {
                 double innerLastVal = val;
@@ -107,6 +109,19 @@ public class SteepestDescent {
                 totalD = newTotalD;
                 for (int i=0; i<n; i++) {
                     x[i] += dir[i]*newStepSize;
+                }
+                val = f.f(x);
+                while (val > innerLastVal) {
+                    for (int i=0; i<n; i++) {
+                        x[i] -= dir[i]*newStepSize;
+                    }
+                    newStepSize *= 0.1;
+                    for (int i=0; i<n; i++) {
+                        x[i] += dir[i]*newStepSize;
+                    }
+                    val = f.f(x);
+//                    System.out.println((totalStep+newStepSize)+" "+val);
+                    if (Math.abs(newStepSize) < 1e-14) break;
                 }
                 totalStep += newStepSize;
     
@@ -116,7 +131,7 @@ public class SteepestDescent {
                 for (int i=0; i<n; i++) {
                     newTotalD += dir[i]*der[i];
                 }
-                val = f.f(x);
+//                System.out.println(totalStep+" "+val+" "+newTotalD);
                 oldStepSize = newStepSize;
 //                System.out.println(String.format("%4d  %3d    %10.4e   %10.4e     %10.4e", iter, j+2, val, newTotalD, newStepSize));
                 if (val > innerLastVal - tol || Math.abs(newStepSize) < 1e-14) break;
