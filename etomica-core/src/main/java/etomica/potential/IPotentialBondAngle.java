@@ -13,6 +13,13 @@ public interface IPotentialBondAngle {
      */
     double u(double costheta);
 
+    /**
+     * Returns the energy for the given value of cos(theta),
+     * r^2 between atoms 1 and 2 and r^2 between atoms 2 and 3
+     */
+    default double u(double costheta, double r12Sq, double r23Sq) {
+        return u(costheta);
+    }
 
     /**
      * Returns the energy (u) and du/dcostheta (du) as outparameters for the

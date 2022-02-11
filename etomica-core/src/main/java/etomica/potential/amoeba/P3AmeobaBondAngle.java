@@ -5,8 +5,6 @@
 package etomica.potential.amoeba;
 
 import etomica.potential.IPotentialBondAngle;
-import etomica.space.Boundary;
-import etomica.units.dimensions.Angle;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 
@@ -17,9 +15,19 @@ import etomica.units.dimensions.Energy;
  */
 public class P3AmeobaBondAngle implements IPotentialBondAngle {
 
+    protected double angle;
+    protected double epsilon;
+    protected double c12, c23;
+    protected double bl12, bl23;
+
     public P3AmeobaBondAngle(double angle, double epsilon) {
+        this(angle, epsilon, 0, 0, 0, 0);
+    }
+
+    public P3AmeobaBondAngle(double angle, double epsilon, double c12, double c23, double bl12, double bl23) {
         setAngle(angle);
         setEpsilon(epsilon);
+        setStretchBend(c12, c23, bl12, bl23);
     }
 
     public double u(double costheta) {
@@ -36,6 +44,23 @@ public class P3AmeobaBondAngle implements IPotentialBondAngle {
                 (5.6e-5 + dtheta*(-7e-7 + 2.2e-8*dtheta))));
     }
 
+    public double u(double costheta, double r12Sq, double r23Sq) {
+        double theta;
+        if (costheta > 1) {
+            theta = 0;
+        } else if (costheta < -1) {
+            theta = Math.PI;
+        } else {
+            theta = Math.acos(costheta);
+        }
+        double dtheta = theta - angle;
+        double u = epsilon*dtheta*dtheta*(1 + dtheta*(-0.014 + dtheta*
+                (5.6e-5 + dtheta*(-7e-7 + 2.2e-8*dtheta))));
+        if (c12 == 0 && c23 == 0) return u;
+        u += (c12*(Math.sqrt(r12Sq)-bl12) + c23*(Math.sqrt(r23Sq)-bl23)) * dtheta;
+        return u;
+    }
+
     /**
      * Sets the nominal bond angle (in radians)
      */
@@ -49,9 +74,12 @@ public class P3AmeobaBondAngle implements IPotentialBondAngle {
     public double getAngle() {
         return angle;
     }
-    
-    public Dimension getAngleDimension() {
-        return Angle.DIMENSION;
+
+    public void setStretchBend(double c12, double c23, double bl12, double bl23) {
+        this.c12 = c12;
+        this.c23 = c23;
+        this.bl12 = bl12;
+        this.bl23 = bl23;
     }
 
     /**
@@ -96,8 +124,4 @@ public class P3AmeobaBondAngle implements IPotentialBondAngle {
 //        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
 //        System.out.println("angle "+theta+" "+dtheta+" "+kcalpmole.fromSim(epsilon)+" "+kcalpmole.fromSim(u[0]));
     }
-
-    protected Boundary boundary;
-    protected double angle;
-    protected double epsilon;
 }

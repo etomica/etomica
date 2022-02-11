@@ -96,9 +96,11 @@ public class PotentialMasterBonding implements PotentialCompute {
         zeroArrays(doForces);
 
         double[] uTot = {0};
+        double[] uu = new double[5];
         for (int i = 0; i < speciesList.size(); i++) {
             Map<IPotential2, List<int[]>> potentials = bondingInfo.bondedPairs[i];
             IMoleculeList molecules = box.getMoleculeList(speciesList.get(i));
+            uu[2] -= uTot[0];
             potentials.forEach((potential, pairs) -> {
                 for (IMolecule molecule : molecules) {
                     for (int[] pair : pairs) {
@@ -108,8 +110,10 @@ public class PotentialMasterBonding implements PotentialCompute {
                     }
                 }
             });
+            uu[2] += uTot[0];
 
             Map<IPotentialBondAngle, List<int[]>> potentials3 = bondingInfo.bondedTriplets[i];
+            uu[3] -= uTot[0];
             potentials3.forEach((potential, triplets) -> {
                 for (IMolecule molecule : molecules) {
                     for (int[] triplet : triplets) {
@@ -120,8 +124,10 @@ public class PotentialMasterBonding implements PotentialCompute {
                     }
                 }
             });
+            uu[3] += uTot[0];
 
             Map<IPotentialBondTorsion, List<int[]>> potentials4 = bondingInfo.bondedQuads[i];
+            uu[4] -= uTot[0];
             potentials4.forEach((potential, quads) -> {
                 for (IMolecule molecule : molecules) {
                     for (int[] quad : quads) {
@@ -133,7 +139,11 @@ public class PotentialMasterBonding implements PotentialCompute {
                     }
                 }
             });
+            uu[4] += uTot[0];
         }
+        if (Double.isNaN(uTot[0])) throw new RuntimeException("oops");
+//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+//        System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
         energyTot = uTot[0];
         return uTot[0];
     }
@@ -212,7 +222,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         double rkj2 = drjk.squared();
         double drij_kj = 1.0 / Math.sqrt(rij2 * rkj2);
         double costheta = drji.dot(drjk) * drij_kj;
-        return potential.u(costheta);
+        return potential.u(costheta, rij2, rkj2);
     }
 
     private double handleComputeOneBondedQuad(IPotentialBondTorsion potential, IAtom iAtom, IAtom jAtom, IAtom kAtom, IAtom lAtom) {
@@ -264,7 +274,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] u012 = new double[3];
         potential.u012add(r2, u012);
         double uij = u012[0];
-        if (uij == 0) return 0;
+//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+//        System.out.println("bond "+iAtom.getLeafIndex()+" "+jAtom.getLeafIndex()+" "+Math.sqrt(r2)+" "+kcalpmole.fromSim(uij));
 
         if (pc != null) pc.pairCompute(iAtom.getLeafIndex(), jAtom.getLeafIndex(), dr, u012);
         if (doForces) {
@@ -294,7 +305,11 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] u = {0};
         double[] du = {0};
         potential.udu(costheta, u, du);
+//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+//        System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+costheta+" "+kcalpmole.fromSim(u[0]));
         double uijk = u[0];
+//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+//        System.out.println("pmbangle "+iAtom.getLeafIndex()+" "+jAtom.getLeafIndex()+" "+kAtom.getLeafIndex()+" "+180/Math.PI*Math.acos(costheta)+" "+kcalpmole.fromSim(uijk));
 
         if (doForces) {
             double duijk = du[0]; // du/dcostheta
@@ -356,6 +371,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         double costheta = vji.dot(vkl) * vji_vkl;
         double[] u = {0}, du = {0};
         potential.udu(costheta, u, du);
+//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+//        System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+lAtom+" "+costheta+" "+180/Math.PI*Math.acos(costheta)+" "+kcalpmole.fromSim(u[0]));
 
         if (doForces) {
 
