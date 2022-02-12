@@ -9,6 +9,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.chem.elements.Carbon;
+import etomica.chem.elements.Hydrogen;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -56,10 +58,12 @@ public class BenzeneNPTMC extends Simulation {
     public MCMoveVolume mcMoveVolume;
     public MCMoveMolecule translateMove;
 
-    public BenzeneNPTMC(Space space, double density, int nSpheres, int numMolecules, double temperature, double rc, double pressure) {
+    public BenzeneNPTMC(Space space, double density, int numMolecules, double temperature, double rc, double pressure) {
         super(space);
         setRandom(new RandomMersenneTwister(1));
-        species = SpeciesBenzene.makeBuilder().build();
+        double cMass = Carbon.INSTANCE.getMass();
+        double hMass = Hydrogen.INSTANCE.getMass();
+        species = SpeciesBenzene.makeBuilder(AtomType.simple("CH", cMass+hMass), 1.4).build();
         addSpecies(species);
 
         box = this.makeBox();
@@ -69,9 +73,9 @@ public class BenzeneNPTMC extends Simulation {
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
 
         double k = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT).toSim(938);
-        P2Harmonic p2Bond = new P2Harmonic(Kelvin.UNIT.toSim(k), SpeciesBenzene.nominalBondL);
+        P2Harmonic p2Bond = new P2Harmonic(Kelvin.UNIT.toSim(k), 1.4);
         List<int[]> pairs = new ArrayList<>();
-        for (int i=0; i<nSpheres; i++) {
+        for (int i=0; i<6; i++) {
             int[] p = new int[]{i,i+1};
             for (int j=0; j<p.length; j++) {
                 if (p[j] >= 6) p[j] -= 6;
@@ -80,9 +84,9 @@ public class BenzeneNPTMC extends Simulation {
         }
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
 
-        P3BondAngle p3Bond = new P3BondAngle(Math.PI*120.0/180.0, Kelvin.UNIT.toSim(70450));
+        P3BondAngle p3Bond = new P3BondAngle(Math.PI*120.0/180.0, Kelvin.UNIT.toSim(63405));
         List<int[]> triplets = new ArrayList<>();
-        for (int i=0; i<nSpheres; i++) {
+        for (int i=0; i<6; i++) {
             int[] t = new int[]{i,i+1,i+2};
             for (int j=0; j<t.length; j++) {
                 if (t[j] >= 6) t[j] -= 6;
@@ -91,10 +95,9 @@ public class BenzeneNPTMC extends Simulation {
         }
         pmBonding.setBondingPotentialTriplet(species, p3Bond, triplets);
 
-        P4BondTorsionPow p4Bond = new P4BondTorsionPow(new double[]{Kelvin.UNIT.toSim(260), 0, Kelvin.UNIT.toSim(-530), 0,
-                0,0,0,0, Kelvin.UNIT.toSim(530)});
+        P4BondTorsion p4Bond = new P4BondTorsion(space, 0, 0, Kelvin.UNIT.toSim(1824.16), 0);
         List<int[]> quads = new ArrayList<>();
-        for (int i=0; i<nSpheres; i++) {
+        for (int i=0; i<6; i++) {
             int[] q = new int[]{i,i+1,i+2,i+3};
             for (int j=0; j<q.length; j++) {
                 if (q[j] >= 6) q[j] -= 6;
@@ -196,7 +199,7 @@ public class BenzeneNPTMC extends Simulation {
         System.out.println("initial density "+ density);
         System.out.println("initial density (g/cm^3) "+ dUnit.fromSim(density));
 
-        final BenzeneNPTMC sim = new BenzeneNPTMC(Space3D.getInstance(), density, 5, numMolecules, temperature, rc, pressure);
+        final BenzeneNPTMC sim = new BenzeneNPTMC(Space3D.getInstance(), density, numMolecules, temperature, rc, pressure);
 
         MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         sim.integrator.getPotentialCompute().init();
