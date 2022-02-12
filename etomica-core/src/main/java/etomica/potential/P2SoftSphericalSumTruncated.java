@@ -62,10 +62,6 @@ public class P2SoftSphericalSumTruncated extends P2SoftSphericalSum {
         return super.d2uWrapped(r2);
     }
 
-    public double integral(Space space, double rC) {
-        throw new RuntimeException("nope");
-    }
-
     /**
      * Accessor method for the radial cutoff distance.
      */
