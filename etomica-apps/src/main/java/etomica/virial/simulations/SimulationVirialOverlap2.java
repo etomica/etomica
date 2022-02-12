@@ -88,6 +88,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected double[] boxLengths = new double[]{0, 0};
     protected PotentialMasterBonding.FullBondingInfo bondingInfo;
     protected IPotential2[][] pairPotentials;
+    protected PotentialComputeFactory potentialComputeFactory;
 
     /**
      * This constructor will create your simulation class, but you may call
@@ -139,6 +140,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         box = new BoxCluster[2];
         accumulators = new AccumulatorRatioAverageCovarianceFull[2];
         extraTargetClusters = new ClusterAbstract[0];
+    }
+
+    public void setPotentialComputeFactory(PotentialComputeFactory potentialComputeFactory) {
+        this.potentialComputeFactory = potentialComputeFactory;
     }
 
     public boolean getDoWiggle() {
@@ -224,7 +229,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
 
             PotentialCompute pc = null;
-            if (pairPotentials != null) {
+            if (potentialComputeFactory != null) {
+                pc = potentialComputeFactory.makePotentialCompute(getSpeciesManager(), box[iBox]);
+            }
+            else if (pairPotentials != null) {
                 PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box[iBox], bondingInfo);
                 PotentialComputePair pcPair = new PotentialComputePair(getSpeciesManager(), box[iBox], new NeighborManagerIntra(box[iBox], bondingInfo), pairPotentials);
                 pc = new PotentialComputeAggregate(pmBonding, pcPair);
@@ -958,5 +966,9 @@ public class SimulationVirialOverlap2 extends Simulation {
     @Override
     public Integrator getIntegrator() {
         return this.integratorOS;
+    }
+
+    public interface PotentialComputeFactory {
+        public PotentialCompute makePotentialCompute(SpeciesManager sm, BoxCluster box);
     }
 }
