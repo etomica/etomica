@@ -40,7 +40,7 @@ public class MeterMaxExpansion extends DataSourceScalar {
             IAtom atomi = leafList.get(i);
             neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     dr.Ev1Mv2(atomi.getPosition(), jAtom.getPosition());
                     boundary.nearestImage(dr);
                     double r2 = dr.squared();

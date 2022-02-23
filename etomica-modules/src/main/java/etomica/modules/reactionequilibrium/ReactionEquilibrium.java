@@ -125,7 +125,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
             int iType = iAtom.getType().getIndex();
             neighborManager.makeNeighborIterator().iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     int jType = jAtom.getType().getIndex();
                     P2SquareWellBonded pij = (P2SquareWellBonded) allp[iType][jType];
                     pij.determineBonding(iAtom, jAtom, rij);

@@ -19,10 +19,10 @@ public interface NeighborIterator {
      * Interface for neighbor iteration callback.
      */
     interface NeighborConsumer {
-        void accept(IAtom jAtom, Vector rij);
+        void accept(IAtom jAtom, Vector rij, int n);
     }
 
     interface SuperNbrConsumer {
-        double accept(IAtom atom1, IAtom atom2, Vector rij);
+        double accept(IAtom atom1, IAtom atom2, Vector rij, int n);
     }
 }

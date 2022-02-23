@@ -49,9 +49,9 @@ public class NeighborIteratorListHard implements NeighborIteratorHard {
             rij.PE(jbo);
             if (consumerHard == null) {
                 // we're like just computing energy
-                consumer.accept(atom2, rij);
+                consumer.accept(atom2, rij, 0);
             } else {
-                consumerHard.accept(atom2, rij, iState[j]);
+                consumerHard.acceptHard(atom2, rij, iState[j]);
             }
         }
     }
@@ -83,9 +83,9 @@ public class NeighborIteratorListHard implements NeighborIteratorHard {
             rij.ME(jbo);
             if (consumerHard == null) {
                 // we're like just computing energy
-                consumer.accept(atom2, rij);
+                consumer.accept(atom2, rij, 0);
             } else {
-                consumerHard.accept(atom2, rij, iState[j]);
+                consumerHard.acceptHard(atom2, rij, iState[j]);
             }
         }
     }
@@ -113,7 +113,7 @@ public class NeighborIteratorListHard implements NeighborIteratorHard {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.PE(jbo);
-            consumer.accept(atom2, rij);
+            consumer.accept(atom2, rij, 0);
         }
 
         iNumNbrs = nbrManager.numAtomNbrsDn[iAtom];
@@ -128,7 +128,7 @@ public class NeighborIteratorListHard implements NeighborIteratorHard {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.ME(jbo);
-            consumer.accept(atom2, rij);
+            consumer.accept(atom2, rij, 0);
         }
     }
 
@@ -149,7 +149,7 @@ public class NeighborIteratorListHard implements NeighborIteratorHard {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.PE(jbo);
-            sum += consumer.accept(atom1, atom2, rij);
+            sum += consumer.accept(atom1, atom2, rij, 0);
         }
 
         iNumNbrs = nbrManager.numAtomNbrsDn[iAtom];
@@ -164,7 +164,7 @@ public class NeighborIteratorListHard implements NeighborIteratorHard {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.ME(jbo);
-            sum += consumer.accept(atom1, atom2, rij);
+            sum += consumer.accept(atom1, atom2, rij, 0);
         }
 
         return sum;

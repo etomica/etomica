@@ -49,7 +49,7 @@ public class NeighborManagerIntra implements NeighborManager {
                     if (bondingInfo.skipBondedPair(false, iAtom, jAtom)) continue;
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(jAtom, rij);
+                    consumer.accept(jAtom, rij, 0);
                 }
             }
 
@@ -65,9 +65,10 @@ public class NeighborManagerIntra implements NeighborManager {
                     IAtom jAtom = childAtoms.get(j);
                     if (jAtom.getParentGroup() != iMolecule) continue;
                     if (bondingInfo.skipBondedPair(false, iAtom, jAtom)) continue;
+                    int n = bondingInfo.n(false, iAtom, jAtom);
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(jAtom, rij);
+                    consumer.accept(jAtom, rij, n);
                 }
             }
 
@@ -84,9 +85,10 @@ public class NeighborManagerIntra implements NeighborManager {
                     IAtom jAtom = childAtoms.get(j);
                     if (jAtom.getParentGroup() != iMolecule) continue;
                     if (bondingInfo.skipBondedPair(false, iAtom, jAtom)) continue;
+                    int n = bondingInfo.n(false, iAtom, jAtom);
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(jAtom, rij);
+                    consumer.accept(jAtom, rij, n);
                 }
             }
 
@@ -102,9 +104,10 @@ public class NeighborManagerIntra implements NeighborManager {
                     if (atom1.getIndex()==j) continue;
                     IAtom jAtom = childAtoms.get(j);
                     if (bondingInfo.skipBondedPair(false, atom1, jAtom)) continue;
+                    int n = bondingInfo.n(false, atom1, jAtom);
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    sum += consumer.accept(atom1, jAtom, rij);
+                    sum += consumer.accept(atom1, jAtom, rij, n);
                 }
                 return sum;
             }

@@ -93,7 +93,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         // for new atom energy, includes embedding contributions
         this.nbrConsumer1 = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
-            public double accept(IAtom iAtom, IAtom jAtom, Vector rij) {
+            public double accept(IAtom iAtom, IAtom jAtom, Vector rij, int n) {
                 int i = iAtom.getLeafIndex();
                 int j = jAtom.getLeafIndex();
                 int iType = iAtom.getType().getIndex();
@@ -145,7 +145,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         // for old embedding energy
         this.nbrConsumerEmbedding = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
-            public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
+            public double accept(IAtom atom1, IAtom jAtom, Vector rij, int n) {
                 double r2 = rij.squared();
                 int jType = jAtom.getType().getIndex();
                 double jrc = rhoPotentials[jType].getRange();
@@ -258,7 +258,7 @@ public class PotentialComputeEAM implements PotentialCompute {
             IPotential2[] ip = pairPotentials[iType];
             IPotential2 irp = rhoPotentials[iType];
             int finalI = i;
-            neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
+            neighborIterator.iterUpNeighbors(i, (jAtom, rij, n) -> {
                 int j = jAtom.getLeafIndex();
                 int jType = jAtom.getType().getIndex();
                 IPotential2 pij = ip[jType];
@@ -342,7 +342,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                 IPotential2 irp = rhoPotentials[iType];
                 double iCutoff2 = irp.getRange() * irp.getRange();
                 int finalI = i;
-                neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
+                neighborIterator.iterUpNeighbors(i, (jAtom, rij, n) -> {
                     int j = jAtom.getLeafIndex();
                     int jType = jAtom.getType().getIndex();
                     if (rhoPotentials[jType] == null) return;

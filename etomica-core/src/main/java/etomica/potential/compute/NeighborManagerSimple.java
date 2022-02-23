@@ -43,7 +43,7 @@ public class NeighborManagerSimple implements NeighborManager {
                 for (int j = i + 1; j < atoms.size(); j++) {
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(atoms.get(j), rij);
+                    consumer.accept(atoms.get(j), rij, 0);
                 }
             }
 
@@ -55,7 +55,7 @@ public class NeighborManagerSimple implements NeighborManager {
                 for (int j = 0; j < i; j++) {
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(atoms.get(j), rij);
+                    consumer.accept(atoms.get(j), rij, 0);
                 }
             }
 
@@ -68,7 +68,7 @@ public class NeighborManagerSimple implements NeighborManager {
                     if (j == i) continue;
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(atoms.get(j), rij);
+                    consumer.accept(atoms.get(j), rij, 0);
                 }
             }
 
@@ -82,7 +82,7 @@ public class NeighborManagerSimple implements NeighborManager {
                     if (j == atom1.getLeafIndex()) continue;
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    sum += consumer.accept(atom1, atoms.get(j), rij);
+                    sum += consumer.accept(atom1, atoms.get(j), rij, 0);
                 }
                 return sum;
             }

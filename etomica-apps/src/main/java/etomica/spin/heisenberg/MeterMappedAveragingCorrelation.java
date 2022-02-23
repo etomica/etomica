@@ -113,7 +113,7 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
                 IAtomOriented atom1 = (IAtomOriented) a1;
                 nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         pcCSsum.go(atom1, (IAtomOriented) jAtom);
                     }
                 });

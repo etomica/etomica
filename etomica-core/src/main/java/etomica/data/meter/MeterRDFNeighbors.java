@@ -84,7 +84,7 @@ public class MeterRDFNeighbors implements IDataSource, DataSourceIndependent {
         for (int i = 0; i<numAtoms; i++) {
             neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     double r2 = rij.squared();       //compute pair separation
                     if(r2 < xMaxSquared) {
                         int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index

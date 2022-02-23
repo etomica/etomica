@@ -35,7 +35,7 @@ class ColorSchemeVacancy extends ColorScheme {
         final int[] n = {0};
         iter.iterAllNeighbors(a.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int nn) {
                 if (rij.squared() < rc2) n[0]++;
             }
         });

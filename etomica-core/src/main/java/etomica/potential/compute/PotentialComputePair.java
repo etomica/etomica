@@ -113,7 +113,7 @@ public class PotentialComputePair implements PotentialCompute {
 
         this.nbrConsumer = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
-            public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
+            public double accept(IAtom atom1, IAtom jAtom, Vector rij, int n) {
                 IPotential2 pij = pairPotentials[atom1.getType().getIndex()][jAtom.getType().getIndex()];
                 if (pij == null) return 0;
                 double uij = pij.u(rij.squared());
@@ -208,7 +208,7 @@ public class PotentialComputePair implements PotentialCompute {
             int iType = iAtom.getType().getIndex();
             IPotential2[] ip = pairPotentials[iType];
             int finalI = i;
-            neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
+            neighborIterator.iterUpNeighbors(i, (jAtom, rij, n) -> {
                 int j = jAtom.getLeafIndex();
                 if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();
@@ -283,9 +283,9 @@ public class PotentialComputePair implements PotentialCompute {
     protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
         return this.neighborIterator.iterAndSumAllNeighbors(atom, new NeighborIterator.SuperNbrConsumer() {
             @Override
-            public double accept(IAtom atom1, IAtom atom2, Vector rij) {
+            public double accept(IAtom atom1, IAtom atom2, Vector rij, int n) {
                 if (arrayContains(atom2, startExcludeIdx, excludedAtoms)) return 0;
-                return nbrConsumer.accept(atom1, atom2, rij);
+                return nbrConsumer.accept(atom1, atom2, rij, n);
             }
         });
     }

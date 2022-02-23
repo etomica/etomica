@@ -505,6 +505,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         public final Map<IPotentialBondAngle, int[][][]>[] bondedTripletPartners;
         public final Map<IPotentialBondTorsion, List<int[]>>[] bondedQuads;
         public final Map<IPotentialBondTorsion, int[][][]>[] bondedQuadPartners;
+        public final int[][][] n;
 
         public FullBondingInfo(SpeciesManager sm) {
             bondedAtoms = new int[sm.getSpeciesCount()][][];
@@ -521,6 +522,11 @@ public class PotentialMasterBonding implements PotentialCompute {
                 bondedTripletPartners[i] = new HashMap<>();
                 bondedQuads[i] = new HashMap<>();
                 bondedQuadPartners[i] = new HashMap<>();
+            }
+            n = new int[sm.getSpeciesCount()][][];
+            for (int i=0; i<n.length; i++) {
+                int m = sm.getSpecies(i).getLeafAtomCount();
+                n[i] = new int[m][m];
             }
         }
 
@@ -560,12 +566,49 @@ public class PotentialMasterBonding implements PotentialCompute {
             return partners;
         }
 
+        // look for atoms 1-bond away from a1; these are b+1 away from a2
+        protected void pop(int[][] ni, int a1, int a2, int b) {
+            for (int i = 0; i < ni.length; i++) {
+                if (ni[a1][i] == 1 && i != a2 && ni[a2][i] == 0) {
+                    // i is 1-bond away from a1
+                    ni[a2][i] = ni[i][a2] = b+1;
+                }
+            }
+        }
+
+        protected void updateBondCounts(int ispecies) {
+            for (int i=0; i<n[ispecies].length; i++) {
+                Arrays.fill(n[ispecies][i], 0);
+            }
+            int[][] ni = n[ispecies];
+            for (IPotential2 p : bondedPairs[ispecies].keySet()) {
+                List<int[]> bondedIndices = bondedPairs[ispecies].get(p);
+                for (int[] pairs : bondedIndices) {
+                    ni[pairs[0]][pairs[1]] = ni[pairs[1]][pairs[0]] = 1;
+                }
+            }
+            for (int b=1; b<=4; b++) {
+                for (int i = 0; i < ni.length; i++) {
+                    for (int j = 0; j < ni.length; j++) {
+                        if (ni[i][j] == b) {
+                            // i and j separated by b bonds
+                            // look for atoms 1-bond away from i; these are b+1 away from j
+                            pop(ni, i, j, b);
+                            // look for atoms 1-bond away from j; these are b+1 away from i
+                            pop(ni, j, i, b);
+                        }
+                    }
+                }
+            }
+        }
+
         public void setBondingPotentialPair(ISpecies species, IPotential2 potential, List<int[]> bondedIndices) {
             int speciesIndex = species.getIndex();
 
             int[][][] partners = handledIndices(species, bondedIndices);
             bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
             bondedPairPartners[speciesIndex].put(potential, partners);
+            updateBondCounts(species.getIndex());
         }
 
         public void setBondingPotentialTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {
@@ -605,6 +648,11 @@ public class PotentialMasterBonding implements PotentialCompute {
                 }
             }
             return false;
+        }
+
+        public int n(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
+            if (isPureAtoms || iAtom.getParentGroup() != jAtom.getParentGroup()) return 0;
+            return n[iAtom.getParentGroup().getType().getIndex()][iAtom.getIndex()][jAtom.getIndex()];
         }
 
         @Override

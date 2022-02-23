@@ -111,7 +111,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
 
         this.nbrConsumer = new NeighborIteratorCell.SuperNbrConsumer() {
             @Override
-            public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
+            public double accept(IAtom atom1, IAtom jAtom, Vector rij, int n) {
                 IPotential2 pij = pairPotentials[atom1.getType().getIndex()][jAtom.getType().getIndex()];
                 if (pij == null) return 0;
                 double uij = pij.u(rij, atom1, jAtom);
@@ -219,7 +219,7 @@ public class PotentialComputePairGeneral implements PotentialCompute {
             int iType = iAtom.getType().getIndex();
             IPotential2[] ip = pairPotentials[iType];
             int finalI = i;
-            neighborIterator.iterUpNeighbors(i, (jAtom, rij) -> {
+            neighborIterator.iterUpNeighbors(i, (jAtom, rij, n) -> {
                 int j = jAtom.getLeafIndex();
                 if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();

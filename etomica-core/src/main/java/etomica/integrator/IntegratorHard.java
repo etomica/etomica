@@ -335,7 +335,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
     protected void collectDownColliders(IAtom atom, AtomArrayList downColliders) {
         int i = atom.getLeafIndex();
-        neighborIterator.iterDownNeighbors(atom.getLeafIndex(), (jAtom, rij) -> {
+        neighborIterator.iterDownNeighbors(atom.getLeafIndex(), (jAtom, rij, n) -> {
             if (collisionPartners[jAtom.getLeafIndex()] == i) {
                 downColliders.add(jAtom);
             }
@@ -445,12 +445,12 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         };
         NeighborConsumerHard ncDown = new NeighborConsumerHard() {
             @Override
-            public void accept(IAtom jAtom, Vector rij, int state) {
+            public void acceptHard(IAtom jAtom, Vector rij, int state) {
                 myDown.accept(jAtom, rij, state, pairPotentials[iType][jAtom.getType().getIndex()]);
             }
 
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int n) {
 
             }
         };
@@ -529,13 +529,13 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
         NeighborConsumerHard up = new NeighborConsumerHard() {
             @Override
-            public void accept(IAtom jAtom, Vector rij, int state) {
+            public void acceptHard(IAtom jAtom, Vector rij, int state) {
                 myUp.accept(jAtom, rij, state, pairPotentials[iType][jAtom.getType().getIndex()]);
 
             }
 
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int n) {
 
             }
         };

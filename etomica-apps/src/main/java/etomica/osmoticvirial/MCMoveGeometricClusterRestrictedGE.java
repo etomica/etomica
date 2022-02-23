@@ -195,7 +195,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         if (boxI == box1) {
             neighborIterator1.iterAllNeighbors(atomI.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     if (clusterAtoms1.contains(jAtom)) return;
                     jNeighbors.add(jAtom);
                     Vector foo = boxI.getSpace().makeVector();
@@ -207,7 +207,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         else {
             neighborIterator2.iterAllNeighbors(atomI.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     if (clusterAtoms2.contains(jAtom)) return;
                     jNeighbors.add(jAtom);
                     Vector foo = boxI.getSpace().makeVector();

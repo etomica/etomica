@@ -49,8 +49,8 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                 if (isCellType) {
                     nic.iterUpNeighbors(iAtom, new NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
-                            if (jAtom.getType() == cellType) consumer.accept(jAtom, rij);
+                        public void accept(IAtom jAtom, Vector rij, int n) {
+                            if (jAtom.getType() == cellType) consumer.accept(jAtom, rij, n);
                         }
                     });
                 }
@@ -60,7 +60,7 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                     Vector rij = box.getSpace().makeVector();
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(atoms.get(j), rij);
+                    consumer.accept(atoms.get(j), rij, 0);
                 }
             }
 
@@ -70,8 +70,8 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                 if (isCellType) {
                     nic.iterDownNeighbors(iAtom, new NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
-                            if (jAtom.getType() == cellType) consumer.accept(jAtom, rij);
+                        public void accept(IAtom jAtom, Vector rij, int n) {
+                            if (jAtom.getType() == cellType) consumer.accept(jAtom, rij, n);
                         }
                     });
                 }
@@ -81,7 +81,7 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                     Vector rij = box.getSpace().makeVector();
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(atoms.get(j), rij);
+                    consumer.accept(atoms.get(j), rij, 0);
                 }
             }
 
@@ -91,8 +91,8 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                 if (isCellType) {
                     nic.iterAllNeighbors(iAtom, new NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
-                            if (jAtom.getType() == cellType) consumer.accept(jAtom, rij);
+                        public void accept(IAtom jAtom, Vector rij, int n) {
+                            if (jAtom.getType() == cellType) consumer.accept(jAtom, rij, n);
                         }
                     });
                 }
@@ -104,7 +104,7 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                     Vector rij = box.getSpace().makeVector();
                     rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    consumer.accept(atoms.get(j), rij);
+                    consumer.accept(atoms.get(j), rij, 0);
                 }
             }
 
@@ -115,9 +115,9 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                 if (isCellType) {
                     sum = nic.iterAndSumAllNeighbors(atom1, new SuperNbrConsumer() {
                         @Override
-                        public double accept(IAtom atom1, IAtom jAtom, Vector rij) {
+                        public double accept(IAtom atom1, IAtom jAtom, Vector rij, int n) {
                             if (jAtom.getType() != cellType) return 0;
-                            return consumer.accept(atom1, jAtom, rij);
+                            return consumer.accept(atom1, jAtom, rij, n);
                         }
                     });
                 }
@@ -130,7 +130,7 @@ public class NeighborManagerCellMixed extends NeighborCellManager {
                     Vector rij = box.getSpace().makeVector();
                     rij.Ev1Mv2(jAtom.getPosition(), ri);
                     box.getBoundary().nearestImage(rij);
-                    sum += consumer.accept(atom1, jAtom, rij);
+                    sum += consumer.accept(atom1, jAtom, rij, 0);
                 }
                 return sum;
             }

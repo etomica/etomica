@@ -81,7 +81,7 @@ class NeighborCellManagerTest {
                     boolean[] seen = new boolean[]{false};
                     iterator.iterAllNeighbors(0, new NeighborIterator.NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
+                        public void accept(IAtom jAtom, Vector rij, int n) {
                             seen[0] = true;
                             assertEquals(rij.Mv1Squared(dr), 0, 1e-10);
                         }
@@ -156,7 +156,7 @@ class NeighborCellManagerTest {
                     List<Vector>[] allSeen = new ArrayList[]{new ArrayList<>(), new ArrayList<>()};
                     iterator.iterAllNeighbors(0, new NeighborIterator.NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
+                        public void accept(IAtom jAtom, Vector rij, int n) {
                             if (rij.squared() < rc * rc) {
                                 int j = jAtom.getLeafIndex();
                                 seen[j]++;
@@ -229,7 +229,7 @@ class NeighborCellManagerTest {
                     boolean[] seen = new boolean[]{false};
                     iterator.iterAllNeighbors(0, new NeighborIterator.NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
+                        public void accept(IAtom jAtom, Vector rij, int n) {
                             seen[0] = true;
                             assertEquals(rij.Mv1Squared(dr), 0, 1e-10);
                         }
@@ -313,7 +313,7 @@ class NeighborCellManagerTest {
                     List<Vector>[] allSeen = new ArrayList[]{new ArrayList<>(), new ArrayList<>()};
                     iterator.iterAllNeighbors(0, new NeighborIterator.NeighborConsumer() {
                         @Override
-                        public void accept(IAtom jAtom, Vector rij) {
+                        public void accept(IAtom jAtom, Vector rij, int n) {
                             if (rij.squared() < rc * rc) {
                                 int j = jAtom.getLeafIndex();
                                 seen[j]++;

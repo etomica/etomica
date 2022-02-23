@@ -30,7 +30,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
             vij.Ev1Mv2(((IAtomKinetic) atoms.get(j)).getVelocity(), vi);
             rij.PEa1Tv1(falseTime, vij);
             neighborManager.box.getBoundary().nearestImage(rij);
-            consumer.accept(atoms.get(j), rij, neighborManager.stateHash[i].get(j));
+            consumer.acceptHard(atoms.get(j), rij, neighborManager.stateHash[i].get(j));
         }
     }
 
@@ -44,7 +44,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
                 continue;
             rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
             neighborManager.box.getBoundary().nearestImage(rij);
-            consumer.accept(atoms.get(j), rij);
+            consumer.accept(atoms.get(j), rij, 0);
         }
     }
 
@@ -62,7 +62,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
             vij.Ev1Mv2(((IAtomKinetic) atoms.get(j)).getVelocity(), vi);
             rij.PEa1Tv1(falseTime, vij);
             neighborManager.box.getBoundary().nearestImage(rij);
-            consumer.accept(atoms.get(j), rij, neighborManager.stateHash[j].get(i));
+            consumer.acceptHard(atoms.get(j), rij, neighborManager.stateHash[j].get(i));
         }
     }
 
@@ -76,7 +76,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
                 continue;
             rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
             neighborManager.box.getBoundary().nearestImage(rij);
-            consumer.accept(atoms.get(j), rij);
+            consumer.accept(atoms.get(j), rij, 0);
         }
     }
 
@@ -95,7 +95,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
             vij.Ev1Mv2(((IAtomKinetic) atoms.get(j)).getVelocity(), vi);
             rij.PEa1Tv1(falseTime, vij);
             neighborManager.box.getBoundary().nearestImage(rij);
-            consumer.accept(atoms.get(j), rij, neighborManager.stateHash[i].get(j));
+            consumer.acceptHard(atoms.get(j), rij, neighborManager.stateHash[i].get(j));
         }
     }
 
@@ -110,7 +110,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
                 continue;
             rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
             neighborManager.box.getBoundary().nearestImage(rij);
-            consumer.accept(atoms.get(j), rij);
+            consumer.accept(atoms.get(j), rij, 0);
         }
     }
 
@@ -126,7 +126,7 @@ class NeighborIteratorSimpleHard implements NeighborIteratorHard {
                 continue;
             rij.Ev1Mv2(atoms.get(j).getPosition(), ri);
             neighborManager.box.getBoundary().nearestImage(rij);
-            sum += consumer.accept(atom1, atoms.get(j), rij);
+            sum += consumer.accept(atom1, atoms.get(j), rij, 0);
         }
         return sum;
     }

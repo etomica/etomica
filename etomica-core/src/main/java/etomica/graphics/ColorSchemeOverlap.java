@@ -46,7 +46,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     double r2 = rij.squared();
                     if (r2 < sig2) {
                         // count overlaps for both i and j

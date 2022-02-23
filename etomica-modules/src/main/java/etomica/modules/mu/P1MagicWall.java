@@ -104,7 +104,7 @@ public class P1MagicWall extends P1HardFieldGeneric {
 
         neighborManager.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int n) {
                 int newState = stateHash.get(jAtom.getLeafIndex());
                 if (newState >= 0 && newState < 2) {
                     neighborManager.setPairState(atom.getLeafIndex(), jAtom.getLeafIndex(), newState);
@@ -116,7 +116,7 @@ public class P1MagicWall extends P1HardFieldGeneric {
     protected void clearStatesForIG(IAtomKinetic atom) {
         neighborManager.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int n) {
                 neighborManager.setPairState(atom.getLeafIndex(), jAtom.getLeafIndex(), -1);
             }
         });
@@ -131,7 +131,7 @@ public class P1MagicWall extends P1HardFieldGeneric {
         }
         double de = neighborManager.makeNeighborIterator().iterAndSumAllNeighbors(atom, new NeighborIterator.SuperNbrConsumer() {
             @Override
-            public double accept(IAtom atom1, IAtom atom2, Vector rij) {
+            public double accept(IAtom atom1, IAtom atom2, Vector rij, int n) {
                 Vector dr = Vector.d(r.getD());
                 dr.E(atom2.getPosition());
                 dr.PEa1Tv1(falseTime, ((IAtomKinetic) atom2).getVelocity());

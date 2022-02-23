@@ -87,7 +87,7 @@ public class MeterEnergyMeanField implements IDataSource {
             IAtomOriented atom1 = (IAtomOriented) a1;
             nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     IAtomOriented atom2 = (IAtomOriented) jAtom;
                     Vector ei = atom1.getOrientation().getDirection();
                     Vector ej = atom2.getOrientation().getDirection();
@@ -178,7 +178,7 @@ public class MeterEnergyMeanField implements IDataSource {
             IAtomOriented atom1 = (IAtomOriented) a1;
             nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     IAtomOriented atom2 = (IAtomOriented) jAtom;
                     pcExtra.go(atom1, atom2);
                     pcCvij.go(atom1, atom2);

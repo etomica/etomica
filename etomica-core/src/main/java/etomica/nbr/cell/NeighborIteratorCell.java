@@ -48,10 +48,12 @@ public class NeighborIteratorCell implements NeighborIterator {
         for (int j = cellNextAtom[iAtom]; j > -1; j = cellNextAtom[j]) {
             IAtom atom2 = atoms.get(j);
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+            int n = bondingInfo.n(false, atom1, atom2);
             Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
             if (skipIntra && rij.squared() < minR2) continue;
-            consumer.accept(atom2, rij);
+            if (rij.squared() > minR2) n = 0;
+            consumer.accept(atom2, rij, n);
         }
 
         int iCell = atomCell[iAtom];
@@ -63,12 +65,14 @@ public class NeighborIteratorCell implements NeighborIterator {
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                 IAtom atom2 = atoms.get(j);
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+                int n = bondingInfo.n(false, atom1, atom2);
 
                 Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
                 if (skipIntra && rij.squared() < minR2) continue;
-                consumer.accept(atom2, rij);
+                if (rij.squared() > minR2) n = 0;
+                consumer.accept(atom2, rij, n);
             }
         }
     }
@@ -89,10 +93,12 @@ public class NeighborIteratorCell implements NeighborIterator {
         for (int j = cellLastAtom[iCell]; j != iAtom; j = cellNextAtom[j]) {
             IAtom atom2 = atoms.get(j);
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+            int n = bondingInfo.n(isPureAtoms, atom1, atom2);
             Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
             if (skipIntra && rij.squared() < minR2) continue;
-            consumer.accept(atom2, rij);
+            if (rij.squared() > minR2) n = 0;
+            consumer.accept(atom2, rij, 0);
         }
 
         for (int ico = 0; ico < cellManager.numCellOffsets; ico++) {
@@ -107,7 +113,7 @@ public class NeighborIteratorCell implements NeighborIterator {
                 Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
-                consumer.accept(atom2, rij);
+                consumer.accept(atom2, rij, 0);
             }
         }
     }
@@ -153,10 +159,11 @@ public class NeighborIteratorCell implements NeighborIterator {
             }
             IAtom atom2 = atoms.get(j);
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+            int n = bondingInfo.n(isPureAtoms, atom1, atom2);
             Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
             if (skipIntra && rij.squared() < minR2) continue;
-            sum += consumer.accept(atom1, atom2, rij);
+            sum += consumer.accept(atom1, atom2, rij, n);
         }
 
         for (int ico = 0; ico < 2 * cellManager.numCellOffsets; ico++) {
@@ -172,7 +179,7 @@ public class NeighborIteratorCell implements NeighborIterator {
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
                 if (skipIntra && rij.squared() < minR2) continue;
-                sum += consumer.accept(atom1, atom2, rij);
+                sum += consumer.accept(atom1, atom2, rij, 0);
             }
 
 //            jCell = iCell - cellOffset;
@@ -212,10 +219,12 @@ public class NeighborIteratorCell implements NeighborIterator {
             }
             IAtom atom2 = atoms.get(j);
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+            int n = bondingInfo.n(false, atom1, atom2);
             Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
             if (skipIntra && rij.squared() < minR2) continue;
-            consumer.accept(atom2, rij);
+            if (rij.squared() > minR2) n = 0;
+            consumer.accept(atom2, rij, n);
         }
 
         for (int ico = 0; ico < 2 * cellManager.numCellOffsets; ico++) {
@@ -226,12 +235,14 @@ public class NeighborIteratorCell implements NeighborIterator {
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                 IAtom atom2 = atoms.get(j);
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+                int n = bondingInfo.n(false, atom1, atom2);
 
                 Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
                 if (skipIntra && rij.squared() < minR2) continue;
-                consumer.accept(atom2, rij);
+                if (rij.squared() > minR2) n = 0;
+                consumer.accept(atom2, rij, n);
             }
         }
     }

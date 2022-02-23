@@ -36,7 +36,7 @@ public class MeterMappedAveragingFreeEnergy extends DataSourceScalar {
             Vector ei = ((IAtomOriented) a).getOrientation().getDirection();
             nbrIterator.iterUpNeighbors(a.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     IAtomOriented atom2 = (IAtomOriented) jAtom;
                     Vector ej = atom2.getOrientation().getDirection();
 

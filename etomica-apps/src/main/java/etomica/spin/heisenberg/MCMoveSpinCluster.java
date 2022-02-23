@@ -92,7 +92,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
     private void gatherNeighbors(IAtom atomI) {
         nbrItertator.iterAllNeighbors(atomI.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int n) {
                 if (!clusterAtoms.contains(jAtom)) jNeighbors.add(jAtom);
             }
         });

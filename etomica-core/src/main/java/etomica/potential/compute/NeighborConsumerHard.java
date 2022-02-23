@@ -11,5 +11,5 @@ import etomica.space.Vector;
  * the relevant atom pair).
  */
 public interface NeighborConsumerHard extends NeighborIterator.NeighborConsumer {
-    void accept(IAtom jAtom, Vector rij, int state);
+    void acceptHard(IAtom jAtom, Vector rij, int state);
 }

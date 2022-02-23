@@ -149,7 +149,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         for (IAtom a1 : box.getLeafList()) {
             nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     if (doPair) {
                         Ans.go((IAtomOriented) a1, (IAtomOriented) jAtom);
                     }
@@ -261,7 +261,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             for (IAtom a1 : box.getLeafList()) {
                 nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         vSumMinusIdeal.go((IAtomOriented) a1, (IAtomOriented) jAtom);
                     }
                 });
@@ -311,7 +311,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             for (IAtom a1 : box.getLeafList()) {
                 nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         vSumPairMinusIdeal.go((IAtomOriented) a1, (IAtomOriented) jAtom);
                     }
                 });
@@ -379,7 +379,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             for (IAtom a1 : box.getLeafList()) {
                 nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         pcCSsum.go((IAtomOriented) a1, (IAtomOriented) jAtom);
                     }
                 });
@@ -400,7 +400,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             for (IAtom a1 : box.getLeafList()) {
                 nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         pcPhiIJ.go((IAtomOriented) a1, (IAtomOriented) jAtom);
                     }
                 });

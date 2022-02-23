@@ -223,7 +223,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             double minInsertNbrDistance = nbrDistance - maxInsertDistance;
             neighborIterator.iterAllNeighbors(testAtom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     int jj = jAtom.getLeafIndex();
                     double r2 = rij.squared();
                     if (r2 < maxDistance*maxDistance) {
@@ -322,7 +322,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     double r2 = rij.squared();
                     if (r2 < maxDistance*maxDistance) {
                         numNeighbors[finalI]++;
@@ -340,7 +340,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
                 int finalI = i;
                 neighborIterator.iterAllNeighbors(i, new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         int jj = jAtom.getLeafIndex();
                         double r2 = rij.squared();
                         if (numNeighbors[finalI] == 12 && r2 < maxDistance*maxDistance) {

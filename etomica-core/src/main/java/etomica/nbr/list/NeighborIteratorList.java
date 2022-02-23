@@ -35,7 +35,8 @@ public class NeighborIteratorList implements NeighborIterator {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.PE(jbo);
-            consumer.accept(atom2, rij);
+            // TODO need to remember n for each neighbor?  or recompute?
+            consumer.accept(atom2, rij, 0);
         }
     }
 
@@ -57,7 +58,8 @@ public class NeighborIteratorList implements NeighborIterator {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.ME(jbo);
-            consumer.accept(atom2, rij);
+            // TODO need to remember n for each neighbor?  or recompute?
+            consumer.accept(atom2, rij, 0);
         }
     }
 
@@ -79,7 +81,8 @@ public class NeighborIteratorList implements NeighborIterator {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.PE(jbo);
-            consumer.accept(atom2, rij);
+            // TODO need to remember n for each neighbor?  or recompute?
+            consumer.accept(atom2, rij, 0);
         }
 
         iNumNbrs = nbrManager.numAtomNbrsDn[iAtom];
@@ -94,7 +97,7 @@ public class NeighborIteratorList implements NeighborIterator {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.ME(jbo);
-            consumer.accept(atom2, rij);
+            consumer.accept(atom2, rij, 0);
         }
     }
 
@@ -115,7 +118,7 @@ public class NeighborIteratorList implements NeighborIterator {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.PE(jbo);
-            sum += consumer.accept(atom1, atom2, rij);
+            sum += consumer.accept(atom1, atom2, rij, 0);
         }
 
         iNumNbrs = nbrManager.numAtomNbrsDn[iAtom];
@@ -130,7 +133,7 @@ public class NeighborIteratorList implements NeighborIterator {
             Vector rij = space.makeVector();
             rij.Ev1Mv2(rj, ri);
             rij.ME(jbo);
-            sum += consumer.accept(atom1, atom2, rij);
+            sum += consumer.accept(atom1, atom2, rij, 0);
         }
 
         return sum;

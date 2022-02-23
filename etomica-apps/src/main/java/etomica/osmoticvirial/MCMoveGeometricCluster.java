@@ -135,7 +135,7 @@ public class MCMoveGeometricCluster extends MCMoveBox {
     private void gatherNeighbors(IAtom atomI) {
         neighborIterator.iterAllNeighbors(atomI.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
             @Override
-            public void accept(IAtom jAtom, Vector rij) {
+            public void accept(IAtom jAtom, Vector rij, int n) {
                 if (clusterAtoms.contains(jAtom)) return;
                 jNeighbors.add(jAtom);
                 Vector foo = box.getSpace().makeVector();

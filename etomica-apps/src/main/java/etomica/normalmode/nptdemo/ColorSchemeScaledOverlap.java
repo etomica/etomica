@@ -85,7 +85,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
 
             neighborIterator.iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     pj.E(jAtom.getPosition());
                     Vector lj = coordinateDefinition.getLatticePosition(jAtom);
                     pj.ME(lj);

@@ -71,7 +71,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
             IAtomOriented atom1 = (IAtomOriented) a1;
             nbrIterator.iterUpNeighbors(a1.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     IAtomOriented atom2 = (IAtomOriented) jAtom;
                     Vector ei = atom1.getOrientation().getDirection();
                     Vector ej = atom2.getOrientation().getDirection();

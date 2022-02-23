@@ -267,7 +267,6 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
 
     protected int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, IPotential2[] iPotentials) {
         if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
-
         boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
 
         Vector dr = space.makeVector();

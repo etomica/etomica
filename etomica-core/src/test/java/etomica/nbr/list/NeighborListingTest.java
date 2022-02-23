@@ -96,7 +96,7 @@ class NeighborListingTest {
             Set<IAtom> otherTypeNbrList = new HashSet<>();
             nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                 @Override
-                public void accept(IAtom jAtom, Vector rij) {
+                public void accept(IAtom jAtom, Vector rij, int n) {
                     if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
                     else otherTypeNbrList.add(jAtom);
                 }
@@ -129,7 +129,7 @@ class NeighborListingTest {
                 Set<IAtom> otherTypeNbrList = new HashSet<>();
                 nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
                         else otherTypeNbrList.add(jAtom);
                     }
@@ -163,7 +163,7 @@ class NeighborListingTest {
                 Set<IAtom> otherTypeNbrList = new HashSet<>();
                 nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
                         else otherTypeNbrList.add(jAtom);
                     }
@@ -193,7 +193,7 @@ class NeighborListingTest {
                 Set<IAtom> otherTypeNbrList = new HashSet<>();
                 nlm.makeNeighborIterator().iterAllNeighbors(atom.getLeafIndex(), new NeighborIterator.NeighborConsumer() {
                     @Override
-                    public void accept(IAtom jAtom, Vector rij) {
+                    public void accept(IAtom jAtom, Vector rij, int n) {
                         if (jAtom.getType() == atom.getType()) sameTypeNbrList.add(jAtom);
                         else otherTypeNbrList.add(jAtom);
                     }
