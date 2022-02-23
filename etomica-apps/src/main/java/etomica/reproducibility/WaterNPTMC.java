@@ -12,6 +12,7 @@ import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
@@ -19,6 +20,7 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
+import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayPlotXChart;
@@ -26,6 +28,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveMoleculeRotate;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.P2WaterSPCE;
@@ -55,7 +58,7 @@ public class WaterNPTMC extends Simulation {
     public MCMoveMoleculeRotate rotateMove;
     public MCMoveVolume volumeMove;
 
-    public WaterNPTMC(int numMolecules, double temperature, double density, double pressure) {
+    public WaterNPTMC(int numMolecules, double temperature, double density, double pressure, double rCutLJ) {
         super(Space3D.getInstance());
         Box box = new Box(space);
         species = SpeciesWater3P.create(true);
@@ -85,9 +88,21 @@ public class WaterNPTMC extends Simulation {
         PotentialMaster pm = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
 
         TruncationFactory tf = new TruncationFactorySimple(params.rCut);
-        P2LennardJones p2OOLJ = new P2LennardJones(sigmaLJ, epsilonLJ);
-        P2Ewald1Real p2OOqq = new P2Ewald1Real(chargeO*chargeO, params.alpha);
-        IPotential2 p2OO = tf.make(p2OOLJ, p2OOqq);
+        TruncationFactory tfLJ = new TruncationFactorySimple(rCutLJ);
+        IPotential2 p2OOLJ = new P2LennardJones(sigmaLJ, epsilonLJ);
+        IPotential2 p2OOqq = new P2Ewald1Real(chargeO*chargeO, params.alpha);
+        IPotential2 p2OO;
+        if (rCutLJ < params.rCut) {
+            p2OOLJ = tfLJ.make(p2OOLJ);
+            p2OO = tf.make(p2OOLJ, p2OOqq);
+        }
+        else if (rCutLJ > params.rCut) {
+            p2OOqq = tf.make(p2OOqq);
+            p2OO = tfLJ.make(p2OOLJ, p2OOqq);
+        }
+        else {
+            p2OO = tf.make(p2OOLJ, p2OOqq);
+        }
         IPotential2 p2HH = tf.make(new P2Ewald1Real(chargeH*chargeH, params.alpha));
         P2HardGeneric p2MHC = P2HardSphere.makePotential(0.1);
         IPotential2 p2OH = tf.make(p2MHC, new P2Ewald1Real(chargeH*chargeO, params.alpha));
@@ -128,13 +143,14 @@ public class WaterNPTMC extends Simulation {
         Unit pUnit = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
         double pressureKPa = params.pressureKPa;
         double pressure = pUnit.toSim(pressureKPa);
+        double rCutLJ = params.rCutLJ;
 
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/((Oxygen.INSTANCE.getMass()+2* Hydrogen.INSTANCE.getMass()) /Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
         double density = dUnit.toSim(params.density);
 
-        WaterNPTMC sim = new WaterNPTMC(params.numMolecules, temperature, density, pressure);
+        WaterNPTMC sim = new WaterNPTMC(params.numMolecules, temperature, density, pressure, rCutLJ);
 
-        if (true) {
+        if (false) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator, 5000000));
             sim.getController().addActionSequential(new IAction() {
                 @Override
@@ -188,16 +204,97 @@ public class WaterNPTMC extends Simulation {
 
             return;
         }
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator));
+
+        System.out.println("initial density: "+params.density+" "+density);
+        System.out.println("temperature: "+params.temperatureK+" "+temperature);
+        System.out.println("# of molecules: "+params.numMolecules);
+        System.out.println("steps: "+params.steps);
+        System.out.println("pressure: "+params.pressureKPa+" "+pressure);
+        System.out.println("LJ cut: "+params.rCutLJ);
+        System.out.println();
+
+        long t1 = System.nanoTime();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 5000000));
+        long t2 = System.nanoTime();
+        System.out.println("NVT equilibration finished");
+        sim.integrator.getMoveManager().addMCMove(sim.volumeMove);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.steps/10));
+        long t3 = System.nanoTime();
+        System.out.println("NPT equilibration finished");
+
+        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.volumeMove.getTracker().reset();
+        sim.rotateMove.getTracker().reset();
+        sim.translateMove.getTracker().reset();
+
+        // data collection
+        long steps = params.steps;
+        int interval = 10;
+        int blocks = 100;
+        long blockSize = Math.max(steps / (interval * blocks), 1);
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        AccumulatorAverageFixed accPE = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, interval);
+        sim.integrator.getEventManager().addListener(pumpPE);
+
+        MeterDensity meterDensity = new MeterDensity(sim.box());
+        AccumulatorAverageFixed accDensity = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpDensity = new DataPumpListener(meterDensity, accDensity, interval);
+        sim.integrator.getEventManager().addListener(pumpDensity);
+
+        sim.integrator.resetStepCount();
+        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+
+        long t4 = System.nanoTime();
+
+        MCMoveStepTracker volumeTracker = (MCMoveStepTracker) sim.volumeMove.getTracker();
+        System.out.println("volume change fraction: "+((double)volumeTracker.nTrials)/params.steps);
+        System.out.println("volume change step size: "+sim.volumeMove.getStepSize());
+        System.out.println("volume change acceptance: "+volumeTracker.acceptanceProbability());
+
+        MCMoveStepTracker displacementTracker = (MCMoveStepTracker) sim.translateMove.getTracker();
+        System.out.println("displacement fraction: "+((double)displacementTracker.nTrials)/params.steps);
+        System.out.println("displacement step size: "+sim.translateMove.getStepSize());
+        System.out.println("displacement acceptance: "+displacementTracker.acceptanceProbability());
+
+        MCMoveStepTracker rotateTracker = (MCMoveStepTracker) sim.rotateMove.getTracker();
+        System.out.println("rotation fraction: "+((double)rotateTracker.nTrials)/params.steps);
+        System.out.println("rotation step size: "+sim.rotateMove.getStepSize());
+        System.out.println("rotation acceptance: "+rotateTracker.acceptanceProbability());
+
+        System.out.println();
+
+        DataGroup dataPE = (DataGroup) accPE.getData();
+        int numAtoms = sim.getBox(0).getLeafList().size();
+        double avg = dataPE.getValue(accPE.AVERAGE.index) / numAtoms;
+        double err = dataPE.getValue(accPE.ERROR.index) / numAtoms;
+        double cor = dataPE.getValue(accPE.BLOCK_CORRELATION.index);
+
+        DataGroup dataDensity = (DataGroup) accDensity.getData();
+        double avgDensity = dataDensity.getValue(accPE.AVERAGE.index);
+        double errDensity = dataDensity.getValue(accPE.ERROR.index);
+        double corDensity = dataDensity.getValue(accPE.BLOCK_CORRELATION.index);
+
+        System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
+        System.out.println("density avg: " + avgDensity + "  err: " + errDensity + "  cor: " + corDensity);
+        System.out.println("density avg (g/cm^3): " + dUnit.fromSim(avgDensity) + "  err: " + dUnit.fromSim(errDensity) + "  cor: " + corDensity);
+        System.out.println();
+        System.out.println("NVT time: " + (t2 - t1) * 1e-9);
+        System.out.println("equilibration time: " + (t3 - t2) * 1e-9);
+        System.out.println("production time: " + (t4 - t3) * 1e-9);
+
+
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 10000000;
+        public long steps = 100000000;
         public double density = 1;
         public double temperatureK = 300;
         public int numMolecules = 1100;
         public double pressureKPa = 101;
         public double s = 3;
+        public double rCutLJ = 14;
     }
 
 }
