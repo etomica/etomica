@@ -62,9 +62,8 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 	}
 
     public void setDoShowCurrent(boolean newDoShowCurrent) {
+        if (newDoShowCurrent) setDoShowCorrelation(false);
         if (newDoShowCurrent == doShowCurrent) return;
-        if (newDoShowCurrent && doShowCorrelation)
-            throw new RuntimeException("cannot show current and correlation at the same time");
         doShowCurrent = newDoShowCurrent;
         if (doShowCurrent) {
             panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
@@ -79,9 +78,8 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
     }
 
     public void setDoShowCorrelation(boolean newDoShowCorrelation) {
+        if (newDoShowCorrelation) setDoShowCurrent(false);
         if (newDoShowCorrelation == doShowCorrelation) return;
-        if (newDoShowCorrelation && doShowCurrent)
-            throw new RuntimeException("cannot show current and correlation at the same time");
         doShowCorrelation = newDoShowCorrelation;
         if (doShowCorrelation) {
             panelParentGroup.remove(averageBox.graphic());
