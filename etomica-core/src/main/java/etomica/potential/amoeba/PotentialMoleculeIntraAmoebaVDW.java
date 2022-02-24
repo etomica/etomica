@@ -12,6 +12,7 @@ import etomica.potential.IPotential2;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
+import etomica.units.*;
 import etomica.util.collections.IntArrayList;
 
 public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW implements IPotentialMoleculeSingle {
@@ -41,18 +42,22 @@ public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW 
         for (IAtom a : atoms) {
             r[a.getIndex()] = getReducedPosition(a);
         }
+        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
         for (int i=0; i<atoms.size(); i++) {
             IAtom a1 = atoms.get(i);
             Vector r1 = r[i];
             IPotential2[] p1 = atomPotentials[a1.getType().getIndex()];
+            double[][] pScale1 = pScale[a1.getType().getIndex()];
             for (int j=i+1; j<atoms.size(); j++) {
                 IAtom a2 = atoms.get(j);
-                if (bondingInfo.skipBondedPair(false, a1, a2)) continue;
+                int n = bondingInfo.n(false, a1, a2);
+                if (n == 1) continue;
                 IPotential2 p2 = p1[a2.getType().getIndex()];
                 if (p2 == null) continue;
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(r[j], r1);
-                double uu = p2.u(dr.squared());
+                double uu = p2.u(dr.squared()) * pScale1[a2.getType().getIndex()][n];
+                System.out.println("VDW "+a1.getLeafIndex()+" "+a2.getLeafIndex()+" "+kcalpmole.fromSim(uu));
                 u += uu;
             }
         }

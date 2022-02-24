@@ -17,6 +17,7 @@ public class PotentialMoleculeAmoebaVDW {
     protected final IPotential2[][] atomPotentials;
     protected final double[] reduction;
     protected final IntArrayList[][] bonding;
+    protected double[][][] pScale;
 
     public PotentialMoleculeAmoebaVDW(Space space, SpeciesManager sm, IntArrayList[][] bonding) {
         this(space, makeAtomPotentials(sm), bonding);
@@ -37,8 +38,13 @@ public class PotentialMoleculeAmoebaVDW {
     }
 
     public void setAtomPotential(AtomType atomType1, AtomType atomType2, IPotential2 p2) {
+        setAtomPotential(atomType1, atomType2, p2, new double[]{1,1,1,1,1,1});
+    }
+
+    public void setAtomPotential(AtomType atomType1, AtomType atomType2, IPotential2 p2, double[] ijScale) {
         atomPotentials[atomType1.getIndex()][atomType2.getIndex()] = p2;
         atomPotentials[atomType2.getIndex()][atomType1.getIndex()] = p2;
+        pScale[atomType2.getIndex()][atomType1.getIndex()] = ijScale;
     }
 
     public IPotential2[][] getAtomPotentials() {
