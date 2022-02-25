@@ -629,6 +629,7 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         @Override
         public boolean skipBondedChildren(ISpecies species, int child1, int child2) {
+            if (bondedAtoms[species.getIndex()] == null) return true;
             if (child1 > child2) {
                 int tmp = child1;
                 child1 = child2;
