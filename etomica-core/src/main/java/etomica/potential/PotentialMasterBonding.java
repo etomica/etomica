@@ -628,24 +628,29 @@ public class PotentialMasterBonding implements PotentialCompute {
         }
 
         @Override
+        public boolean skipBondedChildren(ISpecies species, int child1, int child2) {
+            if (child1 > child2) {
+                int tmp = child1;
+                child1 = child2;
+                child2 = tmp;
+            }
+            int[] iBondedAtoms = bondedAtoms[species.getIndex()][child1];
+            for (int iBondedAtom : iBondedAtoms) {
+                if (iBondedAtom == child2) return true;
+            }
+            return false;
+        }
+
+        @Override
         public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
             if (!isPureAtoms && iAtom.getParentGroup() == jAtom.getParentGroup()) {
                 // ensure i < j
                 if (isOnlyRigidMolecules) {
                     return true;
                 }
-                if (iAtom.getLeafIndex() > jAtom.getLeafIndex()) {
-                    IAtom tmp = iAtom;
-                    iAtom = jAtom;
-                    jAtom = tmp;
-                }
-                int species = iAtom.getParentGroup().getType().getIndex();
-                int iChildIndex = iAtom.getIndex();
-                int jChildIndex = jAtom.getIndex();
-                int[] iBondedAtoms = bondedAtoms[species][iChildIndex];
-                for (int iBondedAtom : iBondedAtoms) {
-                    if (iBondedAtom == jChildIndex) return true;
-                }
+                int idx1 = iAtom.getIndex();
+                int idx2 = jAtom.getIndex();
+                return skipBondedChildren(iAtom.getParentGroup().getType(), idx1, idx2);
             }
             return false;
         }
