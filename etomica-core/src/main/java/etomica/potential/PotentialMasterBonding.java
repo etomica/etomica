@@ -587,7 +587,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                     ni[pairs[0]][pairs[1]] = ni[pairs[1]][pairs[0]] = 1;
                 }
             }
-            for (int b=1; b<=4; b++) {
+            for (int b=1; b<=3; b++) {
                 for (int i = 0; i < ni.length; i++) {
                     for (int j = 0; j < ni.length; j++) {
                         if (ni[i][j] == b) {
