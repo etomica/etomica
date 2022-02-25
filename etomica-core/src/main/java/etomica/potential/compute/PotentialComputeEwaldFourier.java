@@ -219,17 +219,21 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                     if (qi*qj==0 && B6[i][j] == 0) continue;
                     List<int[]> pairs = new ArrayList<>();
                     for (int ii = 0; ii < typeList[i].size(); ii++) {
+                        int iii = typeList[i].get(ii);
                         if (i==j) {
                             for (int jj=ii+1; jj<typeList[i].size(); jj++) {
-                                pairs.add(new int[]{typeList[i].get(ii),typeList[j].get(jj)});
+                                int jjj = typeList[j].get(jj);
+                                if (pmBonding.getBondingInfo().skipBondedChildren(species, iii, jjj)) pairs.add(new int[]{iii,jjj});
                             }
                         }
                         else {
                             for (int jj=0; jj<typeList[j].size(); jj++) {
-                                pairs.add(new int[]{typeList[i].get(ii),typeList[j].get(jj)});
+                                int jjj = typeList[j].get(jj);
+                                if (pmBonding.getBondingInfo().skipBondedChildren(species, iii, jjj)) pairs.add(new int[]{iii,jjj});
                             }
                         }
                     }
+                    if (pairs.size() == 0) continue;
                     IPotential2 pij = null;
                     if (qi*qj != 0) {
                         pij = new P2Ewald1FourierCancel(qi * qj, alpha);
