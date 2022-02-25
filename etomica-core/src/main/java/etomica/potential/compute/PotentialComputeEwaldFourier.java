@@ -25,10 +25,7 @@ import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 import static etomica.math.SpecialFunctions.erfc;
 import static etomica.math.SpecialFunctions.factorial;
@@ -210,6 +207,7 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
             for (int i=0; i<types.size(); i++) {
                 typeList[types.get(i).getIndex()].add(i);
             }
+            Map<IPotential2,List<int[]>> stuff = new HashMap<>();
             for (int i=0; i<typeList.length; i++) {
                 if (typeList[i].size() == 0) continue;
                 double qi = chargesByType[i];
@@ -247,7 +245,10 @@ public class PotentialComputeEwaldFourier implements PotentialCompute {
                             pij = pij6;
                         }
                     }
-                    pmBonding.setBondingPotentialPair(species, pij, pairs);
+                    stuff.put(pij, pairs);
+                }
+                for (IPotential2 pij : stuff.keySet()) {
+                    pmBonding.setBondingPotentialPair(species, pij, stuff.get(pij));
                 }
             }
         }
