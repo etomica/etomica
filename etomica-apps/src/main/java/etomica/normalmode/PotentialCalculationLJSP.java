@@ -49,7 +49,6 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
         dri.Ev1Mv2(ri, Ri);
 		box.getBoundary().nearestImage(dri);
 		Vector rj;
-        
         for (int j=1;j<nNbrAtoms;j++){//START from "1" NOT "0" because we need j != i
         	rj = atoms.get(j).getPosition();
         	Vector Rj = coordinateDefinition.getLatticePosition(atoms.get(j));
@@ -60,22 +59,21 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 			drij.Ev1Mv2(dri , drj);
 			rij.Ev1Pv2(Rij, drij);
 			double rij2 = rij.squared();
-			double Rij2 = Rij.squared();
 
 			Vector drij_1 = space.makeVector();
 			drij_1.setX(0, (gx1 -1.0)*drij.getX(0));
-			drij_1.setX(1, gy1 *drij.getX(1));
-			drij_1.setX(2, gy1 *drij.getX(2));
+			drij_1.setX(1, gy1*drij.getX(1));
+			drij_1.setX(2, gy1*drij.getX(2));
 
 			Vector drij_2 = space.makeVector();
-			drij_2.setX(0, gy1 *drij.getX(0));
-			drij_2.setX(1, (gx1 -1.0)*drij.getX(1));
-			drij_2.setX(2, gy1 *drij.getX(2));
+			drij_2.setX(0, gy1*drij.getX(0));
+			drij_2.setX(1, (gx1-1.0)*drij.getX(1));
+			drij_2.setX(2, gy1*drij.getX(2));
 
 			Vector drij_3 = space.makeVector();
-			drij_3.setX(0, gy1 *drij.getX(0));
-			drij_3.setX(1, gy1 *drij.getX(1));
-			drij_3.setX(2, (gx1 -1)*drij.getX(2));
+			drij_3.setX(0, gy1*drij.getX(0));
+			drij_3.setX(1, gy1*drij.getX(1));
+			drij_3.setX(2, (gx1-1)*drij.getX(2));
 
 			Vector drij_4 = space.makeVector();
 			drij_4.setX(1, drij.getX(2));

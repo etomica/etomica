@@ -167,16 +167,16 @@ public class MeterSolidPropsLJ implements IDataSource {
         x[1] = U + 1.0/2.0*Fdr + 3.0/2.0*(nMol-1.0)*temperature - Ushift;
         //P: shiftP=P
         x[2] = 1.0/3.0/volume*Fr + density*temperature - this.Pshift;
-        double fV = gV-1.0/3.0;//gV/volume-1.0/3.0/volume;
+        double fV = gV-1.0/3.0;
         x[3] = 1.0/3.0/volume*Fr + fV/volume*Fdr + 3*(nMol-1)*temperature/volume*gV + temperature/volume - this.Pshift;
 
         //P1, P2, P3: shiftP = -P
-        x[4] = -1.0/volume*Fxrx - density*temperature + this.Pshift;//P1
-        x[5] = -1.0/volume*(Fxrx+Fdr1 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;
-        x[6] = -1.0/volume*Fyry - density*temperature + this.Pshift;//P2
-        x[7] = -1.0/volume*(Fyry+Fdr2 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;
-        x[8] = -1.0/volume*Fzrz - density*temperature + this.Pshift;//P3
-        x[9] = -1.0/volume*(Fzrz+Fdr3 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;
+        x[4] = -1.0/volume*Fxrx - density*temperature + this.Pshift;//P1c
+        x[5] = -1.0/volume*(Fxrx + Fdr1 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;//P1m
+        x[6] = -1.0/volume*Fyry - density*temperature + this.Pshift;//P2c
+        x[7] = -1.0/volume*(Fyry + Fdr2 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;//P2m
+        x[8] = -1.0/volume*Fzrz - density*temperature + this.Pshift;//P3c
+        x[9] = -1.0/volume*(Fzrz + Fdr3 + (nMol-1)*temperature*(gx1+2.0*gy1) + temperature) + this.Pshift;//P3m
         //P4, P5, P5: no shift (<P4>=<P5>=<P6>=0)
         x[10] = -1.0/volume*Fyrz;//P4
         x[11] = -1.0/volume*(Fyrz+Fdr4);
