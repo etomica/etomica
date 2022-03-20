@@ -185,7 +185,7 @@ public class MeterSolidPropsLJ implements IDataSource {
         x[14] = -1.0/volume*Fxry;//P6
         x[15] = -1.0/volume*(Fxry+Fdr6);
         //Cv
-        x[16] = -1.0/4.0/temperature*(Fdr+drPhidr) + 3.0/2.0*(nMol-1.0);
+        x[16] = -1.0/4.0/temperature*(Fdr+drPhidr) ;
         //B
         double d2UdeV_vir = 1.0/9.0*rPhir + 2.0/9.0*Fr;
         x[17] = 1.0/volume*d2UdeV_vir + density*temperature;

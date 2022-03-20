@@ -427,8 +427,8 @@ public class SimLJPropsCij extends Simulation {
 
 
 //Bulk
-        double Cv_conv = varU_conv / temperature / temperature;
-        double Cv_hma  = dataElasticAvg.getValue(16) + varU_hma / temperature / temperature;
+        double Cv_conv = varU_conv / temperature / temperature + 3.0/2.0*(nMol-1);
+        double Cv_hma  = dataElasticAvg.getValue(16) + varU_hma / temperature / temperature + 3.0*(nMol-1.0);
         double B_conv  = dataElasticAvg.getValue(17) - volume / temperature * varP_conv;
         double B_hma   = dataElasticAvg.getValue(18) - volume / temperature * varP_hma;
 //Cij
@@ -548,7 +548,7 @@ public class SimLJPropsCij extends Simulation {
         int nC = 5;
         public int nMol = nBasis * nC * nC * nC;
         public double density0 = 1.0; //To fix NNs
-        public long numSteps = 10000;
+        public long numSteps = 100000;
         public double temperature = 0.1;
         public boolean isLRC = false;
         public boolean isGraphic = false;
