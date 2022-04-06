@@ -34,6 +34,7 @@ public class SimLJPropsCij extends Simulation {
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;
+    public int nMol;
     public Primitive primitive;
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
@@ -42,7 +43,7 @@ public class SimLJPropsCij extends Simulation {
     protected CoordinateDefinition.BasisCell[] cells0;
 
 
-    public SimLJPropsCij(Space _space, int nMol, double density0, double temperature, double rC, boolean isLRC, double strain_x, double strain_yz, boolean isSS) {
+    public SimLJPropsCij(Space _space, int nc, double density0, double temperature, double rc, boolean isLRC, double strain_x, double strain_yz, boolean isSS, boolean isBCC) {
         super(_space);
 //        setRandom(new RandomMersenneTwister(1)); // set seed
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
@@ -50,13 +51,19 @@ public class SimLJPropsCij extends Simulation {
 
         potentialMaster = new PotentialMasterList(this, space);
 
-        double L = Math.pow(4.0 / density0, 1.0 / 3.0);
+        int nBasis = isBCC ? 2 : 4;
+        nMol = nBasis*nc*nc*nc;
+        double L = Math.pow(nBasis / density0, 1.0 / 3.0);
 
-        System.out.println(" rC = " + rC);
-        int n = (int) Math.round(Math.pow(nMol / 4, 1.0 / 3.0));
+        System.out.println(" rc = " + rc);
 
-        nCells = new int[]{n, n, n};
-        Basis basisFCC = new BasisCubicFcc();
+        nCells = new int[]{nc, nc, nc};
+        if(isBCC){
+            basis = new BasisCubicBcc();
+
+        }else{
+            basis = new BasisCubicFcc();
+        }
         Vector[] cellDim = new Vector[3];
         cellDim[0] = Vector.of(new double[]{L, 0, 0});
         cellDim[1] = Vector.of(new double[]{0, L, 0});
@@ -66,8 +73,8 @@ public class SimLJPropsCij extends Simulation {
         box = this.makeBox(boundary);
         box.setNMolecules(species, nMol);
 
-        CoordinateDefinitionLeaf coordinateDefinition0 = new CoordinateDefinitionLeaf(box, primitive, basisFCC, space);
-        coordinateDefinition0.initializeCoordinates(new int[]{n, n, n});
+        CoordinateDefinitionLeaf coordinateDefinition0 = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        coordinateDefinition0.initializeCoordinates(new int[]{nc, nc, nc});
         cells0 = coordinateDefinition0.getBasisCells();
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
@@ -86,7 +93,7 @@ public class SimLJPropsCij extends Simulation {
             potential = new P2LennardJones(space);
             System.out.println("** LJ potential **");
         }
-        potential = new P2SoftSphericalTruncatedForceShifted(space, potential, rC);
+        potential = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
         atomMove.setPotential(potential);
 
         AtomType sphereType = species.getLeafType();
@@ -95,7 +102,7 @@ public class SimLJPropsCij extends Simulation {
         potentialMaster.lrcMaster().setEnabled(isLRC);
 
         int cellRange = 4;
-        potentialMaster.setRange(rC);
+        potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange);
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
@@ -110,9 +117,9 @@ public class SimLJPropsCij extends Simulation {
         }
 
         if (strain_x != 0 || strain_yz != 0) {
-            cellDim[0] = Vector.of(new double[]{(1 + strain_x) * n * L, 0, 0});
-            cellDim[1] = Vector.of(new double[]{0, n * L, strain_yz / 2 * n * L});
-            cellDim[2] = Vector.of(new double[]{0, strain_yz / 2 * n * L, n * L});
+            cellDim[0] = Vector.of(new double[]{(1 + strain_x) * nc * L, 0, 0});
+            cellDim[1] = Vector.of(new double[]{0, nc * L, strain_yz / 2 * nc * L});
+            cellDim[2] = Vector.of(new double[]{0, strain_yz / 2 * nc * L, nc * L});
 
             ((BoundaryDeformablePeriodic) boundary).setEdgeVector(0, cellDim[0]);
             ((BoundaryDeformablePeriodic) boundary).setEdgeVector(1, cellDim[1]);
@@ -123,8 +130,8 @@ public class SimLJPropsCij extends Simulation {
             cellDim[2] = Vector.of(new double[]{0, strain_yz / 2 * L, L});
 
             primitive = new PrimitiveGeneral(space, cellDim);
-            coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basisFCC, space);
-            coordinateDefinition.initializeCoordinates(new int[]{n, n, n});
+            coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+            coordinateDefinition.initializeCoordinates(new int[]{nc, nc, nc});
 
         } else {
             coordinateDefinition = coordinateDefinition0;
@@ -143,12 +150,14 @@ public class SimLJPropsCij extends Simulation {
         SimLJPropsCijParam params = new SimLJPropsCijParam();
         ParseArgs.doParseArgs(params, args);
         long numSteps = params.numSteps;
-        int nMol = params.nMol;
+        int nc = params.nc;
+        int nSS = params.nSS;
         double density0 = params.density0;
-        double rc = params.rC;
+        double rc = params.rc;
         double temperature = params.temperature;
         boolean isLRC = params.isLRC;
         boolean isSS = params.isSS;
+        boolean isBCC = params.isBCC;
         boolean isGraphic = params.isGraphic;
         double strain_x = params.strain_x;
         double strain_yz = params.strain_yz;
@@ -171,19 +180,21 @@ public class SimLJPropsCij extends Simulation {
         System.out.println(" gy44: " + params.gy44 + " gx12: " + params.gx12 + " gz12 " + params.gz12);
         System.out.println();
 
-        System.out.println(" " + nMol + " atoms " + " temperature " + temperature + " rc " + rc);
+
+        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nc, density0, temperature, rc, isLRC, strain_x, strain_yz, isSS, isBCC);
+        sim.integrator.reset(); // so we can ask it for the PE (the integrator already gets reset at the start of the simulation)
+
+        System.out.println(" " + sim.nMol + " atoms " + " temperature " + temperature + " rc " + rc);
         System.out.println(" " + numSteps + " MC steps");
         System.out.println(" strain_x  " + strain_x + " strain_yz  " + strain_yz);
 
-        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nMol, density0, temperature, rc, isLRC, strain_x, strain_yz, isSS);
-        sim.integrator.reset(); // so we can ask it for the PE (the integrator already gets reset at the start of the simulation)
         double volume = sim.box.getBoundary().volume();
-        double density = nMol / volume;
+        double density = sim.nMol/volume;
         System.out.println(" density0 " + density0 + " density " + density + " volume " + volume + "\n");
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         double ULat = meterPE.getDataAsScalar();
-        System.out.println(" u_lat " + (ULat / nMol));
+        System.out.println(" u_lat " + (ULat/sim.nMol));
         //P
         MeterPressure meterP = new MeterPressure(sim.space);
         meterP.setBox(sim.box);
@@ -245,7 +256,7 @@ public class SimLJPropsCij extends Simulation {
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            simGraphic.makeAndDisplayFrame(("LJ") + " FCC");
+            simGraphic.makeAndDisplayFrame(("LJ-") + (isBCC ? "BCC" : " FCC"));
             //PE
             DataSourceCountSteps timeSource = new DataSourceCountSteps(sim.integrator);
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -292,7 +303,7 @@ public class SimLJPropsCij extends Simulation {
 
 
         int numBlocks = 100;
-        int interval = nMol;
+        int interval = sim.nMol;
         long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
         System.out.println(" block size " + blockSize + " interval " + interval);
@@ -427,8 +438,8 @@ public class SimLJPropsCij extends Simulation {
 
 
 //Bulk
-        double Cv_conv = varU_conv / temperature / temperature + 3.0/2.0*(nMol-1);
-        double Cv_hma  = dataElasticAvg.getValue(16) + varU_hma / temperature / temperature + 3.0*(nMol-1.0);
+        double Cv_conv = varU_conv / temperature / temperature + 3.0/2.0*(sim.nMol-1);
+        double Cv_hma  = dataElasticAvg.getValue(16) + varU_hma / temperature / temperature + 3.0*(sim.nMol-1.0);
         double B_conv  = dataElasticAvg.getValue(17) - volume / temperature * varP_conv;
         double B_hma   = dataElasticAvg.getValue(18) - volume / temperature * varP_hma;
 //Cij
@@ -512,19 +523,20 @@ public class SimLJPropsCij extends Simulation {
         System.out.println(" b22_hma      " + b22_hma);
         System.out.println(" b11_hma_avg  " + 1.0/3.0*(b11_hma + b22_hma + b33_hma));
 
-        double C11s_conv = C11_conv + temperature*volume/Cv_conv*b11_conv*b11_conv;
-        double C11s_hma  = C11_hma  + temperature*volume/Cv_hma*b11_hma*b11_hma;
-        double C22s_conv = C22_conv + temperature*volume/Cv_conv*b22_conv*b22_conv;
-        double C22s_hma  = C22_hma  + temperature*volume/Cv_hma*b22_hma*b22_hma;
-        double C33s_conv = C33_conv + temperature*volume/Cv_conv*b33_conv*b33_conv;
-        double C33s_hma  = C33_hma  + temperature*volume/Cv_hma*b33_hma*b33_hma;
+    //Adiabatic Cij
+        double C11s_conv = C11_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double C11s_hma  = C11_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
+        double C22s_conv = C22_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double C22s_hma  = C22_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
+        double C33s_conv = C33_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double C33s_hma  = C33_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
 
-        double C12s_conv = C12_conv + temperature*volume/Cv_conv*b11_conv*b22_conv;
-        double C12s_hma  = C12_hma  + temperature*volume/Cv_hma*b11_hma*b22_hma;
-        double C13s_conv = C13_conv + temperature*volume/Cv_conv*b11_conv*b33_conv;
-        double C13s_hma  = C13_hma  + temperature*volume/Cv_hma*b11_hma*b33_hma;
-        double C23s_conv = C23_conv + temperature*volume/Cv_conv*b22_conv*b33_conv;
-        double C23s_hma  = C23_hma  + temperature*volume/Cv_hma*b22_hma*b33_hma;
+        double C12s_conv = C12_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double C12s_hma  = C12_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
+        double C13s_conv = C13_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double C13s_hma  = C13_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
+        double C23s_conv = C23_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double C23s_hma  = C23_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
 
         System.out.println("\n Adiabatic Cij");
         System.out.println(" C11s_conv     " + C11s_conv);
@@ -543,33 +555,43 @@ public class SimLJPropsCij extends Simulation {
     }
 
     public static class SimLJPropsCijParam extends ParameterBase {
-        public boolean isSS = false;
-        public int nBasis = 4;
-        int nC = 5;
-        public int nMol = nBasis * nC * nC * nC;
-        public double density0 = 1.0; //To fix NNs
+        public boolean isSS = true;
+        public boolean isBCC = !false;
+        public int nc = 5;
+        public int nSS = 6;
+        public double density0 = 1.0;
         public long numSteps = 100000;
         public double temperature = 0.1;
         public boolean isLRC = false;
         public boolean isGraphic = false;
-        public double rC = 3.0;
-        public double strain_x = 0.0; //normal  eta_1
-        public double strain_yz = 0.0;// shear  eta_4
+        public double rc = 3.0;
+        public double strain_x = 0.0;
+        public double strain_yz = 0.0;
 
-        //HMA Elastic Parameters: N=500 , rc=3.0 , rho=1.0
+        //SS-FCC: rho=1.0, rc=3.0, nC=5 (N=500)
+        public double gV = 1.311228683828027;
+        public double gVV = -2.40860803038023;
+        public double gx1 = 0.856829541947821;
+        public double gy1 = 1.571793673227276;
+        public double gy4 = 1.109482551491772;
+        public double gx11 = 6.524277966365553;
+        public double gy11 = 9.519621394361856;
+        public double gx44 = 8.136259292376623;
+        public double gy44 = 4.084877414829758;
+        public double gx12 = -4.128287032762978;
+        public double gz12 = -8.554302853671222;
 
-        //LJ
-        public double gV = 3.111187957436236;
-        public double gVV = 0.602314743869597;
-        public double gx1 = 3.577223322454191;
-        public double gy1 = 2.853464500952745;
-        public double gy4 = 2.232158262013541;
-        public double gx11 = 15.125133239539247;
-        public double gy11 = 4.801957350451653;
-        public double gx44 = 10.768595700746864;
-        public double gy44 = 3.233644482570479;
-        public double gx12 = -4.114446785996284;
-        public double gz12 = -0.393648131801667;
-
+        //SS-BCC: rho=1.0, rc=3.0, nC=5 (N=250)
+//      public double gV = 1.333333333327323;
+//      public double gVV = -1.333333333358931;
+//      public double gx1 = 3.296099188968160;
+//      public double gy1 = 15.727035461520224;
+//      public double gy4 = 37.042328660747231;
+//      public double gx11 = -8135.018018253035734;
+//      public double gy11 = -8467.630185766820432;
+//      public double gx44 = 98.601785860663995;
+//      public double gy44 = 9500.416318009101815;
+//      public double gx12 = -11578.129589642332576;
+//      public double gz12 = 330.852926004151186;
     }
 }
