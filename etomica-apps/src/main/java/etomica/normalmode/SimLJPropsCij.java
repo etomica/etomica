@@ -40,16 +40,14 @@ public class SimLJPropsCij extends Simulation {
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
     public SpeciesGeneral species;
-    protected CoordinateDefinition.BasisCell[] cells0;
 
 
-    public SimLJPropsCij(Space _space, int nc, double density0, double temperature, double rc, boolean isLRC, double strain_x, double strain_yz, boolean isSS, boolean isBCC) {
+    public SimLJPropsCij(Space _space, int nc, double density0, double temperature, double rc, boolean isLRC, double strain_x, double strain_yz, boolean isSS, boolean isBCC, int nSS) {
         super(_space);
 //        setRandom(new RandomMersenneTwister(1)); // set seed
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterList(this, space);
 
         int nBasis = isBCC ? 2 : 4;
         nMol = nBasis*nc*nc*nc;
@@ -60,7 +58,6 @@ public class SimLJPropsCij extends Simulation {
         nCells = new int[]{nc, nc, nc};
         if(isBCC){
             basis = new BasisCubicBcc();
-
         }else{
             basis = new BasisCubicFcc();
         }
@@ -74,9 +71,9 @@ public class SimLJPropsCij extends Simulation {
         box.setNMolecules(species, nMol);
 
         CoordinateDefinitionLeaf coordinateDefinition0 = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition0.initializeCoordinates(new int[]{nc, nc, nc});
-        cells0 = coordinateDefinition0.getBasisCells();
+        coordinateDefinition0.initializeCoordinates(nCells);
 
+        potentialMaster = new PotentialMasterList(this, space);
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
@@ -87,13 +84,14 @@ public class SimLJPropsCij extends Simulation {
 
         Potential2SoftSpherical potential;
         if (isSS) {
-            potential = new P2SoftSphere(space);
+            potential = new P2SoftSphere(space, 1.0, 1.0, nSS);
             System.out.println("** SS potential **");
         } else {
             potential = new P2LennardJones(space);
             System.out.println("** LJ potential **");
         }
-        potential = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
+        potential = new P2SoftSphericalTruncated(space, potential, rc);
+
         atomMove.setPotential(potential);
 
         AtomType sphereType = species.getLeafType();
@@ -109,7 +107,7 @@ public class SimLJPropsCij extends Simulation {
         if (potentialCells < cellRange * 2 + 1) {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
-        activityIntegrate = new ActivityIntegrate(integrator);
+
         getController().addActivity(new ActivityIntegrate(integrator));
 
         if (!isLRC) {
@@ -173,7 +171,7 @@ public class SimLJPropsCij extends Simulation {
         elasticParams[8] = params.gy44;
         elasticParams[9] = params.gx12;
         elasticParams[10] = params.gz12;
-        System.out.println(" HMA Elastic Parameters:" + (isSS ? " SS" : " LJ"));
+        System.out.println(" HMA Elastic Parameters:" + (isSS ? " SS-"+nSS : " LJ") + (isBCC ? " BCC " : " FCC"));
         System.out.println(" gV: " + params.gV + " gVV: " + params.gVV);
         System.out.println(" gx1: " + params.gx1 + " gy1: " + params.gy1 + " gy4 " + params.gy4);
         System.out.println(" gx11: " + params.gx11 + " gy11: " + params.gy11 + " gx44 " + params.gx44);
@@ -181,7 +179,7 @@ public class SimLJPropsCij extends Simulation {
         System.out.println();
 
 
-        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nc, density0, temperature, rc, isLRC, strain_x, strain_yz, isSS, isBCC);
+        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nc, density0, temperature, rc, isLRC, strain_x, strain_yz, isSS, isBCC, nSS);
         sim.integrator.reset(); // so we can ask it for the PE (the integrator already gets reset at the start of the simulation)
 
         System.out.println(" " + sim.nMol + " atoms " + " temperature " + temperature + " rc " + rc);
@@ -555,43 +553,43 @@ public class SimLJPropsCij extends Simulation {
     }
 
     public static class SimLJPropsCijParam extends ParameterBase {
+        public boolean isBCC = true;
         public boolean isSS = true;
-        public boolean isBCC = !false;
-        public int nc = 5;
         public int nSS = 6;
+        public int nc = 5;
         public double density0 = 1.0;
         public long numSteps = 100000;
         public double temperature = 0.1;
         public boolean isLRC = false;
-        public boolean isGraphic = false;
+        public boolean isGraphic = !false;
         public double rc = 3.0;
         public double strain_x = 0.0;
         public double strain_yz = 0.0;
 
         //SS-FCC: rho=1.0, rc=3.0, nC=5 (N=500)
-        public double gV = 1.311228683828027;
-        public double gVV = -2.40860803038023;
-        public double gx1 = 0.856829541947821;
-        public double gy1 = 1.571793673227276;
-        public double gy4 = 1.109482551491772;
-        public double gx11 = 6.524277966365553;
-        public double gy11 = 9.519621394361856;
-        public double gx44 = 8.136259292376623;
-        public double gy44 = 4.084877414829758;
-        public double gx12 = -4.128287032762978;
-        public double gz12 = -8.554302853671222;
+//        public double gV = 1.311228683828027;
+//        public double gVV = -2.40860803038023;
+//        public double gx1 = 0.856829541947821;
+//        public double gy1 = 1.571793673227276;
+//        public double gy4 = 1.109482551491772;
+//        public double gx11 = 6.524277966365553;
+//        public double gy11 = 9.519621394361856;
+//        public double gx44 = 8.136259292376623;
+//        public double gy44 = 4.084877414829758;
+//        public double gx12 = -4.128287032762978;
+//        public double gz12 = -8.554302853671222;
 
         //SS-BCC: rho=1.0, rc=3.0, nC=5 (N=250)
-//      public double gV = 1.333333333327323;
-//      public double gVV = -1.333333333358931;
-//      public double gx1 = 3.296099188968160;
-//      public double gy1 = 15.727035461520224;
-//      public double gy4 = 37.042328660747231;
-//      public double gx11 = -8135.018018253035734;
-//      public double gy11 = -8467.630185766820432;
-//      public double gx44 = 98.601785860663995;
-//      public double gy44 = 9500.416318009101815;
-//      public double gx12 = -11578.129589642332576;
-//      public double gz12 = 330.852926004151186;
+        public double gV=1.333333333330087;
+        public double gVV=-1.333333337723050;
+        public double gx1=14.130332142624933;
+        public double gy1=-5.438610733416615;
+        public double gy4=7.101305904904041;
+        public double gx11=360.039872590303162;
+        public double gy11=2166.751003616230264;
+        public double gx44=98.597509018531241;
+        public double gy44=601.030038216743037;
+        public double gx12=2141.625466638402941;
+        public double gz12=2711.393584673742225;
     }
 }
