@@ -280,14 +280,14 @@ public class PotentialComputeEAM implements PotentialCompute {
                         uTot[0] += uij;
                     }
 
-                    u012[0] = u012[1] = u012[2];
+                    u012[0] = u012[1] = u012[2] = 0;
                 }
                 if (irp != null && embeddingPotentials[jType] != null) {
                     // i contributes to j density
                     double irc = irp.getRange();
-                    u012[0] = 0;
                     if (r2 < irc * irc) {
                         // i contributes to j density
+                        u012[0] = u012[1] = 0;
                         irp.u012add(r2, u012);
                         rhoSum[j] += u012[0];
                         rdrho.add(u012[1]);
@@ -299,6 +299,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                             double jrc = jrp.getRange();
                             if (r2 < jrc * jrc) {
                                 // j contributes to i density
+                                u012[0] = u012[1] = 0;
                                 jrp.u012add(r2, u012);
                                 rdrho.add(u012[1]);
                                 rhoSum[finalI] += u012[0];
@@ -313,6 +314,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                         double jrc = jrp.getRange();
                         if (r2 < jrc * jrc) {
                             // j contributes to i density
+                            u012[0] = 0;
                             jrp.u012add(r2, u012);
                             rdrho.add(u012[1]);
                             rhoSum[finalI] += u012[0];
