@@ -558,38 +558,39 @@ public class SimLJPropsCij extends Simulation {
         public int nSS = 6;
         public int nc = 5;
         public double density0 = 1.0;
-        public long numSteps = 100000;
+        public long numSteps = 1000000;
         public double temperature = 0.1;
         public boolean isLRC = false;
-        public boolean isGraphic = !false;
+        public boolean isGraphic = false;
         public double rc = 3.0;
         public double strain_x = 0.0;
         public double strain_yz = 0.0;
 
-        //SS-FCC: rho=1.0, rc=3.0, nC=5 (N=500)
-//        public double gV = 1.311228683828027;
-//        public double gVV = -2.40860803038023;
-//        public double gx1 = 0.856829541947821;
-//        public double gy1 = 1.571793673227276;
-//        public double gy4 = 1.109482551491772;
-//        public double gx11 = 6.524277966365553;
-//        public double gy11 = 9.519621394361856;
-//        public double gx44 = 8.136259292376623;
-//        public double gy44 = 4.084877414829758;
-//        public double gx12 = -4.128287032762978;
-//        public double gz12 = -8.554302853671222;
+        //SS-FCC: nSS=12 , rho=1.0, rc=3.0, nC=5 (N=500)
+//         public double gV=2.333333333332616 
+//         public double gVV=-2.333333331008459
+//         public double gx1=2.365809823734493
+//         public double gy1=2.317095089949099
+//         public double gy4=1.657754708346944
+//         public double gx11=6.914084603034437
+//         public double gy11=5.226926773132499
+//         public double gx44=9.333235933502698
+//         public double gy44=1.780559360999292
+//         public double gx12=-5.822852205434982
+//         public double gz12=-4.038264917932466
 
-        //SS-BCC: rho=1.0, rc=3.0, nC=5 (N=250)
-        public double gV=1.333333333330087;
-        public double gVV=-1.333333337723050;
-        public double gx1=14.130332142624933;
-        public double gy1=-5.438610733416615;
-        public double gy4=7.101305904904041;
-        public double gx11=360.039872590303162;
-        public double gy11=2166.751003616230264;
-        public double gx44=98.597509018531241;
-        public double gy44=601.030038216743037;
-        public double gx12=2141.625466638402941;
-        public double gz12=2711.393584673742225;
+
+        //SS-BCC: nSS=6 , rho=1.0, rc=3.0, nC=5 (N=250)
+        public double gV=1.333333333334733 
+        public double gVV=-1.333333331020438
+        public double gx1=1.321732322767388
+        public double gy1=1.339133838679187
+        public double gy4=1.339133838700971
+        public double gx11=-5.208082731208532
+        public double gy11=-1.366754230260249
+        public double gx44=-6.180381361666975
+        public double gy44=1.328914959737209
+        public double gx12=1.282309044414773
+        public double gz12=-2.593822489037677
     }
 }
