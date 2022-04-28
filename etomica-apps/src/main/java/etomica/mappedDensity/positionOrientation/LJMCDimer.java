@@ -4,17 +4,20 @@
 
 package etomica.mappedDensity.positionOrientation;
 
-import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationChainLinear;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
+import etomica.data.DataTag;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.types.DataDoubleArray;
 import etomica.dcvgcmd.P1WCAWall;
 import etomica.graphics.ColorSchemeRandomByMolecule;
+import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -51,7 +54,7 @@ public class LJMCDimer extends Simulation {
     public Box box;
     public P2LennardJones potential;
 
-    public LJMCDimer(int D, int numMolecules, double density, double temperature) {
+    public LJMCDimer(int D, int numMolecules, double density, double Lz, double temperature) {
         super(Space.getInstance(D));
 
         double a = Degree.UNIT.toSim(45);
@@ -80,7 +83,14 @@ public class LJMCDimer extends Simulation {
         integrator.getMoveManager().addMCMove(new MCMoveMoleculeRotate(this.getRandom(), pcAgg, box));
 
         box.setNMolecules(species, numMolecules);
-        new BoxInflate(box, space, 1.2*density).actionPerformed();
+        if (D == 2) {
+            double Lxy = numMolecules / density / Lz;
+            box.getBoundary().setBoxSize(Vector.of(Lxy, Lz - 1));
+        }
+        else {
+            double Lxy = Math.sqrt(numMolecules / density / Lz);
+            box.getBoundary().setBoxSize(Vector.of(Lxy, Lxy, Lz -1));
+        }
 
         potential = new P2LennardJones(sigma, 1.0);
         P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(potential, 3.0);
@@ -89,7 +99,7 @@ public class LJMCDimer extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(D==3 ? new LatticeCubicFcc(space) : new LatticeOrthorhombicHexagonal(space), space);
         configuration.initializeCoordinates(box);
         Vector l = box.getBoundary().getBoxSize();
-        l.setX(2, l.getX(2)*1.2);
+        l.setX(2, Lz);
         box.getBoundary().setBoxSize(l);
     }
 
@@ -101,31 +111,54 @@ public class LJMCDimer extends Simulation {
         else {
             // override defaults here
             params.D = 2;
+            params.density = 0.4;
+            params.numMolecules = 100;
         }
 
         int numMolecules = params.numMolecules;
         double temperature = params.temperature;
         double density = params.density;
         int D = params.D;
+        double Lz = params.Lz;
+        int nZdata = params.nZdata;
+        int nAngleData = params.nAngleData;
 
-        final LJMCDimer sim = new LJMCDimer(D, numMolecules, density, temperature);
+        final LJMCDimer sim = new LJMCDimer(D, numMolecules, density, Lz, temperature);
 
         boolean graphics = true;
 
         MeterPotentialEnergyFromIntegrator energy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        MeterHistogramOrientation meterOrientation = new MeterHistogramOrientation(sim.box, 2, nZdata, nAngleData);
+
 
         if (graphics) {
             final String APP_NAME = "LJMDDimer";
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             AccumulatorAverageCollapsing avgEnergy = new AccumulatorAverageCollapsing();
             avgEnergy.setPushInterval(10);
             DataPumpListener pump = new DataPumpListener(energy, avgEnergy, numMolecules);
             sim.integrator.getEventManager().addListener(pump);
 
+            AccumulatorAverageFixed avgHistogram = new AccumulatorAverageFixed(1);
+            avgEnergy.setPushInterval(10);
+            DataPumpListener pumpHistogram = new DataPumpListener(meterOrientation, avgHistogram, numMolecules);
+            sim.integrator.getEventManager().addListener(pumpHistogram);
+            DataHistogramSplitter splitter = new DataHistogramSplitter();
+            avgHistogram.addDataSink(splitter, new AccumulatorAverageFixed.StatType[]{avgHistogram.AVERAGE});
+            DisplayPlotXChart plotHistogram = new DisplayPlotXChart();
+            DataDoubleArray zData = meterOrientation.getIndependentData(0);
+            for (int i=nZdata-1; i>=0; i--) {
+                splitter.setDataSink(i, plotHistogram.getDataSet().makeDataSink());
+                plotHistogram.setLegend(new DataTag[]{splitter.getTag(i)}, "z="+(0.5*Lz-zData.getValue(i)));
+            }
+            plotHistogram.setLabel("Plot");
+            simGraphic.add(plotHistogram);
+
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(pump);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogram);
             simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom()));
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -141,6 +174,9 @@ public class LJMCDimer extends Simulation {
         public int numMolecules = 256;
         public double temperature = 2;
         public double density = 0.4;
+        public double Lz = 10;
         public int D = 3;
+        public int nZdata = 10;
+        public int nAngleData = 10;
     }
 }
