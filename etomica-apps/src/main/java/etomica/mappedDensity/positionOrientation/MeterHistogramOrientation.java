@@ -28,7 +28,7 @@ public class MeterHistogramOrientation implements IDataSource, DataSourceIndepen
         double L = box.getBoundary().getBoxSize().getX(d);
         int D = box.getSpace().D();
         perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
-        cosSource = new DataSourceUniform(D==2 ? "angle" : "cosine", Null.DIMENSION, nBinsCos, 0, D==2 ? Math.PI/2 : 1, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        cosSource = new DataSourceUniform(D==2 ? "2 angle / π" : "cosine", Null.DIMENSION, nBinsCos, 0, 1, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         data = new DataFunction(new int[]{nBinsPerp,nBinsCos});
         dataInfo = new DataFunction.DataInfoFunction("histogram", Null.DIMENSION, this);
         tag = new DataTag();
@@ -54,7 +54,7 @@ public class MeterHistogramOrientation implements IDataSource, DataSourceIndepen
             int perpIdx = perpSource.getIndex(dz);
             dr.normalize();
             double drd = Math.abs(dr.getX(d));
-            if (D == 2) drd = Math.acos(drd);
+            if (D == 2) drd = Math.acos(drd)/(Math.PI/2);
             int cosIdx = cosSource.getIndex(drd);
             y[perpIdx* cosSource.getNValues() + cosIdx] += inc;
         }

@@ -9,12 +9,10 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationChainLinear;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataTag;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.dcvgcmd.P1WCAWall;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayPlotXChart;
@@ -141,7 +139,7 @@ public class LJMCDimer extends Simulation {
             DataPumpListener pump = new DataPumpListener(energy, avgEnergy, numMolecules);
             sim.integrator.getEventManager().addListener(pump);
 
-            AccumulatorAverageFixed avgHistogram = new AccumulatorAverageFixed(1);
+            AccumulatorAverageFixed avgHistogram = new AccumulatorAverageFixed(1000);
             avgEnergy.setPushInterval(10);
             DataPumpListener pumpHistogram = new DataPumpListener(meterOrientation, avgHistogram, numMolecules);
             sim.integrator.getEventManager().addListener(pumpHistogram);
@@ -153,8 +151,35 @@ public class LJMCDimer extends Simulation {
                 splitter.setDataSink(i, plotHistogram.getDataSet().makeDataSink());
                 plotHistogram.setLegend(new DataTag[]{splitter.getTag(i)}, "z="+(0.5*Lz-zData.getValue(i)));
             }
-            plotHistogram.setLabel("Plot");
+            plotHistogram.setLabel("Histograms");
             simGraphic.add(plotHistogram);
+
+            DataProcessor dpDifficulty = new DataProcessor() {
+                DataFunction data;
+                @Override
+                protected IData processData(IData inputData) {
+                    data.E(inputData);
+                    data.TE(Math.sqrt(sim.integrator.getStepCount()));
+                    return data;
+                }
+
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    data = (DataFunction)inputDataInfo.makeData();
+                    return inputDataInfo;
+                }
+            };
+            avgHistogram.addDataSink(dpDifficulty, new AccumulatorAverageFixed.StatType[]{avgHistogram.ERROR});
+            DataHistogramSplitter splitterErr = new DataHistogramSplitter();
+            dpDifficulty.setDataSink(splitterErr);
+            DisplayPlotXChart plotHistogramErr = new DisplayPlotXChart();
+            for (int i=nZdata-1; i>=0; i--) {
+                splitterErr.setDataSink(i, plotHistogramErr.getDataSet().makeDataSink());
+                plotHistogramErr.setLegend(new DataTag[]{splitterErr.getTag(i)}, "z="+(0.5*Lz-zData.getValue(i)));
+            }
+            plotHistogramErr.setLabel("Difficulty");
+            simGraphic.add(plotHistogramErr);
+
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(pump);
