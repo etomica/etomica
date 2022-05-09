@@ -428,8 +428,8 @@ public class SimulationVirialOverlap2 extends Simulation {
      * end of the simulation via printTargetHistogram().
      */
     public void setupTargetHistogram(long interval) {
-        targHist = new HistogramSimple(90, new DoubleRange(-1, 8));
-        targPiHist = new HistogramNotSoSimple(90, new DoubleRange(-1, 8));
+        targHist = new HistogramSimple(90, new DoubleRange(0, 9));
+        targPiHist = new HistogramNotSoSimple(90, new DoubleRange(0, 9));
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
 
@@ -447,12 +447,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
 
                 double r = Math.sqrt(r2Max);
-                if (r > 1) {
-                    r = Math.log(r);
-                }
-                else {
-                    r -= 1;
-                }
+                if (r > 1) r = 1+Math.log(r);
                 double pi = box[1].getSampleCluster().value(box[1]);
                 targHist.addValue(r);
                 targPiHist.addValue(r, pi);
@@ -460,6 +455,7 @@ public class SimulationVirialOverlap2 extends Simulation {
 
             public void integratorInitialized(IntegratorEvent e) {}
         };
+        integrators[1].getEventManager().addListener(histListenerTarget);
 
         IntegratorListener histReport = new IntegratorListener() {
             public void integratorInitialized(IntegratorEvent e) {}
@@ -489,9 +485,8 @@ public class SimulationVirialOverlap2 extends Simulation {
                 double r = xValues[i];
                 double y = h[i];
                 double pi = hPi[i];
-                if (r < 0) r += 1;
-                else {
-                    r = Math.exp(r);
+                if (r > 1) {
+                    r = Math.exp(r-1);
                     y /= r;
                 }
                 System.out.println(r+" "+y+" "+pi);
