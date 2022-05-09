@@ -4,8 +4,6 @@
 
 package etomica.math.geometry;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonValue;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Vector1D;
@@ -37,7 +35,6 @@ public class LineSegment extends Polytope implements Rectangular {
     }
 
     @Override
-    @JsonValue
     public Vector[] getVertices() {
         return super.getVertices();
     }
@@ -112,7 +109,6 @@ public class LineSegment extends Polytope implements Rectangular {
         return new Vector1D(getLength());
     }
 
-    @JsonIgnore
     public LineSegment[] getEdges() {
     	return edges;
     }

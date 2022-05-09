@@ -4,9 +4,6 @@
 
 package etomica.atom;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +28,6 @@ public interface IAtomList extends List<IAtom> {
      */
     int size();
 
-    @JsonValue
     default List<IAtom> getAtoms() {
         List<IAtom> list = new ArrayList<>();
         for(int i = 0; i < size(); i++) {
