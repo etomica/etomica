@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @author Andrew Schultz
  */
-public class P3Induction implements Potential3Soft {
+public class P3Induction implements IPotential3 {
 
     protected final Map<AtomType, MyAgent> paramsManager;
     protected final Space space;
@@ -46,14 +46,14 @@ public class P3Induction implements Potential3Soft {
     }
 
     @Override
-    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3, double[] virial) {
         IAtomOriented a1 = (IAtomOriented) atom1;
         IAtomOriented a2 = (IAtomOriented) atom2;
         IAtomOriented a3 = (IAtomOriented) atom3;
-        return u123(a1, a2, a3) + u123(a2, a3, a1) + u123(a3, a1, a2);
+        return u123(a1, a2, a3, virial) + u123(a2, a3, a1, virial) + u123(a3, a1, a2, virial);
     }
 
-    public double u123(IAtomOriented atomi, IAtomOriented atomj, IAtomOriented atomk) {
+    public double u123(IAtomOriented atomi, IAtomOriented atomj, IAtomOriented atomk, double[] virial) {
         IOrientation ori = atomi.getOrientation();
         IOrientation orj = atomj.getOrientation();
         IOrientation ork = atomk.getOrientation();
@@ -103,6 +103,7 @@ public class P3Induction implements Potential3Soft {
                 }
             }
         }
+        virial[0] += 4*sum;
 
         return -sum;
     }
