@@ -18,9 +18,9 @@ import etomica.space.Vector;
 public class P3MolecularMonatomic implements IPotentialMolecular {
 
     protected final Vector dr12, dr13, dr23;
-    protected final Potential3Soft potentialAtomic;
+    protected final IPotential3 potentialAtomic;
 
-    public P3MolecularMonatomic(Space space, Potential3Soft potentialAtomic) {
+    public P3MolecularMonatomic(Space space, IPotential3 potentialAtomic) {
         dr12 = space.makeVector();
         dr13 = space.makeVector();
         dr23 = space.makeVector();
@@ -34,6 +34,6 @@ public class P3MolecularMonatomic implements IPotentialMolecular {
         dr12.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
         dr13.Ev1Mv2(atom3.getPosition(), atom1.getPosition());
         dr23.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
-        return potentialAtomic.u(dr12, dr13, dr23, atom1, atom2, atom3);
+        return potentialAtomic.u(dr12, dr13, dr23, atom1, atom2, atom3, new double[1]);
     }
 }

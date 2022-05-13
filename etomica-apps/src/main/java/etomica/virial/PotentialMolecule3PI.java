@@ -6,18 +6,18 @@ package etomica.virial;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.IPotential3;
 import etomica.potential.IPotentialMolecular;
-import etomica.potential.Potential3Soft;
 import etomica.space.Space;
 import etomica.virial.cluster.VirialDiagrams;
 
 public class PotentialMolecule3PI implements IPotentialMolecular {
     protected final Space space;
     protected final int nMolecules;
-    protected final Potential3Soft atomPotential;
+    protected final IPotential3 atomPotential;
     protected final double[][] uBeads;
 
-    public PotentialMolecule3PI(Space space, Potential3Soft atomPotential, int beadFac, int nMolecules) {
+    public PotentialMolecule3PI(Space space, IPotential3 atomPotential, int beadFac, int nMolecules) {
         this.space = space;
         this.nMolecules = nMolecules;
         this.atomPotential = atomPotential;

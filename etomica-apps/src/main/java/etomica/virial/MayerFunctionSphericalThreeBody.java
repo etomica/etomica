@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.molecule.IMoleculeList;
-import etomica.potential.Potential3Soft;
+import etomica.potential.IPotential3;
 
 /**
  * Non-additive Mayer function class for "spherical" potentials 
@@ -14,9 +14,9 @@ import etomica.potential.Potential3Soft;
  */
 public class MayerFunctionSphericalThreeBody extends MayerFunctionThreeBody {
 
-    protected final Potential3Soft p3;
+    protected final IPotential3 p3;
 
-    public MayerFunctionSphericalThreeBody(Potential3Soft p3) {
+    public MayerFunctionSphericalThreeBody(IPotential3 p3) {
         this.p3 = p3;
     }
 

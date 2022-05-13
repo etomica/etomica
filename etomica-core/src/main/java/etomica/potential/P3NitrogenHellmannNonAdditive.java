@@ -14,7 +14,7 @@ import etomica.units.Electron;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
 
-public class P3NitrogenHellmannNonAdditive implements Potential3Soft {
+public class P3NitrogenHellmannNonAdditive implements IPotential3 {
             
     protected Space space;
     protected double[] q,pos;    
@@ -107,11 +107,11 @@ public class P3NitrogenHellmannNonAdditive implements Potential3Soft {
     }
 
     public double energy(IAtomList atoms) {
-        return u(null, null, null, atoms.get(0), atoms.get(1), atoms.get(2));
+        return u(null, null, null, atoms.get(0), atoms.get(1), atoms.get(2), new double[1]);
     }
 
     @Override
-    public double u(Vector dr12_, Vector dr13_, Vector dr23_, IAtom a1, IAtom a2, IAtom a3) {
+    public double u(Vector dr12_, Vector dr13_, Vector dr23_, IAtom a1, IAtom a2, IAtom a3, double[] virial) {
         final IAtomOriented atom0 = (IAtomOriented) a1;
         final IAtomOriented atom1 = (IAtomOriented) a2;
         final IAtomOriented atom2 = (IAtomOriented) a3;

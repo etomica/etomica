@@ -13,7 +13,13 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
-public interface Potential3Soft {
+public interface IPotential3 {
+
+    /**
+     * Returns the range over which the potential applies.  IAtoms with a
+     * greater separation do not interact.
+     */
+    default double getRange() {return Double.POSITIVE_INFINITY;}
 
     /**
      * The pair energy u(r^2) with no truncation applied.
@@ -30,7 +36,11 @@ public interface Potential3Soft {
      * exceed the Box dimensions when a lattice sum is used.  Likewise, the
      * IAtoms' actual positions (from getPosition()) ought to be ignored.
      */
-    default double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+    default double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3, double[] virial) {
         return u(dr12.squared(), dr13.squared(), dr23.squared());
+    }
+
+    default double udu(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3, double[] virial, Vector f1, Vector f2, Vector f3) {
+        throw new MethodNotImplementedException();
     }
 }
