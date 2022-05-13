@@ -178,56 +178,7 @@ public class P3AxilrodTeller implements IPotential3 {
         double rdudr = -3*u;
         double cosdudcos = myEpsilon*cp/(RAB*RAB2*RAC*RAC2*RBC*RBC2);
 
-        // fA contribution
-        Vector tmp = Vector.d(drAB.getD());
-        tmp.Ea1Tv1(-rdudr/RAB2, drAB);
-        tmp.PEa1Tv1(-rdudr/RAC2, drAC);
-
-        Vector tmp2 = Vector.d(drAB.getD());  // dcosthetaBdrA
-        tmp2.Ea1Tv1(1/RAB/RBC, drBC);
-        tmp2.PEa1Tv1(costhetaB/RAB2, drAB);
-        Vector dcosthetaBdrA = Vector.d(drAB.getD());
-        dcosthetaBdrA.E(tmp2);
-
-        tmp.PEa1Tv1(cosdudcos/costhetaB, tmp2);
-
-        // dcosthetaCdrA
-        tmp2.Ea1Tv1(1/RAC/RBC, drBC);
-        tmp2.PEa1Tv1(-costhetaC/RAC2, drAC);
-        tmp.PEa1Tv1(-cosdudcos/costhetaC, tmp2);
-
-        // dcothetaAdrA = -(dcosthetaAdrB + dcosthetaAdrC)
-        tmp2.Ea1Tv1(1/RAB/RAC, drAC); // dcosthetaAdrB
-        tmp2.PEa1Tv1(-costhetaA/RAB2, drAB);
-        Vector dcosthetaAdrB = Vector.d(drAB.getD());
-        dcosthetaAdrB.E(tmp2);
-        tmp2.PEa1Tv1(1/RAC/RAB, drAB); // dcosthetaAdrC
-        tmp2.PEa1Tv1(-costhetaA/RAC2, drAC);
-        tmp.PEa1Tv1(-cosdudcos/costhetaA, tmp2);
-        // our tmp is the gradient for A, so subtract to get force
-        fA.ME(tmp);
-        fC.PE(tmp);
-
-        // fB
-        tmp.Ea1Tv1(rdudr/RAB2, drAB);
-        tmp.PEa1Tv1(-rdudr/RBC2, drBC);
-
-        // dcosthetaAdrB
-        tmp.PEa1Tv1(cosdudcos/costhetaA, dcosthetaAdrB);
-
-        // dcosthetaCdrB
-        tmp2.Ea1Tv1(1/RBC/RAC, drAC);
-        tmp2.PEa1Tv1(-costhetaC/RBC2, drBC);
-        tmp.PEa1Tv1(-cosdudcos/costhetaC, tmp2);
-
-        // dcothetaBdrB = -(dcosthetaBdrA + dcosthetaBdrC)
-        tmp2.E(dcosthetaBdrA); // dcosthetaBdrA
-        tmp2.PEa1Tv1(-1/RBC/RAB, drAB); // dcosthetaBdrC
-        tmp2.PEa1Tv1(-costhetaB/RBC2, drBC);
-        tmp.PEa1Tv1(-cosdudcos/costhetaB, tmp2);
-        // our tmp is the gradient for B, so subtract to get force
-        fB.ME(tmp);
-        fC.PE(tmp);
+        forceHelper(drAB, drAC, drBC, RAB, RAC, RBC, costhetaA, costhetaB, costhetaC, rdudr, rdudr, rdudr, cosdudcos, cosdudcos, cosdudcos, fA, fB, fC);
 
         virial[0] = -9*u;
         return u;
