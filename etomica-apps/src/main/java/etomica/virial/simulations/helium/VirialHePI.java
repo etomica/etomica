@@ -205,7 +205,7 @@ public class VirialHePI {
         final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
         final P3CPSNonAdditiveHe p3Full = new P3CPSNonAdditiveHe(space);
-        final Potential3Soft p3 = (pc == PotentialChoice.APPROX) ? p3Approx : p3Full;
+        final IPotential3 p3 = (pc == PotentialChoice.APPROX) ? p3Approx : p3Full;
 
         PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac, nPoints+(doFlex?1:0));
 
@@ -213,7 +213,7 @@ public class VirialHePI {
         for (int i=0; i<beadFac; i++) {
             p3TargetSkip[i] = p3Target.new PotentialMolecule3PISkip(i);
         }
-        final Potential3Soft p3Sub = (ps == PotentialChoice.APPROX ? p3Approx : p3Full);
+        final IPotential3 p3Sub = (ps == PotentialChoice.APPROX ? p3Approx : p3Full);
         PotentialMolecule3PI p3TargetSub = new PotentialMolecule3PI(space, p3Sub, beadFac, nPoints+(doFlex?1:0));
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);

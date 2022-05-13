@@ -153,7 +153,7 @@ public class VirialCO2H2OSC {
                 P2MolecularMonatomic p23H2O = new P2MolecularMonatomic(space, level==Level.CLASSICAL ? p23cH2O : p23aH2O);
 
                 P2WaterSzalewicz.P2WaterSzalewicz3 p3cH2O = P2WaterSzalewicz.make3Body(comp);
-                Potential3Soft p3aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p3cH2O.makeSemiclassical(temperature) : null);
+                IPotential3 p3aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p3cH2O.makeSemiclassical(temperature) : null);
                 P3MolecularMonatomic p3H2O = new P3MolecularMonatomic(space, level==Level.CLASSICAL ? p3cH2O : p3aH2O);
                 MayerFunctionMolecularThreeBody f3H2O = new MayerFunctionMolecularThreeBody(new PotentialNonAdditive(new IPotentialMolecular[]{null,null,p23H2O,p3H2O}));
                 MayerFunctionNonAdditive[][][] allFNA = new MayerFunctionNonAdditive[2][2][2];
@@ -166,10 +166,10 @@ public class VirialCO2H2OSC {
                 // CO2: alpha=2.913, E=13.7eV
                 // H2O: alpha=1.444, E=12.6eV
                 paramsManagerATM = new HashMap<>();
-                Potential3Soft p3 = new P3AxilrodTeller(space, paramsManagerATM);
+                IPotential3 p3 = new P3AxilrodTeller(space, paramsManagerATM, Double.POSITIVE_INFINITY);
                 if (nonAdditive == Nonadditive.FULL) {
                     paramsManagerInd = new HashMap<>();
-                    p3 = new P3AtomicSum(new Potential3Soft[]{p3,new P3Induction(space, paramsManagerInd)});
+                    p3 = new P3AtomicSum(new IPotential3[]{p3,new P3Induction(space, paramsManagerInd)});
                 }
 
                 MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(new P3MolecularMonatomic(space, p3));
