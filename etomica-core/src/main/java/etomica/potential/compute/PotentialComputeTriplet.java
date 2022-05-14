@@ -32,12 +32,21 @@ public class PotentialComputeTriplet implements PotentialCompute {
     protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
+    protected final boolean centralAtom;
 
-    public PotentialComputeTriplet(SpeciesManager sm, Box box, NeighborManager neighborManager) {
-        this(sm, box, neighborManager, new IPotential3[sm.getAtomTypeCount()][sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
+    /**
+     * Constructs a PotentialCompute capable of iterating over triplets of atoms for 3-body potentials.
+     * By default, each triplet is generated once; this works with a potential like Axilrod-Teller where each atom
+     * is equivalent to the others.  With centralAtom=true, each triplet may be generated 3 times -- one
+     * with each atom as a "central" atom.  This mode works with a potential like Stillinger-Weber where each
+     * contribution involves a single angle.
+     */
+    public PotentialComputeTriplet(SpeciesManager sm, Box box, NeighborManager neighborManager, boolean centralAtom) {
+        this(sm, box, neighborManager, new IPotential3[sm.getAtomTypeCount()][sm.getAtomTypeCount()][sm.getAtomTypeCount()], centralAtom);
     }
 
-    public PotentialComputeTriplet(SpeciesManager sm, Box box, NeighborManager neighborManager, IPotential3[][][] tripletPotentials) {
+    public PotentialComputeTriplet(SpeciesManager sm, Box box, NeighborManager neighborManager, IPotential3[][][] tripletPotentials, boolean centralAtom) {
+        this.centralAtom = centralAtom;
         isPureAtoms = sm.isPureAtoms();
         space = box.getSpace();
         int numAtomTypes = sm.getAtomTypeCount();
@@ -102,11 +111,13 @@ public class PotentialComputeTriplet implements PotentialCompute {
 
     public void setTripletPotential(AtomType atomType1, AtomType atomType2, AtomType atomType3, IPotential3 p123) {
         tripletPotentials[atomType1.getIndex()][atomType2.getIndex()][atomType3.getIndex()] = p123;
-        tripletPotentials[atomType2.getIndex()][atomType1.getIndex()][atomType3.getIndex()] = p123;
         tripletPotentials[atomType1.getIndex()][atomType3.getIndex()][atomType2.getIndex()] = p123;
-        tripletPotentials[atomType2.getIndex()][atomType3.getIndex()][atomType1.getIndex()] = p123;
-        tripletPotentials[atomType3.getIndex()][atomType1.getIndex()][atomType2.getIndex()] = p123;
-        tripletPotentials[atomType3.getIndex()][atomType2.getIndex()][atomType1.getIndex()] = p123;
+        if (!centralAtom) {
+            tripletPotentials[atomType2.getIndex()][atomType1.getIndex()][atomType3.getIndex()] = p123;
+            tripletPotentials[atomType2.getIndex()][atomType3.getIndex()][atomType1.getIndex()] = p123;
+            tripletPotentials[atomType3.getIndex()][atomType1.getIndex()][atomType2.getIndex()] = p123;
+            tripletPotentials[atomType3.getIndex()][atomType2.getIndex()][atomType1.getIndex()] = p123;
+        }
         updateNeighborRange();
     }
 
@@ -151,31 +162,73 @@ public class PotentialComputeTriplet implements PotentialCompute {
             int finalI = i;
             neighborIterator.iterUpNeighbors(i, (jAtom, rij, n) -> {
                 int j = jAtom.getLeafIndex();
-                if (pc != null && pc.skipPair(finalI, j)) return;
                 int jType = jAtom.getType().getIndex();
                 IPotential3[] pij = ip[jType];
 
-                neighborIterator.iterUpNeighbors(j, (kAtom, rjk, m) -> {
-                    int k = kAtom.getLeafIndex();
-                    if (pc != null && (pc.skipPair(finalI, k) || pc.skipPair(j, k))) return;
-                    int kType = kAtom.getType().getIndex();
-                    IPotential3 pijk = pij[kType];
-                    if (pijk == null) return;
-                    Vector rik = space.makeVector();
-                    rik.Ev1Pv2(rij, rjk);
+                NeighborIterator.NeighborConsumer consumer = new NeighborIterator.NeighborConsumer() {
+                    @Override
+                    public void accept(IAtom kAtom, Vector rik, int m) {
+                        int k = kAtom.getLeafIndex();
+                        if (k<=j) return;
+                        int kType = kAtom.getType().getIndex();
+                        IPotential3 pijk = pij[kType];
+                        if (pijk == null) return;
+                        Vector rjk = space.makeVector();
+                        rjk.Ev1Mv2(rij, rik);
 
-                    double uijk;
-                    double[] virial = new double[1];
-                    if (doForces) {
-                        uijk = pijk.udu(rij, rik, rjk, iAtom, jAtom, kAtom, virial, forces[finalI], forces[j], forces[k]);
+                        double uijk;
+                        double[] virial = new double[1];
+                        if (doForces) {
+                            uijk = pijk.udu(rij, rik, rjk, iAtom, jAtom, kAtom, virial, forces[finalI], forces[j], forces[k]);
+                        }
+                        else {
+                            uijk = pijk.u(rij, rik, rjk, iAtom, jAtom, kAtom, virial);
+                        }
+                        virialTot += virial[0];
+                        uTot[0] += uijk;
                     }
-                    else {
-                        uijk = pijk.u(rij, rik, rjk, iAtom, jAtom, kAtom, virial);
-                    }
-                    virialTot += virial[0];
-                    uTot[0] += uijk;
-                });
+                };
+                if (centralAtom) {
+                    neighborIterator.iterAllNeighbors(finalI, consumer);
+                }
+                else {
+                    neighborIterator.iterUpNeighbors(finalI, consumer);
+                }
             });
+
+            if (centralAtom) {
+                neighborIterator.iterDownNeighbors(i, (jAtom, rij, n) -> {
+                    int j = jAtom.getLeafIndex();
+                    int jType = jAtom.getType().getIndex();
+                    IPotential3[] pij = ip[jType];
+
+                    NeighborIterator.NeighborConsumer consumer = new NeighborIterator.NeighborConsumer() {
+                        @Override
+                        public void accept(IAtom kAtom, Vector rik, int m) {
+                            int k = kAtom.getLeafIndex();
+                            if (k<=j) return;
+                            int kType = kAtom.getType().getIndex();
+                            IPotential3 pijk = pij[kType];
+                            if (pijk == null) return;
+                            Vector rjk = space.makeVector();
+                            rjk.Ev1Mv2(rik, rij);
+
+                            double uijk;
+                            double[] virial = new double[1];
+                            if (doForces) {
+                                uijk = pijk.udu(rij, rik, rjk, iAtom, jAtom, kAtom, virial, forces[finalI], forces[j], forces[k]);
+                            }
+                            else {
+                                uijk = pijk.u(rij, rik, rjk, iAtom, jAtom, kAtom, virial);
+                            }
+                            virialTot += virial[0];
+                            uTot[0] += uijk;
+                        }
+                    };
+
+                    neighborIterator.iterAllNeighbors(finalI, consumer);
+                });
+            }
         }
 
         energyTot = uTot[0];
