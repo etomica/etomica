@@ -94,17 +94,8 @@ public class CrystalViewer extends SimulationPanel {
         displayBox.setLabel(currentLattice.toString());
         clipPlaneEditor.update();
         displayBox.repaint();
-    }    
-    
-    public static class Applet extends javax.swing.JApplet {
-
-	    public void init() {
-            CrystalViewer viewer = new CrystalViewer();
-		    getContentPane().add(viewer);
-	    }
     }
-    
- 
+
     public static void main(String[] args) {
 
         SimulationGraphic.initGraphics();

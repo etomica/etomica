@@ -4,10 +4,8 @@
 
 package etomica.veos.bigdecimal ;
 
-import java.lang.* ;
-import java.security.* ;
-import java.util.* ;
-import java.math.* ;
+import java.math.BigInteger;
+import java.util.Scanner;
 
 
 /** Exact representations of Wigner 3jm and 3nj values of half-integer arguments.
@@ -31,7 +29,7 @@ public class Wigner3j
         * @since 2011-02-15
         * @author Richard J. Mathar
         */
-        static public void main(String args[])
+        static public void main(String[] args)
         {
                 if ( args[0].compareTo("6j") == 0 )
                 {
@@ -71,12 +69,12 @@ public class Wigner3j
                 }
                 else if ( args[0].compareTo("3jm") == 0 )
                 {
-                        int j1 = (new Integer(args[1])).intValue() ;
-                        int j2 = (new Integer(args[2])).intValue() ;
-                        int j3 = (new Integer(args[3])).intValue() ;
-                        int m1 = (new Integer(args[4])).intValue() ;
-                        int m2 = (new Integer(args[5])).intValue() ;
-                        int m3 = (new Integer(args[6])).intValue() ;
+                        int j1 = Integer.parseInt(args[1]);
+                        int j2 = Integer.parseInt(args[2]);
+                        int j3 = Integer.parseInt(args[3]);
+                        int m1 = Integer.parseInt(args[4]);
+                        int m2 = Integer.parseInt(args[5]);
+                        int m3 = Integer.parseInt(args[6]);
                         try
                         {
                                 BigSurd w = wigner3jm(j1,j2,j3,m1,m2,m3) ;
@@ -429,7 +427,7 @@ public class Wigner3j
 
                 /* Check that j1+j2+j3 is integer
                 */
-                if ( j1.add(j2).add(j3).isBigInteger() == false )
+                if (!j1.add(j2).add(j3).isBigInteger())
                         return BigSurd.ZERO ;
 
                 /* Check that |j1-j2|<=j3 <= |j1+j2|

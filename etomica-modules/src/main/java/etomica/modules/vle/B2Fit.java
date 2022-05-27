@@ -4,21 +4,19 @@
 
 package etomica.modules.vle;
 
-import java.util.HashMap;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
 import etomica.action.controller.Controller;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DevicePlotPoints;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.math.function.Function;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
-import etomica.math.function.Function;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.util.HashMap;
 
 
 public class B2Fit extends SimulationPanel {
@@ -137,7 +135,7 @@ public class B2Fit extends SimulationPanel {
             if (Q == oldQ && epsilon == oldEpsilon && sigma == oldSigma) {
                 Double B2 = B2Hash.get(T);
                 if (B2 != null) {
-                    return B2.doubleValue()*Math.pow(sigma,3);
+                    return B2 *Math.pow(sigma,3);
                 }
             }
             else {
@@ -162,7 +160,7 @@ public class B2Fit extends SimulationPanel {
         }
         
         public DevicePlotPoints dPlot;
-        protected HashMap<Double,Double> B2Hash = new HashMap<Double,Double>();
+        protected HashMap<Double,Double> B2Hash = new HashMap<>();
         protected double oldQ, oldEpsilon, oldSigma;
         public boolean ready = false;
     }
@@ -178,17 +176,6 @@ public class B2Fit extends SimulationPanel {
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
         graph.dPlot.refresh();
 
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-	    public void init() {
-
-            B2Fit graph = new B2Fit();
-		    getContentPane().add(graph);
-		    graph.dPlot.refresh();
-	    }
-
-        private static final long serialVersionUID = 1L;
     }
 
 }
