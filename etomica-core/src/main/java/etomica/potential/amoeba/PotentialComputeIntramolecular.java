@@ -103,6 +103,6 @@ public class PotentialComputeIntramolecular implements PotentialCompute {
 
     @Override
     public IntegratorListener makeIntegratorListener() {
-        return null;
+        return new IntegratorListener() {};
     }
 }
