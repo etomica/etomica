@@ -5,11 +5,8 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.math.geometry.*;
+import etomica.math.geometry.Polytope;
 import etomica.space.Vector;
-import etomica.space2d.Space2D;
-import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.units.Pixel;
 
 import java.awt.*;
@@ -263,7 +260,6 @@ public class DisplayPolytope extends Display implements IAction {
         private boolean rotate = false, zoom = false, translate = false;
         
         InputEventHandler() {
-            if(polytope == null) return;
         }
         
         public void mouseClicked(MouseEvent evt) {
@@ -321,8 +317,7 @@ public class DisplayPolytope extends Display implements IAction {
 		public void keyPressed(KeyEvent evt) {
 //			System.out.println("key pressed");
 			char c = evt.getKeyChar();
-			if(Character.isDigit(c)) {}
-			else if(Character.isLetter(c)) {
+			if(Character.isLetter(c)) {
 				switch(c) {
 					case 'r':
 						rotate = !rotate;
@@ -348,32 +343,5 @@ public class DisplayPolytope extends Display implements IAction {
         public void keyTyped(KeyEvent evt) {}
             
     }//end of InputEventHandler
-    
-    public static class Applet extends javax.swing.JApplet {
 
-        public void init() {
-            Space3D space3D = Space3D.getInstance();
-            Cuboid cuboid = new Cuboid(space3D);
-            Vector3D a = (Vector3D)Vector.of(new double[]{1.0, 0.2, 0.0});
-            Vector3D b = (Vector3D)Vector.of(new double[]{0.0, 1.0, 0.2});
-            Vector3D c = (Vector3D)Vector.of(new double[]{0.2, 0.0, 1.0});
-            Parallelepiped parallelepiped = new Parallelepiped(space3D,a,b,c);
-            Space2D space2D = Space2D.getInstance();
-            LineSegment lineS1 = new LineSegment(space2D);
-            lineS1.setVertex2(Vector.of(new double[]{0, 5}));
-            LineSegment lineS2 = new LineSegment(space2D);
-            lineS2.setVertex1(Vector.of(new double[]{0, 5}));
-            lineS2.setVertex2(Vector.of(new double[]{10, 10}));
-            LineSegment lineS3 = new LineSegment(space2D);
-            lineS3.setVertex1(Vector.of(new double[]{10, 10}));
-            lineS3.setVertex2(Vector.of(new double[]{10, 0}));
-            LineSegment lineS4 = new LineSegment(space2D);
-            lineS4.setVertex1(Vector.of(new double[]{0, 10}));
-            PolygonGeneral quad = new PolygonGeneral(new LineSegment[]{lineS1,lineS2,lineS3,lineS4});
-            DisplayPolytope displayPolytope = new DisplayPolytope(cuboid);
-            getContentPane().add(displayPolytope.graphic());
-        }
-    }//end of Applet
-
-    
 }//end of DisplayBox

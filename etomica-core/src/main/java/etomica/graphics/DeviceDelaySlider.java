@@ -15,8 +15,7 @@ import javax.swing.border.TitledBorder;
 
 public class DeviceDelaySlider {
 
-    private DeviceSlider delaySlider;
-    private JPanel delayPanel;
+	private final JPanel delayPanel;
     private final Controller controller;
 
     //DELAY_EXPONENT affects how sharply the delay increases as slider is moved from zero --
@@ -31,7 +30,7 @@ public class DeviceDelaySlider {
         maxSleep = 100;
     	DelayModifier mod = new DelayModifier();
 
-    	delaySlider = new DeviceSlider(cont, mod);
+		DeviceSlider delaySlider = new DeviceSlider(cont, mod);
     	delaySlider.setShowValues(false);
     	delaySlider.setPrecision(1);
     	delaySlider.setMinimum(0);
@@ -39,9 +38,9 @@ public class DeviceDelaySlider {
     	delaySlider.setValue(0);
     	delaySlider.setNMajor(0);
 	    java.util.Hashtable<Integer,JLabel> scaleLabels = new java.util.Hashtable<Integer,JLabel>();
-	    scaleLabels.put(new Integer(0), new JLabel( "fast", JLabel.CENTER ));
+	    scaleLabels.put(0, new JLabel( "fast", JLabel.CENTER ));
 	    // slow is 100 : need to know details of DeviceSlider to understand why.
-	    scaleLabels.put(new Integer(100), new JLabel( "slow", JLabel.CENTER ));
+	    scaleLabels.put(100, new JLabel( "slow", JLabel.CENTER ));
 	    delaySlider.getSlider().setLabelTable(scaleLabels);
 
     	delayPanel = new JPanel();
