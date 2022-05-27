@@ -2,9 +2,7 @@ package etomica.util.collections;
 
 import etomica.util.Debug;
 
-import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.RandomAccess;
 
 public final class IntArrayList {
     private int[] data;
@@ -14,6 +12,12 @@ public final class IntArrayList {
         super();
         this.data = new int[initialCapacity];
         this.size = 0;
+    }
+
+    public IntArrayList(int[] elements) {
+        super();
+        this.data = elements;
+        this.size = elements.length;
     }
 
     private void grow() {
