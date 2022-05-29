@@ -11,6 +11,7 @@ import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
+import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
@@ -21,10 +22,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.BondingInfo;
-import etomica.potential.IPotential2;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -48,7 +46,7 @@ public class SimLJHMASuperSFMD extends Simulation {
     public IPotential2 potential;
     public SpeciesGeneral species;
 
-    public SimLJHMASuperSFMD(Space _space, int numAtoms, double density0, double temperature, double rc) {
+    public SimLJHMASuperSFMD(Space _space, int numAtoms, double density0, double temperature, double rc, double dt) {
         super(_space);
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
@@ -60,7 +58,7 @@ public class SimLJHMASuperSFMD extends Simulation {
         box.setNMolecules(species, numAtoms);
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
         potentialMaster.doAllTruncationCorrection = false;
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.005, temperature, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), dt*1.0E-3, temperature, box);
         integrator.setIsothermal(true);
         primitive = new PrimitiveCubic(space, n * L);
         nCells = new int[]{n, n, n};
@@ -72,13 +70,14 @@ public class SimLJHMASuperSFMD extends Simulation {
         potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
-        this.getController().addActivity(new ActivityIntegrate(integrator));
-        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.init();
+        integrator.getEventManager().removeListener(potentialMaster);
         this.getController().addActivity(new ActivityIntegrate(integrator));
-        // extend potential range, so that atoms that move outside the truncation range will still interact
-        // atoms that move in will not interact since they won't be neighbors
         ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+    }
+
+    public void initialize(long initSteps) {
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
     }
 
     /**
@@ -91,6 +90,8 @@ public class SimLJHMASuperSFMD extends Simulation {
         boolean doGraphics = params.doGraphics;;
         double density0 = params.density0;
         long numSteps = params.numSteps;
+        long numStepsEq = params.numSteps/10;
+        double dt = params.dt;
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double rc = params.rc;
@@ -114,12 +115,7 @@ public class SimLJHMASuperSFMD extends Simulation {
         System.out.println(" gy44: " + params.gy44 + " gx12: " + params.gx12 + " gz12 " + params.gz12);
         System.out.println();
 
-        System.out.println("Running Lennard-Jones simulation");
-        System.out.println(numAtoms + " atoms at density0 " + density0 + " and temperature " + temperature);
-        System.out.println(numSteps + " steps");
-
-        //instantiate simulation
-        final SimLJHMASuperSFMD sim = new SimLJHMASuperSFMD(Space.getInstance(3), numAtoms, density0, temperature, rc*Math.pow(density0, -1.0 / 3.0));
+        final SimLJHMASuperSFMD sim = new SimLJHMASuperSFMD(Space.getInstance(3), numAtoms, density0, temperature, rc*Math.pow(density0, -1.0 / 3.0), dt);
 
         if (doGraphics) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -150,27 +146,23 @@ public class SimLJHMASuperSFMD extends Simulation {
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
-
-            simGraphic.makeAndDisplayFrame("LJ FCC");
-
+            simGraphic.makeAndDisplayFrame("MD FCC LJ");
             return;
         }
 
-        //start simulation
         double volume = sim.box.getBoundary().volume();
         double density = numAtoms/volume;
-        System.out.println(" density0 " + density0 + " density " + density + " volume " + volume + "\n");
-        // meter needs lattice energy, so make it now
+        System.out.println(" numAtoms: " + numAtoms + "  volume: " + volume + "  density0: " + density0 + "  : " + temperature);
+
         sim.integrator.reset();
+
         MeterSolidHMA meterElastic = new MeterSolidHMA(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition, elasticParams, temperature);
         meterElastic.setTemperature(temperature);
-        IData d = meterElastic.getData();
-        double uLat = d.getValue(0);
-        System.out.println(" uLat: " + uLat);
-        double pLat = d.getValue(2) - temperature*density;
-        System.out.println(" pLat: " + pLat);
+        double uLat = meterElastic.getData().getValue(0);
+        double pLat = meterElastic.getData().getValue(2) - temperature*density;
+        System.out.println(" uLat: " + uLat + "  pLat: " + pLat);
 
-        sim.initialize(numSteps / 10);
+        sim.initialize(numStepsEq);
 
         int numBlocks = 100;
         int interval = 10;
@@ -189,24 +181,26 @@ public class SimLJHMASuperSFMD extends Simulation {
         if (numSteps != numBlocks * interval * blockSize) {
             throw new RuntimeException("unable to find appropriate intervals");
         }
-        System.out.println("block size " + blockSize + " interval " + interval);
+        System.out.println(" equilibration: " + numStepsEq + "  production: " + numSteps + "  dt(fs): " + dt);
+        System.out.println(" block size " + blockSize + "  interval " + interval);
 
         final AccumulatorAverageCovariance accumulatorElastic = new AccumulatorAverageCovariance(blockSize);
+
         DataPumpListener pumpElastic = new DataPumpListener(meterElastic, accumulatorElastic, interval);
         sim.integrator.getEventManager().addListener(pumpElastic);
 
-        // Short run for U_avg and Pi_avg: to solve the Var/Cov issue
-        long Nshort = numSteps / 10;
-        System.out.println(" N_short_sim = " + Nshort);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Nshort));
+        long numStepsShort = numSteps/10;
+        System.out.println(" Short sim for Covariance: " + numStepsShort + " steps");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
+
         IData avgRawData0 = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
         IData errRawData0 = accumulatorElastic.getData(accumulatorElastic.ERROR);
-        double uShift = avgRawData0.getValue(1)/numAtoms; double errUshift = errRawData0.getValue(1)/numAtoms;
+        double uShift = avgRawData0.getValue(1); double errUshift = errRawData0.getValue(1);
         double pShift = avgRawData0.getValue(3); double errPshift = errRawData0.getValue(3);
-
         accumulatorElastic.reset();
         System.out.println(" uShift: " + uShift + " +/- " + errUshift);
         System.out.println(" pShift: " + pShift + " +/- " + errPshift);
+
         meterElastic.setShift(uShift, pShift);
 
         //Production
@@ -214,10 +208,11 @@ public class SimLJHMASuperSFMD extends Simulation {
         long endTime = System.currentTimeMillis();
         System.out.println();
 
-        IData avgRawData = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
-        IData errRawData = accumulatorElastic.getData(accumulatorElastic.ERROR);
-        IData corRawData = accumulatorElastic.getData(accumulatorElastic.BLOCK_CORRELATION);
-        IData covRawData = accumulatorElastic.getData(accumulatorElastic.COVARIANCE);
+        DataGroup data = (DataGroup)accumulatorElastic.getData();
+        IData avgRawData = data.getData(accumulatorElastic.AVERAGE.index);
+        IData errRawData = data.getData(accumulatorElastic.ERROR.index);
+        IData corRawData = data.getData(accumulatorElastic.BLOCK_CORRELATION.index);
+        IData covRawData = data.getData(accumulatorElastic.COVARIANCE.index);
 
         /** First Derivatives*/
         //Bulk
@@ -347,21 +342,21 @@ public class SimLJHMASuperSFMD extends Simulation {
         double b33_hma  = avgRawData.getValue(40) + numAtoms / temperature / temperature * covUP3_hma;
 
 //Print
-        System.out.println("\n++++ First Derivatives ++++");
-        System.out.print(String.format(" u_conv % 21.15f err: %10.4e  cor:% 6.3f\n", u_conv, errU_conv, corU_conv));
-        System.out.print(String.format(" u_hma  % 21.15f err: %10.4e  cor:% 6.3f\n", u_hma, errU_hma, corU_hma));
-        System.out.print(String.format(" P_conv % 21.15f err: %10.4e  cor:% 6.3f\n", P_conv, errP_conv, corP_conv));
-        System.out.print(String.format(" P_hma  % 21.15f err: %10.4e  cor:% 6.3f\n", P_hma, errP_hma, corP_hma));
-        System.out.print(String.format(" P1_conv% 21.15f err: %10.4e  cor:% 6.3f\n", P1_conv, errP1_conv, corP1_conv));
-        System.out.print(String.format(" P1_hma % 21.15f err: %10.4e  cor:% 6.3f\n", P1_hma, errP1_hma, corP1_hma));
-        System.out.print(String.format(" P2_conv% 21.15f err: %10.4e  cor:% 6.3f\n", P2_conv, errP2_conv, corP2_conv));
-        System.out.print(String.format(" P2_hma % 21.15f err: %10.4e  cor:% 6.3f\n", P2_hma, errP2_hma, corP2_hma));
-        System.out.print(String.format(" P4_conv% 21.15f err: %10.4e  cor:% 6.3f\n", P4_conv, errP4_conv, corP4_conv));
-        System.out.print(String.format(" P4_hma % 21.15f err: %10.4e  cor:% 6.3f\n", P4_hma, errP4_hma, corP4_hma));
+        System.out.println("\n ++++ First Derivatives ++++");
+        System.out.print(String.format(" u_conv % 21.15f err: %10.4e  cor: % 6.3f\n", u_conv, errU_conv, corU_conv));
+        System.out.print(String.format(" u_hma  % 21.15f err: %10.4e  cor: % 6.3f\n", u_hma, errU_hma, corU_hma));
+        System.out.print(String.format(" P_conv % 21.15f err: %10.4e  cor: % 6.3f\n", P_conv, errP_conv, corP_conv));
+        System.out.print(String.format(" P_hma  % 21.15f err: %10.4e  cor: % 6.3f\n", P_hma, errP_hma, corP_hma));
+        System.out.print(String.format(" P1_conv% 21.15f err: %10.4e  cor: % 6.3f\n", P1_conv, errP1_conv, corP1_conv));
+        System.out.print(String.format(" P1_hma % 21.15f err: %10.4e  cor: % 6.3f\n", P1_hma, errP1_hma, corP1_hma));
+        System.out.print(String.format(" P2_conv% 21.15f err: %10.4e  cor: % 6.3f\n", P2_conv, errP2_conv, corP2_conv));
+        System.out.print(String.format(" P2_hma % 21.15f err: %10.4e  cor: % 6.3f\n", P2_hma, errP2_hma, corP2_hma));
+        System.out.print(String.format(" P4_conv% 21.15f err: %10.4e  cor: % 6.3f\n", P4_conv, errP4_conv, corP4_conv));
+        System.out.print(String.format(" P4_hma % 21.15f err: %10.4e  cor: % 6.3f\n", P4_hma, errP4_hma, corP4_hma));
 
-        System.out.println("\n++++ Second Derivatives ++++");
-        System.out.println(" Cv_conv  " + Cv_conv);
-        System.out.println(" Cv_hma   " + Cv_hma);
+        System.out.println("\n ++++ Second Derivatives ++++");
+        System.out.println(" cv_conv  " + Cv_conv/numAtoms);
+        System.out.println(" cv_hma   " + Cv_hma/numAtoms);
         System.out.println(" B_conv   " + B_conv);
         System.out.println(" B_hma    " + B_hma);
         System.out.println(" gV_conv " + gV_conv);
@@ -395,18 +390,20 @@ public class SimLJHMASuperSFMD extends Simulation {
         System.out.println(" b11_hma_avg  " + 1.0/3.0*(b11_hma + b22_hma + b33_hma));
 
         //Adiabatic Cij
-        double C11s_conv = C11_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
-        double C11s_hma  = C11_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
-        double C22s_conv = C22_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
-        double C22s_hma  = C22_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
-        double C33s_conv = C33_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
-        double C33s_hma  = C33_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
-        double C12s_conv = C12_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
-        double C12s_hma  = C12_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
-        double C13s_conv = C13_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
-        double C13s_hma  = C13_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
-        double C23s_conv = C23_conv + temperature*volume/Cv_conv*gV_conv*gV_conv;
-        double C23s_hma  = C23_hma  + temperature*volume/Cv_hma*gV_hma*gV_hma;
+        double CijCor_conv = temperature*volume/Cv_conv*gV_conv*gV_conv;
+        double CijCor_hma  = temperature*volume/Cv_hma*gV_conv*gV_conv;
+        double C11s_conv = C11_conv + CijCor_conv;
+        double C11s_hma  = C11_hma  + CijCor_hma;
+        double C22s_conv = C22_conv + CijCor_conv;
+        double C22s_hma  = C22_hma  + CijCor_hma;
+        double C33s_conv = C33_conv + CijCor_conv;
+        double C33s_hma  = C33_hma  + CijCor_hma;
+        double C12s_conv = C12_conv + CijCor_conv;
+        double C12s_hma  = C12_hma  + CijCor_hma;
+        double C13s_conv = C13_conv + CijCor_conv;
+        double C13s_hma  = C13_hma  + CijCor_hma;
+        double C23s_conv = C23_conv + CijCor_conv;
+        double C23s_hma  = C23_hma  + CijCor_hma;
 
         System.out.println("\n Adiabatic Cij");
         System.out.println(" C11s_conv     " + C11s_conv);
@@ -423,10 +420,6 @@ public class SimLJHMASuperSFMD extends Simulation {
         System.out.println("time (min): " + (endTime - startTime) / 1000.0/60.0);
     }
 
-    public void initialize(long initSteps) {
-        // equilibrate off the lattice to avoid anomalous contributions
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
-    }
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor
@@ -435,7 +428,8 @@ public class SimLJHMASuperSFMD extends Simulation {
         public int numAtoms = 500;
         public double density0 = 1.0;
         public long numSteps = 10000;
-        public double temperature = 0.1;
+        public double dt = 1.0;
+        public double temperature = 0.01;
         public double rc = 3.0;
         public boolean doGraphics = false;
         public double strain_x = 0.0;

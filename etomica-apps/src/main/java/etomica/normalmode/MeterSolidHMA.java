@@ -184,12 +184,12 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
         //Props
         //U
-        x[0] = uSum/N - this.uShift;
-        x[1] = (uSum + 3*(N-1)*temperature/2.0 + 0.5*Fdr)/N - this.uShift;
+        x[0] = uSum/N - uShift;
+        x[1] = uSum/N + 3.0*(N-1.0)/N*temperature/2.0 + 1.0/2.0/N*Fdr - uShift;
         //P
-        x[2] = rho*temperature - virial/(3*V) - this.pShift;
-        x[3] = 3*(N-1)/V*temperature*gV - virial/(3*V) + mV*Fdr/V - this.pShift;
-        double p1Shift = -this.pShift;
+        x[2] = rho*temperature - virial/(3*V) - pShift;
+        x[3] = 3*(N-1)/V*temperature*gV - virial/(3*V) + mV*Fdr/V - pShift;
+        double p1Shift = -pShift;
         //P1
         x[4] = -rho*temperature + virialx/V - p1Shift;;
         x[5] = -((N-1)*temperature*(gx1+2*gy1) - virialx + Frdot1)/V - p1Shift;
@@ -471,8 +471,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         return raPhi2rb;
     }
 
-    public void pairComputeHessian(int iAtom, int jAtom, Tensor phi){
-
+    public void pairComputeHessian(int iAtom, int jAtom, Tensor phi){ // Add whatever you need to do with the hessian: elastic!
+        // rPhir sums for EAM
     }
 
     public void setShift(double uShift , double pShift){

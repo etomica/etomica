@@ -17,9 +17,10 @@ public class EmbeddingSqrt implements IPotentialEmbedding {
     }
 
     @Override
-    public void udu(double rho, double[] f, double[] df) {
+    public void udud2u(double rho, double[] f, double[] df, double[] d2f) {
         double s = Math.sqrt(rho);
-        f[0] = -epsilon * s;
-        df[0] = -0.5 * epsilon / s;
+        f[0]   = -epsilon * s;
+        df[0]  = -0.5 * epsilon / s;  //df/drho
+        d2f[0] = 0.25*epsilon/(s*s*s);//d2f/drho2
     }
 }
