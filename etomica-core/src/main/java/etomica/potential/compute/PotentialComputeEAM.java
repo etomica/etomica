@@ -20,8 +20,10 @@ import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
+import etomica.util.collections.IntSet;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -40,10 +42,11 @@ public class PotentialComputeEAM implements PotentialCompute {
     private final NeighborIteratorCell.SuperNbrConsumer nbrConsumer1, nbrConsumerEmbedding;
     protected double[] rhoSum, idf, id2f;
     protected double[] uAtom;
-    protected DoubleArrayList rdrho, rd2rho, drhoSum;
+    protected final DoubleArrayList rdrho, drhoSum;
+    protected final HashMap<IntSet,PairData> pairDataHashMap;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged, rhoAtomsChanged;
-    protected Vector zero;
+    protected final Vector zero;
     protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
@@ -72,10 +75,10 @@ public class PotentialComputeEAM implements PotentialCompute {
         rhoAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
         rdrho = new DoubleArrayList(16);
-        rd2rho = new DoubleArrayList(16);
         drhoSum = new DoubleArrayList(16);
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
+        pairDataHashMap = new HashMap<>();
 
         this.atomCountByType = new int[typeCount];
         box.getEventManager().addListener(new BoxEventListener() {
@@ -253,10 +256,11 @@ public class PotentialComputeEAM implements PotentialCompute {
     public double computeAll(boolean doForces, PotentialCallback pc) {
         zeroArrays(doForces);
         rdrho.clear();
-        rd2rho.clear();
+        pairDataHashMap.clear();
 
         IAtomList atoms = box.getLeafList();
         double[] uTot = {0};
+        final boolean wantsHessian = pc != null && pc.wantsHessian();
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
@@ -297,9 +301,13 @@ public class PotentialComputeEAM implements PotentialCompute {
                         // i contributes to j density
                         u012[0] = u012[1] = u012[2] = 0;
                         irp.u012add(r2, u012);
-                        rhoSum[j] += u012[0];
                         rdrho.add(u012[1]);
-                        rd2rho.add(u012[2]);
+                        rhoSum[j] += u012[0];
+                        if (wantsHessian) {
+                            PairData pd = new PairData(u012[1], u012[2]);
+                            int i1 = Math.min(finalI, j);
+                            pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                        }
                     }
 
                     if (iType != jType) {
@@ -311,8 +319,12 @@ public class PotentialComputeEAM implements PotentialCompute {
                                 u012[0] = u012[1] = u012[2] = 0;
                                 jrp.u012add(r2, u012);
                                 rdrho.add(u012[1]);
-                                rd2rho.add(u012[2]);
                                 rhoSum[finalI] += u012[0];
+                                if (wantsHessian) {
+                                    PairData pd = new PairData(u012[1], u012[2]);
+                                    int i1 = Math.min(finalI, j);
+                                    pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                                }
                             }
                         }
                     } else {
@@ -327,8 +339,12 @@ public class PotentialComputeEAM implements PotentialCompute {
                             u012[0] = u012[1] = u012[2] = 0;
                             jrp.u012add(r2, u012);
                             rdrho.add(u012[1]);
-                            rd2rho.add(u012[2]);
                             rhoSum[finalI] += u012[0];
+                            if (wantsHessian) {
+                                PairData pd = new PairData(u012[1], u012[2]);
+                                int i1 = Math.min(finalI, j);
+                                pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                            }
                         }
                     }
                 }
@@ -391,8 +407,7 @@ public class PotentialComputeEAM implements PotentialCompute {
 
         rdrhoIdx[0] = 0;
 
-//        if(pc.wantsHessian()){
-        if(true){
+        if(wantsHessian){
             for (int k = 0; k < atoms.size(); k++) {
                 IAtom kAtom = atoms.get(k);
                 int kType = kAtom.getType().getIndex();
@@ -404,12 +419,18 @@ public class PotentialComputeEAM implements PotentialCompute {
                     int i = iAtom.getLeafIndex();
                     int iType = iAtom.getType().getIndex();
                     if (rhoPotentials[iType] == null) return;
+                    int ik1 = Math.min(finalK, i);
+                    PairData pdik = pairDataHashMap.get(new IntSet(ik1, finalK+i-ik1));
                     double rki2 = rki.squared();
                     neighborIterator.iterAllNeighbors(finalK, (jAtom, rkj, m) -> {
                         int j = jAtom.getLeafIndex();
                         if (j <= i) return;
                         int jType = jAtom.getType().getIndex();
                         if (rhoPotentials[jType] == null) return;
+                        int ij1 = Math.min(i, j);
+                        PairData pdij = pairDataHashMap.get(new IntSet(ij1, i+j-ij1));
+                        int jk1 = Math.min(j, finalK);
+                        PairData pdjk = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
                         double rkj2 = rkj.squared();
                         Vector rij = space.makeVector();
                         //rkj = rj - rk
@@ -418,6 +439,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                         rij.Ev1Mv2(rkj, rki);
                         double rij2 = rij.squared();
                         if(rij2 > krc*krc && rij2 <= 4*krc*krc) {
+
                             Hij.Ev1v2(rkj, rki);
                             Hij.TE(1/rkj2/rki2);
                             Hij.TE(id2f[finalK]);
@@ -600,5 +622,13 @@ public class PotentialComputeEAM implements PotentialCompute {
             uCorrection += pairDensity * integral;
         }
         return uCorrection;
+    }
+
+    public static class PairData {
+        public double rdrho, r2drho;
+        public PairData(double rdrho, double r2drho) {
+            this.rdrho = rdrho;
+            this.r2drho = r2drho;
+        }
     }
 }
