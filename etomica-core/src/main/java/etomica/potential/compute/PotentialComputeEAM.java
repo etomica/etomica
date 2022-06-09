@@ -299,15 +299,21 @@ public class PotentialComputeEAM implements PotentialCompute {
                     // i contributes to j density
                     double irc = irp.getRange();
                     if (r2 <= irc * irc) {
-                        // i contributes to j density
+                        // i contributes to j density: rho_i
                         u012[0] = u012[1] = u012[2] = 0;
                         irp.u012add(r2, u012);
                         rdrho.add(u012[1]);
                         rhoSum[j] += u012[0];
                         if (wantsHessian) {
                             PairData pd = new PairData(u012[1], u012[2]);
-                            int i1 = Math.min(finalI, j);
-                            pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+//                            int i1 = Math.min(finalI, j);
+//                            pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                            if (iType == jType) {
+                                int i1 = Math.min(finalI, j);
+                                pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                            }else{
+                                pairDataHashMap.put(new IntSet(finalI, j), pd);
+                            }
                         }
                     }
 
@@ -316,15 +322,16 @@ public class PotentialComputeEAM implements PotentialCompute {
                         if (jrp != null && embeddingPotentials[iType] != null) {
                             double jrc = jrp.getRange();
                             if (r2 <= jrc * jrc) {
-                                // j contributes to i density
+                                // j contributes to i density: rho_j
                                 u012[0] = u012[1] = u012[2] = 0;
                                 jrp.u012add(r2, u012);
                                 rdrho.add(u012[1]);
                                 rhoSum[finalI] += u012[0];
                                 if (wantsHessian) {
                                     PairData pd = new PairData(u012[1], u012[2]);
-                                    int i1 = Math.min(finalI, j);
-                                    pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+//                                    int i1 = Math.min(finalI, j);
+//                                    pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                                    pairDataHashMap.put(new IntSet(j, finalI), pd);
                                 }
                             }
                         }
@@ -458,6 +465,7 @@ public class PotentialComputeEAM implements PotentialCompute {
 
                         Hkj.PEa1Tt1(-1,Hij);
                         pc.pairComputeHessian(finalK,j,Hkj);
+//                        System.out.println(kType + "  " + iType + "  " + jType);
                     });//j
                 });//i
             }//k
