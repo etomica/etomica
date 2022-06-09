@@ -67,7 +67,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         box = coordinateDefinition.getBox();
         latticeEnergy = potentialCompute.computeAll(false);
         latticePressure = -potentialCompute.getLastVirial() / (box.getBoundary().volume() * dim);
-        int n = doD2 ? 41 : 16;
+//        int n = doD2 ? 41 : 16;
+        int n = doD2 ? 17 : 16;
 
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});
         dataInfo.addTag(tag);
@@ -148,7 +149,6 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         rx1_Phi_dr2 = rx1_Phi_dr3 = ry2_Phi_dr3 = ry2_Phi_dr1 = rz3_Phi_dr1 = rz3_Phi_dr2 = 0;
         ry3z2_Phi_dr4 = rx3z1_Phi_dr5 = rx2y1_Phi_dr6 = 0;
 
-
         double uSum;
         if (callComputeAll) {
             PotentialCallback callback = doD2 ? this : null;
@@ -209,17 +209,13 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double p1Shift = -pShift;
         //P1
         x[4] = -rho * temperature + virialx / V - p1Shift;
-        ;
         x[5] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialx + Frdot1) / V - p1Shift;
         //P2
         x[6] = -rho * temperature + virialy / V - p1Shift;
-        ;
         x[7] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialy + Frdot2) / V - p1Shift;
         //P3
         x[8] = -rho * temperature + virialz / V - p1Shift;
-        ;
         x[9] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialz + Frdot3) / V - p1Shift;
-        ;
         //P4
         x[10] = virialyz / V;
         x[11] = (virialyz - Frdot4) / V;
@@ -234,46 +230,46 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             //Cv - HMA
             x[16] = -1.0 / 4.0 / temperature * (Fdr + drPhidr);
 
-            // B
-            x[17] = (rPhir - 2.0 * virial) / (9 * V) + rho * temperature;
-            x[18] = ((rPhir - 2.0 * virial) / 9.0 + mV * mV * drPhidr - mVV * Fdr + 2.0 / 3.0 * mV * rPhidr - 3.0 * (N - 1) * temperature * gVV) / V + temperature / V;
-
-            //C11
-            x[19] = x_Phixx_x / V + 2 * rho * temperature; //C11
-            x[20] = (x_Phixx_x - Frddot11 + dr1_Phi_dr1 + 2 * rx1_Phi_dr1 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
-            //C22
-            x[21] = y_Phiyy_y / V + 2 * rho * temperature; //C11
-            x[22] = (y_Phiyy_y - Frddot22 + dr2_Phi_dr2 + 2 * ry2_Phi_dr2 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
-            //C33
-            x[23] = z_Phizz_z / V + 2 * rho * temperature; //C11
-            x[24] = (z_Phizz_z - Frddot33 + dr3_Phi_dr3 + 2 * rz3_Phi_dr3 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
-
-            //C12
-            x[25] = x_Phixy_y / V;//C12
-            x[26] = (x_Phixy_y - Frddot12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
-            //C13
-            x[27] = x_Phixz_z / V;//C12
-            x[28] = (x_Phixz_z - Frddot13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
-            //C23
-            x[29] = y_Phiyz_z / V;//C12
-            x[30] = (y_Phiyz_z - Frddot23 + dr2_Phi_dr2 + ry2_Phi_dr3 + rz3_Phi_dr2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
-
-            //C44
-            x[31] = y_Phizy_z / V + rho * temperature;
-            x[32] = (y_Phizy_z - Frddot44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
-            //C55
-            x[33] = x_Phizx_z / V + rho * temperature;//C55
-            x[34] = (x_Phizx_z - Frddot55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
-            //C6
-            x[35] = x_Phiyx_y / V + rho * temperature;//C66
-            x[36] = (x_Phiyx_y - Frddot66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
-
-            //b_V
-            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drPhidr - 1.0 / 3.0 * rPhidr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
-            //b_mn
-            x[38] = 1.0 / V * (-Frddot1T + mT * drPhidr1 + mT * rx1_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[39] = 1.0 / V * (-Frddot2T + mT * drPhidr2 + mT * ry2_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[40] = 1.0 / V * (-Frddot3T + mT * drPhidr3 + mT * rz3_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            // B
+//            x[17] = (rPhir - 2.0 * virial) / (9 * V) + rho * temperature;
+//            x[18] = ((rPhir - 2.0 * virial) / 9.0 + mV * mV * drPhidr - mVV * Fdr + 2.0 / 3.0 * mV * rPhidr - 3.0 * (N - 1) * temperature * gVV) / V + temperature / V;
+//
+//            //C11
+//            x[19] = x_Phixx_x / V + 2 * rho * temperature; //C11
+//            x[20] = (x_Phixx_x - Frddot11 + dr1_Phi_dr1 + 2 * rx1_Phi_dr1 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
+//            //C22
+//            x[21] = y_Phiyy_y / V + 2 * rho * temperature; //C11
+//            x[22] = (y_Phiyy_y - Frddot22 + dr2_Phi_dr2 + 2 * ry2_Phi_dr2 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
+//            //C33
+//            x[23] = z_Phizz_z / V + 2 * rho * temperature; //C11
+//            x[24] = (z_Phizz_z - Frddot33 + dr3_Phi_dr3 + 2 * rz3_Phi_dr3 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
+//
+//            //C12
+//            x[25] = x_Phixy_y / V;//C12
+//            x[26] = (x_Phixy_y - Frddot12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
+//            //C13
+//            x[27] = x_Phixz_z / V;//C12
+//            x[28] = (x_Phixz_z - Frddot13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
+//            //C23
+//            x[29] = y_Phiyz_z / V;//C12
+//            x[30] = (y_Phiyz_z - Frddot23 + dr2_Phi_dr2 + ry2_Phi_dr3 + rz3_Phi_dr2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
+//
+//            //C44
+//            x[31] = y_Phizy_z / V + rho * temperature;
+//            x[32] = (y_Phizy_z - Frddot44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            //C55
+//            x[33] = x_Phizx_z / V + rho * temperature;//C55
+//            x[34] = (x_Phizx_z - Frddot55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            //C6
+//            x[35] = x_Phiyx_y / V + rho * temperature;//C66
+//            x[36] = (x_Phiyx_y - Frddot66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//
+//            //b_V
+//            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drPhidr - 1.0 / 3.0 * rPhidr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
+//            //b_mn
+//            x[38] = 1.0 / V * (-Frddot1T + mT * drPhidr1 + mT * rx1_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[39] = 1.0 / V * (-Frddot2T + mT * drPhidr2 + mT * ry2_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[40] = 1.0 / V * (-Frddot3T + mT * drPhidr3 + mT * rz3_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
         }
 
         return data;
@@ -305,88 +301,118 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         virialxz += du / rij2 * rij.getX(0) * rij.getX(2);
         virialxy += du / rij2 * rij.getX(0) * rij.getX(1);
 
-        rPhir += r1Phir2(rij, rij, rij, du, d2u);
-        drPhidr += r1Phir2(rij, drij, drij, du, d2u);
-        rPhidr += r1Phir2(rij, rij, drij, du, d2u);
 
-        x_Phixx_x += r1xPhi2abr2y(rij, 0, 0, rij.getX(0), rij.getX(0), du, d2u);
-        y_Phiyy_y += r1xPhi2abr2y(rij, 1, 1, rij.getX(1), rij.getX(1), du, d2u);
-        z_Phizz_z += r1xPhi2abr2y(rij, 2, 2, rij.getX(2), rij.getX(2), du, d2u);
+        if(doD2){
+//            rPhir += r1Phir2(rij, rij, rij, du, d2u);
+            drPhidr += r1Phir2(rij, drij, drij, du, d2u);
+//            rPhidr += r1Phir2(rij, rij, drij, du, d2u);
 
-        x_Phixy_y += r1xPhi2abr2y(rij, 0, 1, rij.getX(0), rij.getX(1), du, d2u);
-        x_Phixz_z += r1xPhi2abr2y(rij, 0, 2, rij.getX(0), rij.getX(2), du, d2u);
-        y_Phiyz_z += r1xPhi2abr2y(rij, 1, 2, rij.getX(1), rij.getX(2), du, d2u);
-
-        x_Phiyx_y += r1xPhi2abr2y(rij, 1, 0, rij.getX(0), rij.getX(1), du, d2u);
-        x_Phizx_z += r1xPhi2abr2y(rij, 2, 0, rij.getX(0), rij.getX(2), du, d2u);
-        y_Phizy_z += r1xPhi2abr2y(rij, 2, 1, rij.getX(1), rij.getX(2), du, d2u);
-
-        Vector[] rdot = mapVel(drij);
-
-        dr1_Phi_dr1 += r1Phir2(rij, rdot[0], rdot[0], du, d2u);
-        dr2_Phi_dr2 += r1Phir2(rij, rdot[1], rdot[1], du, d2u);
-        dr3_Phi_dr3 += r1Phir2(rij, rdot[2], rdot[2], du, d2u);
-
-        dr1_Phi_dr2 += r1Phir2(rij, rdot[0], rdot[1], du, d2u);
-        dr1_Phi_dr3 += r1Phir2(rij, rdot[0], rdot[2], du, d2u);
-        dr2_Phi_dr3 += r1Phir2(rij, rdot[1], rdot[2], du, d2u);
-
-        dr4_Phi_dr4 += r1Phir2(rij, rdot[3], rdot[3], du, d2u);
-        dr5_Phi_dr5 += r1Phir2(rij, rdot[4], rdot[4], du, d2u);
-        dr6_Phi_dr6 += r1Phir2(rij, rdot[5], rdot[5], du, d2u);
-
-        Vector rx1 = space.makeVector();
-        rx1.setX(0, rij.getX(0));
-        Vector rx2 = space.makeVector();
-        rx2.setX(1, rij.getX(0));
-        Vector rx3 = space.makeVector();
-        rx3.setX(2, rij.getX(0));
-
-        Vector ry1 = space.makeVector();
-        ry1.setX(0, rij.getX(1));
-        Vector ry2 = space.makeVector();
-        ry2.setX(1, rij.getX(1));
-        Vector ry3 = space.makeVector();
-        ry3.setX(2, rij.getX(1));
-
-        Vector rz1 = space.makeVector();
-        rz1.setX(0, rij.getX(2));
-        Vector rz2 = space.makeVector();
-        rz2.setX(1, rij.getX(2));
-        Vector rz3 = space.makeVector();
-        rz3.setX(2, rij.getX(2));
-
-        Vector ry3z2 = space.makeVector();
-        ry3z2.Ev1Pv2(ry3, rz2);
-        Vector rx3z1 = space.makeVector();
-        rx3z1.Ev1Pv2(rx3, rz1);
-        Vector rx2y1 = space.makeVector();
-        rx2y1.Ev1Pv2(rx2, ry1);
-
-        rx1_Phi_dr1 += r1Phir2(rij, rx1, rdot[0], du, d2u);
-        ry2_Phi_dr2 += r1Phir2(rij, ry2, rdot[1], du, d2u);
-        rz3_Phi_dr3 += r1Phir2(rij, rz3, rdot[2], du, d2u);
-
-        rx1_Phi_dr2 += r1Phir2(rij, rx1, rdot[1], du, d2u);
-        rx1_Phi_dr3 += r1Phir2(rij, rx1, rdot[2], du, d2u);
-        ry2_Phi_dr3 += r1Phir2(rij, ry2, rdot[2], du, d2u);
-
-        ry2_Phi_dr1 += r1Phir2(rij, ry2, rdot[0], du, d2u);
-        rz3_Phi_dr1 += r1Phir2(rij, rz3, rdot[0], du, d2u);
-        rz3_Phi_dr2 += r1Phir2(rij, rz3, rdot[1], du, d2u);
-
-        ry3z2_Phi_dr4 += r1Phir2(rij, ry3z2, rdot[3], du, d2u);
-        rx3z1_Phi_dr5 += r1Phir2(rij, rx3z1, rdot[4], du, d2u);
-        rx2y1_Phi_dr6 += r1Phir2(rij, rx2y1, rdot[5], du, d2u);
-
-        drPhidr1 += r1Phir2(rij, drij, rdot[0], du, d2u);
-        drPhidr2 += r1Phir2(rij, drij, rdot[1], du, d2u);
-        drPhidr3 += r1Phir2(rij, drij, rdot[2], du, d2u);
-
-        rx1_Phi_dr += r1Phir2(rij, rx1, drij, du, d2u);
-        ry2_Phi_dr += r1Phir2(rij, ry2, drij, du, d2u);
-        rz3_Phi_dr += r1Phir2(rij, rz3, drij, du, d2u);
+//            x_Phixx_x += r1xPhi2abr2y(rij, 0, 0, rij.getX(0), rij.getX(0), du, d2u);
+//            y_Phiyy_y += r1xPhi2abr2y(rij, 1, 1, rij.getX(1), rij.getX(1), du, d2u);
+//            z_Phizz_z += r1xPhi2abr2y(rij, 2, 2, rij.getX(2), rij.getX(2), du, d2u);
+//
+//            x_Phixy_y += r1xPhi2abr2y(rij, 0, 1, rij.getX(0), rij.getX(1), du, d2u);
+//            x_Phixz_z += r1xPhi2abr2y(rij, 0, 2, rij.getX(0), rij.getX(2), du, d2u);
+//            y_Phiyz_z += r1xPhi2abr2y(rij, 1, 2, rij.getX(1), rij.getX(2), du, d2u);
+//
+//            x_Phiyx_y += r1xPhi2abr2y(rij, 1, 0, rij.getX(0), rij.getX(1), du, d2u);
+//            x_Phizx_z += r1xPhi2abr2y(rij, 2, 0, rij.getX(0), rij.getX(2), du, d2u);
+//            y_Phizy_z += r1xPhi2abr2y(rij, 2, 1, rij.getX(1), rij.getX(2), du, d2u);
+//
+//            Vector[] rdot = mapVel(drij);
+//
+//            dr1_Phi_dr1 += r1Phir2(rij, rdot[0], rdot[0], du, d2u);
+//            dr2_Phi_dr2 += r1Phir2(rij, rdot[1], rdot[1], du, d2u);
+//            dr3_Phi_dr3 += r1Phir2(rij, rdot[2], rdot[2], du, d2u);
+//
+//            dr1_Phi_dr2 += r1Phir2(rij, rdot[0], rdot[1], du, d2u);
+//            dr1_Phi_dr3 += r1Phir2(rij, rdot[0], rdot[2], du, d2u);
+//            dr2_Phi_dr3 += r1Phir2(rij, rdot[1], rdot[2], du, d2u);
+//
+//            dr4_Phi_dr4 += r1Phir2(rij, rdot[3], rdot[3], du, d2u);
+//            dr5_Phi_dr5 += r1Phir2(rij, rdot[4], rdot[4], du, d2u);
+//            dr6_Phi_dr6 += r1Phir2(rij, rdot[5], rdot[5], du, d2u);
+//
+//            Vector rx1 = space.makeVector();
+//            rx1.setX(0, rij.getX(0));
+//            Vector rx2 = space.makeVector();
+//            rx2.setX(1, rij.getX(0));
+//            Vector rx3 = space.makeVector();
+//            rx3.setX(2, rij.getX(0));
+//
+//            Vector ry1 = space.makeVector();
+//            ry1.setX(0, rij.getX(1));
+//            Vector ry2 = space.makeVector();
+//            ry2.setX(1, rij.getX(1));
+//            Vector ry3 = space.makeVector();
+//            ry3.setX(2, rij.getX(1));
+//
+//            Vector rz1 = space.makeVector();
+//            rz1.setX(0, rij.getX(2));
+//            Vector rz2 = space.makeVector();
+//            rz2.setX(1, rij.getX(2));
+//            Vector rz3 = space.makeVector();
+//            rz3.setX(2, rij.getX(2));
+//
+//            Vector ry3z2 = space.makeVector();
+//            ry3z2.Ev1Pv2(ry3, rz2);
+//            Vector rx3z1 = space.makeVector();
+//            rx3z1.Ev1Pv2(rx3, rz1);
+//            Vector rx2y1 = space.makeVector();
+//            rx2y1.Ev1Pv2(rx2, ry1);
+//
+//            rx1_Phi_dr1 += r1Phir2(rij, rx1, rdot[0], du, d2u);
+//            ry2_Phi_dr2 += r1Phir2(rij, ry2, rdot[1], du, d2u);
+//            rz3_Phi_dr3 += r1Phir2(rij, rz3, rdot[2], du, d2u);
+//
+//            rx1_Phi_dr2 += r1Phir2(rij, rx1, rdot[1], du, d2u);
+//            rx1_Phi_dr3 += r1Phir2(rij, rx1, rdot[2], du, d2u);
+//            ry2_Phi_dr3 += r1Phir2(rij, ry2, rdot[2], du, d2u);
+//
+//            ry2_Phi_dr1 += r1Phir2(rij, ry2, rdot[0], du, d2u);
+//            rz3_Phi_dr1 += r1Phir2(rij, rz3, rdot[0], du, d2u);
+//            rz3_Phi_dr2 += r1Phir2(rij, rz3, rdot[1], du, d2u);
+//
+//            ry3z2_Phi_dr4 += r1Phir2(rij, ry3z2, rdot[3], du, d2u);
+//            rx3z1_Phi_dr5 += r1Phir2(rij, rx3z1, rdot[4], du, d2u);
+//            rx2y1_Phi_dr6 += r1Phir2(rij, rx2y1, rdot[5], du, d2u);
+//
+//            drPhidr1 += r1Phir2(rij, drij, rdot[0], du, d2u);
+//            drPhidr2 += r1Phir2(rij, drij, rdot[1], du, d2u);
+//            drPhidr3 += r1Phir2(rij, drij, rdot[2], du, d2u);
+//
+//            rx1_Phi_dr += r1Phir2(rij, rx1, drij, du, d2u);
+//            ry2_Phi_dr += r1Phir2(rij, ry2, drij, du, d2u);
+//            rz3_Phi_dr += r1Phir2(rij, rz3, drij, du, d2u);
+        }
     }
+
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // Add whatever you need to do with the hessian: elastic!
+        IAtom ai = box.getLeafList().getAtoms().get(i);
+        IAtom aj = box.getLeafList().getAtoms().get(j);
+        dri.Ev1Mv2(ai.getPosition(), coordinteDefinition.getLatticePosition(ai));
+        drj.Ev1Mv2(aj.getPosition(), coordinteDefinition.getLatticePosition(aj));
+        box.getBoundary().nearestImage(dri);
+        box.getBoundary().nearestImage(drj);
+
+        //i != j
+        Vector tmpV = space.makeVector();
+        tmpV.E(drj);
+        Hij.transform(tmpV); //Hij.drj
+        drPhidr += 2*dri.dot(tmpV); //dri.Hij.drj
+        //self term
+        tmpV.E(dri);
+        Hij.transform(tmpV);
+        drPhidr -= dri.dot(tmpV); //dri.Hij.drj
+
+        tmpV.E(drj);
+        Hij.transpose(); //Hij^T = Hji
+        Hij.transform(tmpV);
+        drPhidr -= dri.dot(tmpV); //drj.Hji.drj
+    }
+
+
+
 
     protected Vector[] mapVel(Vector dr) {
         Vector[] rdot = new Vector[6];
@@ -517,28 +543,4 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         return doD2;
     }
 
-
-    public void pairComputeHessian(int i, int j, Tensor Hij) { // Add whatever you need to do with the hessian: elastic!
-        IAtom ai = box.getLeafList().getAtoms().get(i);
-        IAtom aj = box.getLeafList().getAtoms().get(j);
-        dri.Ev1Mv2(ai.getPosition(), coordinteDefinition.getLatticePosition(ai));
-        drj.Ev1Mv2(aj.getPosition(), coordinteDefinition.getLatticePosition(aj));
-        box.getBoundary().nearestImage(dri);
-        box.getBoundary().nearestImage(drj);
-
-        //i != j
-        Vector tmpV = space.makeVector();
-        tmpV.E(drj);
-        Hij.transform(tmpV); //Hij.drj
-        drPhidr += 2*dri.dot(tmpV); //dri.Hij.drj
-        //self term
-        tmpV.E(dri);
-        Hij.transform(tmpV);
-        drPhidr -= dri.dot(tmpV); //dri.Hij.drj
-
-        tmpV.E(drj);
-        Hij.transpose(); //Hij^T = Hji
-        Hij.transform(tmpV);
-        drPhidr -= dri.dot(tmpV); //drj.Hji.drj
-    }
 }
