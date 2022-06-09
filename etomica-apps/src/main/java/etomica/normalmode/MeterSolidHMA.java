@@ -19,6 +19,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
+import org.apache.xml.utils.IntVector;
 
 public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected final int dim;
@@ -51,6 +52,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected double mx1, my1, my4, mx11, my11, mx12, mz12, mx44, my44;
     protected double mT, mVT, mx1T, my1T;
     protected final boolean doD2;
+    protected Vector dri, drj, drij, Rij;
 
     protected boolean callComputeAll = true;
 
@@ -71,29 +73,42 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
 
-        gV   = elasticParams[0];  gVV  = elasticParams[1];
-        gx1  = elasticParams[2];  gy1  = elasticParams[3];   gy4 = elasticParams[4];
-        gx11 = elasticParams[5];  gy11 = elasticParams[6];  gx44 = elasticParams[7];
-        gy44 = elasticParams[8];  gx12 = elasticParams[9];  gz12 = elasticParams[10];
+        gV = elasticParams[0];
+        gVV = elasticParams[1];
+        gx1 = elasticParams[2];
+        gy1 = elasticParams[3];
+        gy4 = elasticParams[4];
+        gx11 = elasticParams[5];
+        gy11 = elasticParams[6];
+        gx44 = elasticParams[7];
+        gy44 = elasticParams[8];
+        gx12 = elasticParams[9];
+        gz12 = elasticParams[10];
 
-        mV = gV - 1.0/3.0;
-        mVV = gVV + gV*gV + 2.0/9.0;
-        mT = 1.0/(2.0*temperature);
-        mVT = mT*(mV + 1.0/3.0);
+        mV = gV - 1.0 / 3.0;
+        mVV = gVV + gV * gV + 2.0 / 9.0;
+        mT = 1.0 / (2.0 * temperature);
+        mVT = mT * (mV + 1.0 / 3.0);
         mx1 = gx1 - 1.0;
         my1 = gy1;
         my4 = gy4 - 0.5;
-        mx11 = gx11 + gx1*gx1 + 1.0;
-        my11 = gy11 + gy1*gy1;
-        mx12 = gx12 + gx1*gy1; //gx2=gy1
-        mz12 = gz12 + gy1*gy1; //gz1=gy1 , gz2=gy1
+        mx11 = gx11 + gx1 * gx1 + 1.0;
+        my11 = gy11 + gy1 * gy1;
+        mx12 = gx12 + gx1 * gy1; //gx2=gy1
+        mz12 = gz12 + gy1 * gy1; //gz1=gy1 , gz2=gy1
         mx44 = gx44; //gx4=0
-        my44 = gy44 + gy4*gy4 + 1.0/4.0;
-        mx1T = mT*gx1;
-        my1T = mT*gy1;
+        my44 = gy44 + gy4 * gy4 + 1.0 / 4.0;
+        mx1T = mT * gx1;
+        my1T = mT * gy1;
 
         this.uShift = 0;
         this.pShift = 0;
+
+        dri = space.makeVector();
+        drj = space.makeVector();
+        drij = space.makeVector();
+        Rij = space.makeVector();
+
     }
 
     @Override
@@ -133,7 +148,6 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         rx1_Phi_dr2 = rx1_Phi_dr3 = ry2_Phi_dr3 = ry2_Phi_dr1 = rz3_Phi_dr1 = rz3_Phi_dr2 = 0;
         ry3z2_Phi_dr4 = rx3z1_Phi_dr5 = rx2y1_Phi_dr6 = 0;
 
-        Vector dr = space.makeVector();
 
         double uSum;
         if (callComputeAll) {
@@ -146,26 +160,26 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double[] x = data.getData();
         double V = box.getBoundary().volume();
         int N = box.getMoleculeList().size();
-        double rho = N/ V;
+        double rho = N / V;
         double virial = potentialMaster.getLastVirial();
         Vector[] forces = potentialMaster.getForces();
         IAtomList atoms = box.getLeafList();
         for (IAtom a : atoms) {
             Vector F = forces[a.getLeafIndex()];
-            dr.Ev1Mv2(a.getPosition(), coordinteDefinition.getLatticePosition(a));
-            box.getBoundary().nearestImage(dr);
+            dri.Ev1Mv2(a.getPosition(), coordinteDefinition.getLatticePosition(a));
+            box.getBoundary().nearestImage(dri);
 
-            Vector[] rdot = mapVel(dr);
-            Vector[] rddot = mapAcc(dr);
+            Vector[] rdot = mapVel(dri);
+            Vector[] rddot = mapAcc(dri);
 
             // F.rdot
-            Fdr     += F.dot(dr);
-            Frdot1  += F.dot(rdot[0]);
-            Frdot2  += F.dot(rdot[1]);
-            Frdot3  += F.dot(rdot[2]);
-            Frdot4  += F.dot(rdot[3]);
-            Frdot5  += F.dot(rdot[4]);
-            Frdot6  += F.dot(rdot[5]);
+            Fdr += F.dot(dri);
+            Frdot1 += F.dot(rdot[0]);
+            Frdot2 += F.dot(rdot[1]);
+            Frdot3 += F.dot(rdot[2]);
+            Frdot4 += F.dot(rdot[3]);
+            Frdot5 += F.dot(rdot[4]);
+            Frdot6 += F.dot(rdot[5]);
 
             // F.rddot
             Frddot11 += F.dot(rddot[0]);
@@ -186,75 +200,80 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
         //Props
         //U
-        x[0] = uSum/N - uShift;
-        x[1] = uSum/N + 3.0*(N-1.0)/N*temperature/2.0 + 1.0/2.0/N*Fdr - uShift;
+        x[0] = uSum / N - uShift;
+
+        x[1] = uSum / N + 3.0 * (N - 1.0) / N * temperature / 2.0 + 1.0 / 2.0 / N * Fdr - uShift;
         //P
-        x[2] = rho*temperature - virial/(3*V) - pShift;
-        x[3] = 3*(N-1)/V*temperature*gV - virial/(3*V) + mV*Fdr/V - pShift;
+        x[2] = rho * temperature - virial / (3 * V) - pShift;
+        x[3] = 3 * (N - 1) / V * temperature * gV - virial / (3 * V) + mV * Fdr / V - pShift;
         double p1Shift = -pShift;
         //P1
-        x[4] = -rho*temperature + virialx/V - p1Shift;;
-        x[5] = -((N-1)*temperature*(gx1+2*gy1) - virialx + Frdot1)/V - p1Shift;
+        x[4] = -rho * temperature + virialx / V - p1Shift;
+        ;
+        x[5] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialx + Frdot1) / V - p1Shift;
         //P2
-        x[6] = -rho*temperature + virialy/V - p1Shift;;
-        x[7] = -((N-1)*temperature*(gx1+2*gy1) - virialy + Frdot2)/V - p1Shift;
+        x[6] = -rho * temperature + virialy / V - p1Shift;
+        ;
+        x[7] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialy + Frdot2) / V - p1Shift;
         //P3
-        x[8] = -rho*temperature + virialz/V - p1Shift;;
-        x[9] = -((N-1)*temperature*(gx1+2*gy1) - virialz + Frdot3)/V - p1Shift;;
+        x[8] = -rho * temperature + virialz / V - p1Shift;
+        ;
+        x[9] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialz + Frdot3) / V - p1Shift;
+        ;
         //P4
-        x[10] = virialyz/V;
-        x[11] = (virialyz - Frdot4)/V;
+        x[10] = virialyz / V;
+        x[11] = (virialyz - Frdot4) / V;
         //P5
-        x[12] = virialxz/V;
-        x[13] = (virialxz - Frdot5)/V;
+        x[12] = virialxz / V;
+        x[13] = (virialxz - Frdot5) / V;
         //P6
-        x[14] = virialxy/V;
-        x[15] = (virialxy - Frdot6)/V;
+        x[14] = virialxy / V;
+        x[15] = (virialxy - Frdot6) / V;
 
-        if(doD2){
+        if (doD2) {
             //Cv - HMA
-            x[16] = -1.0/4.0/temperature*(Fdr+drPhidr) ;
+            x[16] = -1.0 / 4.0 / temperature * (Fdr + drPhidr);
 
             // B
-            x[17] = (rPhir - 2.0*virial)/(9*V) + rho*temperature;
-            x[18] = ((rPhir - 2.0*virial)/9.0 + mV*mV*drPhidr - mVV*Fdr + 2.0/3.0*mV*rPhidr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
+            x[17] = (rPhir - 2.0 * virial) / (9 * V) + rho * temperature;
+            x[18] = ((rPhir - 2.0 * virial) / 9.0 + mV * mV * drPhidr - mVV * Fdr + 2.0 / 3.0 * mV * rPhidr - 3.0 * (N - 1) * temperature * gVV) / V + temperature / V;
 
             //C11
-            x[19] = x_Phixx_x/V + 2*rho*temperature; //C11
-            x[20] = (x_Phixx_x - Frddot11 + dr1_Phi_dr1 + 2*rx1_Phi_dr1 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
+            x[19] = x_Phixx_x / V + 2 * rho * temperature; //C11
+            x[20] = (x_Phixx_x - Frddot11 + dr1_Phi_dr1 + 2 * rx1_Phi_dr1 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
             //C22
-            x[21] = y_Phiyy_y/V + 2*rho*temperature; //C11
-            x[22] = (y_Phiyy_y - Frddot22 + dr2_Phi_dr2 + 2*ry2_Phi_dr2 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
+            x[21] = y_Phiyy_y / V + 2 * rho * temperature; //C11
+            x[22] = (y_Phiyy_y - Frddot22 + dr2_Phi_dr2 + 2 * ry2_Phi_dr2 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
             //C33
-            x[23] = z_Phizz_z/V + 2*rho*temperature; //C11
-            x[24] = (z_Phizz_z - Frddot33 + dr3_Phi_dr3 + 2*rz3_Phi_dr3 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
+            x[23] = z_Phizz_z / V + 2 * rho * temperature; //C11
+            x[24] = (z_Phizz_z - Frddot33 + dr3_Phi_dr3 + 2 * rz3_Phi_dr3 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
 
             //C12
-            x[25] = x_Phixy_y/V;//C12
-            x[26] = (x_Phixy_y - Frddot12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (N-1.0)*temperature*(gz12+2*gx12))/V;
+            x[25] = x_Phixy_y / V;//C12
+            x[26] = (x_Phixy_y - Frddot12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
             //C13
-            x[27] = x_Phixz_z/V;//C12
-            x[28] = (x_Phixz_z - Frddot13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (N-1.0)*temperature*(gz12+2*gx12))/V;
+            x[27] = x_Phixz_z / V;//C12
+            x[28] = (x_Phixz_z - Frddot13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
             //C23
-            x[29] = y_Phiyz_z/V;//C12
-            x[30] = (y_Phiyz_z - Frddot23 + dr2_Phi_dr2 + ry2_Phi_dr3 + rz3_Phi_dr2 - (N-1.0)*temperature*(gz12+2*gx12))/V;
+            x[29] = y_Phiyz_z / V;//C12
+            x[30] = (y_Phiyz_z - Frddot23 + dr2_Phi_dr2 + ry2_Phi_dr3 + rz3_Phi_dr2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
 
             //C44
-            x[31] = y_Phizy_z/V + rho*temperature;
-            x[32] = (y_Phizy_z - Frddot44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
+            x[31] = y_Phizy_z / V + rho * temperature;
+            x[32] = (y_Phizy_z - Frddot44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
             //C55
-            x[33] = x_Phizx_z/V + rho*temperature;//C55
-            x[34] = (x_Phizx_z - Frddot55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
+            x[33] = x_Phizx_z / V + rho * temperature;//C55
+            x[34] = (x_Phizx_z - Frddot55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
             //C6
-            x[35] = x_Phiyx_y/V + rho*temperature;//C66
-            x[36] = (x_Phiyx_y - Frddot66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
+            x[35] = x_Phiyx_y / V + rho * temperature;//C66
+            x[36] = (x_Phiyx_y - Frddot66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 
             //b_V
-            x[37] = 1.0/2.0/V/temperature*(gV*Fdr - mV*drPhidr - 1.0/3.0*rPhidr) + 3.0*(N-1)*gV/V + 1.0/V; //bV_hma
+            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drPhidr - 1.0 / 3.0 * rPhidr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
             //b_mn
-            x[38] = 1.0/V*(-Frddot1T + mT*drPhidr1 + mT*rx1_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
-            x[39] = 1.0/V*(-Frddot2T + mT*drPhidr2 + mT*ry2_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
-            x[40] = 1.0/V*(-Frddot3T + mT*drPhidr3 + mT*rz3_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
+            x[38] = 1.0 / V * (-Frddot1T + mT * drPhidr1 + mT * rx1_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[39] = 1.0 / V * (-Frddot2T + mT * drPhidr2 + mT * ry2_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[40] = 1.0 / V * (-Frddot3T + mT * drPhidr3 + mT * rz3_Phi_dr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
         }
 
         return data;
@@ -267,45 +286,40 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double d2u = u012[2];
         double rij2 = rij.squared();
 
-        Vector dri = space.makeVector();
-        Vector drj = space.makeVector();
-        Vector drij = space.makeVector();
-        Vector Rij = space.makeVector();
-
         IAtom ia = box.getLeafList().get(iAtom);
         IAtom ja = box.getLeafList().get(jAtom);
         Vector Ri = coordinteDefinition.getLatticePosition(ia);
         Vector Rj = coordinteDefinition.getLatticePosition(ja);
-        Rij.Ev1Mv2(Ri , Rj);
+        Rij.Ev1Mv2(Ri, Rj);
 
         dri.Ev1Mv2(ia.getPosition(), coordinteDefinition.getLatticePosition(ia));
         box.getBoundary().nearestImage(dri);
         drj.Ev1Mv2(ja.getPosition(), coordinteDefinition.getLatticePosition(ja));
         box.getBoundary().nearestImage(drj);
-        drij.Ev1Mv2(drj , dri);
+        drij.Ev1Mv2(drj, dri);
 
-        virialx += du/rij2*rij.getX(0)*rij.getX(0);
-        virialy += du/rij2*rij.getX(1)*rij.getX(1);
-        virialz += du/rij2*rij.getX(2)*rij.getX(2);
-        virialyz += du/rij2*rij.getX(1)*rij.getX(2);
-        virialxz += du/rij2*rij.getX(0)*rij.getX(2);
-        virialxy += du/rij2*rij.getX(0)*rij.getX(1);
+        virialx += du / rij2 * rij.getX(0) * rij.getX(0);
+        virialy += du / rij2 * rij.getX(1) * rij.getX(1);
+        virialz += du / rij2 * rij.getX(2) * rij.getX(2);
+        virialyz += du / rij2 * rij.getX(1) * rij.getX(2);
+        virialxz += du / rij2 * rij.getX(0) * rij.getX(2);
+        virialxy += du / rij2 * rij.getX(0) * rij.getX(1);
 
-        rPhir   += r1Phir2(rij, rij, rij, du, d2u);
+        rPhir += r1Phir2(rij, rij, rij, du, d2u);
         drPhidr += r1Phir2(rij, drij, drij, du, d2u);
-        rPhidr  += r1Phir2(rij, rij, drij, du, d2u);
+        rPhidr += r1Phir2(rij, rij, drij, du, d2u);
 
-        x_Phixx_x += r1xPhi2abr2y(rij,0, 0, rij.getX(0), rij.getX(0) ,  du, d2u);
-        y_Phiyy_y += r1xPhi2abr2y(rij,1, 1, rij.getX(1), rij.getX(1) ,  du, d2u);
-        z_Phizz_z += r1xPhi2abr2y(rij,2, 2, rij.getX(2), rij.getX(2) ,  du, d2u);
+        x_Phixx_x += r1xPhi2abr2y(rij, 0, 0, rij.getX(0), rij.getX(0), du, d2u);
+        y_Phiyy_y += r1xPhi2abr2y(rij, 1, 1, rij.getX(1), rij.getX(1), du, d2u);
+        z_Phizz_z += r1xPhi2abr2y(rij, 2, 2, rij.getX(2), rij.getX(2), du, d2u);
 
-        x_Phixy_y += r1xPhi2abr2y(rij,0, 1, rij.getX(0), rij.getX(1) ,  du, d2u);
-        x_Phixz_z += r1xPhi2abr2y(rij,0, 2, rij.getX(0), rij.getX(2) ,  du, d2u);
-        y_Phiyz_z += r1xPhi2abr2y(rij,1, 2, rij.getX(1), rij.getX(2) ,  du, d2u);
+        x_Phixy_y += r1xPhi2abr2y(rij, 0, 1, rij.getX(0), rij.getX(1), du, d2u);
+        x_Phixz_z += r1xPhi2abr2y(rij, 0, 2, rij.getX(0), rij.getX(2), du, d2u);
+        y_Phiyz_z += r1xPhi2abr2y(rij, 1, 2, rij.getX(1), rij.getX(2), du, d2u);
 
-        x_Phiyx_y += r1xPhi2abr2y(rij,1, 0, rij.getX(0), rij.getX(1) ,  du, d2u);
-        x_Phizx_z += r1xPhi2abr2y(rij,2, 0, rij.getX(0), rij.getX(2) ,  du, d2u);
-        y_Phizy_z += r1xPhi2abr2y(rij,2, 1, rij.getX(1), rij.getX(2) ,  du, d2u);
+        x_Phiyx_y += r1xPhi2abr2y(rij, 1, 0, rij.getX(0), rij.getX(1), du, d2u);
+        x_Phizx_z += r1xPhi2abr2y(rij, 2, 0, rij.getX(0), rij.getX(2), du, d2u);
+        y_Phizy_z += r1xPhi2abr2y(rij, 2, 1, rij.getX(1), rij.getX(2), du, d2u);
 
         Vector[] rdot = mapVel(drij);
 
@@ -361,9 +375,9 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         rz3_Phi_dr1 += r1Phir2(rij, rz3, rdot[0], du, d2u);
         rz3_Phi_dr2 += r1Phir2(rij, rz3, rdot[1], du, d2u);
 
-        ry3z2_Phi_dr4 += r1Phir2(rij, ry3z2 , rdot[3], du, d2u);
-        rx3z1_Phi_dr5 += r1Phir2(rij, rx3z1 , rdot[4], du, d2u);
-        rx2y1_Phi_dr6 += r1Phir2(rij, rx2y1 , rdot[5], du, d2u);
+        ry3z2_Phi_dr4 += r1Phir2(rij, ry3z2, rdot[3], du, d2u);
+        rx3z1_Phi_dr5 += r1Phir2(rij, rx3z1, rdot[4], du, d2u);
+        rx2y1_Phi_dr6 += r1Phir2(rij, rx2y1, rdot[5], du, d2u);
 
         drPhidr1 += r1Phir2(rij, drij, rdot[0], du, d2u);
         drPhidr2 += r1Phir2(rij, drij, rdot[1], du, d2u);
@@ -374,22 +388,22 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         rz3_Phi_dr += r1Phir2(rij, rz3, drij, du, d2u);
     }
 
-    protected Vector[] mapVel(Vector dr){
+    protected Vector[] mapVel(Vector dr) {
         Vector[] rdot = new Vector[6];
-        for(int i=0; i<6; i++){
+        for (int i = 0; i < 6; i++) {
             rdot[i] = space.makeVector();
         }
-        rdot[0].setX(0, mx1*dr.getX(0)); //rdot1
-        rdot[0].setX(1, my1*dr.getX(1));
-        rdot[0].setX(2, my1*dr.getX(2));
+        rdot[0].setX(0, mx1 * dr.getX(0)); //rdot1
+        rdot[0].setX(1, my1 * dr.getX(1));
+        rdot[0].setX(2, my1 * dr.getX(2));
 
-        rdot[1].setX(0, my1*dr.getX(0)); //rdot2
-        rdot[1].setX(1, mx1*dr.getX(1));
-        rdot[1].setX(2, my1*dr.getX(2));
+        rdot[1].setX(0, my1 * dr.getX(0)); //rdot2
+        rdot[1].setX(1, mx1 * dr.getX(1));
+        rdot[1].setX(2, my1 * dr.getX(2));
 
-        rdot[2].setX(0, my1*dr.getX(0));//rdot3
-        rdot[2].setX(1, my1*dr.getX(1));
-        rdot[2].setX(2, mx1*dr.getX(2));
+        rdot[2].setX(0, my1 * dr.getX(0));//rdot3
+        rdot[2].setX(1, my1 * dr.getX(1));
+        rdot[2].setX(2, mx1 * dr.getX(2));
 
         rdot[3].setX(1, dr.getX(2));//rdot4
         rdot[3].setX(2, dr.getX(1));
@@ -406,85 +420,76 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         return rdot;
     }
 
-    protected Vector[] mapAcc(Vector dr){
+    protected Vector[] mapAcc(Vector dr) {
         Vector[] rddot = new Vector[12];
-        for(int i=0; i<12; i++){
+        for (int i = 0; i < 12; i++) {
             rddot[i] = space.makeVector();
         }
 
-        rddot[0].setX(0, mx11*dr.getX(0));//rddot1
-        rddot[0].setX(1, my11*dr.getX(1));
-        rddot[0].setX(2, my11*dr.getX(2));
+        rddot[0].setX(0, mx11 * dr.getX(0));//rddot1
+        rddot[0].setX(1, my11 * dr.getX(1));
+        rddot[0].setX(2, my11 * dr.getX(2));
 
-        rddot[1].setX(0, my11*dr.getX(0));//rddot2
-        rddot[1].setX(1, mx11*dr.getX(1));
-        rddot[1].setX(2, my11*dr.getX(2));
+        rddot[1].setX(0, my11 * dr.getX(0));//rddot2
+        rddot[1].setX(1, mx11 * dr.getX(1));
+        rddot[1].setX(2, my11 * dr.getX(2));
 
-        rddot[2].setX(0, my11*dr.getX(0));//rddot3
-        rddot[2].setX(1, my11*dr.getX(1));
-        rddot[2].setX(2, mx11*dr.getX(2));
+        rddot[2].setX(0, my11 * dr.getX(0));//rddot3
+        rddot[2].setX(1, my11 * dr.getX(1));
+        rddot[2].setX(2, mx11 * dr.getX(2));
 
-        rddot[3].setX(0, mx44*dr.getX(0));//rddot4
-        rddot[3].setX(1, my44*dr.getX(1));
-        rddot[3].setX(2, my44*dr.getX(2));
+        rddot[3].setX(0, mx44 * dr.getX(0));//rddot4
+        rddot[3].setX(1, my44 * dr.getX(1));
+        rddot[3].setX(2, my44 * dr.getX(2));
 
-        rddot[4].setX(0, my44*dr.getX(0));//rddot5
-        rddot[4].setX(1, mx44*dr.getX(1));
-        rddot[4].setX(2, my44*dr.getX(2));
+        rddot[4].setX(0, my44 * dr.getX(0));//rddot5
+        rddot[4].setX(1, mx44 * dr.getX(1));
+        rddot[4].setX(2, my44 * dr.getX(2));
 
-        rddot[5].setX(0, my44*dr.getX(0));//rddot6
-        rddot[5].setX(1, my44*dr.getX(1));
-        rddot[5].setX(2, mx44*dr.getX(2));
+        rddot[5].setX(0, my44 * dr.getX(0));//rddot6
+        rddot[5].setX(1, my44 * dr.getX(1));
+        rddot[5].setX(2, mx44 * dr.getX(2));
 
-        rddot[6].setX(0, mz12*dr.getX(0));//dr23
-        rddot[6].setX(1, mx12*dr.getX(1));
-        rddot[6].setX(2, mx12*dr.getX(2));
+        rddot[6].setX(0, mz12 * dr.getX(0));//dr23
+        rddot[6].setX(1, mx12 * dr.getX(1));
+        rddot[6].setX(2, mx12 * dr.getX(2));
 
-        rddot[7].setX(0, mx12*dr.getX(0));//rddot13
-        rddot[7].setX(1, mz12*dr.getX(1));
-        rddot[7].setX(2, mx12*dr.getX(2));
+        rddot[7].setX(0, mx12 * dr.getX(0));//rddot13
+        rddot[7].setX(1, mz12 * dr.getX(1));
+        rddot[7].setX(2, mx12 * dr.getX(2));
 
-        rddot[8].setX(0, mx12*dr.getX(0));//rddot12
-        rddot[8].setX(1, mx12*dr.getX(1));
-        rddot[8].setX(2, mz12*dr.getX(2));
+        rddot[8].setX(0, mx12 * dr.getX(0));//rddot12
+        rddot[8].setX(1, mx12 * dr.getX(1));
+        rddot[8].setX(2, mz12 * dr.getX(2));
 
-        rddot[9].setX(0, mx1T*dr.getX(0));
-        rddot[9].setX(1, my1T*dr.getX(1));
-        rddot[9].setX(2, my1T*dr.getX(2));
+        rddot[9].setX(0, mx1T * dr.getX(0));
+        rddot[9].setX(1, my1T * dr.getX(1));
+        rddot[9].setX(2, my1T * dr.getX(2));
 
-        rddot[10].setX(0, my1T*dr.getX(0));
-        rddot[10].setX(1, mx1T*dr.getX(1));
-        rddot[10].setX(2, my1T*dr.getX(2));
+        rddot[10].setX(0, my1T * dr.getX(0));
+        rddot[10].setX(1, mx1T * dr.getX(1));
+        rddot[10].setX(2, my1T * dr.getX(2));
 
-        rddot[11].setX(0, my1T*dr.getX(0));
-        rddot[11].setX(1, my1T*dr.getX(1));
-        rddot[11].setX(2, mx1T*dr.getX(2));
+        rddot[11].setX(0, my1T * dr.getX(0));
+        rddot[11].setX(1, my1T * dr.getX(1));
+        rddot[11].setX(2, mx1T * dr.getX(2));
 
         return rddot;
     }
 
-    protected double r1Phir2(Vector rij, Vector r1ij, Vector r2ij, double du, double d2u){ //r1.Phi.r2
+    protected double r1Phir2(Vector rij, Vector r1ij, Vector r2ij, double du, double d2u) { //r1.Phi.r2
         double rij2 = rij.squared();
-        double rPhir = du/rij2 * r1ij.dot(r2ij) + (d2u-du)/rij2/rij2 * r1ij.dot(rij)*(r2ij.dot(rij));
+        double rPhir = du / rij2 * r1ij.dot(r2ij) + (d2u - du) / rij2 / rij2 * r1ij.dot(rij) * (r2ij.dot(rij));
         return rPhir;
     }
 
-    protected double r1xPhi2abr2y(Vector rij, int a, int b, double x1, double y2 , double du, double d2u){
+    protected double r1xPhi2abr2y(Vector rij, int a, int b, double x1, double y2, double du, double d2u) {
         double rij2 = rij.squared();
-        double raPhi2rb = (d2u-du)/rij2/rij2*x1*y2*rij.getX(a)*rij.getX(b);
+        double raPhi2rb = (d2u - du) / rij2 / rij2 * x1 * y2 * rij.getX(a) * rij.getX(b);
         return raPhi2rb;
     }
 
-    public void pairComputeHessian(int iAtom, int jAtom, Tensor phi){ // Add whatever you need to do with the hessian: elastic!
-        // rPhir sums for EAM
-        // rPhir sums for EAM
-        // rPhir sums for EAM
-        // rPhir sums for EAM
-        // rPhir sums for EAM
-        // rPhir sums for EAM
-    }
-
-    public void setShift(double uShift , double pShift){
+    public void setShift(double uShift, double pShift) {
         this.uShift = uShift;
         this.pShift = pShift;
     }
@@ -504,10 +509,36 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         this.callComputeAll = callComputeAll;
     }
 
-    public boolean wantsHessian() {return true;}
+    public boolean wantsHessian() {
+        return true;
+    }
 
     public boolean needsPairCallback() {
         return doD2;
     }
 
+
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // Add whatever you need to do with the hessian: elastic!
+        IAtom ai = box.getLeafList().getAtoms().get(i);
+        IAtom aj = box.getLeafList().getAtoms().get(j);
+        dri.Ev1Mv2(ai.getPosition(), coordinteDefinition.getLatticePosition(ai));
+        drj.Ev1Mv2(aj.getPosition(), coordinteDefinition.getLatticePosition(aj));
+        box.getBoundary().nearestImage(dri);
+        box.getBoundary().nearestImage(drj);
+
+        //i != j
+        Vector tmpV = space.makeVector();
+        tmpV.E(drj);
+        Hij.transform(tmpV); //Hij.drj
+        drPhidr += 2*dri.dot(tmpV); //dri.Hij.drj
+        //self term
+        tmpV.E(dri);
+        Hij.transform(tmpV);
+        drPhidr -= dri.dot(tmpV); //dri.Hij.drj
+
+        tmpV.E(drj);
+        Hij.transpose(); //Hij^T = Hji
+        Hij.transform(tmpV);
+        drPhidr -= dri.dot(tmpV); //drj.Hji.drj
+    }
 }

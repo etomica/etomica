@@ -64,7 +64,8 @@ public class SimLREPHMA extends Simulation {
         boundary = new BoundaryRectangularPeriodic(space, n * L);
         System.out.println(" L = " + boundary.getBoxSize().getX(0));
         box = this.makeBox(boundary);
-        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 1.2*7.8, BondingInfo.noBonding());
+//        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 1.2*7.8, BondingInfo.noBonding());
+        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 3.0, BondingInfo.noBonding());
         nbrs.setDoDownNeighbors(true);
         potentialMaster = new PotentialComputeEAM(getSpeciesManager(), box, nbrs);
         potentialMaster.doAllTruncationCorrection = false;
@@ -443,10 +444,11 @@ public class SimLREPHMA extends Simulation {
         public boolean doD2 = true;
 
         public double dt = 1.0;
-        public int numAtoms = 256;
-        public long numSteps = 1000;
+        public int numAtoms = 500;
+        public long numSteps = 10000;
         public double temperatureK = 1000;
-        public double density0 = 0.08502338387498792; // V0 ==> 0 GPa
+        public double density0 = 0.1;
+//        public double density0 = 0.08502338387498792; // V0 ==> 0 GPa
 //      public double density = 0.12146197696426847; // 0.8*V0
 
         public double gV=3.094707617816900;

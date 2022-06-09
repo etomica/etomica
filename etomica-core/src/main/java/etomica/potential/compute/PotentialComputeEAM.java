@@ -353,7 +353,6 @@ public class PotentialComputeEAM implements PotentialCompute {
             });//j loop
         }// i loop
 
-
         //uTot (pair and multibody) and dF/dtheta
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
@@ -456,18 +455,18 @@ public class PotentialComputeEAM implements PotentialCompute {
                         int jType = jAtom.getType().getIndex();
                         double rkj2 = rkj.squared();
                         if (j <= i || rhoPotentials[jType] == null || rkj2 > krc*krc) return;
-                        PairData pdjk;
+                        PairData pdkj;
                         if(jType == kType){
                             int jk1 = Math.min(j, finalK);
-                            pdjk = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
+                            pdkj = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
                         }else{
-                            pdjk = pairDataHashMap.get(new IntSet(j, finalK));
+                            pdkj = pairDataHashMap.get(new IntSet(finalK, j));
                         }
-                        double drhojk  = pdjk.rdrho;
+                        double drhokj  = pdkj.rdrho;
 
                         //Indirect Hij, Hik, Hkj
                         Hij.Ev1v2(rki, rkj);
-                        Hij.TE(id2f[finalK]*drhoik*drhojk/rki2/rkj2);
+                        Hij.TE(id2f[finalK]*drhoki*drhokj/rki2/rkj2);
                         pc.pairComputeHessian(i,j,Hij);
 
                         Hik.PEa1Tt1(-1,Hij);
