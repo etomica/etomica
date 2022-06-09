@@ -12,6 +12,9 @@ import etomica.units.ElectronVolt;
  */
 public class P2LREPV implements IPotential2 {
 
+    protected double c0, c1, c2, c3, c4, rC;
+    protected int m;
+
     public P2LREPV() {
         this.m = 4;
         this.rC = 6.1;
@@ -72,6 +75,10 @@ public class P2LREPV implements IPotential2 {
         }
     }
 
-    protected double c0, c1, c2, c3, c4, rC;
-    protected int m;
+    /**
+     * Returns the truncation radius.
+     */
+    public double getRange() { return rC; }
+
+
 }

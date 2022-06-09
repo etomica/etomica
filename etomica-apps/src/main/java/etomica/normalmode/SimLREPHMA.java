@@ -7,6 +7,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.chem.elements.Copper;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
@@ -16,53 +17,61 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.*;
+import etomica.nbr.list.NeighborListManager;
+import etomica.potential.BondingInfo;
+import etomica.potential.EmbeddingSqrt;
+import etomica.potential.P2LREPPhi;
+import etomica.potential.P2LREPV;
+import etomica.potential.compute.PotentialComputeEAM;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.units.ElectronVolt;
+import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
 
-public class SimLJHMASuperSFMD extends Simulation {
-
+/**
+ * LREP Cu simulation with an FCC crystal, using HMA elastic method.
+ */
+public class SimLREPHMA extends Simulation {
     public final CoordinateDefinition coordinateDefinition;
-    public IntegratorMD integrator;
+    public IntegratorVelocityVerlet integrator;
+    public SpeciesGeneral species;
     public Box box;
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;
     public Primitive primitive;
-    public PotentialMasterList potentialMaster;
-    public IPotential2 potential;
-    public SpeciesGeneral species;
+    public PotentialComputeEAM potentialMaster;
 
-    public SimLJHMASuperSFMD(Space _space, int numAtoms, double density0, double temperature, double rc, double dt) {
-        super(_space);
-        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+    public SimLREPHMA(int numAtoms, double temperature, double density0, double dt) {
+        super(Space3D.getInstance());
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Copper.INSTANCE), true);
         addSpecies(species);
-
         double L = Math.pow(4.0/density0, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
+        System.out.println(" L = " + boundary.getBoxSize().getX(0));
         box = this.makeBox(boundary);
-        box.setNMolecules(species, numAtoms);
-        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
+        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 1.2*7.8, BondingInfo.noBonding());
+        nbrs.setDoDownNeighbors(true);
+        potentialMaster = new PotentialComputeEAM(getSpeciesManager(), box, nbrs);
         potentialMaster.doAllTruncationCorrection = false;
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), dt*1.0E-3, temperature, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, random, dt*1.0E-3, temperature, box);
         integrator.setIsothermal(true);
+
+        box.setNMolecules(species, numAtoms);
         primitive = new PrimitiveCubic(space, n * L);
         nCells = new int[]{n, n, n};
         Basis basisFCC = new BasisCubicFcc();
@@ -70,37 +79,33 @@ public class SimLJHMASuperSFMD extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        potential = new P2LennardJones(1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(potential, rc);
-        AtomType sphereType = species.getLeafType();
-        potentialMaster.setPairPotential(sphereType, sphereType, potential);
+        AtomType leafType = species.getLeafType();
+        P2LREPV p2 = new P2LREPV();
+        potentialMaster.setPairPotential(leafType, leafType, p2);
+        P2LREPPhi pRho = new P2LREPPhi();
+        potentialMaster.setRhoPotential(leafType, pRho);
+        EmbeddingSqrt f = new EmbeddingSqrt(1);
+        potentialMaster.setEmbeddingPotential(leafType, f);
+
         potentialMaster.init();
-        integrator.getEventManager().removeListener(potentialMaster);
-        this.getController().addActivity(new ActivityIntegrate(integrator));
-        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+        integrator.getEventManager().removeListener(nbrs);
+        this.getController().addActivity(new ActivityIntegrate(integrator)); // for graphics
     }
 
-    public void initialize(long initSteps) {
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
-    }
-
-    /**
-     * @param args filename containing simulation parameters
-     */
     public static void main(String[] args) {
         final long startTime = System.currentTimeMillis();
-        SimOverlapParam params = new SimOverlapParam();
+        SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
-        boolean doGraphics = params.doGraphics;;
+        int numAtoms = params.numAtoms;
         double density0 = params.density0;
+        double temperature = Kelvin.UNIT.toSim(params.temperatureK);
+        System.out.println("Tsim = " + temperature);
+        boolean doGraphics = params.doGraphics;;
+        boolean doD2 = params.doD2;
         long numSteps = params.numSteps;
         long numStepsEq = params.numSteps/10;
+
         double dt = params.dt;
-        final int numAtoms = params.numAtoms;
-        double temperature = params.temperature;
-        double rc = params.rc;
-        double strain_x = params.strain_x;
-        double strain_yz = params.strain_yz;
         double[] elasticParams = new double[11];
         elasticParams[0] = params.gV;
         elasticParams[1] = params.gVV;
@@ -119,7 +124,7 @@ public class SimLJHMASuperSFMD extends Simulation {
         System.out.println(" gy44: " + params.gy44 + " gx12: " + params.gx12 + " gz12 " + params.gz12);
         System.out.println();
 
-        final SimLJHMASuperSFMD sim = new SimLJHMASuperSFMD(Space.getInstance(3), numAtoms, density0, temperature, rc*Math.pow(density0, -1.0 / 3.0), dt);
+        SimLREPHMA sim = new SimLREPHMA(numAtoms, temperature, density0, dt);
 
         if (doGraphics) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -156,22 +161,21 @@ public class SimLJHMASuperSFMD extends Simulation {
 
         double volume = sim.box.getBoundary().volume();
         double density = numAtoms/volume;
-        System.out.println(" numAtoms: " + numAtoms + "  volume: " + volume + "  density0: " + density0 + "  : " + temperature);
+        System.out.println(" numAtoms: " + numAtoms + "  volume: " + volume + "  density0: " + density0 + " density: " + density + " temperature: " + temperature);
 
         sim.integrator.reset();
-        double uLat = sim.integrator.getPotentialEnergy()/numAtoms;
-        System.out.println("uLat: " + uLat);
+        double uLat = ElectronVolt.UNIT.fromSim(sim.integrator.getPotentialEnergy()/numAtoms);
+        System.out.println("uLat (eV/atom): " + uLat);
 
         MeterPressure pMeterLat = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
         pMeterLat.setTemperature(0); // Lattice
-        double pLat = pMeterLat.getDataAsScalar();
-        System.out.println("pLat: " + pLat);
+        double pLat = 1.0E-9*Pascal.UNIT.fromSim(pMeterLat.getDataAsScalar());
+        System.out.println("pLat (GPa): " + pLat);
 
-        boolean doD2 = true;
-        MeterSolidHMA meterElastic = new MeterSolidHMA(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition, elasticParams, temperature, doD2);
-        meterElastic.setTemperature(temperature);
 
-        sim.initialize(numStepsEq);
+        //Initialization
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsEq));
+
 
         int numBlocks = 100;
         int interval = 10;
@@ -195,22 +199,24 @@ public class SimLJHMASuperSFMD extends Simulation {
 
         final AccumulatorAverageCovariance accumulatorElastic = new AccumulatorAverageCovariance(blockSize);
 
+        MeterSolidHMA meterElastic = new MeterSolidHMA(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition, elasticParams, temperature, doD2);
+        meterElastic.setTemperature(temperature);
         DataPumpListener pumpElastic = new DataPumpListener(meterElastic, accumulatorElastic, interval);
         sim.integrator.getEventManager().addListener(pumpElastic);
 
         long numStepsShort = numSteps/10;
-        System.out.println(" Short sim for Covariance: " + numStepsShort + " steps");
+        System.out.println(" Short sim for Covariance: " + numStepsShort + " numSteps");
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
 
         IData avgRawData0 = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
         IData errRawData0 = accumulatorElastic.getData(accumulatorElastic.ERROR);
         double uShift = avgRawData0.getValue(1); double errUshift = errRawData0.getValue(1);
         double pShift = avgRawData0.getValue(3); double errPshift = errRawData0.getValue(3);
-        accumulatorElastic.reset();
         System.out.println(" uShift: " + uShift + " +/- " + errUshift);
         System.out.println(" pShift: " + pShift + " +/- " + errPshift);
-
         meterElastic.setShift(uShift, pShift);
+        accumulatorElastic.reset();
+
 
         //Production
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
@@ -427,24 +433,22 @@ public class SimLJHMASuperSFMD extends Simulation {
 
         long endTime = System.currentTimeMillis();
         System.out.println("time (min): " + (endTime - startTime) / 1000.0/60.0);
+
+
+
     }
 
-
-    /**
-     * Inner class for parameters understood by the HSMD3D constructor
-     */
-    public static class SimOverlapParam extends ParameterBase {
-        public int numAtoms = 500;
-        public double density0 = 1.0;
-        public long numSteps = 10000;
-        public double dt = 1.0;
-        public double temperature = 0.01;
-        public double rc = 3.0;
+    public static class SimParams extends ParameterBase {
         public boolean doGraphics = false;
-        public double strain_x = 0.0;
-        public double strain_yz = 0.0;
+        public boolean doD2 = true;
 
-        //LJ: rc=3, rho=1.0
+        public double dt = 1.0;
+        public int numAtoms = 256;
+        public long numSteps = 1000;
+        public double temperatureK = 1000;
+        public double density0 = 0.08502338387498792; // V0 ==> 0 GPa
+//      public double density = 0.12146197696426847; // 0.8*V0
+
         public double gV=3.094707617816900;
         public double gVV=-0.199514733065326;
         public double gx1=3.577219390645709;
@@ -456,5 +460,6 @@ public class SimLJHMASuperSFMD extends Simulation {
         public double gy44=3.233340182220370;
         public double gx12=-4.113585532872547;
         public double gz12=-0.392260472545948;
+
     }
 }

@@ -50,10 +50,12 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected double gx1, gy1, gy4, gx11, gy11, gx12, gz12, gx44, gy44;
     protected double mx1, my1, my4, mx11, my11, mx12, mz12, mx44, my44;
     protected double mT, mVT, mx1T, my1T;
+    protected final boolean doD2;
 
     protected boolean callComputeAll = true;
 
-    public MeterSolidHMA(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double temperature) {
+    public MeterSolidHMA(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double temperature, boolean doD2) {
+        this.doD2 = doD2;
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
         this.potentialMaster = potentialCompute;
@@ -63,8 +65,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         box = coordinateDefinition.getBox();
         latticeEnergy = potentialCompute.computeAll(false);
         latticePressure = -potentialCompute.getLastVirial() / (box.getBoundary().volume() * dim);
+        int n = doD2 ? 41 : 16;
 
-        int n = 41;
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
@@ -135,7 +137,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
         double uSum;
         if (callComputeAll) {
-            PotentialCallback callback = this;
+            PotentialCallback callback = doD2 ? this : null;
             uSum = potentialMaster.computeAll(true, callback);
         } else {
             uSum = potentialMaster.getLastEnergy();
@@ -209,49 +211,51 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         x[14] = virialxy/V;
         x[15] = (virialxy - Frdot6)/V;
 
-        //Cv - HMA
-        x[16] = -1.0/4.0/temperature*(Fdr+drPhidr) ;
+        if(doD2){
+            //Cv - HMA
+            x[16] = -1.0/4.0/temperature*(Fdr+drPhidr) ;
 
-        // B
-        x[17] = (rPhir - 2.0*virial)/(9*V) + rho*temperature;
-        x[18] = ((rPhir - 2.0*virial)/9.0 + mV*mV*drPhidr - mVV*Fdr + 2.0/3.0*mV*rPhidr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
+            // B
+            x[17] = (rPhir - 2.0*virial)/(9*V) + rho*temperature;
+            x[18] = ((rPhir - 2.0*virial)/9.0 + mV*mV*drPhidr - mVV*Fdr + 2.0/3.0*mV*rPhidr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
 
-        //C11
-        x[19] = x_Phixx_x/V + 2*rho*temperature; //C11
-        x[20] = (x_Phixx_x - Frddot11 + dr1_Phi_dr1 + 2*rx1_Phi_dr1 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
-        //C22
-        x[21] = y_Phiyy_y/V + 2*rho*temperature; //C11
-        x[22] = (y_Phiyy_y - Frddot22 + dr2_Phi_dr2 + 2*ry2_Phi_dr2 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
-        //C33
-        x[23] = z_Phizz_z/V + 2*rho*temperature; //C11
-        x[24] = (z_Phizz_z - Frddot33 + dr3_Phi_dr3 + 2*rz3_Phi_dr3 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
+            //C11
+            x[19] = x_Phixx_x/V + 2*rho*temperature; //C11
+            x[20] = (x_Phixx_x - Frddot11 + dr1_Phi_dr1 + 2*rx1_Phi_dr1 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
+            //C22
+            x[21] = y_Phiyy_y/V + 2*rho*temperature; //C11
+            x[22] = (y_Phiyy_y - Frddot22 + dr2_Phi_dr2 + 2*ry2_Phi_dr2 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
+            //C33
+            x[23] = z_Phizz_z/V + 2*rho*temperature; //C11
+            x[24] = (z_Phizz_z - Frddot33 + dr3_Phi_dr3 + 2*rz3_Phi_dr3 - (N-1.0)*temperature*(gx11 +2*gy11))/V + 2*temperature/V;
 
-        //C12
-        x[25] = x_Phixy_y/V;//C12
-        x[26] = (x_Phixy_y - Frddot12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (N-1.0)*temperature*(gz12+2*gx12))/V;
-        //C13
-        x[27] = x_Phixz_z/V;//C12
-        x[28] = (x_Phixz_z - Frddot13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (N-1.0)*temperature*(gz12+2*gx12))/V;
-        //C23
-        x[29] = y_Phiyz_z/V;//C12
-        x[30] = (y_Phiyz_z - Frddot23 + dr2_Phi_dr2 + ry2_Phi_dr3 + rz3_Phi_dr2 - (N-1.0)*temperature*(gz12+2*gx12))/V;
+            //C12
+            x[25] = x_Phixy_y/V;//C12
+            x[26] = (x_Phixy_y - Frddot12 + dr1_Phi_dr2 + rx1_Phi_dr2 + ry2_Phi_dr1 - (N-1.0)*temperature*(gz12+2*gx12))/V;
+            //C13
+            x[27] = x_Phixz_z/V;//C12
+            x[28] = (x_Phixz_z - Frddot13 + dr1_Phi_dr3 + rx1_Phi_dr3 + rz3_Phi_dr1 - (N-1.0)*temperature*(gz12+2*gx12))/V;
+            //C23
+            x[29] = y_Phiyz_z/V;//C12
+            x[30] = (y_Phiyz_z - Frddot23 + dr2_Phi_dr2 + ry2_Phi_dr3 + rz3_Phi_dr2 - (N-1.0)*temperature*(gz12+2*gx12))/V;
 
-        //C44
-        x[31] = y_Phizy_z/V + rho*temperature;
-        x[32] = (y_Phizy_z - Frddot44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
-        //C55
-        x[33] = x_Phizx_z/V + rho*temperature;//C55
-        x[34] = (x_Phizx_z - Frddot55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
-        //C6
-        x[35] = x_Phiyx_y/V + rho*temperature;//C66
-        x[36] = (x_Phiyx_y - Frddot66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
+            //C44
+            x[31] = y_Phizy_z/V + rho*temperature;
+            x[32] = (y_Phizy_z - Frddot44 + dr4_Phi_dr4 + ry3z2_Phi_dr4 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
+            //C55
+            x[33] = x_Phizx_z/V + rho*temperature;//C55
+            x[34] = (x_Phizx_z - Frddot55 + dr5_Phi_dr5 + rx3z1_Phi_dr5 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
+            //C6
+            x[35] = x_Phiyx_y/V + rho*temperature;//C66
+            x[36] = (x_Phiyx_y - Frddot66 + dr6_Phi_dr6 + rx2y1_Phi_dr6 - (N-1)*temperature*(gx44+2*gy44) + temperature)/V;
 
-        //b_V
-        x[37] = 1.0/2.0/V/temperature*(gV*Fdr - mV*drPhidr - 1.0/3.0*rPhidr) + 3.0*(N-1)*gV/V + 1.0/V; //bV_hma
-        //b_mn
-        x[38] = 1.0/V*(-Frddot1T + mT*drPhidr1 + mT*rx1_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
-        x[39] = 1.0/V*(-Frddot2T + mT*drPhidr2 + mT*ry2_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
-        x[40] = 1.0/V*(-Frddot3T + mT*drPhidr3 + mT*rz3_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
+            //b_V
+            x[37] = 1.0/2.0/V/temperature*(gV*Fdr - mV*drPhidr - 1.0/3.0*rPhidr) + 3.0*(N-1)*gV/V + 1.0/V; //bV_hma
+            //b_mn
+            x[38] = 1.0/V*(-Frddot1T + mT*drPhidr1 + mT*rx1_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
+            x[39] = 1.0/V*(-Frddot2T + mT*drPhidr2 + mT*ry2_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
+            x[40] = 1.0/V*(-Frddot3T + mT*drPhidr3 + mT*rz3_Phi_dr) - (N-1)/V*(gx1+2*gy1) - 1/V;
+        }
 
         return data;
     }
@@ -473,6 +477,11 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
     public void pairComputeHessian(int iAtom, int jAtom, Tensor phi){ // Add whatever you need to do with the hessian: elastic!
         // rPhir sums for EAM
+        // rPhir sums for EAM
+        // rPhir sums for EAM
+        // rPhir sums for EAM
+        // rPhir sums for EAM
+        // rPhir sums for EAM
     }
 
     public void setShift(double uShift , double pShift){
@@ -494,4 +503,11 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     public void doCallComputeAll(boolean callComputeAll) {
         this.callComputeAll = callComputeAll;
     }
+
+    public boolean wantsHessian() {return true;}
+
+    public boolean needsPairCallback() {
+        return doD2;
+    }
+
 }
