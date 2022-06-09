@@ -296,18 +296,15 @@ public class PotentialComputeEAM implements PotentialCompute {
 
                 // Multi-body contribution
                 if (irp != null && embeddingPotentials[jType] != null) {
-                    // i contributes to j density
+                    // i contributes to j density: rho_i
                     double irc = irp.getRange();
                     if (r2 <= irc * irc) {
-                        // i contributes to j density: rho_i
                         u012[0] = u012[1] = u012[2] = 0;
                         irp.u012add(r2, u012);
                         rdrho.add(u012[1]);
                         rhoSum[j] += u012[0];
                         if (wantsHessian) {
                             PairData pd = new PairData(u012[1], u012[2]);
-//                            int i1 = Math.min(finalI, j);
-//                            pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
                             if (iType == jType) {
                                 int i1 = Math.min(finalI, j);
                                 pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
@@ -329,8 +326,6 @@ public class PotentialComputeEAM implements PotentialCompute {
                                 rhoSum[finalI] += u012[0];
                                 if (wantsHessian) {
                                     PairData pd = new PairData(u012[1], u012[2]);
-//                                    int i1 = Math.min(finalI, j);
-//                                    pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
                                     pairDataHashMap.put(new IntSet(j, finalI), pd);
                                 }
                             }
@@ -350,8 +345,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                             rhoSum[finalI] += u012[0];
                             if (wantsHessian) {
                                 PairData pd = new PairData(u012[1], u012[2]);
-                                int i1 = Math.min(finalI, j);
-                                pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
+                                pairDataHashMap.put(new IntSet(j, finalI), pd);
                             }
                         }
                     }
@@ -431,31 +425,47 @@ public class PotentialComputeEAM implements PotentialCompute {
                 IPotential2 krp = rhoPotentials[kType];
                 double krc = krp.getRange();
                 int finalK = k;
-                neighborIterator.iterUpNeighbors(finalK, (iAtom, rki, n) -> {
+                neighborIterator.iterAllNeighbors(finalK, (iAtom, rki, n) -> {
                     double rki2 = rki.squared();
                     int iType = iAtom.getType().getIndex();
                     if (rhoPotentials[iType] == null || rki2 > krc*krc) return;
                     int i = iAtom.getLeafIndex();
-                    int ik1 = Math.min(finalK, i);
-                    PairData pdik = pairDataHashMap.get(new IntSet(ik1, finalK+i-ik1));
-                    double drhoik = pdik.rdrho;
+
+                    PairData pdik, pdki;
+                    if(iType == kType){
+                        int ik1 = Math.min(finalK, i);
+                        pdik = pairDataHashMap.get(new IntSet(ik1, finalK+i-ik1));
+                        pdki = pdik;
+                    }else{
+                        pdik = pairDataHashMap.get(new IntSet(i, finalK));
+                        pdki = pairDataHashMap.get(new IntSet(finalK, i));
+                    }
+                    double drhoik  = pdik.rdrho;
                     double d2rhoik = pdik.r2drho;
-                    double fac1 = ((drhoik-d2rhoik)*(idf[i]+idf[finalK])-drhoik*drhoik*(id2f[i]+id2f[finalK]))/rki2/rki2;
-                    double fac2 = -drhoik*(idf[i]+idf[finalK])/rki2;
+                    double drhoki  = pdki.rdrho;
+                    double d2rhoki = pdki.r2drho;
+                    double fac1 = (idf[i]*(drhoki-d2rhoki)+idf[finalK]*(drhoik-d2rhoik)-id2f[i]*drhoki*drhoki-id2f[finalK]*drhoik*drhoik)/rki2/rki2;
+                    double fac2 = -(idf[i]*drhoki + idf[finalK]*drhoik)/rki2;
+                    // Direct Hik
                     Hik.Ev1v2(rki, rki);
                     Hik.TE(fac1);
                     Hik.PEa1Tt1(fac2, unity);
                     pc.pairComputeHessian(i,finalK, Hik);
-                    neighborIterator.iterUpNeighbors(finalK, (jAtom, rkj, m) -> {
+                    neighborIterator.iterAllNeighbors(finalK, (jAtom, rkj, m) -> {
                         int j = jAtom.getLeafIndex();
                         int jType = jAtom.getType().getIndex();
                         double rkj2 = rkj.squared();
                         if (j <= i || rhoPotentials[jType] == null || rkj2 > krc*krc) return;
-                        //j>i only (so that we have j<i<k)
-                        int jk1 = Math.min(j, finalK);
-                        PairData pdjk = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
-                        double drhojk = pdjk.rdrho;
-                        //Pure Indirect
+                        PairData pdjk;
+                        if(jType == kType){
+                            int jk1 = Math.min(j, finalK);
+                            pdjk = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
+                        }else{
+                            pdjk = pairDataHashMap.get(new IntSet(j, finalK));
+                        }
+                        double drhojk  = pdjk.rdrho;
+
+                        //Indirect Hij, Hik, Hkj
                         Hij.Ev1v2(rki, rkj);
                         Hij.TE(id2f[finalK]*drhoik*drhojk/rki2/rkj2);
                         pc.pairComputeHessian(i,j,Hij);
@@ -465,7 +475,6 @@ public class PotentialComputeEAM implements PotentialCompute {
 
                         Hkj.PEa1Tt1(-1,Hij);
                         pc.pairComputeHessian(finalK,j,Hkj);
-//                        System.out.println(kType + "  " + iType + "  " + jType);
                     });//j
                 });//i
             }//k
