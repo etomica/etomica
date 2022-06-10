@@ -19,7 +19,6 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
-import org.apache.xml.utils.IntVector;
 
 public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected final int dim;
@@ -388,8 +387,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // Add whatever you need to do with the hessian: elastic!
-        IAtom ai = box.getLeafList().getAtoms().get(i);
-        IAtom aj = box.getLeafList().getAtoms().get(j);
+        IAtom ai = box.getLeafList().get(i);
+        IAtom aj = box.getLeafList().get(j);
         dri.Ev1Mv2(ai.getPosition(), coordinteDefinition.getLatticePosition(ai));
         drj.Ev1Mv2(aj.getPosition(), coordinteDefinition.getLatticePosition(aj));
         box.getBoundary().nearestImage(dri);
