@@ -74,7 +74,7 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
             IAtomList atoms = molecule.getChildList();
             for(int j = 0; j < molecule.getChildList().size(); j++) {
                 position[i][j] = space.makeVector();
-                position[i][j].E(molecule.getChildList().getAtoms().get(j).getPosition());
+                position[i][j].E(molecule.getChildList().get(j).getPosition());
             }
             modifiedIndex = 0;
             step = stepSize * (random.nextDouble() - 0.5);
@@ -150,7 +150,7 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<box.getMoleculeList().size(); i++) {
             for(int j = 0; j < moleculeList.get(i).getChildList().size(); j++) {
-                moleculeList.get(i).getChildList().getAtoms().get(j).getPosition().E(position[i][j]);
+                moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
             }
         }
         ((BoxCluster)box).rejectNotify();

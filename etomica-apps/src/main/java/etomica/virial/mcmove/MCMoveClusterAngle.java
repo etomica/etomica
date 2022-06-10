@@ -163,7 +163,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<box.getMoleculeList().size(); i++) {
             for(int j = 0; j < moleculeList.get(i).getChildList().size(); j++) {
-                moleculeList.get(i).getChildList().getAtoms().get(j).getPosition().E(position[i][j]);
+                moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
             }
         }
         ((BoxCluster)box).rejectNotify();
