@@ -137,6 +137,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
      */
     @Override
     public IData getData() {
+        System.out.println("Hi!");
         double Fdr = 0, Frdot1 = 0, Frdot2 = 0, Frdot3 = 0, Frdot4 = 0, Frdot5 = 0, Frdot6 = 0;
         double Frddot11 = 0, Frddot22 = 0, Frddot33 = 0, Frddot12 = 0, Frddot13 = 0, Frddot23 = 0, Frddot44 = 0, Frddot55 = 0, Frddot66 = 0;
         double Frddot1T = 0, Frddot2T = 0, Frddot3T = 0;

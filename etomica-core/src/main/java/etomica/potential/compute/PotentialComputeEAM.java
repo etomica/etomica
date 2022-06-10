@@ -420,6 +420,12 @@ public class PotentialComputeEAM implements PotentialCompute {
 
 
         if(wantsHessian){
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            final long startTime = System.currentTimeMillis();
+            System.out.println(" in ");
             for (int k = 0; k < atoms.size(); k++) {
                 IAtom kAtom = atoms.get(k);
                 int kType = kAtom.getType().getIndex();
@@ -480,6 +486,9 @@ public class PotentialComputeEAM implements PotentialCompute {
                     });//j
                 });//i
             }//k
+            System.out.println(" out ");
+            final long endTime = System.currentTimeMillis();
+            System.out.println((endTime-startTime)/1000);
         }//if(wantsHessian)
 
         double[] uCorrection = new double[1];
