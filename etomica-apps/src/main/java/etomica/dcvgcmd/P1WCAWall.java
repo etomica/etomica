@@ -60,7 +60,7 @@ public class P1WCAWall implements IPotential1 {
 
         f.setX(2, f.getX(2) + fz);
 
-        return u;
+        return 0.0;//u;
     }
 
     private double energy(double r2) {
