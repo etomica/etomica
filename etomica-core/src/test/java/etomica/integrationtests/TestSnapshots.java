@@ -44,7 +44,7 @@ public class TestSnapshots {
 
         HSMD3DNeighborList sim = new HSMD3DNeighborList();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 500));
-        List<String> coords = sim.box().getLeafList().getAtoms().stream()
+        List<String> coords = sim.box().getLeafList().stream()
                 .map(IAtom::getPosition)
                 .map(Object::toString)
                 .collect(Collectors.toList());
@@ -84,7 +84,7 @@ public class TestSnapshots {
         if (true) return;
         HSMD3DNeighborList sim = new HSMD3DNeighborList();
 
-        List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
+        List<Vector> coords = sim.box().getLeafList().stream()
                 .map(IAtom::getPosition)
                 .collect(Collectors.toList());
 
@@ -93,7 +93,7 @@ public class TestSnapshots {
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 500));
 
-        List<Vector> coords2 = sim.box().getLeafList().getAtoms().stream()
+        List<Vector> coords2 = sim.box().getLeafList().stream()
                 .map(IAtom::getPosition)
                 .collect(Collectors.toList());
 

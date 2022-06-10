@@ -4,7 +4,6 @@
 
 package etomica.atom;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,11 +27,4 @@ public interface IAtomList extends List<IAtom> {
      */
     int size();
 
-    default List<IAtom> getAtoms() {
-        List<IAtom> list = new ArrayList<>();
-        for(int i = 0; i < size(); i++) {
-            list.add(get(i));
-        }
-        return list;
-    }
 }
