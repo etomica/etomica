@@ -204,7 +204,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 inflater.setTargetDensity(rhom);
                 inflater.actionPerformed();
 
-                System.out.println(" plus: V = " + Vm);
+                System.out.println(" minus: V = " + Vm);
                 potentialMaster.computeAll(true, this);
                 double forces_m = potentialMaster.getForces()[nn].getX(0);
 
