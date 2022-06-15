@@ -318,7 +318,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                             dFdeV[finalI].PEa1Tv1(d2uij/r2/3.0, rij);
                             dFdeV[j].PEa1Tv1(-d2uij/r2/3.0, rij);
                             if(finalI ==0 && j==114){
-                                System.out.println("Fijx: " + duij/r2*rij.getX(0) + " dF: " + duij/r2*rij.getX(0));
+                                System.out.println("Fijx: " + duij/r2*rij.getX(0) + " dFijx: " + d2uij/r2/3.0*rij.getX(0));
                             }
                         }
 
