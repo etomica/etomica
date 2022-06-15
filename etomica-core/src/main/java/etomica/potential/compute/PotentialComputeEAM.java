@@ -47,8 +47,8 @@ public class PotentialComputeEAM implements PotentialCompute {
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged, rhoAtomsChanged;
     protected final Vector zero;
-    protected double virialTot = Double.NaN, energyTot = Double.NaN;
-    protected Vector[] forces;
+    protected double virialTot = Double.NaN, virialTot2 = Double.NaN, energyTot = Double.NaN;
+    protected Vector[] forces , dFdeV;
     protected final Space space;
     protected final int[] atomCountByType;
     protected boolean duAtomMulti = false;
@@ -83,6 +83,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         unity.setComponent(2, 2, 1.0);
 
         forces = new Vector[0];
+        dFdeV = new Vector[0];
         pairDataHashMap = new HashMap<>();
 
         this.atomCountByType = new int[typeCount];
@@ -189,9 +190,15 @@ public class PotentialComputeEAM implements PotentialCompute {
         return forces;
     }
 
+    public Vector[] getdFdeV()  { return dFdeV; }
+
     @Override
     public double getLastVirial() {
         return virialTot;
+    }
+
+    public double getLastVirial2() {
+        return virialTot2;
     }
 
     @Override
@@ -236,8 +243,9 @@ public class PotentialComputeEAM implements PotentialCompute {
         this.neighborManager.updateAtom(atom);
     }
 
-    protected final void zeroArrays(boolean doForces) {
+    protected final void zeroArrays(boolean doForces, boolean wantsHessian) {
         virialTot = 0;
+        virialTot2 = 0;
 
         int numAtoms = box.getLeafList().size();
         if (doForces && numAtoms > forces.length) {
@@ -245,6 +253,13 @@ public class PotentialComputeEAM implements PotentialCompute {
             forces = Arrays.copyOf(forces, numAtoms);
             for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
         }
+
+        if (wantsHessian && numAtoms > dFdeV.length) {
+            int oldLength = dFdeV.length;
+            dFdeV = Arrays.copyOf(dFdeV, numAtoms);
+            for (int i = oldLength; i < numAtoms; i++) dFdeV[i] = box.getSpace().makeVector();
+        }
+
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
             rhoSum = new double[numAtoms];
@@ -255,20 +270,25 @@ public class PotentialComputeEAM implements PotentialCompute {
             uAtom[i] = 0;
             rhoSum[i] = 0;
             if (doForces) forces[i].E(0);
+            if (wantsHessian) dFdeV[i].E(0);
         }
     }
 
     @Override
     public double computeAll(boolean doForces, PotentialCallback pc) {
-        zeroArrays(doForces);
+        final boolean wantsHessian = pc != null && pc.wantsHessian();
+
+        zeroArrays(doForces, wantsHessian);
+
         rdrho.clear();
         pairDataHashMap.clear();
 
         IAtomList atoms = box.getLeafList();
-        double[] uTot = {0};
-        final boolean wantsHessian = pc != null && pc.wantsHessian();
+        int numAtoms = atoms.size();
 
-        for (int i = 0; i < atoms.size(); i++) { //i
+        double[] uTot = {0};
+
+        for (int i = 0; i < numAtoms; i++) { //i
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
             IPotential2[] ip = pairPotentials[iType];
@@ -285,26 +305,38 @@ public class PotentialComputeEAM implements PotentialCompute {
                 if (pij != null) {
                     pij.u012add(r2, u012);
                     double uij = u012[0];
-                    if (uij != 0) {
+                    if (uij != 0) { //or r2>rc
                         uAtom[finalI] += 0.5 * uij;
                         uAtom[j] += 0.5 * uij;
                         double duij = u012[1];
                         virialTot += duij;
-                        if (doForces) {
-                            rij.TE(duij / r2);
-                            forces[finalI].PE(rij);
-                            forces[j].ME(rij);
-                        }
-                        if(wantsHessian){
+
+                        if (wantsHessian) {
+                            double d2uij = u012[2];
                             pc.pairCompute(finalI, j, rij, u012);
+                            virialTot2 += 1.0/9.0*d2uij;
+                            dFdeV[finalI].PEa1Tv1(d2uij/r2/3.0, rij);
+                            dFdeV[j].PEa1Tv1(-d2uij/r2/3.0, rij);
+                            if(finalI ==0 && j==114){
+                                System.out.println("Fijx: " + duij/r2*rij.getX(0) + " dF: " + duij/r2*rij.getX(0));
+                            }
+                        }
+
+                        if (doForces) {
+                            forces[finalI].PEa1Tv1(duij/r2, rij);
+                            forces[j].PEa1Tv1(-duij/r2, rij);
                         }
                         uTot[0] += uij;
                     }
                     u012[0] = u012[1] = u012[2] = 0;
                 }
 
+
+
+
                 // Multi-body contribution
-                if (irp != null && embeddingPotentials[jType] != null) {
+                if (false) {
+//                if (irp != null && embeddingPotentials[jType] != null) {
                     // i contributes to j density: rho_i
                     double irc = irp.getRange();
                     if (r2 <= irc * irc) {
@@ -317,7 +349,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                             if (iType == jType) {
                                 int i1 = Math.min(finalI, j);
                                 pairDataHashMap.put(new IntSet(i1, finalI + j - i1), pd);
-                            }else{
+                            } else {
                                 pairDataHashMap.put(new IntSet(finalI, j), pd);
                             }
                         }
@@ -359,11 +391,13 @@ public class PotentialComputeEAM implements PotentialCompute {
                         }
                     }
                 }//multi-body
+
+
             });//j loop
         }// i loop
 
         //uTot (pair and multibody) and dF/dtheta
-        for (int i = 0; i < atoms.size(); i++) {
+        for (int i = 0; i < numAtoms; i++) {
             IAtom iAtom = atoms.get(i);
             int iType = iAtom.getType().getIndex();
             if (embeddingPotentials[iType] == null) continue;
@@ -378,7 +412,7 @@ public class PotentialComputeEAM implements PotentialCompute {
 
         int[] rdrhoIdx = {0};
         if (doForces) {
-            for (int i = 0; i < atoms.size(); i++) {
+            for (int i = 0; i < numAtoms; i++) {
                 IAtom iAtom = atoms.get(i);
                 int iType = iAtom.getType().getIndex();
 
@@ -407,26 +441,19 @@ public class PotentialComputeEAM implements PotentialCompute {
                         }
                         virialTot += fac;
                         fac /= r2;
-                        rij.TE(fac);
-                        forces[finalI].PE(rij);
-                        forces[j].ME(rij);
+//                        rij.TE(fac);
+//                        forces[finalI].PE(rij);
+//                        forces[j].ME(rij);
                     }
                 });
             }
         }
-
-
         rdrhoIdx[0] = 0;
 
-
-        if(wantsHessian){
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            final long startTime = System.currentTimeMillis();
-            System.out.println(" in ");
-            for (int k = 0; k < atoms.size(); k++) {
+        if (wantsHessian) {
+            virialTot2 -= 2.0/9.0*virialTot;
+            Vector tmpV = space.makeVector();
+            for (int k = 0; k < numAtoms; k++) {
                 IAtom kAtom = atoms.get(k);
                 int kType = kAtom.getType().getIndex();
                 IPotential2 krp = rhoPotentials[kType];
@@ -447,49 +474,87 @@ public class PotentialComputeEAM implements PotentialCompute {
                         pdik = pairDataHashMap.get(new IntSet(i, finalK));
                         pdki = pairDataHashMap.get(new IntSet(finalK, i));
                     }
-                    double drhoik  = pdik.rdrho;
-                    double d2rhoik = pdik.r2drho;
-                    double drhoki  = pdki.rdrho;
-                    double d2rhoki = pdki.r2drho;
-                    double fac1 = (idf[i]*(drhoki-d2rhoki)+idf[finalK]*(drhoik-d2rhoik)-id2f[i]*drhoki*drhoki-id2f[finalK]*drhoik*drhoik)/rki2/rki2;
-                    double fac2 = -(idf[i]*drhoki + idf[finalK]*drhoik)/rki2;
+                    double rdrhoik  = pdik.rdrho;
                     // Direct Hik
-                    Hik.Ev1v2(rki, rki);
-                    Hik.TE(fac1);
-                    Hik.PEa1Tt1(fac2, unity);
-                    pc.pairComputeHessian(i,finalK, Hik);
+                    if (i < finalK) {
+                        double rdrho2ik = pdik.r2drho;
+                        double rdrhoki  = pdki.rdrho;
+                        double rdrho2ki = pdki.r2drho;
+                        double fac = (idf[i]*(rdrhoki-rdrho2ki)+idf[finalK]*(rdrhoik-rdrho2ik)-id2f[i]*rdrhoki*rdrhoki-id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
+                        Hik.Ev1v2(rki, rki);
+                        Hik.TE(fac);
+                        fac = -(idf[i]*rdrhoki + idf[finalK]*rdrhoik)/rki2;
+                        Hik.PEa1Tt1(fac, unity);
+                        pc.pairComputeHessian(i,finalK, Hik);
+
+                        // dF/deV
+                        // Hik = d2uk/drki drkj
+                        Hik.Ev1v2(rki, rki);
+                        fac = (idf[finalK]*(rdrho2ik-rdrhoik)+id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
+                        Hik.TE(fac);
+                        fac = idf[finalK]*rdrhoik/rki2;
+                        Hik.PEa1Tt1(fac, unity);
+                        tmpV.E(rki);
+                        Hik.transform(tmpV);
+                        tmpV.TE(1.0/3.0);
+//                        dFdeV[finalK].PE(tmpV);
+//                        dFdeV[i].ME(tmpV);
+
+                        //2nd virial
+                        virialTot2 += 2.0/3.0*tmpV.dot(rki);
+                    }
                     neighborIterator.iterAllNeighbors(finalK, (jAtom, rkj, m) -> {
                         int j = jAtom.getLeafIndex();
                         int jType = jAtom.getType().getIndex();
                         double rkj2 = rkj.squared();
                         if (j <= i || rhoPotentials[jType] == null || rkj2 > krc*krc) return;
-                        PairData pdkj;
+                        PairData pdjk;
                         if (jType == kType) {
                             int jk1 = Math.min(j, finalK);
-                            pdkj = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
+                            pdjk = pairDataHashMap.get(new IntSet(jk1, j+finalK-jk1));
                         } else {
-                            pdkj = pairDataHashMap.get(new IntSet(finalK, j));
+                            pdjk = pairDataHashMap.get(new IntSet(j, finalK));
                         }
-                        double drhokj  = pdkj.rdrho;
+                        double rdrhojk  = pdjk.rdrho;
 
                         //Indirect Hij, Hik, Hkj
                         Hij.Ev1v2(rki, rkj);
-                        Hij.TE(id2f[finalK]*drhoki*drhokj/rki2/rkj2);
+                        Hij.TE(id2f[finalK]*rdrhoik*rdrhojk/rki2/rkj2);
                         pc.pairComputeHessian(i,j,Hij);
 
-                        Hik.PEa1Tt1(-1,Hij);
+                        Hik.E(Hij);
+                        Hik.TE(-1);
                         pc.pairComputeHessian(i,finalK,Hik);
 
                         Hkj.E(Hij);
                         Hkj.TE(-1);
                         pc.pairComputeHessian(finalK,j,Hkj);
+
+
+                        //dF/deV
+                        Hij.Ev1v2(rki, rkj);
+                        double fac = id2f[finalK]*rdrhoik*rdrhojk/rki2/rkj2;
+                        Hij.TE(fac);
+                        tmpV.E(rkj);
+                        Hij.transform(tmpV);
+                        tmpV.TE(1.0/3.0);
+//                        dFdeV[finalK].PE(tmpV);
+//                        dFdeV[i].ME(tmpV);
+
+                        tmpV.E(rki);
+                        Hij.transpose();
+                        Hij.transform(tmpV);
+                        tmpV.TE(1.0/3.0);
+//                        dFdeV[finalK].PE(tmpV);
+//                        dFdeV[j].ME(tmpV);
+
+                        //2nd virial
+                        virialTot2 += 2.0/3.0*tmpV.dot(rkj);
+
                     });//j
                 });//i
             }//k
-            System.out.println(" out ");
-            final long endTime = System.currentTimeMillis();
-            System.out.println((endTime-startTime)/1000);
-        }//if(wantsHessian)
+        }//if (wantsHessian)
 
         double[] uCorrection = new double[1];
         double[] duCorrection = new double[1];
@@ -498,7 +563,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         virialTot += duCorrection[0];
         energyTot = uTot[0];
         return uTot[0];
-    }
+    }//computeAll
 
     public double oldEmbeddingEnergy(IAtom iAtom) {
         // just compute all the embedding energies

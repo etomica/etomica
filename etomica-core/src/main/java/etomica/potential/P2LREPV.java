@@ -64,8 +64,8 @@ public class P2LREPV implements IPotential2 {
         double r=Math.sqrt(r2);
         if(r<= rC){
             double V1 = (r- rC)*(r- rC)*(r- rC)*(r- rC);
-            double dV1 = m *(r- rC)*(r- rC)*(r- rC);
-            double ddV1 = m *(m -1.0)*(r- rC)*(r- rC);
+            double dV1 = m*(r - rC)*(r - rC)*(r - rC);
+            double ddV1 = m*(m-1.0)*(r- rC)*(r- rC);
             double V2  = c0 + r*(c1 + r*(c2 + r*(c3 + c4*r))) ;
             double dV2  = c1+r*(2.0*c2+r*(3.0*c3+4.0*c4*r));
             double ddV2  = 2.0*c2+r*(6.0*c3+12.0*c4*r);

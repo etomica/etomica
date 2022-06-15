@@ -46,7 +46,6 @@ public class SimLJHMASuperSFMD extends Simulation {
     public Basis basis;
     public Primitive primitive;
     public PotentialMasterList potentialMaster;
-    public IPotential2 potential;
     public SpeciesGeneral species;
 
     public SimLJHMASuperSFMD(Space _space, int numAtoms, double density0, double temperature, double rc, double dt) {
@@ -70,7 +69,7 @@ public class SimLJHMASuperSFMD extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        potential = new P2LennardJones(1.0, 1.0);
+        IPotential2 potential = new P2LennardJones(1.0, 1.0);
         potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
@@ -436,9 +435,9 @@ public class SimLJHMASuperSFMD extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
         public double density0 = 1.0;
-        public long numSteps = 10000;
+        public long numSteps = 100000;
         public double dt = 1.0;
-        public double temperature = 0.01;
+        public double temperature = 0.1;
         public double rc = 3.0;
         public boolean doGraphics = false;
         public double strain_x = 0.0;

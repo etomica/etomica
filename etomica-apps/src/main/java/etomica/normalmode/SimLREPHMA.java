@@ -23,10 +23,8 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.NeighborListManager;
-import etomica.potential.BondingInfo;
-import etomica.potential.EmbeddingSqrt;
-import etomica.potential.P2LREPPhi;
-import etomica.potential.P2LREPV;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeEAM;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -38,6 +36,7 @@ import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 
@@ -57,15 +56,19 @@ public class SimLREPHMA extends Simulation {
 
     public SimLREPHMA(int numAtoms, double temperature, double density0, double dt) {
         super(Space3D.getInstance());
+        setRandom(new RandomMersenneTwister(2));
+
         species = SpeciesGeneral.monatomic(space, AtomType.element(Copper.INSTANCE), true);
         addSpecies(species);
         double L = Math.pow(4.0/density0, 1.0 / 3.0);
+        System.out.println(" rNN " + L/Math.sqrt(2));
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
         System.out.println(" L = " + boundary.getBoxSize().getX(0));
         box = this.makeBox(boundary);
-        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 8.0, BondingInfo.noBonding());
+        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 7.0, BondingInfo.noBonding());
         nbrs.setDoDownNeighbors(true);
+
         potentialMaster = new PotentialComputeEAM(getSpeciesManager(), box, nbrs);
         potentialMaster.doAllTruncationCorrection = false;
         integrator = new IntegratorVelocityVerlet(potentialMaster, random, dt*1.0E-3, temperature, box);
@@ -81,6 +84,10 @@ public class SimLREPHMA extends Simulation {
 
         AtomType leafType = species.getLeafType();
         P2LREPV p2 = new P2LREPV();
+
+//        IPotential2 p2 = new P2LennardJones(1.0, 1.0);
+//        p2 = new P2SoftSphericalTruncated(p2, 3.0);
+
         potentialMaster.setPairPotential(leafType, leafType, p2);
         P2LREPPhi pRho = new P2LREPPhi();
         potentialMaster.setRhoPotential(leafType, pRho);
@@ -90,6 +97,9 @@ public class SimLREPHMA extends Simulation {
         potentialMaster.init();
         integrator.getEventManager().removeListener(nbrs);
         this.getController().addActivity(new ActivityIntegrate(integrator)); // for graphics
+
+//        ((P2SoftSphericalTruncated) p2).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+
     }
 
     public static void main(String[] args) {
@@ -99,7 +109,6 @@ public class SimLREPHMA extends Simulation {
         int numAtoms = params.numAtoms;
         double density0 = params.density0;
         double temperature = Kelvin.UNIT.toSim(params.temperatureK);
-        System.out.println("Tsim = " + temperature);
         boolean doGraphics = params.doGraphics;;
         boolean doD2 = params.doD2;
         long numSteps = params.numSteps;
@@ -161,16 +170,17 @@ public class SimLREPHMA extends Simulation {
 
         double volume = sim.box.getBoundary().volume();
         double density = numAtoms/volume;
-        System.out.println(" numAtoms: " + numAtoms + "  volume: " + volume + "  density0: " + density0 + " density: " + density + " temperature: " + temperature);
+        System.out.println(" numAtoms: " + numAtoms + "  volume: " + volume + "  density0: " + density0 + " density: " + density);
+        System.out.println(" T (K): " + params.temperatureK + "   T_sim: " + temperature);
 
         sim.integrator.reset();
         double uLat = ElectronVolt.UNIT.fromSim(sim.integrator.getPotentialEnergy()/numAtoms);
-        System.out.println("uLat (eV/atom): " + uLat);
+        System.out.println(" uLat (eV/atom): " + uLat + " uLat_sim: " + sim.integrator.getPotentialEnergy()/numAtoms);
 
         MeterPressure pMeterLat = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
         pMeterLat.setTemperature(0); // Lattice
         double pLat = 1.0E-9*Pascal.UNIT.fromSim(pMeterLat.getDataAsScalar());
-        System.out.println("pLat (GPa): " + pLat);
+        System.out.println(" pLat (GPa): " + pLat + " pLat_sim: " + pMeterLat.getDataAsScalar());
 
 
         //Initialization
@@ -178,22 +188,22 @@ public class SimLREPHMA extends Simulation {
         System.out.println("**Done with "+ numStepsEq +" steps of equilibration ... ");
 
         int numBlocks = 100;
-        int interval = 10;
+        int interval = 20;
         long blockSize = numSteps / (numBlocks * interval);
-//        if (blockSize == 0) blockSize = 1;
-//        int o = 2;
-//        while (blockSize < numSteps / 5 && (numSteps != numBlocks * interval * blockSize)) {
-//            interval = 2 + (o % 2 == 0 ? (o / 2) : -(o / 2));
-//            if (interval < 1 || interval > numSteps / 5) {
-//                throw new RuntimeException("oops interval " + interval);
-//            }
-//            blockSize = numSteps / (numBlocks * interval);
-//            if (blockSize == 0) blockSize = 1;
-//            o++;
-//        }
-//        if (numSteps != numBlocks * interval * blockSize) {
-//            throw new RuntimeException("unable to find appropriate intervals");
-//        }
+        if (blockSize == 0) blockSize = 1;
+        int o = 2;
+        while (blockSize < numSteps / 5 && (numSteps != numBlocks * interval * blockSize)) {
+            interval = 2 + (o % 2 == 0 ? (o / 2) : -(o / 2));
+            if (interval < 1 || interval > numSteps / 5) {
+                throw new RuntimeException("oops interval " + interval);
+            }
+            blockSize = numSteps / (numBlocks * interval);
+            if (blockSize == 0) blockSize = 1;
+            o++;
+        }
+        if (numSteps != numBlocks * interval * blockSize) {
+            throw new RuntimeException("unable to find appropriate intervals");
+        }
         System.out.println(" equilibration: " + numStepsEq + "  production: " + numSteps + "  dt(fs): " + dt);
         System.out.println(" block size " + blockSize + "  interval " + interval);
 
@@ -204,21 +214,22 @@ public class SimLREPHMA extends Simulation {
         DataPumpListener pumpElastic = new DataPumpListener(meterElastic, accumulatorElastic, interval);
         sim.integrator.getEventManager().addListener(pumpElastic);
 
-        long numStepsShort = numSteps/10;
-        System.out.println(" Short sim for Covariance: " + numStepsShort + " numSteps");
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
-        System.out.println("** Done with "+ numStepsShort +" steps of short run ... ");
+        double uShift = 0, pShift = 0;
+        if(doD2){
+            long numStepsShort = numSteps/10;
+            System.out.println(" Short sim for Covariance: " + numStepsShort + " numSteps");
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
+            System.out.println("** Done with "+ numStepsShort +" steps of short run ... ");
 
-        System.exit(0);
-
-        IData avgRawData0 = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
-        IData errRawData0 = accumulatorElastic.getData(accumulatorElastic.ERROR);
-        double uShift = avgRawData0.getValue(1); double errUshift = errRawData0.getValue(1);
-        double pShift = avgRawData0.getValue(3); double errPshift = errRawData0.getValue(3);
-        System.out.println(" uShift: " + uShift + " +/- " + errUshift);
-        System.out.println(" pShift: " + pShift + " +/- " + errPshift);
-        meterElastic.setShift(uShift, pShift);
-        accumulatorElastic.reset();
+            IData avgRawData0 = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
+            IData errRawData0 = accumulatorElastic.getData(accumulatorElastic.ERROR);
+            uShift = avgRawData0.getValue(1); double errUshift = errRawData0.getValue(1);
+            pShift = avgRawData0.getValue(3); double errPshift = errRawData0.getValue(3);
+            System.out.println(" uShift: " + uShift + " +/- " + errUshift);
+            System.out.println(" pShift: " + pShift + " +/- " + errPshift);
+            meterElastic.setShift(uShift, pShift);
+            accumulatorElastic.reset();
+        }
 
 
         //Production
@@ -303,8 +314,8 @@ public class SimLREPHMA extends Simulation {
             int nd = avgRawData.getLength();//41
             double varU_conv  = covRawData.getValue(0 * (nd + 1));
             double varU_hma   = covRawData.getValue(1 * (nd + 1));
-//            double varP_conv  = covRawData.getValue(2 * (nd + 1));
-//            double varP_hma   = covRawData.getValue(3 * (nd + 1));
+            double varP_conv  = covRawData.getValue(2 * (nd + 1));
+            double varP_hma   = covRawData.getValue(3 * (nd + 1));
 //            double varP1_conv = covRawData.getValue(4 * (nd + 1));
 //            double varP1_hma  = covRawData.getValue(5 * (nd + 1));
 //            double varP2_conv = covRawData.getValue(6 * (nd + 1));
@@ -337,8 +348,8 @@ public class SimLREPHMA extends Simulation {
 //Bulk
             double Cv_conv = numAtoms*numAtoms*varU_conv/temperature/temperature + 3.0/2.0*(numAtoms-1);
             double Cv_hma  = avgRawData.getValue(16) + numAtoms*numAtoms*varU_hma/temperature / temperature + 3.0*(numAtoms-1.0);
-//            double B_conv  = avgRawData.getValue(17) - volume/ temperature * varP_conv;
-//            double B_hma   = avgRawData.getValue(18) - volume / temperature * varP_hma;
+            double B_conv  = avgRawData.getValue(17) - volume/ temperature * varP_conv;
+            double B_hma   = avgRawData.getValue(18) - volume / temperature * varP_hma;
 //Cij
             //normal
 //            double C11_conv = avgRawData.getValue(19) - volume / temperature * varP1_conv;
@@ -377,8 +388,8 @@ public class SimLREPHMA extends Simulation {
             System.out.println("\n ++++ Second Derivatives ++++");
             System.out.println(" cv_conv  " + Cv_conv/numAtoms);
             System.out.println(" cv_hma   " + Cv_hma/numAtoms);
-//            System.out.println(" B_conv   " + B_conv);
-//            System.out.println(" B_hma    " + B_hma);
+            System.out.println(" B_conv   " + B_conv);
+            System.out.println(" B_hma    " + B_hma);
 //            System.out.println(" gV_conv " + gV_conv);
 //            System.out.println(" gV_hma  " + gV_hma);
 //            System.out.println(" alphaV_conv " + gV_conv/B_conv);
@@ -450,9 +461,9 @@ public class SimLREPHMA extends Simulation {
         public boolean doD2 = true;
 
         public double dt = 1.0;
-        public int numAtoms = 500;
-        public long numSteps = 10000;
-        public double temperatureK = 1000;
+        public int numAtoms = 256;
+        public long numSteps = 1000;
+        public double temperatureK = 500.0;
         public double density0 = 0.1;
 //        public double density0 = 0.08502338387498792; // V0 ==> 0 GPa
 //      public double density = 0.12146197696426847; // 0.8*V0
