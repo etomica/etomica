@@ -56,8 +56,7 @@ public class SimLREPHMA extends Simulation {
 
     public SimLREPHMA(int numAtoms, double temperature, double density0, double dt) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(2));
-
+        setRandom(new RandomMersenneTwister(2)); // set random seed for debugging
         species = SpeciesGeneral.monatomic(space, AtomType.element(Copper.INSTANCE), true);
         addSpecies(species);
         double L = Math.pow(4.0/density0, 1.0 / 3.0);
@@ -66,7 +65,7 @@ public class SimLREPHMA extends Simulation {
         boundary = new BoundaryRectangularPeriodic(space, n * L);
         System.out.println(" L = " + boundary.getBoxSize().getX(0));
         box = this.makeBox(boundary);
-        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 7.0, BondingInfo.noBonding());
+        NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 5.8, BondingInfo.noBonding());
         nbrs.setDoDownNeighbors(true);
 
         potentialMaster = new PotentialComputeEAM(getSpeciesManager(), box, nbrs);
@@ -84,10 +83,6 @@ public class SimLREPHMA extends Simulation {
 
         AtomType leafType = species.getLeafType();
         P2LREPV p2 = new P2LREPV();
-
-//        IPotential2 p2 = new P2LennardJones(1.0, 1.0);
-//        p2 = new P2SoftSphericalTruncated(p2, 3.0);
-
         potentialMaster.setPairPotential(leafType, leafType, p2);
         P2LREPPhi pRho = new P2LREPPhi();
         potentialMaster.setRhoPotential(leafType, pRho);
@@ -97,9 +92,6 @@ public class SimLREPHMA extends Simulation {
         potentialMaster.init();
         integrator.getEventManager().removeListener(nbrs);
         this.getController().addActivity(new ActivityIntegrate(integrator)); // for graphics
-
-//        ((P2SoftSphericalTruncated) p2).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
-
     }
 
     public static void main(String[] args) {
@@ -463,8 +455,10 @@ public class SimLREPHMA extends Simulation {
         public double dt = 1.0;
         public int numAtoms = 256;
         public long numSteps = 1000;
-        public double temperatureK = 500.0;
+        public double temperatureK = 100;
         public double density0 = 0.1;
+//        public double density0 = 256.0/(2560.0+5.0);
+
 //        public double density0 = 0.08502338387498792; // V0 ==> 0 GPa
 //      public double density = 0.12146197696426847; // 0.8*V0
 

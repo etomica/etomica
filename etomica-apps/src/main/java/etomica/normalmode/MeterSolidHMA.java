@@ -60,6 +60,10 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
     protected boolean callComputeAll = true;
 
+
+    protected double sumH = 0;
+    protected int nn = 19;
+
     public MeterSolidHMA(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double temperature, boolean doD2) {
         this.doD2 = doD2;
         this.coordinteDefinition = coordinateDefinition;
@@ -98,8 +102,12 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         mVV = gVV + gV * gV + 2.0 / 9.0;
 
         // 256, 100K, rho=0.1
-        dP = 39.73990629584506; //324.771547734307500-285.03164143846243
-        dB = -4.16; //1473.43-1477.59;
+//        dP = 28.3811706614;// 1962.2206877704807-1933.83951710905
+        dP = 37.389698902417365; // rC=5.1,5.8 ==> 523.503010892963900-486.1133119905465
+//        dB = -49.144353830604814; //15678.487984972133-15727.632338802738
+        dB = -70.67968107205525; //  rC=5.1,5.8 ==> 5152.219216697995-5222.89889777005
+
+        System.out.println("** dP: " + dP + " dB: " + dB);
 
         fV = (dP/temperature-rho)/(3*(numAtoms-1));
         fVV = fV*fV - 1.0/V*(dB/temperature-rho)/(3*(numAtoms-1));
@@ -169,9 +177,13 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double uSum;
         if (callComputeAll) {
             PotentialCallback callback = doD2 ? this : null;
-            System.out.println(" zero: V = " + box.getBoundary().volume());
-
+            sumH = 0;
             uSum = potentialMaster.computeAll(true, callback);
+//            System.out.println("sumH: " + sumH);
+//            System.exit(0);
+
+
+
         } else {
             uSum = potentialMaster.getLastEnergy();
         }
@@ -190,34 +202,95 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         if(wantsHessian() && dFdeV != null){
 
             if(doD2){
-                int nn = 0;
-//                System.out.println(" dFdeV: " + dFdeV[nn].getX(0));
+                Vector dr = space.makeVector();
+                double dx = 0.001;
+                dr.setX(0, dx);
+                double U_0 = potentialMaster.getLastEnergy();
+                double forces_00 = potentialMaster.getForces()[nn].getX(0);
 
-                double V0 = V;
-                double deV = 0.000001;
-                double Vp = V0*(1+deV);
-                double rhop = box.getLeafList().size()/Vp;
-                double Vm = V0*(1-deV);
-                double rhom = box.getLeafList().size()/Vm;
+//                System.out.println("F00: " + forces_00);
 
-                BoxInflate inflater = new BoxInflate(box, space);
-                inflater.setTargetDensity(rhom);
-                inflater.actionPerformed();
-
-                System.out.println(" minus: V = " + Vm);
+                box.getLeafList().get(0).getPosition().PEa1Tv1(-1.0, dr);
                 potentialMaster.computeAll(true, this);
                 double forces_m = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("Fm: " + forces_m);
 
-                System.out.println(" plus: V = " + Vp);
-                inflater.setTargetDensity(rhop);
-                inflater.actionPerformed();
+                box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
+                potentialMaster.computeAll(true, this);
+                double forces_0 = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("F0: " + forces_0);
+
+                box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
                 potentialMaster.computeAll(true, this);
                 double forces_p = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("Fp: " + forces_p);
+
+                System.out.println("H01: " + (-(forces_p-forces_m)/2/dx));
+
+
+                System.exit(0);
+
+
+//                double vir2 = potentialMaster.getLastVirial2();
+//                double dFdeVnnx = dFdeV[nn].getX(0);
+////                System.out.println(" dFdeV: " + dFdeV[nn].getX(0));
+////                System.out.println(box.getLeafList().get(nn).getPosition());
+//
+//                double V0 = V;
+//                double deV = 0.001;
+//                double Vp = V0*(1+deV);
+//                double Vpp = V0*(1+2*deV);
+//                double rhop = box.getLeafList().size()/Vp;
+//                double rhopp = box.getLeafList().size()/Vpp;
+//                double Vm = V0*(1-deV);
+//                double Vmm = V0*(1-2*deV);
+//                double rhom = box.getLeafList().size()/Vm;
+//                double rhomm = box.getLeafList().size()/Vmm;
+//
+//                BoxInflate inflater = new BoxInflate(box, space);
+//
+//
+////                inflater.setTargetDensity(rhomm);
+////                inflater.actionPerformed();
+////                System.out.println(" minus2: V = " + Vmm);
+////                potentialMaster.computeAll(true, this);
+////                double forces_mm = potentialMaster.getForces()[nn].getX(0);
+//
+//                inflater.setTargetDensity(rhom);
+//                inflater.actionPerformed();
+//                potentialMaster.init();
+////                System.out.println(" minus1: V = " + Vm);
+//                potentialMaster.computeAll(true, this);
+//                double forces_m = potentialMaster.getForces()[nn].getX(0);
+//                double U_m = potentialMaster.getLastEnergy();
+////                System.out.println(box.getLeafList().get(nn).getPosition());
+//
+////                System.out.println(" plus1: V = " + Vp);
+//                inflater.setTargetDensity(rhop);
+//                inflater.actionPerformed();
+//                potentialMaster.init();
+//                potentialMaster.computeAll(true, this);
+//                double forces_p = potentialMaster.getForces()[nn].getX(0);
+//                double U_p = potentialMaster.getLastEnergy();
+////                System.out.println(box.getLeafList().get(nn).getPosition());
+//
+//
+////                System.out.println(" plus2: V = " + Vpp);
+////                inflater.setTargetDensity(rhopp);
+////                inflater.actionPerformed();
+////                potentialMaster.computeAll(true, this);
+////                double forces_pp = potentialMaster.getForces()[nn].getX(0);
+//
+//
+//                System.out.println("\nn FD: " + " "+ ((forces_p-forces_m)/2/deV) + " " + dFdeVnnx);
+//                System.out.println("\nn FD: " + (U_m+U_p-2*U_0)/deV/deV + "  " + vir2);
+
+
+
             }
-            System.exit(0);
 
+        } //if
 
-        }
 
 
 
@@ -354,6 +427,22 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double d2u = u012[2];
         double rij2 = rij.squared();
 
+        if (doD2 && iAtom==0 && jAtom==nn) {
+            Tensor unity = space.makeTensor();
+            unity.setComponent(0, 0, 1.0);
+            unity.setComponent(1, 1, 1.0);
+            unity.setComponent(2, 2, 1.0);
+
+            Tensor t = space.makeTensor();
+            t.Ev1v2(rij,rij);
+            double fac = (du-d2u)/rij2/rij2 ;
+            t.TE(fac);
+            fac = -du/rij2;
+            t.PEa1Tt1(fac, unity);
+            sumH += t.component(0,0);
+//            System.out.println(t.component(0,0));
+        }
+
         IAtom ia = box.getLeafList().get(iAtom);
         IAtom ja = box.getLeafList().get(jAtom);
 
@@ -463,6 +552,13 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // Add whatever you need to do with the hessian: elastic!
+
+
+        if(doD2 && (i==0 && j==nn) || (i==nn && j==0)){
+            sumH += Hij.component(0,0);
+        }
+
+
         IAtom ai = box.getLeafList().get(i);
         IAtom aj = box.getLeafList().get(j);
         dri.Ev1Mv2(ai.getPosition(), coordinteDefinition.getLatticePosition(ai));

@@ -312,14 +312,11 @@ public class PotentialComputeEAM implements PotentialCompute {
                         virialTot += duij;
 
                         if (wantsHessian) {
-                            double d2uij = u012[2];
                             pc.pairCompute(finalI, j, rij, u012);
+                            double d2uij = u012[2];
                             virialTot2 += 1.0/9.0*d2uij;
                             dFdeV[finalI].PEa1Tv1(d2uij/r2/3.0, rij);
                             dFdeV[j].PEa1Tv1(-d2uij/r2/3.0, rij);
-                            if(finalI ==0 && j==114){
-                                System.out.println("Fijx: " + duij/r2*rij.getX(0) + " dFijx: " + d2uij/r2/3.0*rij.getX(0));
-                            }
                         }
 
                         if (doForces) {
@@ -335,8 +332,7 @@ public class PotentialComputeEAM implements PotentialCompute {
 
 
                 // Multi-body contribution
-                if (false) {
-//                if (irp != null && embeddingPotentials[jType] != null) {
+                if (irp != null && embeddingPotentials[jType] != null) {
                     // i contributes to j density: rho_i
                     double irc = irp.getRange();
                     if (r2 <= irc * irc) {
@@ -411,6 +407,7 @@ public class PotentialComputeEAM implements PotentialCompute {
         }
 
         int[] rdrhoIdx = {0};
+
         if (doForces) {
             for (int i = 0; i < numAtoms; i++) {
                 IAtom iAtom = atoms.get(i);
@@ -441,9 +438,9 @@ public class PotentialComputeEAM implements PotentialCompute {
                         }
                         virialTot += fac;
                         fac /= r2;
-//                        rij.TE(fac);
-//                        forces[finalI].PE(rij);
-//                        forces[j].ME(rij);
+                        rij.TE(fac);
+                        forces[finalI].PE(rij);
+                        forces[j].ME(rij);
                     }
                 });
             }
@@ -475,34 +472,40 @@ public class PotentialComputeEAM implements PotentialCompute {
                         pdki = pairDataHashMap.get(new IntSet(finalK, i));
                     }
                     double rdrhoik  = pdik.rdrho;
+
                     // Direct Hik
+                    double rdrho2ik = pdik.r2drho;
+
+                    double fac;
                     if (i < finalK) {
-                        double rdrho2ik = pdik.r2drho;
                         double rdrhoki  = pdki.rdrho;
                         double rdrho2ki = pdki.r2drho;
-                        double fac = (idf[i]*(rdrhoki-rdrho2ki)+idf[finalK]*(rdrhoik-rdrho2ik)-id2f[i]*rdrhoki*rdrhoki-id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
+                        fac = (idf[i]*(rdrhoki-rdrho2ki)+idf[finalK]*(rdrhoik-rdrho2ik)-id2f[i]*rdrhoki*rdrhoki-id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
                         Hik.Ev1v2(rki, rki);
                         Hik.TE(fac);
                         fac = -(idf[i]*rdrhoki + idf[finalK]*rdrhoik)/rki2;
                         Hik.PEa1Tt1(fac, unity);
                         pc.pairComputeHessian(i,finalK, Hik);
+                    }
 
-                        // dF/deV
-                        // Hik = d2uk/drki drkj
-                        Hik.Ev1v2(rki, rki);
-                        fac = (idf[finalK]*(rdrho2ik-rdrhoik)+id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
-                        Hik.TE(fac);
-                        fac = idf[finalK]*rdrhoik/rki2;
-                        Hik.PEa1Tt1(fac, unity);
-                        tmpV.E(rki);
-                        Hik.transform(tmpV);
-                        tmpV.TE(1.0/3.0);
-//                        dFdeV[finalK].PE(tmpV);
-//                        dFdeV[i].ME(tmpV);
+                    // dF/deV
+                    // Hik = d2uk/drki drkj
+                    Hik.Ev1v2(rki, rki);
+                    fac = (idf[finalK]*(rdrho2ik-rdrhoik)+id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
+                    Hik.TE(fac);
+                    fac = idf[finalK]*rdrhoik/rki2;
+                    Hik.PEa1Tt1(fac, unity);
+                    tmpV.E(rki);
+                    Hik.transform(tmpV);
+                    tmpV.TE(1.0/3.0);
+                    dFdeV[finalK].PE(tmpV);
+                    dFdeV[i].ME(tmpV);
 
-                        //2nd virial
+                    //2nd virial
+                    if(i < finalK){
                         virialTot2 += 2.0/3.0*tmpV.dot(rki);
                     }
+
                     neighborIterator.iterAllNeighbors(finalK, (jAtom, rkj, m) -> {
                         int j = jAtom.getLeafIndex();
                         int jType = jAtom.getType().getIndex();
@@ -533,20 +536,20 @@ public class PotentialComputeEAM implements PotentialCompute {
 
                         //dF/deV
                         Hij.Ev1v2(rki, rkj);
-                        double fac = id2f[finalK]*rdrhoik*rdrhojk/rki2/rkj2;
-                        Hij.TE(fac);
+                        double fac2 = id2f[finalK]*rdrhoik*rdrhojk/rki2/rkj2;
+                        Hij.TE(fac2);
                         tmpV.E(rkj);
                         Hij.transform(tmpV);
                         tmpV.TE(1.0/3.0);
-//                        dFdeV[finalK].PE(tmpV);
-//                        dFdeV[i].ME(tmpV);
+                        dFdeV[finalK].PE(tmpV);
+                        dFdeV[i].ME(tmpV);
 
                         tmpV.E(rki);
                         Hij.transpose();
                         Hij.transform(tmpV);
                         tmpV.TE(1.0/3.0);
-//                        dFdeV[finalK].PE(tmpV);
-//                        dFdeV[j].ME(tmpV);
+                        dFdeV[finalK].PE(tmpV);
+                        dFdeV[j].ME(tmpV);
 
                         //2nd virial
                         virialTot2 += 2.0/3.0*tmpV.dot(rkj);

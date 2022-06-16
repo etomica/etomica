@@ -17,7 +17,8 @@ public class P2LREPV implements IPotential2 {
 
     public P2LREPV() {
         this.m = 4;
-        this.rC = 6.1;
+//        this.rC = 6.1;
+        this.rC = 5.1;
         this.c0  = ElectronVolt.UNIT.toSim(0.123554);
         this.c1  = ElectronVolt.UNIT.toSim(-0.134361);
         this.c2  = ElectronVolt.UNIT.toSim(0.0543818);

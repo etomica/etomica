@@ -18,7 +18,7 @@ public class P2LREPPhi implements IPotential2 {
     public P2LREPPhi() {
         this.n = 6;
 //        this.rC = 7.8;
-//        this.rC = 3.1;
+        this.rC = 5.8;
         this.A   = ElectronVolt.UNIT.toSim(Math.sqrt(0.656618E-4));
         this.A = A*A;
         this.B   = 1.836569;
@@ -34,8 +34,7 @@ public class P2LREPPhi implements IPotential2 {
         if(r<=rC){
             double Phi1 = (r- rC)*(r- rC)*(r- rC)*(r- rC)*(r- rC)*(r- rC);
             double Phi2 = Math.exp(-B*(r/r0-1.0));
-//            return A*Phi1*Phi2;
-            return 0;
+            return A*Phi1*Phi2;
         }else{
             return 0;
         }
@@ -51,8 +50,7 @@ public class P2LREPPhi implements IPotential2 {
             double dPhi1 = n *(r- rC)*(r- rC)*(r- rC)*(r- rC)*(r- rC);
             double Phi2 = Math.exp(-B*(r/r0-1.0));
             double dPhi2 = -B/r0*Phi2;
-//            return r*A*(Phi1*dPhi2+dPhi1*Phi2);
-            return 0;
+            return r*A*(Phi1*dPhi2+dPhi1*Phi2);
 
         }else{
             return 0;
@@ -72,8 +70,7 @@ public class P2LREPPhi implements IPotential2 {
             double Phi2 = Math.exp(-B*(r/r0-1.0));
             double dPhi2 = -B/r0*Phi2;
             double ddPhi2 = (B/r0)*(B/r0)*Phi2;
-//            return r2*A*(2.0*dPhi1*dPhi2+Phi1*ddPhi2+ddPhi1*Phi2);
-            return 0;
+            return r2*A*(2.0*dPhi1*dPhi2+Phi1*ddPhi2+ddPhi1*Phi2);
 
         }else{
             return 0;
