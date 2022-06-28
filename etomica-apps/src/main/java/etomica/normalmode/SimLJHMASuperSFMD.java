@@ -435,7 +435,7 @@ public class SimLJHMASuperSFMD extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
         public double density0 = 1.0;
-        public long numSteps = 100000;
+        public long numSteps = 10000;
         public double dt = 1.0;
         public double temperature = 0.1;
         public double rc = 3.0;

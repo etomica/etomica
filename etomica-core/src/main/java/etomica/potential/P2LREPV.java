@@ -17,8 +17,7 @@ public class P2LREPV implements IPotential2 {
 
     public P2LREPV() {
         this.m = 4;
-//        this.rC = 6.1;
-        this.rC = 5.1;
+        this.rC = 6.1;
         this.c0  = ElectronVolt.UNIT.toSim(0.123554);
         this.c1  = ElectronVolt.UNIT.toSim(-0.134361);
         this.c2  = ElectronVolt.UNIT.toSim(0.0543818);
@@ -33,7 +32,7 @@ public class P2LREPV implements IPotential2 {
     public double u(double r2) {
         double r=Math.sqrt(r2);
         if(r<= rC){
-            double V1 = (r- rC)*(r- rC)*(r- rC)*(r- rC);
+            double V1 = (r-rC)*(r-rC)*(r-rC)*(r-rC);
             double V2  = c0 + r*(c1 + r*(c2 + r*(c3 + c4*r))) ;
             return V1*V2;
         }else{
@@ -47,8 +46,8 @@ public class P2LREPV implements IPotential2 {
     public double du(double r2) {
         double r=Math.sqrt(r2);
         if(r<= rC){
-            double V1 = (r- rC)*(r- rC)*(r- rC)*(r- rC);
-            double dV1 = m *(r- rC)*(r- rC)*(r- rC);
+            double V1 = (r-rC)*(r-rC)*(r-rC)*(r-rC);
+            double dV1 = m *(r-rC)*(r-rC)*(r-rC);
             double V2  = c0 + r*(c1 + r*(c2 + r*(c3 + c4*r))) ;
             double dV2  = c1+r*(2.0*c2+r*(3.0*c3+4.0*c4*r));
             return r*(V1*dV2+dV1*V2);
@@ -64,9 +63,9 @@ public class P2LREPV implements IPotential2 {
     public double d2u(double r2) {
         double r=Math.sqrt(r2);
         if(r<= rC){
-            double V1 = (r- rC)*(r- rC)*(r- rC)*(r- rC);
+            double V1 = (r-rC)*(r-rC)*(r-rC)*(r-rC);
             double dV1 = m*(r - rC)*(r - rC)*(r - rC);
-            double ddV1 = m*(m-1.0)*(r- rC)*(r- rC);
+            double ddV1 = m*(m-1.0)*(r-rC)*(r-rC);
             double V2  = c0 + r*(c1 + r*(c2 + r*(c3 + c4*r))) ;
             double dV2  = c1+r*(2.0*c2+r*(3.0*c3+4.0*c4*r));
             double ddV2  = 2.0*c2+r*(6.0*c3+12.0*c4*r);
