@@ -56,11 +56,7 @@ public class SimLREPHMA extends Simulation {
 
     public SimLREPHMA(int numAtoms, double temperature, double density0, double dt) {
         super(Space3D.getInstance());
-
-
 //        setRandom(new RandomMersenneTwister(2)); // set random seed for debugging
-
-
         species = SpeciesGeneral.monatomic(space, AtomType.element(Copper.INSTANCE), true);
         addSpecies(species);
         double L = Math.pow(4.0/density0, 1.0 / 3.0);
@@ -176,7 +172,6 @@ public class SimLREPHMA extends Simulation {
         double pLat = 1.0E-9*Pascal.UNIT.fromSim(pMeterLat.getDataAsScalar());
         System.out.println(" pLat (GPa): " + pLat + " pLat_sim: " + pMeterLat.getDataAsScalar());
 
-
         //Initialization
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsEq));
         System.out.println("**Done with "+ numStepsEq +" steps of equilibration ... ");
@@ -264,12 +259,12 @@ public class SimLREPHMA extends Simulation {
         double P2_hma      = avgRawData.getValue(7) + p1Shift;
         double errP2_hma   = errRawData.getValue(7);
         double corP2_hma   = corRawData.getValue(7);
-        double P3_conv     = avgRawData.getValue(8) + p1Shift;
-        double errP3_conv  = errRawData.getValue(8);
-        double corP3_conv  = corRawData.getValue(8);
-        double P3_hma      = avgRawData.getValue(9) + p1Shift;
-        double errP3_hma   = errRawData.getValue(9);
-        double corP3_hma   = corRawData.getValue(9);
+//        double P3_conv     = avgRawData.getValue(8) + p1Shift;
+//        double errP3_conv  = errRawData.getValue(8);
+//        double corP3_conv  = corRawData.getValue(8);
+//        double P3_hma      = avgRawData.getValue(9) + p1Shift;
+//        double errP3_hma   = errRawData.getValue(9);
+//        double corP3_hma   = corRawData.getValue(9);
         //Shear stress
         double P4_conv     = avgRawData.getValue(10);
         double errP4_conv  = errRawData.getValue(10);
@@ -277,18 +272,18 @@ public class SimLREPHMA extends Simulation {
         double P4_hma      = avgRawData.getValue(11);
         double errP4_hma   = errRawData.getValue(11);
         double corP4_hma   = corRawData.getValue(11);
-        double P5_conv     = avgRawData.getValue(12);
-        double errP5_conv  = errRawData.getValue(12);
-        double corP5_conv  = corRawData.getValue(12);
-        double P5_hma      = avgRawData.getValue(13);
-        double errP5_hma   = errRawData.getValue(13);
-        double corP5_hma   = corRawData.getValue(13);
-        double P6_conv     = avgRawData.getValue(14);
-        double errP6_conv  = errRawData.getValue(14);
-        double corP6_conv  = corRawData.getValue(14);
-        double P6_hma      = avgRawData.getValue(15);
-        double errP6_hma   = errRawData.getValue(15);
-        double corP6_hma   = corRawData.getValue(15);
+//        double P5_conv     = avgRawData.getValue(12);
+//        double errP5_conv  = errRawData.getValue(12);
+//        double corP5_conv  = corRawData.getValue(12);
+//        double P5_hma      = avgRawData.getValue(13);
+//        double errP5_hma   = errRawData.getValue(13);
+//        double corP5_hma   = corRawData.getValue(13);
+//        double P6_conv     = avgRawData.getValue(14);
+//        double errP6_conv  = errRawData.getValue(14);
+//        double corP6_conv  = corRawData.getValue(14);
+//        double P6_hma      = avgRawData.getValue(15);
+//        double errP6_hma   = errRawData.getValue(15);
+//        double corP6_hma   = corRawData.getValue(15);
 
         System.out.println("\n ++++ First Derivatives ++++");
         System.out.print(String.format(" u_conv  % 21.15f err: %10.4e  cor: % 6.3f\n", u_conv, errU_conv, corU_conv));
@@ -392,20 +387,25 @@ public class SimLREPHMA extends Simulation {
 //            System.out.println(" Bs_hma   " + (B_hma+temperature*volume*gV_hma*gV_hma/Cv_hma));
 //
             System.out.println();
-            System.out.println(" C11_conv (GPa):  " + 1e-9*Pascal.UNIT.fromSim(C11_conv) +" (GPa)");
+            System.out.println(" C11_conv (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C11_conv));
             System.out.println(" C11_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11_conv + C22_conv + C33_conv)));
-            System.out.println(" C11_hma (GPa):  " + C11_hma + "   " + 1e-9*Pascal.UNIT.fromSim(C11_hma) +" (GPa)");
-            System.out.println(" C11_hma_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11_hma + C22_hma + C33_hma)));
+
+            System.out.println(" C11_hma (GPa):  "      + 1e-9*Pascal.UNIT.fromSim(C11_hma));
+            System.out.println(" C11_hma_avg (GPa):  "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11_hma + C22_hma + C33_hma)));
+
             System.out.println();
-            System.out.println(" C12_conv (GPa):  " + 1e-9*Pascal.UNIT.fromSim(C12_conv) +" (GPa)");
+            System.out.println(" C12_conv (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C12_conv));
             System.out.println(" C12_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12_conv + C13_conv + C23_conv)));
-            System.out.println(" C12_hma (GPa):  " + C12_hma + "   " + 1e-9*Pascal.UNIT.fromSim(C12_hma) +" (GPa)");
-            System.out.println(" C12_hma_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12_hma + C13_hma + C23_hma)));
+
+            System.out.println(" C12_hma (GPa):  "      + 1e-9*Pascal.UNIT.fromSim(C12_hma));
+            System.out.println(" C12_hma_avg (GPa):  "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12_hma + C13_hma + C23_hma)));
+
             System.out.println();
-            System.out.println(" C44_conv (GPa):  " + 1e-9*Pascal.UNIT.fromSim(C44_conv) +" (GPa)");
-            System.out.println(" C44_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_conv + C55_conv + C55_conv)));
-            System.out.println(" C44_hma (GPa):  " + C44_hma + "   " + 1e-9*Pascal.UNIT.fromSim(C44_hma) +" (GPa)");
-            System.out.println(" C44_hma_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_hma + C55_hma + C66_hma)));
+            System.out.println(" C44_conv (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C44_conv));
+            System.out.println(" C44_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_conv + C55_conv + C66_conv)));
+
+            System.out.println(" C44_hma (GPa):  "      + 1e-9*Pascal.UNIT.fromSim(C44_hma));
+            System.out.println(" C44_hma_avg (GPa):  "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_hma + C55_hma + C66_hma)));
 //            System.out.println();
 //            System.out.println(" b11_conv     " + b11_conv);
 //            System.out.println(" b22_conv     " + b22_conv);
@@ -457,64 +457,20 @@ public class SimLREPHMA extends Simulation {
         public double dt = 1.0;
         public int numAtoms = 256;
         public long numSteps = 2000;
-        public double temperatureK = 300;
+        public double temperatureK = 500;
         public double density0 = 0.08502338387498792;
-//        public double density0 = numAtoms/(numAtoms/0.1+2.5);
-
-//        public double density0 = 0.08502338387498792; // V0 ==> 0 GPa
-//      public double density = 0.12146197696426847; // 0.8*V0
-//LJ
-//        public double gV=3.094707617816900;
-//        public double gVV=-0.199514733065326;
-//        public double gx1=3.577219390645709;
-//        public double gy1=2.853451732227192;
-//        public double gy4=2.232143500352495;
-//        public double gx11=15.124623202977329;
-//        public double gy11=4.801364959766065;
-//        public double gx44=10.768197646340099;
-//        public double gy44=3.233340182220370;
-//        public double gx12=-4.113585532872547;
-//        public double gz12=-0.392260472545948;
-//EAM: rho=0.1
-//        public double gV=0.894175378798851;
-//        public double gVV=1.658811488865302;
-//        public double gx1=0.208792234318683;
-//        public double gy1=1.274972218164225;
-//        public double gy4=1.140547706496590;
-//        public double gx11=1.140547706496590;
-//        public double gy11=14.283905274748891;
-//        public double gx44=9.322123630129592;
-//        public double gy44=9.322123630129592;
-//        public double gx12=1;
-//        public double gz12=1;
-
         //EAM: DB - rho=0.08502338387498792
         public double gV=1.404500637647537;
         public double gVV=3.131965483325428;
         public double gx1=1.170601829131321;
         public double gy1=1.588168559881036;
-        public double gy4=1.140547706496590;
         public double gx11=22.383238919513573;
         public double gy11=12.238653033941443;
-        public double gx44=9.322123630129592;
-        public double gy44=9.322123630129592;
-        public double gx12=1;
-        public double gz12=1;
-
-        //EAM: FB - rho=0.08502338387498792
-//        public double gV=1.665191135820965;
-//        public double gVV=3.131965483325428;
-//        public double gx1=2.218272165052506;
-//        public double gy1=1.514827142810957;
-//        public double gy4=1.140547706496590;
-//        public double gx11=10.263285899178138;
-//        public double gy11=-2.828872974789225;
-//        public double gx44=1;
-//        public double gy44=1;
-//        public double gx12=1;
-//        public double gz12=1;
-
-
+        public double gy4=1.335764638983127;
+        public double gx44=9.933754280102567;
+        public double gy44=7.901601526408648;
+        public double gx12=-0.721140067130724;
+        public double gz12=-4.342584087701786;
 
         public double dP=28.7622;
         public double dB=-7.8;

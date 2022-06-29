@@ -341,7 +341,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
             if (doD2) {
                 dFdeVdr += dFdeV[a.getLeafIndex()].dot(dri);
-                //00=0, 01=1, 02=2, 11=3, 12=4, 22=5
+                //00 , 01 , 02 , 11 , 12 , 22
+                //0    1    2    3    4    5
                 dF1rdot1 += dFde[0][a.getLeafIndex()].dot(rdot[0]);
                 dF2rdot2 += dFde[3][a.getLeafIndex()].dot(rdot[1]);
                 dF3rdot3 += dFde[5][a.getLeafIndex()].dot(rdot[2]);
@@ -355,7 +356,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 dF2rdot3 += dFde[3][a.getLeafIndex()].dot(rdot[2]);
                 dF3rdot2 += dFde[5][a.getLeafIndex()].dot(rdot[1]);
 
-                dF4rdot4 += dFde[4][a.getLeafIndex()].dot(rdot[3]);
+                dF4rdot4 += dFde[4][a.getLeafIndex()].dot(rdot[3]); //dF/de4 * rdot3
                 dF5rdot5 += dFde[2][a.getLeafIndex()].dot(rdot[4]);
                 dF6rdot6 += dFde[1][a.getLeafIndex()].dot(rdot[5]);
             }
@@ -412,8 +413,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         x[6] = -rho * temperature + virialXYZ[1] / V - p1Shift;
         x[7] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[1] + Frdot2) / V - p1Shift;
         //P3
-        x[8] = -rho * temperature + virialXYZ[3] / V - p1Shift;
-        x[9] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[3] + Frdot3) / V - p1Shift;
+        x[8] = -rho * temperature + virialXYZ[2] / V - p1Shift;
+        x[9] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[2] + Frdot3) / V - p1Shift;
         //P4
 //        x[10] = virialyz / V;
 //        x[11] = (virialyz - Frdot4) / V;
@@ -448,17 +449,17 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
             //C11
 //            x[19] = x_Hxx_x / V + 2 * rho * temperature; //C11
-//            x[20] = (x_Hxx_x - Frddot11 + dr1Hdr1 + 2 * rx1Hdr1 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
+//            x[20] = (x_Hxx_x + dr1Hdr1 - Frddot11 + 2 * rx1Hdr1 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
             x[19] = virial2XYZ[0]/V + 2*rho*temperature; //C11
             x[20] = (virial2XYZ[0] + rdotHrdot[0] - Frddot11  - 2*dF1rdot1 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
             //C22
 //            x[21] = y_Hyy_y / V + 2 * rho * temperature; //C22
-//            x[22] = (y_Hyy_y - Frddot22 + dr2Hdr2 + 2 * ry2Hdr2 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
+//            x[22] = (y_Hyy_y + dr2Hdr2 - Frddot22 + 2 * ry2Hdr2 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
             x[21] = virial2XYZ[1]/V + 2*rho*temperature; //C22
             x[22] = (virial2XYZ[1] + rdotHrdot[3] - Frddot22  - 2*dF2rdot2 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
 //            //C33
 //            x[23] = z_Hzz_z / V + 2 * rho * temperature; //C33
-//            x[24] = (z_Hzz_z - Frddot33 + dr3Hdr3 + 2 * rz3Hdr3 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
+//            x[24] = (z_Hzz_z + dr3Hdr3 - Frddot33 + 2 * rz3Hdr3 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
             x[23] = virial2XYZ[2]/V + 2*rho*temperature; //C33
             x[24] = (virial2XYZ[2] + rdotHrdot[5] - Frddot33  - 2*dF3rdot3 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
 
@@ -474,27 +475,32 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 //            x[30] = (y_Hyz_z - Frddot23 + dr2Hdr2 + ry2Hdr3 + rz3Hdr2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
 
             // dr1Hdr2 = 1 , dr1Hdr3 = 2 , dr2Hdr3 = 4
-            x[25] = virial2XYZ[3] / V;//C12
+            //C12
+            x[25] = virial2XYZ[3] / V;
             x[26] = (virial2XYZ[3] + rdotHrdot[1] - Frddot12 - dF1rdot2 - dF2rdot1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
-            x[27] = virial2XYZ[4] / V;//C13
+            //C13
+            x[27] = virial2XYZ[4] / V;
             x[28] = (virial2XYZ[4] + rdotHrdot[2] - Frddot13 - dF1rdot3 - dF3rdot1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
-            x[29] = virial2XYZ[5] / V;//C23
+            //C23
+            x[29] = virial2XYZ[5] / V;
             x[30] = (virial2XYZ[5] + rdotHrdot[4] - Frddot23 - dF2rdot3 - dF3rdot2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
 
 //            //C44
 //            x[31] = y_Hzy_z / V + rho * temperature;
-//            x[32] = (y_Hzy_z - Frddot44 + dr4Hdr4 + ry3z2Hdr4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            x[32] = (y_Hzy_z + dr4Hdr4 - Frddot44 + ry3z2Hdr4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 //            //C55
 //            x[33] = x_Hzx_z / V + rho * temperature;//C55
-//            x[34] = (x_Hzx_z - Frddot55 + dr5Hdr5 + rx3z1Hdr5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            x[34] = (x_Hzx_z + dr5Hdr5 - Frddot55 + rx3z1Hdr5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 //            //C6
 //            x[35] = x_Hyx_y / V + rho * temperature;//C66
-//            x[36] = (x_Hyx_y - Frddot66 + dr6Hdr6 + rx2y1Hdr6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
-//
+//            x[36] = (x_Hyx_y + dr6Hdr6 - Frddot66 + rx2y1Hdr6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//          C44 (yz,yz)
             x[31] = virial2XYZ[6] / V + rho * temperature;
             x[32] = (virial2XYZ[6] + rdotHrdot[6] - Frddot44 - 2.0*dF4rdot4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+            //C55
             x[33] = virial2XYZ[7] / V + rho * temperature;
             x[34] = (virial2XYZ[7] + rdotHrdot[7] - Frddot55 - 2.0*dF5rdot5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+            //C66
             x[35] = virial2XYZ[8] / V + rho * temperature;
             x[36] = (virial2XYZ[8] + rdotHrdot[8] - Frddot66 - 2.0*dF6rdot6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 
@@ -583,18 +589,17 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             // dr1Hdr1 = 0 , dr2Hdr2 = 3 , dr3Hdr3 = 5
             // dr1Hdr2 = 1 , dr1Hdr3 = 2 , dr2Hdr3 = 4
             // dr4Hdr4 = 6 , dr5Hdr5 = 7 , dr6Hdr6 = 8
-
-            rdotHrdot[0] += r1Hr2(rij, rdot[0], rdot[0], du, d2u);
-            rdotHrdot[3] += r1Hr2(rij, rdot[1], rdot[1], du, d2u);
-            rdotHrdot[5] += r1Hr2(rij, rdot[2], rdot[2], du, d2u);
+            rdotHrdot[0] += r1Hr2(rij, rdot[0], rdot[0], du, d2u);//C11
+            rdotHrdot[3] += r1Hr2(rij, rdot[1], rdot[1], du, d2u);//C22
+            rdotHrdot[5] += r1Hr2(rij, rdot[2], rdot[2], du, d2u);//C33
 //
-            rdotHrdot[1] += r1Hr2(rij, rdot[0], rdot[1], du, d2u);
-            rdotHrdot[2] += r1Hr2(rij, rdot[0], rdot[2], du, d2u);
-            rdotHrdot[4] += r1Hr2(rij, rdot[1], rdot[2], du, d2u);
+            rdotHrdot[1] += r1Hr2(rij, rdot[0], rdot[1], du, d2u);//C12
+            rdotHrdot[2] += r1Hr2(rij, rdot[0], rdot[2], du, d2u);//C13
+            rdotHrdot[4] += r1Hr2(rij, rdot[1], rdot[2], du, d2u);//C23
 //
-            rdotHrdot[6] += r1Hr2(rij, rdot[3], rdot[3], du, d2u);
-            rdotHrdot[7] += r1Hr2(rij, rdot[4], rdot[4], du, d2u);
-            rdotHrdot[8] += r1Hr2(rij, rdot[5], rdot[5], du, d2u);
+            rdotHrdot[6] += r1Hr2(rij, rdot[3], rdot[3], du, d2u);//C44
+            rdotHrdot[7] += r1Hr2(rij, rdot[4], rdot[4], du, d2u);//C55
+            rdotHrdot[8] += r1Hr2(rij, rdot[5], rdot[5], du, d2u);//C66
 //
 //            Vector rx1 = space.makeVector();
 //            rx1.setX(0, rij.getX(0));
@@ -681,7 +686,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         drHdr -= drj.dot(tmpV);
 
 
-        Vector[] ridot = mapVel(dri), rjdot = mapVel(drj);
+        Vector[] ridot = mapVel(dri);
+        Vector[] rjdot = mapVel(drj);
 
 //        dr1Hdr1 , dr2Hdr2 , dr3Hdr3
 //        dr1Hdr2 , dr1Hdr3 , dr2Hdr3
@@ -692,18 +698,18 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         // dr1Hdr1 = 0 , dr2Hdr2 = 3 , dr3Hdr3 = 5
         // dr1Hdr2 = 1 , dr1Hdr3 = 2 , dr2Hdr3 = 4
         // dr4Hdr4 = 6 , dr5Hdr5 = 7 , dr6Hdr6 = 8
-        for (int m=0; m<6; m++) {
-            for (int n=m; n<6; n++) {
-                if((m <= 2 && n > 2) || (m > 2 && n > m)) continue;
-                tmpV.E(rjdot[n]);
+        for (int l=0; l<6; l++) {
+            for (int ll=l; ll<6; ll++) {
+                if((l <= 2 && ll > 2) || (l > 2 && ll > l)) continue;
+                tmpV.E(rjdot[ll]);
                 Hij.transform(tmpV); //Hij.drj
-                rdotHrdot[indCount] += 2.0*ridot[m].dot(tmpV);
-                tmpV.E(ridot[n]);
+                rdotHrdot[indCount] += 2.0*ridot[l].dot(tmpV);
+                tmpV.E(ridot[ll]);
                 Hij.transform(tmpV);
-                rdotHrdot[indCount] -= ridot[m].dot(tmpV);
-                tmpV.E(rjdot[n]);
+                rdotHrdot[indCount] -= ridot[l].dot(tmpV);
+                tmpV.E(rjdot[ll]);
                 Hij.transform(tmpV);
-                rdotHrdot[indCount] -= rjdot[m].dot(tmpV);
+                rdotHrdot[indCount] -= rjdot[l].dot(tmpV);
                 indCount++;
             }
         }
@@ -739,7 +745,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         rdot[2].setX(1, my1 * dr.getX(1));
         rdot[2].setX(2, mx1 * dr.getX(2));
 
-        rdot[3].setX(1, dr.getX(2));//rdot4
+        rdot[3].setX(1, dr.getX(2));//rdot4: yz
         rdot[3].setX(2, dr.getX(1));
         rdot[3].TE(my4);
 

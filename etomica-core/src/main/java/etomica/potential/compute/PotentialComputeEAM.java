@@ -21,7 +21,6 @@ import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 import etomica.util.collections.IntSet;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -48,8 +47,8 @@ public class PotentialComputeEAM implements PotentialCompute {
     protected final IntArrayList uAtomsChanged, rhoAtomsChanged;
     protected final Vector zero;
     protected double virialTot = Double.NaN, virialTot2 = Double.NaN, energyTot = Double.NaN;
-    protected double[] virialTotXYZ = new double[6];
-    protected double[] virialTot2XYZ = new double[9];
+    protected double[] virialXYZ = new double[6];
+    protected double[] virial2XYZ = new double[9];
     protected Vector[] forces , dFdeV;
     protected Vector[][] dFde;
     protected final Space space;
@@ -209,11 +208,11 @@ public class PotentialComputeEAM implements PotentialCompute {
     }
 
     public double[] getLastVirialXYZ() {
-        return virialTotXYZ;
+        return virialXYZ;
     }
 
     public double[] getLastVirial2XYZ() {
-        return virialTot2XYZ;
+        return virial2XYZ;
     }
 
     @Override
@@ -261,8 +260,8 @@ public class PotentialComputeEAM implements PotentialCompute {
     protected final void zeroArrays(boolean doForces, boolean wantsHessian) {
         virialTot = 0;
         virialTot2 = 0;
-        for (int i=0; i<6; i++) virialTotXYZ[i] = 0;
-        for (int i=0; i<9; i++) virialTot2XYZ[i] = 0;
+        for (int i=0; i<6; i++) virialXYZ[i] = 0;
+        for (int i=0; i<9; i++) virial2XYZ[i] = 0;
 
         int numAtoms = box.getLeafList().size();
         if (doForces && numAtoms > forces.length) {
@@ -340,12 +339,12 @@ public class PotentialComputeEAM implements PotentialCompute {
 
                         if (doForces) {
                             virialTot += duij; //Fij.rij
-                            virialTotXYZ[0] += duij/r2*rij.getX(0)*rij.getX(0); //xx
-                            virialTotXYZ[1] += duij/r2*rij.getX(1)*rij.getX(1); //yy
-                            virialTotXYZ[2] += duij/r2*rij.getX(2)*rij.getX(2); //zz
-                            virialTotXYZ[3] += duij/r2*rij.getX(1)*rij.getX(2); //yz
-                            virialTotXYZ[4] += duij/r2*rij.getX(0)*rij.getX(2); //xz
-                            virialTotXYZ[5] += duij/r2*rij.getX(0)*rij.getX(1); //xy
+                            virialXYZ[0] += duij/r2*rij.getX(0)*rij.getX(0); //xx
+                            virialXYZ[1] += duij/r2*rij.getX(1)*rij.getX(1); //yy
+                            virialXYZ[2] += duij/r2*rij.getX(2)*rij.getX(2); //zz
+                            virialXYZ[3] += duij/r2*rij.getX(1)*rij.getX(2); //yz
+                            virialXYZ[4] += duij/r2*rij.getX(0)*rij.getX(2); //xz
+                            virialXYZ[5] += duij/r2*rij.getX(0)*rij.getX(1); //xy
 
                             forces[finalI].PEa1Tv1(duij/r2, rij);
                             forces[j].PEa1Tv1(-duij/r2, rij);
@@ -357,27 +356,32 @@ public class PotentialComputeEAM implements PotentialCompute {
                             double d2uij = u012[2];
                             virialTot2 += 1.0/9.0*d2uij;
                             double fac = (d2uij-duij)/r2/r2;
-                            virialTot2XYZ[0] += fac*rij.getX(0)*rij.getX(0)*rij.getX(0)*rij.getX(0);//C11
-                            virialTot2XYZ[1] += fac*rij.getX(1)*rij.getX(1)*rij.getX(1)*rij.getX(1);//C22
-                            virialTot2XYZ[2] += fac*rij.getX(2)*rij.getX(2)*rij.getX(2)*rij.getX(2);//C33
-                            virialTot2XYZ[3] += fac*rij.getX(0)*rij.getX(0)*rij.getX(1)*rij.getX(1);//C12
-                            virialTot2XYZ[4] += fac*rij.getX(0)*rij.getX(0)*rij.getX(2)*rij.getX(2);//C13
-                            virialTot2XYZ[5] += fac*rij.getX(1)*rij.getX(1)*rij.getX(2)*rij.getX(2);//C23
-                            virialTot2XYZ[6] += fac*rij.getX(1)*rij.getX(2)*rij.getX(1)*rij.getX(2);//C44
-                            virialTot2XYZ[7] += fac*rij.getX(0)*rij.getX(2)*rij.getX(0)*rij.getX(2);//C55
-                            virialTot2XYZ[8] += fac*rij.getX(0)*rij.getX(1)*rij.getX(0)*rij.getX(1);//C66
+                            virial2XYZ[0] += fac*rij.getX(0)*rij.getX(0)*rij.getX(0)*rij.getX(0);//C11
+                            virial2XYZ[1] += fac*rij.getX(1)*rij.getX(1)*rij.getX(1)*rij.getX(1);//C22
+                            virial2XYZ[2] += fac*rij.getX(2)*rij.getX(2)*rij.getX(2)*rij.getX(2);//C33
+                            virial2XYZ[3] += fac*rij.getX(0)*rij.getX(0)*rij.getX(1)*rij.getX(1);//C12
+                            virial2XYZ[4] += fac*rij.getX(0)*rij.getX(0)*rij.getX(2)*rij.getX(2);//C13
+                            virial2XYZ[5] += fac*rij.getX(1)*rij.getX(1)*rij.getX(2)*rij.getX(2);//C23
+                            virial2XYZ[6] += fac*rij.getX(1)*rij.getX(2)*rij.getX(1)*rij.getX(2);//C44
+                            virial2XYZ[7] += fac*rij.getX(0)*rij.getX(2)*rij.getX(0)*rij.getX(2);//C55
+                            virial2XYZ[8] += fac*rij.getX(0)*rij.getX(1)*rij.getX(0)*rij.getX(1);//C66
 
                             dFdeV[finalI].PEa1Tv1(d2uij/r2/3.0, rij);
                             dFdeV[j].PEa1Tv1(-d2uij/r2/3.0, rij);
 
                             Vector tmpVec = space.makeVector();
                             int indCount = 0;
-                            //00=0, 01=1, 02=2, 11=3, 12=4, 22=5
+                            //00 , 01 , 02 , 11 , 12 , 22
+                            //0    1    2    3    4    5
                             for (int l=0; l<3; l++){
                                 for (int ll=l; ll<3; ll++){
                                     tmpVec.E(0);
-                                    tmpVec.setX(l, 0.5*duij/r2*rij.getX(ll));
-                                    tmpVec.setX(ll, 0.5*duij/r2*rij.getX(l));
+                                    if (l==ll) {
+                                        tmpVec.setX(l, duij/r2*rij.getX(l));
+                                    } else {
+                                        tmpVec.setX(l,  0.5*duij/r2*rij.getX(ll));
+                                        tmpVec.setX(ll, 0.5*duij/r2*rij.getX(l));
+                                    }
                                     tmpVec.PEa1Tv1(fac*rij.getX(l)*rij.getX(ll), rij);
                                     dFde[indCount][finalI].PE(tmpVec);
                                     dFde[indCount][j].ME(tmpVec);
@@ -390,9 +394,6 @@ public class PotentialComputeEAM implements PotentialCompute {
                     }
                     u012[0] = u012[1] = u012[2] = 0;
                 }
-
-
-
 
                 // Multi-body contribution
                 if (irp != null && embeddingPotentials[jType] != null) {
@@ -503,12 +504,12 @@ public class PotentialComputeEAM implements PotentialCompute {
                             }
                         }
                         virialTot += fac; //Fij.rij
-                        virialTotXYZ[0] += fac/r2*rij.getX(0)*rij.getX(0);//xx
-                        virialTotXYZ[1] += fac/r2*rij.getX(1)*rij.getX(1);//yy
-                        virialTotXYZ[2] += fac/r2*rij.getX(2)*rij.getX(2);//zz
-                        virialTotXYZ[3] += fac/r2*rij.getX(1)*rij.getX(2);//yz
-                        virialTotXYZ[4] += fac/r2*rij.getX(0)*rij.getX(2);//xz
-                        virialTotXYZ[5] += fac/r2*rij.getX(0)*rij.getX(1);//xy
+                        virialXYZ[0] += fac/r2*rij.getX(0)*rij.getX(0);//xx
+                        virialXYZ[1] += fac/r2*rij.getX(1)*rij.getX(1);//yy
+                        virialXYZ[2] += fac/r2*rij.getX(2)*rij.getX(2);//zz
+                        virialXYZ[3] += fac/r2*rij.getX(1)*rij.getX(2);//yz
+                        virialXYZ[4] += fac/r2*rij.getX(0)*rij.getX(2);//xz
+                        virialXYZ[5] += fac/r2*rij.getX(0)*rij.getX(1);//xy
 
                         fac /= r2;
                         rij.TE(fac);
@@ -567,8 +568,8 @@ public class PotentialComputeEAM implements PotentialCompute {
                     Hik.Ev1v2(rki, rki);
                     fac = (idf[finalK]*(rdrho2ik-rdrhoik)+id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2;
                     Hik.TE(fac);
-                    fac = idf[finalK]*rdrhoik/rki2;
-                    Hik.PEa1Tt1(fac, unity);
+                    double fac1 = idf[finalK]*rdrhoik/rki2;
+                    Hik.PEa1Tt1(fac1, unity);
                     tmpV.E(rki);
                     Hik.transform(tmpV);
                     tmpV.TE(1.0/3.0);
@@ -578,14 +579,18 @@ public class PotentialComputeEAM implements PotentialCompute {
                     //dF/dex
                     Vector tmpVec = space.makeVector();
                     int indCount = 0;
-                    //00=0, 01=1, 02=2, 11=3, 12=4, 22=5
+                    //00 , 01 , 02 , 11 , 12 , 22
+                    //0    1    2    3    4    5
                     for (int l=0; l<3; l++){
                         for (int ll=l; ll<3; ll++){
                             tmpVec.E(0);
-                            tmpVec.setX(l, 0.5*fac*rki.getX(ll));
-                            tmpVec.setX(ll,0.5*fac*rki.getX(l));
-                            fac = (idf[finalK]*(rdrho2ik-rdrhoik)+id2f[finalK]*rdrhoik*rdrhoik)/rki2/rki2*rki.getX(l)*rki.getX(ll);
-                            tmpVec.PEa1Tv1(fac, rki);
+                            if(l==ll) {
+                                tmpVec.setX(ll,fac1*rki.getX(l));
+                            } else {
+                                tmpVec.setX(l, 0.5*fac1*rki.getX(ll));
+                                tmpVec.setX(ll,0.5*fac1*rki.getX(l));
+                            }
+                            tmpVec.PEa1Tv1(fac*rki.getX(l)*rki.getX(ll), rki);
                             dFde[indCount][finalK].PE(tmpVec);
                             dFde[indCount][i].ME(tmpVec);
                             indCount++;
@@ -597,17 +602,17 @@ public class PotentialComputeEAM implements PotentialCompute {
                     //2nd virial
                     if(i < finalK) {
                         virialTot2 += 2.0 / 3.0 * tmpV.dot(rki);
-                        double fac1 = idf[finalK] * (rdrho2ik - rdrhoik) + id2f[finalK] * rdrhoik * rdrhoik
-                                + idf[i] * (rdrho2ki - rdrhoki) + id2f[i] * rdrhoki * rdrhoki;
-                        virialTot2XYZ[0] += fac1 / rki2 / rki2 * rki.getX(0) * rki.getX(0) * rki.getX(0) * rki.getX(0);
-                        virialTot2XYZ[1] += fac1 / rki2 / rki2 * rki.getX(1) * rki.getX(1) * rki.getX(1) * rki.getX(1);
-                        virialTot2XYZ[2] += fac1 / rki2 / rki2 * rki.getX(2) * rki.getX(2) * rki.getX(2) * rki.getX(2);
-                        virialTot2XYZ[3] += fac1 / rki2 / rki2 * rki.getX(0) * rki.getX(0) * rki.getX(1) * rki.getX(1);
-                        virialTot2XYZ[4] += fac1 / rki2 / rki2 * rki.getX(0) * rki.getX(0) * rki.getX(2) * rki.getX(2);
-                        virialTot2XYZ[5] += fac1 / rki2 / rki2 * rki.getX(1) * rki.getX(1) * rki.getX(2) * rki.getX(2);
-                        virialTot2XYZ[6] += fac1 / rki2 / rki2 * rki.getX(1) * rki.getX(2) * rki.getX(1) * rki.getX(2);
-                        virialTot2XYZ[7] += fac1 / rki2 / rki2 * rki.getX(0) * rki.getX(2) * rki.getX(0) * rki.getX(2);
-                        virialTot2XYZ[8] += fac1 / rki2 / rki2 * rki.getX(0) * rki.getX(1) * rki.getX(0) * rki.getX(1);
+                        fac  = (idf[finalK] * (rdrho2ik - rdrhoik) + id2f[finalK] * rdrhoik * rdrhoik
+                              + idf[i] * (rdrho2ki - rdrhoki)      + id2f[i] * rdrhoki * rdrhoki)/rki2/rki2;
+                        virial2XYZ[0] += fac * rki.getX(0) * rki.getX(0) * rki.getX(0) * rki.getX(0);
+                        virial2XYZ[1] += fac * rki.getX(1) * rki.getX(1) * rki.getX(1) * rki.getX(1);
+                        virial2XYZ[2] += fac * rki.getX(2) * rki.getX(2) * rki.getX(2) * rki.getX(2);
+                        virial2XYZ[3] += fac * rki.getX(0) * rki.getX(0) * rki.getX(1) * rki.getX(1);
+                        virial2XYZ[4] += fac * rki.getX(0) * rki.getX(0) * rki.getX(2) * rki.getX(2);
+                        virial2XYZ[5] += fac * rki.getX(1) * rki.getX(1) * rki.getX(2) * rki.getX(2);
+                        virial2XYZ[6] += fac * rki.getX(1) * rki.getX(2) * rki.getX(1) * rki.getX(2);
+                        virial2XYZ[7] += fac * rki.getX(0) * rki.getX(2) * rki.getX(0) * rki.getX(2);
+                        virial2XYZ[8] += fac * rki.getX(0) * rki.getX(1) * rki.getX(0) * rki.getX(1);
                     }
                     neighborIterator.iterAllNeighbors(finalK, (jAtom, rkj, m) -> {
                         int j = jAtom.getLeafIndex();
@@ -677,15 +682,15 @@ public class PotentialComputeEAM implements PotentialCompute {
 
                         //2nd virial
                         virialTot2 += 2.0/3.0*tmpV.dot(rkj);
-                        virialTot2XYZ[0] += 2*fac2*rki.getX(0)*rki.getX(0)*rkj.getX(0)*rkj.getX(0);
-                        virialTot2XYZ[1] += 2*fac2*rki.getX(1)*rki.getX(1)*rkj.getX(1)*rkj.getX(1);
-                        virialTot2XYZ[2] += 2*fac2*rki.getX(2)*rki.getX(2)*rkj.getX(2)*rkj.getX(2);
-                        virialTot2XYZ[3] += 2*fac2*rki.getX(0)*rki.getX(0)*rkj.getX(1)*rkj.getX(1);
-                        virialTot2XYZ[4] += 2*fac2*rki.getX(0)*rki.getX(0)*rkj.getX(2)*rkj.getX(2);
-                        virialTot2XYZ[5] += 2*fac2*rki.getX(1)*rki.getX(1)*rkj.getX(2)*rkj.getX(2);
-                        virialTot2XYZ[6] += 2*fac2*rki.getX(1)*rki.getX(2)*rkj.getX(1)*rkj.getX(2);
-                        virialTot2XYZ[7] += 2*fac2*rki.getX(0)*rki.getX(2)*rkj.getX(0)*rkj.getX(2);
-                        virialTot2XYZ[8] += 2*fac2*rki.getX(0)*rki.getX(1)*rkj.getX(0)*rkj.getX(1);
+                        virial2XYZ[0] += 2*fac2*rki.getX(0)*rki.getX(0)*rkj.getX(0)*rkj.getX(0);
+                        virial2XYZ[1] += 2*fac2*rki.getX(1)*rki.getX(1)*rkj.getX(1)*rkj.getX(1);
+                        virial2XYZ[2] += 2*fac2*rki.getX(2)*rki.getX(2)*rkj.getX(2)*rkj.getX(2);
+                        virial2XYZ[3] += 2*fac2*rki.getX(0)*rki.getX(0)*rkj.getX(1)*rkj.getX(1);
+                        virial2XYZ[4] += 2*fac2*rki.getX(0)*rki.getX(0)*rkj.getX(2)*rkj.getX(2);
+                        virial2XYZ[5] += 2*fac2*rki.getX(1)*rki.getX(1)*rkj.getX(2)*rkj.getX(2);
+                        virial2XYZ[6] += 2*fac2*rki.getX(1)*rki.getX(2)*rkj.getX(1)*rkj.getX(2);
+                        virial2XYZ[7] += 2*fac2*rki.getX(0)*rki.getX(2)*rkj.getX(0)*rkj.getX(2);
+                        virial2XYZ[8] += 2*fac2*rki.getX(0)*rki.getX(1)*rkj.getX(0)*rkj.getX(1);
                     });//j
                 });//i
             }//k
@@ -865,5 +870,3 @@ public class PotentialComputeEAM implements PotentialCompute {
         }
     }
 }
-
-
