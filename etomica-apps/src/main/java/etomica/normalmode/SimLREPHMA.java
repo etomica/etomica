@@ -31,9 +31,8 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.units.ElectronVolt;
-import etomica.units.Kelvin;
-import etomica.units.Pascal;
+import etomica.units.*;
+import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -60,10 +59,9 @@ public class SimLREPHMA extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.element(Copper.INSTANCE), true);
         addSpecies(species);
         double L = Math.pow(4.0/density0, 1.0 / 3.0);
-        System.out.println(" rNN " + L/Math.sqrt(2));
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
-        System.out.println(" L = " + boundary.getBoxSize().getX(0));
+        System.out.println(" L (A): " + boundary.getBoxSize().getX(0));
         box = this.makeBox(boundary);
         NeighborListManager nbrs = new NeighborListManager(this.getSpeciesManager(), box, 2, 7.8, BondingInfo.noBonding());
         nbrs.setDoDownNeighbors(true);
@@ -122,6 +120,12 @@ public class SimLREPHMA extends Simulation {
         elasticParams[11] = params.dP;
         elasticParams[12] = params.dB;
 
+        System.out.println(" gV: " + params.gV + " gVV: " + params.gVV);
+        System.out.println(" gx1: " + params.gx1 + " gy1: " + params.gy1 + " gy4 " + params.gy4);
+        System.out.println(" gx11: " + params.gx11 + " gy11: " + params.gy11 + " gx44 " + params.gx44);
+        System.out.println(" gy44: " + params.gy44 + " gx12: " + params.gx12 + " gz12 " + params.gz12);
+        System.out.println(" dP: " + params.dP + " dB: "+ params.dB);
+
 
         SimLREPHMA sim = new SimLREPHMA(numAtoms, temperature, density0, dt);
 
@@ -161,16 +165,35 @@ public class SimLREPHMA extends Simulation {
         double volume = sim.box.getBoundary().volume();
         double density = numAtoms/volume;
         System.out.println(" numAtoms: " + numAtoms + "  volume: " + volume + "  density0: " + density0 + " density: " + density);
-        System.out.println(" T (K): " + params.temperatureK + "   T_sim: " + temperature);
+        System.out.println(" T (K): " + params.temperatureK);
 
         sim.integrator.reset();
-        double uLat = ElectronVolt.UNIT.fromSim(sim.integrator.getPotentialEnergy()/numAtoms);
-        System.out.println(" uLat (eV/atom): " + uLat + " uLat_sim: " + sim.integrator.getPotentialEnergy()/numAtoms);
+        double uLat = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(sim.integrator.getPotentialEnergy()/numAtoms);
+        System.out.println(" uLat (kJ/mol): " + uLat);
 
         MeterPressure pMeterLat = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
         pMeterLat.setTemperature(0); // Lattice
         double pLat = 1.0E-9*Pascal.UNIT.fromSim(pMeterLat.getDataAsScalar());
-        System.out.println(" pLat (GPa): " + pLat + " pLat_sim: " + pMeterLat.getDataAsScalar());
+        System.out.println(" pLatPMeter (GPa): " + pLat);
+
+
+        MeterSolidHMA meterElasticLat = new MeterSolidHMA(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition, elasticParams, temperature, doD2);
+        sim.potentialMaster.computeAll(true, meterElasticLat);
+        double virial = sim.potentialMaster.getLastVirial();
+        double virial2 = sim.potentialMaster.getLastVirial2();
+        double[] virialXYZ = sim.potentialMaster.getLastVirialXYZ();
+        double[] virial2XYZ = sim.potentialMaster.getLastVirial2XYZ();
+        double Plat  = -1e-9*Pascal.UNIT.fromSim(virial/3.0/volume);
+        double P1lat = -1e-9*Pascal.UNIT.fromSim(virialXYZ[0]/volume);
+        double P4lat = -1e-9*Pascal.UNIT.fromSim(virialXYZ[3]/volume);
+        double Blat = 1e-9*Pascal.UNIT.fromSim(virial2/volume);
+        double C11Lat = 1e-9*Pascal.UNIT.fromSim(virial2XYZ[0]/volume);
+        double C12Lat = 1e-9*Pascal.UNIT.fromSim(virial2XYZ[3]/volume);
+        double C44Lat = 1e-9*Pascal.UNIT.fromSim(virial2XYZ[6]/volume);
+        System.out.println(" Plat (GPa): " + Plat + " P1lat (GPa): " + P1lat +" P4lat (GPa): " + P4lat);
+        System.out.println( " Blat (GPa): " + Blat + " C11lat (GPa): " + C11Lat + " C12lat (GPa): " + C12Lat + " C44lat (GPa): " + C44Lat);
+
+
 
         //Initialization
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsEq));
@@ -214,8 +237,12 @@ public class SimLREPHMA extends Simulation {
             IData errRawData0 = accumulatorElastic.getData(accumulatorElastic.ERROR);
             uShift = avgRawData0.getValue(1); double errUshift = errRawData0.getValue(1);
             pShift = avgRawData0.getValue(3); double errPshift = errRawData0.getValue(3);
-            System.out.println(" uShift: " + uShift + " +/- " + errUshift);
-            System.out.println(" pShift: " + pShift + " +/- " + errPshift);
+            uShift = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(uShift);
+            errUshift = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(errUshift);
+            pShift = 1e-9*Pascal.UNIT.fromSim(pShift);
+            errPshift = 1e-9*Pascal.UNIT.fromSim(errPshift);
+            System.out.println(" uShift (kJ/mol):  " + uShift + " +/- " + errUshift);
+            System.out.println(" pShift (GPa):  " + pShift + " +/- " + errPshift);
             meterElastic.setShift(uShift, pShift);
             accumulatorElastic.reset();
         }
@@ -233,69 +260,51 @@ public class SimLREPHMA extends Simulation {
 
         /** First Derivatives*/
         //Bulk
-        double u_conv     = avgRawData.getValue(0) + uShift;
-        double errU_conv  = errRawData.getValue(0);
+        double u_conv     = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(avgRawData.getValue(0) + uShift); //kJ/mol
+        double errU_conv  = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(errRawData.getValue(0));
         double corU_conv  = corRawData.getValue(0);
-        double u_hma      = avgRawData.getValue(1) + uShift;
-        double errU_hma   = errRawData.getValue(1);
+        double u_hma      = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(avgRawData.getValue(1) + uShift);//GPa
+        double errU_hma   = 1e-3*Constants.AVOGADRO*Joule.UNIT.fromSim(errRawData.getValue(1));
         double corU_hma   = corRawData.getValue(1);
-        double P_conv     = avgRawData.getValue(2) + pShift;
-        double errP_conv  = errRawData.getValue(2);
+        double P_conv     = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(2) + pShift); //GPa
+        double errP_conv  = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(2));
         double corP_conv  = corRawData.getValue(2);
-        double P_hma      = avgRawData.getValue(3) + pShift;
-        double errP_hma   = errRawData.getValue(3);
+        double P_hma      = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(3) + pShift);
+        double errP_hma   = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(3));
         double corP_hma   = corRawData.getValue(3);
         //Normal stress
         double p1Shift = - pShift;
-        double P1_conv     = avgRawData.getValue(4) + p1Shift;
-        double errP1_conv  = errRawData.getValue(4);
+        double P1_conv     = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(4) + p1Shift);
+        double errP1_conv  = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(4));
         double corP1_conv  = corRawData.getValue(4);
-        double P1_hma      = avgRawData.getValue(5) + p1Shift;
-        double errP1_hma   = errRawData.getValue(5);
+        double P1_hma      = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(5) + p1Shift);
+        double errP1_hma   = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(5));
         double corP1_hma   = corRawData.getValue(5);
-        double P2_conv     = avgRawData.getValue(6) + p1Shift;
-        double errP2_conv  = errRawData.getValue(6);
+        double P2_conv     = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(6) + p1Shift);
+        double errP2_conv  = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(6));
         double corP2_conv  = corRawData.getValue(6);
-        double P2_hma      = avgRawData.getValue(7) + p1Shift;
-        double errP2_hma   = errRawData.getValue(7);
+        double P2_hma      = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(7) + p1Shift);
+        double errP2_hma   = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(7));
         double corP2_hma   = corRawData.getValue(7);
-//        double P3_conv     = avgRawData.getValue(8) + p1Shift;
-//        double errP3_conv  = errRawData.getValue(8);
-//        double corP3_conv  = corRawData.getValue(8);
-//        double P3_hma      = avgRawData.getValue(9) + p1Shift;
-//        double errP3_hma   = errRawData.getValue(9);
-//        double corP3_hma   = corRawData.getValue(9);
         //Shear stress
-        double P4_conv     = avgRawData.getValue(10);
-        double errP4_conv  = errRawData.getValue(10);
+        double P4_conv     = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(10));
+        double errP4_conv  = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(10));
         double corP4_conv  = corRawData.getValue(10);
-        double P4_hma      = avgRawData.getValue(11);
-        double errP4_hma   = errRawData.getValue(11);
+        double P4_hma      = 1e-9*Pascal.UNIT.fromSim(avgRawData.getValue(11));
+        double errP4_hma   = 1e-9*Pascal.UNIT.fromSim(errRawData.getValue(11));
         double corP4_hma   = corRawData.getValue(11);
-//        double P5_conv     = avgRawData.getValue(12);
-//        double errP5_conv  = errRawData.getValue(12);
-//        double corP5_conv  = corRawData.getValue(12);
-//        double P5_hma      = avgRawData.getValue(13);
-//        double errP5_hma   = errRawData.getValue(13);
-//        double corP5_hma   = corRawData.getValue(13);
-//        double P6_conv     = avgRawData.getValue(14);
-//        double errP6_conv  = errRawData.getValue(14);
-//        double corP6_conv  = corRawData.getValue(14);
-//        double P6_hma      = avgRawData.getValue(15);
-//        double errP6_hma   = errRawData.getValue(15);
-//        double corP6_hma   = corRawData.getValue(15);
 
         System.out.println("\n ++++ First Derivatives ++++");
-        System.out.print(String.format(" u_conv  % 21.15f err: %10.4e  cor: % 6.3f\n", u_conv, errU_conv, corU_conv));
-        System.out.print(String.format(" u_hma   % 21.15f err: %10.4e  cor: % 6.3f\n", u_hma, errU_hma, corU_hma));
-        System.out.print(String.format(" P_conv  % 21.15f err: %10.4e  cor: % 6.3f\n", P_conv, errP_conv, corP_conv));
-        System.out.print(String.format(" P_hma   % 21.15f err: %10.4e  cor: % 6.3f\n", P_hma, errP_hma, corP_hma));
-        System.out.print(String.format(" P1_conv % 21.15f err: %10.4e  cor: % 6.3f\n", P1_conv, errP1_conv, corP1_conv));
-        System.out.print(String.format(" P1_hma  % 21.15f err: %10.4e  cor: % 6.3f\n", P1_hma, errP1_hma, corP1_hma));
-        System.out.print(String.format(" P2_conv % 21.15f err: %10.4e  cor: % 6.3f\n", P2_conv, errP2_conv, corP2_conv));
-        System.out.print(String.format(" P2_hma  % 21.15f err: %10.4e  cor: % 6.3f\n", P2_hma, errP2_hma, corP2_hma));
-        System.out.print(String.format(" P4_conv % 21.15f err: %10.4e  cor: % 6.3f\n", P4_conv, errP4_conv, corP4_conv));
-        System.out.print(String.format(" P4_hma  % 21.15f err: %10.4e  cor: % 6.3f\n", P4_hma, errP4_hma, corP4_hma));
+        System.out.print(String.format(" u_conv (kJ/mol): % 21.15f err: %10.4e  cor: % 6.3f\n", u_conv, errU_conv, corU_conv));
+        System.out.print(String.format(" u_hma (kJ/mol):  % 21.15f err: %10.4e  cor: % 6.3f\n", u_hma, errU_hma, corU_hma));
+        System.out.print(String.format(" P_conv (GPa):    % 21.15f err: %10.4e  cor: % 6.3f\n", P_conv, errP_conv, corP_conv));
+        System.out.print(String.format(" P_hma (GPa):     % 21.15f err: %10.4e  cor: % 6.3f\n", P_hma, errP_hma, corP_hma));
+        System.out.print(String.format(" P1_conv (GPa):   % 21.15f err: %10.4e  cor: % 6.3f\n", P1_conv, errP1_conv, corP1_conv));
+        System.out.print(String.format(" P1_hma (GPa):    % 21.15f err: %10.4e  cor: % 6.3f\n", P1_hma, errP1_hma, corP1_hma));
+        System.out.print(String.format(" P2_conv (GPa):   % 21.15f err: %10.4e  cor: % 6.3f\n", P2_conv, errP2_conv, corP2_conv));
+        System.out.print(String.format(" P2_hma (GPa):    % 21.15f err: %10.4e  cor: % 6.3f\n", P2_hma, errP2_hma, corP2_hma));
+        System.out.print(String.format(" P4_conv (GPa):   % 21.15f err: %10.4e  cor: % 6.3f\n", P4_conv, errP4_conv, corP4_conv));
+        System.out.print(String.format(" P4_hma (GPa):    % 21.15f err: %10.4e  cor: % 6.3f\n", P4_hma, errP4_hma, corP4_hma));
 
 
         if(doD2){
@@ -325,14 +334,14 @@ public class SimLREPHMA extends Simulation {
             double covP2P3_conv = covRawData.getValue(6 * nd + 8);
             double covP2P3_hma  = covRawData.getValue(7 * nd + 9);
 //
-//            double covUP_conv  = covRawData.getValue(0 * nd + 2);
-//            double covUP_hma   = covRawData.getValue(1 * nd + 3);
-//            double covUP1_conv = covRawData.getValue(0 * nd + 4);
-//            double covUP1_hma  = covRawData.getValue(1 * nd + 5);
-//            double covUP2_conv = covRawData.getValue(0 * nd + 6);
-//            double covUP2_hma  = covRawData.getValue(1 * nd + 7);
-//            double covUP3_conv = covRawData.getValue(0 * nd + 8);
-//            double covUP3_hma  = covRawData.getValue(1 * nd + 9);
+            double covUP_conv  = covRawData.getValue(0 * nd + 2);
+            double covUP_hma   = covRawData.getValue(1 * nd + 3);
+            double covUP1_conv = covRawData.getValue(0 * nd + 4);
+            double covUP1_hma  = covRawData.getValue(1 * nd + 5);
+            double covUP2_conv = covRawData.getValue(0 * nd + 6);
+            double covUP2_hma  = covRawData.getValue(1 * nd + 7);
+            double covUP3_conv = covRawData.getValue(0 * nd + 8);
+            double covUP3_hma  = covRawData.getValue(1 * nd + 9);
 
 //Bulk
             double Cv_conv = numAtoms*numAtoms*varU_conv/temperature/temperature + 3.0/2.0*(numAtoms-1);
@@ -361,86 +370,92 @@ public class SimLREPHMA extends Simulation {
             double C55_hma  = avgRawData.getValue(34) - volume / temperature * varP5_hma;
             double C66_conv = avgRawData.getValue(35) - volume / temperature * varP6_conv;
             double C66_hma  = avgRawData.getValue(36) - volume / temperature * varP6_hma;
-//
+//          //gV
+            double gV_conv  = density + numAtoms / temperature / temperature * covUP_conv;
+            double gV_hma   = avgRawData.getValue(37) + numAtoms / temperature / temperature * covUP_hma;
 //            //b_mn
-//             double gV_conv  = density + numAtoms / temperature / temperature * covUP_conv;
-//             double gV_hma   = avgRawData.getValue(19) + numAtoms / temperature / temperature * covUP_hma;
-//            double b11_conv = -density + numAtoms / temperature / temperature * covUP1_conv;
-//            double b11_hma  = avgRawData.getValue(38) + numAtoms / temperature / temperature * covUP1_hma;
-//            double b22_conv = -density + numAtoms/ temperature / temperature * covUP2_conv;
-//            double b22_hma  = avgRawData.getValue(39) + numAtoms / temperature / temperature * covUP2_hma;
-//            double b33_conv = -density + numAtoms / temperature / temperature * covUP3_conv;
-//            double b33_hma  = avgRawData.getValue(40) + numAtoms / temperature / temperature * covUP3_hma;
+            double b11_conv = -density + numAtoms / temperature / temperature * covUP1_conv;
+            double b11_hma  = avgRawData.getValue(38) + numAtoms / temperature / temperature * covUP1_hma;
+            double b22_conv = -density + numAtoms/ temperature / temperature * covUP2_conv;
+            double b22_hma  = avgRawData.getValue(39) + numAtoms / temperature / temperature * covUP2_hma;
+            double b33_conv = -density + numAtoms / temperature / temperature * covUP3_conv;
+            double b33_hma  = avgRawData.getValue(40) + numAtoms / temperature / temperature * covUP3_hma;
 //
 //Print
 
             System.out.println("\n ++++ Second Derivatives ++++");
-            System.out.println(" cv_conv  " + Cv_conv/numAtoms);
-            System.out.println(" cv_hma   " + Cv_hma/numAtoms);
-            System.out.println(" B_conv   " + B_conv);
-            System.out.println(" B_hma    " + B_hma);
-//            System.out.println(" gV_conv " + gV_conv);
-//            System.out.println(" gV_hma  " + gV_hma);
-//            System.out.println(" alphaV_conv " + gV_conv/B_conv);
-//            System.out.println(" alphaV_hma  " + gV_hma/B_hma);
-//            System.out.println(" Bs_conv  " + (B_conv+temperature*volume*gV_conv*gV_conv/Cv_conv));
-//            System.out.println(" Bs_hma   " + (B_hma+temperature*volume*gV_hma*gV_hma/Cv_hma));
+            UnitRatio cvUnit = new UnitRatio(Joule.UNIT, Kelvin.UNIT);
+            System.out.println(" Cv_conv (J/mol-K):   " + Constants.AVOGADRO*cvUnit.fromSim(Cv_conv/numAtoms)); // J/mol-K
+            System.out.println(" Cv_hma  (J/mol-K):   " + Constants.AVOGADRO*cvUnit.fromSim(Cv_hma/numAtoms)); // J/mol-K
+            System.out.println(" B_conv (GPa):        " + 1e-9*Pascal.UNIT.fromSim(B_conv));
+            System.out.println(" B_hma  (GPa):        " + 1e-9*Pascal.UNIT.fromSim(B_hma));
+            UnitRatio gvUnit = new UnitRatio(Pascal.UNIT, Kelvin.UNIT);
+            System.out.println(" gV_conv (GPa/K):     " + 1e-9*gvUnit.fromSim(gV_conv));//GPa/K
+            System.out.println(" gV_hma  (GPa/K):     " + 1e-9*gvUnit.fromSim(gV_hma));
+            double alphaV_conv = gV_conv/B_conv;
+            System.out.println(" alphaV_conv (K^-1):  " + 1.0/Kelvin.UNIT.fromSim(1.0/alphaV_conv));
+            double alphaV_hma = gV_hma/B_hma;
+            System.out.println(" alphaV_hma  (K^-1):  " + 1.0/Kelvin.UNIT.fromSim(1.0/alphaV_hma));
+
+
+            System.out.println(" Bs_conv (GPa):       " + 1e-9*Pascal.UNIT.fromSim((B_conv + temperature * volume * gV_conv * gV_conv / Cv_conv)));
+            System.out.println(" Bs_hma  (GPa):       " + 1e-9*Pascal.UNIT.fromSim((B_hma+temperature*volume*gV_hma*gV_hma/Cv_hma)));
 //
             System.out.println();
-            System.out.println(" C11_conv (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C11_conv));
+            System.out.println(" C11_conv     (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C11_conv));
             System.out.println(" C11_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11_conv + C22_conv + C33_conv)));
 
-            System.out.println(" C11_hma (GPa):  "      + 1e-9*Pascal.UNIT.fromSim(C11_hma));
-            System.out.println(" C11_hma_avg (GPa):  "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11_hma + C22_hma + C33_hma)));
+            System.out.println(" C11_hma     (GPa):   "      + 1e-9*Pascal.UNIT.fromSim(C11_hma));
+            System.out.println(" C11_hma_avg (GPa):   "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11_hma + C22_hma + C33_hma)));
 
             System.out.println();
-            System.out.println(" C12_conv (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C12_conv));
+            System.out.println(" C12_conv     (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C12_conv));
             System.out.println(" C12_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12_conv + C13_conv + C23_conv)));
 
-            System.out.println(" C12_hma (GPa):  "      + 1e-9*Pascal.UNIT.fromSim(C12_hma));
-            System.out.println(" C12_hma_avg (GPa):  "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12_hma + C13_hma + C23_hma)));
+            System.out.println(" C12_hma     (GPa):   "      + 1e-9*Pascal.UNIT.fromSim(C12_hma));
+            System.out.println(" C12_hma_avg (GPa):   "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12_hma + C13_hma + C23_hma)));
 
             System.out.println();
-            System.out.println(" C44_conv (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C44_conv));
+            System.out.println(" C44_conv     (GPa):  "     + 1e-9*Pascal.UNIT.fromSim(C44_conv));
             System.out.println(" C44_conv_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_conv + C55_conv + C66_conv)));
 
-            System.out.println(" C44_hma (GPa):  "      + 1e-9*Pascal.UNIT.fromSim(C44_hma));
-            System.out.println(" C44_hma_avg (GPa):  "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_hma + C55_hma + C66_hma)));
-//            System.out.println();
-//            System.out.println(" b11_conv     " + b11_conv);
-//            System.out.println(" b22_conv     " + b22_conv);
-//            System.out.println(" b11_conv_avg " + 1.0/3.0*(b11_conv + b22_conv + b33_conv));
-//            System.out.println(" b11_hma      " + b11_hma);
-//            System.out.println(" b22_hma      " + b22_hma);
-//            System.out.println(" b11_hma_avg  " + 1.0/3.0*(b11_hma + b22_hma + b33_hma));
+            System.out.println(" C44_hma     (GPa):   "      + 1e-9*Pascal.UNIT.fromSim(C44_hma));
+            System.out.println(" C44_hma_avg (GPa):   "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_hma + C55_hma + C66_hma)));
+            System.out.println();
+
+            System.out.println(" gV_conv     (GPa/K):  " + 1e-9*gvUnit.fromSim(gV_conv));//GPa/K
+            System.out.println(" b11_conv    (GPa/K): " + 1e-9*gvUnit.fromSim(b11_conv));
+            System.out.println(" b11_conv_avg  (GPa): " + 1e-9*gvUnit.fromSim(1.0/3.0*(b11_conv + b22_conv + b33_conv)));
+            System.out.println(" b11_hma     (GPa/K): " + 1e-9*gvUnit.fromSim(b11_hma));
+            System.out.println(" b11_hma_avg (GPa/K): " + 1e-9*gvUnit.fromSim(1.0/3.0*(b11_hma + b22_hma + b33_hma)));
 //
-//            //Adiabatic Cij
-//            double CijCor_conv = temperature*volume/Cv_conv*gV_conv*gV_conv;
-//            double CijCor_hma  = temperature*volume/Cv_hma*gV_conv*gV_conv;
-//            double C11s_conv = C11_conv + CijCor_conv;
-//            double C11s_hma  = C11_hma  + CijCor_hma;
-//            double C22s_conv = C22_conv + CijCor_conv;
-//            double C22s_hma  = C22_hma  + CijCor_hma;
-//            double C33s_conv = C33_conv + CijCor_conv;
-//            double C33s_hma  = C33_hma  + CijCor_hma;
-//            double C12s_conv = C12_conv + CijCor_conv;
-//            double C12s_hma  = C12_hma  + CijCor_hma;
-//            double C13s_conv = C13_conv + CijCor_conv;
-//            double C13s_hma  = C13_hma  + CijCor_hma;
-//            double C23s_conv = C23_conv + CijCor_conv;
-//            double C23s_hma  = C23_hma  + CijCor_hma;
-//
-//            System.out.println("\n Adiabatic Cij");
-//            System.out.println(" C11s_conv     " + C11s_conv);
-//            System.out.println(" C11s_conv_avg " + 1.0/3.0*(C11s_conv + C22s_conv + C33s_conv));
-//            System.out.println(" C11s_hma      " + C11s_hma);
-//            System.out.println(" C11s_hma_avg  " + 1.0/3.0*(C11s_hma + C22s_hma + C33s_hma));
-//            System.out.println();
-//            System.out.println(" C12s_conv     " + C12s_conv);
-//            System.out.println(" C12s_conv_avg " + 1.0/3.0*(C12s_conv + C13s_conv + C23s_conv));
-//            System.out.println(" C12s_hma      " + C12s_hma);
-//            System.out.println(" C12s_hma_avg  " + 1.0/3.0*(C12s_hma + C13s_hma + C23s_hma));
-//            System.out.println();
+            //Adiabatic Cij
+            double CijCor_conv = temperature*volume/Cv_conv*gV_conv*gV_conv;
+            double CijCor_hma  = temperature*volume/Cv_hma*gV_conv*gV_conv;
+            double C11s_conv = C11_conv + CijCor_conv;
+            double C11s_hma  = C11_hma  + CijCor_hma;
+            double C22s_conv = C22_conv + CijCor_conv;
+            double C22s_hma  = C22_hma  + CijCor_hma;
+            double C33s_conv = C33_conv + CijCor_conv;
+            double C33s_hma  = C33_hma  + CijCor_hma;
+            double C12s_conv = C12_conv + CijCor_conv;
+            double C12s_hma  = C12_hma  + CijCor_hma;
+            double C13s_conv = C13_conv + CijCor_conv;
+            double C13s_hma  = C13_hma  + CijCor_hma;
+            double C23s_conv = C23_conv + CijCor_conv;
+            double C23s_hma  = C23_hma  + CijCor_hma;
+
+            System.out.println("\n Adiabatic Cij");
+            System.out.println(" C11s_conv (GPa):     " + 1e-9*Pascal.UNIT.fromSim(C11s_conv));
+            System.out.println(" C11s_conv_avg (GPa): " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11s_conv + C22s_conv + C33s_conv)));
+            System.out.println(" C11s_hma (GPa):      " + 1e-9*Pascal.UNIT.fromSim(C11s_hma));
+            System.out.println(" C11s_hma_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C11s_hma + C22s_hma + C33s_hma)));
+            System.out.println();
+            System.out.println(" C12s_conv (GPa):     " + 1e-9*Pascal.UNIT.fromSim(C12s_conv));
+            System.out.println(" C12s_conv_avg (GPa): " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12s_conv + C13s_conv + C23s_conv)));
+            System.out.println(" C12s_hma (GPa):      " + 1e-9*Pascal.UNIT.fromSim(C12s_hma));
+            System.out.println(" C12s_hma_avg (GPa):  " + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C12s_hma + C13s_hma + C23s_hma)));
+            System.out.println();
         }
 
         long endTime = System.currentTimeMillis();
@@ -455,10 +470,12 @@ public class SimLREPHMA extends Simulation {
         public boolean doD2 = true;
 
         public double dt = 1.0;
-        public int numAtoms = 256;
+        public int numAtoms = 500;
         public long numSteps = 2000;
-        public double temperatureK = 500;
+        public double temperatureK = 300;
         public double density0 = 0.08502338387498792;
+        public double dP=28.7622;
+        public double dB=-7.8;
         //EAM: DB - rho=0.08502338387498792
         public double gV=1.404500637647537;
         public double gVV=3.131965483325428;
@@ -472,7 +489,18 @@ public class SimLREPHMA extends Simulation {
         public double gx12=-0.721140067130724;
         public double gz12=-4.342584087701786;
 
-        public double dP=28.7622;
-        public double dB=-7.8;
+        //EAM: FB - rho=0.08502338387498792
+//        public double gV=1.665191135820476;
+//        public double gVV=1.744027161038234;
+//        public double gx1=2.218272165051940;
+//        public double gy1=1.514827142811007;
+//        public double gx11=10.263285896692766;
+//        public double gy11=-2.828872977179797;
+//        public double gy4=1.514827142815689;
+//        public double gx44=2.538760288462838;
+//        public double gy44-0.502663712521145;
+//        public double gx12=1.628531514391176;
+//        public double gz12=7.128162834496251;
+
     }
 }

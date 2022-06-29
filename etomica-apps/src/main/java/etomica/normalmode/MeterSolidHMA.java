@@ -19,7 +19,6 @@ import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.units.Pascal;
 import etomica.units.dimensions.Null;
 
 public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
@@ -40,12 +39,12 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected double virial2;
     protected double virialx, virialy, virialz, virialxy, virialxz, virialyz;
 
-    protected double[] virialXYZ, virial2XYZ;
     protected double x_Hxx_x, y_Hyy_y, z_Hzz_z;
     protected double x_Hxy_y, x_Hxz_z, y_Hyz_z;
     protected double x_Hyx_y, x_Hzx_z, y_Hzy_z;
 
     protected double[] rdotHrdot =  new double[9];
+    protected double[] drHrdot =  new double[3];
     protected double rx1Hdr1, ry2Hdr2, rz3Hdr3;
     protected double rx1Hdr2, rx1Hdr3, ry2Hdr3, ry2Hdr1, rz3Hdr1, rz3Hdr2;
     protected double ry3z2Hdr4, rx3z1Hdr5, rx2y1Hdr6;
@@ -79,7 +78,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         box = coordinateDefinition.getBox();
         latticeEnergy = potentialCompute.computeAll(false);
         latticePressure = -potentialCompute.getLastVirial() / (box.getBoundary().volume() * dim);
-        int nData = doD2 ? 37 : 16;
+        int nData = doD2 ? 41 : 16;
 
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{nData});
         dataInfo.addTag(tag);
@@ -100,35 +99,14 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         dP = elasticParams[11];
         dB = elasticParams[12];
 
-        System.out.println(" gV: " + gV + " gVV: " + gVV);
-        System.out.println(" gx1: " + gx1 + " gy1: " + gy1 + " gy4 " + gy4);
-        System.out.println(" gx11: " + gx11 + " gy11: " + gy11 + " gx44 " + gx44);
-        System.out.println(" gy44: " + gy44 + " gx12: " + gx12 + " gz12 " + gz12);
-        System.out.println(" dP: " + dP + " dB: "+ dB);
-
-
-
         int numAtoms = box.getMoleculeList().size();
         double V = box.getBoundary().volume();
         double rho = numAtoms / V;
-
-//        gV = 0.894175378798851;// DB
-//        gVV=1.658811488865302; //DB
-
-//        gV = 1.282981055972710;//FB
-//        gVV = 0.464931126443066;//FB
-
-        mV = gV - 1.0 / 3.0;
-        mVV = gVV + gV * gV + 2.0 / 9.0;
-
-        //fitting: N=500, rho=0.1
-
         fV = (dP/temperature-rho)/(3*(numAtoms-1));
         fVV = fV*fV - (dB/temperature-rho)/(3*V*(numAtoms-1)) + 2.0*fV/(3.0*V);
 
-//        mVV = mV*mV - V*(dB/temperature-rho)/(3*(numAtoms-1));
-//        gVV = mVV - gV*gV -2.0/3.0;
-
+        mV = gV - 1.0 / 3.0;
+        mVV = gVV + gV * gV + 2.0 / 9.0;
         mT = 1.0 / (2.0 * temperature);
         mVT = mT * (mV + 1.0 / 3.0);
         mx1 = gx1 - 1.0;
@@ -504,21 +482,17 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             x[35] = virial2XYZ[8] / V + rho * temperature;
             x[36] = (virial2XYZ[8] + rdotHrdot[8] - Frddot66 - 2.0*dF6rdot6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 
-//            //b_V
+//            //g_V
 //            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drHdr - 1.0 / 3.0 * rHdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
-
-
-
-
-            //  rHdr -> -3 dFdeV/V
-//            x[19] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drHdr + dFdeVdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
-
-
+            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drHdr + dFdeVdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
 
 //            //b_mn
-//            x[38] = 1.0 / V * (-Frddot1T + mT * drHdr1 + mT * rx1Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-//            x[39] = 1.0 / V * (-Frddot2T + mT * drHdr2 + mT * ry2Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-//            x[40] = 1.0 / V * (-Frddot3T + mT * drHdr3 + mT * rz3Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[38] = 1.0 / V * (mT * drHdr1 - Frddot1T +  mT * rx1Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[39] = 1.0 / V * (mT * drHdr2 - Frddot2T + mT * ry2Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[40] = 1.0 / V * (mT * drHdr3 - Frddot3T + mT * rz3Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[38] = 1.0 / V * (mT * drHrdot[0] - Frddot1T - mT * dF1rdot1) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[39] = 1.0 / V * (mT * drHrdot[1] - Frddot2T + mT * dF2rdot2) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[40] = 1.0 / V * (mT * drHrdot[2] - Frddot3T + mT * dF3rdot3) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
         }
 
         return data;
@@ -670,7 +644,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         box.getBoundary().nearestImage(dri);
         box.getBoundary().nearestImage(drj);
 
-    //dri.Hij.drj
+    //drHdr
         Vector tmpV = space.makeVector();
         tmpV.E(drj);
         Hij.transform(tmpV); //Hij.drj
@@ -685,10 +659,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         Hij.transform(tmpV);
         drHdr -= drj.dot(tmpV);
 
-
         Vector[] ridot = mapVel(dri);
         Vector[] rjdot = mapVel(drj);
-
 //        dr1Hdr1 , dr2Hdr2 , dr3Hdr3
 //        dr1Hdr2 , dr1Hdr3 , dr2Hdr3
 //        dr4Hdr4 , dr5Hdr5 , dr6Hdr6
@@ -713,16 +685,23 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 indCount++;
             }
         }
-        //dr1Hdr1
-//        tmpV.E(rjdot[0]);
-//        Hij.transform(tmpV); //Hij.drj
-//        dr1Hdr1 += 2.0*ridot[0].dot(tmpV);
-//        tmpV.E(ridot[0]);
-//        Hij.transform(tmpV);
-//        dr1Hdr1 -= ridot[0].dot(tmpV);
-//        tmpV.E(rjdot[0]);
-//        Hij.transform(tmpV);
-//        dr1Hdr1 -= rjdot[0].dot(tmpV);
+
+        //drHrdot1
+        for (int l=0; l<3; l++) {
+            tmpV = space.makeVector();
+            tmpV.E(rjdot[l]);
+            Hij.transform(tmpV); //Hij.drj
+            drHrdot[l] += 2.0*dri.dot(tmpV);
+            //self term
+            //dri.Hij.dri
+            tmpV.E(dri);
+            Hij.transform(tmpV);
+            drHrdot[l] -= dri.dot(tmpV);
+            //drj.Hij.drj
+            tmpV.E(rjdot[l]);
+            Hij.transform(tmpV);
+            drHrdot[l] -= rjdot[l].dot(tmpV);
+        }
     }
 
 
@@ -802,6 +781,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         rddot[8].setX(1, mx12 * dr.getX(1));
         rddot[8].setX(2, mz12 * dr.getX(2));
 
+        //b_mn
         rddot[9].setX(0, mx1T * dr.getX(0));
         rddot[9].setX(1, my1T * dr.getX(1));
         rddot[9].setX(2, my1T * dr.getX(2));
