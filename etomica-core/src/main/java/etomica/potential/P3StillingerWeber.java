@@ -151,6 +151,62 @@ public class P3StillingerWeber implements IPotential3 {
         return u1;
     }
 
+    public double[][] d2u(Vector drAB, Vector drAC, Vector drBC, IAtom atomA, IAtom atomB, IAtom atomC) {
+        double RAB2 = drAB.squared();
+        double RAC2 = drAC.squared();
+        double RBC2 = drBC.squared();
+        if (RAB2*RAC2*RBC2 == 0 || RAB2 > range2 || RAC2 > range2) return new double[12][12];
+
+        double RAB = Math.sqrt(RAB2);
+        double RAC = Math.sqrt(RAC2);
+        double RBC = Math.sqrt(RBC2);
+
+        double costhetaA = (RAB2 + RAC2 - RBC2)/(2*RAC*RAB);
+        if (costhetaA == 0) costhetaA = 1e-9;
+        // costhetaB and C aren't going to be used by forceHelper but they're easy enough to compute here
+        double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
+        if (costhetaB == 0) costhetaB = 1e-9;
+        double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
+        if (costhetaC == 0) costhetaC = 1e-9;
+
+        int t1 = atomA.getType().getIndex();
+        int t2 = atomB.getType().getIndex();
+        int t3 = atomC.getType().getIndex();
+        double l1 = lambda[t2][t1][t3];
+        double e1 = epsilon[t2][t1][t3];
+        double c01 = costheta0[t2][t1][t3];
+        double g12 = gamma[t1][t2], g13 = gamma[t1][t3];
+        double a12 = a[t1][t2], a13 = a[t1][t3];
+        double s12 = sigma[t1][t2], s13 = sigma[t1][t3];
+        double arg = g12/(RAB/s12-a12);
+        double exp12 = arg < 0 ? Math.exp(arg) : 0;
+        double r12dexp12dr12 = -exp12*arg*RAB/s12/(RAB/s12-a12);
+        arg = g13/(RAC/s13-a13);
+        double exp13 = arg < 0 ? Math.exp(arg) : 0;
+        double r13dexp13dr13 = -exp13*arg*RAC/s13/(RAC/s13-a13);
+
+        double deltacos = costhetaA - c01;
+        double u1 = e1*l1*deltacos*deltacos*exp12*exp13;
+
+        double cosdu1dcos = deltacos!=0 ? 2*u1/deltacos*costhetaA : 0;
+
+        double r12du1dr12 = exp12>0 ? u1/exp12*r12dexp12dr12 : 0, r13du1dr13 = exp13>0 ? u1/exp13*r13dexp13dr13 : 0;
+
+        double d2u12 = exp12>0 ? u1*(r12dexp12dr12/exp12)*(r12dexp12dr12/exp12) : 0;
+        double d2u13 = exp13>0 ? u1*(r13dexp13dr13/exp13)*(r13dexp13dr13/exp13) : 0;
+        double d2u1213 = exp12>0 && exp13>0 ? u1*(r12dexp12dr12/exp12)*(r13dexp13dr13/exp13) : 0;
+
+        double d2u12cosA = exp12>0 && deltacos>0 ? 2*u1*(r12dexp12dr12/exp12)/deltacos : 0;
+        double d2u13cosA = exp13>0 && deltacos>0 ? 2*u1*(r13dexp13dr13/exp13)/deltacos : 0;
+
+        double d2ucosA = 2*e1*l1*exp12*exp13;
+
+        return hessianHelper(drAB, drAC, drBC, RAB, RAC, RBC, costhetaA, costhetaB, costhetaC, r12du1dr12, r13du1dr13,0, cosdu1dcos,0, 0,
+                             d2u12, d2u13, 0, d2u1213, 0, 0, d2u12cosA, 0, 0, d2u13cosA, 0, 0, 0,
+                0, 0, d2ucosA, 0, 0, 0, 0, 0);
+
+    }
+
     public double getRange() {
         return range;
     }
