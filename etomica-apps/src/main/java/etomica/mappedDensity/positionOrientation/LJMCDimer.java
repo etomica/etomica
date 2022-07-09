@@ -112,20 +112,20 @@ public class LJMCDimer extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // override defaults here
+            params.D = 2;
+            params.Lz = 4;
+            params.density = 0.01;
+            params.numMolecules = 10;
+            params.temperature = 1.0;
+            params.nZdata = 20;
+            params.nAngleData = 40;
 //            params.D = 2;
-//            params.Lz = 4;
-//            params.density = 0.01;
-//            params.numMolecules = 10;
+//            params.Lz = 20;
+//            params.density = 0.35;
+//            params.numMolecules = 100;
 //            params.temperature = 1.0;
 //            params.nZdata = 10;
 //            params.nAngleData = 20;
-            params.D = 2;
-            params.Lz = 20;
-            params.density = 0.35;
-            params.numMolecules = 100;
-            params.temperature = 1.0;
-            params.nZdata = 10;
-            params.nAngleData = 20;
 
         }
         if(params.D == 2) {

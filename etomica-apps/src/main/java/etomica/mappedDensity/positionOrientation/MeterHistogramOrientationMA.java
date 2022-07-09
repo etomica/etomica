@@ -114,8 +114,8 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
 
             //sum over tabulated positions and orientations
             for(int nt = 0; nt<nBinsCos; nt++) {
-                double t = cosSource.getData().getValue(nt);
-                double ti = drd - t;
+                double t = cosSource.getData().getValue(nt); //tabulated orientation, angle wrt x axis
+                double ti = drd - t; //orientation of molecule relative to tabulated orientation
                 double costi = Math.cos(ti);
                 double sinti = Math.sin(ti);
                 double cos2ti = costi*costi - sinti*sinti;
@@ -126,9 +126,11 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                     double cosh2zi = coshzi*coshzi + sinhzi*sinhzi;
                     double sinh2zi = 2*coshzi*sinhzi;
                     double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
-                    double tdot = c * 2 * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
-                    double zdot = c * 0.5 * ( -zi/Lz + 2 * (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
-                    if(zi > z) zdot -= 0.5 * c; //Heaviside term
+                    double tdot = c * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
+                    double zdot = c * 0.5 * ( -zi/Lz + (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
+                    //SJWdouble tdot = c * 2 * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
+                    //SJW double zdot = c * 0.5 * ( -zi/Lz + 2 * (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
+                    //SJW if(zi > z) zdot -= 0.5 * c; //Heaviside term
                     for(int n = 1; n < 1; n++) {//adjust upper bound to include more terms, or skip entirely
                         tdot += c * Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
                                     2.*Math.cosh(n * zi) * Math.sin(n * ti);
