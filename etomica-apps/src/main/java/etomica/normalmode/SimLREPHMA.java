@@ -423,11 +423,11 @@ public class SimLREPHMA extends Simulation {
             System.out.println(" C44_hma_avg (GPa):   "  + 1e-9*Pascal.UNIT.fromSim(1.0/3.0*(C44_hma + C55_hma + C66_hma)));
             System.out.println();
 
-            System.out.println(" gV_conv     (GPa/K):  " + 1e-9*gvUnit.fromSim(gV_conv));//GPa/K
-            System.out.println(" b11_conv    (GPa/K): " + 1e-9*gvUnit.fromSim(b11_conv));
-            System.out.println(" b11_conv_avg  (GPa): " + 1e-9*gvUnit.fromSim(1.0/3.0*(b11_conv + b22_conv + b33_conv)));
-            System.out.println(" b11_hma     (GPa/K): " + 1e-9*gvUnit.fromSim(b11_hma));
-            System.out.println(" b11_hma_avg (GPa/K): " + 1e-9*gvUnit.fromSim(1.0/3.0*(b11_hma + b22_hma + b33_hma)));
+            System.out.println(" gV_conv      (GPa/K):  " + 1e-9*gvUnit.fromSim(gV_conv));//GPa/K
+            System.out.println(" b11_conv     (GPa/K):  " + 1e-9*gvUnit.fromSim(b11_conv));
+            System.out.println(" b11_conv_avg (GPa/K):  " + 1e-9*gvUnit.fromSim(1.0/3.0*(b11_conv + b22_conv + b33_conv)));
+            System.out.println(" b11_hma      (GPa/K):  " + 1e-9*gvUnit.fromSim(b11_hma));
+            System.out.println(" b11_hma_avg  (GPa/K):  " + 1e-9*gvUnit.fromSim(1.0/3.0*(b11_hma + b22_hma + b33_hma)));
 //
             //Adiabatic Cij
             double CijCor_conv = temperature*volume/Cv_conv*gV_conv*gV_conv;
@@ -467,17 +467,18 @@ public class SimLREPHMA extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public boolean doGraphics = false;
-        public boolean doD2 = true;
+        public boolean doD2 = !true;
 
         public double dt = 1.0;
         public int numAtoms = 500;
-        public long numSteps = 2000;
+        public long numSteps = 10000;
         public double temperatureK = 300;
         public double density0 = 0.08502338387498792;
         public double dP=28.7622;
         public double dB=-7.8;
         //EAM: DB - rho=0.08502338387498792
-        public double gV=1.404500637647537;
+//        public double gV=1.404500637647537;
+        public double gV=-1.404500637647537;
         public double gVV=3.131965483325428;
         public double gx1=1.170601829131321;
         public double gy1=1.588168559881036;

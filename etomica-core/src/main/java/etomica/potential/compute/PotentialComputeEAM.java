@@ -560,7 +560,7 @@ public class PotentialComputeEAM implements PotentialCompute {
                         Hik.TE(fac);
                         fac = -(idf[i]*rdrhoki + idf[finalK]*rdrhoik)/rki2;
                         Hik.PEa1Tt1(fac, unity);
-                        pc.pairComputeHessian(i,finalK, Hik);
+                        pc.pairComputeHessian(i,finalK, Hik); //i<k
                     }
 
                     // dF/deV
@@ -632,15 +632,15 @@ public class PotentialComputeEAM implements PotentialCompute {
                         //Indirect Hij, Hik, Hkj
                         Hij.Ev1v2(rki, rkj);
                         Hij.TE(id2f[finalK]*rdrhoik*rdrhojk/rki2/rkj2);
-                        pc.pairComputeHessian(i,j,Hij);
+                        pc.pairComputeHessian(i,j,Hij);//i<j
 
                         Hik.E(Hij);
                         Hik.TE(-1);
-                        pc.pairComputeHessian(i,finalK,Hik);
+                        pc.pairComputeHessian(i,finalK,Hik);//i<>k
 
                         Hkj.E(Hij);
                         Hkj.TE(-1);
-                        pc.pairComputeHessian(finalK,j,Hkj);
+                        pc.pairComputeHessian(finalK,j,Hkj);//j<>k
 
 
                         //dF/deV

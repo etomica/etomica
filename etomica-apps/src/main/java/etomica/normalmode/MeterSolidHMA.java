@@ -19,6 +19,7 @@ import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.units.ElectronVolt;
 import etomica.units.dimensions.Null;
 
 public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
@@ -64,8 +65,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected boolean callComputeAll = true;
 
 
-    protected double sumH = 0;
-    protected int nn = 65;
+    protected double sumH;
+    protected int nn = 25;//100
 
     public MeterSolidHMA(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double temperature, boolean doD2) {
         this.doD2 = doD2;
@@ -107,7 +108,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
         mV = gV - 1.0 / 3.0;
         mVV = gVV + gV * gV + 2.0 / 9.0;
-        mT = 1.0 / (2.0 * temperature);
+        mT = 1.0 /2.0/temperature;
         mVT = mT * (mV + 1.0 / 3.0);
         mx1 = gx1 - 1.0;
         my1 = gy1;
@@ -127,6 +128,51 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         dri = space.makeVector();
         drj = space.makeVector();
         drij = space.makeVector();
+
+        if (false) {
+            potentialCompute.computeAll(true, this);
+
+            Vector dr = space.makeVector();
+            double dx = 0.0001;
+            dr.setX(0, dx);
+            double forces_00 = potentialMaster.getForces()[nn].getX(0);
+
+//                System.out.println("F00: " + forces_00);
+
+            box.getLeafList().get(0).getPosition().PEa1Tv1(-1.0, dr);
+            potentialMaster.computeAll(true, this);
+            double forces_m = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("Fm: " + forces_m);
+
+            box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
+            potentialMaster.computeAll(true, this);
+            double forces_0 = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("F0: " + forces_0);
+
+            box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
+            potentialMaster.computeAll(true, this);
+            double forces_p = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("Fp: " + forces_p);
+
+            System.out.println("H01: " + ElectronVolt.UNIT.fromSim(-(forces_p - forces_m) / 2 / dx));
+            System.out.println();
+            System.exit(0);
+        }
+
+//        Vector www = space.makeVector();
+////        for(int n=0;n<numAtoms;n++){
+////            www.Ev1Mv2(box.getLeafList().get(n).getPosition(), box.getLeafList().get(0).getPosition());
+////            System.out.println(n + " " + www);
+////        }
+//
+//        www.Ev1Mv2(box.getLeafList().get(nn).getPosition(), box.getLeafList().get(0).getPosition());
+//        System.out.println(nn + " " + www);
+//
+//        sumH = 0;
+//        potentialCompute.computeAll(true, this);
+//        System.out.println(" sumH = " + ElectronVolt.UNIT.fromSim(sumH));
+//        System.exit(0);
+
     }
 
     @Override
@@ -157,19 +203,12 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double Fdr = 0, Frdot1 = 0, Frdot2 = 0, Frdot3 = 0, Frdot4 = 0, Frdot5 = 0, Frdot6 = 0;
         double Frddot11 = 0, Frddot22 = 0, Frddot33 = 0, Frddot12 = 0, Frddot13 = 0, Frddot23 = 0, Frddot44 = 0, Frddot55 = 0, Frddot66 = 0;
         double Frddot1T = 0, Frddot2T = 0, Frddot3T = 0;
-
-
         virial2 = 0 ;
-
-
         virialx = virialy = virialz = virialxy = virialxz = virialyz = 0;
         drHdr = rHdr = 0;
         x_Hxx_x = y_Hyy_y = z_Hzz_z = x_Hxy_y = x_Hxz_z = y_Hyz_z = x_Hyx_y = x_Hzx_z = y_Hzy_z = 0;
-
-        for (int i=0; i<9; i++){
-            rdotHrdot[i] = 0;
-        }
-
+        for (int i=0; i<9; i++) rdotHrdot[i] = 0;
+        for (int i=0; i<3; i++) drHrdot[i] = 0;
         rx1Hdr1 = ry2Hdr2 = rz3Hdr3 = 0;
         drHdr1 = drHdr2 = drHdr3 = rx1Hdr = ry2Hdr = rz3Hdr = 0;
         rx1Hdr2 = rx1Hdr3 = ry2Hdr3 = ry2Hdr1 = rz3Hdr1 = rz3Hdr2 = 0;
@@ -178,8 +217,10 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double uSum;
         if (callComputeAll) {
             PotentialCallback callback = doD2 ? this : null;
-            sumH = 0;
+//            sumH = 0;
             uSum = potentialMaster.computeAll(true, callback);
+//            System.out.println("sumH: " + sumH);
+//            System.exit(0);
         } else {
             uSum = potentialMaster.getLastEnergy();
         }
@@ -198,35 +239,36 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         Vector[][] dFde = potentialMaster.getdFde();
 
 
+
         boolean debug = false;
         if(debug && wantsHessian() && dFdeV != null){
 
             if (doD2){
-//                Vector dr = space.makeVector();
-//                double dx = 0.0001;
-//                dr.setX(0, dx);
-//                double forces_00 = potentialMaster.getForces()[nn].getX(0);
-//
-////                System.out.println("F00: " + forces_00);
-//
-//                box.getLeafList().get(0).getPosition().PEa1Tv1(-1.0, dr);
-//                potentialMaster.computeAll(true, this);
-//                double forces_m = potentialMaster.getForces()[nn].getX(0);
-////                System.out.println("Fm: " + forces_m);
-//
-//                box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
-//                potentialMaster.computeAll(true, this);
-//                double forces_0 = potentialMaster.getForces()[nn].getX(0);
-////                System.out.println("F0: " + forces_0);
-//
-//                box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
-//                potentialMaster.computeAll(true, this);
-//                double forces_p = potentialMaster.getForces()[nn].getX(0);
-////                System.out.println("Fp: " + forces_p);
-//
-//                System.out.println("H01: " + (-(forces_p-forces_m)/2/dx));
-//                System.out.println();
-//                System.exit(0);
+                Vector dr = space.makeVector();
+                double dx = 0.0001;
+                dr.setX(0, dx);
+                double forces_00 = potentialMaster.getForces()[nn].getX(0);
+
+//                System.out.println("F00: " + forces_00);
+
+                box.getLeafList().get(0).getPosition().PEa1Tv1(-1.0, dr);
+                potentialMaster.computeAll(true, this);
+                double forces_m = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("Fm: " + forces_m);
+
+                box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
+                potentialMaster.computeAll(true, this);
+                double forces_0 = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("F0: " + forces_0);
+
+                box.getLeafList().get(0).getPosition().PEa1Tv1(1.0, dr);
+                potentialMaster.computeAll(true, this);
+                double forces_p = potentialMaster.getForces()[nn].getX(0);
+//                System.out.println("Fp: " + forces_p);
+
+                System.out.println("H01: " + (-(forces_p-forces_m)/2/dx));
+                System.out.println();
+                System.exit(0);
 
 //
                 double dFdeVnnx = dFdeV[nn].getX(0);
@@ -258,7 +300,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 potentialMaster.init();
 //                System.out.println(" minus1: V = " + Vm);
                 potentialMaster.computeAll(true, this);
-                double forces_m = potentialMaster.getForces()[nn].getX(0);
+                forces_m = potentialMaster.getForces()[nn].getX(0);
                 double U_m = potentialMaster.getLastEnergy();
 //                System.out.println(box.getLeafList().get(nn).getPosition());
 
@@ -267,7 +309,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 inflater.actionPerformed();
                 potentialMaster.init();
                 potentialMaster.computeAll(true, this);
-                double forces_0 = potentialMaster.getForces()[nn].getX(0);
+                forces_0 = potentialMaster.getForces()[nn].getX(0);
                 double U_0 = potentialMaster.getLastEnergy();
 
 
@@ -276,7 +318,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 inflater.actionPerformed();
                 potentialMaster.init();
                 potentialMaster.computeAll(true, this);
-                double forces_p = potentialMaster.getForces()[nn].getX(0);
+                forces_p = potentialMaster.getForces()[nn].getX(0);
                 double U_p = potentialMaster.getLastEnergy();
 //                System.out.println(box.getLeafList().get(nn).getPosition());
 
@@ -307,6 +349,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
         double dFdeVdr = 0, dF1rdot1 = 0, dF2rdot2 = 0, dF3rdot3 = 0, dF4rdot4 = 0, dF5rdot5 = 0, dF6rdot6 = 0;
         double dF1rdot2 = 0, dF1rdot3 = 0, dF2rdot3 = 0, dF2rdot1 = 0, dF3rdot1 = 0, dF3rdot2 = 0;
+        double dF1dr1 = 0 , dF2dr2 = 0 , dF3dr3 = 0;
+
         IAtomList atoms = box.getLeafList();
         for (IAtom a : atoms) {
             Vector F = forces[a.getLeafIndex()];
@@ -337,6 +381,11 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
                 dF4rdot4 += dFde[4][a.getLeafIndex()].dot(rdot[3]); //dF/de4 * rdot3
                 dF5rdot5 += dFde[2][a.getLeafIndex()].dot(rdot[4]);
                 dF6rdot6 += dFde[1][a.getLeafIndex()].dot(rdot[5]);
+
+                dF1dr1 += dFde[0][a.getLeafIndex()].dot(dri);
+                dF2dr2 += dFde[3][a.getLeafIndex()].dot(dri);
+                dF3dr3 += dFde[5][a.getLeafIndex()].dot(dri);
+
             }
 
             // F.rdot
@@ -416,13 +465,15 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             // LJ - old
             // x[18] = (virial2 + mV * mV * drHdr - mVV * Fdr + 2.0 / 3.0 * mV * rHdr - 3.0 * (N - 1) * temperature * gVV) / V + temperature / V;
             //PRE
-//            x[18] = dB + virial2/V - V*fVV*Fdr - 2.0*fV*dFdeVdr  + V*fV*fV*drHdr ;
+//            x[18] = dB + virial2/V + V*fV*fV*drHdr - V*fVV*Fdr - 2.0*fV*dFdeVdr ;//fV=mV/V ; fVV=mVV/V^2
             //PRB
             x[18] = (virial2 + mV*mV*drHdr - mVV*Fdr - 2.0*mV*dFdeVdr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
 
             // dr1Hdr1 = 0 , dr2Hdr2 = 3 , dr3Hdr3 = 5
             // dr1Hdr2 = 1 , dr1Hdr3 = 2 , dr2Hdr3 = 4
             // dr4Hdr4 = 6 , dr5Hdr5 = 7 , dr6Hdr6 = 8
+
+            //PRE: //fV=mV/V ; fVV=mVV/V^2 ; mV/V = fV  ;
 
 
             //C11
@@ -484,15 +535,18 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
 //            //g_V
 //            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drHdr - 1.0 / 3.0 * rHdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
-            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drHdr + dFdeVdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
+//PRB
+//            x[37] = 1.0 / 2.0 / V / temperature * (-mV * drHdr + gV * Fdr + dFdeVdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
+            gV = V*fV + 1/3.0;
+            x[37] = 1.0 / 2.0 / temperature * (-fV * drHdr + gV/V * Fdr + dFdeVdr/V) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
 
 //            //b_mn
 //            x[38] = 1.0 / V * (mT * drHdr1 - Frddot1T +  mT * rx1Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
 //            x[39] = 1.0 / V * (mT * drHdr2 - Frddot2T + mT * ry2Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
 //            x[40] = 1.0 / V * (mT * drHdr3 - Frddot3T + mT * rz3Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[38] = 1.0 / V * (mT * drHrdot[0] - Frddot1T - mT * dF1rdot1) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[39] = 1.0 / V * (mT * drHrdot[1] - Frddot2T + mT * dF2rdot2) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[40] = 1.0 / V * (mT * drHrdot[2] - Frddot3T + mT * dF3rdot3) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[38] = 1.0 / V * (mT * drHrdot[0] - Frddot1T - mT * dF1dr1) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[39] = 1.0 / V * (mT * drHrdot[1] - Frddot2T - mT * dF2dr2) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+            x[40] = 1.0 / V * (mT * drHrdot[2] - Frddot3T - mT * dF3dr3) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
         }
 
         return data;
@@ -501,12 +555,16 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     @Override
     //pairCompute called by potentialcompute
     public void pairCompute(int iAtom, int jAtom, Vector rij, double[] u012) { //rij = rj - ri
+//        if (iAtom < jAtom) System.out.println("Hessian: " + iAtom + "  " + jAtom);
         double du = u012[1];
         double d2u = u012[2];
         double rij2 = rij.squared();
 
+//        if (iAtom==0 || jAtom==0) System.out.println(iAtom +"  "+jAtom);
         boolean debug = false;
-        if (debug && doD2 && iAtom==0 && jAtom==nn) {
+//        if (debug && (iAtom==0 && jAtom==nn || iAtom==nn && jAtom==0 )) {
+        if (debug) {
+//        if (debug && doD2 && iAtom==0 && jAtom==nn) {
             Tensor unity = space.makeTensor();
             unity.setComponent(0, 0, 1.0);
             unity.setComponent(1, 1, 1.0);
@@ -518,9 +576,12 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             t.TE(fac);
             fac = -du/rij2;
             t.PEa1Tt1(fac, unity);
-            sumH += t.component(0,0);
-            System.out.println(t.component(0,0));
+//            sumH += t.component(0,0);
+//            System.out.println(t.component(0,0));
+
+            if(iAtom==0 || jAtom == 0) sumH += t.component(0,0);
         }
+
 
         IAtom ia = box.getLeafList().get(iAtom);
         IAtom ja = box.getLeafList().get(jAtom);
@@ -574,7 +635,19 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             rdotHrdot[6] += r1Hr2(rij, rdot[3], rdot[3], du, d2u);//C44
             rdotHrdot[7] += r1Hr2(rij, rdot[4], rdot[4], du, d2u);//C55
             rdotHrdot[8] += r1Hr2(rij, rdot[5], rdot[5], du, d2u);//C66
-//
+
+            Vector rx1 = space.makeVector();
+            rx1.setX(0, rij.getX(0));
+            Vector rx2 = space.makeVector();
+            rx2.setX(1, rij.getX(0));
+            Vector rx3 = space.makeVector();
+            rx3.setX(2, rij.getX(0));
+
+            drHrdot[0] += r1Hr2(rij, drij, rdot[0], du, d2u);
+            drHrdot[1] += r1Hr2(rij, drij, rdot[1], du, d2u);
+            drHrdot[2] += r1Hr2(rij, drij, rdot[2], du, d2u);
+
+
 //            Vector rx1 = space.makeVector();
 //            rx1.setX(0, rij.getX(0));
 //            Vector rx2 = space.makeVector();
@@ -629,12 +702,17 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         }
     }
 
-    public void pairComputeHessian(int i, int j, Tensor Hij) { // Add whatever you need to do with the hessian: elastic!
-
+    public void pairComputeHessian(int i, int j, Tensor Hij) {
         boolean debug = false;
-        if(debug && doD2 && (i==0 && j==nn) || (i==nn && j==0)){
-            sumH += Hij.component(0,0);
+//        if(debug && (i==0 && j==nn) || (i==nn && j==0)){
+        if(debug){
+
+            if(i==0 || j == 0) sumH += Hij.component(0,0);
+
         }
+//        if(debug && doD2 && (i==0 && j==nn) || (i==nn && j==0)){
+//            sumH += Hij.component(0,0);
+//        }
 
 
         IAtom ai = box.getLeafList().get(i);
@@ -691,14 +769,17 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             tmpV = space.makeVector();
             tmpV.E(rjdot[l]);
             Hij.transform(tmpV); //Hij.drj
-            drHrdot[l] += 2.0*dri.dot(tmpV);
+            drHrdot[l] += dri.dot(tmpV);
+            tmpV.E(drj);
+            Hij.transform(tmpV); //Hij.drj
+            drHrdot[l] += ridot[l].dot(tmpV);
             //self term
             //dri.Hij.dri
-            tmpV.E(dri);
+            tmpV.E(ridot[l]);
             Hij.transform(tmpV);
             drHrdot[l] -= dri.dot(tmpV);
             //drj.Hij.drj
-            tmpV.E(rjdot[l]);
+            tmpV.E(drj);
             Hij.transform(tmpV);
             drHrdot[l] -= rjdot[l].dot(tmpV);
         }
