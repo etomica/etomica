@@ -20,6 +20,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.ElectronVolt;
+import etomica.units.Unit;
 import etomica.units.dimensions.Null;
 
 public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
@@ -105,6 +106,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double rho = numAtoms / V;
         fV = (dP/temperature-rho)/(3*(numAtoms-1));
         fVV = fV*fV - (dB/temperature-rho)/(3*V*(numAtoms-1)) + 2.0*fV/(3.0*V);
+
+        System.out.println(" gV-from-fV: " + (V*fV+1/3.0));
 
         mV = gV - 1.0 / 3.0;
         mVV = gVV + gV * gV + 2.0 / 9.0;

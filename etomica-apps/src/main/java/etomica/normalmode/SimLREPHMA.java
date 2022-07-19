@@ -471,14 +471,13 @@ public class SimLREPHMA extends Simulation {
 
         public double dt = 1.0;
         public int numAtoms = 500;
-        public long numSteps = 10000;
+        public long numSteps = 2000;
         public double temperatureK = 300;
         public double density0 = 0.08502338387498792;
-        public double dP=28.7622;
+        public double dP=1.63878;
         public double dB=-7.8;
         //EAM: DB - rho=0.08502338387498792
-//        public double gV=1.404500637647537;
-        public double gV=-1.404500637647537;
+        public double gV=1.404500637647537;
         public double gVV=3.131965483325428;
         public double gx1=1.170601829131321;
         public double gy1=1.588168559881036;
