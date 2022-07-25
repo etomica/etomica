@@ -245,6 +245,10 @@ public class LJMCDimer extends Simulation {
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(pump);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogram);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA);
+            simGraphic.getController().getDataStreamPumps().add(pumpDensityProfile);
+            simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileMA);
+            simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileF);
             simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom()));
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
