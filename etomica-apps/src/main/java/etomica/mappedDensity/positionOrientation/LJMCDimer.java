@@ -218,22 +218,7 @@ public class LJMCDimer extends Simulation {
             plotDensityProfileF.setLabel("Density profile Force");
             simGraphic.add(plotDensityProfileF);
 
-            DataProcessor dpDifficulty = new DataProcessor() {
-                DataFunction data;
-
-                @Override
-                protected IData processData(IData inputData) {
-                    data.E(inputData);
-                    data.TE(Math.sqrt(sim.integrator.getStepCount()));
-                    return data;
-                }
-
-                @Override
-                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                    data = (DataFunction) inputDataInfo.makeData();
-                    return inputDataInfo;
-                }
-            };
+            DataProcessor dpDifficulty = new DataProcessorDifficulty(sim);
             avgHistogram.addDataSink(dpDifficulty, new AccumulatorAverageFixed.StatType[]{avgHistogram.ERROR});
             DataHistogramSplitter splitterErr = new DataHistogramSplitter();
             dpDifficulty.setDataSink(splitterErr);
@@ -245,10 +230,25 @@ public class LJMCDimer extends Simulation {
             plotHistogramErr.setLabel("Difficulty");
             simGraphic.add(plotHistogramErr);
 
+            DataProcessor dpDifficultyMA = new DataProcessorDifficulty(sim);
+            avgHistogramMA.addDataSink(dpDifficultyMA, new AccumulatorAverageFixed.StatType[]{avgHistogramMA.ERROR});
+            DataHistogramSplitter splitterErrMA = new DataHistogramSplitter();
+            dpDifficultyMA.setDataSink(splitterErrMA);
+            DisplayPlotXChart plotHistogramErrMA = new DisplayPlotXChart();
+            for (int i = nZdata - 1; i >= 0; i--) {
+                splitterErrMA.setDataSink(i, plotHistogramErrMA.getDataSet().makeDataSink());
+                plotHistogramErrMA.setLegend(new DataTag[]{splitterErrMA.getTag(i)}, "z=" + (0.5 * Lz - zData.getValue(i)));
+            }
+            plotHistogramErrMA.setLabel("Difficulty MA");
+            simGraphic.add(plotHistogramErrMA);
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(pump);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogram);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA);
+            simGraphic.getController().getDataStreamPumps().add(pumpDensityProfile);
+            simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileMA);
+            simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileF);
             simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom()));
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -268,6 +268,28 @@ public class LJMCDimer extends Simulation {
         public int D = 3;
         public int nZdata = 10;
         public int nAngleData = 10;
+    }
+
+    private static class DataProcessorDifficulty extends DataProcessor {
+        private final LJMCDimer sim;
+        DataFunction data;
+
+        public DataProcessorDifficulty(LJMCDimer sim) {
+            this.sim = sim;
+        }
+
+        @Override
+        protected IData processData(IData inputData) {
+            data.E(inputData);
+            data.TE(Math.sqrt(sim.integrator.getStepCount()));
+            return data;
+        }
+
+        @Override
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            data = (DataFunction) inputDataInfo.makeData();
+            return inputDataInfo;
+        }
     }
 
     // checks that molecule is in box before attempting to compute energy
