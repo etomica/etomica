@@ -165,17 +165,15 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                     double sinh2zi = 2*coshzi*sinhzi;
                     double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
                     double denomP = 1 + cos2tiP + cosh2zi + cosh2z[nz] - 4*costiP*coshz[nz]*coshzi;
-                    double tdot = c * 0.5 * ( (coshz[nz]*coshzi*sinti - costi*sinti)/denom + (coshz[nz]*coshzi*sintiP - costiP*sintiP)/denomP);
-                    double zdot = c * 0.5 * ( -zi/Lz + 0.5*(-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom + 0.5*(-2*costiP*coshz[nz]*sinhzi + sinh2zi)/denomP);
-                    //SJWdouble tdot = c * 2 * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
-                    //SJW double zdot = c * 0.5 * ( -zi/Lz + 2 * (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
-                    //SJW if(zi > z) zdot -= 0.5 * c; //Heaviside term
+                    double tdot = 0.5 * ( (coshz[nz]*coshzi*sinti - costi*sinti)/denom + (coshz[nz]*coshzi*sintiP - costiP*sintiP)/denomP);
+                    double zdot = 0.5 * ( -zi/Lz + 0.5*(-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom + 0.5*(-2*costiP*coshz[nz]*sinhzi + sinh2zi)/denomP);
+                    if(Math.abs(tdot)/Math.PI > 2) tdot = 0;
+                    if(Math.abs(zdot)/Math.PI > 2) zdot = 0;
                     for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
-                        tdot += c * Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
+                        tdot += Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
                                 2.*Math.cosh(n * zi) * Math.sin(n * ti);
                     }
-                    y[nz*nBinsCos + nt] += -(zdot*fz + tdot*torq);
-//                    if(Math.abs(Math.abs(Lz/2-z)-1)<1e-3 && Math.abs(Math.abs(t)-1.0995574287564276)<1e-5) System.out.println(Math.signum(Lz/2-z)+", "+t+", "+ti+", "+tdot);
+                    y[nz*nBinsCos + nt] += -c * (zdot*fz + tdot*torq);
                 }
             }
         }
