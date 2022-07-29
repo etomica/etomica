@@ -11,6 +11,7 @@ import etomica.data.types.DataFunction;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 
@@ -19,7 +20,8 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
     protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;
     protected DataTag tag;
-    protected DataSourceUniform perpSource, cosSource;
+    protected IDataSource perpSource;
+    protected DataSourceUniform cosSource;
     protected final Box box;
     protected int d;
     protected int nBinsCos, nBinsPerp;
@@ -28,14 +30,24 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
     protected final double[][] coshz, cosh2z;
     protected final PotentialCompute potentialCompute;
     protected final double T;
+    protected final double[] perps;
+
+    public MeterHistogramOrientationMA(PotentialCompute potentialCompute, Box box, double T, int d, int nBinsCos, double[] perps) {
+        this(potentialCompute, box, T, d, nBinsCos, perps, perps.length);
+    }
 
     public MeterHistogramOrientationMA(PotentialCompute potentialCompute, Box box, double T, int d, int nBinsPerp, int nBinsCos) {
+        this(potentialCompute, box, T, d, nBinsCos, null, nBinsPerp);
+    }
+
+    protected MeterHistogramOrientationMA(PotentialCompute potentialCompute, Box box, double T, int d, int nBinsCos, double[] perps, int nBinsPerp) {
         this.potentialCompute = potentialCompute;
         this.box = box;
         this.T = T;
         this.d = d;
         this.nBinsCos = nBinsCos;
         this.nBinsPerp = nBinsPerp;
+        this.perps = perps;
         double L = box.getBoundary().getBoxSize().getX(d);
         S = box.getBoundary().getBoxSize().getX(0);
         if(d == 3) {
@@ -46,7 +58,12 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
             c = 1 / (Math.PI * S * T);
         }
         int D = box.getSpace().D();
-        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        if (perps == null) {
+            perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        }
+        else {
+            perpSource = new DataSourceStatic("perp", Length.DIMENSION, perps);
+        }
         if(D==2) cosSource = new DataSourceUniform("angle", Null.DIMENSION, nBinsCos, -Math.PI, Math.PI, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         else cosSource = new DataSourceUniform("cosine", Null.DIMENSION, nBinsCos, 0, 1, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         coshz = new double[nBinsPerp][2];
@@ -203,5 +220,33 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
     @Override
     public DataTag getIndependentTag() {
         return null;
+    }
+
+    public class DataSourceStatic implements IDataSource {
+        protected final DataDoubleArray data;
+        protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
+        protected final DataTag tag;
+
+        public DataSourceStatic(String label, Dimension dim, double[] x) {
+            data = new DataDoubleArray(new int[]{x.length}, x);
+            tag = new DataTag();
+            dataInfo = new DataDoubleArray.DataInfoDoubleArray(label, dim, new int[]{x.length});
+            dataInfo.addTag(tag);
+        }
+
+        @Override
+        public IData getData() {
+            return data;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return tag;
+        }
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return dataInfo;
+        }
     }
 }

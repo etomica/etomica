@@ -153,6 +153,7 @@ public class LJMCDimer extends Simulation {
         MeterHistogramOrientation meterOrientation = new MeterHistogramOrientation(sim.box, 2, nZdata, nAngleData);
         MeterHistogramOrientation2 meterOrientation2 = new MeterHistogramOrientation2(sim.box, 2, nAngleData, perps, widths);
         MeterHistogramOrientationMA meterOrientationMA = new MeterHistogramOrientationMA(sim.potentialMaster, sim.box, params.temperature, 2, nZdata, nAngleData);
+        MeterHistogramOrientationMA meterOrientationMA2 = new MeterHistogramOrientationMA(sim.potentialMaster, sim.box, params.temperature, 2, nAngleData, perps);
         MeterDensityProfile meterDensity = new MeterDensityProfile(sim.box, 2, 20 * nZdata);
         MeterDensityProfileMA meterDensityMA = new MeterDensityProfileMA(sim.potentialMaster, sim.box, params.temperature, 2, 20 * nZdata);
         MeterDensityProfileForceSimple meterDensityForceSimple = new MeterDensityProfileForceSimple(sim.potentialMaster, sim.box, params.temperature, 2,  20*nZdata);
@@ -181,6 +182,19 @@ public class LJMCDimer extends Simulation {
             }
             plotHistogramMA.setLabel("HistogramsMA");
             simGraphic.add(plotHistogramMA);
+
+            AccumulatorAverageFixed avgHistogramMA2 = new AccumulatorAverageFixed(1000);
+            DataPumpListener pumpHistogramMA2 = new DataPumpListener(meterOrientationMA2, avgHistogramMA2, numMolecules);
+            sim.integrator.getEventManager().addListener(pumpHistogramMA2);
+            DataHistogramSplitter splitterMA2 = new DataHistogramSplitter();
+            avgHistogramMA2.addDataSink(splitterMA2, new AccumulatorAverageFixed.StatType[]{avgHistogramMA2.AVERAGE});
+            DisplayPlotXChart plotHistogramMA2 = new DisplayPlotXChart();
+            for (int i = perps.length - 1; i >= 0; i--) {
+                splitterMA2.setDataSink(i, plotHistogramMA2.getDataSet().makeDataSink());
+                plotHistogramMA2.setLegend(new DataTag[]{splitterMA2.getTag(i)}, "z=" + perps[i]);
+            }
+            plotHistogramMA2.setLabel("HistogramsMA #2");
+            simGraphic.add(plotHistogramMA2);
 
             // Orientation-density histogramming
             AccumulatorAverageFixed avgHistogram = new AccumulatorAverageFixed(1000);
@@ -268,6 +282,7 @@ public class LJMCDimer extends Simulation {
             simGraphic.getController().getDataStreamPumps().add(pumpHistogram);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogram2);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA2);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfile);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileMA);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileF);
