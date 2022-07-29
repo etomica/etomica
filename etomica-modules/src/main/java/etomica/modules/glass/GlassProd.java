@@ -128,9 +128,10 @@ public class GlassProd {
         //P
         IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
-            pTensorMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box, sim.integrator.getTemperature());
+            pTensorMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
         } else {
             pTensorMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
+            ((MeterPressureHardTensor)pTensorMeter).setDoNonEquilibrium(true);
         }
 
         //Viscosity

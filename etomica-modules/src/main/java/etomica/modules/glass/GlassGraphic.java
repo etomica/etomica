@@ -508,9 +508,10 @@ public class GlassGraphic extends SimulationGraphic {
 
         IDataSource pMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
-            pMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box, sim.integrator.getTemperature());
+            pMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
         } else {
             pMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
+            ((MeterPressureHardTensor)pMeter).setDoNonEquilibrium(true);
         }
         DataFork pTensorFork = new DataFork();
         DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
