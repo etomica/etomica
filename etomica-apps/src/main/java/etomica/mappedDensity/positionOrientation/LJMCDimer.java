@@ -119,13 +119,16 @@ public class LJMCDimer extends Simulation {
             params.temperature = 1.0;
             params.nZdata = 20;
             params.nAngleData = 40;
+
 //            params.D = 2;
-//            params.Lz = 20;
+//            params.Lz = 8;
 //            params.density = 0.35;
-//            params.numMolecules = 100;
+//            params.numMolecules = 40;
 //            params.temperature = 1.0;
-//            params.nZdata = 10;
-//            params.nAngleData = 20;
+//            params.nZdata = 40;
+//            params.nAngleData = 101;
+//            params.perps = new double[]{3,2.5,2,1};
+//            params.widths = new double[]{0.05,0.1,0.2,0.4};
 
         }
         if(params.D == 2) {
@@ -139,6 +142,8 @@ public class LJMCDimer extends Simulation {
         double Lz = params.Lz;
         int nZdata = params.nZdata;
         int nAngleData = params.nAngleData;
+        double[] perps = params.perps;
+        double[] widths = params.widths;
 
         final LJMCDimer sim = new LJMCDimer(D, numMolecules, density, Lz, temperature);
 
@@ -146,6 +151,7 @@ public class LJMCDimer extends Simulation {
 
         MeterPotentialEnergyFromIntegrator energy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         MeterHistogramOrientation meterOrientation = new MeterHistogramOrientation(sim.box, 2, nZdata, nAngleData);
+        MeterHistogramOrientation2 meterOrientation2 = new MeterHistogramOrientation2(sim.box, 2, nAngleData, perps, widths);
         MeterHistogramOrientationMA meterOrientationMA = new MeterHistogramOrientationMA(sim.potentialMaster, sim.box, params.temperature, 2, nZdata, nAngleData);
         MeterDensityProfile meterDensity = new MeterDensityProfile(sim.box, 2, 20 * nZdata);
         MeterDensityProfileMA meterDensityMA = new MeterDensityProfileMA(sim.potentialMaster, sim.box, params.temperature, 2, 20 * nZdata);
@@ -190,6 +196,21 @@ public class LJMCDimer extends Simulation {
             }
             plotHistogram.setLabel("Histograms");
             simGraphic.add(plotHistogram);
+
+            AccumulatorAverageFixed avgHistogram2 = new AccumulatorAverageFixed(1000);
+            DataPumpListener pumpHistogram2 = new DataPumpListener(meterOrientation2, avgHistogram2, numMolecules);
+            sim.integrator.getEventManager().addListener(pumpHistogram2);
+            DataHistogramSplitter splitter2 = new DataHistogramSplitter();
+            avgHistogram2.addDataSink(splitter2, new AccumulatorAverageFixed.StatType[]{avgHistogram2.AVERAGE});
+            DisplayPlotXChart plotHistogram2 = new DisplayPlotXChart();
+            for (int i = (widths.length*perps.length) - 1; i >= 0; i--) {
+                splitter2.setDataSink(i, plotHistogram2.getDataSet().makeDataSink());
+                int iw = i/perps.length;
+                int ip = i%perps.length;
+                plotHistogram2.setLegend(new DataTag[]{splitter2.getTag(i)}, "z=" + perps[ip]+", w="+widths[iw]);
+            }
+            plotHistogram2.setLabel("Histograms #2");
+            simGraphic.add(plotHistogram2);
 
             // Density plot -- conventional
             AccumulatorAverageFixed avgDensityProfile = new AccumulatorAverageFixed(1000);
@@ -245,6 +266,7 @@ public class LJMCDimer extends Simulation {
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(pump);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogram);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogram2);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfile);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileMA);
@@ -268,6 +290,8 @@ public class LJMCDimer extends Simulation {
         public int D = 3;
         public int nZdata = 10;
         public int nAngleData = 10;
+        public double[] perps = new double[0];
+        public double[] widths = new double[0];
     }
 
     private static class DataProcessorDifficulty extends DataProcessor {
