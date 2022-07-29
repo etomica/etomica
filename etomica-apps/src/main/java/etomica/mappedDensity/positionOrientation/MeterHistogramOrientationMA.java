@@ -130,12 +130,11 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                     double coshzi = Math.cosh(zi);
                     double sinhzi = Math.sinh(zi);
                     double cosh2zi = coshzi*coshzi + sinhzi*sinhzi;
-                    double sinh2zi = 2*coshzi*sinhzi;
                     double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
                     double denomP = 1 + cos2tiP + cosh2zi + cosh2z[nz] - 4*costiP*coshz[nz]*coshzi;
                     // 0.5 multipliers in tdot and zdot are added for extension of [0,Pi] solution to [-Pi,Pi]
                     double tdot = 0.5 *  ( sinti*(coshz[nz]*coshzi - costi)/denom + sintiP*(coshz[nz]*coshzi - costiP)/denomP);
-                    double zdot = 0.5 * ( -zi/Lz + 0.5*(-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom + 0.5*(-2*costiP*coshz[nz]*sinhzi + sinh2zi)/denomP);
+                    double zdot = 0.5 * ( -zi/Lz + sinhzi*(-costi*coshz[nz] + coshzi)/denom + sinhzi*(-costiP*coshz[nz] + coshzi)/denomP);
                     if(Math.abs(tdot)/Math.PI > 2) tdot = 0;
                     if(Math.abs(zdot)/Math.PI > 2) zdot = 0;
                  /*   for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
