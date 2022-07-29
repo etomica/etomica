@@ -101,7 +101,6 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
             //special for 2D
             if(D == 3) throw new RuntimeException("need to update torque for 3D");
             double torq = 0.5*(torque.getX(1)*dr.getX(0) - torque.getX(0)*dr.getX(1)); //fy*rx - fx*ry
-//            System.out.println(fz+", "+torq);
 
             dr.normalize();
             double drd;//= Math.abs(dr.getX(d)); // z coordinate of orientation
@@ -110,37 +109,6 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
 //            double zi = (0.5*Lz - Math.abs(xyz.getX(d))); // distance from nearer wall
             double zi = xyz.getX(d) + Lz/2;//distance from bottom wall
 
-            // get force and torque on molecule
-
-            //sum over tabulated positions and orientations
-//            for(int nt = 0; nt<nBinsCos; nt++) {
-//                double t = cosSource.getData().getValue(nt); //tabulated orientation, angle wrt x axis
-//                double ti = drd - t; //orientation of molecule relative to tabulated orientation
-//                double costi = Math.cos(ti);
-//                double sinti = Math.sin(ti);
-//                double cos2ti = costi*costi - sinti*sinti;
-//                for (int nz = 0; nz < nBinsPerp; nz++) {
-//                    double z = perpSource.getData().getValue(nz);
-//                    double coshzi = Math.cosh(zi);
-//                    double sinhzi = Math.sinh(zi);
-//                    double cosh2zi = coshzi*coshzi + sinhzi*sinhzi;
-//                    double sinh2zi = 2*coshzi*sinhzi;
-//                    double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
-//                    double tdot = c * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
-//                    double zdot = c * 0.5 * ( -zi/Lz + (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
-//                    //SJWdouble tdot = c * 2 * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
-//                    //SJW double zdot = c * 0.5 * ( -zi/Lz + 2 * (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
-//                    //SJW if(zi > z) zdot -= 0.5 * c; //Heaviside term
-//                    for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
-//                        tdot += c * Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
-//                                    2.*Math.cosh(n * zi) * Math.sin(n * ti);
-//                    }
-//                    y[nz*nBinsCos + nt] += -(zdot*fz + tdot*torq);
-////                    if(Math.abs(Math.abs(Lz/2-z)-1)<1e-3 && Math.abs(Math.abs(t)-1.0995574287564276)<1e-5) System.out.println(Math.signum(Lz/2-z)+", "+t+", "+ti+", "+tdot);
-//                }
-//            }
-//            //y[perpIdx* cosSource.getNValues() + cosIdx] += inc;
-//        }
             for(int nt = 0; nt<nBinsCos; nt++) {
                 double t = cosSource.getData().getValue(nt); //tabulated orientation, angle wrt x axis
                 double ti = drd - t; //orientation of molecule relative to tabulated orientation
@@ -148,7 +116,7 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                 double sinti = Math.sin(ti);
                 double costiP;
                 double sintiP;
-                if(true) {//revised formula based on lab-fixed origin for theta_i
+                if(false) {//revised formula based on lab-fixed origin for theta_i
                     costiP = Math.cos(drd + t);
                     sintiP = Math.sin(drd + t);
                 } else { //original formula based on theta origin for theta_i
@@ -165,14 +133,15 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                     double sinh2zi = 2*coshzi*sinhzi;
                     double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
                     double denomP = 1 + cos2tiP + cosh2zi + cosh2z[nz] - 4*costiP*coshz[nz]*coshzi;
-                    double tdot = 0.5 * ( (coshz[nz]*coshzi*sinti - costi*sinti)/denom + (coshz[nz]*coshzi*sintiP - costiP*sintiP)/denomP);
+                    // 0.5 multipliers in tdot and zdot are added for extension of [0,Pi] solution to [-Pi,Pi]
+                    double tdot = 0.5 *  ( sinti*(coshz[nz]*coshzi - costi)/denom + sintiP*(coshz[nz]*coshzi - costiP)/denomP);
                     double zdot = 0.5 * ( -zi/Lz + 0.5*(-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom + 0.5*(-2*costiP*coshz[nz]*sinhzi + sinh2zi)/denomP);
                     if(Math.abs(tdot)/Math.PI > 2) tdot = 0;
                     if(Math.abs(zdot)/Math.PI > 2) zdot = 0;
-                    for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
+                 /*   for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
                         tdot += Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
                                 2.*Math.cosh(n * zi) * Math.sin(n * ti);
-                    }
+                    }  */
                     y[nz*nBinsCos + nt] += -c * (zdot*fz + tdot*torq);
                 }
             }
