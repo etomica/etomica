@@ -28,9 +28,7 @@ public class MeterHistogramOrientation implements IDataSource, DataSourceIndepen
         this.d = d;
         Lz = box.getBoundary().getBoxSize().getX(d);
         int D = box.getSpace().D();
-        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, Lz, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
-//        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, Lz/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
-    //    cosSource = new DataSourceUniform(D==2 ? "2 angle / π" : "cosine", Null.DIMENSION, nBinsCos, 0, 1, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, Lz/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         if(D==2) {
             cosSource = new DataSourceUniform("angle", Null.DIMENSION, nBinsCos, -Math.PI, Math.PI, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
             S = box.getBoundary().getBoxSize().getX(0);
@@ -49,9 +47,7 @@ public class MeterHistogramOrientation implements IDataSource, DataSourceIndepen
     public IData getData() {
         data.E(0);
         double[] y = data.getData();
-        //double inc = (perpSource.getNValues() / Lz) * (cosSource.getNValues() / (2.*Math.PI));
-        double inc = (perpSource.getNValues() / (Lz * S)) * (cosSource.getNValues() / (2.*Math.PI));
-        double Lz = box.getBoundary().getBoxSize().getX(d);
+        double inc = (perpSource.getNValues() / (Lz/2 * S)) * (cosSource.getNValues() / (2.*Math.PI));
         int D = box.getSpace().D();
         for (IMolecule molecule : box.getMoleculeList()) {
             Vector dr = box.getSpace().makeVector();
@@ -62,15 +58,10 @@ public class MeterHistogramOrientation implements IDataSource, DataSourceIndepen
             xyz.E(atoms.get(0).getPosition());
             xyz.PEa1Tv1(0.5, dr);//location of center of dimer
 
-//            double dz = (0.5*Lz - Math.abs(xyz.getX(d)));
-//            int perpIdx = perpSource.getIndex(dz);
-            double dz = xyz.getX(d) + Lz/2;
+            double dz = Math.abs(xyz.getX(d));
             int perpIdx = perpSource.getIndex(dz);
 
-//            dr.normalize();
-//            double drd = Math.abs(dr.getX(d));
             double drd;
-//            if (D == 2) drd = Math.acos(drd)/(Math.PI/2);
             if (D == 2) drd = Math.atan2(dr.getX(1),dr.getX(0));// /(Math.PI);
             else throw new RuntimeException("not set up for 3D in MeterHistogramOrientation");
             int cosIdx = cosSource.getIndex(drd);

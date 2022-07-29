@@ -14,8 +14,6 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 
-import java.util.Random;
-
 public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndependent {
 
     protected DataFunction data;
@@ -27,7 +25,7 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
     protected int nBinsCos, nBinsPerp;
     protected double S; //area of surface
     protected final double c;
-    protected final double[] coshz, cosh2z;
+    protected final double[][] coshz, cosh2z;
     protected final PotentialCompute potentialCompute;
     protected final double T;
 
@@ -48,14 +46,19 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
             c = 1 / (Math.PI * S * T);
         }
         int D = box.getSpace().D();
-        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         if(D==2) cosSource = new DataSourceUniform("angle", Null.DIMENSION, nBinsCos, -Math.PI, Math.PI, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         else cosSource = new DataSourceUniform("cosine", Null.DIMENSION, nBinsCos, 0, 1, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
-        coshz = new double[nBinsPerp];
-        cosh2z = new double[nBinsPerp];
+        coshz = new double[nBinsPerp][2];
+        cosh2z = new double[nBinsPerp][2];
         for(int i=0; i<nBinsPerp; i++) {
-            coshz[i] = Math.cosh(perpSource.getData().getValue(i));
-            cosh2z[i] = Math.cosh(2*perpSource.getData().getValue(i));
+            for (int j=0; j<2; j++) {
+                double z = perpSource.getData().getValue(i);
+                if (j == 0) z = L/2 + z;  // from L/2 to L
+                else z = L/2 - z;         // from L/2 to 0
+                coshz[i][j] = Math.cosh(z);
+                cosh2z[i][j] = Math.cosh(2 * z);
+            }
         }
         data = new DataFunction(new int[]{nBinsPerp,nBinsCos});
         dataInfo = new DataFunction.DataInfoFunction("histogram", Null.DIMENSION, this);
@@ -76,6 +79,7 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
         Vector[] forces = potentialCompute.getForces();
         Vector torque = box.getSpace().makeVector();
         int imol = 0;
+        boolean smallLcor = false;
         for (IMolecule molecule : box.getMoleculeList()) {
             imol++;
 
@@ -126,22 +130,32 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                 double cos2ti = costi*costi - sinti*sinti;
                 double cos2tiP = costiP*costiP - sintiP*sintiP;
                 for (int nz = 0; nz < nBinsPerp; nz++) {
-                    double z = perpSource.getData().getValue(nz);
-                    double coshzi = Math.cosh(zi);
-                    double sinhzi = Math.sinh(zi);
-                    double cosh2zi = coshzi*coshzi + sinhzi*sinhzi;
-                    double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
-                    double denomP = 1 + cos2tiP + cosh2zi + cosh2z[nz] - 4*costiP*coshz[nz]*coshzi;
-                    // 0.5 multipliers in tdot and zdot are added for extension of [0,Pi] solution to [-Pi,Pi]
-                    double tdot = 0.5 *  ( sinti*(coshz[nz]*coshzi - costi)/denom + sintiP*(coshz[nz]*coshzi - costiP)/denomP);
-                    double zdot = 0.5 * ( -zi/Lz + sinhzi*(-costi*coshz[nz] + coshzi)/denom + sinhzi*(-costiP*coshz[nz] + coshzi)/denomP);
-                    if(Math.abs(tdot)/Math.PI > 2) tdot = 0;
-                    if(Math.abs(zdot)/Math.PI > 2) zdot = 0;
-                 /*   for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
-                        tdot += Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
-                                2.*Math.cosh(n * zi) * Math.sin(n * ti);
-                    }  */
-                    y[nz*nBinsCos + nt] += -c * (zdot*fz + tdot*torq);
+                    for (int j=0; j<2; j++) {
+                        double z = 0;
+                        if (smallLcor) {
+                            z = perpSource.getData().getValue(nz);
+                            if (j == 0) z = Lz / 2 + z;  // from Lz/2 to Lz
+                            else z = Lz / 2 - z;          // from Lz/2 to 0
+                        }
+                        double coshzi = Math.cosh(zi);
+                        double sinhzi = Math.sinh(zi);
+                        double cosh2zi = coshzi * coshzi + sinhzi * sinhzi;
+                        double denom = 1 + cos2ti + cosh2zi + cosh2z[nz][j] - 4 * costi * coshz[nz][j] * coshzi;
+                        double denomP = 1 + cos2tiP + cosh2zi + cosh2z[nz][j] - 4 * costiP * coshz[nz][j] * coshzi;
+                        // 0.5 multipliers in tdot and zdot are added for extension of [0,Pi] solution to [-Pi,Pi]
+                        double tdot = 0.5 * (sinti * (coshz[nz][j] * coshzi - costi) / denom + sintiP * (coshz[nz][j] * coshzi - costiP) / denomP);
+                        double zdot = 0.5 * (-zi / Lz + sinhzi * (-costi * coshz[nz][j] + coshzi) / denom + sinhzi * (-costiP * coshz[nz][j] + coshzi) / denomP);
+                        if (Math.abs(tdot) / Math.PI > 2) tdot = 0;
+                        if (Math.abs(zdot) / Math.PI > 2) zdot = 0;
+                        if (smallLcor) {
+                            //small-L correction; adjust upper bound to include more terms, or skip entirely
+                            for (int n = 1; n < 1; n++) {
+                                tdot += Math.cosh(n * z) * (1. / Math.tanh(n * Lz) - 1) *
+                                        2. * Math.cosh(n * zi) * Math.sin(n * ti);
+                            }
+                        }
+                        y[nz * nBinsCos + nt] += -c * (zdot * fz + tdot * torq);
+                    }
                 }
             }
         }
