@@ -341,6 +341,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                 }
 
                 if (initialized && integratorMC != null) {
+                    for (IAtom atom : box.getLeafList()) {
+                        Vector dr = box.getBoundary().centralImage(atom.getPosition());
+                        atom.getPosition().PE(dr);
+                    }
                     integratorMC.reset();
                     for (int i = 0; i < mcSteps; i++) {
                         integratorMC.doStep();
