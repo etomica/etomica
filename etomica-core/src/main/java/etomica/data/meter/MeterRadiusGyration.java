@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMolecule;
-import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -24,33 +23,9 @@ public class MeterRadiusGyration extends DataSourceScalar {
 
     public MeterRadiusGyration(Space space) {
         super("Radius of Gyration", Length.DIMENSION);
-        iterator = new MoleculeIteratorAllMolecules();
         cm = space.makeVector();
         realPos = space.makeVector();
         dr = space.makeVector();
-    }
-
-    /**
-     * Mutator method for the iterator that generates the atom pairs used to
-     * tabulate the ROG. By setting this iterator the
-     * meter can be configured to compute pair distribution for any set of atom
-     * pairs. At construction the default is an instance of ApiLeafAtoms, which
-     * generates pairs from all leaf atoms in the box.
-     * 
-     * @param iter
-     */
-    public void setIterator(MoleculeIteratorAllMolecules iter) {
-        iterator = iter;
-    }
-
-    /**
-     * Accessor method for the iterator that generates the atom pairs used to
-     * tabulate the ROG
-     * 
-     * @return
-     */
-    public MoleculeIteratorAllMolecules getIterator() {
-        return iterator;
     }
 
     public double getDataAsScalar() {
@@ -58,12 +33,9 @@ public class MeterRadiusGyration extends DataSourceScalar {
             throw new IllegalStateException(
                     "must call setBox before using meter");
         Boundary boundary = box.getBoundary();
-        iterator.setBox(box);
-        iterator.reset();
         int nLeafAtomsTot = 0;
         double r2Tot = 0.0;
-        for (IMolecule molecule = iterator.nextMolecule(); molecule != null;
-             molecule = iterator.nextMolecule()) {
+        for (IMolecule molecule : box.getMoleculeList()) {
             // loop over molecules
             IAtomList childList = molecule.getChildList();
             if (childList.size() < 2) {
@@ -95,8 +67,9 @@ public class MeterRadiusGyration extends DataSourceScalar {
             cm.TE(1.0 / nLeafAtoms);
             // calculate Rg^2 for this chain
             double r2 = 0.0;
+            prevPosition = firstAtom.getPosition();
             realPos.E(firstAtom.getPosition());
-            for (int iChild = 1; iChild < childList.size(); iChild++) {
+            for (int iChild = 0; iChild < childList.size(); iChild++) {
                 IAtom a = childList.get(iChild);
                 Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
@@ -130,9 +103,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         this.box = box;
     }
 
-    private static final long serialVersionUID = 1L;
     private Box box;
-    private MoleculeIteratorAllMolecules iterator;
     private final Vector cm, realPos;
     private final Vector dr;
 

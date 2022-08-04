@@ -5,9 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 
 /**
  * MCMove parent class for moves that operate on a single Box.
@@ -16,13 +13,12 @@ import etomica.atom.iterator.AtomIteratorNull;
  */
 public abstract class MCMoveBox extends MCMove {
 
-    public MCMoveBox(PotentialMaster potentialMaster) {
-        this(potentialMaster, new MCMoveTracker());
+    public MCMoveBox() {
+        this(new MCMoveTracker());
     }
 
-    public MCMoveBox(PotentialMaster potentialMaster,
-            MCMoveTracker acceptanceTracker) {
-        super(potentialMaster, acceptanceTracker);
+    public MCMoveBox(MCMoveTracker acceptanceTracker) {
+        super(acceptanceTracker);
         perParticleFrequency = false;
     }
 
@@ -41,15 +37,6 @@ public abstract class MCMoveBox extends MCMove {
         return box;
     }
 
-    public AtomIterator affectedAtoms(Box aBox) {
-        if (box == aBox) {
-            return affectedAtoms();
-        }
-        return AtomIteratorNull.INSTANCE;
-    }
-
-    public abstract AtomIterator affectedAtoms();
-    
     public double energyChange(Box aBox) {
         if (box == aBox) {
             return energyChange();

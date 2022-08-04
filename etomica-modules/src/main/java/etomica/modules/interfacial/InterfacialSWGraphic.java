@@ -4,10 +4,13 @@
 
 package etomica.modules.interfacial;
 
+import etomica.action.AtomActionRandomizeVelocity;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -17,15 +20,14 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
-import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
+import etomica.modifier.ModifierBoolean;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionGeometricCenterPBC;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
@@ -54,16 +56,16 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected final DeviceSlider xSlider;
     protected final MeterProfileByVolume densityProfileMeter, surfactantProfileMeter;
     protected final MeterProfileByAtoms orientationProfileMeter;
-    protected final MeterProfile muProfileMeter;
+    protected final MeterProfileByAtoms muProfileMeter;
     protected final DataPumpListener surfactantProfilePump, orientationProfilePump;
-    protected final DisplayPlot profilePlot, orientationPlot;
+    protected final DisplayPlotXChart profilePlot, orientationPlot;
     protected InterfacialSW sim;
     protected boolean isExpanded;
     private DeviceThermoSlider temperatureSelect;
 
-    public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
+    public InterfacialSWGraphic(final InterfacialSW simulation) {
 
-        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, simulation.getSpace().D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -73,6 +75,23 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.leafType, Color.RED);
         colorScheme.setColor(sim.headType, new Color(190, 0, 190));
         colorScheme.setColor(sim.tailType, Color.BLUE);
+        colorScheme.setColor(sim.ghostType, new Color(1f, 0.8f, 0f, 0.3f));
+
+        DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
+        diameterHash.setDiameter(sim.ghostType, 0);
+
+        DeviceCheckBox ghostCheckbox = new DeviceCheckBox(sim.getController(), "ghost atoms visible", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                diameterHash.setDiameter(sim.ghostType, b ? 1.0 : 0.0);
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return diameterHash.getDiameter(sim.ghostType) > 0;
+            }
+        });
+        ghostCheckbox.getCheckBox().setEnabled(false);
 
         final double expansionFac = 3;
         isExpanded = false;
@@ -84,25 +103,43 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
             public void actionPerformed() {
                 dim.E(sim.box.getBoundary().getBoxSize());
-                dim.setX(0, expansionFac * dim.getX(0));
+                double L = expansionFac * dim.getX(0);
+                dim.setX(0, L);
                 sim.box.getBoundary().setBoxSize(dim);
 
-                int numSurfactants = (int)nSurfactantSlider.getValue();
+                sim.box.setNMolecules(sim.speciesGhost, 100);
+                RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, sim.getRandom());
+                AtomActionRandomizeVelocity thermalizer = new AtomActionRandomizeVelocity(sim.integrator.getTemperature(), sim.getRandom());
+                positionSource.setBox(sim.box);
+                double dx = L / 100;
+                IMoleculeList ghosts = sim.box.getMoleculeList(sim.speciesGhost);
+                for (int i = 0; i < 100; i++) {
+                    double x = (i + 0.5) * dx;
+                    IAtomKinetic a = (IAtomKinetic) ghosts.get(i).getChildList().get(0);
+                    Vector p = a.getPosition();
+                    p.E(positionSource.randomPosition());
+                    p.setX(0, x);
+                    thermalizer.actionPerformed(a);
+                    Vector v = a.getVelocity();
+                    v.setX(0, 0);
+                }
+
+                int numSurfactants = (int) nSurfactantSlider.getValue();
                 Box pretendBox = new Box(space);
-                dim.setX(0, dim.getX(0)/expansionFac);
+                dim.setX(0, dim.getX(0) / expansionFac);
                 pretendBox.getBoundary().setBoxSize(dim);
                 sim.addBox(pretendBox);
                 pretendBox.setNMolecules(sim.surfactant, numSurfactants);
                 configLattice.initializeCoordinates(pretendBox);
                 IMoleculeList surfactants = pretendBox.getMoleculeList(sim.surfactant);
-                for (int i=0; i<numSurfactants; i++) {
+                for (int i = 0; i < numSurfactants; i++) {
                     IMolecule surfactant = surfactants.get(0);
                     pretendBox.removeMolecule(surfactant);
                     double deltaX = 0.55 * dim.getX(0);
                     if (surfactant.getChildList().get(0).getPosition().getX(0) < 0) {
                         deltaX = -deltaX;
                     }
-                    for (int j=0; j<2; j++) {
+                    for (int j = 0; j < 2; j++) {
                         Vector pos = surfactant.getChildList().get(j).getPosition();
                         pos.setX(0, pos.getX(0) + deltaX);
                     }
@@ -110,7 +147,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
                 sim.removeBox(pretendBox);
 
-                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 sim.integrator.reset();
 
                 if (numSurfactants > 0) {
@@ -128,12 +164,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 orientationProfileMeter.reset();
                 muProfileMeter.reset();
 
+                ghostCheckbox.getCheckBox().setEnabled(true);
+
                 isExpanded = true;
             }
         };
         expandButton.setAction(expandAction);
         expandButton.setLabel("Expand");
-        ((JPanel)getController().graphic()).add(expandButton.graphic());
+        ((JPanel) getController().graphic()).add(expandButton.graphic());
 
         // the reinitialize's preAction halts the integrator 
         final IAction oldPreAction = getController().getReinitButton().getPreAction();
@@ -161,8 +199,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 surfactantProfileMeter.reset();
                 orientationProfileMeter.reset();
                 muProfileMeter.reset();
-                
-                if ((int)nSurfactantSlider.getValue() > 0) {
+
+                if ((int) nSurfactantSlider.getValue() > 0) {
                     sim.integrator.getEventManager().removeListener(surfactantProfilePump);
                     sim.integrator.getEventManager().removeListener(orientationProfilePump);
                     profilePlot.getDataSet().reset();
@@ -174,7 +212,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
             }
         });
-        
+
         IAction recenterAction = new IAction() {
             public void actionPerformed() {
                 if (!isExpanded) {
@@ -184,19 +222,19 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
                 // calculate structure factor and phase angle for lowest-frequency
                 // concentration wave (delta rho (x)).
-                
+
                 IAtomList leafAtoms = sim.box.getLeafList();
                 int nTot = leafAtoms.size();
                 double sumCos = 0, sumSin = 0;
-                double q = 2*Math.PI/L;
-                for (int i=0; i<nTot; i++) {
+                double q = 2 * Math.PI / L;
+                for (int i = 0; i < nTot; i++) {
                     Vector pos = leafAtoms.get(i).getPosition();
-                    double sinx = Math.sin(q*pos.getX(0));
-                    double cosx = Math.cos(q*pos.getX(0));
+                    double sinx = Math.sin(q * pos.getX(0));
+                    double cosx = Math.cos(q * pos.getX(0));
                     sumCos += cosx;
                     sumSin += sinx;
                 }
-                double amplitude = (2*Math.sqrt((sumCos*sumCos+sumSin*sumSin))/nTot);
+                double amplitude = (2 * Math.sqrt((sumCos * sumCos + sumSin * sumSin)) / nTot);
                 // concentration wave amplitude must be large enough to correspond
                 // to a substantial segregation (phase separation).
                 if (amplitude < 0.75) {
@@ -205,18 +243,16 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
 //                System.out.println("centering "+amplitude);
                 // phase angle = atan(sumCos/sumSin), where delta rho = 0
-                double center = -(Math.atan2(sumCos, sumSin)/q-0.25*L);
+                double center = -(Math.atan2(sumCos, sumSin) / q - 0.25 * L);
                 if (center > 1) {
                     center = 1;
-                }
-                else if (center < -1) {
+                } else if (center < -1) {
                     center = -1;
                 }
-                for (int i=0; i<nTot; i++) {
+                for (int i = 0; i < nTot; i++) {
                     Vector pos = leafAtoms.get(i).getPosition();
                     pos.setX(0, pos.getX(0) - center);
                 }
-                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
@@ -253,8 +289,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         tBox.setLabelPosition(CompassDirection.NORTH);
 
         // Number density box
-        MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+        MeterDensity densityMeter = new MeterDensity(sim.box);
         final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
         IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
@@ -285,15 +320,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         peHistory.setPushInterval(1);
         dataStreamPumps.add(pePump);
 
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 
         ePlot.getPlot().setTitle("Potential Energy History");
         ePlot.setDoLegend(false);
         ePlot.setLabel("Energy");
 
-        DataSourceTensorVirialHardProfile pMeter = new DataSourceTensorVirialHardProfile(space);
-        pMeter.setIntegrator(sim.integrator);
+        DataSourceTensorVirialHardProfile pMeter = new DataSourceTensorVirialHardProfile(sim.integrator);
         DataProcessorTensorSplitter tensorSplitter = new DataProcessorTensorSplitter();
         final DataPump pPump = new DataPump(pMeter, tensorSplitter);
         DataFork virialFork = new DataFork();
@@ -303,12 +337,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final AccumulatorAverageCollapsing[] pAccumulator = new AccumulatorAverageCollapsing[space.D()];
         final DisplayTextBoxesCAE[] pDisplay = new DisplayTextBoxesCAE[space.D()];
         String[] comp = new String[]{"x", "y", "z"};
-        for (int i=0; i<pAccumulator.length; i++) {
+        for (int i = 0; i < pAccumulator.length; i++) {
             pAccumulator[i] = new AccumulatorAverageCollapsing();
             splitter.setDataSink(i, pAccumulator[i]);
             pAccumulator[i].setPushInterval(10);
             pDisplay[i] = new DisplayTextBoxesCAE();
-            pDisplay[i].setLabel(comp[i]+" Virial");
+            pDisplay[i].setLabel(comp[i] + " Virial");
             pDisplay[i].setAccumulator(pAccumulator[i]);
         }
         IntegratorListenerAction pPumpListener = new IntegratorListenerAction(pPump);
@@ -328,7 +362,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE tensionDisplay = new DisplayTextBoxesCAE();
         tensionDisplay.setAccumulator(tensionAvg);
 
-        DataSourceVirialProfile virialProfileMeter = new DataSourceVirialProfile(pMeter);
+        DataSourceTensorVirialHardProfile.DataSourceVirialProfile virialProfileMeter = new DataSourceTensorVirialHardProfile.DataSourceVirialProfile(pMeter);
         DataFork virialProfileFork = new DataFork();
         DataPump virialProfilePump = new DataPump(virialProfileMeter, virialProfileFork);
         DataGroupSplitter virialSplitter = new DataGroupSplitter();
@@ -337,13 +371,13 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(virialProfilePumpListener);
         virialProfilePumpListener.setInterval(20);
         AccumulatorAverageFixed[] virialProfileAvg = new AccumulatorAverageFixed[space.D()];
-        DisplayPlot virialPlot = new DisplayPlot();
-        for (int i=0; i<space.D(); i++) {
+        DisplayPlotXChart virialPlot = new DisplayPlotXChart();
+        for (int i = 0; i < space.D(); i++) {
             virialProfileAvg[i] = new AccumulatorAverageFixed(10);
             virialProfileAvg[i].setPushInterval(10);
             virialSplitter.setDataSink(i, virialProfileAvg[i]);
             virialProfileAvg[i].addDataSink(virialPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{virialProfileAvg[i].AVERAGE});
-            virialPlot.setLegend(new DataTag[]{virialProfileAvg[i].getTag()}, comp[i]+" Virial");
+            virialPlot.setLegend(new DataTag[]{virialProfileAvg[i].getTag()}, comp[i] + " Virial");
         }
         virialPlot.setLabel("Virial Profile");
         add(virialPlot);
@@ -355,7 +389,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(10);
         interfacialTensionProfile.setDataSink(tensionProfileAvg);
         tensionProfileAvg.setPushInterval(10);
-        DisplayPlot tensionPlot = new DisplayPlot();
+        DisplayPlotXChart tensionPlot = new DisplayPlotXChart();
         tensionPlot.setDoLegend(false);
         tensionProfileAvg.addDataSink(tensionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{tensionProfileAvg.AVERAGE});
         tensionPlot.setLabel("Tension Profile");
@@ -387,7 +421,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         surfactantProfileAvg.setPushInterval(10);
         surfactantProfilePump = new DataPumpListener(surfactantProfileMeter, surfactantProfileAvg, 10);
         dataStreamPumps.add(surfactantProfilePump);
-        
+
         orientationProfileMeter = new MeterProfileByAtoms(space);
         orientationProfileMeter.setBox(sim.box);
         orientationProfileMeter.setSpecies(sim.surfactant);
@@ -395,18 +429,18 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         MeterOrientation meterOrientation = new MeterOrientation(space);
         meterOrientation.setBox(sim.box);
         orientationProfileMeter.setDataSource(meterOrientation);
-        orientationPlot = new DisplayPlot();
+        orientationPlot = new DisplayPlotXChart();
         orientationPlot.setDoLegend(false);
         orientationPlot.setLabel("Orientation");
         orientationPlot.getPlot().setTitle("Surfactant Orientation");
         add(orientationPlot);
         orientationProfilePump = new DataPumpListener(orientationProfileMeter, orientationPlot.getDataSet().makeDataSink(), 10);
         dataStreamPumps.add(orientationProfilePump);
-        
+
         final FitTanh fitTanh = new FitTanh();
         densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
 
-        profilePlot = new DisplayPlot();
+        profilePlot = new DisplayPlotXChart();
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         surfactantProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{surfactantProfileAvg.AVERAGE});
         fitTanh.setDataSink(profilePlot.getDataSet().makeDataSink());
@@ -422,11 +456,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final DisplayTextBox vaporDensityBox = new DisplayTextBox();
         vaporDensityBox.setLabel("Vapor density");
         final DisplayTextBox liquidDensityBox = new DisplayTextBox();
-        liquidDensityBox.setLabel("Vapor density");
+        liquidDensityBox.setLabel("Liquid density");
         final DisplayTextBox interfaceWidthBox = new DisplayTextBox();
-        interfaceWidthBox.setLabel("Vapor density");
+        interfaceWidthBox.setLabel("Interface width");
         final DisplayTextBox interfaceLocationBox = new DisplayTextBox();
-        interfaceLocationBox.setLabel("Vapor density");
+        interfaceLocationBox.setLabel("Interface location");
         JPanel fitParamsPanel = new JPanel();
         fitParamsPanel.add(vaporDensityBox.graphic());
         fitParamsPanel.add(liquidDensityBox.graphic());
@@ -451,20 +485,18 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         IntegratorListenerAction pullParamsListener = new IntegratorListenerAction(pullParams);
         sim.integrator.getEventManager().addListener(pullParamsListener);
         pullParamsListener.setInterval(10);
-        
-        DisplayPlot muPlot = new DisplayPlot();
-        muProfileMeter = new MeterProfile(space, sim.getRandom());
+
+        DisplayPlotXChart muPlot = new DisplayPlotXChart();
+        muProfileMeter = new MeterProfileByAtoms(space);
         muProfileMeter.setBox(sim.box);
-        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);
-        meterChemicalPotential.setIntegrator(sim.integrator);
-        meterChemicalPotential.setSpecies(sim.species);
+        muProfileMeter.setSpecies(sim.speciesGhost);
+        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(sim.integrator, sim.p2Ghost, sim.p2GhostHead, sim.p2GhostTail, sim.p2HeadHead.getEnergyForState(1));
         muProfileMeter.setDataSource(meterChemicalPotential);
         AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
         chemicalPotentialAverage.setPushInterval(10);
         DataPump muProfilePump = new DataPump(muProfileMeter, chemicalPotentialAverage);
-        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
+        DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential(sim.integrator);
         dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
-        dataProcessorChemicalPotential.setIntegrator(sim.integrator);
         chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{chemicalPotentialAverage.AVERAGE});
         dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
         muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "mu");
@@ -510,11 +542,10 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 if (n == 0) {
                     sim.integrator.setThermostatInterval(800);
                 } else {
-                    sim.integrator.setThermostatInterval((800+(n-1))/n);
+                    sim.integrator.setThermostatInterval((800 + (n - 1)) / n);
                 }
 
                 config.initializeCoordinates(sim.box);
-                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
@@ -531,7 +562,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
         });
 
-        nSurfactantSlider = new DeviceSlider(null);
+        nSurfactantSlider = new DeviceSlider(sim.getController());
         nSurfactantSlider.setMinimum(0);
         nSurfactantSlider.setMaximum(50);
         nSurfactantSlider.setValue(0);
@@ -552,15 +583,16 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
 
             public double getValue() {
-                return sim.p2HeadHead.getEpsilon();
+                return -sim.p2HeadHead.getEnergyForState(1);
             }
 
             public void setValue(double newValue) {
                 if (newValue < 0 || newValue > 10) {
                     throw new RuntimeException("Illegal well depth");
                 }
-                sim.p2HeadHead.setEpsilon(newValue);
-                sim.p2Head.setEpsilon(Math.sqrt(newValue));
+                sim.p2HeadHead.setEnergyForState(1, -newValue);
+                sim.p2Head.setEnergyForState(1, -Math.sqrt(newValue));
+                meterChemicalPotential.setHeadEpsilon(newValue);
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
@@ -571,7 +603,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         surfactantEpsilon.setMaximum(5);
         surfactantEpsilon.setShowValues(true);
         surfactantEpsilon.setLabel("head epsilon");
-        
+
         DeviceSlider surfactantSigma = new DeviceSlider(sim.getController());
         surfactantSigma.setShowBorder(true);
         surfactantSigma.setModifier(new Modifier() {
@@ -585,24 +617,29 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             }
 
             public double getValue() {
-                return sim.p2TailTail.getCollisionDiameter();
+                return sim.p2TailTail.getCollisionDiameter(0);
             }
 
             public void setValue(double newValue) {
                 if (newValue < 0 || newValue > 10) {
                     throw new RuntimeException("Illegal well depth");
                 }
-                sim.p2TailTail.setCollisionDiameter(newValue);
-                sim.p2Tail.setCollisionDiameter(0.5+0.5*newValue);
-                sim.p2HeadTail.setCollisionDiameter(0.5+0.5*newValue);
-                sim.p2Bond.setBondLength(0.5+0.5*newValue-0.2);
-                ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
+                sim.p2TailTail.setCollisionDiameter(0, newValue);
+                double s = 0.5 + 0.5 * newValue;
+                sim.p2Tail.setCollisionDiameter(0, s);
+                sim.p2GhostTail.setCollisionDiameter(0, s);
+                sim.p2HeadTail.setCollisionDiameter(0, s);
+                System.out.println("now bond for " + newValue + " " + s);
+                sim.p2Bond.setCollisionDiameter(0, s - 0.4);
+                sim.p2Bond.setCollisionDiameter(1, s);
+
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
                     // ignore... if the diameter is too large we can get overlap.  they'll fix themselves over time
                 }
-                ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.tailType, newValue);
+                ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.tailType, newValue);
+                getDisplayBox(sim.box).repaint();
             }
         });
         surfactantSigma.setLabel("tail diameter");
@@ -611,11 +648,10 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         surfactantSigma.setMaximum(1.6);
         surfactantSigma.setNMajor(3);
         surfactantSigma.setShowValues(true);
-        
+
         IAction reconfig = new IAction() {
             public void actionPerformed() {
                 config.initializeCoordinates(sim.box);
-                ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
@@ -638,7 +674,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         xSlider.setModifier(new ModifierBoxSize(space, sim.box, 0, reconfig));
         JPanel systemPanel = new JPanel(new GridBagLayout());
         systemPanel.add(xSlider.graphic(), vertGBC);
-        
+
         //************* Lay out components ****************//
 
 
@@ -664,21 +700,17 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 // Reset density (Density is set and won't change, but
                 // do this anyway)
                 densityPump.actionPerformed();
-                densityBox.repaint();
 
                 // Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
 //                tBox.putData(temperatureHistory.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
-                for (int i=0; i<space.D(); i++) {
+                for (int i = 0; i < space.D(); i++) {
                     pDisplay[i].putData(pAccumulator[i].getData());
-                    pDisplay[i].repaint();
                 }
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
                 getDisplayBox(sim.box).graphic().repaint();
 
@@ -690,6 +722,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
         systemPanel.add(temperatureSelect.graphic(), vertGBC);
+        systemPanel.add(ghostCheckbox.graphic(), vertGBC);
+
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("System", systemPanel);
         getPanel().controlPanel.add(tabbedPane, vertGBC);
@@ -729,28 +763,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         InterfacialSW sim = new InterfacialSW(sp);
-        InterfacialSWGraphic swGraphic = new InterfacialSWGraphic(sim, sp);
+        InterfacialSWGraphic swGraphic = new InterfacialSWGraphic(sim);
         swGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(9));
         SimulationGraphic.makeAndDisplayFrame
                 (swGraphic.getPanel(), APP_NAME);
     }
-    
-    public static class Applet extends javax.swing.JApplet {
 
-        private static final long serialVersionUID = 1L;
-
-        public void init() {
-            getRootPane().putClientProperty(
-                    "defeatSystemEventQueueCheck", Boolean.TRUE);
-            Space sp = Space3D.getInstance();
-            InterfacialSW sim = new InterfacialSW(sp);
-            InterfacialSWGraphic ljmdGraphic = new InterfacialSWGraphic(sim, sp);
-            ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
-
-            getContentPane().add(ljmdGraphic.getPanel());
-        }
-    }
-    
     /**
      * Inner class to find the total pressure of the system from the pressure
      * tensor.
@@ -766,7 +784,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         protected IData processData(IData inputData) {
             double[] x = data.getData();
-            for (int i=0; i<x.length; i++) {
+            for (int i = 0; i < x.length; i++) {
                 x[i] = ((DataTensor) inputData).x.component(i, i);
             }
             return data;
@@ -780,7 +798,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             return dataInfo;
         }
     }
-    
+
     public static class ModifierBoxSize implements Modifier {
         protected final IAction reconfig;
         protected final Vector size;
@@ -793,7 +811,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             this.reconfig = reconfig;
             size = space.makeVector();
         }
-        
+
         public Dimension getDimension() {
             return Length.DIMENSION;
         }

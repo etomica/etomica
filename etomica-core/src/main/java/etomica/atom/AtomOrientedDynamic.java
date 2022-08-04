@@ -48,6 +48,12 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         return iOrientation;
     }
 
+    public void copyCoordinatesFrom(IAtom atom) {
+        super.copyCoordinatesFrom(atom);
+        iOrientation.E(((IAtomOriented) atom).getOrientation());
+        angularVelocity.E(((IAtomOrientedKinetic) atom).getAngularVelocity());
+    }
+
     public void saveState(Writer fw) throws IOException {
         super.saveState(fw);
         int D = position.getD();

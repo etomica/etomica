@@ -4,8 +4,7 @@
 
 
 package etomica.potential;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
+
 import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -16,10 +15,10 @@ import etomica.util.Constants;
  *
  * @author Andrew Schultz
  */
-public class P2HeSimplified extends Potential2SoftSpherical {
-    
-    public P2HeSimplified(Space space) {
-        super(space);
+public class P2HeSimplified implements IPotential2 {
+
+    public static IPotential2 makeTruncated(TruncationFactory tf) {
+        return tf.make(new P2HeSimplified());
     }
 
     /**
@@ -65,9 +64,9 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     }
 
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
+    public double integral(Space space, double rC) {
         double A = 4 * Math.PI;
         double sc = 1 / rC;
         double sc2 = sc * sc;
@@ -95,7 +94,7 @@ public class P2HeSimplified extends Potential2SoftSpherical {
      *
      * @author Andrew Schultz
      */
-    public class P2HeQFH implements Potential2Spherical {
+    public class P2HeQFH implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -107,22 +106,8 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             fac = hbar*hbar/(24*mass/2)/temperature;
         }
 
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
-        }
-
         public double getRange() {
             return P2HeSimplified.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2HeSimplified.this.setBox(box);
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {
@@ -158,7 +143,7 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     public P2HeTI makeTI(double temperature) {
         return this.new P2HeTI(temperature);
     }
-    public class P2HeTI implements Potential2Spherical {
+    public class P2HeTI implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -170,22 +155,8 @@ public class P2HeSimplified extends Potential2SoftSpherical {
             fac = hbar*hbar/(24*mass/2)/(temperature*temperature);
         }
 
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
-        }
-
         public double getRange() {
             return P2HeSimplified.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2HeSimplified.this.setBox(box);
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {

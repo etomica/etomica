@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -25,24 +23,20 @@ import etomica.util.Constants;
  *  
  * @author Andrew Schultz
  */
-public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
+public class P2EffectiveFeynmanHibbs implements IPotential2 {
 
-    protected final Potential2SoftSpherical p2Classy;
+    protected final IPotential2 p2Classy;
     protected final Vector dr;
     protected Boundary boundary;
     protected double temperature;
     protected double mass;
     protected double fac;
     
-    public P2EffectiveFeynmanHibbs(Space space, Potential2SoftSpherical p2Classical) {
+    public P2EffectiveFeynmanHibbs(Space space, IPotential2 p2Classical) {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }
-    
-    public int nBody() {
-        return 2;
-    }
-    
+
     public void setTemperature(double temperature) {
         this.temperature = temperature;
         double hbar = Constants.PLANCK_H/(2*Math.PI);
@@ -57,15 +51,6 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         mass = m;
         double hbar = Constants.PLANCK_H/(2*Math.PI);
         fac = hbar*hbar/(24*m/2)/temperature;
-    }
-
-    /**
-     * Energy of the pair as given by the u(double) method
-     */
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        return u(dr.squared());
     }
 
     public double u(double r2) {
@@ -94,11 +79,6 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         return fac * (d2uc + 2 * duc) / r2 / (-temperature);  //fac includes temperature in the denominator
     }
 
-    public void setBox(Box box) {
-        p2Classy.setBox(box);
-        boundary = box.getBoundary();
-    }
-    
     public double getRange() {
         return p2Classy.getRange();
     }
@@ -106,7 +86,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(20);
-        final P2HePCKLJS p2 = new P2HePCKLJS(space);
+        final P2HePCKLJS p2 = new P2HePCKLJS();
         P2EffectiveFeynmanHibbs p2fh = new P2EffectiveFeynmanHibbs(space, p2);
         double heMass = 4.002602;
         p2fh.setMass(heMass);

@@ -5,7 +5,6 @@
 
 package etomica.models.water;
 
-import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Joule;
 import etomica.units.Mole;
@@ -15,7 +14,7 @@ import etomica.units.Mole;
  *
  * @author Andrew Schultz
  */
-public class P2WaterSPCE extends P2Water3P {
+public class P2WaterSPCE {
 
     private final static double B = 0.3428; //(kJ/mol)^1/12 . nm
     private final static double A = 0.37122; //(kJ/mol)^1/6 . nm
@@ -23,8 +22,4 @@ public class P2WaterSPCE extends P2Water3P {
     public final static double SIGMA = 10*B*B/A;
     public final static double QH = Electron.UNIT.toSim(0.4238);
     public final static double QO = -2 * QH;
-
-    public P2WaterSPCE(Space space) {
-        super(space, SIGMA, EPSILON, QO, QH);
-    }
 }

@@ -4,8 +4,8 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -22,9 +22,12 @@ import etomica.models.water.PNWaterGCPM.Component;
 import etomica.models.water.PNWaterGCPM.PNWaterGCPMCached;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialNonAdditiveDifference;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
 import etomica.units.Unit;
@@ -32,7 +35,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.wheatley.*;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -100,9 +104,10 @@ public class VirialH2OGCPMD {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
-        
-        final PNWaterGCPM pTarget = new PNWaterGCPM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
+
+        Boundary b = new BoundaryRectangularNonperiodic(space);
+        final PNWaterGCPM pTarget = new PNWaterGCPM(space, b);
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
 
@@ -120,9 +125,9 @@ public class VirialH2OGCPMD {
 
         if (nonAdditive == Nonadditive.FULL || nonAdditive == Nonadditive.TOTAL) {
             PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
-            PNWaterGCPM pFull = new PNWaterGCPM(space);
+            PNWaterGCPM pFull = new PNWaterGCPM(space, b);
             pFull.setComponent(Component.INDUCTION);
-            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
+            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(p2, pFull);
             MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);            
             targetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget,fnad, 0, nDer, nonAdditive == Nonadditive.TOTAL);
             targetClusterBD = new ClusterWheatleyMultibodyDerivativesBD(nPoints, fTarget,fnad,new MayerFunctionNonAdditive[0], precision, nDer, nonAdditive == Nonadditive.TOTAL);
@@ -187,20 +192,20 @@ public class VirialH2OGCPMD {
             sim.box[1].acceptNotify();
         }
         
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            ((ColorSchemeByType)displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(0), Color.WHITE);
-            ((ColorSchemeByType)displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(1), Color.RED);
+            ((ColorSchemeByType) displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(0), Color.WHITE);
+            ((ColorSchemeByType) displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(1), Color.RED);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
 //            displayBox1.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 //            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
 //            displayBox0.setColorScheme(colorScheme);
@@ -213,20 +218,14 @@ public class VirialH2OGCPMD {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+			sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
 
         
@@ -323,6 +322,8 @@ public class VirialH2OGCPMD {
             public void integratorInitialized(IntegratorEvent e) {}
         };
 
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+
         if (params.doHist) {
 
             final ClusterAbstractMultivalue tempcluster = targetCluster;
@@ -332,7 +333,7 @@ public class VirialH2OGCPMD {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*100) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*100) % ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();
@@ -385,7 +386,6 @@ public class VirialH2OGCPMD {
 
         sim.initRefPref(refFileName, steps/20);
         sim.equilibrate(refFileName, steps/10);
-
         System.out.println("equilibration finished");
 
         if(dorefpref){
@@ -395,12 +395,10 @@ public class VirialH2OGCPMD {
         }
 
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
-
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();

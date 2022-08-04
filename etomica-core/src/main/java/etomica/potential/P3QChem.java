@@ -4,14 +4,13 @@
 
 package etomica.potential;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
-import etomica.potential.P2QChemInterpolated.DampingParams;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class P3QChem {
 	
@@ -82,7 +81,7 @@ public class P3QChem {
 	public static void main(String[] args)  {
 		
 		Space space = Space3D.getInstance();
-		P2QChemInterpolated p2 = new P2QChemInterpolated(space);
+		P2QChemInterpolated p2 = new P2QChemInterpolated();
 		
 		P3QChem p3 = new P3QChem();
 		

@@ -1,11 +1,9 @@
 package etomica.osmoticvirial;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -15,22 +13,27 @@ import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMolecule;
-import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.cell.PotentialMasterCellMixed;
-import etomica.potential.*;
+import etomica.potential.BondingInfo;
+import etomica.potential.IPotential2;
+import etomica.potential.P2HardSphere;
+import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.NeighborManagerSimple;
+import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -44,13 +47,13 @@ import java.util.Set;
 public class AshtonWildingOsmoticVirial extends Simulation {
 
     protected Box box;
-    protected Potential2 potential1, potential2, potential12;
+    protected IPotential2 potential1, potential2, potential12;
     protected IntegratorMC integrator;
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
-    protected SpeciesSpheresMono species1, species2;
-    protected ActivityIntegrate activityIntegrate;
+    protected SpeciesGeneral species1, species2;
+
 
     /**
      * @param numAtoms no. of solute atoms in the box
@@ -58,126 +61,99 @@ public class AshtonWildingOsmoticVirial extends Simulation {
      * @param q size of solvent divided by size of solute
      * @param computeIdeal whether to compute histograms for ideal gas
      */
-    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq, boolean graphics){
+    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L, double GCfreq){
 
         super(Space3D.getInstance());
-//      setRandom(new RandomMersenneTwister(1));
-//      PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
-        PotentialMaster potentialMaster;
-        if(!computeIdeal) {
-            potentialMaster = new PotentialMasterCellMixed(this, q);
-        }
-        else{
-            potentialMaster = new PotentialMaster();
-        }
-        PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
+
+        setRandom(new RandomMersenneTwister(1));
+
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        addSpecies(species1);
+        if (vf != 0) addSpecies(species2);
 
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
-        addSpecies(species1);
-        addSpecies(species2);
-
         box = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box);
         box.setNMolecules(species1,numAtoms);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-
-        if (pmc != null) pmc.setCellRange(2);
-        potentialMaster.setPotentialHard(true);
-
-        System.out.println("vol: "+box.getBoundary().volume());
-
         if(computeIdeal) {
-            potential1 = new P2Ideal(space);
-            potential2 = new P2Ideal(space);
-            potential12 = new P2Ideal(space);
-            ((P2Ideal) potential1).setRange(1);
+            potential1 = null;
+            potential2 = null;
+            potential12 = null;
             System.out.println("P_ideal");
         }
         else{
-            potential1 = new P2HardSphere(space, sigma1, false);
-            potential2 = new P2HardSphere(space, sigma2, false);
-//            potential2 = new P2Ideal(space);
-            potential12 = new P2HardSphere(space, sigma12, false);
-//            System.out.println("AO");
-            if(vf != 0) {
-                mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
-                mcMoveInsertDelete.setSpecies(species2);
-                double mu = (8 * vf - 9 * vf * vf + 3 * vf * vf * vf) / Math.pow((1 - vf), 3) + Math.log(6 * vf / (Math.PI * Math.pow(sigma2, 3))); //Configurational chemical potential from Carnahan–Starling equation of state
-                System.out.println("mu " + mu + " muig " + Math.log(6 * vf / (Math.PI * Math.pow(sigma2, 3))));
-//              mu = Double.MAX_VALUE;
-                mcMoveInsertDelete.setMu(mu);
-                integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
-                mcMoveGeometricCluster = new MCMoveGeometricCluster(pmc, space, random, integrator, species1);
-                integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
-            }
+            potential1 = P2HardSphere.makePotential(sigma1);
+            potential2 = P2HardSphere.makePotential(sigma2);
+            potential12 = P2HardSphere.makePotential(sigma12);
         }
 
-//      potentialMaster.setCellRange(3);
-//      potentialMaster.setRange(potential1.getRange());
-//      potentialMaster.setPotentialHard(true);
-
-        AtomType leafType1 = species1.getLeafType();
-        AtomType leafType2 = species2.getLeafType();
-
-        if (potentialMaster instanceof PotentialMasterCellMixed) {
-            ((PotentialMasterCellMixed) potentialMaster).setHandledByCells(species2, true);
-            ((PotentialMasterCellMixed) potentialMaster).addUnrangedPotential(leafType1, leafType1, potential1);
-            ((PotentialMasterCellMixed) potentialMaster).addUnrangedPotential(leafType1, leafType2, potential12);
-            potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
-        } else {
-            potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
-            potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
-            potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
-
-            integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-            //To take care of positions updated by periodic boundary condition
+        PotentialComputePair potentialMaster;
+        NeighborManager neighborManager;
+        if(!computeIdeal && vf != 0) {
+            AtomType solvent = species2.getLeafType();
+            AtomType solute = species1.getLeafType();
+            neighborManager = new NeighborManagerCellMixed(getSpeciesManager(), box, 2, BondingInfo.noBonding(), solvent);
+            potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+            potentialMaster.setPairPotential(solvent, solvent, potential2);
+            potentialMaster.setPairPotential(solute, solvent, potential12);
         }
+        else{
+            neighborManager = new NeighborManagerSimple(box);
+            potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        }
+        potentialMaster.setPairPotential(species1.getLeafType(), species1.getLeafType(), potential1);
+
+        integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         if(!computeIdeal && vf != 0) {
-            mcMoveGeometricCluster.setPotential(leafType1, leafType1, potential1);
-            mcMoveGeometricCluster.setPotential(leafType1, leafType2, potential12);
-            mcMoveGeometricCluster.setPotential(leafType2, leafType2, potential2);
-            }
+            mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
+            mcMoveInsertDelete.setSpecies(species2);
+            double mu = (8 * vf - 9 * vf * vf + 3 * vf * vf * vf) / Math.pow((1 - vf), 3) + Math.log(6 * vf / (Math.PI * Math.pow(sigma2, 3))); //Configurational chemical potential from Carnahan–Starling equation of state
+            System.out.println("mu " + mu + " muig " + Math.log(6 * vf / (Math.PI * Math.pow(sigma2, 3))));
+//              mu = Double.MAX_VALUE;
+            mcMoveInsertDelete.setMu(mu);
+            integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
+            mcMoveGeometricCluster = new MCMoveGeometricCluster(potentialMaster, neighborManager, space, random, integrator,
+                    species1, potentialMaster.getPairPotentials());
+            integrator.getMoveManager().addMCMove(mcMoveGeometricCluster);
+        }
 
+        System.out.println("vol: "+box.getBoundary().volume());
 
-//      potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
-//      potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
-//      potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
-
-        // add solvents to the boxes as though there are no solutes (and add solutes as though there
-        // are no solvents).  then remove any solvents that overlap a solute
-        int nSolvent = (int) (box.getBoundary().volume() * vf / (q * q * q * Math.PI / 6));
-        box.setNMolecules(species2, nSolvent);
+        if (vf != 0) {
+            // add solvents to the boxes as though there are no solutes (and add solutes as though there
+            // are no solvents).  then remove any solvents that overlap a solute
+            int nSolvent = (int) (box.getBoundary().volume() * vf / (q * q * q * Math.PI / 6));
+            box.setNMolecules(species2, nSolvent);
+        }
 
 //      integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box, species1);
-        configuration.initializeCoordinates(box, species2);
+        if (vf != 0) configuration.initializeCoordinates(box, species2);
 
-        if (!computeIdeal){
+        potentialMaster.init();
+        if (!computeIdeal && vf != 0){
             final Set<IMolecule> overlaps = new HashSet<>();
-            PotentialCalculation overlapCheck = new PotentialCalculation() {
+            PotentialCallback overlapCheck = new PotentialCallback() {
                 @Override
-                public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-                    double u = potential.energy(atoms);
-                    if (u < Double.POSITIVE_INFINITY) return;
-                    IAtom a = atoms.get(0);
-                    if (a.getType().getSpecies() == species1) a = atoms.get(1);
+                public void pairCompute(int i, int j, Vector dr, double[] u012) {
+                    if (u012[0] < Double.POSITIVE_INFINITY) return;
+                    IAtom a = box.getLeafList().get(i);
+                    if (a.getType().getSpecies() == species1) a = box.getLeafList().get(j);
                     overlaps.add(a.getParentGroup());
                 }
             };
-            IteratorDirective id = new IteratorDirective();
-            potentialMaster.calculate(box, id, overlapCheck);
+
+            potentialMaster.computeAll(false, overlapCheck);
             for (IMolecule m : overlaps) box.removeMolecule(m);
         }
         // GCfreq yields a simulation that spends roughly equal
@@ -186,15 +162,6 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         if(!computeIdeal && vf != 0){
             integrator.getMoveManager().setFrequency(mcMoveGeometricCluster,2*GCfreq);
         }
-
-        if (pmc != null){
-            // we have cell listing.  initialize all that.
-            integrator.getMoveEventManager().addListener(pmc.getNbrCellManager(box).makeMCMoveListener());
-            pmc.getNbrCellManager(box).assignCellAll();
-        }
-
-//        integrator.setBox(box);
-//        potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
     public static void main(String[] args) throws IOException {
@@ -238,35 +205,36 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal, L, GCfreq, graphics);
+        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal, L, GCfreq);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            if (vf != 0) ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
-        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L*sim.potential1.getRange())));
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L)));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
 
-        MeterNMolecules meterNMolecules = new MeterNMolecules();
-        meterNMolecules.setSpecies(sim.species2);
-        meterNMolecules.setBox(sim.box);
-        accNm = new AccumulatorAverageFixed(samplesPerBlock);
-        DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
-        sim.integrator.getEventManager().addListener(pumpNm);
-        sim.getController().actionPerformed();
+        if (vf != 0) {
+            MeterNMolecules meterNMolecules = new MeterNMolecules();
+            meterNMolecules.setSpecies(sim.species2);
+            meterNMolecules.setBox(sim.box);
+            accNm = new AccumulatorAverageFixed(samplesPerBlock);
+            DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
+            sim.integrator.getEventManager().addListener(pumpNm);
+        }
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
@@ -277,15 +245,17 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         writer.close();
 
-        double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
-        double NmCor = accNm.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+        if (vf != 0) {
+            double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
+            double NmCor = accNm.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
 
-        double VfBox = NmAvg*q*q*q*Math.PI/6/sim.box.getBoundary().volume();
-        double VfErr = NmErr*q*q*q*Math.PI/6/sim.box.getBoundary().volume();
+            double VfBox = NmAvg * q * q * q * Math.PI / 6 / sim.box.getBoundary().volume();
+            double VfErr = NmErr * q * q * q * Math.PI / 6 / sim.box.getBoundary().volume();
 
-        System.out.print(String.format("No. of molecules avg: %13.6e  err: %11.4e   cor: % 4.2f\n", NmAvg, NmErr, NmCor));
-        System.out.print(String.format("Volume frac avg: %13.6e  err: %11.4e\n", VfBox, VfErr));
+            System.out.print(String.format("No. of molecules avg: %13.6e  err: %11.4e   cor: % 4.2f\n", NmAvg, NmErr, NmCor));
+            System.out.print(String.format("Volume frac avg: %13.6e  err: %11.4e\n", VfBox, VfErr));
+        }
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+ (t2-t1)*0.001);

@@ -4,9 +4,6 @@
 
 package etomica.potential;
 
-import etomica.potential.P2QChemInterpolated.DampingParams;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 
 public class P3AdditiveQChem {
@@ -26,8 +23,7 @@ public class P3AdditiveQChem {
 
 	public static void main(String[] args)  {
 		
-		Space space = Space3D.getInstance();
-		P2QChemInterpolated p2 = new P2QChemInterpolated(space);
+		P2QChemInterpolated p2 = new P2QChemInterpolated();
 		P3AdditiveQChem p3Add = new P3AdditiveQChem();
 		
 		DampingParams params = new DampingParams();

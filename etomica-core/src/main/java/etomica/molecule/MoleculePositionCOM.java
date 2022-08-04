@@ -12,17 +12,8 @@ import etomica.space.Vector;
 import java.io.Serializable;
 
 /**
- * Calculates the center of mass (COM) over a set of atoms. The mass and
- * position of all atoms passed to the actionPerformed are accumulated and used
- * to compute their center of mass. Calculated COM is obtained via the getData
- * method, which returns an array with the elements of the calculated COM
- * vector, or via the getCOM method, which returns a vector with the calculated
- * COM. Calculation is zeroed via the reset method.
- * <p>
- * A typical use of this class would have it passed to the allAtoms method of an
- * iterator, or wrapped in an AtomGroupAction to calculate the COM of the atoms
- * in an atom group.
- * 
+ * Calculates the center of mass (COM) over a set of atoms.
+ *
  * @author David Kofke
  */
 

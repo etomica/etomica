@@ -5,11 +5,8 @@
 package etomica.modules.droplet;
 
 import etomica.atom.AtomTest;
-import etomica.atom.IAtomList;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.atom.IAtom;
+import etomica.potential.IPotential2;
 import etomica.space.Vector;
 
 import java.util.function.Predicate;
@@ -18,51 +15,14 @@ import java.util.function.Predicate;
  * Cohesive potential for mesoscale droplet simulation
  * @author Andrew Schultz
  */
-public class P2Cohesion extends Potential2SoftSpherical implements
-        IPotentialAtomic {
+public class P2Cohesion implements IPotential2 {
 
-    public P2Cohesion(Space space) {
-        super(space);
-    }
-
-    public double energy(IAtomList atoms) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        if (useSurfaceOnly && (liquidFilter.test(atom1) || liquidFilter.test(atom2))) {
             return 0;
         }
-        return super.energy(atoms);
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            gradient[0].E(0);
-            gradient[1].E(0);
-            pressureTensor.E(0);
-            return gradient;
-        }
-        return super.gradient(atoms, pressureTensor);
-    }
-
-    public Vector[] gradient(IAtomList atoms) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            gradient[0].E(0);
-            gradient[1].E(0);
-            return gradient;
-        }
-        return super.gradient(atoms);
-    }
-
-    public double hyperVirial(IAtomList atoms) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            return 0;
-        }
-        return super.hyperVirial(atoms);
-    }
-
-    public double virial(IAtomList atoms) {
-        if (useSurfaceOnly && (liquidFilter.test(atoms.get(0)) || liquidFilter.test(atoms.get(1)))) {
-            return 0;
-        }
-        return super.virial(atoms);
+        return u(dr12.squared());
     }
 
     public double d2u(double r2) {
@@ -77,10 +37,6 @@ public class P2Cohesion extends Potential2SoftSpherical implements
             return 0;
         }
         return r2*fac*(1-r2/epsilonSq)*dv;
-    }
-
-    public double uInt(double rc) {
-        return 0;
     }
 
     public double u(double r2) {

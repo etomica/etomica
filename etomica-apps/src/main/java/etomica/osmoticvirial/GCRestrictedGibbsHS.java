@@ -4,7 +4,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCovariance;
@@ -17,13 +16,19 @@ import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
-import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.cell.PotentialMasterCellMixed;
-import etomica.potential.*;
+import etomica.potential.BondingInfo;
+import etomica.potential.IPotential2;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.P2HardSphere;
+import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.NeighborManagerSimple;
+import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -40,12 +45,12 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected IntegratorRGEMC integrator;
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete1, mcMoveInsertDelete2;
-    protected SpeciesSpheresMono species1;
-    protected SpeciesSpheresMono species2;
+    protected SpeciesGeneral species1;
+    protected SpeciesGeneral species2;
     protected Box box1, box2;
-    protected P2HardSphere potential1, potential12;
-    protected Potential2 potential2;
-    protected ActivityIntegrate activityIntegrate;
+    protected P2HardGeneric potential1, potential12;
+    protected IPotential2 potential2;
+
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -54,85 +59,91 @@ public class GCRestrictedGibbsHS extends Simulation {
     public GCRestrictedGibbsHS(double vf, double q, int numAtoms, boolean computeAO, double L, double GMIfac) {
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
-        PotentialMaster potentialMaster;
-        potentialMaster = new PotentialMasterCellMixed(this, q);
-//        potentialMaster = new PotentialMasterCell(this,1,space);
-//        potentialMaster = new PotentialMasterMonatomic(this);
-        PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
-        mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
-        mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
-
-        integrator = new IntegratorRGEMC(random, space, species1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         double sigma1 = 1; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
-        double mu = Math.log(6*vf/(Math.PI*Math.pow(sigma2,3)));
+        box1 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
+        addBox(box1);
+        box1.setNMolecules(species1, numAtoms / 2);
+        box2 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
+        addBox(box2);
+        box2.setNMolecules(species1, numAtoms - (numAtoms / 2));
 
-        potential1 = new P2HardSphere(space, sigma1, false);
-        potential12 = new P2HardSphere(space, sigma12, false);
-        if (pmc != null) pmc.setCellRange(potentialMaster instanceof PotentialMasterCellMixed ? 2 : 3);
-        potentialMaster.setPotentialHard(true);
+        potential1 = P2HardSphere.makePotential(sigma1);
+        potential12 = P2HardSphere.makePotential(sigma12);
+
+        double mu = Math.log(6*vf/(Math.PI*Math.pow(sigma2,3)));
 
         if (!computeAO){
             mu+= (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3); //Configurational chemical potential from Carnahan–Starling equation of state
-            potential2 = new P2HardSphere(space, sigma2, false);
+            potential2 = P2HardSphere.makePotential(sigma2);
         }
         else{
-            potential2 = new P2Ideal(space);
+            potential2 = null;
             System.out.println("AO");
         }
 
         System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
 
-        box1 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
-        addBox(box1);
-        box1.setNMolecules(species1,numAtoms/2);
-        integrator1 = new IntegratorMC(this, potentialMaster, box1);
+        PotentialComputePair potentialMaster1, potentialMaster2;
+        NeighborManager neighborManager1, neighborManager2;
+        AtomType solute = species1.getLeafType();
+        if (vf != 0) {
+            AtomType solvent = species2.getLeafType();
+            if (computeAO) {
+                neighborManager1 = new NeighborManagerSimple(box1);
+                neighborManager2 = new NeighborManagerSimple(box2);
+            }
+            else {
+                neighborManager1 = new NeighborManagerCellMixed(getSpeciesManager(), box1, 2, BondingInfo.noBonding(), solvent);
+                neighborManager2 = new NeighborManagerCellMixed(getSpeciesManager(), box2, 2, BondingInfo.noBonding(), solvent);
+            }
+            potentialMaster1 = new PotentialComputePair(getSpeciesManager(), box1, neighborManager1);
+            if (!computeAO) potentialMaster1.setPairPotential(solvent, solvent, potential2);
+            potentialMaster1.setPairPotential(solute, solvent, potential12);
+        }
+        else{
+            neighborManager1 = new NeighborManagerSimple(box1);
+            neighborManager2 = new NeighborManagerSimple(box2);
+            potentialMaster1 = new PotentialComputePair(getSpeciesManager(), box1, neighborManager1);
+        }
+        potentialMaster1.setPairPotential(solute, solute, potential1);
+        potentialMaster2 = new PotentialComputePair(getSpeciesManager(), box2, neighborManager2, potentialMaster1.getPairPotentials());
+
+        mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster1, random, space);
+        mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster2, random, space);
+
+        integrator = new IntegratorRGEMC(random, space, species1, potentialMaster1.getPairPotentials());
+        this.getController().addActivity(new ActivityIntegrate(integrator));
+
+        integrator1 = new IntegratorMC(potentialMaster1, random, 1, box1);
         MCMoveManager moveManager = integrator1.getMoveManager();
         if(vf != 0) {
             mcMoveInsertDelete1.setSpecies(species2);
             mcMoveInsertDelete1.setMu(mu);
-            moveManager.addMCMove(mcMoveInsertDelete1);
+//            moveManager.addMCMove(mcMoveInsertDelete1);
         }
-        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
-        integrator.addIntegrator(integrator1);
+        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster1, box1));
+        integrator.addIntegrator(integrator1, neighborManager1);
 
-        box2 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
-        addBox(box2);
-        box2.setNMolecules(species1,numAtoms - (numAtoms/2));
-        integrator2 = new IntegratorMC(this, potentialMaster, box2);
+        integrator2 = new IntegratorMC(potentialMaster2, random, 1, box2);
         moveManager = integrator2.getMoveManager();
         if(vf != 0) {
             mcMoveInsertDelete2.setSpecies(species2);
             mcMoveInsertDelete2.setMu(mu);
-            moveManager.addMCMove(mcMoveInsertDelete2);
+//            moveManager.addMCMove(mcMoveInsertDelete2);
         }
-        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
-        integrator.addIntegrator(integrator2);
+        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster2, box2));
+        integrator.addIntegrator(integrator2, neighborManager2);
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
-
-        if (potentialMaster instanceof PotentialMasterCellMixed) {
-            ((PotentialMasterCellMixed) potentialMaster).setHandledByCells(species2, true);
-            ((PotentialMasterCellMixed) potentialMaster).addUnrangedPotential(leafType1, leafType1, potential1);
-            ((PotentialMasterCellMixed) potentialMaster).addUnrangedPotential(leafType1, leafType2, potential12);
-            potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
-        } else {
-            potentialMaster.addPotential(potential1, new AtomType[]{leafType1, leafType1});
-            potentialMaster.addPotential(potential12, new AtomType[]{leafType1, leafType2});
-            potentialMaster.addPotential(potential2, new AtomType[]{leafType2, leafType2});
-        }
-        integrator.getMCMoveMoleculeExchange().setPotential(leafType1, leafType1, potential1);
-        integrator.getMCMoveMoleculeExchange().setPotential(leafType1, leafType2, potential12);
-        integrator.getMCMoveMoleculeExchange().setPotential(leafType2, leafType2, potential2);
 
         // add solvents to the boxes as though there are no solutes (and add solutes as though there
         // are no solvents).  then remove any solvents that overlap a solute
@@ -143,26 +154,39 @@ public class GCRestrictedGibbsHS extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box1, species1);
         configuration.initializeCoordinates(box1, species2);
-        final Set<IMolecule> overlaps = new HashSet<>();
-        PotentialCalculation overlapCheck = new PotentialCalculation() {
-            @Override
-            public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-                double u = potential.energy(atoms);
-                if (u < Double.POSITIVE_INFINITY) return;
-                IAtom a = atoms.get(0);
-                if (a.getType().getSpecies() == species1) a = atoms.get(1);
-                overlaps.add(a.getParentGroup());
-            }
-        };
-        IteratorDirective id = new IteratorDirective();
-        potentialMaster.calculate(box1, id, overlapCheck);
-        for (IMolecule m : overlaps) box1.removeMolecule(m);
-        // now rinse and repeat with box2
-        configuration.initializeCoordinates(box2, species1);
-        configuration.initializeCoordinates(box2, species2);
-        overlaps.clear();
-        potentialMaster.calculate(box2, id, overlapCheck);
-        for (IMolecule m : overlaps) box2.removeMolecule(m);
+
+        potentialMaster1.init();
+        potentialMaster2.init();
+
+        if (vf != 0) {
+            final Set<IMolecule> overlaps = new HashSet<>();
+            PotentialCallback overlapCheck = new PotentialCallback() {
+                @Override
+                public void pairCompute(int i, int j, Vector dr, double[] u012) {
+                    if (u012[0] < Double.POSITIVE_INFINITY) return;
+                    IAtom a = box1.getLeafList().get(i);
+                    if (a.getType().getSpecies() == species1) a = box1.getLeafList().get(j);
+                    overlaps.add(a.getParentGroup());
+                }
+            };
+
+            potentialMaster1.computeAll(false, overlapCheck);
+            for (IMolecule m : overlaps) box1.removeMolecule(m);
+
+            overlaps.clear();
+            overlapCheck = new PotentialCallback() {
+                @Override
+                public void pairCompute(int i, int j, Vector dr, double[] u012) {
+                    if (u012[0] < Double.POSITIVE_INFINITY) return;
+                    IAtom a = box2.getLeafList().get(i);
+                    if (a.getType().getSpecies() == species1) a = box2.getLeafList().get(j);
+                    overlaps.add(a.getParentGroup());
+                }
+            };
+
+            potentialMaster2.computeAll(false, overlapCheck);
+            for (IMolecule m : overlaps) box2.removeMolecule(m);
+        }
 
         // set the global move interval.  GMIfac yields a simulation that spends roughly equal
         // CPU time doing global and not-global moves.  Set GMIfac to achieve desired result.
@@ -173,17 +197,6 @@ public class GCRestrictedGibbsHS extends Simulation {
         else {
             integrator.setGlobalMoveInterval(n / GMIfac);
         }
-
-        if (pmc != null) {
-            // we have cell listing.  initialize all that.
-            integrator.getMoveEventManager().addListener(pmc.getNbrCellManager(box1).makeMCMoveListener());
-            integrator.getMoveEventManager().addListener(pmc.getNbrCellManager(box2).makeMCMoveListener());
-            integrator1.getMoveEventManager().addListener(pmc.getNbrCellManager(box1).makeMCMoveListener());
-            integrator2.getMoveEventManager().addListener(pmc.getNbrCellManager(box2).makeMCMoveListener());
-            pmc.getNbrCellManager(box1).assignCellAll();
-            pmc.getNbrCellManager(box2).assignCellAll();
-        }
-
     }
 
     public static void main(String[] args) {
@@ -194,7 +207,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         } else {
             params.numAtoms = 2;
             params.numSteps = 5000000000L;
-            params.vf = 0.23;
+            params.vf = 0.05;
             params.q = 0.2;
             params.computeAO = false;
             params.L = 3;
@@ -205,7 +218,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         long numSteps = params.numSteps;
         double vf = params.vf;
         double q = params.q;
-        boolean graphics = false;
+        boolean graphics = true;
         boolean computeAO = params.computeAO;
         double L = params.L;
         double GMIfac = params.GMIfac;
@@ -222,10 +235,11 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         GCRestrictedGibbsHS sim = new GCRestrictedGibbsHS(vf, q, numAtoms, computeAO, L, GMIfac);
         int[] seeds = sim.getRandomSeeds();
-        System.out.println("Random Seeds:");
+        System.out.print("Random Seeds:  ");
         for (int i = 0; i < seeds.length; ++i) {
-            System.out.println(seeds[i]);
+            System.out.print(" "+seeds[i]);
         }
+        System.out.println();
         System.out.println("species1 " + sim.species1.getLeafType().getIndex());
         System.out.println("species2 " + sim.species2.getLeafType().getIndex());
 
@@ -244,10 +258,8 @@ public class GCRestrictedGibbsHS extends Simulation {
             return;
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps / 10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         double GMI = sim.integrator.getGlobalMoveInterval();
@@ -257,7 +269,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance(blockSize);
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         System.out.println("block count " + acc.getBlockCount());
         IData iavg = acc.getData(acc.AVERAGE);

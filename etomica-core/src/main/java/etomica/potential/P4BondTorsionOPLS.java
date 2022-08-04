@@ -4,18 +4,16 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
 
 /**
@@ -29,26 +27,20 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         super(space, a0, a1, a2, a3);
     }
 
-    public double energyAtAngle(double cosphi) {
-        double cos2phi = 2*cosphi*cosphi-1;
-        double cos3phi = cosphi*(2*cos2phi-1);
-        double cos4phi = 2*cos2phi*cos2phi-1;
+    @Override
+    public double u(double costheta) {
+        double cos2theta = 2 * costheta * costheta - 1;
+        double cos3theta = costheta * (2 * cos2theta - 1);
+        double cos4theta = 2 * cos2theta * cos2theta - 1;
 
-        return 0.5*a0*(1+cosphi) + 0.5*a1*(1-cos2phi) + 0.5*a2*(1+cos3phi) + 0.5*a3*(1-cos4phi);
+        return 0.5 * a0 * (1 + costheta) + 0.5 * a1 * (1 - cos2theta) + 0.5 * a2 * (1 + cos3theta) + 0.5 * a3 * (1 - cos4theta);
     }
 
-    public double dUdphi(double phi) {
+    @Override
+    public void udu(double costheta, double[] u, double[] du) {
         throw new RuntimeException("Implement me");
     }
 
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-    
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         P4BondTorsionOPLS potential = new P4BondTorsionOPLS(space, 0, 10, 20, 30);
@@ -56,7 +48,6 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
         positionSource.setBox(box);
-        potential.setBox(box);
         Atom atom0 = new Atom(space);
         Atom atom1 = new Atom(space);
         Atom atom2 = new Atom(space);

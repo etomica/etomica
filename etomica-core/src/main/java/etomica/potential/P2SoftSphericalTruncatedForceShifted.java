@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
-
 /**
  * Soft-spherical potential class that shifts both the potential energy and the
  * force such that both are 0 at the cutoff.  The potential is of the form
@@ -16,9 +14,8 @@ import etomica.space.Space;
 public class P2SoftSphericalTruncatedForceShifted extends
         P2SoftSphericalTruncatedShifted {
 
-    public P2SoftSphericalTruncatedForceShifted(Space _space,
-            Potential2SoftSpherical potential, double truncationRadius) {
-        super(_space, potential, truncationRadius);
+    public P2SoftSphericalTruncatedForceShifted(IPotential2 potential, double truncationRadius) {
+        super(potential, truncationRadius);
     }
 
     /**
@@ -36,6 +33,14 @@ public class P2SoftSphericalTruncatedForceShifted extends
     
     public double du(double r2) {
         return (r2 < r2Cutoff) ? (potential.du(r2) - fShift*Math.sqrt(r2)) : 0.0;
+    }
+
+    public void u012add(double r2, double[] u012) {
+        if (r2 > r2Cutoff) return;
+        potential.u012add(r2, u012);
+        double r = Math.sqrt(r2);
+        u012[0] -= fShift * r + shift;
+        u012[1] -= fShift * r;
     }
 
     protected double fShift;

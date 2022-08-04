@@ -3,27 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 
 /**
  * Pair potential for argon from Tang and Toennies 2003.  This is a true pair potential, rather than a pairwise-additive potential.
- * 
+ * <p>
  * In this class, only the pair potential is valid, not the gradients, etc.  I am unlikely to ever include those...
  *
  * @author Kate Shaul
  */
-public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
-    
-    public P2ArgonTangAndToennies2003(Space space) {
-        super(space);
-   
-    }
+public class P2ArgonTangAndToennies2003 implements IPotential2 {
 
-    /**
-     * The energy u.
-     */
-    public double u(double r2) {
+	public static IPotential2 makeTruncated(TruncationFactory tf) {
+		return tf.make(new P2ArgonTangAndToennies2003());
+	}
+
+	/**
+	 * The energy u.
+	 */
+	public double u(double r2) {
     	
     	double r = Math.sqrt(r2);
     
@@ -89,19 +86,10 @@ public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
      
         return 0;
     }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        
-        return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-    }
-    
+
     public static void main(String[] args) {
     	
-    	Space space = Space3D.getInstance();
-    	P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003(space);
+    	P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003();
     	
     	//Minimum of the potential published by Tang and Toennies (2003):
     	double Rm=7.10*rBohr; //Angstroms

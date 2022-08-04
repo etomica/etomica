@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.*;
 import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
@@ -30,16 +31,15 @@ public class GlassProd {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 200;
-            params.nB = 200;
-            params.density = 1.66; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.nA = 50;
+            params.nB = 50;
+            params.density = 1.2; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEq = 50000;
-            params.numSteps = 0;
+            params.numStepsEq = 10000;
+            params.numSteps = 100000;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
-            params.tStep = 0.01;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds);
@@ -63,6 +63,7 @@ public class GlassProd {
         } else {
             System.out.println("rho: " + params.density + "\n");
         }
+        sim.initConfig();
 
         List<Statefull> objects = new ArrayList<>();
         objects.add(sim.box);
@@ -93,33 +94,28 @@ public class GlassProd {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.activityIntegrate.setMaxSteps(params.numStepsEq / 2);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
 
         AccumulatorAverageFixed accE = new AccumulatorAverageFixed(1);
-        MeterEnergy meterE = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
         DataPumpListener pumpE = new DataPumpListener(meterE, accE, 10);
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature) {
             sim.integrator.getEventManager().addListener(pumpE);
         }
         sim.activityIntegrate.setDoSkipReset(true);
 
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
 
         if (temperature0 > params.temperature) {
             System.out.println("Equilibrating at T=" + params.temperature);
             sim.integrator.setTemperature(params.temperature);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
 
             if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
                 sim.integrator.getEventManager().addListener(pumpE);
             }
 
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
         }
         long time1eq = System.nanoTime();
         if (params.numStepsEq > 0 && params.doSwap) {
@@ -149,7 +145,7 @@ public class GlassProd {
             sim.integrator.getEventManager().removeListener(pumpE);
             double avgE = accE.getData(accE.AVERAGE).getValue(0);
             System.out.println("average energy during second half of eq: " + avgE / numAtoms);
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             double pe = meterPE.getDataAsScalar();
 //            double ke = new MeterKineticEnergy(sim.box).getDataAsScalar();
 //            System.out.println("kinetic energy at end of eq: "+ke/numAtoms);
@@ -168,25 +164,22 @@ public class GlassProd {
         //Production
         sim.integrator.setIntegratorMC(null, 0);
         sim.integrator.setIsothermal(false);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
 
         long blocksize = params.numSteps / 100;
 
         //P
         IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
-            pTensorMeter = new MeterPressureTensorFromIntegrator(sim.getSpace());
-            ((MeterPressureTensorFromIntegrator) pTensorMeter).setIntegrator((IntegratorVelocityVerlet) sim.integrator);
+            pTensorMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
         } else {
-            pTensorMeter = new MeterPressureHardTensor(sim.getSpace());
-            ((MeterPressureHardTensor) pTensorMeter).setIntegrator((IntegratorHard) sim.integrator);
-            new MeterPressureHard((IntegratorHard) sim.integrator);
+            pTensorMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
+            ((MeterPressureHardTensor)pTensorMeter).setDoNonEquilibrium(true);
         }
 
         //Viscosity
         DataFork pTensorFork = new DataFork();
         int dn = 1;
-        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.integrator, dn * sim.integrator.getTimeStep());
+        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.box, dn * sim.integrator.getTimeStep());
         pTensorAccumVisc.setEnabled(true);
         pTensorFork.addDataSink(pTensorAccumVisc);
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
@@ -196,7 +189,7 @@ public class GlassProd {
         if (params.potential != SimGlass.PotentialChoice.HS) {
             gTensorAccumulator = new AccumulatorAverageFixed(blocksize);
             DataProcessor dpSquared = new DataProcessor() {
-                DataDouble data = new DataDouble();
+                final DataDouble data = new DataDouble();
 
                 @Override
                 protected IData processData(IData inputData) {
@@ -236,14 +229,14 @@ public class GlassProd {
         AccumulatorAverageFixed accPE = null;
 
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             long bs = blocksize / 5;
             if (bs == 0) bs = 1;
             accPE = new AccumulatorAverageFixed(bs);
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 5);
             sim.integrator.getEventManager().addListener(pumpPE);
 
-            MeterTemperature tMeter = new MeterTemperature(sim, sim.box, params.D);
+            MeterTemperature tMeter = new MeterTemperature(sim.getSpeciesManager(), sim.box, params.D);
             tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
             DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
             tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
@@ -286,9 +279,9 @@ public class GlassProd {
         dsMSDcorP.setEnabled(true);
 
         //VAC
+        configStorageMSD.setDoVelocity(true);
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
         configStorageMSD.addListener(meterVAC);
-        configStorageMSD.setDoVelocity(true);
 
         //Fs
         DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
@@ -370,15 +363,13 @@ public class GlassProd {
             configStorageMSD.addListener(cspMotion);
         }
 
-        AtomStressSource stressSource = null;
+        AtomStressSource stressSource;
         if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
-            AtomHardStressCollector ahsc = new AtomHardStressCollector((IntegratorHard) sim.integrator);
+            AtomHardStressCollector ahsc = new AtomHardStressCollector(sim.integrator);
             ((IntegratorHard) sim.integrator).addCollisionListener(ahsc);
             stressSource = ahsc;
         } else {
-            PotentialCalculationForceSumGlass pcForce = new PotentialCalculationForceSumGlass(sim.box);
-            ((IntegratorVelocityVerlet) sim.integrator).setForceSum(pcForce);
-            stressSource = pcForce;
+            stressSource = new PotentialCallbackAtomStress(sim.box);
         }
         int[][] normalComps = new int[sim.getSpace().getD()][2];
         for (int i = 0; i < normalComps.length; i++) {
@@ -387,7 +378,7 @@ public class GlassProd {
         AtomSignalStress signalStressNormal = new AtomSignalStress(stressSource, normalComps);
 
         Vector[] wv = meterSFac.getWaveVectors();
-        java.util.List<Vector> myWV = new ArrayList<>();
+        List<Vector> myWV = new ArrayList<>();
         double L = sim.box.getBoundary().getBoxSize().getX(0);
         double wvMax2 = 4.01 * Math.PI / L;
         for (Vector vector : wv) {
@@ -601,7 +592,7 @@ public class GlassProd {
 
         //Run
         long time0 = System.nanoTime();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         try {
             FileWriter fw = new FileWriter("glass.state");
             for (Statefull s : objects) {
@@ -614,20 +605,20 @@ public class GlassProd {
         }
 
         //Pressure
-        DataGroup dataP = (DataGroup)pAccumulator.getData();
+        DataGroup dataP = (DataGroup) pAccumulator.getData();
         IData dataPAvg = dataP.getData(pAccumulator.AVERAGE.index);
         IData dataPErr = dataP.getData(pAccumulator.ERROR.index);
         IData dataPCorr = dataP.getData(pAccumulator.BLOCK_CORRELATION.index);
-        double pAvg  = dataPAvg.getValue(0);
-        double pErr  = dataPErr.getValue(0);
+        double pAvg = dataPAvg.getValue(0);
+        double pErr = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenamePerc,
                 filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameVAC;
 
-        String fileTag = "";
+        String fileTag;
         String filenamePxyAC = "";
-        if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
+        if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
             System.out.println("Z: " + pAvg / params.density / params.temperature + "  " + pErr / params.density / params.temperature + "  cor: " + pCorr);
             fileTag = String.format("Rho%1.3f", rho);
             filenameVisc = String.format("viscRho%1.3f.out", rho);
@@ -644,8 +635,8 @@ public class GlassProd {
             filenameImmFracB = String.format("immFracBRho%1.3f.out", rho);
             filenameImmFracPerc = String.format("immFracPercRho%1.3f.out", rho);
             filenameAlpha2 = String.format("alpha2Rho%1.3f.out", rho);
-            filenameSq = String.format("sqRho%1.3f.out",rho);
-        }else{
+            filenameSq = String.format("sqRho%1.3f.out", rho);
+        } else {
             // Energy
             DataGroup dataU = (DataGroup) accPE.getData();
             IData dataUAvg = dataU.getData(accPE.AVERAGE.index);
@@ -661,37 +652,37 @@ public class GlassProd {
             double errG = dataG.getValue(gTensorAccumulator.ERROR.index);
             double corG = dataG.getValue(gTensorAccumulator.BLOCK_CORRELATION.index);
 
-            DataGroup dataT = (DataGroup)tAccumulator.getData();
+            DataGroup dataT = (DataGroup) tAccumulator.getData();
             IData dataTAvg = dataT.getData(tAccumulator.AVERAGE.index);
             IData dataTErr = dataT.getData(tAccumulator.ERROR.index);
             IData dataTCorr = dataT.getData(tAccumulator.BLOCK_CORRELATION.index);
-            double tAvg  = dataTAvg.getValue(0);
-            double tErr  = dataTErr.getValue(0);
+            double tAvg = dataTAvg.getValue(0);
+            double tErr = dataTErr.getValue(0);
             double tCorr = dataTCorr.getValue(0);
-            System.out.println("T: " + tAvg +"  "+ tErr +"  cor: "+tCorr);
-            System.out.println("Z: " + pAvg/params.density/tAvg +"  "+ pErr/params.density/tAvg  +"  cor: "+pCorr);
+            System.out.println("T: " + tAvg + "  " + tErr + "  cor: " + tCorr);
+            System.out.println("Z: " + pAvg / params.density / tAvg + "  " + pErr / params.density / tAvg + "  cor: " + pCorr);
             System.out.println("U: " + uAvg / numAtoms + "  " + uErr / numAtoms + "  cor: " + uCorr);
             fileTag = String.format("Rho%1.3fT%1.3f", rho, params.temperature);
             filenameVisc = String.format("viscRho%1.3fT%1.3f.out", rho, params.temperature);
-            filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameMSD = String.format("msdRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameMSDA = String.format("msdARho%1.3fT%1.3f.out", rho, params.temperature);
             filenameMSDB = String.format("msdBRho%1.3fT%1.3f.out", rho, params.temperature);
-            filenameVAC = String.format("vacRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameVAC = String.format("vacRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameFs = String.format("fsRho%1.3fT%1.3fQ%1.2f.out", rho, params.temperature, params.qx);
-            filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenamePerc = String.format("percRho%1.3fT%1.3f.out", rho, params.temperature);
             filenamePerc0 = String.format("perc0Rho%1.3fT%1.3f.out", rho, params.temperature);
-            filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
-            filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameL = String.format("lRho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameImmFracA = String.format("immFracARho%1.3fT%1.3f.out", rho, params.temperature);
             filenameImmFracB = String.format("immFracBRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameImmFracPerc = String.format("immFracPercRho%1.3fT%1.3f.out", rho, params.temperature);
-            filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out",  rho, params.temperature);
-            filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out",  rho, params.temperature);
-            filenameSq = String.format("sqRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out", rho, params.temperature);
+            filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameSq = String.format("sqRho%1.3fT%1.3f.out", rho, params.temperature);
             double V = sim.box.getBoundary().volume();
             System.out.println("G: " + V * avgG / tAvg + " " + V * errG / tAvg + " cor: " + corG + "\n");
         }
-        System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
+        System.out.println("P: " + pAvg + "  " + pErr + "  cor: " + pCorr);
 
         try {
             if (doPxyAutocor) {
@@ -792,12 +783,12 @@ public class GlassProd {
         }
         long time1 = System.nanoTime();
         double sim_time = (time1 - time0) / 1e9;
-        System.out.println(String.format("\ntime: %3.2f s", sim_time));
+        System.out.printf("\ntime: %3.2f s", sim_time);
     }
 
     public static class SimParams extends SimGlass.GlassParams {
         public int numStepsEq = 10000;
-        public int numSteps = 100000;
+        public int numSteps = 1000000;
         public double minDrFilter = 0.4;
         public double temperatureMelt = 0;
         public double qx = 7.0;
@@ -841,9 +832,9 @@ public class GlassProd {
 
     public static void writeCombinedDataToFile(IDataSource[] meters, String filename) {
         List<double[]> allData = new ArrayList<>();
-        for (int j = 0; j < meters.length; j++) {
-            IData data = meters[j].getData();
-            IData xData = ((DataFunction.DataInfoFunction) meters[j].getDataInfo()).getXDataSource().getIndependentData(0);
+        for (IDataSource meter : meters) {
+            IData data = meter.getData();
+            IData xData = ((DataFunction.DataInfoFunction) meter.getDataInfo()).getXDataSource().getIndependentData(0);
             for (int i = 0; i < xData.getLength(); i++) {
                 double y = data.getValue(i);
                 if (Double.isNaN(y)) continue;

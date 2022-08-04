@@ -4,7 +4,7 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -12,13 +12,15 @@ import etomica.config.Configuration;
 import etomica.config.Configurations;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2HardSphere;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -29,52 +31,42 @@ import etomica.util.ParseArgs;
  */
  
 public class TestHSMD3D extends Simulation {
-    
+
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species, species2;
+    public SpeciesGeneral species, species2;
     public Box box;
 
-    public TestHSMD3D(Space _space, int numAtoms, int numSteps, Configuration config) {
+    public TestHSMD3D(Space _space, int numAtoms, Configuration config) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species2);
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
+        box = makeBox();
 
-        double neighborRangeFac = 1.6;
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 1, 1.5, BondingInfo.noBonding());
+        neighborManager.setDoDownNeighbors(true);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+
         double sigma = 1.0;
         // makes eta = 0.35
         double l = 14.4573 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
-        potentialMaster.setCellRange(1);
-        potentialMaster.setRange(neighborRangeFac * sigma);
-        box = makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setTimeStep(0.01);
-        integrator.setIsothermal(true);
-        ActionIntegrate activityIntegrate = new ActionIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(numSteps);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type1});
+        potentialMaster.setPairPotential(type1, type1, P2HardSphere.makePotential(sigma));
+        potentialMaster.setPairPotential(type1, type2, P2HardSphere.makePotential(sigma));
+        potentialMaster.setPairPotential(type2, type2, P2HardSphere.makePotential(sigma));
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type1, type2});
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1.0, box, getSpeciesManager());
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type2, type2});
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
         box.getBoundary().setBoxSize(Vector.of(l, l, l));
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         config.initializeCoordinates(box);
-
-//        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
-//        integrator.addIntervalListener(writeConfig);
+        new BoxImposePbc(box, space).actionPerformed();
     }
 
     /**
@@ -86,23 +78,29 @@ public class TestHSMD3D extends Simulation {
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("HSMD3D%d.pos", numAtoms), TestHSMD3D.class);
 
-        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, params.numSteps / numAtoms, config);
+        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms, config);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms / 10));
+        sim.integrator.resetStepCount();
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
-        sim.getController().actionPerformed();
+        long t1 = System.nanoTime();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / numAtoms));
+        long t2 = System.nanoTime();
+        System.out.println("time: " + (t2 - t1) / 1e9);
 
-        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
-        System.out.println("Z="+Z);
+        double Z = pMeter.getDataAsScalar() * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
+        System.out.println("Z=" + Z);
 
         // compressibility factor for this system should be 5.22
-        if (Double.isNaN(Z) || Math.abs(Z-5.22) > 0.04) {
+        if (Double.isNaN(Z) || Math.abs(Z - 5.22) > 0.04) {
             System.exit(1);
         }
     }
 
     public static class SimParams extends ParameterBase {
-        public int numAtoms = 32000;
-        public int numSteps = 20000000;
+        public int numAtoms = 500;
+        public int numSteps = 50000000;
     }
 }

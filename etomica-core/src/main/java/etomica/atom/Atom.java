@@ -14,21 +14,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Writer;
 
-/**
- * Atom that represents a physical atom with a position.
- * <p>
- *
- * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
- */
+ /**
+  * Atom that represents a physical atom with a position.
+  * <p>
+  * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
+  * 
+  */
 public class Atom implements IAtom {
 
-    protected final AtomType type;
-    protected final Vector position;
-    protected int index;
-    protected IMolecule parent;
-    protected int leafIndex;
+     protected final AtomType type;
+     protected final Vector position;
+     protected int index;
+     protected IMolecule parent;
+     protected int leafIndex;
 
-    public Atom(Space space, AtomType type) {
+     public Atom(Space space, AtomType type) {
         super();
         this.type = type;
         position = space.makeVector();
@@ -103,8 +103,8 @@ public class Atom implements IAtom {
     }
 
     public void setLeafIndex(int newLeafIndex) {
-        leafIndex = newLeafIndex;
-    }
+         leafIndex = newLeafIndex;
+     }
 
     /**
      * @return the Atom type, holding properties held in common with other
@@ -112,6 +112,10 @@ public class Atom implements IAtom {
      */
     public final AtomType getType() {
         return type;
+    }
+
+    public void copyCoordinatesFrom(IAtom atom) {
+        position.E(atom.getPosition());
     }
 
     @Override

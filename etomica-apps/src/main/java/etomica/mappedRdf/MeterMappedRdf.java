@@ -1,54 +1,42 @@
 package etomica.mappedRdf;
 
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPair;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
-import etomica.space.Vector;
+import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Null;
 
 /**
  * Calculates pair distribution using mapped averaging
  */
-public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
+public class MeterMappedRdf implements IDataSource, DataSourceIndependent {
 
-    protected final PotentialCalculationForceSum pcForce;
-    protected final AtomLeafAgentManager<Vector> forceManager;
+    protected Box box;
+    protected DataFunction data;
+    private IDataInfo dataInfo;
+    protected DataDoubleArray rData;
+    protected final DataSourceUniform xDataSource;
+    protected double xMax;
+    protected final DataTag tag;
+    protected final PotentialCompute potentialMaster;
+    protected final PotentialCallbackMappedRdf pc;
     protected double density;
     protected double rcforHandfinmap;
 
-    public MeterMappedRdf(double rcforHandfinmap, Space space, PotentialMaster potentialMaster, Box box, int nbins, double density) {
-        this.space = space;
+    public MeterMappedRdf(double rcforHandfinmap, PotentialCompute potentialMaster, Box box, int nbins, double density) {
         this.box = box;
         this.density = density;
         this.potentialMaster = potentialMaster;
         this.rcforHandfinmap = rcforHandfinmap;
 
-        pcForce = new PotentialCalculationForceSum();
-        if (box != null) {
-            forceManager = new AtomLeafAgentManager<>(this, box);
-            pcForce.setAgentManager(forceManager);
-        }
-        else {
-            forceManager = null;
-        }
-
-        pc = new PotentialCalculationMappedRdf(rcforHandfinmap, space, box, nbins, forceManager);
+        pc = new PotentialCallbackMappedRdf(rcforHandfinmap, box, nbins, potentialMaster);
 
         xDataSource = pc.getXDataSource();
 
         rData = (DataDoubleArray) xDataSource.getData();
         data = new DataFunction(new int[]{rData.getLength()});
         dataInfo = new DataFunction.DataInfoFunction("g(r)", Null.DIMENSION, this);
-
-        allAtoms = new IteratorDirective();
 
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -85,28 +73,21 @@ public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomL
                 xDataSource.getXMax() != xMax) {
             reset();
         }
-        pcForce.reset();
+
+        // just to get the forces
+        potentialMaster.computeAll(true);
+
+        // now do our mapped rdf
         pc.reset();
-        potentialMaster.calculate(box, allAtoms, pcForce);
-        long numAtoms = box.getLeafList().size();
-
-        potentialMaster.calculate(box, allAtoms, pc);
-        AtomPair foo = new AtomPair();
-        for (int i = 0; i < numAtoms; i++) {
-
-            foo.atom0 = box.getLeafList().get(i);
-            for (int j = i + 1; j < numAtoms; j++) {
-                foo.atom1 = box.getLeafList().get(j);
-                pc.doCalculation(foo, null);
-            }
-        }
+        potentialMaster.computeAll(false, pc);
+        potentialMaster.computeAll(false, pc);
 
         final double[] y = data.getData();
 
         double[] r = rData.getData();
         double[] gSum = pc.getGSum();
         double vol = box.getBoundary().volume();
-        //      System.out.println("metervol " + box.getBoundary().volume());
+        int numAtoms = box.getLeafList().size();
 
         for (int i = 0; i < r.length; i++) {
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
@@ -155,37 +136,8 @@ public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomL
         this.box = box;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public PotentialCalculationMappedRdf getPotentialCalculation() {
+    public PotentialCallbackMappedRdf getPotentialCallback() {
         return pc;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    protected Box box;
-    protected final Space space;
-    protected DataFunction data;
-    private IDataInfo dataInfo;
-    protected DataDoubleArray rData;
-    protected IteratorDirective allAtoms;
-    protected final DataSourceUniform xDataSource;
-    protected double xMax;
-    private String name;
-    protected final DataTag tag;
-    protected final PotentialMaster potentialMaster;
-    protected final PotentialCalculationMappedRdf pc;
-
-    public Vector makeAgent(IAtom a, Box agentBox) {
-        return space.makeVector();
-    }
-
-    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
     }
 
 }

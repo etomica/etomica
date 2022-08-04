@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
@@ -27,13 +27,19 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterCoupledAtomFlipped;
 import etomica.virial.cluster.Standard;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyMultibodyMix;
+import etomica.virial.wheatley.ClusterWheatleySoftMix;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -84,7 +90,7 @@ public class VirialCO2H2OSC {
         final double HSB = Standard.BHS(nPoints, sigmaHSRef);
 
         System.out.println("Overlap sampling for CO2/H2O mixture at " + temperatureK + " K");
-        System.out.println("nTypes: "+java.util.Arrays.toString(nTypes));
+        System.out.println("nTypes: "+ Arrays.toString(nTypes));
         if (nonAdditive != Nonadditive.NONE) {
             if (nonAdditive == Nonadditive.DISPERSION) {
                 System.out.println("Including non-additive dispersion");
@@ -113,23 +119,20 @@ public class VirialCO2H2OSC {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+Oxygen.INSTANCE.getMass()*2));
-        SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+Hydrogen.INSTANCE.getMass()*2));
-        speciesH2O.setAxisSymmetric(false);
+        SpeciesGeneral speciesCO2 = SpeciesSpheresRotating.create(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+Oxygen.INSTANCE.getMass()*2));
+        SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+Hydrogen.INSTANCE.getMass()*2), false, false);
         P2CO2Hellmann p2cCO2 = new P2CO2Hellmann(space, P2CO2Hellmann.Parameters.B);
-        IPotentialAtomic p2aCO2 = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cCO2, temperature));
+        IPotential2 p2aCO2 = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cCO2, temperature));
 
         P2CO2H2OWheatley p2cCO2H2O = new P2CO2H2OWheatley(space);
-        IPotentialAtomic p2aCO2H2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2H2O.makeSemiclassical(temperature) : p2cCO2H2O.makeSemiclassicalTI(temperature));
-        
-        P2WaterSzalewicz p2cH2O = new P2WaterSzalewicz(space, 2);
-        IPotentialAtomic p2aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cH2O, temperature));
+        IPotential2 p2aCO2H2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2H2O.makeSemiclassical(temperature) : p2cCO2H2O.makeSemiclassicalTI(temperature));
 
-        PotentialMolecularMonatomic p2CO2 = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cCO2 : p2aCO2);
-        PotentialMolecularMonatomic p2H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cH2O : p2aH2O);
-        PotentialMolecularMonatomic p2CO2H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p2cCO2H2O : p2aCO2H2O);
-        MayerGeneral fCO2 = new MayerGeneral(p2CO2);
-        MayerGeneral fCO2H2O = new MayerGeneral(p2CO2H2O);
+        P2WaterSzalewicz.P2WaterSzalewicz2 p2cH2O = P2WaterSzalewicz.make2Body();
+        IPotential2 p2aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cH2O, temperature));
+
+        P2MolecularMonatomic p2H2O = new P2MolecularMonatomic(space, level==Level.CLASSICAL ? p2cH2O : p2aH2O);
+        MayerGeneralAtomic fCO2 = new MayerGeneralAtomic(space, level==Level.CLASSICAL ? p2cCO2 : p2aCO2);
+        MayerGeneralAtomic fCO2H2O = new MayerGeneralAtomic(space, level==Level.CLASSICAL ? p2cCO2H2O : p2aCO2H2O);
         MayerGeneral fH2O = new MayerGeneral(p2H2O);
         MayerFunction[][] allF = new MayerFunction[][]{{fCO2,fCO2H2O},{fCO2H2O,fH2O}};
 
@@ -145,16 +148,14 @@ public class VirialCO2H2OSC {
         if (nonAdditive != Nonadditive.NONE) {
             if (useSZ && nPoints == nTypes[1]) {
                 Component comp = nonAdditive == Nonadditive.FULL ? Component.NON_PAIR : Component.THREE_BODY;
-                P2WaterSzalewicz p23cH2O = new P2WaterSzalewicz(space, 2);
-                p23cH2O.setComponent(comp);
-                IPotentialAtomic p23aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p23cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p23cH2O, temperature));
-                PotentialMolecularMonatomic p23H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p23cH2O : p23aH2O);
+                P2WaterSzalewicz.P2WaterSzalewicz2 p23cH2O = P2WaterSzalewicz.make2Body(comp);
+                IPotential2 p23aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p23cH2O.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p23cH2O, temperature));
+                P2MolecularMonatomic p23H2O = new P2MolecularMonatomic(space, level==Level.CLASSICAL ? p23cH2O : p23aH2O);
 
-                P2WaterSzalewicz p3cH2O = new P2WaterSzalewicz(space, 3);
-                p3cH2O.setComponent(comp);
-                IPotentialAtomic p3aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p3cH2O.makeSemiclassical(temperature) : null);
-                PotentialMolecularMonatomic p3H2O = new PotentialMolecularMonatomic(space, level==Level.CLASSICAL ? p3cH2O : p3aH2O);
-                MayerFunctionMolecularThreeBody f3H2O = new MayerFunctionMolecularThreeBody(new PotentialNonAdditive(new IPotentialMolecular[]{p23H2O,p3H2O}));
+                P2WaterSzalewicz.P2WaterSzalewicz3 p3cH2O = P2WaterSzalewicz.make3Body(comp);
+                IPotential3 p3aH2O = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p3cH2O.makeSemiclassical(temperature) : null);
+                P3MolecularMonatomic p3H2O = new P3MolecularMonatomic(space, level==Level.CLASSICAL ? p3cH2O : p3aH2O);
+                MayerFunctionMolecularThreeBody f3H2O = new MayerFunctionMolecularThreeBody(new PotentialNonAdditive(new IPotentialMolecular[]{null,null,p23H2O,p3H2O}));
                 MayerFunctionNonAdditive[][][] allFNA = new MayerFunctionNonAdditive[2][2][2];
                 allFNA[1][1][1] = f3H2O;
                 targetCluster = new ClusterWheatleyMultibodyMix(nPoints, nTypes, allF, allFNA, 1e-12, true);
@@ -165,14 +166,13 @@ public class VirialCO2H2OSC {
                 // CO2: alpha=2.913, E=13.7eV
                 // H2O: alpha=1.444, E=12.6eV
                 paramsManagerATM = new HashMap<>();
-                IPotentialAtomic p3 = null;
-                p3 = new P3AxilrodTeller(space, paramsManagerATM);
+                IPotential3 p3 = new P3AxilrodTeller(space, paramsManagerATM, Double.POSITIVE_INFINITY);
                 if (nonAdditive == Nonadditive.FULL) {
                     paramsManagerInd = new HashMap<>();
-                    p3 = new PotentialAtomicSum(new IPotentialAtomic[]{p3,new P3Induction(space, paramsManagerInd)});
+                    p3 = new P3AtomicSum(new IPotential3[]{p3,new P3Induction(space, paramsManagerInd)});
                 }
 
-                MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(new PotentialMolecularMonatomic(space, p3));
+                MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(new P3MolecularMonatomic(space, p3));
                 MayerFunctionNonAdditive[][][] allFNA = new MayerFunctionNonAdditive[2][2][2];
                 allFNA[0][0][0] = f3;
                 allFNA[0][0][1] = f3;
@@ -279,18 +279,18 @@ public class VirialCO2H2OSC {
             }
         }
         
-        if (false) {
+        if(false) {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
 //            displayBox1.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 //            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
 //            displayBox0.setColorScheme(colorScheme);
@@ -303,15 +303,9 @@ public class VirialCO2H2OSC {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -349,20 +343,18 @@ public class VirialCO2H2OSC {
 
         sim.initRefPref(refFileName, steps/40);
         sim.equilibrate(refFileName, steps/20);
-        
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
         System.out.println("equilibration finished");
-        
+
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
 
         if (params.doHist) {
-            sim.setupTargetHistogram();
+            sim.setupTargetHistogram(ai.getMaxSteps() / 10);
         }
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(ai);
         
         if (params.doHist) {
             sim.printTargetHistogram();

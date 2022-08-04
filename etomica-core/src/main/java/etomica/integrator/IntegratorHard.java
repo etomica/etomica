@@ -1,468 +1,777 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.integrator;
 
 import etomica.atom.*;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.box.BoxMoleculeEvent;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.molecule.IMolecule;
-import etomica.nbr.PotentialMasterHybrid;
-import etomica.nbr.list.INeighborListListener;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.*;
-import etomica.simulation.Simulation;
+import etomica.nbr.list.INeighborListener;
+import etomica.nbr.list.NeighborListManager;
+import etomica.potential.IPotential1;
+import etomica.potential.IPotential2;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.*;
 import etomica.space.Vector;
-import etomica.util.Debug;
-import etomica.util.TreeLinker;
-import etomica.util.TreeList;
+import etomica.species.SpeciesManager;
+import etomica.util.collections.Int2IntHash;
 import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Integrator for hard potentials.
- * Integrates equations of motion through time by advancing atoms from one
- * collision to the next.  Determination of time of collision and
- * implementation of collision dynamics is handled by the potential between the
- * atoms and stored in an Agent.
- *
- * @author David Kofke
- *
- */
-public class IntegratorHard extends IntegratorMD implements INeighborListListener, AgentSource<IntegratorHard.Agent> {
+public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
-    protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
-    protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.Direction.DOWN);
-    protected final AtomArrayList listToUpdate = new AtomArrayList();
-    protected final TreeList eventList = new TreeList();
-    private final ReverseCollisionHandler reverseCollisionHandler;
-    private final CollisionHandlerUp collisionHandlerUp;
-    private final CollisionHandlerDown collisionHandlerDown;
-    private final Map<AtomType, PotentialHard> nullPotentialManager;
-    private final AtomPair pair;
-    private final AtomSetSinglet singlet;
+    protected final NeighborManagerHard neighborManager;
+    protected final PotentialMasterBonding.FullBondingInfo bondingInfo;
+    protected double[] collisionTimes, nullCollisionTimes;
+    protected int[] collisionPartners;
+    protected IPotential2[] collisionPotentials;
+    protected Vector[] collisionVector;
+    protected int[] eventBinsFirstAtom, eventBinsNextAtom, eventBinsPrevAtom;
+    protected int[] collisionOldState;
+    protected final IPotential2[][] pairPotentials;
+    protected final IPotential1[] fieldPotentials;
+    protected final double[] maxSigma;
+    protected double tBase, tMax;
+    protected int collisionUpdateInterval, collisionUpdateCountdown;
+    protected long collisionCount, intervalCollisionCount;
+    protected final NeighborIteratorHard neighborIterator;
+    protected final List<CollisionListener> collisionListeners;
+    private int lastBin = 0;
+    private Int2IntHash[] bondState;
+    private int[] fieldState;
+
+    private long tDelete, tAdd, tNext, tSteps, tUpdate, tUp, tDown, tBump, tData, tCollect, tCollision, tAdvance, tNotStep;
+    private final boolean writeTiming = false, verbose = false;
+    private long lastTimingPrint = 0;
+    private int handlingEvent = 0;
+
+    private long nanoTime() {
+        return writeTiming ? System.nanoTime() : 0;
+    }
+
+    private static PotentialCompute makeTotalCompute(Box box, IPotential2[][] pairPotentials, NeighborManagerHard neighborManager, IPotential1[] fieldPotentials, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        int n = pairPotentials.length;
+        IPotential2[][] softPotentials = new IPotential2[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                softPotentials[i][j] = (IPotential2) pairPotentials[i][j];
+            }
+        }
+        List<PotentialCompute> computes = new ArrayList<>();
+        PotentialComputePairGeneral pcPair = new PotentialComputePairGeneral(sm, softPotentials, box, neighborManager);
+        computes.add(pcPair);
+        if (fieldPotentials != null) {
+            PotentialComputeField pcField = new PotentialComputeField(fieldPotentials, box);
+            computes.add(pcField);
+        }
+        if (bondingInfo != null) {
+            PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box, bondingInfo);
+            computes.add(pmBonding);
+        }
+        if (computes.size() == 1) return pcPair;
+        PotentialCompute[] computesArray = computes.toArray(new PotentialCompute[0]);
+        return new PotentialComputeAggregate(computesArray);
+    }
 
     /**
-     * The agent of the last collision, set at the end of doStepInternal
+     * Constructs integrator with a default for non-isothermal sampling.
+     *
+     * @param random           random number generator used for initial velocities and some thermostats
+     * @param timeStep         time step for integration
+     * @param temperature      used by thermostat and/or to initialize velocities
+     * @param box
      */
-    private IntegratorHard.Agent lastColliderAgent;
-
-    /**
-     * list of objects (typically meters) that are called each time a collision is processed
-     */
-    private final List<CollisionListener> collisionListeners = new ArrayList<>();
-    protected double collisionTimeStep;
-    private long collisionCount;
-    protected final AtomLeafAgentManager<Agent> agentManager;
-    private int handlingEvent;
-    private double minDelta;
-    private AtomPair debugPair;
-
-    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
+    public IntegratorHard(IPotential2[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm) {
+        this(pairPotentials, neighborManager, random, timeStep, temperature, box, sm, null);
     }
 
-    public IntegratorHard(PotentialMaster potentialMaster, IRandom random,
-                          double timeStep, double temperature, Box box) {
-        super(potentialMaster,random,timeStep,temperature, box);
-        pair = new AtomPair();
-        singlet = new AtomSetSinglet();
-        nullPotentialManager = new HashMap<>();
-
-        agentManager = new AtomLeafAgentManager<Agent>(this, box);
-        reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate, agentManager);
-        collisionHandlerUp = new CollisionHandlerUp(agentManager);
-        collisionHandlerDown = new CollisionHandlerDown(eventList, agentManager);
-
-        if(this.potentialMaster instanceof PotentialMasterList) {
-            ((PotentialMasterList)this.potentialMaster).getNeighborManager(this.box).getEventManager().addListener(this);
-        }
-        else if (this.potentialMaster instanceof PotentialMasterHybrid) {
-            ((PotentialMasterHybrid)this.potentialMaster).getNeighborManager(this.box).getEventManager().addListener(this);
-        }
-    }
-    
-    /* (non-Javadoc)
-     * @see etomica.Integrator#setTemperature(double)
-     */
-    public void setTemperature(double temperature) {
-        super.setTemperature(temperature);
-        minDelta = -5.e-8/Math.sqrt(temperature);
+    public IntegratorHard(IPotential2[][] pairPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        this(pairPotentials, null, neighborManager, random, timeStep, temperature, box, sm, bondingInfo);
     }
 
-    public IntegratorHard.Agent getLastColliderAgent() {
-        return lastColliderAgent;
+    public IntegratorHard(IPotential2[][] pairPotentials, IPotential1[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, SpeciesManager sm, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        this(makeTotalCompute(box, pairPotentials, neighborManager, fieldPotentials, sm, bondingInfo), pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, bondingInfo);
     }
 
-    /** 
-     * Steps all atoms across time interval timeStep, handling all intervening collisions.
-     */
-    protected void doStepInternal() {
-        if (Double.isInfinite(currentPotentialEnergy)) {
-            // we were overlapped at some point.  try recalculating the PE now
-            // so we can start re-tracking the PE once we aren't overlapped.
-            currentPotentialEnergy = meterPE.getDataAsScalar();
-        }
-        super.doStepInternal();
-
-        Agent colliderAgent = (Agent) this.eventList.firstElement();
-        collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
-        double oldTime = 0;
-        while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
-            IAtomList atoms;
-            if (colliderAgent.collisionPartner() != null) {
-                atoms = pair;
-                pair.atom0 = colliderAgent.atom();
-                pair.atom1 = colliderAgent.collisionPartner();
-            }
-            else {
-                atoms = singlet;
-                singlet.atom = colliderAgent.atom();
-            }
-
-            if (collisionTimeStep - oldTime < minDelta) {
-                logTimeDiffError(colliderAgent, oldTime, atoms);
-            }
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0 &&((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
-                System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
-            }
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box) && (debugPair = Debug.getAtoms(box)) != null) {
-                debugStep();
-            }
-
-            colliderAgent.collisionPotential.bump(atoms,collisionTimeStep);
-            double dE = colliderAgent.collisionPotential.energyChange();
-            currentPotentialEnergy += dE;
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1) {
-                System.out.println("dE: " + dE + " PE => " + currentPotentialEnergy);
-            }
-            currentKineticEnergy -= dE;
-            
-            for(CollisionListener listener : this.collisionListeners) {
-                listener.collisionAction(colliderAgent);
-            }
-            collisionCount++;
-            if (atoms.size() == 1) {
-                updateAtom(atoms.get(0));
-            }
-            else {
-                updateAtoms((AtomPair)atoms);
-            }
-            colliderAgent = (Agent) this.eventList.firstElement();
-            if (Debug.ON && colliderAgent != null && colliderAgent.atom == atoms.get(0) && (atoms.size() == 2 && colliderAgent.collisionPartner == atoms.get(1))
-                    && colliderAgent.collisionTime() == collisionTimeStep) {
-                throw new RuntimeException("repeating collision "+atoms+" "+collisionTimeStep);
-            }
-            
-            oldTime = collisionTimeStep;
-            collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
-        } 
-
-        advanceAcrossTimeStep(timeStep);
-        collisionTimeStep = 0.0;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisBox(box)) {
-            eventList.check();
-            double PE = meterPE.getDataAsScalar();
-            if (Math.abs((PE - currentPotentialEnergy)/(PE+currentPotentialEnergy)) > 1.e-9
-                    && Math.abs(PE - currentPotentialEnergy) > 1.e-9) {
-                throw new RuntimeException("potential energy of "+box+" is wrong. it's actually "+PE+" but I thought it was "+currentPotentialEnergy);
-            }
-            double KE = meterKE.getDataAsScalar();
-            if (Math.abs(KE - currentKineticEnergy) > 1.e-8) {
-                throw new RuntimeException("kinetic energy of "+box+" is wrong. it's actually "+KE+" but I thought it was "+currentKineticEnergy);
-            }
-        }
-
-        if(isothermal) doThermostatInternal();
-
-        // set the last collider to be read externally
-        this.lastColliderAgent = colliderAgent;
-    }
-
-    private void debugStep() {
-        if (Debug.LEVEL > 1) {
-            IAtom a = debugPair.atom0;
-            if (a != null) {
-                Agent agent = agentManager.getAgent(a);
-                System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
-            }
-            a = debugPair.atom1;
-            if (a != null) {
-                Agent agent = agentManager.getAgent(a);
-                System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
-            }
-        }
-        if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IMolecule && debugPair.atom1 instanceof IMolecule)) {
-            Vector dr = space.makeVector();
-            Vector dv = space.makeVector();
-
-            IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
-            IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;
-            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-
-            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-
-            dr.PEa1Tv1(collisionTimeStep,dv);
-            box.getBoundary().nearestImage(dr);
-            double r2 = dr.squared();
-            if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
-                if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                    dr.Ea1Tv1(collisionTimeStep,atom0.getVelocity());
-                    dr.PE(atom0.getPosition());
-                    System.out.println(atom0+" coordinates "+dr);
-                    dr.Ea1Tv1(collisionTimeStep,atom1.getVelocity());
-                    dr.PE(atom1.getPosition());
-                    System.out.println(atom1+" coordinates "+dr);
+    public IntegratorHard(PotentialCompute pc, IPotential2[][] pairPotentials, IPotential1[] fieldPotentials, NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box, PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        super(pc, random, timeStep, temperature, box);
+        this.pairPotentials = pairPotentials;
+        this.fieldPotentials = fieldPotentials;
+        this.neighborManager = neighborManager;
+        this.bondingInfo = bondingInfo;
+        eventBinsFirstAtom = new int[10];
+        collisionVector = new Vector[0];
+        maxSigma = new double[pairPotentials.length];
+        resizeArrays();
+        // we want to store enough collisions that we don't have to recompute them
+        // before the neighbor update
+        collisionUpdateInterval = 5;
+        tMax = collisionUpdateInterval * timeStep;
+        neighborIterator = neighborManager.makeNeighborIterator();
+        if (neighborManager instanceof NeighborManager.NeighborEventSource) {
+            ((NeighborManager.NeighborEventSource) neighborManager).addListener(this);
+        } else {
+            for (int i = 0; i < box.getSpace().D(); i++) {
+                if (box.getBoundary().getPeriodicity(i)) {
+                    nullCollisionTimes = new double[box.getLeafList().size()];
+                    break;
                 }
             }
-            else if (Debug.LEVEL > 2 && !(debugPair.atom0 instanceof IMolecule)) {
-                dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
-                dr.PE(debugPair.atom0.getPosition());
-                System.out.println(debugPair.atom0+" coordinates "+dr);
+        }
+        collisionListeners = new ArrayList<>(0);
+    }
+
+    private static PotentialCompute makeTotalCompute(PotentialComputePair pcPair, PotentialComputeField pcField) {
+        if (pcPair == null) return pcField;
+        if (pcField == null) return pcPair;
+        return new PotentialComputeAggregate(pcField, pcPair);
+    }
+
+    public void setPairPotential(AtomType type1, AtomType type2, IPotential2 p2) {
+        pairPotentials[type1.getIndex()][type2.getIndex()] = p2;
+        if (potentialCompute instanceof PotentialComputeAggregate) {
+            for (PotentialCompute pc : ((PotentialComputeAggregate) potentialCompute).getPotentialComputes()) {
+                if (pc instanceof PotentialComputePair) {
+                    ((PotentialComputePair) pc).setPairPotential(type1, type2, (IPotential2) p2);
+                } else if (pc instanceof PotentialComputePairGeneral) {
+                    ((PotentialComputePairGeneral) pc).setPairPotential(type1, type2, (IPotential2) p2);
+                }
             }
+        } else if (potentialCompute instanceof PotentialComputePair) {
+            ((PotentialComputePair) potentialCompute).setPairPotential(type1, type2, (IPotential2) p2);
+        } else if (potentialCompute instanceof PotentialComputePairGeneral) {
+            ((PotentialComputePairGeneral) potentialCompute).setPairPotential(type1, type2, (IPotential2) p2);
         }
     }
 
-    private void logTimeDiffError(Agent colliderAgent, double oldTime, IAtomList atoms) {
-        System.out.println("diff "+(collisionTimeStep - oldTime)+" minDelta "+minDelta);
-        System.out.println("previous collision occured after current one");
-        System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
-        System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
-        if (atoms instanceof AtomPair) {
-            Vector dr = space.makeVector();
-            Vector dv = space.makeVector();
-
-            IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
-            IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
-            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-
-            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-            box.getBoundary().nearestImage(dr);
-
-            dr.PEa1Tv1(oldTime,dv);
-            System.out.println("distance at last collision time was "+Math.sqrt(dr.squared()));
-            dr.PEa1Tv1(collisionTimeStep-oldTime,dv);
-            System.out.println("distance now "+Math.sqrt(dr.squared()));
+    public void setFieldPotential(AtomType type, IPotential1 pField) {
+        fieldPotentials[type.getIndex()] = pField;
+        if (potentialCompute instanceof PotentialComputeAggregate) {
+            for (PotentialCompute pc : ((PotentialComputeAggregate) potentialCompute).getPotentialComputes()) {
+                if (pc instanceof PotentialComputeField) {
+                    ((PotentialComputeField) pc).setFieldPotential(type, pField);
+                }
+            }
+        } else if (potentialCompute instanceof PotentialComputeField) {
+            ((PotentialComputeField) potentialCompute).setFieldPotential(type, pField);
         }
-        throw new RuntimeException("this simulation is not a time machine");
+
+    }
+
+    public void setCollisionUpdateInterval(int newInterval) {
+        collisionUpdateInterval = newInterval;
+        tMax = collisionUpdateInterval * timeStep;
+        if (initialized) reset();
+    }
+
+    public void setMaxCollisionDiameter(AtomType atomType, double maxSigma) {
+        this.maxSigma[atomType.getIndex()] = maxSigma;
+        if (nullCollisionTimes == null) {
+            nullCollisionTimes = new double[box.getLeafList().size()];
+        }
+    }
+
+    public void addCollisionListener(CollisionListener newListener) {
+        collisionListeners.add(newListener);
+    }
+
+    public void removeCollisionListener(CollisionListener oldListener) {
+        collisionListeners.remove(oldListener);
+    }
+
+    public void setTimeStep(double dt) {
+        super.setTimeStep(dt);
+        tMax = collisionUpdateInterval * timeStep;
+        if (initialized) reset();
     }
 
     public void resetStepCount() {
         super.resetStepCount();
-        collisionCount = 0;
+        lastTimingPrint = 0;
     }
 
-    public long getCollisionCount() {
-        return collisionCount;
-    }
-
-    /**
-     * Updates collision times/partners for collider and partner, and 
-     * for atoms that were to collide with one of them.  This method 
-     * should not be called for 1-body collisions (call updateAtom).
-     */
-    protected void updateAtoms(AtomPair colliders) {
-
-        listToUpdate.clear();
-
-        downList.setTargetAtom(colliders.atom0);
-        potentialMaster.calculate(box, downList, reverseCollisionHandler);
-        downList.setTargetAtom(colliders.atom1);
-        potentialMaster.calculate(box, downList, reverseCollisionHandler);
-
-        // this would update collider0 as well since it wanted to collide with
-        // atom1.  But we to full reset it, so remove it from the (hopefully
-        // small) list.
-        listToUpdate.remove(listToUpdate.indexOf(colliders.atom0));
-        processReverseList();
-
-        Agent agent = agentManager.getAgent(colliders.atom0);
-        if (agent.collisionPotential != null) {
-            agent.eventLinker.remove();
-        }
-        agent.resetCollisionFull();
-        upList.setTargetAtom(colliders.atom0);
-        collisionHandlerUp.setAtom(colliders.atom0);
-        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potentialMaster.calculate(box, upList, collisionHandlerUp);
-        if (agent.collisionPotential != null) {
-            eventList.add(agent.eventLinker);
-        }
-        downList.setTargetAtom(colliders.atom0);
-        collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potentialMaster.calculate(box, downList, collisionHandlerDown);
-
-        agent = agentManager.getAgent(colliders.atom1);
-        if (agent.collisionPotential != null) {
-            agent.eventLinker.remove();
-        }
-        agent.resetCollisionFull();
-        upList.setTargetAtom(colliders.atom1);
-        collisionHandlerUp.setAtom(colliders.atom1);
-        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potentialMaster.calculate(box, upList, collisionHandlerUp);
-        if (agent.collisionPotential != null) {
-            eventList.add(agent.eventLinker);
-        }
-        downList.setTargetAtom(colliders.atom1);
-        collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potentialMaster.calculate(box, downList, collisionHandlerDown);
-    }
-
-    /**
-     * updates collision time for a single atom (and any atom that might a 
-     * collision with the atom)
-     */
-    protected void updateAtom(IAtom a) {
-        Agent agent = agentManager.getAgent(a);
-        if(agent == null) return;
-
-        listToUpdate.clear();
-
-        downList.setTargetAtom(a);
-        potentialMaster.calculate(box, downList, reverseCollisionHandler);
-        processReverseList();
-
-        if (agent.collisionPotential != null) {
-            agent.eventLinker.remove();
-        }
-        agent.resetCollisionFull();
-        upList.setTargetAtom(a);
-        collisionHandlerUp.setAtom(a);
-        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potentialMaster.calculate(box, upList, collisionHandlerUp);
-        if (agent.collisionPotential != null) {
-            eventList.add(agent.eventLinker);
-        }
-        collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potentialMaster.calculate(box, downList, collisionHandlerDown);
-    }
-
-    /**
-     * Recalculate collision times (up) for any atoms atoms in the "reverse"
-     * list of atoms that thought they would collide with an atom that's
-     * changed.
-     */
-    protected void processReverseList() {
-        int size = listToUpdate.size();
-        for (int i=0; i<size; i++) {
-            IAtom reverseAtom = listToUpdate.get(i);
-            Agent agent = agentManager.getAgent(reverseAtom);
-            if (agent.collisionPotential != null) {
-                agent.eventLinker.remove();
+    protected void resizeArrays() {
+        int nAtoms = box.getLeafList().size();
+        if (collisionVector.length < nAtoms) {
+            collisionTimes = new double[nAtoms];
+            collisionPartners = new int[nAtoms];
+            eventBinsNextAtom = new int[nAtoms];
+            eventBinsPrevAtom = new int[nAtoms];
+            collisionOldState = new int[nAtoms];
+            if (bondingInfo != null) {
+                bondState = new Int2IntHash[nAtoms];
+                for (int i = 0; i < nAtoms; i++) {
+                    bondState[i] = new Int2IntHash(2);
+                }
             }
-            // reset collision, but not a "full" reset
-            // this atom thought it would collide with something and now it
-            // won't.  We should rever to the "null" collision time it had
-            // the last time it had a real collision of its own.
-            agent.resetCollision();
-            upList.setTargetAtom(reverseAtom);
-            collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-            collisionHandlerUp.setAtom(reverseAtom);
-            potentialMaster.calculate(box, upList, collisionHandlerUp);
-            if (agent.collisionPotential != null) {
-                eventList.add(agent.eventLinker);
+            collisionPotentials = new IPotential2[nAtoms];
+            collisionVector = new Vector[nAtoms];
+            for (int i = 0; i < nAtoms; i++) {
+                collisionVector[i] = space.makeVector();
+            }
+            if (fieldPotentials != null) {
+                fieldState = new int[nAtoms];
+            }
+            if (nullCollisionTimes != null) {
+                nullCollisionTimes = new double[nAtoms];
             }
         }
     }
-
-	/**
-     * Advances all atom coordinates by tStep, without any intervening collisions.
-     * Uses free-flight kinematics.
-     */
-	protected void advanceAcrossTimeStep(double tStep) {
-        IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.size();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
-            agentManager.getAgent(a).decrementCollisionTime(tStep);
-			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
-		}
-	}
 
     public void reset() {
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0) {
-            System.out.println("resetting integratorHard");
-        }
-        ConfigurationOverlapException overlapException = null;
-        try {
-            super.reset();
-        }
-        catch (ConfigurationOverlapException e) {
-            overlapException = e;
-        }
-        lastColliderAgent = null;
-        resetCollisionTimes();
-        if (overlapException != null) {
-            throw overlapException;
-        }
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
-            debugPair = Debug.getAtoms(box);
-        }
+        if (verbose) System.out.println("resetting integrator");
+        super.reset();
+        resizeArrays();
+        neighborManager.init();
+
+        computeAllCollisions();
     }
 
-    public void postRestore() {
-        super.postRestore();
-        for (IAtom atom : box.getLeafList()) {
-            Agent agent = agentManager.getAgent(atom);
-            agent.setAtom((IAtomKinetic) atom);
-        }
-        resetCollisionTimes();
-    }
+    protected long nPerBinSum = 0, nComputeAll = 0, nPerBinMax = 0;
 
-    public void neighborListNeighborsUpdated() {
-        handlingEvent++;
-        resetCollisionTimes();
-        handlingEvent--;
-    }
-    
-    public void boxMoleculeAdded(BoxMoleculeEvent e) {
-        handlingEvent++;
-        super.boxMoleculeAdded(e);
-        handlingEvent--;
-    }
-
-    /**
-     * Do an upList call for each atom and reconstruct the event list.
-     */
-    public void resetCollisionTimes() {
-        if(!initialized) return;
-        IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.size();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
-            agentManager.getAgent(atom).resetCollisionFull();
+    protected void computeAllCollisions() {
+        if (!initialized) {
+            // we got triggered because something major happened, but we're still getting set up
+            // we'll get called from reset later
+            return;
         }
-        upList.setTargetAtom(null);
-        collisionHandlerUp.reset();
-        collisionHandlerUp.collisionTimeStep = 0;
-        potentialMaster.calculate(box, upList, collisionHandlerUp);
-        eventList.reset();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
-            Agent agent = agentManager.getAgent(atom);
-            if (agent.collisionPotential != null) {
-                eventList.add(agent.eventLinker);
+
+        tBase = 0;
+        IAtomList atoms = box.getLeafList();
+        for (IAtom atom : atoms) {
+            IAtomKinetic iAtom = (IAtomKinetic) atom;
+            computeNullCollisionTime(iAtom, 0);
+            int i = iAtom.getLeafIndex();
+            if (bondingInfo != null) {
+
+                IMolecule parentMolecule = iAtom.getParentGroup();
+                Vector ri = iAtom.getPosition();
+                bondingInfo.bondedPairPartners[iAtom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+                    for (int[] pairIdx : partners[iAtom.getIndex()]) {
+                        IAtomKinetic atom1 = (IAtomKinetic) parentMolecule.getChildList().get(pairIdx[0]);
+                        IAtomKinetic atom2 = (IAtomKinetic) parentMolecule.getChildList().get(pairIdx[1]);
+                        IAtomKinetic jAtom = atom1 == iAtom ? atom2 : atom1;
+                        int j = jAtom.getLeafIndex();
+                        if (j < i) continue; // no need to handle each pair twice
+                        Vector rj = jAtom.getPosition();
+                        Vector dr = space.makeVector();
+                        dr.Ev1Mv2(rj, ri);
+                        box.getBoundary().nearestImage(dr);
+                        int s = potential.getState(iAtom, jAtom, dr);
+                        bondState[i].put(j, s);
+                        bondState[j].put(i, s);
+                    }
+                });
+            }
+            if (fieldPotentials != null && fieldPotentials[iAtom.getType().getIndex()] != null) {
+                fieldState[i] = fieldPotentials[iAtom.getType().getIndex()].getState(iAtom);
             }
         }
+
+        lastBin = 0;
+        Arrays.fill(eventBinsFirstAtom, -1);
+        Arrays.fill(collisionTimes, Double.POSITIVE_INFINITY);
+        for (IAtom atom : box.getLeafList()) {
+            collisionTimeUp((IAtomKinetic) atom, 0);
+        }
+        collisionUpdateCountdown = collisionUpdateInterval;
+        int n = 0;
+        int i = eventBinsFirstAtom[0];
+        if (i >= 0) {
+            n++;
+            while ((i = eventBinsNextAtom[i]) > -1) {
+                n++;
+            }
+        }
+        nPerBinSum += n;
+        nComputeAll++;
+        nPerBinMax = Math.max(nPerBinMax, n);
+
+        if (n > 50) {
+            eventBinsFirstAtom = new int[((eventBinsFirstAtom.length + 1) * 3) / 2];
+            if (verbose)
+                System.out.println("bins increased to " + eventBinsFirstAtom.length + " -- " + (tMax / eventBinsFirstAtom.length) + " time per bin");
+            Arrays.fill(eventBinsFirstAtom, -1);
+            for (int j = 0; j < atoms.size(); j++) {
+                if (collisionTimes[j] >= tMax) continue;
+                int b = (int) (collisionTimes[j] / tMax * eventBinsFirstAtom.length);
+
+                int oldFirst = eventBinsFirstAtom[b];
+                eventBinsNextAtom[j] = oldFirst;
+                eventBinsPrevAtom[j] = -1 - b;
+                if (oldFirst >= 0) eventBinsPrevAtom[oldFirst] = j;
+                eventBinsFirstAtom[b] = j;
+            }
+
+        }
     }
 
-    /**
-     * Updates collision times appropriately after scaling momenta.
-     */
-    protected void scaleMomenta() {
-        super.scaleMomenta();
-        // super.scaleMomenta alters the velocities, so we need to 
-        // recalculate collision times
-        resetCollisionTimes();
+    protected int nextCollider() {
+        long t1 = nanoTime();
+        for (int jj = lastBin; jj < eventBinsFirstAtom.length; jj++) {
+            int first = eventBinsFirstAtom[jj];
+            if (first >= 0) {
+                int i = first;
+                double tFirst = collisionTimes[i];
+                while ((i = eventBinsNextAtom[i]) > -1) {
+                    if (collisionTimes[i] < tFirst) {
+                        first = i;
+                        tFirst = collisionTimes[i];
+                    }
+                }
+                lastBin = jj;
+                tNext += nanoTime() - t1;
+                return first;
+            }
+        }
+        lastBin = eventBinsFirstAtom.length;
+        tNext += nanoTime() - t1;
+        return -1;
+    }
+
+    protected void collectDownColliders(IAtom atom, AtomArrayList downColliders) {
+        int i = atom.getLeafIndex();
+        neighborIterator.iterDownNeighbors(atom.getLeafIndex(), (jAtom, rij, n) -> {
+            if (collisionPartners[jAtom.getLeafIndex()] == i) {
+                downColliders.add(jAtom);
+            }
+        });
+        if (bondingInfo != null) {
+            IMolecule parentMolecule = atom.getParentGroup();
+            bondingInfo.bondedPairPartners[parentMolecule.getType().getIndex()].forEach((potential, partners) -> {
+                for (int[] pairIdx : partners[atom.getIndex()]) {
+                    IAtom atom1 = parentMolecule.getChildList().get(pairIdx[0]);
+                    IAtom atom2 = parentMolecule.getChildList().get(pairIdx[1]);
+                    IAtom jAtom = atom1 == atom ? atom2 : atom1;
+                    // we get all bonded pairs containing i.  skip the "up" neighbors
+                    if (jAtom.getLeafIndex() < atom.getLeafIndex() && collisionPartners[jAtom.getLeafIndex()] == i) {
+                        downColliders.add(jAtom);
+                    }
+                }
+            });
+        }
+
+    }
+
+    protected void removeCollision(int i) {
+        long t1 = nanoTime();
+        int prev = eventBinsPrevAtom[i];
+        int next = eventBinsNextAtom[i];
+        if (prev < 0) {
+            eventBinsFirstAtom[-prev - 1] = next;
+        } else {
+            eventBinsNextAtom[prev] = next;
+        }
+        if (next >= 0) {
+            eventBinsPrevAtom[next] = prev;
+        }
+        tDelete += nanoTime() - t1;
+    }
+
+    protected void computeNullCollisionTime(IAtomKinetic atom, double falseTime) {
+        if (nullCollisionTimes == null) return;
+        Vector v = atom.getVelocity();
+        Vector dim = box.getBoundary().getBoxSize();
+        double tmin = Double.POSITIVE_INFINITY;
+        double d2 = 2.0 * maxSigma[atom.getType().getIndex()];
+        int D = dim.getD();
+        // 4*(L/4 - sigma/2) = L - 2sigma
+        for (int i = 0; i < D; i++) {
+            double t = (dim.getX(i) - d2) / v.getX(i);
+            t = Math.abs(t);
+            tmin = Math.min(tmin, t);
+        }
+        nullCollisionTimes[atom.getLeafIndex()] = tBase + falseTime + 0.25 * tmin;
+    }
+
+    protected void collisionTimeDown(IAtomKinetic iAtom, double falseTime) {
+        long t1cd = nanoTime();
+        Vector iVelocity = iAtom.getVelocity();
+        int iType = iAtom.getType().getIndex();
+        int i = iAtom.getLeafIndex();
+        MyConsumer myDown = (jAtom, rij, state, potential) -> {
+            int j = jAtom.getLeafIndex();
+            IAtomKinetic jjAtom = (IAtomKinetic) jAtom;
+            Vector dv = space.makeVector();
+            dv.Ev1Mv2(jjAtom.getVelocity(), iVelocity);
+            if (neighborManager instanceof NeighborListManager) {
+                rij.PEa1Tv1(falseTime, dv);
+            }
+            long t1 = nanoTime();
+            double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
+            tCollision += nanoTime() - t1;
+            if (time < 0) {
+                System.out.println("computed col down " + i + " with " + j + " at " + time);
+                Vector dr = space.makeVector();
+                dr.Ev1Mv2(jAtom.getPosition(), iAtom.getPosition());
+                System.out.println("dr " + rij + " " + Math.sqrt(rij.squared()) + " bij " + rij.dot(dv) + " state " + state);
+                System.out.println(j + " thought it would collide at " + collisionTimes[j] + " with " + collisionPartners[j]);
+                if (nullCollisionTimes != null) {
+                    System.out.println(i + " null time: " + nullCollisionTimes[i]);
+                    System.out.println(j + " null time: " + nullCollisionTimes[j]);
+                }
+                potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
+                throw new RuntimeException("negative!");
+            }
+
+            double tcol = time + falseTime + tBase;
+
+            if (tcol < Math.min(collisionTimes[j], tMax)) {
+                if (collisionTimes[j] < tMax) {
+                    // need to remove j from event bins
+                    removeCollision(j);
+                }
+                collisionTimes[j] = tcol;
+                collisionPartners[j] = i;
+                collisionPotentials[j] = potential;
+                collisionOldState[j] = state;
+                rij.PEa1Tv1(time, dv);
+                collisionVector[j].Ea1Tv1(-1, rij);
+
+                long t1a = nanoTime();
+                int b = (int) (collisionTimes[j] / tMax * eventBinsFirstAtom.length);
+
+                int oldFirst = eventBinsFirstAtom[b];
+                eventBinsNextAtom[j] = oldFirst;
+                eventBinsPrevAtom[j] = -1 - b;
+                if (oldFirst >= 0) eventBinsPrevAtom[oldFirst] = j;
+                eventBinsFirstAtom[b] = j;
+                tAdd += nanoTime() - t1a;
+            }
+        };
+        NeighborConsumerHard ncDown = new NeighborConsumerHard() {
+            @Override
+            public void acceptHard(IAtom jAtom, Vector rij, int state) {
+                myDown.accept(jAtom, rij, state, pairPotentials[iType][jAtom.getType().getIndex()]);
+            }
+
+            @Override
+            public void accept(IAtom jAtom, Vector rij, int n) {
+
+            }
+        };
+        neighborIterator.iterDownNeighbors(iAtom.getLeafIndex(), ncDown, falseTime);
+
+        if (bondingInfo != null) {
+            IMolecule parentMolecule = iAtom.getParentGroup();
+            Vector ri = iAtom.getPosition();
+            bondingInfo.bondedPairPartners[iAtom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+                for (int[] pairIdx : partners[iAtom.getIndex()]) {
+                    IAtom atom1 = parentMolecule.getChildList().get(pairIdx[0]);
+                    IAtom atom2 = parentMolecule.getChildList().get(pairIdx[1]);
+                    IAtom jAtom = atom1 == iAtom ? atom2 : atom1;
+                    // we get all bonded pairs containing i.  skip the "up" neighbors
+                    int j = jAtom.getLeafIndex();
+                    if (j > i) continue;
+                    Vector rj = jAtom.getPosition();
+                    Vector dr = space.makeVector();
+                    dr.Ev1Mv2(rj, ri);
+                    box.getBoundary().nearestImage(dr);
+                    myDown.accept(jAtom, dr, bondState[j].get(i), potential);
+                }
+            });
+        }
+
+        tDown += nanoTime() - t1cd;
+    }
+
+    protected void collisionTimeUp(IAtomKinetic iAtom, double falseTime) {
+        long t1cu = nanoTime();
+        int i = iAtom.getLeafIndex();
+        if (collisionTimes[i] < tMax) {
+            // need to remove i from event bins
+            removeCollision(i);
+        }
+        collisionTimes[i] = Double.POSITIVE_INFINITY;
+        Vector iVelocity = iAtom.getVelocity();
+        int iType = iAtom.getType().getIndex();
+        double[] tCheck = new double[]{tMax - tBase - falseTime};
+        MyConsumer myUp = (jAtom, rij, state, potential) -> {
+            IAtomKinetic jjAtom = (IAtomKinetic) jAtom;
+            Vector dv = space.makeVector();
+            dv.Ev1Mv2(jjAtom.getVelocity(), iVelocity);
+            if (neighborManager instanceof NeighborListManager) {
+                rij.PEa1Tv1(falseTime, dv);
+            }
+            long t1ct = nanoTime();
+            int j = jAtom.getLeafIndex();
+            double time = potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
+            tCollision += nanoTime() - t1ct;
+            if (time < 0) {
+                System.out.println("computed col up " + i + " with " + j + " at " + time);
+                Vector r1 = box.getSpace().makeVector();
+                r1.E(iAtom.getPosition());
+                r1.PEa1Tv1(falseTime, iAtom.getVelocity());
+                System.out.println(iAtom + " " + iAtom.getPosition() + " " + r1);
+                r1.E(jAtom.getPosition());
+                r1.PEa1Tv1(falseTime, jjAtom.getVelocity());
+                System.out.println(jAtom + " " + jAtom.getPosition() + " " + r1);
+                System.out.println("dr " + rij + " " + Math.sqrt(rij.squared()) + " dv " + dv + " bij " + rij.dot(dv) + " state " + state);
+                potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
+                throw new RuntimeException("Negative up collision time between " + i + " and " + j + " at " + time);
+            }
+            if (time < tCheck[0]) {
+//                long t1 = nanoTime();
+                collisionTimes[i] = time;
+                tCheck[0] = time;
+                collisionPartners[i] = j;
+                collisionPotentials[i] = potential;
+                rij.PEa1Tv1(time, dv);
+                collisionVector[i].E(rij);
+                collisionOldState[i] = state;
+//                tAdd += nanoTime() - t1;
+            }
+        };
+
+        NeighborConsumerHard up = new NeighborConsumerHard() {
+            @Override
+            public void acceptHard(IAtom jAtom, Vector rij, int state) {
+                myUp.accept(jAtom, rij, state, pairPotentials[iType][jAtom.getType().getIndex()]);
+
+            }
+
+            @Override
+            public void accept(IAtom jAtom, Vector rij, int n) {
+
+            }
+        };
+        neighborIterator.iterUpNeighbors(i, up, falseTime);
+
+        if (bondingInfo != null) {
+            IMolecule parentMolecule = iAtom.getParentGroup();
+            Vector ri = iAtom.getPosition();
+            bondingInfo.bondedPairPartners[iAtom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+                for (int[] pairIdx : partners[iAtom.getIndex()]) {
+                    IAtom atom1 = parentMolecule.getChildList().get(pairIdx[0]);
+                    IAtom atom2 = parentMolecule.getChildList().get(pairIdx[1]);
+                    IAtom jAtom = atom1 == iAtom ? atom2 : atom1;
+                    // we get all bonded pairs containing i.  skip the "down" neighbors
+                    int j = jAtom.getLeafIndex();
+                    if (j < i) continue;
+                    Vector rj = jAtom.getPosition();
+                    Vector dr = space.makeVector();
+                    dr.Ev1Mv2(rj, ri);
+                    box.getBoundary().nearestImage(dr);
+                    myUp.accept(jAtom, dr, bondState[i].get(j), potential);
+                }
+            });
+        }
+
+        IPotential1 pField = fieldPotentials != null ? fieldPotentials[iType] : null;
+        if (pField != null) {
+            Vector rfalse = iAtom.getPosition();
+            Vector r = Vector.d(rfalse.getD());
+            r.E(rfalse);
+            Vector v = iAtom.getVelocity();
+            r.PEa1Tv1(falseTime, v);
+            long t1ct = nanoTime();
+            double time = pField.collisionTime(iAtom, r, v, fieldState[i], falseTime);
+            tCollision += nanoTime() - t1ct;
+            if (time < 0) {
+                throw new RuntimeException("Negative up collision time between " + i + " and wall at " + time);
+            }
+            if (time < tCheck[0]) {
+//                long t1 = nanoTime();
+                collisionTimes[i] = time;
+                tCheck[0] = time;
+                collisionPartners[i] = -1; // partner = -1 means field
+                collisionPotentials[i] = null;
+                r.PEa1Tv1(time, v);
+                collisionVector[i].E(r);
+                collisionOldState[i] = fieldState[i];
+//                tAdd += nanoTime() - t1;
+            }
+        }
+
+        collisionTimes[i] += tBase + falseTime;
+
+        if (nullCollisionTimes != null && nullCollisionTimes[i] < collisionTimes[i]) {
+            // revert to null collision
+            collisionTimes[i] = nullCollisionTimes[i];
+            collisionPartners[i] = -2;
+            collisionPotentials[i] = null;
+        }
+
+        long t1 = nanoTime();
+        int b = (int) (collisionTimes[i] / tMax * eventBinsFirstAtom.length);
+
+        if (b < eventBinsFirstAtom.length) {
+            // collision time is less than max.  a keeper!
+//            eventBinsNextAtom[i] = eventBinsFirstAtom[b];
+//            eventBinsFirstAtom[b] = i;
+
+            int oldFirst = eventBinsFirstAtom[b];
+            eventBinsNextAtom[i] = oldFirst;
+            eventBinsPrevAtom[i] = -1 - b;
+            if (oldFirst >= 0) eventBinsPrevAtom[oldFirst] = i;
+            eventBinsFirstAtom[b] = i;
+
+        }
+        tAdd += nanoTime() - t1;
+        tUp += nanoTime() - t1cu;
+    }
+
+    protected void updatePair(IAtomKinetic atom1, IAtomKinetic atom2, double falseTime) {
+        long t1 = nanoTime();
+        AtomArrayList downColliders = new AtomArrayList(0);
+        computeNullCollisionTime(atom1, falseTime);
+        computeNullCollisionTime(atom2, falseTime);
+        collectDownColliders(atom1, downColliders);
+        collectDownColliders(atom2, downColliders);
+        tCollect += nanoTime() - t1;
+        for (IAtom iAtom : downColliders) {
+            collisionTimeUp((IAtomKinetic) iAtom, falseTime);
+        }
+
+        // don't need to do up for atom1 because it was included above!
+        collisionTimeDown(atom1, falseTime);
+
+        collisionTimeUp(atom2, falseTime);
+        collisionTimeDown(atom2, falseTime);
+        tUpdate += nanoTime() - t1;
+    }
+
+    protected void updateAtom(IAtomKinetic atom, double falseTime) {
+        long t1 = nanoTime();
+        computeNullCollisionTime(atom, falseTime);
+        AtomArrayList downColliders = new AtomArrayList(0);
+        collectDownColliders(atom, downColliders);
+        tCollect += nanoTime() - t1;
+        for (IAtom iAtom : downColliders) {
+            collisionTimeUp((IAtomKinetic) iAtom, falseTime);
+        }
+
+        collisionTimeDown(atom, falseTime);
+        collisionTimeUp(atom, falseTime);
+
+        tUpdate += nanoTime() - t1;
+    }
+
+    public void doStepInternal() {
+        if (tNotStep != 0) tNotStep += nanoTime();
+        long t1 = nanoTime();
+        super.doStepInternal();
+//        System.out.println("step " + getStepCount());
+
+        collisionUpdateCountdown--;
+        if (collisionUpdateCountdown == 0) {
+            double n = 1 + box.getLeafList().size();
+            boolean forcedUpdates = neighborManager instanceof NeighborManager.NeighborEventSource;
+            //System.out.println(intervalCollisionCount+" "+n);
+            if (forcedUpdates || intervalCollisionCount / n < 20.0) {
+                collisionUpdateInterval++;
+                if (verbose) System.out.println("interval => " + collisionUpdateInterval);
+                tMax = collisionUpdateInterval * timeStep;
+                if (verbose) System.out.println(tMax / eventBinsFirstAtom.length + " time per bin");
+            }
+            intervalCollisionCount = 0;
+            computeAllCollisions();
+        }
+
+        IAtomList atoms = box.getLeafList();
+        while (true) {
+            int c = nextCollider();
+            if (c < 0) {
+                // we have no record of the next collision
+                break;
+            }
+            double tcol = collisionTimes[c];
+            if (tcol > tBase + timeStep) break;
+            if (tcol < tBase - 1e-12) {
+                throw new RuntimeException("nope " + c + " " + collisionPartners[c] + " " + tcol + " " + tBase);
+            }
+            int cPartner = collisionPartners[c];
+            int oldState = collisionOldState[c];
+            double[] virial = {0}, du = {0};
+            long t1b = nanoTime();
+            IAtomKinetic cAtom = (IAtomKinetic) atoms.get(c);
+            if (cPartner >= 0) {
+                IPotential2 pHard = collisionPotentials[c];
+                IAtomKinetic partnerAtom = (IAtomKinetic) atoms.get(cPartner);
+                Vector dr = collisionVector[c];
+                Vector dv = space.makeVector();
+                dv.Ev1Mv2(partnerAtom.getVelocity(), cAtom.getVelocity());
+
+                int newState = pHard.bump(cAtom, partnerAtom, oldState, dr, dv, tcol - tBase, virial, du);
+//                System.out.println("bump "+c+" "+cPartner+" at "+tcol+" state "+oldState+" => "+newState);
+//                System.out.println(" dr "+dr+" "+Math.sqrt(dr.squared()));
+                if (newState != oldState) {
+                    setPairState(cAtom, partnerAtom, newState);
+                }
+                tBump += nanoTime() - t1b;
+
+                double dE = du[0];
+                currentPotentialEnergy += dE;
+                currentKineticEnergy -= dE;
+//                System.out.printf("%6d %3d %3d %7.3e %3.2f %2d %2d % f % f\n", collisionCount, Math.min(c, cPartner), Math.max(c, cPartner), tcol, Math.sqrt(dr.squared()), oldState, newState, dr.dot(dv), virial[0] / (dr.dot(dv)));
+//                System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
+
+                long t1data = nanoTime();
+                for (IntegratorHard.CollisionListener listener : this.collisionListeners) {
+                    listener.pairCollision(cAtom, partnerAtom, dr, dv, virial[0], tcol - tBase);
+                }
+                tData += nanoTime() - t1data;
+                updatePair(cAtom, partnerAtom, tcol - tBase);
+            } else if (cPartner == -1) {
+                IPotential1 pHard = fieldPotentials[cAtom.getType().getIndex()];
+                Vector r = collisionVector[c];
+                Vector deltaP = space.makeVector();
+                fieldState[c] = pHard.bump(cAtom, fieldState[c], collisionVector[c], tcol - tBase, deltaP, du);
+//                System.out.println("bump "+c+" at "+tcol+" state "+oldState+" => "+fieldState[c]);
+                tBump += nanoTime() - t1b;
+
+                double dE = du[0];
+                currentPotentialEnergy += dE;
+                currentKineticEnergy -= dE;
+//                System.out.printf("%6d %3d %7.3e %2d %2d\n", collisionCount, c, tcol, oldState, fieldState[c]);
+//            System.out.printf("%6d %3d %3d %3.1f % f % f\n", collisionCount, Math.min(c,cPartner), Math.max(c,cPartner), Math.sqrt(dr.squared()), dr.dot(dv), virial[0]/(dr.dot(dv)));
+
+                long t1data = nanoTime();
+                for (IntegratorHard.CollisionListener listener : this.collisionListeners) {
+                    listener.fieldCollision(cAtom, r, deltaP, tcol - tBase);
+                }
+                tData += nanoTime() - t1data;
+                updateAtom(cAtom, tcol - tBase);
+            } else if (cPartner == -2) {
+                // null potential collision
+//                System.out.printf("%6d %3d %7.3e (null)\n", collisionCount, c, tcol);
+                updateAtom(cAtom, tcol - tBase);
+            }
+            collisionCount++;
+            intervalCollisionCount++;
+        }
+        tBase += timeStep;
+//        System.out.println("advancing "+timeStep+" for "+stepCount);
+        long t1a = nanoTime();
+        advanceAcrossTimeStep(timeStep);
+
+        if (isothermal) {
+            doThermostatInternal();
+        }
+
+        if (writeTiming) {
+            tAdvance += nanoTime() - t1a;
+            tSteps += nanoTime() - t1;
+            int s = box.getLeafList().size();
+            if (s == 0) s = 1;
+            int printInterval = 4000000 / s;
+            if (stepCount >= lastTimingPrint + printInterval) {
+                double scale = box.getLeafList().size() * printInterval;
+                System.out.printf("time/step: %3.1f %3.1f  update: %3.1f  collect: %3.1f  up: %3.1f  down: %3.1f  ctime: %3.1f  add: %3.1f  next: %3.1f  delete: %3.1f  bump: %3.1f  data: %3.1f adv: %3.1f  nPerBin: %d  nPerBinMax: %d\n",
+                        tSteps / scale, tNotStep / scale, tUpdate / scale, tCollect / scale, tUp / scale, tDown / scale, tCollision / scale, tAdd / scale, tNext / scale, tDelete / scale, tBump / scale, tData / scale, tAdvance / scale, (int) (nPerBinSum / (double) nComputeAll), nPerBinMax);
+                tNotStep = tAdvance = tCollision = tUpdate = tCollect = tUp = tDown = tAdd = tSteps = tNext = tDelete = tBump = tData = 0;
+                nPerBinMax = nPerBinSum = nComputeAll = 0;
+                lastTimingPrint = stepCount;
+            }
+            tNotStep -= nanoTime();
+        }
+
+        // we may have advanced our bin into the next timestep
+        lastBin = (int) (tBase / tMax * eventBinsFirstAtom.length);
     }
 
     /**
@@ -471,342 +780,100 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      */
     protected void randomizeMomenta() {
         super.randomizeMomenta();
-        // super.randomizeMomenta alters the velocities, so we need to 
+        // super.randomizeMomenta alters the velocities, so we need to
         // recalculate collision times
-        resetCollisionTimes();
+        computeAllCollisions();
+    }
+
+    public void boxMoleculeAdded(BoxMoleculeEvent e) {
+        // hook in here so that we can suppress computing a collision time now.
+        // We'll compute the collision times later when the molecule's atoms get new
+        // velocities.
+        handlingEvent++;
+        super.boxMoleculeAdded(e);
+        handlingEvent--;
+    }
+
+    public void postRestore() {
+        super.postRestore();
+        for (IAtom atom : box.getLeafList()) {
+            Agent agent = agentManager.getAgent(atom);
+            agent.setAtom((IAtomKinetic) atom);
+        }
+        computeAllCollisions();
     }
 
     /**
-     * Updates collision times appropriately after randomizing momenta
-     * as part of the Andersen scaling thermostat.
-     */
+    protected void scaleMomenta() {
+        super.scaleMomenta();
+        // super.scaleMomenta alters the velocities, so we need to
+        // recalculate collision times
+        if (initialized) computeAllCollisions();
+    }
+
     protected void randomizeTotalKE() {
         super.randomizeTotalKE();
-        // super.randomizeMomenta alters the velocities, so we need to 
+        // super.randomizeMomenta alters the velocities, so we need to
         // recalculate collision times
-        resetCollisionTimes();
+        if (initialized) computeAllCollisions();
     }
 
-    /**
-     * Updates collision time appropriately after randomizing momentum
-     * as part of the Andersen thermostat.
-     */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        if (handlingEvent == 0) {
-            updateAtom(atom);
+        if (initialized && handlingEvent == 0) {
+            updateAtom(atom, 0);
         }
     }
 
-    /**
-     * Registers an object that implements the CollisionListener interface.
-     * This causes the collisionAction method of the object to be called after each collision.
-     * If the listener is already in the list, no action is taken to add it again.
-     */
-    public void addCollisionListener(CollisionListener cl) {
-        if (!this.collisionListeners.contains(cl)) {
-            this.collisionListeners.add(cl);
+    protected void setPairState(IAtom iAtom, IAtom jAtom, int newState) {
+        int i = iAtom.getLeafIndex();
+        IMolecule parentMolecule = iAtom.getParentGroup();
+        if (bondingInfo != null && jAtom.getParentGroup() == parentMolecule) {
+            boolean[] found = {false};
+            bondingInfo.bondedPairPartners[iAtom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+                for (int[] pairIdx : partners[iAtom.getIndex()]) {
+                    IAtom atom1 = parentMolecule.getChildList().get(pairIdx[0]);
+                    IAtom atom2 = parentMolecule.getChildList().get(pairIdx[1]);
+                    IAtom jjAtom = atom1 == iAtom ? atom2 : atom1;
+                    if (jjAtom.getLeafIndex() < i) continue;
+                    if (jjAtom != jAtom) {
+                        continue;
+                    }
+                    bondState[i].put(jAtom.getLeafIndex(), newState);
+                    found[0] = true;
+                    return;
+                }
+            });
+            if (found[0]) return;
         }
+        neighborManager.setPairState(i, jAtom.getLeafIndex(), newState);
     }
 
     /**
-     * De-registers an object from the list of collision listeners.
-     * No exception is generated if the listener is not in the list; 
-     * method simply returns without taking any action.
+     * Advances all atom coordinates by tStep, without any intervening collisions.
+     * Uses free-flight kinematics.
      */
-    public void removeCollisionListener(CollisionListener cl) {
-        this.collisionListeners.remove(cl);
-    }
-
-    /**
-     * @return Returns the nullPotential.
-     */
-    public PotentialHard getNullPotential(AtomType atomType) {
-        return this.nullPotentialManager.get(atomType);
-    }
-
-    /**
-     * Sets the "null" potential for the given AtomType.  The null potential is
-     * a 1-body potential used by IntegratorHard to handle Atoms that wrap
-     * around periodic boundaries when neighbor listing is not used.
-     */
-    public void setNullPotential(PotentialHard nullPotential, AtomType type) {
-        nullPotentialManager.put(type, nullPotential);
-        if (nullPotential != null) {
-            nullPotential.setBox(box);
-        }
-        // inefficient -- we could loop over molecules of type.getSpecies()
-        // and then their children.  oh well.
+    protected void advanceAcrossTimeStep(double tStep) {
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.size();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
-            if (atom.getType() == type) {
-                agentManager.getAgent(atom).setNullPotential(nullPotential);
-            }
+        for (IAtom iAtom : leafList) {
+            iAtom.getPosition().PEa1Tv1(tStep, ((IAtomKinetic) iAtom).getVelocity());
         }
     }
 
-    //collision handler is passed to the potential and is notified of each collision
-    //the potential detects.  The collision handler contains the necessary logic to
-    //process this information so that the collision lists are kept up to date.
-    //The potential should call the handler's setPotential method, with itself as the
-    //argument, before beginning to detect collisions. 
-
-    /**
-     * Produces the Agent for this integrator. This method gets
-     * called by the agentManager, which allocates/deallocates
-     * agents as needed.
-     */
-    public Agent makeAgent(IAtom a, Box agentBox) {
-        Agent agent = new Agent((IAtomKinetic) a, this);
-        agent.setNullPotential(this.nullPotentialManager.get(a.getType()));
-        return agent;
-    }
-
-    // don't need to remove the agent from the event list because reset will
-    // get called and that will totally clear the event list
-    public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
+    @Override
+    public void neighborListNeighborsUpdated() {
+        computeAllCollisions();
     }
 
     public interface CollisionListener {
-        void collisionAction(Agent colliderAgent);
-    }
+        void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision);
 
-    //the up-handler has the logic of the Allen & Tildesley upList subroutine
-    //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-    protected static final class CollisionHandlerUp implements PotentialCalculation {
-        double minCollisionTime;
-        IntegratorHard.Agent aia;
-        IAtom atom1;
-        double collisionTimeStep;
-        private final AtomLeafAgentManager<Agent> integratorAgentManager;
-
-        CollisionHandlerUp(AtomLeafAgentManager<Agent> integratorAgentManager) {
-            this.integratorAgentManager = integratorAgentManager;
-        }
-
-        /**
-         * resets the "atom" held by this class, ensuring the method will
-         * work even if (coincidentally) the atom is the same as the same
-         * one as the last time the method was called.
-         */
-        public void reset() {
-            atom1 = null;
-        }
-
-        /**
-         * sets the atom whose collision time is to be calculated
-         */
-        public void setAtom(IAtom a) {
-            atom1 = a;
-            aia = integratorAgentManager.getAgent(a);
-            minCollisionTime = aia.collisionTime();
-        }//end of setAtom
-
-        //atom pair
-        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            PotentialHard pHard = (PotentialHard)potential;
-            if(atoms.get(0) != atom1) setAtom(atoms.get(0)); //need this if doing minimum collision time calculation for more than one atom
-            double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
-            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
-                System.out.println("collision up time "+collisionTime+" for atom "+atoms+" "+pHard.getClass());
-            }
-            if(collisionTime < minCollisionTime) {
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-                    System.out.println("setting up time "+collisionTime+" for atom "+atoms);
-                }
-                minCollisionTime = collisionTime;
-                aia.setCollision(collisionTime, (atoms.size() == 2) ? (IAtomKinetic) atoms.get(1) : null, pHard);
-            }//end if
-        }//end of calculate(AtomPair...
-
-    } //end of collisionHandlerUp
-
-	//the down-handler has the logic of the Allen & Tildesley downList subroutine
-	//sets collision times of atoms downlist of given atom to minimum of their current
-	//value and their value with given atom
-	private static final class CollisionHandlerDown implements PotentialCalculation {
-        final TreeList eventList;
-        double collisionTimeStep;
-        private final AtomLeafAgentManager<Agent> integratorAgentManager;
-
-        CollisionHandlerDown(TreeList list, AtomLeafAgentManager<Agent> integratorAgentManager) {
-            eventList = list;
-            this.integratorAgentManager = integratorAgentManager;
-        }
-
-
-		public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-			if (atoms.size() != 2) return;
-            PotentialHard pHard = (PotentialHard)potential;
-
-			double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
-            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
-                System.out.println("collision down time "+collisionTime+" for atoms "+atoms+" "+pHard.getClass());
-            }
-			if(collisionTime < Double.POSITIVE_INFINITY) {
-				Agent aia = integratorAgentManager.getAgent(atoms.get(0));
-				if(collisionTime < aia.collisionTime()) {
-					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-						System.out.println("setting down time "+collisionTime+" for atoms "+atoms);
-					}
-                    if (aia.collisionPotential != null) {
-                        aia.eventLinker.remove();
-                    }
-                    aia.setCollision(collisionTime, (IAtomKinetic) atoms.get(1), pHard);
-                    eventList.add(aia.eventLinker);
-				}
-			}
-		}
-	}
-
-    /**
-     * A PotentialCalculation to find atoms that thought they would collide
-     * with an atom.  The iterator should return an atom and its "down"
-     * neighbors.
-     */
-    private static final class ReverseCollisionHandler implements PotentialCalculation {
-        final AtomArrayList listToUpdate;
-        private final AtomLeafAgentManager<Agent> integratorAgentManager;
-
-        ReverseCollisionHandler(AtomArrayList list, AtomLeafAgentManager<Agent> agentManager) {
-            listToUpdate = list;
-            this.integratorAgentManager = agentManager;
-        }
-
-        public void doCalculation(IAtomList pair, IPotentialAtomic p) {
-            if (pair.size() != 2) return;
-            // look for pairs in which pair[0] is the collision partner of pair[1]
-            IAtom aPartner = integratorAgentManager.getAgent(pair.get(0)).collisionPartner();
-            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
-                System.out.println(pair.get(0)+" thought it would collide with "+aPartner);
-            }
-            if(aPartner == pair.get(1)) {
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 2)) {
-                    System.out.println("Will update "+pair.get(0)+" because it wanted to collide with "+aPartner);
-                }
-                listToUpdate.add(pair.get(0));
-            }
+        default void fieldCollision(IAtomKinetic atom, Vector r, Vector deltaP, double tCollision) {
         }
     }
 
-    /**
-     * Agent defined by this integrator.
-     * Holds information about the time to next collision (considering only atoms
-     * uplist of the atom), the collisionPartner (atom that this one will be colliding with),
-     * and a handle to the potential governing the interactions of this atom and its collision partner
-     * (this is kept for convenience, so it won't have to be determined again when the collision
-     * is processed).
-     */
-    //Do not use encapsulation since the fields are for referencing by the integrator
-    public static class Agent {  //need public so to use with instanceof
-        protected final IntegratorHard integrator;
-        public IAtomKinetic atom, collisionPartner;
-        public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
-        public TreeLinker eventLinker;
-        protected PotentialHard nullPotential;
-        protected AtomSetSinglet atomSetSinglet;
-        protected double nullCollisionTime;
-
-        public Agent(IAtomKinetic a, IntegratorHard integrator) {
-            atom = a;
-            eventLinker = new TreeLinker(this);
-            eventLinker.sortKey = Double.POSITIVE_INFINITY;
-            nullCollisionTime = Double.POSITIVE_INFINITY;
-            this.integrator = integrator;
-        }
-
-        public void setNullPotential(PotentialHard newNullPotential) {
-            nullPotential = newNullPotential;
-        }
-
-        public String toString() {
-            return "Collider: "+atom+"; Partner: "+collisionPartner+"; Potential: "+collisionPotential;
-        }
-
-        public void setAtom(IAtomKinetic a) {atom = a;}
-        public final IAtomKinetic atom() {
-            return atom;
-        }
-
-        public final IAtomKinetic collisionPartner() {
-            return collisionPartner;
-        }
-
-        /**
-         * resets collision potential and partner.  If a null potnetial is in
-         * use, the time is reset to the null potential collision time.
-         * caller should remove eventLinker from the tree if needed before
-         * calling this method.
-         */
-        public void resetCollision() {
-            // events with a (non-null) potential must be in the tree
-            // events in the tree must have a potential
-            collisionPotential = nullPotential;
-            if (collisionPotential != null) {
-                eventLinker.sortKey = nullCollisionTime;
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)) {
-                    System.out.println("resetting collision time back to null collision time for "+atom+" to "+eventLinker.sortKey);
-                }
-            }
-            else {
-                eventLinker.sortKey = Double.POSITIVE_INFINITY;
-            }
-            collisionPartner = null;
-        }
-
-        /**
-         * resets time, potential and partner.  caller should remove
-         * eventLinker from the tree if needed before calling this method.
-         */
-        public void resetCollisionFull() {
-            // events with a (non-null) potential must be in the tree
-            // events in the tree must have a potential
-            collisionPotential = nullPotential;
-            if (collisionPotential != null) {
-                if (atomSetSinglet == null) {
-                    atomSetSinglet = new AtomSetSinglet();
-                }
-                atomSetSinglet.atom = atom;
-                eventLinker.sortKey = collisionPotential.collisionTime(atomSetSinglet,integrator.collisionTimeStep);
-                nullCollisionTime = eventLinker.sortKey;
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)) {
-                    System.out.println("initializing null collision time for "+atom+" to "+eventLinker.sortKey);
-                }
-            }
-            else {
-                eventLinker.sortKey = Double.POSITIVE_INFINITY;
-            }
-            collisionPartner = null;
-        }
-
-        /**
-         * Sets parameters associated with next two-body collision of this atom with another atom.
-         *
-         * @param time    time to collision of this agent's atom with an atom uplist of it
-         * @param partner the atom this one will collide with next
-         * @param p       the potential for interactions between this atom and its collision partner
-         */
-        public final void setCollision(double time, IAtomKinetic partner, PotentialHard p) {
-            collisionPartner = partner;
-            collisionPotential = p;
-            eventLinker.sortKey = time;
-        }
-
-        /**
-         * Decreases the recorded time to collision of this atom
-         * This action is performed when the atom is advanced without a collision
-         */
-        public final void decrementCollisionTime(double interval) {
-            eventLinker.sortKey -= interval;
-            nullCollisionTime -= interval;
-        }
-
-        /**
-         * Accessor method for the time to next collision of this atom
-         */
-        public final double collisionTime() {return eventLinker.sortKey;}
-    }//end of Agent
+    // called by neighbor consumer and also bonded callback
+    private interface MyConsumer {
+        void accept(IAtom jAtom, Vector rij, int state, IPotential2 pij);
+    }
 }
-

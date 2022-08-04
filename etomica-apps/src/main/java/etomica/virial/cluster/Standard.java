@@ -3,18 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.virial.cluster;
-import java.util.ArrayList;
 
-import etomica.math.SpecialFunctions;
-import etomica.potential.Potential;
-import etomica.util.Arrays;
 import etomica.math.Rational;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumNonAdditiveTrimerEnergy;
-import etomica.virial.ClusterSumPolarizable;
+import etomica.math.SpecialFunctions;
+import etomica.util.Arrays;
 import etomica.virial.MayerFunction;
+
+import java.util.ArrayList;
 
 /**
  * @author kofke
@@ -510,107 +505,7 @@ public final class Standard {
         } while (generator.advance());
         return new ClusterSum(clusters,weights,linearF);
     }
-    
-    public static ClusterSumPolarizable virialClusterPolarizable(int nBody, MayerFunction f, 
-            boolean usePermutations, boolean uniqueOnly) {
-        uniqueOnly = uniqueOnly && nBody > 3;
-        int nBondTypes = 1;
-        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
-        ClusterGenerator generator = new ClusterGenerator(clusterD);
-        generator.setAllPermutations(!usePermutations);
-        generator.setOnlyDoublyConnected(true);
-        generator.setExcludeArticulationPoint(false);
-        generator.setExcludeArticulationPair(false);
-        generator.setExcludeNodalPoint(false);
-        generator.setMakeReeHover(false);
-        clusterD.reset();
-        generator.reset();
-        ClusterBonds[] clusters = new ClusterBonds[0];
-        double[] weights = new double[0];
-        long fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
-        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
-        do {
-            int iBond = 0;
-            int numBonds = clusterD.getNumConnections();
-            int[][][] bondList = new int[nBondTypes][][];
-            bondList[0] = new int[numBonds][2];
-            if (nBondTypes == 2) {
-                int totalBonds = nBody*(nBody-1)/2;
-                bondList[1] = new int[totalBonds-numBonds][2];
-            }
-            for (int i = 0; i < nBody; i++) {
-                int[] iConnections = clusterD.mConnections[i];
-                for (int j=0; j<nBody-1; j++) {
-                    if (iConnections[j] > i) {
-                        bondList[0][iBond][0] = i;
-                        bondList[0][iBond++][1] = iConnections[j];
-                    }
-                    if (iConnections[j] == -1) break;
-                }
-            }
-            // only use permutations if the diagram has permutations
-            boolean thisUsePermutations = !uniqueOnly && usePermutations && 
-                                          clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
-            // only use e-bonds if one of the diagrms has some
-            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
-            double [] newWeights = new double[weights.length+1];
-            System.arraycopy(weights,0,newWeights,0,weights.length);
-            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
-            weights = newWeights;
-        } while (generator.advance());
-        return new ClusterSumPolarizable(clusters,weights,new MayerFunction[]{f});
-    }
-    
-    public static ClusterSumNonAdditiveTrimerEnergy virialNonAdditiveTrimerEnergy(int nBody, MayerFunction f, Potential p3NonAdd,
-            boolean usePermutations, boolean uniqueOnly) {
-        uniqueOnly = uniqueOnly && nBody > 3;
-        int nBondTypes = 1;
-        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
-        ClusterGenerator generator = new ClusterGenerator(clusterD);
-        generator.setAllPermutations(!usePermutations);
-        generator.setOnlyDoublyConnected(true);
-        generator.setExcludeArticulationPoint(false);
-        generator.setExcludeArticulationPair(false);
-        generator.setExcludeNodalPoint(false);
-        generator.setMakeReeHover(false);
-        clusterD.reset();
-        generator.reset();
-        ClusterBonds[] clusters = new ClusterBonds[0];
-        double[] weights = new double[0];
-        long fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
-        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
-        do {
-            int iBond = 0;
-            int numBonds = clusterD.getNumConnections();
-            int[][][] bondList = new int[nBondTypes][][];
-            bondList[0] = new int[numBonds][2];
-            if (nBondTypes == 2) {
-                int totalBonds = nBody*(nBody-1)/2;
-                bondList[1] = new int[totalBonds-numBonds][2];
-            }
-            for (int i = 0; i < nBody; i++) {
-                int[] iConnections = clusterD.mConnections[i];
-                for (int j=0; j<nBody-1; j++) {
-                    if (iConnections[j] > i) {
-                        bondList[0][iBond][0] = i;
-                        bondList[0][iBond++][1] = iConnections[j];
-                    }
-                    if (iConnections[j] == -1) break;
-                }
-            }
-            // only use permutations if the diagram has permutations
-            boolean thisUsePermutations = !uniqueOnly && usePermutations && 
-                                          clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
-            // only use e-bonds if one of the diagrms has some
-            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
-            double [] newWeights = new double[weights.length+1];
-            System.arraycopy(weights,0,newWeights,0,weights.length);
-            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
-            weights = newWeights;
-        } while (generator.advance());
-        return new ClusterSumNonAdditiveTrimerEnergy(clusters,weights,new MayerFunction[]{f}, p3NonAdd);
-    }
-    
+
 	public static final int[][] B2 = new int[][] {{0,1}};
 	public static final int[][] C3 = ring(3);
 	

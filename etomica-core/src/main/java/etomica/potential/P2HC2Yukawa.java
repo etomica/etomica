@@ -4,12 +4,7 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
 import etomica.space.Boundary;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Space;
 
 /**
  * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard-Jones like potential.
@@ -21,19 +16,21 @@ import etomica.space.Space;
  * 			| infinity																		r <= sigma
  * U(r) =	| 
  * 			|(A1/r) * exp[-z1 * (r - sigma)] - (A2 * epsilon/r) * exp[-z2 * (r - sigma)]	r > sigma
- * 
+ *
  * 	LJ behavior parameters:	A1 = 1.6438 * sigma
  * 							z1 = 14.7 / sigma
  * 							A2 = 2.03 * sigma
  * 							z2 = 2.69 / sigma
- * 
+ *
  * @author msellers
  */
 
-public final class P2HC2Yukawa extends Potential2SoftSpherical {
+public final class P2HC2Yukawa implements IPotential2 {
 
+	public static IPotential2 makeTruncated(double sigma, double epsilon, TruncationFactory tf) {
+		return tf.make(new P2HC2Yukawa(sigma, epsilon));
+	}
 
-	
 	public double d2u(double r2) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException();
@@ -44,23 +41,10 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		throw new RuntimeException();
 	}
 
-	public P2HC2Yukawa(Space _space){
-		this(_space, 1.0, 1.0);
-	}
-	
-	public P2HC2Yukawa(Space _space, double sigma, double epsilon){
-		super(_space);
-		
-		dr = space.makeVector();
+	public P2HC2Yukawa(double sigma, double epsilon){
 		setSigma(sigma);
 		setEpsilon(epsilon);
 		setParameters(sigma);
-	}
-	
-	public double getRange(){return Double.POSITIVE_INFINITY;}
-	
-	public void setBox(Box box) {
-		nearestImageTransformer = box.getBoundary();
 	}
 
 	/**
@@ -79,23 +63,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		double uterm2 = (A2 * epsilon / r) * expZ2 * expRsigma;
 		
 		return (uterm1 - uterm2);
-	}
-		
-    /**
-     * Energy of the pair as given by the u(double) method
-     */
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        nearestImageTransformer.nearestImage(dr);
-        return u(dr.squared());
-    }
-	
-    /**
-     * Integral from rC to infinity.
-     */
-	public double uInt(double rC){
-		
-		return 0;
 	}
 
 	/**
@@ -124,7 +91,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 		expZ2 = Math.exp(-z2);
 	}
 	
-    private static final long serialVersionUID = 1L;
 	private double sigma;
 	private double epsilon;
 	private double A1;
@@ -133,6 +99,5 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	private double z2;
 	private double expZ1;
 	private double expZ2; 
-	private final Vector dr;
 	private Boundary nearestImageTransformer;
 }	

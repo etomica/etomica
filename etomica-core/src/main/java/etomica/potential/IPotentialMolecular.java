@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.molecule.IMoleculeList;
 
-public interface IPotentialMolecular extends IPotential {
+public interface IPotentialMolecular {
 
     /**
      * Returns the interaction energy between the given atoms.  There might be

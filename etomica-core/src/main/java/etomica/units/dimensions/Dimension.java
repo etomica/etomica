@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.units.dimensions;
-import java.util.Arrays;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import etomica.units.CompoundUnit;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
+
+import java.util.Arrays;
 
 /**
  * Parent of all Dimension classes, which describe the physical dimensions
@@ -51,7 +51,6 @@ public class Dimension implements java.io.Serializable {
         return new CompoundUnit(unitSystem.baseUnits(), signature());
     }
 
-    @JsonValue
     public String toString() {
         return name;
     }

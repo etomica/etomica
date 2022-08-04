@@ -4,13 +4,12 @@
 
 package etomica.graphics;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomTest;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByElement;
 import etomica.atom.DiameterHashByElementType;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pixel;
@@ -47,8 +46,7 @@ public class DisplayBox extends Display {
     private boolean graphicResizable = true;
     private final Space space;
     private double sigma = 1.0;
-    protected final Simulation sim;
-            
+
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvas canvas = null;
 
@@ -94,7 +92,7 @@ public class DisplayBox extends Display {
      * Warning: after instantiation, clients using G3DSys may need to toggle
      * display.canvas.setVisible false and then true to fix the 'sometimes
      * gray' bug.
-     * 
+     *
      * i.e.; = new ColorSchemeByType()
      * if(display.canvas instanceof JComponent) {
      * ((JComponent)display.canvas).setVisible(false);
@@ -102,18 +100,17 @@ public class DisplayBox extends Display {
      * }
      * @param box
      */
-    public DisplayBox(Simulation sim, Box box) {
+    public DisplayBox(Controller controller, Box box) {
         super();
-        this.sim = sim;
-        this.controller = sim.getController();
-        this.space = sim.getSpace();
+        this.controller = controller;
+        this.space = box.getSpace();
         colorScheme = new ColorSchemeByType();
         setLabel("Configuration");
 
         align[0] = align[1] = CENTER;
 
         diameterHash = new DiameterHashByElementType();
-        DiameterHashByElement.populateVDWDiameters(((DiameterHashByElementType)diameterHash).getDiameterHashByElement());
+        DiameterHashByElement.populateVDWDiameters(((DiameterHashByElementType) diameterHash).getDiameterHashByElement());
 
         setBox(box);
         setPixelUnit(new Pixel(10));
@@ -130,7 +127,6 @@ public class DisplayBox extends Display {
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setSize(width, height);
         canvas.setMinimumSize(temp);
-        canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
 
@@ -316,7 +312,7 @@ public class DisplayBox extends Display {
                 boxX *=1.4;
                 boxY *=1.4;
                 if(canvas == null) {
-                	canvas = new DisplayBoxCanvasG3DSys(sim, this, space, controller);
+                    canvas = new DisplayBoxCanvasG3DSys(this, space, controller);
                     setSize(boxX, boxY);
                 }
                 else {
@@ -471,14 +467,13 @@ public class DisplayBox extends Display {
     public LinkedList getDrawables() {return(drawables);}
     
 
-    /** 
+    /**
      * Simulation.GraphicalElement interface method.  Overrides Display method
      * to return the DisplayBox.Canvas as the display object.
      *
-     * @param obj ignored by this method.
      * @return Component
      */
-    public Component graphic(Object obj) {
+    public Component graphic() {
         return canvas;
     }
 

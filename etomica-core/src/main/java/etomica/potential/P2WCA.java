@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
+
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -16,17 +17,16 @@ import etomica.units.dimensions.Length;
  *
  * @author David Kofke (edited by Eric C. Cichowski and Todd Schmidt)
  */
-public class P2WCA extends Potential2SoftSpherical {
+public class P2WCA implements IPotential2 {
 
     /**
      * Constructs potential using default sigma and epsilon given by Default class.
      */
-    public P2WCA(Space _space) {
-        this(_space, 1.0, 1.0);
+    public P2WCA() {
+        this(1.0, 1.0);
     }
     
-    public P2WCA(Space _space, double sigma, double epsilon) {
-        super(_space);
+    public P2WCA(double sigma, double epsilon) {
         setSigma(sigma);
         setEpsilon(epsilon);
     }
@@ -80,9 +80,9 @@ public class P2WCA extends Potential2SoftSpherical {
       }
             
     /**
-     *  Returns zero, since there is no long-range correction.
+     * Returns zero, since there is no long-range correction.
      */
-    public double uInt(double rC) {
+    public double integral(Space space, double rC) {
         return 0.0;
     }
 
@@ -119,7 +119,6 @@ public class P2WCA extends Potential2SoftSpherical {
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
    
-    private static final long serialVersionUID = 1L;
     private double sigma, sigmaSquared, range, rangeSquared;
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;

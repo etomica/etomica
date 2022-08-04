@@ -4,11 +4,10 @@ import Jama.Matrix;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
-import etomica.potential.PotentialMolecular;
+import etomica.potential.IPotentialMolecular;
 import etomica.potential.PotentialPolarizable;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -24,12 +23,13 @@ import java.util.Arrays;
  * 
  * @author Hye Min Kim
  */
-public class PNWaterGCPMReactionField extends PotentialMolecular implements PotentialPolarizable {
+public class PNWaterGCPMReactionField implements IPotentialMolecular, PotentialPolarizable {
 
-    public PNWaterGCPMReactionField(Space space) {
-	    super(Integer.MAX_VALUE, space);
+    public PNWaterGCPMReactionField(Space space, Box box) {
+	    super();
+        this.space = space;
+        this.box = box;
     	//super(2, space);//ignore many-body interaction
-	    pair = new MoleculePair();
         sigma = 3.69;
         epsilon = Kelvin.UNIT.toSim(110);
         gamma = 12.75;
@@ -69,16 +69,15 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
         A = new Matrix[0];
 	}   
 
-    public double energy(IMoleculeList atoms){
+    public double energy(IMoleculeList molecules){
         double volume = box.getBoundary().volume();
         double boxLength = Math.pow(volume, 1.0/3.0);      
     	setCutOffDistance(boxLength*0.49);
     	initRqFactor();
         double sum = 0;
-        for (int i=0; i<atoms.size()-1; i++) {
-            pair.mol0 = atoms.get(i);
-            
-            IAtomList iLeafAtoms = pair.mol0.getChildList();
+        for (int i=0; i<molecules.size()-1; i++) {
+
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
             Vector O1r = iLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
             Vector H11r = iLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
             Vector H12r = iLeafAtoms.get(SpeciesWater4P.indexH2).getPosition();
@@ -103,12 +102,11 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
             
             //System.out.println("fixd dipole "+Debye.UNIT.fromSim(iDipoleMoment.getX(2)));
             sum -= myRqFactor*0.5*iDipoleMoment.squared();//reaction field contribution
-            for (int j=i+1; j<atoms.size(); j++) {
-                pair.mol1 = atoms.get(j);
-                double nonPolE = getNonPolarizationEnergy(pair);               
+            for (int j=i+1; j<molecules.size(); j++) {
+                double nonPolE = getNonPolarizationEnergy(molecules.get(i), molecules.get(j));
                 sum += nonPolE;
                 if (nonPolE !=0){
-	            	IAtomList jLeafAtoms = pair.mol1.getChildList();
+	            	IAtomList jLeafAtoms = molecules.get(j).getChildList();
 	            	Vector Ojr = jLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
 	            	Vector Hj1r = jLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
 	            	Vector Hj2r = jLeafAtoms.get(SpeciesWater4P.indexH2).getPosition();
@@ -136,7 +134,7 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
                 
             }
         }
-        sum += getPolarizationEnergy(atoms);
+        sum += getPolarizationEnergy(molecules);
         return sum;
     }
     
@@ -144,13 +142,13 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
-    public double getNonPolarizationEnergy(IMoleculeList atoms) {
+    public double getNonPolarizationEnergy(IMolecule molecule1, IMolecule molecule2) {
         double volume = box.getBoundary().volume();
         double boxLength = Math.pow(volume, 1.0/3.0);      
     	setCutOffDistance(boxLength*0.49);
     	
-        IAtomList water1Atoms = atoms.get(0).getChildList();
-        IAtomList water2Atoms = atoms.get(1).getChildList();
+        IAtomList water1Atoms = molecule1.getChildList();
+        IAtomList water2Atoms = molecule2.getChildList();
 
         Vector O1r = water1Atoms.get(SpeciesWater4P.indexO).getPosition();
         Vector O2r = water2Atoms.get(SpeciesWater4P.indexO).getPosition();
@@ -594,10 +592,6 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
         return UpolAtkins;
     }
 
-    public final double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-    
     public void setCutOffDistance(double a){
     	cutOffDistance = a;
     	initRqFactor();
@@ -632,17 +626,13 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
         					(-96.2805/reducedT+41.7909*reducedT-10.2099*reducedT2)*reducedRho3+(-45.2059/reducedT2+84.6395/reducedT-35.8644)*reducedRho4;
         myRqFactor = (epsilonRF-1)*2/(2*epsilonRF+1)/Math.pow(cutOffDistance, 3);  
     }
-    
-    public void setBox(Box box) {
-    	this.box = box;
-    }
+
     public void setDodebug(boolean a){
     	dodebug = a;
     }
 
-    private static final long serialVersionUID = 1L;
-    protected final MoleculePair pair;
-    protected Boundary boundary;
+    protected final Space space;
+    protected final Box box;
     protected final double sigma;
     protected final double epsilon, gamma;
     protected final double chargeH, chargeM;
@@ -666,7 +656,6 @@ public class PNWaterGCPMReactionField extends PotentialMolecular implements Pote
     private double temperature, rho;
     protected double UpolAtkins;
     protected double myRqFactor;
-    protected Box box;
     public static boolean dodebug=false;
 
 }

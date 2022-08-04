@@ -4,15 +4,12 @@
 
 package etomica.models.co2;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * 
@@ -24,50 +21,23 @@ import etomica.species.Species;
  * Oct, 20, 2010
  *
  */
-public class SpeciesTraPPECO2 extends Species {
-
+public class SpeciesTraPPECO2 {
     public final static int indexC = 0;
     public final static int indexOleft = 1;
     public final static int indexOright = 2;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType cType, oType;
-    public SpeciesTraPPECO2(Space space) {
-        this(space, false);
-    }
-    public SpeciesTraPPECO2(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
 
-        cType = new AtomType(Carbon.INSTANCE);
-        oType = new AtomType(Oxygen.INSTANCE);
-        addChildType(cType);
-        addChildType(oType);
-
-        setConformation(new ConformationCO2(space));
+    public static SpeciesGeneral create(Space space) {
+         return create(space, false);
      }
 
-    public IMolecule makeMolecule() {
-         Molecule CO2 = new Molecule(this, 3);
-         CO2.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         CO2.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));
-         CO2.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));
-
-         conformation.initializePositions(CO2.getChildList());
-         return CO2;
-     }
-
-    public AtomType getCarbonType() {
-         return cType;
-     }
-
-    public AtomType getOxygenType() {
-         return oType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 3;
+    public static SpeciesGeneral create(Space space, boolean isDynamic) {
+         AtomType cType = new AtomType(Carbon.INSTANCE);
+         AtomType oType = new AtomType(Oxygen.INSTANCE);
+         return new SpeciesBuilder(space)
+                 .addCount(cType, 1)
+                 .addCount(oType, 2)
+                 .setDynamic(isDynamic)
+                 .withConformation(new ConformationCO2(space))
+                 .build();
      }
 }

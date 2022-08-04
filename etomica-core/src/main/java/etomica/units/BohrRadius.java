@@ -20,7 +20,7 @@ public final class BohrRadius extends SimpleUnit {
     
     private BohrRadius() {
     	    super(Length.DIMENSION,
-    	            5.2917720859E-1, //conversion from Bohr Radii to Angstroms
+    	            5.29177210903E-1, //conversion from Bohr Radii to Angstroms
     	            "Bohr Radii", "a0", Prefix.ALLOWED
     	    );
     }

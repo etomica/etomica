@@ -32,13 +32,19 @@ public class AtomOriented extends Atom implements
             else {
                 iOrientation = new OrientationFull3D(space);
             }
-        } else {
+        }
+        else {
             iOrientation = space.makeOrientation();
         }
     }
 
     public IOrientation getOrientation() {
         return iOrientation;
+    }
+
+    public void copyCoordinatesFrom(IAtom atom) {
+        super.copyCoordinatesFrom(atom);
+        iOrientation.E(((IAtomOriented) atom).getOrientation());
     }
 
     @Override

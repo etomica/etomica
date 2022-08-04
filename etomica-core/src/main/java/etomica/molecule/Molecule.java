@@ -94,6 +94,12 @@ public class Molecule implements IMolecule {
         return species;
     }
 
+    public void copyCoordinatesFrom(IMolecule molecule) {
+        for (IAtom atom : childList) {
+            atom.copyCoordinatesFrom(molecule.getChildList().get(atom.getIndex()));
+        }
+    }
+
     @Override
     public void saveState(Writer fw) throws IOException {
         for (IAtom a : childList) {
@@ -107,7 +113,6 @@ public class Molecule implements IMolecule {
             a.restoreState(br);
         }
     }
-
 
     protected int index;
     protected final AtomArrayList childList;

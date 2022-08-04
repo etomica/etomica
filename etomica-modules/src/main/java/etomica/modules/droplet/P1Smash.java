@@ -5,66 +5,40 @@
 package etomica.modules.droplet;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.potential.PotentialSoft;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Gravity-like potential that pushes the molecules toward the center.
  */
-public class P1Smash implements PotentialSoft {
+public class P1Smash implements IPotential1 {
 
     public P1Smash(Space space) {
-        gradient = new Vector[1];
-        gradient[0] = space.makeVector();
         g = 1;
     }
-    
-    public void setBox(Box newBox) {}
-    
-    public int nBody() {
-        return 1;
-    }
-    
+
     public void setG(double newG) {
         g = newG;
     }
-    
+
     public double getG() {
         return g;
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
+    public double u(IAtom atom) {
+        return Math.abs(atom.getPosition().getX(2)) * g;
     }
 
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
+    /**
+     * Computes the force (and adds it to f) for IAtom atom and returns the
+     * energy due to the field.
+     */
+    public double udu(IAtom atom, Vector f) {
+        double z = atom.getPosition().getX(2);
+        f.setX(2, f.getX(2) - g * Math.signum(z));
+        return Math.abs(z) * g;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        if (a.getPosition().getX(2) > 0) {
-            gradient[0].setX(2, g);
-        }
-        else {
-            gradient[0].setX(2,-g);
-        }
-        return gradient;
-    }
-
-    public double energy(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        return Math.abs(a.getPosition().getX(2))*g;
-    }
-    
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-    
-    protected final Vector[] gradient;
     protected double g;
 }

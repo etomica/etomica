@@ -37,7 +37,7 @@ public class DataSourceImposedFEHistogram implements IDataSource, DataSourceInde
     protected final DataTag tag, xTag;
     protected double bmu;
     protected final MCMoveInsertDeleteBiased mcMoveID;
-    
+
     public DataSourceImposedFEHistogram(MCMoveOverlapListener mcMoveOverlapMeter, MCMoveInsertDeleteBiased mcMoveID, double bmu) {
         tag = new DataTag();
         xTag = new DataTag();

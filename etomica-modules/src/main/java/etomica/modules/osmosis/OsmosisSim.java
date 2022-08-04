@@ -12,13 +12,15 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Plane;
 import etomica.potential.P1HardBoundary;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.NeighborManagerSimpleHard;
+import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
@@ -26,12 +28,13 @@ import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.awt.*;
 
 /**
  * Osmosis simulation.
+ *
  * @author Jhumpa Adhikari
  * @author Andrew Schultz
  */
@@ -40,54 +43,43 @@ public class OsmosisSim extends Simulation {
 
     protected final static int initialSolute = 10;
     protected final static int initialSolvent = 50;
-    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public SpeciesSpheresMono speciesSolvent,speciesSolute;
+    public SpeciesGeneral speciesSolvent, speciesSolute;
     public Box box;
-    public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardA;
     public P1HardBoundary boundaryHardB;
-    public P1HardWall boundarySemiB;
-    public ActivityIntegrate activityIntegrate;
+
 
     public OsmosisSim(Space _space) {
-
         super(_space);
 
         final double sigma = 1.0;
 
-        speciesSolvent = new SpeciesSpheresMono(this, space);
-        speciesSolvent.setIsDynamic(true);
+        speciesSolvent = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolvent);
-        speciesSolute = new SpeciesSpheresMono(this, space);
-        speciesSolute.setIsDynamic(true);
+        speciesSolute = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolute);
-
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        potentialAA = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialAA, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
-        potentialBB = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialBB, new AtomType[]{speciesSolute.getLeafType(), speciesSolute.getLeafType()});
-        potentialAB = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialAB, new AtomType[]{speciesSolvent.getLeafType(), speciesSolute.getLeafType()});
-
-        //Boundary potential for the solvent
-        boundaryHardA = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardA, new AtomType[]{speciesSolvent.getLeafType()});
-        boundaryHardA.setCollisionRadius(0.5 * sigma);
-
-        //Boundary potential for the solute
-        boundaryHardB = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardB, new AtomType[]{speciesSolute.getLeafType()});
-        boundaryHardB.setCollisionRadius(0.5 * sigma);
-
-        //wall in the middle that only applies to the solute
-        boundarySemiB = new P1HardWall(space, sigma);
-        potentialMaster.addPotential(boundarySemiB, new AtomType[]{speciesSolute.getLeafType()});
-        boundarySemiB.setCollisionRadius(0.5 * sigma);
 
         //construct box
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+
+        NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        P2HardGeneric potential = P2HardSphere.makePotential(sigma);
+        potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolvent.getLeafType(), potential);
+        potentialMaster.setPairPotential(speciesSolute.getLeafType(), speciesSolvent.getLeafType(), potential);
+        potentialMaster.setPairPotential(speciesSolute.getLeafType(), speciesSolute.getLeafType(), potential);
+
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+        //Boundary potential for the solvent
+        boundaryHardA = new P1HardBoundary(space, false, box);
+        pcField.setFieldPotential(speciesSolvent.getLeafType(), boundaryHardA);
+        boundaryHardA.setCollisionRadius(0.5 * sigma);
+
+        //Boundary potential for the solute
+        boundaryHardB = new P1HardBoundaryOsmosis(box);
+        pcField.setFieldPotential(speciesSolute.getLeafType(), boundaryHardB);
+        boundaryHardB.setCollisionRadius(0.5 * sigma);
 
         if (space instanceof Space2D) { // 2D
             box.getBoundary().setBoxSize(new Vector2D(10.0, 10.0));
@@ -97,31 +89,30 @@ public class OsmosisSim extends Simulation {
         box.setNMolecules(speciesSolvent, initialSolvent);
         box.setNMolecules(speciesSolute, initialSolute);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), pcField.getFieldPotentials(),
+                neighborManager, random, 0.05, 1.0, box, getSpeciesManager(), null);
+        integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1.0), space);
         config.initializeCoordinates(box);
     }
 
+
     public static void main(String[] args) {
-    	Space sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         final OsmosisSim sim = new OsmosisSim(sp);
         final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp);
         config.initializeCoordinates(sim.box);
-    	Plane plane = new Plane(sim.getSpace());
+        Plane plane = new Plane(sim.getSpace());
 
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
-    	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
-    	simGraphic.getController().getReinitButton().setPostAction(new IAction () {
-    		public void actionPerformed() {
-    	        config.initializeCoordinates(sim.box);
-    			simGraphic.getDisplayBox(sim.box).repaint();
-    		}
-    	});
+        ((etomica.graphics.DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
+        simGraphic.getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                config.initializeCoordinates(sim.box);
+                simGraphic.getDisplayBox(sim.box).repaint();
+            }
+        });
         simGraphic.makeAndDisplayFrame("Osmosis Sim");
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
@@ -130,7 +121,8 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.activityIntegrate.setSleepPeriod(1);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
     }
 
 } 

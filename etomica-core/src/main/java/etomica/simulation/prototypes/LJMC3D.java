@@ -22,11 +22,12 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -40,7 +41,6 @@ import etomica.util.ParseArgs;
 public class LJMC3D extends Simulation {
 
     public final PotentialMasterCell potentialMaster;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
 
     /**
@@ -56,14 +56,14 @@ public class LJMC3D extends Simulation {
     public LJMC3D(SimParams params) {
         super(Space3D.getInstance());
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double rc = 3;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
-
         Box box = new Box(space);
         addBox(box);
+        potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+
         box.setNMolecules(species, params.numAtoms);
         BoxInflate inflater = new BoxInflate(box, space, params.density);
         inflater.actionPerformed();
@@ -71,23 +71,17 @@ public class LJMC3D extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
-        P2LennardJones p2lj = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, p2lj, rc);
+        P2LennardJones p2lj = new P2LennardJones();
+        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(p2lj, rc);
         AtomType atomType = species.getLeafType();
-        potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
+        potentialMaster.setPairPotential(atomType, atomType, p2);
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        integrator.setTemperature(params.temperature);
+        integrator = new IntegratorMC(potentialMaster, random, params.temperature, box);
 
-        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        potentialMaster.setCellRange(2);
-        potentialMaster.reset();
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+        this.getController().addActivity(new ActivityIntegrate(integrator));
     }
 
     public static void main(String[] args) {
@@ -113,20 +107,18 @@ public class LJMC3D extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
         // data collection
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-        sim.getIntegrator().getEventManager().addListener(pump);
+        sim.integrator.getEventManager().addListener(pump);
 
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getIntegrator().resetStepCount();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         long t2 = System.currentTimeMillis();
 
@@ -157,7 +149,7 @@ public class LJMC3D extends Simulation {
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
             accPE.setTimeDataSource(timeSource);
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
-            sim.getIntegrator().getEventManager().addListener(pumpPE);
+            sim.integrator.getEventManager().addListener(pumpPE);
 
             DisplayPlot historyPE = new DisplayPlot();
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());

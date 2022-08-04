@@ -4,10 +4,15 @@
 
 package etomica.virial;
 
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.wheatley.ClusterWheatleyExtendSW;
 
 import java.math.BigDecimal;
 

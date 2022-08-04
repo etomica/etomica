@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 
 /**
@@ -16,33 +15,22 @@ import etomica.molecule.IMoleculeList;
 public class PotentialMolecularSum implements IPotentialMolecular {
 
     protected final IPotentialMolecular[] p;
+    protected double umax;
     
     public PotentialMolecularSum(IPotentialMolecular[] p) {
+        this(p, Double.POSITIVE_INFINITY);
+    }
+
+    public PotentialMolecularSum(IPotentialMolecular[] p, double umax) {
         this.p = p;
-    }
-
-    public double getRange() {
-        double r = 0;
-        for (int i=0; i<p.length; i++) {
-            if (r < p[i].getRange()) r = p[i].getRange();
-        }
-        return r;
-    }
-
-    public void setBox(Box box) {
-        for (int i=0; i<p.length; i++) {
-            p[i].setBox(box);
-        }
-    }
-
-    public int nBody() {
-        return p[0].nBody();
+        this.umax = umax;
     }
 
     public double energy(IMoleculeList molecules) {
         double sum = 0;
         for (int i=0; i<p.length; i++) {
             sum += p[i].energy(molecules);
+            if (sum >= umax) return Double.POSITIVE_INFINITY;
         }
         return sum;
     }

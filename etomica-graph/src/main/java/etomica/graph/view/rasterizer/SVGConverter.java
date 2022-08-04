@@ -22,21 +22,6 @@
  */
 package etomica.graph.view.rasterizer;
 
-import java.awt.Color;
-import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
@@ -44,6 +29,15 @@ import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.transcoder.image.JPEGTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.batik.util.ParsedURL;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This application can be used to convert SVG images to raster images.
@@ -262,7 +256,7 @@ public class SVGConverter {
     protected boolean securityOff = false;
 
     /** Sources files or URLs */
-    protected List sources = null;
+    protected List<String> sources = null;
 
     /**
      * Destination image path. Can be a file (for single source) or
@@ -281,9 +275,6 @@ public class SVGConverter {
 
     /** Alternate stylesheet for which should be applied to the SVG */
     protected String alternateStylesheet = null;
-
-    /** Contents of <tt>fileset</tt> elements. */
-    protected List files = new ArrayList();
 
     /**
      * Controls some aspects of the converter's operation,
@@ -474,10 +465,10 @@ public class SVGConverter {
             this.sources = null;
         }
         else{
-            this.sources = new ArrayList();
-            for (int i=0; i<sources.length; i++){
-                if (sources[i] != null){
-                    this.sources.add(sources[i]);
+            this.sources = new ArrayList<>();
+            for (String source : sources) {
+                if (source != null) {
+                    this.sources.add(source);
                 }
             }
 
@@ -487,7 +478,7 @@ public class SVGConverter {
         }
     }
 
-    public List getSources(){
+    public List<String> getSources(){
         return sources;
     }
 
@@ -838,12 +829,12 @@ public class SVGConverter {
 
         // Set image quality. ------------------------------------------------
         if (quality > 0) {
-            map.put(JPEGTranscoder.KEY_QUALITY, new Float(this.quality));
+            map.put(JPEGTranscoder.KEY_QUALITY, this.quality);
         }
 
         // Set image indexed. ------------------------------------------------
         if (indexed != -1) {
-            map.put(PNGTranscoder.KEY_INDEXED, new Integer(indexed));
+            map.put(PNGTranscoder.KEY_INDEXED, indexed);
         }
 
         // Set image background color -----------------------------------------
@@ -853,18 +844,18 @@ public class SVGConverter {
 
         // Set image height and width. ----------------------------------------
         if (height > 0) {
-            map.put(ImageTranscoder.KEY_HEIGHT, new Float(this.height));
+            map.put(ImageTranscoder.KEY_HEIGHT, this.height);
         }
         if (width > 0){
-            map.put(ImageTranscoder.KEY_WIDTH, new Float(this.width));
+            map.put(ImageTranscoder.KEY_WIDTH, this.width);
         }
 
         // Set maximum height and width ---------------------------------------
         if (maxHeight > 0) {
-            map.put(ImageTranscoder.KEY_MAX_HEIGHT, new Float(this.maxHeight));
+            map.put(ImageTranscoder.KEY_MAX_HEIGHT, this.maxHeight);
         }
         if (maxWidth > 0){
-            map.put(ImageTranscoder.KEY_MAX_WIDTH, new Float(this.maxWidth));
+            map.put(ImageTranscoder.KEY_MAX_WIDTH, this.maxWidth);
         }
 
         // Set CSS Media
@@ -902,7 +893,7 @@ public class SVGConverter {
         // Sets the millimeters per pixel
         if (pixelUnitToMillimeter > 0){
             map.put(ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER,
-                    new Float(pixelUnitToMillimeter));
+                    pixelUnitToMillimeter);
         }
 
         // Set validation
@@ -917,7 +908,7 @@ public class SVGConverter {
 
         // Set snapshot time
         if (!Float.isNaN(snapshotTime)) {
-            map.put(ImageTranscoder.KEY_SNAPSHOT_TIME, new Float(snapshotTime));
+            map.put(ImageTranscoder.KEY_SNAPSHOT_TIME, snapshotTime);
         }
 
         // Set allowed scripts
@@ -1010,7 +1001,7 @@ public class SVGConverter {
             try {
                 outputStream.flush();
                 outputStream.close();
-            } catch(IOException ioe) {}
+            } catch(IOException ignored) {}
 
             // Report error to the controller. If controller decides
             // to stop, throw an exception

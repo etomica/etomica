@@ -4,14 +4,12 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
@@ -31,13 +29,19 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
+import etomica.virial.cluster.ClusterAbstract;
+import etomica.virial.cluster.ClusterCoupledFlipped;
 import etomica.virial.cluster.Standard;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyMultibody;
+import etomica.virial.wheatley.ClusterWheatleySoft;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -67,7 +71,7 @@ public class VirialCO2H2OGCPM {
             // customize parameters here
             params.nTypes = new int[]{3,0};
             params.temperature = 280;
-            params.numSteps = 100000000;
+            params.numSteps = 1000000;
             params.sigmaHSRef = 5;
             params.nonAdditive = Nonadditive.NONE;
         }
@@ -103,19 +107,15 @@ public class VirialCO2H2OGCPM {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0,1.161);
-                atomList.get(2).getPosition().setX(0,-1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
 
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
 
         Map<AtomType, GCPMAgent> paramsManager = new HashMap<>();
         final PNGCPM pTarget = new PNGCPM(space, paramsManager, 6);
@@ -135,9 +135,9 @@ public class VirialCO2H2OGCPM {
             IPotentialMolecular p3 = p3ATM;
             if (nonAdditive != Nonadditive.DISPERSION) {
                 // we can only handle 3-body for now
-                PNGCPM[] allPi = new PNGCPM[3-1];
-                for (int i=0; i<allPi.length; i++) {
-                    allPi[i] = new PNGCPM(space, paramsManager, 6, 2+i);
+                PNGCPM[] allPi = new PNGCPM[4];
+                for (int i=2; i<allPi.length; i++) {
+                    allPi[i] = new PNGCPM(space, paramsManager, 6);
                     allPi[i].setComponent(PNGCPM.Component.INDUCTION);
                 }
     
@@ -167,10 +167,10 @@ public class VirialCO2H2OGCPM {
         System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        paramsManager.put(speciesWater.getHydrogenType(), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
-        paramsManager.put(speciesWater.getOxygenType(), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
-        paramsManager.put(speciesWater.getMType(), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
-        paramsManager.put(speciesWater.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
+        paramsManager.put(speciesWater.getTypeByName("H"), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
+        paramsManager.put(speciesWater.getTypeByName("O"), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
+        paramsManager.put(speciesWater.getTypeByName("M"), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
+        paramsManager.put(speciesWater.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
 
         double qC = Electron.UNIT.toSim(0.6642);
         paramsManager.put(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {
@@ -200,18 +200,18 @@ public class VirialCO2H2OGCPM {
             sim.box[1].acceptNotify();
         }
         
-        if (false) {
+        if(false) {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
 //            displayBox1.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
             simGraphic.makeAndDisplayFrame();
 
 //            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
@@ -225,15 +225,9 @@ public class VirialCO2H2OGCPM {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -269,11 +263,10 @@ public class VirialCO2H2OGCPM {
 
         sim.initRefPref(refFileName, steps/40);
         sim.equilibrate(refFileName, steps/20);
-
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
         System.out.println("equilibration finished");
-        
+
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -287,7 +280,7 @@ public class VirialCO2H2OGCPM {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -301,13 +294,13 @@ public class VirialCO2H2OGCPM {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -340,7 +333,7 @@ public class VirialCO2H2OGCPM {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();
@@ -371,8 +364,7 @@ public class VirialCO2H2OGCPM {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(ai);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();

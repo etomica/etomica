@@ -277,19 +277,18 @@ public final class SpecialFunctions {
      */
     private static double bessel(boolean modified, double order, double x) {
         double sum = 0;
-        double gammaValue = gamma(order);
-        double kTerms = 0;
+        double gammaValue = gamma(order+1);
         double factorial = 1;
         double s1 = Math.pow(x / 2.0, order);
 
         for (int k = 0; true; k++) {
             factorial *= (k == 0) ? 1 : (modified ? k : -k);
-            gammaValue *= order + k;
-            kTerms = s1 * Math.pow((x * x) / 4.0, k) / factorial / gammaValue;
+            double kTerms = s1 * Math.pow((x * x) / 4.0, k) / factorial / gammaValue;
             sum += kTerms;
             if (Math.abs(kTerms / sum) < 1E-15) {
                 break;
             }
+            gammaValue *= order + k + 1;
         }
         return sum;
     }
@@ -303,7 +302,9 @@ public final class SpecialFunctions {
      * @return modified Bessel function of the first kind, to machine precision.
      */
     public static double besselI(double order, double x) {
-        return bessel(true, order, x);
+        double o = order;
+        if ((int)o == o && o < 0) o = -o;
+        return bessel(true, o, x);
     }
 
     /**

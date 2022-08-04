@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -12,7 +13,7 @@ import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
@@ -23,7 +24,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.liquidLJ.DataProcessorReweight;
 import etomica.liquidLJ.DataProcessorReweightRatio;
-import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.ValueCache;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
@@ -31,7 +31,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -41,13 +41,13 @@ import java.util.Arrays;
 
 
 /**
- * Mapped averaging for LJ HCP with 2-atom basis.
+ * Mapped averaging for LJ HCP with 4-atom basis.
  */
 public class SimLJHTTISuperHCP extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public BoundaryRectangularPeriodic boundary;
     public int[] nCells;
@@ -55,8 +55,8 @@ public class SimLJHTTISuperHCP extends Simulation {
     public Primitive primitive;
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
-    public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public IPotential2 potential;
+    public SpeciesGeneral species;
 
     public SimLJHTTISuperHCP(Space _space, int numAtoms, double density, double temperature, double alpha, double rc, boolean ss, int[] seeds) {
         super(_space);
@@ -64,7 +64,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             setRandom(new RandomMersenneTwister(seeds));
         }
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double a = Math.pow(2, 1.0 / 6.0) / Math.pow(density, 1.0 / 3.0);
@@ -91,40 +91,28 @@ public class SimLJHTTISuperHCP extends Simulation {
             throw new RuntimeException("cutoff too big");
         }
 
-        potentialMaster = new PotentialMasterList(this, rc, space);
+        int cellRange = 2;
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, cellRange, rc, BondingInfo.noBonding());
+        potentialMaster.setDoDownNbrs(true);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
+        integrator.getEventManager().removeListener(potentialMaster);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, random, space);
+        atomMove.setCallComputeManyAtoms(true);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
-        atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
-        atomMove.setPotential(potential);
+        potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
+        potentialMaster.setPairPotential(sphereType, sphereType, potential);
 
-        /*
-         *  1-body Potential to Constraint the atom from moving too far
-         *  	away from its lattice-site
-         *
-         */
+        potentialMaster.doAllTruncationCorrection = false;
 
-        potentialMaster.lrcMaster().setEnabled(false);
-
-        int cellRange = 2;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        potentialMaster.getNeighborManager(box).reset();
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange * 2 + 1) {
-            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
-        }
+        potentialMaster.init();
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -147,9 +135,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             coordinateDefinition = c0;
         }
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
     }
 
     /**
@@ -262,25 +248,17 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
 
         PotentialMasterList potentialMasterData;
-        Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
+        IPotential2 potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
         {
-
-            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs - 1], sim.space);
-
             // |potential| is our local potential used for data collection.
-            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
+            potentialMasterData = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 2, cutoffs[nCutoffs-1], BondingInfo.noBonding());
+            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(potential, cutoffs[nCutoffs-1]-0.01);
             AtomType sphereType = sim.species.getLeafType();
-            potentialMasterData.addPotential(potentialT, new AtomType[]{sphereType, sphereType});
-            potentialMasterData.lrcMaster().setEnabled(false);
+            potentialMasterData.setPairPotential(sphereType, sphereType, potentialT);
+            potentialMasterData.doAllTruncationCorrection = false;
 
-            int cellRange = 2;
-            potentialMasterData.setCellRange(cellRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            potentialMasterData.getNeighborManager(sim.box).reset();
-            int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
+            potentialMasterData.init();
 
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
@@ -289,30 +267,23 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         PotentialMasterList potentialMasterDataLJ = null;
         P2LennardJones p2LJ = null;
-        Potential2SoftSpherical potentialLJ = null;
+        P2SoftSphericalTruncated potentialLJ = null;
         if (ss) {
             // |potential| is our local potential used for data collection.
-            potentialMasterDataLJ = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
-            p2LJ = new P2LennardJones(sim.getSpace());
-            System.out.println("Including 12+6 LJ");
+            potentialMasterDataLJ = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 2, cutoffs[nCutoffs-1], BondingInfo.noBonding());
+            p2LJ = new P2LennardJones();
 
-            potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
+            potentialLJ = new P2SoftSphericalTruncated(p2LJ, cutoffs[nCutoffs-1]-0.01);
             AtomType sphereType = sim.species.getLeafType();
-            potentialMasterDataLJ.addPotential(potentialLJ, new AtomType[]{sphereType, sphereType});
-            potentialMasterDataLJ.lrcMaster().setEnabled(false);
+            potentialMasterDataLJ.setPairPotential(sphereType, sphereType, potentialLJ);
+            potentialMasterDataLJ.doAllTruncationCorrection = false;
 
-            int cellRange = 2;
-            potentialMasterDataLJ.setCellRange(cellRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            potentialMasterDataLJ.getNeighborManager(sim.box).reset();
-            int potentialCells = potentialMasterDataLJ.getNbrCellManager(sim.box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
+            potentialMasterDataLJ.init();
 
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
-            ((P2SoftSphericalTruncated)potentialLJ).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
+            potentialLJ.setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
         }
 
         // meter needs lattice energy, so make it now
@@ -321,9 +292,9 @@ public class SimLJHTTISuperHCP extends Simulation {
         meterSolid.setBPRes(bpharm);
         IData d = meterSolid.getData();
 
-        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+        MeterPotentialEnergyFromIntegrator meterEnergyShort = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         final double[] uFacCut = new double[cutoffs.length];
-        double uShort = meterEnergyShort.getDataAsScalar();
+        double uShort = sim.potentialMaster.computeAll(false);
         for (int i=0; i<uFacCut.length; i++) {
             uFacCut[i] = d.getValue(6*i)*numAtoms - uShort;
         }
@@ -353,10 +324,10 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
 
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
-        Potential2SoftSphericalLSMultiLat pLS = null;
-        PotentialMasterMonatomic potentialMasterLJLS = null;
-        Potential2SoftSphericalLSMultiLat pLJLS = null;
+        PotentialMasterList potentialMasterLS = null;
+        P2SoftSphericalTruncated pLS = null;
+        PotentialMasterList potentialMasterLJLS = null;
+        P2SoftSphericalTruncated pLJLS = null;
         final double[] uFacCutLS = new double[cutoffsLS.length];
         MeterSolidDACut meterSolidLS = null;
         if (nCutoffsLS>0) {
@@ -369,8 +340,11 @@ public class SimLJHTTISuperHCP extends Simulation {
             for (int i=0; i<nCutoffsLS; i++) {
                 cutoffsLS[i] *= Math.pow(density, -1.0/3.0);
             }
-            pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, potential, sim.coordinateDefinition);
-            potentialMasterLS.addPotential(pLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
+            pLS = new P2SoftSphericalTruncated(potential, cutoffsLS[nCutoffsLS-1]-0.01);
+
+            potentialMasterLS = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 3, cutoffsLS[nCutoffsLS-1], BondingInfo.noBonding());
+            potentialMasterLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), pLS);
+            potentialMasterLS.init();
 
             meterSolidLS = new MeterSolidDACut(sim.getSpace(), potentialMasterLS, sim.coordinateDefinition, cutoffsLS);
             meterSolidLS.setTemperature(temperature);
@@ -378,13 +352,16 @@ public class SimLJHTTISuperHCP extends Simulation {
             d = meterSolidLS.getData();
 
             if (params.ss) {
-                potentialMasterLJLS = new PotentialMasterMonatomic(sim);
-                pLJLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, p2LJ, sim.coordinateDefinition);
-                potentialMasterLJLS.addPotential(pLJLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
+                potentialMasterLJLS = new PotentialMasterList(sim.getSpeciesManager(), sim.box, 3, cutoffsLS[nCutoffsLS-1], BondingInfo.noBonding());
+                pLJLS = new P2SoftSphericalTruncated(p2LJ, cutoffsLS[nCutoffsLS-1]-0.01);
+                potentialMasterLJLS.setPairPotential(sim.species.getLeafType(), sim.species.getLeafType(), pLJLS);
                 if (bpharmLJ.length < cutoffsLS.length) {
                     throw new RuntimeException("I need LJ harmonic pressures for all LS cutoffs");
                 }
                 meterSolidLS.setPotentialMasterDADv2(potentialMasterLJLS, bpharmLJ);
+
+                potentialMasterLJLS.init();
+                pLJLS.setTruncationRadius(cutoffsLS[nCutoffsLS-1]+10);
             }
 
             for (int i=0; i<uFacCut.length; i++) {
@@ -502,9 +479,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         long endTime = System.currentTimeMillis();
         System.out.println();
 
@@ -723,9 +698,8 @@ public class SimLJHTTISuperHCP extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
         integrator.getMoveManager().setEquilibrating(false);
     }
     

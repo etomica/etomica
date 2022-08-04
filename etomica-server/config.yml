@@ -1,8 +1,0 @@
-hello: test
-
-logging:
-  level: INFO
-  appenders:
-    - type: console
-      logFormat: "%-30([%d{HH:mm:ss.SSS}]-[%thread]) %highlight(%-5level) %logger - %msg%n"
-

@@ -4,23 +4,22 @@
 
 package etomica.modules.multiharmonic.umbrella;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.potential.P1Harmonic;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -30,49 +29,48 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class MultiharmonicMC extends Simulation {
 
-    private static final long serialVersionUID = 1L;
-    protected final SpeciesSpheresMono species;
+    protected final SpeciesGeneral species;
     protected final Box box;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integrator;
     protected final MCMoveMultiHarmonic moveA, moveB;
-    protected final ActivityIntegrate activityIntegrate;
+
     protected final MeterUmbrella meterUmbrella;
     protected final AccumulatorRatioAverageCovariance accumulator;
-    protected final DataPump dataPumpA;
+    protected final DataPumpListener dataPumpA;
+
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
-        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
-
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        box.getBoundary().setBoxSize(new Vector1D(3.0));
+        box.getBoundary().setBoxSize(new Vector1D(6.0));
         box.setNMolecules(species, 10);
 
-        integrator = new IntegratorMC(this, potentialMasterA, box);
+        PotentialComputeField potentialMasterA = new PotentialComputeField(getSpeciesManager(), box);
+        PotentialComputeField potentialMasterB = new PotentialComputeField(getSpeciesManager(), box);
+
+        integrator = new IntegratorMC(potentialMasterA, this.getRandom(), 1.0, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
-        moveA = new MCMoveMultiHarmonic(potentialA, random);
+        moveA = new MCMoveMultiHarmonic(integrator, potentialA, random);
         integrator.getMoveManager().addMCMove(moveA);
-        potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+        potentialMasterA.setFieldPotential(species.getLeafType(), potentialA);
 
         potentialB = new P1Harmonic(space);
-        moveB = new MCMoveMultiHarmonic(potentialB, random);
+        moveB = new MCMoveMultiHarmonic(integrator, potentialB, random);
         integrator.getMoveManager().addMCMove(moveB);
-        potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
+        potentialMasterB.setFieldPotential(species.getLeafType(), potentialB);
 
-        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA, box);
-        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB, box);
+        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA);
+        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB);
         meterUmbrella = new MeterUmbrella(meterPEAinA, meterPEBinA, 1.0);
 
         accumulator = new AccumulatorRatioAverageCovariance(1);
-        dataPumpA = new DataPump(meterUmbrella, accumulator);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpA));
+        dataPumpA = new DataPumpListener(meterUmbrella, accumulator);
+        integrator.getEventManager().addListener(dataPumpA);
 
 
-        activityIntegrate = new ActivityIntegrate(integrator, 1, false);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
     }
 }

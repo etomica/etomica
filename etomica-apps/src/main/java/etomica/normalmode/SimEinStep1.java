@@ -4,13 +4,13 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
@@ -18,7 +18,6 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -28,7 +27,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -46,25 +45,19 @@ public class SimEinStep1 extends Simulation {
 
     public final PotentialMasterList potentialMaster;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;
     public Primitive primitive;
     public MCMoveEinsteinCrystal atomMove;
-    public PotentialMasterMonatomic potentialMasterHarmonic;
+
     public SimEinStep1(Space _space, final int numAtoms, double density, final double temperature, double spring, int exponent, double rc, boolean slanty) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-
-        if (slanty) {
-            potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
-        } else {
-            potentialMaster = new PotentialMasterList(this, space);
-        }
 
         // TARGET
         if (slanty) {
@@ -95,6 +88,9 @@ public class SimEinStep1 extends Simulation {
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
+        int cellRange = 7;        // insanely high, this lets us have neighborRange close to dimensions/2
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, cellRange, rc, BondingInfo.noBonding());
+
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
@@ -103,31 +99,14 @@ public class SimEinStep1 extends Simulation {
 //        ConfigurationFile configEC = new ConfigurationFile("ec");
 //        configEC.initializeCoordinates(box);
 
-        Potential2SoftSpherical potential = exponent > 0 ? new P2SoftSphere(space, 1.0, 1.0, exponent) : new P2LennardJones(space);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
+        IPotential2 potential = exponent > 0 ? new P2SoftSphere(1.0, 1.0, exponent) : new P2LennardJones();
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
+        potentialMaster.setPairPotential(sphereType, sphereType, potential);
 
-
-        potentialMaster.lrcMaster().setEnabled(false);
-
-        int cellRange = 7;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        potentialMaster.getNeighborManager(box).reset();
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange * 2 + 1) {
-            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
-        }
-
-        if (false) {
-            P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
-            p1Harmonic.setSpringConstant(spring);
-            p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
-            potentialMasterHarmonic = new PotentialMasterMonatomic(this);
-            potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
-        }
+        potentialMaster.init();
+        integrator.getEventManager().removeListener(potentialMaster);
 
         atomMove = new MCMoveEinsteinCrystal(space, random);
         atomMove.setCoordinateDefinition(coordinateDefinition);
@@ -135,9 +114,7 @@ public class SimEinStep1 extends Simulation {
         atomMove.setTemperature(temperature);
         integrator.getMoveManager().addMCMove(atomMove);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -196,15 +173,14 @@ public class SimEinStep1 extends Simulation {
         //instantiate simulation
         final SimEinStep1 sim = new SimEinStep1(Space3D.getInstance(), numMolecules, density, temperature, spring, exponentN, rc, slanty);
 
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
-        final double latticeEnergy = meterPE.getDataAsScalar();
+        final double latticeEnergy = sim.potentialMaster.computeAll(false);
         System.out.println("uLat "+latticeEnergy/numMolecules);
         System.out.println("buLat "+latticeEnergy/numMolecules/temperature);
 
         DataSourceScalar meter = new DataSourceScalar("foo", Null.DIMENSION) {
 
             public double getDataAsScalar() {
-                double pe = meterPE.getDataAsScalar() - latticeEnergy;
+                double pe = sim.potentialMaster.computeAll(false) - latticeEnergy;
 //                System.out.println(pe/numAtoms+" "+pe/temperature+" "+Math.exp(-pe/temperature));
                 return Math.exp(-pe/temperature);
             }
@@ -267,10 +243,9 @@ public class SimEinStep1 extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         DataGroup data = (DataGroup)accumulator.getData();

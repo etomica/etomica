@@ -4,35 +4,35 @@
 
 
 package etomica.potential;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
+
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 import etomica.util.Constants;
 
 /**
- * 
+ *
  * Ab initio pair potential for helium from Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.   
- * 
+ *
  * Potential is speciously negative at separations less than 0.3 a0.
  * Second derivative (used for quadratic Feymann-Hibbs potential) goes through maximum at 0.2A~=0.4a0. 
  * We apply a hard core of 0.4 a0.
  *
  * @author Kate Shaul and Andrew Schultz
  */
-public class P2HePCKLJS extends Potential2SoftSpherical {
+public class P2HePCKLJS implements IPotential2 {
 
-	public P2HePCKLJS(Space space) {
-		this(space, 0);
-	}
+    public static IPotential2 makeTruncated(double sigma, TruncationFactory tf) {
+        return tf.make(new P2HePCKLJS(sigma));
+    }
 
-    public P2HePCKLJS(Space space, double sigma) {
-        super(space);
+    public P2HePCKLJS() {
+        this(0);
+    }
 
-        double W4 = 0.35322e-04/(alpha*alpha);
-        double AS3= 0.577235e-06/(alpha*alpha*alpha);
+    public P2HePCKLJS(double sigma) {
+
+        double W4 = 0.35322e-04 / (alpha * alpha);
+        double AS3 = 0.577235e-06 / (alpha * alpha * alpha);
         double polarizability = 1.38319217440;
 
         double K7 = 23.0/(4.0*Math.PI)*polarizability*polarizability/alpha;
@@ -306,15 +306,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         double d2udr2 = Hartree.UNIT.toSim(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2 + d2uSigma);
         return r*r*d2udr2;
     }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        
-        return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-    }
-    
+
     public P2HeQFH makeQFH(double temperature) {
         return new P2HeQFH(temperature);
     }    
@@ -328,7 +320,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
      *
      * @author Andrew Schultz
      */
-    public class P2HeQFH implements Potential2Spherical {
+    public class P2HeQFH implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -340,22 +332,8 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             fac = hbar*hbar/(24*mass/2)/temperature;
         }
 
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
-        }
-
         public double getRange() {
             return P2HePCKLJS.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2HePCKLJS.this.setBox(box);
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {
@@ -472,7 +450,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         return new P2HeTI(temperature);
     }
     
-    public class P2HeTI implements Potential2Spherical {
+    public class P2HeTI implements IPotential2 {
 
         protected final double temperature;
         protected final double mass = 4.002602;
@@ -484,22 +462,8 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             fac = hbar*hbar/(24*mass/2)/(temperature*temperature);
         }
 
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
-        }
-
         public double getRange() {
             return P2HePCKLJS.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2HePCKLJS.this.setBox(box);
-        }
-
-        public int nBody() {
-            return 2;
         }
 
         public double u(double r2) {
@@ -595,8 +559,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     
     public static void main(String[] args) {
 
-    	Space space = Space3D.getInstance();
-    	P2HePCKLJS p2 = new P2HePCKLJS(space);
+    	P2HePCKLJS p2 = new P2HePCKLJS();
 
     	//Test separations in fortran code, in Hartrees
     	double[] VTotRet = new double [] {9.07505678537836e-01,3.30439541259472e-01,1.14486105544985e-01,3.78887051832271e-02,1.19356572795740e-02,3.51858623016233e-03,9.26991759357220e-04,1.85096029792210e-04,-1.44666519197000e-06,-2.89977763063000e-05,-3.48209516983400e-05,-3.06464226675000e-05,-2.18216351894100e-05,-1.46331763646000e-05,-6.54141208063000e-06,-3.13153787265000e-06,-5.24252133480000e-07};

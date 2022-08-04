@@ -6,12 +6,11 @@ package etomica.integrator.mcmove;
 
 import etomica.box.Box;
 import etomica.math.numerical.AkimaSpline;
-import etomica.util.IEvent;
 import etomica.util.IListener;
 
 import java.util.Arrays;
 
-public class MCMoveOverlapListener implements IListener {
+public class MCMoveOverlapListener implements IListener<MCMoveEvent> {
 
     protected final MCMoveInsertDeleteBiased mcMove;
     protected double[][] sumInsert, sumDelete;
@@ -25,7 +24,7 @@ public class MCMoveOverlapListener implements IListener {
     protected final int numAtomsLattice;
     protected double daDef, daSpan;
     protected int numAlpha;
-    
+
     public MCMoveOverlapListener(MCMoveInsertDeleteBiased mcMove, int numAlpha, double daDef, int numAtomsLattice, double daSpan) {
         this.mcMove = mcMove;
         sumInsert = new double[0][0];
@@ -139,9 +138,9 @@ public class MCMoveOverlapListener implements IListener {
         return minNumAtoms;
     }
 
-    public void actionPerformed(IEvent event) {
+    public void actionPerformed(MCMoveEvent event) {
         if (event instanceof MCMoveTrialFailedEvent) {
-            if (((MCMoveEvent)event).getMCMove() != mcMove) return;
+            if (event.getMCMove() != mcMove) return;
             // trial failed, but we were still here.  we need to increment our sums here
             // for the histogram.
             Box box = mcMove.getBox();
@@ -160,7 +159,7 @@ public class MCMoveOverlapListener implements IListener {
             }
         }
         else if (event instanceof MCMoveTrialInitiatedEvent) {
-            if (((MCMoveEvent)event).getMCMove() != mcMove) return;
+            if (event.getMCMove() != mcMove) return;
             Box box = mcMove.getBox();
             int numAtoms = box.getLeafList().size();
             // x = V/N*Math.exp(-beta*deltaU)

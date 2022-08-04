@@ -4,13 +4,16 @@
 
 package etomica.virial;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LennardJones;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.cluster.ClusterWeightAbs;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +29,8 @@ public class ClusterWheatleySoftDerivativesTest {
     @BeforeEach
     public void setup() {
         Space space = Space.getInstance(3);
-        Species species = new SpeciesSpheresMono(space, new ElementSimple(""));
-        P2LennardJones plj = new P2LennardJones(space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("")));
+        P2LennardJones plj = new P2LennardJones();
         MayerFunction f = new MayerGeneralSpherical(plj);
         cwsd = new ClusterWheatleySoftDerivatives(npoints, f, 1e-12, 5);
         ClusterWeight cl = new ClusterWeightAbs(cwsd);

@@ -6,7 +6,6 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 
 /**
  * @author kofke
@@ -23,10 +22,5 @@ public interface MayerFunction {
      */
 	public double f(IMoleculeList pair, double r2, double beta);
 
-	/**
-	 * @return
-	 */
-	public IPotential getPotential();
-	
 	public void setBox(Box box);
 }

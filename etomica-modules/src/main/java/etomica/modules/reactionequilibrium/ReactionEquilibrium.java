@@ -17,87 +17,79 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.P1HardPeriodic;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.IPotential2;
+import etomica.potential.compute.NeighborIterator;
+import etomica.potential.compute.NeighborManagerSimpleHard;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
-
-import javax.swing.*;
+import etomica.species.SpeciesGeneral;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
-    public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
     public Box box;
-    public etomica.action.SimulationRestart restartAction;
-    public boolean initializing = true;
     public MeterTemperature thermometer;
-    public SpeciesSpheresMono speciesA;
-    public SpeciesSpheresMono speciesB;
+    public SpeciesGeneral speciesA;
+    public SpeciesGeneral speciesB;
     public P2SquareWellBonded AAbonded;
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
-    public ActivityIntegrate activityIntegrate;
-    public IAtom[] agents;
-    private AtomLeafAgentManager<IAtom> agentManager = null;
-    
+    public PotentialComputePairGeneral potentialMaster;
+    public NeighborManagerSimpleHard neighborManager;
+
+    private final AtomLeafAgentManager<IAtom> agentManager;
+
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simple("A", 12), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simple("B", 12), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, 30.0));
+        box.setNMolecules(speciesA, 30);
+        box.setNMolecules(speciesB, 30);
+
+        neighborManager = new NeighborManagerSimpleHard(box);
+        potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
 
         double diameter = 1.0;
 
-        //controller and integrator
-        box = this.makeBox(new BoundaryRectangularPeriodic(space, 30.0));
-        integratorHard1 = new IntegratorHard(this, potentialMaster, box);
-        integratorHard1.setIsothermal(true);
-
-        box.setNMolecules(speciesA, 30);
-        box.setNMolecules(speciesB, 30);
-        P1HardPeriodic nullPotential = new P1HardPeriodic(space, diameter);
-        integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
-        integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
-
-        agentManager = new AtomLeafAgentManager<IAtom>(this, box);
+        agentManager = new AtomLeafAgentManager<>(this, box);
 
         //potentials
-        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
+        AAbonded = new P2SquareWellBonded(agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
-                1.0, true);
-        ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
+                1.0);
+        ABbonded = new P2SquareWellBonded(agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
-                1.0, true);
-        BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
+                1.0);
+        BBbonded = new P2SquareWellBonded(agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
-                1.0, true);
-        potentialMaster.addPotential(AAbonded,
-                new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-        potentialMaster.addPotential(ABbonded,
-                new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
-        potentialMaster.addPotential(BBbonded,
-                new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+                1.0);
+        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), AAbonded);
+        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), ABbonded);
+        potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), BBbonded);
+
+        integratorHard1 = new IntegratorHard(potentialMaster.getPairPotentials(),
+                neighborManager, random, 0.05, 1.0, box, getSpeciesManager());
+        integratorHard1.setMaxCollisionDiameter(speciesA.getLeafType(), diameter);
+        integratorHard1.setMaxCollisionDiameter(speciesB.getLeafType(), diameter);
+        integratorHard1.setIsothermal(true);
 
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setBox(box);
         thermometer = new MeterTemperature(box, space.D());
 
-        activityIntegrate = new ActivityIntegrate(integratorHard1);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integratorHard1));
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
@@ -105,22 +97,42 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     }
 
     public AtomLeafAgentManager<IAtom> getAgentManager() {
-    	return agentManager;
+        return agentManager;
     }
 
     /**
-     * Implementation of Atom.AgentSource interface. Agent is the 
+     * Implementation of Atom.AgentSource interface. Agent is the
      * bonding partner.
-     * 
-     * @param a  ignored
+     *
+     * @param a ignored
      * @return Object always null
      */
     public IAtom makeAgent(IAtom a, Box agentBox) {
         return null;
     }
-    
-    public void releaseAgent(IAtom agent, IAtom atom, Box agentBox) {}
 
+    public void releaseAgent(IAtom agent, IAtom atom, Box agentBox) {
+    }
 
+    public void resetBonding() {
+        // nuke all bonding
+        for (IAtom a : box.getLeafList()) {
+            agentManager.setAgent(a, null);
+        }
+        IPotential2[][] allp = potentialMaster.getPairPotentials();
+        for (int i = 0; i < box.getLeafList().size(); i++) {
+            IAtom iAtom = box.getLeafList().get(i);
+            int iType = iAtom.getType().getIndex();
+            neighborManager.makeNeighborIterator().iterUpNeighbors(i, new NeighborIterator.NeighborConsumer() {
+                @Override
+                public void accept(IAtom jAtom, Vector rij, int n) {
+                    int jType = jAtom.getType().getIndex();
+                    P2SquareWellBonded pij = (P2SquareWellBonded) allp[iType][jType];
+                    pij.determineBonding(iAtom, jAtom, rij);
+
+                }
+            });
+        }
+    }
 }
 

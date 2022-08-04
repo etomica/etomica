@@ -8,7 +8,6 @@ import etomica.atom.*;
 import etomica.box.Box;
 import etomica.math.numerical.AkimaSpline;
 import etomica.molecule.IMolecule;
-import etomica.space.Boundary;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -25,8 +24,8 @@ import etomica.util.random.RandomMersenneTwister;
 import java.io.BufferedReader;
 import java.io.Writer;
 
-public class P2WaterPotentialsJankowski implements IPotentialAtomic {
-
+public class P2WaterPotentialsJankowski implements IPotential2 {
+    
     protected static final int nsitemax = 8;
     protected static final int naamax = 14, nbbmax = 14;
     protected static final int ntypemax = 6;
@@ -53,21 +52,20 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected static int[][][] itypus = new int[ntypemax][ntypemax][2];
     protected static double comHackDist = 0.0;
     protected static boolean flag = true, comHack = false, flip = false;
-    protected Boundary boundary;
     protected Space space;
     protected int iSurf, iEmbed;
     protected int icc;
     protected int iMonomer;
-    protected IPotentialAtomic pRigid = null;
+    protected IPotential2 pRigid = null;
     protected Box b = null;
     protected double tKelvin = -1, eMon = 0.0;
     
-    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, IPotentialAtomic pRigid) {
+    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, IPotential2 pRigid) {
         this.space = space;
         iSurf = iSurface;
         tKelvin = Kelvin.UNIT.fromSim(tSim);
         iMonomer = iMon;
-        this.pRigid = pRigid;        
+        this.pRigid = pRigid;
         set_sites_sa = space.makeVector();
         set_sites_sitea = space.makeVectorArray(nsitemax);
         sa = space.makeVectorArray(naamax+2);
@@ -2035,6 +2033,9 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 return orA;
             }
 
+            public void copyCoordinatesFrom(IAtom atom) {
+            }
+
             public void saveState(Writer fw) {
             }
 
@@ -2113,6 +2114,9 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 return orB;
             }
 
+            public void copyCoordinatesFrom(IAtom atom) {
+            }
+
             public void saveState(Writer fw) {
             }
 
@@ -2157,15 +2161,15 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         }
     }
     
-    public static void processAtoms (IAtomList atomL) {
+    public static void processAtoms (IAtom atom1, IAtom atom2) {
         Space space = Space3D.getInstance();
         Vector[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
-        atomToPosVec(atomL.get(0));
+        atomToPosVec(atom1);
         for (int i=0; i<3; i++) {
             carta[i].E(posVec[i]);
         }
 
-        atomToPosVec(atomL.get(1));
+        atomToPosVec(atom2);
         for (int i=0; i<3; i++) {
             cartb[i].E(posVec[i]);
         }
@@ -2443,32 +2447,19 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 //
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-        pRigid.setBox(box);
-    }
-
-    public int nBody() {
-        return 2;
-    }
-
-    public double energy(IAtomList atoms) {
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
         if (tKelvin < 0) throw new RuntimeException("Temperature needs to be set while calling the constructor");
-        processAtoms(atoms);
+        processAtoms(atom1, atom2);
         double eTot = poten(); // flexible configuration with temperature dependent
         // bond lengths and angle
         if (icc == 1) {
-            double eRigid = pRigid.energy(atoms);
+            double eRigid = pRigid.u(dr12, atom2, atom1);
             // rigid configuration with ground state bond lengths and angles from P2WaterSzalewicz
             double[] oldBL = getBondLengths();
             double[] oldAngles = getAngles();
             setBondLengths(ccpol2BL);
             setAngles(ccpol2Angles);
-            processAtoms(atoms);
+            processAtoms(atom1, atom2);
             setBondLengths(oldBL);
             setAngles(oldAngles);
             double eFlex = poten();
@@ -2483,51 +2474,6 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             eTot += eRigid - eFlex;
         }
         return (iMonomer == 1 ? (eTot + eMon) : eTot);
-//        IVectorMutable[] cartaa = space.makeVectorArray(3);
-//        IVectorMutable[] cartbb = space.makeVectorArray(3);
-
-//        if (false) { // if we ever use ccpol8s
-//            // make embedding for molecule A
-//            if (iEmbed == 1) {
-//                eck_rad_tst(carta);
-//            }
-//            else {
-//                radau_f1_tst(carta);
-//            }
-//
-//            put_rigid();
-//            if (icc == 1) {
-//                for (int i=0; i<3; i++) {
-//                    cartaa[i].E(posVec[i]);
-//                }
-//            }
-//
-//            // make embedding for molecule B
-//
-//            for (int i=0; i<3; i++) {
-//                cartb[i].setX(2,cartb[i].getX(2)-rCom);
-//            }
-//            if (iEmbed == 1) {
-//                eck_rad_tst(cartb);
-//            }
-//            else {
-//                radau_f1_tst(cartb);
-//            }
-//
-//            for (int i=0; i<3; i++) {
-//                cartb[i].setX(2,cartb[i].getX(2)+rCom);
-//            }
-//            put_rigid();
-//            if (icc == 1) {
-//                for (int i=0; i<3; i++) {
-//                    cartbb[i].E(posVec[i]);
-//                    cartbb[i].setX(2,cartbb[i].getX(2)+rCom);
-//                }
-//            }
-//        }
-
-
-//        System.out.println(rCom+" "+eTot);
     }
 
     public void radau_f1_tst(Vector[] rPos) {

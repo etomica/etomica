@@ -4,6 +4,7 @@
 
 package etomica.modules.dcvgcmd;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -19,35 +20,33 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.CriterionPositionWall;
-import etomica.nbr.PotentialMasterHybrid;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2WCA;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 /**
- * 
  * Dual-control-volume grand-canonical molecular dynamics simulation.
- *
  */
 public class DCVGCMD extends Simulation {
 
     public IntegratorDCVGCMD integratorDCV;
     public P2WCA potential;
     public P2WCA potential1;
-    public P1WCAWall potentialwall;
-    public P1WCAWall potentialwall1;
-    public P1WCAPorousWall potentialwallPorousA, potentialwallPorousA1;
-    public P1WCAPorousWall potentialwallPorousB, potentialwallPorousB1;
-    public SpeciesSpheresMono species1;
-    public SpeciesSpheresMono species2;
-    public SpeciesTube speciesTube;
+    public P1WCAPorousWall potentialwallPorous;
+    public SpeciesGeneral species1;
+    public SpeciesGeneral species2;
+    public SpeciesGeneral speciesTube;
     public Box box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
@@ -59,10 +58,9 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage accumulator1;
     public AccumulatorAverage accumulator2;
     public DataPump profile1pump, profile2pump;
-    public Vector poreCenter;
-    public ActivityIntegrate activityIntegrate;
+
     public ConfigurationLatticeTube config;
-    
+
     //Constructor
     public DCVGCMD() {
         this(Space3D.getInstance());
@@ -72,11 +70,13 @@ public class DCVGCMD extends Simulation {
         //Instantiate classes
         super(_space);
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
-        speciesTube = new SpeciesTube(20, 40, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesTube = new SpeciesBuilder(space)
+                .addCount(AtomType.simple("T", Double.POSITIVE_INFINITY), 20 * 40)
+                .withConformation(new ConformationTube(space, 20))
+                .setDynamic(true)
+                .build();
         addSpecies(species1);
         addSpecies(species2);
         addSpecies(speciesTube);
@@ -84,163 +84,83 @@ public class DCVGCMD extends Simulation {
         box = this.makeBox(new BoundaryRectangularSlit(2, space));
         box.getBoundary().setBoxSize(new Vector3D(40, 40, 80));
 
-        PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
+        double neighborRangeFac = 1.4;
         double mass = 40.;
         double sigma = 3.0;
         double epsilon = 119.8;
-        //Default.makeLJDefaults();
-        //Default.BOX_SIZE = 14.0;
+        potential = new P2WCA(sigma, epsilon);
+        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 1, BondingInfo.noBonding());
+        PotentialMasterList potentialMasterList = new PotentialMasterList(getSpeciesManager(), box, 1, potential.getRange() * neighborRangeFac, BondingInfo.noBonding());
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
 
-        AtomType tubetype = speciesTube.getLeafType();
+        AtomType tubetype = speciesTube.getAtomType(0);
         AtomType speciestype = species1.getLeafType();
         AtomType speciestype1 = species2.getLeafType();
         ((ElementSimple) speciestype.getElement()).setMass(mass);
         ((ElementSimple) speciestype1.getElement()).setMass(mass);
 
-        double neighborRangeFac = 1.4;
-        potentialMaster.setCellRange(1);
-        potentialMaster.setRange(neighborRangeFac * sigma);
-
         //0-0 intraspecies interaction
-        potential = new P2WCA(space, sigma, epsilon);
-        potentialMaster.addPotential(potential, new AtomType[]{species1.getLeafType(), species1.getLeafType()});
+        potentialMasterCell.setPairPotential(species1.getLeafType(), species1.getLeafType(), potential);
+        potentialMasterList.setPairPotential(species1.getLeafType(), species1.getLeafType(), potential);
 
         //1-1 intraspecies interaction
-        P2WCA potential11 = new P2WCA(space, sigma, epsilon);
-        potentialMaster.addPotential(potential11, new AtomType[]{species2.getLeafType(), species2.getLeafType()});
+        P2WCA potential11 = new P2WCA(sigma, epsilon);
+        potentialMasterCell.setPairPotential(species2.getLeafType(), species2.getLeafType(), potential11);
+        potentialMasterList.setPairPotential(species2.getLeafType(), species2.getLeafType(), potential11);
 
         //0-1 interspecies interaction
-        potential1 = new P2WCA(space, sigma, epsilon);
-        potentialMaster.addPotential(potential1, new AtomType[]{species2.getLeafType(), species1.getLeafType()});
+        potential1 = new P2WCA(sigma, epsilon);
+        potentialMasterCell.setPairPotential(species2.getLeafType(), species1.getLeafType(), potential1);
+        potentialMasterList.setPairPotential(species2.getLeafType(), species1.getLeafType(), potential1);
 
-        P2WCA potentialTubeAtom = new P2WCA(space, sigma, epsilon);
-        potentialMaster.addPotential(potentialTubeAtom, new AtomType[]{tubetype, speciestype});
+        P2WCA potentialTubeAtom = new P2WCA(sigma, epsilon);
+        potentialMasterCell.setPairPotential(tubetype, speciestype, potentialTubeAtom);
+        potentialMasterList.setPairPotential(tubetype, speciestype, potentialTubeAtom);
 
-        P2WCA potentialTubeAtom1 = new P2WCA(space, sigma, epsilon);
-        potentialMaster.addPotential(potentialTubeAtom1, new AtomType[]{tubetype, speciestype1});
+        P2WCA potentialTubeAtom1 = new P2WCA(sigma, epsilon);
+        potentialMasterCell.setPairPotential(tubetype, speciestype1, potentialTubeAtom1);
+        potentialMasterList.setPairPotential(tubetype, speciestype1, potentialTubeAtom1);
 
-        double neighborRangeFacHalf = (1.0 + neighborRangeFac) * 0.5;
+        double poreRadius = 1.05 * ((ConformationTube) speciesTube.getConformation()).tubeRadius;
+        double length = 0.25;
+        double z = 0.2 * box.getBoundary().getBoxSize().getX(2);
+        potentialwallPorous = new P1WCAPorousWall(box, sigma, epsilon, poreRadius, z);
+        pcField.setFieldPotential(species1.getLeafType(), potentialwallPorous);
+        pcField.setFieldPotential(species2.getLeafType(), potentialwallPorous);
 
-        potentialwall = new P1WCAWall(space, 2, sigma, epsilon);
-        CriterionPositionWall criterionWall = new CriterionPositionWall(this);
-        criterionWall.setInteractionRange(potentialwall.getRange());
-        criterionWall.setNeighborRange(neighborRangeFacHalf * potentialwall.getRange());
-        criterionWall.setWallDim(2);
-        potentialMaster.addPotential(potentialwall, new AtomType[]{species1.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall, species1.getLeafType(), criterionWall);
-
-        potentialwall1 = new P1WCAWall(space, 2, sigma, epsilon);
-        CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
-        criterionWall1.setInteractionRange(potentialwall1.getRange());
-        criterionWall1.setNeighborRange(neighborRangeFacHalf * potentialwall1.getRange());
-        criterionWall1.setWallDim(2);
-        potentialMaster.addPotential(potentialwall1, new AtomType[]{species2.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall1, species2.getLeafType(), criterionWall1);
-
-        potentialwallPorousA = new P1WCAPorousWall(space, sigma, epsilon);
-        CriterionPositionWall criterionWallA = new CriterionPositionWall(this);
-        criterionWallA.setInteractionRange(potentialwallPorousA.getRange());
-        criterionWallA.setNeighborRange(neighborRangeFacHalf * potentialwallPorousA.getRange());
-        criterionWallA.setWallDim(2);
-        potentialMaster.addPotential(potentialwallPorousA, new AtomType[]{species1.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousA, species1.getLeafType(), criterionWallA);
-
-        potentialwallPorousA1 = new P1WCAPorousWall(space, sigma, epsilon);
-        CriterionPositionWall criterionWallA1 = new CriterionPositionWall(this);
-        criterionWallA1.setInteractionRange(potentialwallPorousA1.getRange());
-        criterionWallA1.setNeighborRange(neighborRangeFacHalf * potentialwallPorousA1.getRange());
-        criterionWallA1.setWallDim(2);
-        potentialMaster.addPotential(potentialwallPorousA1, new AtomType[]{species2.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousA1, species2.getLeafType(), criterionWallA1);
-
-        potentialwallPorousB = new P1WCAPorousWall(space, sigma, epsilon);
-        CriterionPositionWall criterionWallB = new CriterionPositionWall(this);
-        criterionWallB.setInteractionRange(potentialwallPorousB.getRange());
-        criterionWallB.setNeighborRange(neighborRangeFacHalf * potentialwallPorousB.getRange());
-        criterionWallB.setWallDim(2);
-        potentialMaster.addPotential(potentialwallPorousB, new AtomType[]{species1.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousB, species1.getLeafType(), criterionWallB);
-
-        potentialwallPorousB1 = new P1WCAPorousWall(space, sigma, epsilon);
-        CriterionPositionWall criterionWallB1 = new CriterionPositionWall(this);
-        criterionWallB1.setInteractionRange(potentialwallPorousB.getRange());
-        criterionWallB1.setNeighborRange(neighborRangeFacHalf * potentialwallPorousB.getRange());
-        criterionWallB1.setWallDim(2);
-        potentialMaster.addPotential(potentialwallPorousB1, new AtomType[]{species2.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousB1, species2.getLeafType(), criterionWallB1);
-
+        PotentialComputeAggregate pcAggMC = new PotentialComputeAggregate(potentialMasterCell, pcField);
+        PotentialComputeAggregate pcAggMD = new PotentialComputeAggregate(potentialMasterList, pcField);
 
         box.setNMolecules(species1, 20);
         box.setNMolecules(species2, 20);
         box.setNMolecules(speciesTube, 1);
 
         double temperature = Kelvin.UNIT.toSim(500.);
-        integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature,
+        integratorDCV = new IntegratorDCVGCMD(pcAggMC, temperature,
                 species1, species2, box);
-        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(pcAggMD, this.getRandom(), 0.05, 1.0, box);
+        final IntegratorMC integratorMC = new IntegratorMC(pcAggMC, this.getRandom(), 1.0, box);
 
-        potentialMaster.setRange(potential.getRange() * neighborRangeFac);
-        integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
-
-        activityIntegrate = new ActivityIntegrate(integratorDCV);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorDCV));
 
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
 
-        thermometer = new MeterTemperature(this, box, space.D());
+        thermometer = new MeterTemperature(getSpeciesManager(), box, space.D());
 
         integratorMD.setMeterTemperature(thermometer);
-        //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.005);
         //integrator.setInterval(10);
-        integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-        // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
-        // 40),new BasisMonatomic(3));
-        double length = 0.25;
         config = new ConfigurationLatticeTube(new LatticeCubicFcc(space), length, space);
-        config.setSpeciesSpheres(new SpeciesSpheresMono[]{species1, species2});
+        config.setSpeciesSpheres(new SpeciesGeneral[]{species1, species2});
         config.setSpeciesTube(speciesTube);
         config.initializeCoordinates(box);
 
-        //position of hole in porous-wall potential
-        poreCenter = space.makeVector();
-//        poreCenter.Ea1Tv1(0.5, box.getBoundary().getBoxSize());
-        Vector[] poreCentersVector = new Vector[]{poreCenter};
-        potentialwallPorousA.setPoreCenters(poreCentersVector);
-        potentialwallPorousA1.setPoreCenters(poreCentersVector);
-        potentialwallPorousB.setPoreCenters(poreCentersVector);
-        potentialwallPorousB1.setPoreCenters(poreCentersVector);
-
-        //radius of hole in porous-wall potential
-        double poreRadius = 1.05 * ((ConformationTube) speciesTube.getConformation()).tubeRadius;
-        potentialwallPorousA.setPoreRadius(poreRadius);
-        potentialwallPorousA1.setPoreRadius(poreRadius);
-        potentialwallPorousB.setPoreRadius(poreRadius);
-        potentialwallPorousB1.setPoreRadius(poreRadius);
-
-        //place porous-wall potentials; put just past the edges of the tube
-        double zA = (-0.5 + length + 0.05) * box.getBoundary().getBoxSize().getX(2);
-        double zB = (0.5 - length - 0.05) * box.getBoundary().getBoxSize().getX(2);
-        potentialwallPorousA.setZ(zA);
-        potentialwallPorousA1.setZ(zA);
-        potentialwallPorousB.setZ(zB);
-        potentialwallPorousB1.setZ(zB);
-        criterionWallA.setWallPosition(zA);
-        criterionWallA1.setWallPosition(zA);
-        criterionWallB.setWallPosition(zB);
-        criterionWallB1.setWallPosition(zB);
-        criterionWallA.setBoundaryWall(false);
-        criterionWallA1.setBoundaryWall(false);
-        criterionWallB.setBoundaryWall(false);
-        criterionWallB1.setBoundaryWall(false);
-
         MyMCMove[] moves = integratorDCV.mcMoves();
-        meterFlux0 = new MeterFlux(moves[0], integratorDCV);
-        meterFlux1 = new MeterFlux(moves[1], integratorDCV);
-        meterFlux2 = new MeterFlux(moves[2], integratorDCV);
-        meterFlux3 = new MeterFlux(moves[3], integratorDCV);
+        meterFlux0 = new MeterFlux(moves[0], integratorMD);
+        meterFlux1 = new MeterFlux(moves[1], integratorMD);
+        meterFlux2 = new MeterFlux(moves[2], integratorMD);
+        meterFlux3 = new MeterFlux(moves[3], integratorMD);
         meterFlux0.setBox(box);
         meterFlux1.setBox(box);
         meterFlux2.setBox(box);
@@ -269,13 +189,10 @@ public class DCVGCMD extends Simulation {
         accumulator2 = new AccumulatorAverageFixed();
         profile2pump = new DataPump(profile2, accumulator2);
         integratorDCV.getEventManager().addListener(new IntegratorListenerAction(profile2pump));
-
-        potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.activityIntegrate.setMaxSteps(5000);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 5000));
     }
 }

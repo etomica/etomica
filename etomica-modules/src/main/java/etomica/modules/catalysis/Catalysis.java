@@ -4,6 +4,7 @@
 
 package etomica.modules.catalysis;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -13,15 +14,19 @@ import etomica.chem.elements.Oxygen;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.BondingInfo;
 import etomica.potential.P1HardBoundary;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2SquareWell;
+import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
@@ -36,15 +41,14 @@ import etomica.util.random.RandomNumberGeneratorUnix;
  * @author Andrew Schultz
  */
 public class Catalysis extends Simulation {
-    
-    private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono speciesO, speciesC, speciesSurface;
+
+    public final SpeciesGeneral speciesO, speciesC, speciesSurface;
     public final Box box;
     public final IntegratorHard integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final P2SquareWellBonding potentialOO;
     public final P2SquareWellBondingCO potentialCO;
-    public final P2SquareWell potentialCC;
+    public final P2HardGeneric potentialCC;
     public final P2SquareWellSurface potentialCS, potentialOS;
     public final ConfigurationCatalysis config;
     public final InteractionTracker interactionTracker;
@@ -58,29 +62,20 @@ public class Catalysis extends Simulation {
         super(_space);
         this.setRandom(random);
         //species
-        speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
-        speciesO.setIsDynamic(true);
+        speciesO = SpeciesGeneral.monatomic(space, AtomType.element(Oxygen.INSTANCE), true);
         addSpecies(speciesO);
-        speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
-        speciesC.setIsDynamic(true);
+        speciesC = SpeciesGeneral.monatomic(space, AtomType.element(Carbon.INSTANCE), true);
         addSpecies(speciesC);
-        speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
-        speciesSurface.setIsDynamic(true);
+        speciesSurface = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("Surface", Double.POSITIVE_INFINITY)), true);
         addSpecies(speciesSurface);
 
         //construct box
         box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
 
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, 9, BondingInfo.noBonding());
+        neighborManager.setDoDownNeighbors(true);
+        PotentialComputePairGeneral potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
         //controller and integrator
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setTimeStep(0.005);
-        integrator.setTemperature(Kelvin.UNIT.toSim(600));
-        integrator.setIsothermal(true);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         double sigmaO = 3.6;
         double sigmaC = 3.8;
@@ -95,46 +90,50 @@ public class Catalysis extends Simulation {
 
         int minOSites = 2, minCSites = 2;
 
-        potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(200), Kelvin.UNIT.toSim(400), 7.4);
-        potentialMaster.addPotential(potentialOO, new AtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
+        potentialOO = new P2SquareWellBonding(interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(200), Kelvin.UNIT.toSim(400), 7.4);
+        potentialMaster.setPairPotential(speciesO.getLeafType(), speciesO.getLeafType(), potentialOO);
 
-        potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaC), 1.1, Math.sqrt(epsilonC * epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(7500), 7.4);
-        potentialMaster.addPotential(potentialCO, new AtomType[]{speciesO.getLeafType(), speciesC.getLeafType()});
+        potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaC), 1.1, Math.sqrt(epsilonC * epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(7500), 7.4, box.getBoundary());
+        potentialMaster.setPairPotential(speciesO.getLeafType(), speciesC.getLeafType(), potentialCO);
 
-        potentialCC = new P2SquareWell(space, sigmaC, 1.3, epsilonC, false);
-        potentialMaster.addPotential(potentialCC, new AtomType[]{speciesC.getLeafType(), speciesC.getLeafType()});
+        potentialCC = P2SquareWell.makePotential(sigmaC, 1.3, epsilonC);
+        potentialMaster.setPairPotential(speciesC.getLeafType(), speciesC.getLeafType(), potentialCC);
 
-        potentialOS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaS), 1.3, epsilonOS, minOSites);
-        potentialMaster.addPotential(potentialOS, new AtomType[]{speciesO.getLeafType(), speciesSurface.getLeafType()});
+        potentialOS = new P2SquareWellSurface(interactionTracker.getAgentManager(), 0.5 * (sigmaO + sigmaS), 1.3, epsilonOS, minOSites);
+        potentialMaster.setPairPotential(speciesO.getLeafType(), speciesSurface.getLeafType(), potentialOS);
 
-        potentialCS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5 * (sigmaC + sigmaS), 1.3, epsilonCS, minCSites);
-        potentialMaster.addPotential(potentialCS, new AtomType[]{speciesC.getLeafType(), speciesSurface.getLeafType()});
+        potentialCS = new P2SquareWellSurface(interactionTracker.getAgentManager(), 0.5 * (sigmaC + sigmaS), 1.3, epsilonCS, minCSites);
+        potentialMaster.setPairPotential(speciesC.getLeafType(), speciesSurface.getLeafType(), potentialCS);
 
         potentialCO.setCSPotential(potentialCS);
 
-        P1HardBoundary p1HardWallO = new P1HardBoundary(space, true);
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+        P1HardBoundary p1HardWallO = new P1HardBoundary(space, true, box);
         p1HardWallO.setActive(0, true, false);
         p1HardWallO.setActive(0, false, false);
         p1HardWallO.setActive(1, true, false);
         p1HardWallO.setActive(1, false, true);
         p1HardWallO.setActive(2, true, false);
         p1HardWallO.setActive(2, false, false);
-        potentialMaster.addPotential(p1HardWallO, new AtomType[]{speciesO.getLeafType()});
-        P1HardBoundary p1HardWallC = new P1HardBoundary(space, true);
+        pcField.setFieldPotential(speciesO.getLeafType(), p1HardWallO);
+        P1HardBoundary p1HardWallC = new P1HardBoundary(space, true, box);
         p1HardWallC.setActive(0, true, false);
         p1HardWallC.setActive(0, false, false);
         p1HardWallC.setActive(1, true, false);
         p1HardWallC.setActive(1, false, true);
         p1HardWallC.setActive(2, true, false);
         p1HardWallC.setActive(2, false, false);
-        potentialMaster.addPotential(p1HardWallC, new AtomType[]{speciesC.getLeafType()});
+        pcField.setFieldPotential(speciesC.getLeafType(), p1HardWallC);
 
-        integrator.addCollisionListener(interactionTracker);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), pcField.getFieldPotentials(),
+                neighborManager, random, 0.005, Kelvin.UNIT.toSim(600), box, getSpeciesManager(), null);
+        integrator.setIsothermal(true);
+        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostatInterval(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         reactionManagerCO = new ReactionManagerCO(this);
         reactionManagerCO.setnReactCO(minCSites);
         integrator.getEventManager().addListener(reactionManagerCO);
-
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         Vector dim = space.makeVector();
         dim.E(100);
@@ -151,11 +150,11 @@ public class Catalysis extends Simulation {
         config.setNumO2(nO2);
         config.initializeCoordinates(box);
     }
-    
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         int nCellsZ = 20;
-        
+
         Catalysis sim = new Catalysis(space, nCellsZ);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1);
         simGraphic.makeAndDisplayFrame();

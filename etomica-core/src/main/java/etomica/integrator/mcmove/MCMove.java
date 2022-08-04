@@ -4,9 +4,7 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
 
 /**
  * Parent class for all elementary Monte Carlo move classes, as used by
@@ -21,18 +19,12 @@ import etomica.potential.PotentialMaster;
 
 public abstract class MCMove {
 
-    /**
-     * @param potentialMaster the potential master that move can use to calculate energy
-     */
-	public MCMove(PotentialMaster potentialMaster) {
-        this(potentialMaster, new MCMoveTracker());
+
+	public MCMove() {
+        this(new MCMoveTracker());
     }
 
-    /**
-     * @param potentialMaster the potential master that move can use to calculate energy
-     */
-    public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
-        potential = potentialMaster;
+    public MCMove(MCMoveTracker acceptanceTracker) {
         moveTracker = acceptanceTracker;
         nominalFrequency = 100;
     }
@@ -71,19 +63,6 @@ public abstract class MCMove {
 	public abstract void rejectNotify();
 
 	/**
-	 * Returns an iterator that yields the atoms that were affected by the trial
-	 * move the last time doTrial was invoked (regardless of whether the move
-	 * was accepted). This information usually is not needed, but it is
-	 * available in cases where required by objects that perform some activity
-	 * while the move is in progress, or need to update after the move is
-	 * completed. Such objects can receive notification of the move's completion
-	 * by registering with the IntegratorMC as MCMoveEventListeners.  If the    
-     * move caused an atom to be removed from the box, it will not be returned
-     * because that Atom is not considered an affected Atom.                    
-	 */
-	public abstract AtomIterator affectedAtoms(Box box);
-
-	/**
 	 * Returns the change in the energy of the given box that results from the
 	 * trial move. Should be called only after lnProbabilityRatio(); returns
 	 * Double.NaN if invoked between calls to doTrial and lnProbabilityRatio.
@@ -112,8 +91,6 @@ public abstract class MCMove {
 	public String toString() {
 	    return getClass().toString();
 	}
-
-    protected final PotentialMaster potential;
 
     /**
 	 * Value giving nominal frequency for performing this move. Default is 100,

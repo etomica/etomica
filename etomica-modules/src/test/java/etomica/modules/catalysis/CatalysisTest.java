@@ -1,7 +1,6 @@
 package etomica.modules.catalysis;
 
 import etomica.action.ActionIntegrate;
-import etomica.data.DataPumpListener;
 import etomica.space3d.Space3D;
 import etomica.util.random.RandomMersenneTwister;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +30,9 @@ class CatalysisTest {
     void testDensities() {
         assertDoesNotThrow(() -> actionIntegrate.actionPerformed());
         assertAll(
-                () -> assertEquals(3.5144282273534565e-5, densityCO.getDataAsScalar(), delta, "CO density"),
-                () -> assertEquals(3.983018657667251e-5, densityO2.getDataAsScalar(), delta, "O2 density"),
-                () -> assertEquals(2.342952151568971e-6, densityCO2.getDataAsScalar(), delta, "CO2 density")
+                () -> assertEquals(3.8658710500888024E-5, densityCO.getDataAsScalar(), delta, "CO density"),
+                () -> assertEquals(3.983018657667251E-5, densityO2.getDataAsScalar(), delta, "O2 density"),
+                () -> assertEquals(0.0, densityCO2.getDataAsScalar(), delta, "CO2 density")
         );
 
     }
