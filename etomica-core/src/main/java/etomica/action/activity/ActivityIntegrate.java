@@ -22,10 +22,15 @@ public class ActivityIntegrate extends Activity {
     private long currentStep = 0;
 	protected boolean skipReset = false;
 
+	public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap, boolean skipReset) {
+		this.integrator = integrator;
+		this.maxSteps = maxSteps;
+		this.ignoreOverlap = ignoreOverlap;
+		this.skipReset = skipReset;
+	}
+
     public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap) {
-        this.integrator = integrator;
-        this.maxSteps = maxSteps;
-        this.ignoreOverlap = ignoreOverlap;
+		this(integrator, maxSteps, ignoreOverlap, false);
 	}
 
 	public ActivityIntegrate(Integrator integrator, long maxSteps) {

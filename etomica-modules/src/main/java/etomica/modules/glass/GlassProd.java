@@ -68,6 +68,7 @@ public class GlassProd {
         List<Statefull> objects = new ArrayList<>();
         objects.add(sim.box);
         objects.add(sim.integrator);
+        boolean skipReset = false;
         if (params.numStepsEq > 0 && new File("glass.state").exists()) {
             // we have a restore file and we need to do equilibration, so assume
             // we should restore and then continue equilibrating
@@ -81,7 +82,7 @@ public class GlassProd {
                 // find neighbors with new config
                 // reset collision times (for hard) or compute forces (for soft)
                 sim.integrator.postRestore();
-                sim.activityIntegrate.setDoSkipReset(true);
+                skipReset = true;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -94,7 +95,7 @@ public class GlassProd {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2, false, skipReset));
 
         AccumulatorAverageFixed accE = new AccumulatorAverageFixed(1);
         MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
@@ -102,9 +103,8 @@ public class GlassProd {
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature) {
             sim.integrator.getEventManager().addListener(pumpE);
         }
-        sim.activityIntegrate.setDoSkipReset(true);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2, false, true));
 
         if (temperature0 > params.temperature) {
             System.out.println("Equilibrating at T=" + params.temperature);
@@ -573,6 +573,7 @@ public class GlassProd {
         objects.add(meterCorrelationSelfMagB);
         objects.add(correlationSelf2);
 
+        skipReset = false;
         if (new File("glass.state").exists()) {
             try {
                 BufferedReader br = new BufferedReader(new FileReader("glass.state"));
@@ -584,7 +585,7 @@ public class GlassProd {
                 // find neighbors with new config
                 // reset collision times (for hard) or compute forces (for soft)
                 sim.integrator.postRestore();
-                sim.activityIntegrate.setDoSkipReset(true);
+                skipReset = true;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -592,7 +593,7 @@ public class GlassProd {
 
         //Run
         long time0 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps, false, skipReset));
         try {
             FileWriter fw = new FileWriter("glass.state");
             for (Statefull s : objects) {
