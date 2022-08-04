@@ -796,14 +796,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
     public void postRestore() {
         super.postRestore();
-        for (IAtom atom : box.getLeafList()) {
-            Agent agent = agentManager.getAgent(atom);
-            agent.setAtom((IAtomKinetic) atom);
-        }
         computeAllCollisions();
     }
 
-    /**
     protected void scaleMomenta() {
         super.scaleMomenta();
         // super.scaleMomenta alters the velocities, so we need to
