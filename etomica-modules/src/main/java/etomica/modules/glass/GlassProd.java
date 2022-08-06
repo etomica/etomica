@@ -23,7 +23,57 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * This class normally consists of 3 stages:
+ * 1. NVT equilibration (numStepsEqIsothermal)
+ * 2. NVT collection of total energy (numStepsIsothermal)
+ * 3. NVE production run at total energy measured in stage 2 (numSteps)
+ *
+ * For a soft potential that has trouble melting from the initial configuration, 4 stages can be used:
+ * 1. NVT equilibration at a temperature high enough to melt (numStepsEqIsothermal)
+ * 2. NVT equilibration at temperature of interest (numStepsEqIsothermal)
+ * 3. NVT collection of total energy at temperature of interest (numStepsIsothermal)
+ * 4. NVE production run at total energy measured in stage 3 (numSteps)
+ *
+ * After a simulation finishes, the simulation can be continued from where it ended.  This allows a very long run (which
+ * may be necessary to collect long-time dynamics) can be split up across many jobs.  In each case, the run should be
+ * specified as consisting of one or more of the 3 stages described above.  A stage which should not be run should have
+ * its steps set to 0.  Save/restore does not understand the 4-stage approach; if needed, just do several equilibration
+ * runs with different temperatures.  Whatever type of simulation, the job needs to finish (the class does not handle
+ * resuming after an interruption).  Each job can continue the last stage from the previous job, or can start the next
+ * stage.
+ */
+
 public class GlassProd {
+
+    public static void saveObjects(StepsState steps, List<Statefull> objects) {
+        try {
+            FileWriter fw = new FileWriter("glass.steps");
+            steps.saveState(fw);
+            fw.close();
+            fw = new FileWriter("glass.state");
+            for (Statefull s : objects) {
+                s.saveState(fw);
+            }
+            fw.close();
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void restoreObjects(List<Statefull> objects) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("glass.state"));
+            for (Statefull s : objects) {
+                s.restoreState(br);
+            }
+            br.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static void main(String[] args) {
         SimParams params = new SimParams();
         if (args.length > 0) {
@@ -36,7 +86,7 @@ public class GlassProd {
             params.density = 1.2; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEq = 10000;
+            params.numStepsEqIsothermal = 10000;
             params.numSteps = 100000;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
@@ -50,7 +100,7 @@ public class GlassProd {
         int numAtoms = params.nA + params.nB;
         double rho = params.density;
         System.out.println("T = " + params.temperature);
-        System.out.println(params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps , using dt = " + sim.integrator.getTimeStep());
+        System.out.println(params.numSteps + " production MD steps after " + params.numStepsEqIsothermal + " NVT equilibration steps, "+params.numStepsIsothermal+" NVE equilibration using dt = " + sim.integrator.getTimeStep());
         double volume = sim.box.getBoundary().volume();
         if (params.potential == SimGlass.PotentialChoice.HS) {
             double phi;
@@ -65,27 +115,35 @@ public class GlassProd {
         }
         sim.initConfig();
 
+        StepsState stepsState = new StepsState();
+        StepsState savedSteps = new StepsState();
+        int savedStage = 0; // last stage from previous run.  0 means no previous run
+        // we need to know how far we got before reading glass.state so that we know what objects to try to read
+        if (new File("glass.steps").exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader("glass.steps"));
+                savedSteps.restoreState(br);
+                br.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            if (savedSteps.numStepsEqIsothermal > 0) savedStage = 1; // eq ran
+            if (savedSteps.numStepsIsothermal > 0) savedStage = 2;   // nvt ran
+            if (savedSteps.numSteps > 0) savedStage = 3;             // production ran
+        }
         List<Statefull> objects = new ArrayList<>();
         objects.add(sim.box);
         objects.add(sim.integrator);
         boolean skipReset = false;
-        if (params.numStepsEq > 0 && new File("glass.state").exists()) {
-            // we have a restore file and we need to do equilibration, so assume
-            // we should restore and then continue equilibrating
-            try {
-                BufferedReader br = new BufferedReader(new FileReader("glass.state"));
-                for (Statefull s : objects) {
-                    s.restoreState(br);
-                }
-                br.close();
-                System.out.println("Continuing equilibration after " + sim.integrator.getStepCount() + " steps");
-                // find neighbors with new config
-                // reset collision times (for hard) or compute forces (for soft)
-                sim.integrator.postRestore();
-                skipReset = true;
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+        if (params.numStepsEqIsothermal > 0 && new File("glass.state").exists() && savedStage == 1) {
+            // we have a restore file and we need to do isothermal equilibration
+            // we should restore and then continue equilibrating isothermally
+            restoreObjects(objects);
+            System.out.println("Continuing equilibration after " + sim.integrator.getStepCount() + " steps");
+            // find neighbors with new config
+            // reset collision times (for hard) or compute forces (for soft)
+            sim.integrator.postRestore();
+            skipReset = stepsState.numStepsEqIsothermal > 0; // allow integrator to retain its step count
         }
 
         //Equilibration
@@ -95,7 +153,32 @@ public class GlassProd {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2, false, skipReset));
+        // Equilibrate isothermally
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqIsothermal, false, skipReset));
+
+        long time1eq = System.nanoTime();
+        stepsState.numStepsEqIsothermal += params.numStepsEqIsothermal;
+
+        if (params.numStepsIsothermal + params.numSteps == 0) {
+            // we're done!
+            saveObjects(stepsState, objects);
+
+            System.out.printf("\nisothermal equilibration time: %3.2f s\n", (time1eq-time0eq)/1e9);
+            return;
+        }
+
+        skipReset = false;
+        if (params.numStepsEqIsothermal == 0 && new File("glass.state").exists() && savedStage == 1) {
+            // we have a restore file, we did not do any isothermal equilibration, but we need to do isothermal
+            // collection of total energy
+            // we should restore and then collect total energy
+            // we did not start collecting E, so we need to restore before we add accE to our objects
+            restoreObjects(objects);
+            System.out.println("Running NVT after " + sim.integrator.getStepCount() + " equilibration steps");
+            // find neighbors with new config
+            // reset collision times (for hard) or compute forces (for soft)
+            sim.integrator.postRestore();
+        }
 
         AccumulatorAverageFixed accE = new AccumulatorAverageFixed(1);
         MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
@@ -104,37 +187,63 @@ public class GlassProd {
             sim.integrator.getEventManager().addListener(pumpE);
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2, false, true));
+        objects.add(accE);
+        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal > 0 && new File("glass.state").exists() && savedStage == 2) {
+            // we have a restore file, we previously did isothermal collection of total E and need to continue that
+            // we should restore and then collect total energy
+            restoreObjects(objects);
+            System.out.println("Continuing NVT stage after " + sim.integrator.getStepCount() + " steps");
+            // find neighbors with new config
+            // reset collision times (for hard) or compute forces (for soft)
+            sim.integrator.postRestore();
+            skipReset = true;
+        }
 
-        if (temperature0 > params.temperature) {
+        if (temperature0 == params.temperature) {
+            // Now collect average total energy (stage 2).
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal, false, skipReset));
+            stepsState.numStepsIsothermal += params.numStepsIsothermal;
+        }
+        else {
+            // Don't be trying to save/restore into here.
+            // Just do a run at a high T, and then another at the T you want.
+
+            // first stage was at higher temperature to ensure crystal melted
+            // now we need a second stage at the temperature we actually want
             System.out.println("Equilibrating at T=" + params.temperature);
             sim.integrator.setTemperature(params.temperature);
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqIsothermal));
+            stepsState.numStepsEqIsothermal += params.numStepsEqIsothermal;
 
             if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
                 sim.integrator.getEventManager().addListener(pumpE);
             }
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEq / 2));
+            // Assume isothermal equilibration.  Now collect average total energy.
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal));
+            stepsState.numStepsEqIsothermal += params.numStepsIsothermal;
         }
-        long time1eq = System.nanoTime();
-        if (params.numStepsEq > 0 && params.doSwap) {
+
+        long time2eq = System.nanoTime();
+        if (params.numStepsEqIsothermal + params.numStepsIsothermal > 0 && params.doSwap) {
+            // only for this sim, swapMove not saved/restored
             System.out.println("swap acceptance: "+sim.swapMove.getTracker().acceptanceProbability());
         }
         if (params.numSteps == 0) {
-            try {
-                FileWriter fw = new FileWriter("glass.state");
-                for (Statefull s : objects) {
-                    s.saveState(fw);
-                }
-                fw.close();
-            }
-            catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            saveObjects(stepsState, objects);
 
-            System.out.println(String.format("\nequilibration time: %3.2f s", (time1eq-time0eq)/1e9));
+            System.out.printf("\nequilibration time: %3.2f s\n", (time2eq-time0eq)/1e9);
             return;
+        }
+
+        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal == 0 && new File("glass.state").exists() && savedStage < 3) {
+            // we have a restore file, we need to do production, but have never done production before.
+            // we need to restore here before setting up our data collection
+            restoreObjects(objects);
+            System.out.println("Running production after continuing from previous eq sim");
+            // find neighbors with new config
+            // reset collision times (for hard) or compute forces (for soft)
+            sim.integrator.postRestore();
         }
 
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
@@ -574,36 +683,21 @@ public class GlassProd {
         objects.add(correlationSelf2);
 
         skipReset = false;
-        if (new File("glass.state").exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader("glass.state"));
-                for (Statefull s : objects) {
-                    s.restoreState(br);
-                }
-                br.close();
-                System.out.println("Continuing after " + sim.integrator.getStepCount() + " steps");
-                // find neighbors with new config
-                // reset collision times (for hard) or compute forces (for soft)
-                sim.integrator.postRestore();
-                skipReset = true;
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal == 0 && new File("glass.state").exists() && savedStage == 3) {
+            // we started a production run previously
+            restoreObjects(objects);
+            System.out.println("Continuing production after " + sim.integrator.getStepCount() + " steps");
+            // find neighbors with new config
+            // reset collision times (for hard) or compute forces (for soft)
+            sim.integrator.postRestore();
+            skipReset = true;
         }
 
         //Run
         long time0 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps, false, skipReset));
-        try {
-            FileWriter fw = new FileWriter("glass.state");
-            for (Statefull s : objects) {
-                s.saveState(fw);
-            }
-            fw.close();
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        stepsState.numSteps += params.numSteps;
+        saveObjects(stepsState, objects);
 
         //Pressure
         DataGroup dataP = (DataGroup) pAccumulator.getData();
@@ -784,11 +878,12 @@ public class GlassProd {
         }
         long time1 = System.nanoTime();
         double sim_time = (time1 - time0) / 1e9;
-        System.out.printf("\ntime: %3.2f s", sim_time);
+        System.out.printf("\ntime: %3.2f s\n", sim_time);
     }
 
     public static class SimParams extends SimGlass.GlassParams {
-        public int numStepsEq = 10000;
+        public int numStepsEqIsothermal = 10000;
+        public int numStepsIsothermal = 10000;
         public int numSteps = 1000000;
         public double minDrFilter = 0.4;
         public double temperatureMelt = 0;
@@ -860,4 +955,22 @@ public class GlassProd {
         }
     }
 
+    public static class StepsState implements Statefull {
+        public long numStepsEqIsothermal;
+        public long numStepsIsothermal;
+        public long numSteps;
+
+        @Override
+        public void saveState(Writer fw) throws IOException {
+            fw.write(numStepsEqIsothermal+" "+numStepsIsothermal+" "+numSteps+"\n");
+        }
+
+        @Override
+        public void restoreState(BufferedReader br) throws IOException {
+            String[] bits = br.readLine().split(" ");
+            numStepsEqIsothermal = Long.parseLong(bits[0]);
+            numStepsIsothermal = Long.parseLong(bits[1]);
+            numSteps = Long.parseLong(bits[2]);
+        }
+    }
 }
