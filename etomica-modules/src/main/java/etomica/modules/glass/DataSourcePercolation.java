@@ -14,10 +14,14 @@ import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class DataSourcePercolation implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourcePercolation implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -164,8 +168,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -311,6 +314,36 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     public Chi4Source makeChi4Source() {
         return new Chi4Source();
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(getClass().getName()+"\n");
+        fw.write(percP.length+"\n");
+        for (int i=0; i<percP.length; i++) {
+            fw.write(percP[i]+" "+immTotal[i]+" "+imm2Total[i]+" "+nSamples[i]);
+            for (int j=0; j<immFractionByType[i].length; j++) {
+                fw.write(" "+immFractionByType[i][j]);
+            }
+            fw.write("\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        if (!br.readLine().equals(getClass().getName())) throw new RuntimeException("oops");
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            percP[i] = Double.parseDouble(bits[0]);
+            immTotal[i] = Long.parseLong(bits[1]);
+            imm2Total[i] = Long.parseLong(bits[2]);
+            nSamples[i] = Long.parseLong(bits[3]);
+            for (int j=0; j<immFractionByType[i].length; j++) {
+                immFractionByType[i][j] = Long.parseLong(bits[4+j]);
+            }
+        }
     }
 
     public class ImmFractionSource implements IDataSource {

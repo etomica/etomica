@@ -9,13 +9,17 @@ import etomica.data.types.DataFunction;
 import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**
  * Measures correlation of blocks of increasing size.
  */
-public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSourceIndependent {
+public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSourceIndependent, Statefull {
 
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
@@ -167,5 +171,31 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(""+step0+" "+blockSumX.length+"\n");
+        for (int i=0; i<blockSumX.length; i++) {
+            fw.write(xSum[i]+" "+x2Sum[i]+" "+nSamplesCorX[i]+" "+lastSampleX[i]+" "+firstSampleX[i]+" "+blockSumX[i]+" "+corSumX[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        String[] bits = br.readLine().split(" ");
+        step0 = Long.parseLong(bits[0]);
+        int n = Integer.parseInt(bits[1]);
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            bits = br.readLine().split(" ");
+            xSum[i] = Double.parseDouble(bits[0]);
+            x2Sum[i] = Double.parseDouble(bits[1]);
+            nSamplesCorX[i] = Long.parseLong(bits[2]);
+            lastSampleX[i] = Double.parseDouble(bits[3]);
+            firstSampleX[i] = Double.parseDouble(bits[4]);
+            blockSumX[i] = Double.parseDouble(bits[5]);
+            corSumX[i] = Double.parseDouble(bits[6]);
+        }
     }
 }

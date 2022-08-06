@@ -7,12 +7,16 @@ import etomica.data.types.DataFunction;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAveragerSFac.Sink {
+public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAveragerSFac.Sink, Statefull {
 
     protected double[][][] lastXY;
     protected double[][] corSum;
@@ -140,11 +144,10 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
     protected void setTimeData() {
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            if (savedTimes[1] < 0) {
+            double dt = configStorage.getDeltaT();
+            if (dt == 0) {
                 Arrays.fill(t, Double.NaN);
             } else {
-                double dt = savedTimes[0] - savedTimes[1];
                 for (int i = 0; i < t.length; i++) {
                     t[i] = dt * (1L << i);
                 }
@@ -222,6 +225,43 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
 
     public Meter makeMeter(int idx) {
         return new Meter(idx);
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(skipNow.length+"\n");
+        for (int i=0; i<skipNow.length; i++) {
+            fw.write(skipNow[i] ? "1" : "0");
+            for (int j=0; j<lastXY.length; j++) {
+                fw.write(" "+lastXY[j][i][0]+" "+lastXY[j][i][1]);
+            }
+            for (int j=0; j<corSum.length; j++) {
+                fw.write(" "+corSum[j][i]+" "+sum2[j][i]+" "+nSamplesCor[j][i]+" "+nSamples2[j][i]);
+            }
+            fw.write("\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            skipNow[i] = bits[0].equals("1");
+            for (int j=0; j<lastXY.length; j++) {
+                lastXY[j][i][0] = Double.parseDouble(bits[1+2*j]);
+                lastXY[j][i][1] = Double.parseDouble(bits[1+2*j+1]);
+            }
+            int J = 1 + 2*lastXY.length;
+            for (int j=0; j<corSum.length; j++) {
+                corSum[j][i] = Double.parseDouble(bits[J]);
+                sum2[j][i] = Double.parseDouble(bits[J+1]);
+                nSamplesCor[j][i] = Long.parseLong(bits[J+2]);
+                nSamples2[j][i] = Long.parseLong(bits[J+3]);
+                J += 4;
+            }
+        }
     }
 
     public class Sink implements IDataSink {
