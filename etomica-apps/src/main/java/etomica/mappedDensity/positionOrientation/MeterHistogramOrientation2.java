@@ -61,7 +61,7 @@ public class MeterHistogramOrientation2 implements IDataSource, DataSourceIndepe
 
             double dz = Math.abs(xyz.getX(d));
             for (int iw=0; iw<widths.length; iw++) {
-                double inc = 1/(widths[iw] * S) * (cosSource.getNValues() / (2. * Math.PI));
+                double inc = 1/(widths[iw] * S) * (cosSource.getNValues() / (2. * Math.PI)) / 2.;
                 for (int ip=0; ip<perps.length; ip++) {
                     double iz = perps[ip];
                     if (Math.abs(dz - iz) < widths[iw] / 2) {
