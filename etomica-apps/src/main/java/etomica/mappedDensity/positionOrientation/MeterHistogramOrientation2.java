@@ -61,7 +61,7 @@ public class MeterHistogramOrientation2 implements IDataSource, DataSourceIndepe
 
             double dz = Math.abs(xyz.getX(d));
             for (int iw=0; iw<widths.length; iw++) {
-                double inc = 1/(widths[iw] * S) * (cosSource.getNValues() / (2. * Math.PI)) / 2.;
+                double inc = 1/(widths[iw] * S) * (cosSource.getNValues() / (2. * Math.PI));
                 for (int ip=0; ip<perps.length; ip++) {
                     double iz = perps[ip];
                     if (Math.abs(dz - iz) < widths[iw] / 2) {
@@ -69,7 +69,8 @@ public class MeterHistogramOrientation2 implements IDataSource, DataSourceIndepe
                         if (D == 2) drd = Math.atan2(dr.getX(1), dr.getX(0));// /(Math.PI);
                         else throw new RuntimeException("not set up for 3D in MeterHistogramOrientation");
                         int cosIdx = cosSource.getIndex(drd);
-                        y[(iw * perps.length + ip) * cosSource.getNValues() + cosIdx] += inc;
+                        double myinc = (iz == 0) ? inc : 0.5*inc; //if z != 0, abs(dz) is double-counting +/-, so need to multiply by 0.5
+                        y[(iw * perps.length + ip) * cosSource.getNValues() + cosIdx] += myinc;
                     }
                 }
             }
