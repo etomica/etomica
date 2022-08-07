@@ -18,7 +18,11 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**
@@ -26,7 +30,7 @@ import java.util.Arrays;
  *
  * @author Sabry Moustafa
  */
-public class MeterGs implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent {
+public class MeterGs implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected final DataSourceUniform xDataSource;
@@ -193,6 +197,31 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
                     int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
                     gsSum[j][index]++;                        //add once for each atom
                 }
+            }
+        }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(gsSum.length+"\n");
+        for (int i=0; i<gsSum.length; i++) {
+            fw.write(""+numSamples[i]);
+            for (int j=0; j<gsSum[i].length; j++) {
+                fw.write(" "+gsSum[i][j]);
+            }
+            fw.write("\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            numSamples[i] = Long.parseLong(bits[0]);
+            for (int j=0; j<gsSum[i].length; j++) {
+                gsSum[i][j] = Long.parseLong(bits[1+j]);
             }
         }
     }

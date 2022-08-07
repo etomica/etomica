@@ -22,6 +22,10 @@ import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Time;
 import etomica.util.random.IRandom;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
 /**
  * Superclass of all molecular-dynamics integrators.
  */
@@ -653,6 +657,21 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
 
         public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
         }
+    }
+
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        fw.write(""+currentTime+" "+currentKineticEnergy+" "+thermostatCount+" "+nRejected+" "+nAccepted+"\n");
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        String[] bits = br.readLine().split(" ");
+        currentTime = Double.parseDouble(bits[0]);
+        currentKineticEnergy = Double.parseDouble(bits[1]);
+        thermostatCount = Integer.parseInt(bits[2]);
+        nRejected = Long.parseLong(bits[3]);
+        nAccepted = Long.parseLong(bits[4]);
     }
 }
 

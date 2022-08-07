@@ -14,10 +14,14 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent {
+public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent, Statefull {
 
     public enum CorrelationType {TOTAL, MAGNITUDE, MAG_DOT}
 
@@ -51,14 +55,14 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         dr12 = space.makeVector();
         tag = new DataTag();
         tTag = new DataTag();
-        reset();
+        reallocate(0);
     }
 
-    public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n + 1 == corSum.length && data != null) return;
-        if (n < 1) n = 0;
-        else n--;
+    public void zeroData() {
+        reallocate(0);
+    }
+
+    protected void reallocate(int n) {
         corSum = Arrays.copyOf(corSum, n);
         dr1Sum = Arrays.copyOf(dr1Sum, n);
         dr2Sum = Arrays.copyOf(dr2Sum, n);
@@ -72,8 +76,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -143,7 +146,6 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
     @Override
     public void newConfigruation() {
 
-        reset(); // reallocates if needed
         long step2 = configStorage.getSavedSteps()[0];
         Vector[] config2 = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
@@ -153,6 +155,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         for (int j = 1; j < configStorage.getLastConfigIndex() - 1; j++) {
             int x = Math.max(j, minInterval);
             if (step2 % (1L << x) == 0) {
+                if (j > dr2Sum.length) reallocate(j);
 
                 Vector[] config1 = configStorage.getSavedConfig(j);
                 Vector[] config0 = configStorage.getSavedConfig(j + 1);
@@ -180,6 +183,28 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
                     nSamples[j - 1]++;
                 }
             }
+        }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(dr2Sum.length+"\n");
+        for (int i=0; i<dr2Sum.length; i++) {
+            fw.write(corSum[i]+" "+dr1Sum[i]+" "+dr2Sum[i]+" "+dr3Sum[i]+" "+nSamples[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            corSum[i] = Double.parseDouble(bits[0]);
+            dr1Sum[i] = Double.parseDouble(bits[1]);
+            dr2Sum[i] = Double.parseDouble(bits[2]);
+            dr3Sum[i] = Double.parseDouble(bits[3]);
+            nSamples[i] = Long.parseLong(bits[4]);
         }
     }
 }

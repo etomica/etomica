@@ -11,7 +11,11 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +26,7 @@ import java.util.Set;
  * Otherwise, it will store configurations that are (more or less)
  * 1, 2, 4, 8, 16... steps ago.
  */
-public class ConfigurationStorage implements IntegratorListener {
+public class ConfigurationStorage implements IntegratorListener, Statefull {
 
     public enum StorageType {LOG2, MSD, LINEAR}
 
@@ -39,6 +43,7 @@ public class ConfigurationStorage implements IntegratorListener {
     protected boolean enabled;
     protected int interval, intervalCountdown;
     protected boolean doVel;
+    protected double dt;
 
     public ConfigurationStorage(Box box, StorageType storageType) {
         this(box, storageType, 60, 1);
@@ -193,6 +198,7 @@ public class ConfigurationStorage implements IntegratorListener {
         savedSteps[0] = stepCount;
         Integrator integrator = e.getIntegrator();
         savedTimes[0] = integrator instanceof IntegratorMD ? ((IntegratorMD) integrator).getCurrentTime() : integrator.getStepCount();
+        if (dt==0 && stepCount>0) dt = savedTimes[0] - savedTimes[1];
         Vector boxDim = box.getBoundary().getBoxSize();
         for (int i = 0; i < n; i++) {
             Vector p = atoms.get(i).getPosition();
@@ -274,11 +280,75 @@ public class ConfigurationStorage implements IntegratorListener {
         return configVelList[idx];
     }
 
+    public double getDeltaT() {
+        return dt;
+    }
+
     @Override
     public void integratorStepFinished(IntegratorEvent e) {
     }
 
     public interface ConfigurationStorageListener {
         void newConfigruation();
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(getClass().getName()+"\n");
+        fw.write(""+stepCount+" "+intervalCountdown+" "+dt+"\n");
+        for (int i=0; i<savedSteps.length && savedSteps[i] > -1; i++) {
+            fw.write(""+savedSteps[i]+" "+savedTimes[i]+"\n");
+            for (int j=0; j<configList[i].length; j++) {
+                Vector p = configList[i][j];
+                int D = p.getD();
+                fw.write(""+p.getX(0));
+                for (int k=1; k<D; k++) fw.write(" "+p.getX(k));
+                if (doVel) {
+                    Vector v = configVelList[i][j];
+                    for (int k=0; k<D; k++) fw.write(" "+v.getX(k));
+                }
+                fw.write("\n");
+            }
+        }
+        fw.write("\n");
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        if (!br.readLine().equals(getClass().getName())) {
+            throw new RuntimeException("oops");
+        }
+        String[] bits = br.readLine().split(" ");
+        stepCount = Long.parseLong(bits[0]);
+        intervalCountdown = Integer.parseInt(bits[1]);
+        dt = Double.parseDouble(bits[2]);
+        int n = box.getLeafList().size();
+        for (int i=0; i<savedSteps.length; i++) {
+            String s = br.readLine();
+            if (s.length() < 2) break;
+            bits = s.split(" ");
+            savedSteps[i] = Long.parseLong(bits[0]);
+            savedTimes[i] = Double.parseDouble(bits[1]);
+            if (configList == null) {
+                configList = new Vector[0][];
+                if (doVel) configVelList = new Vector[0][];
+            }
+            configList = Arrays.copyOf(configList, configList.length+1);
+            configList[i] = box.getSpace().makeVectorArray(n);
+            if (doVel) {
+                configVelList = Arrays.copyOf(configVelList, configVelList.length+1);
+                configVelList[i] = box.getSpace().makeVectorArray(n);
+            }
+            for (int j=0; j<configList[i].length; j++) {
+                Vector p = configList[i][j];
+                int D = p.getD();
+                bits = br.readLine().split(" ");
+                for (int k=0; k<D; k++) p.setX(k, Double.parseDouble(bits[k]));
+                if (doVel) {
+                    Vector v = configVelList[i][j];
+                    for (int k=0; k<D; k++) v.setX(k, Double.parseDouble(bits[D+k]));
+                }
+            }
+        }
     }
 }

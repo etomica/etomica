@@ -9,6 +9,10 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.species.ISpecies;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
 public class Molecule implements IMolecule {
 
     public Molecule(ISpecies species, int numLeafAtoms) {
@@ -93,6 +97,20 @@ public class Molecule implements IMolecule {
     public void copyCoordinatesFrom(IMolecule molecule) {
         for (IAtom atom : childList) {
             atom.copyCoordinatesFrom(molecule.getChildList().get(atom.getIndex()));
+        }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        for (IAtom a : childList) {
+            a.saveState(fw);
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        for (IAtom a : childList) {
+            a.restoreState(br);
         }
     }
 

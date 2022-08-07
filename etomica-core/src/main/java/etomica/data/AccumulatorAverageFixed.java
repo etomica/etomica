@@ -4,15 +4,13 @@
 
 package etomica.data;
 
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 
 /**
@@ -324,5 +322,40 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         work = incomingDataInfo.makeData();
         work2 = incomingDataInfo.makeData();
         return super.processDataInfo(incomingDataInfo);
+    }
+
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        for (int i=0; i<blockVarSum.getLength(); i++) {
+            fw.write(blockVarSum.getValue(i)+" "+average.getValue(i)+" "+currentBlockAvg.getValue(i)+" "+sumSquare.getValue(i)+
+                          " "+mostRecentBlock.getValue(i)+" "+correlationSum.getValue(i)+" "+firstBlock.getValue(i)+"\n");
+        }
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        for (int i=0; i<mostRecent.getLength(); i++) {
+            String[] bits = br.readLine().split(" ");
+            double[] x = new double[bits.length];
+            for (int j=0; j<bits.length; j++) x[j] = Double.parseDouble(bits[j]);
+            if (mostRecent instanceof DataDouble && i==0) {
+                ((DataDouble) blockVarSum).x = x[0];
+                ((DataDouble) average).x = x[1];
+                ((DataDouble) currentBlockAvg).x = x[2];
+                ((DataDouble) sumSquare).x = x[3];
+                ((DataDouble) mostRecentBlock).x = x[4];
+                ((DataDouble) correlationSum).x = x[5];
+                ((DataDouble) firstBlock).x = x[6];
+            }
+            else if (mostRecent instanceof DataDoubleArray) {
+                ((DataDoubleArray)blockVarSum).getData()[i] = x[0];
+                ((DataDoubleArray)average).getData()[i] = x[1];
+                ((DataDoubleArray)currentBlockAvg).getData()[i] = x[2];
+                ((DataDoubleArray)sumSquare).getData()[i] = x[3];
+                ((DataDoubleArray)mostRecentBlock).getData()[i] = x[4];
+                ((DataDoubleArray)correlationSum).getData()[i] = x[5];
+                ((DataDoubleArray)firstBlock).getData()[i] = x[6];
+            }
+        }
     }
 }
