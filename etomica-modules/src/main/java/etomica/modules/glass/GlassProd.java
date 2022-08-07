@@ -100,7 +100,7 @@ public class GlassProd {
         int numAtoms = params.nA + params.nB;
         double rho = params.density;
         System.out.println("T = " + params.temperature);
-        System.out.println(params.numSteps + " production MD steps after " + params.numStepsEqIsothermal + " NVT equilibration steps, "+params.numStepsIsothermal+" NVE equilibration using dt = " + sim.integrator.getTimeStep());
+        System.out.println(params.numSteps + " production MD steps after " + params.numStepsEqIsothermal + " NVT equilibration steps, "+params.numStepsIsothermal+" NVT E check using dt = " + sim.integrator.getTimeStep());
         double volume = sim.box.getBoundary().volume();
         if (params.potential == SimGlass.PotentialChoice.HS) {
             double phi;
@@ -187,7 +187,10 @@ public class GlassProd {
             sim.integrator.getEventManager().addListener(pumpE);
         }
 
-        objects.add(accE);
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature && savedSteps.numStepsIsothermal > 0) {
+            // add now to read from glass.state, but only if we expect it to be there
+            objects.add(accE);
+        }
         if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal > 0 && new File("glass.state").exists() && savedStage == 2) {
             // we have a restore file, we previously did isothermal collection of total E and need to continue that
             // we should restore and then collect total energy
@@ -200,6 +203,10 @@ public class GlassProd {
         }
 
         if (temperature0 == params.temperature) {
+            if (sim.potentialChoice != SimGlass.PotentialChoice.HS && savedSteps.numStepsIsothermal == 0 && params.numStepsIsothermal > 0) {
+                // add now to write to glass.state
+                objects.add(accE);
+            }
             // Now collect average total energy (stage 2).
             sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal, false, skipReset));
             stepsState.numStepsIsothermal += params.numStepsIsothermal;
