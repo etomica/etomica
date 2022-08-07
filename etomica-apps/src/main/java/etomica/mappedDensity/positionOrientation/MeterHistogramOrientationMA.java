@@ -163,19 +163,20 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                         }
                         double denom = 1 + cos2ti + cosh2zi + cosh2z[nz][j] - 4 * costi * coshz[nz][j] * coshzi;
                         double denomM = 1 + cos2ti + cosh2zi + cosh2zM[nz][j] - 4 * costi * coshzM[nz][j] * coshzi;
-                        // 0.5 multipliers in tdot and zdot are added for extension of [0,Pi] solution to [-Pi,Pi]
-                        double tdot = 0.5 * 2.*(sinti * (coshz[nz][j] * coshzi - costi) / denom)
-                                + 0.5 * 2.*(sinti * (coshzM[nz][j] * coshzi - costi) / denomM);
-                        double zdot = 0.5 * (-ziRed + 2.*sinhzi * (-costi * coshz[nz][j] + coshzi) / denom
-                                                    + 2.*sinhzi * (-costi * coshzM[nz][j] + coshzi) / denomM);
-                        for (int n = 1; n<=nmax; n++) {
+                        double tdot = 2*sinti * (coshz[nz][j] * coshzi - costi) / denom;//diverges for ri->r, ti->0
+                        if (Math.abs(tdot) / Math.PI > 10) tdot = 0;//truncate if diverging
+                        tdot += 2*sinti * (coshzM[nz][j] * coshzi - costi) / denomM;//doesn't diverge
+                        double zdot = 2*sinhzi * (-costi * coshz[nz][j] + coshzi) / denom;//diverges for ri->r, ti->0
+                        if (Math.abs(zdot) / Math.PI > 10) zdot = 0;//truncate if diverging
+                        zdot += -ziRed + 2*sinhzi * (-costi * coshzM[nz][j] + coshzi) / denomM;//doesn't diverge
+                        for (int n = 1; n<=nmax; n++) {//correction from approximation of 1/sinh
                             double coshn1r = Math.cosh(n*(1-z/Lz));
                             zdot += (-2*Math.sinh(n*ziRed)*coshn1r)*corrn[n-1]*Math.cos(n*ti);
                             tdot += (+2*Math.cosh(n*ziRed)*coshn1r)*corrn[n-1]*Math.sin(n*ti);
                         }
-                        if (Math.abs(tdot) / Math.PI > 10) tdot = 0;
-                        if (Math.abs(zdot) / Math.PI > 10) zdot = 0;
-                        y[nz * nBinsCos + nt] += -c * (Lz * zdot * fz + tdot * torq);
+                        // 0.5 multiplier is introduced for extension of [0,Pi] solution to [-Pi,Pi]
+                        // another 0.5 multiplier accounts for double counting j = 0, 1, sources
+                        y[nz * nBinsCos + nt] += -c * 0.5 * 0.5 * (Lz * zdot * fz + tdot * torq);
                     }
                 }
             }
