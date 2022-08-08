@@ -130,6 +130,9 @@ public class GlassProd {
             if (savedSteps.numStepsEqIsothermal > 0) savedStage = 1; // eq ran
             if (savedSteps.numStepsIsothermal > 0) savedStage = 2;   // nvt ran
             if (savedSteps.numSteps > 0) savedStage = 3;             // production ran
+            stepsState.numStepsEqIsothermal = savedSteps.numStepsEqIsothermal;
+            stepsState.numStepsIsothermal = savedSteps.numStepsIsothermal;
+            stepsState.numSteps = savedSteps.numSteps;
         }
         List<Statefull> objects = new ArrayList<>();
         objects.add(sim.box);
@@ -143,7 +146,7 @@ public class GlassProd {
             // find neighbors with new config
             // reset collision times (for hard) or compute forces (for soft)
             sim.integrator.postRestore();
-            skipReset = stepsState.numStepsEqIsothermal > 0; // allow integrator to retain its step count
+            skipReset = true; // allow integrator to retain its step count
         }
 
         //Equilibration
