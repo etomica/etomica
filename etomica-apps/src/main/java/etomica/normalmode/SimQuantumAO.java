@@ -56,10 +56,11 @@ public class SimQuantumAO extends Simulation {
         box.setNMolecules(species, 1);
         box.getBoundary().setBoxSize(Vector.of(new double[]{1}));
         double mass = nBeads*species.getMass();
+
         //pm1 for sampling the x^4 quartic contribution
-        PotentialComputeField pm1 = new PotentialComputeField(getSpeciesManager(), box);
-        P1Anharmonic pQuartic = new P1Anharmonic(space, 0, k4);
-        pm1.setFieldPotential(species.getLeafType(), pQuartic);
+//        PotentialComputeField pm1 = new PotentialComputeField(getSpeciesManager(), box);
+//        P1Anharmonic pQuartic = new P1Anharmonic(space, 0, k4);
+//        pm1.setFieldPotential(species.getLeafType(), pQuartic);
 
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2
@@ -84,14 +85,11 @@ public class SimQuantumAO extends Simulation {
         pcP1.setFieldPotential(species.getLeafType(), p1ah);
 
         //TOTAL
-        PotentialCompute pm2 = new PotentialComputeAggregate(pmBonding, pcP1);
+        PotentialCompute pm = new PotentialComputeAggregate(pmBonding, pcP1);
 
 
-        IntegratorMC integratorMC = new IntegratorMC(pm1, random, temperature, box);
-        MCMoveHO  atomMove = new MCMoveHO(space, random, temperature, omega);
-
-//        atomMove.setLambdas(k_gauss);
-//        atomMove.setTemperature(temperature);
+        IntegratorMC integratorMC = new IntegratorMC(pm, random, temperature, box);
+        MCMoveHO  atomMove = new MCMoveHO(space, pm, random, temperature, omega);
         integratorMC.getMoveManager().addMCMove(atomMove);
 
         getController().addActivity(new ActivityIntegrate(integratorMC));

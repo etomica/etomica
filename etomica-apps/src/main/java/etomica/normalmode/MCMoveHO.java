@@ -7,6 +7,7 @@ package etomica.normalmode;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Constants;
@@ -21,19 +22,24 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveHO extends MCMoveBox {
 
-    public MCMoveHO(Space space, IRandom random, double temperature, double omega) {
+    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega) {
         super();
+        this.pm = pm;
         this.random = random;
         this.temperature = temperature;
         this.omega2 = omega*omega;
         nBeads = box.getLeafList().size();
+        oldPositions = new Vector[nBeads];
+        for (int i=0; i < nBeads; i++){
+            oldPositions[i] = space.makeVector();
+        }
 
         lambda = new double[nBeads];
         double hbar = Constants.PLANCK_H/(2*Math.PI);
-        double beta = 1.0/(Constants.BOLTZMANN_K*temperature);
-        double beta_n = beta/nBeads;
-        double omega_n = 1.0/(hbar*beta_n);
-        double mass = box.getLeafList().get(0).getType().getMass();
+        beta = 1.0/(Constants.BOLTZMANN_K*temperature);
+        beta_n = beta/nBeads;
+        omega_n = 1.0/(hbar*beta_n);
+        mass = box.getLeafList().get(0).getType().getMass();
         // exp(-1/2 lambda_k q_k^2)
         for(int k = 0; k < nBeads; k++){
             lambda[k] = beta_n*mass*(4.0*omega_n*omega_n*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);//k2=m w^2
@@ -42,10 +48,10 @@ public class MCMoveHO extends MCMoveBox {
         eigenvectors = new double[nBeads][nBeads];
         for (int k = 0; k < nBeads; k++) {
             boolean doCos = k <= nBeads/2;
-            for (int j = 0; j < nBeads; j++) {
-                double arg = 2*Math.PI/nBeads*j*k;
-                eigenvectors[k][j] = doCos ? Math.cos(arg) : -Math.sin(arg);
-                eigenvectors[k][j] *= 2/Math.sqrt(nBeads);
+            for (int i = 0; i < nBeads; i++) {
+                double arg = 2*Math.PI/nBeads*i*k;
+                eigenvectors[i][k] = doCos ? Math.cos(arg) : -Math.sin(arg);
+                eigenvectors[i][k] *= 2/Math.sqrt(nBeads);
             }
         }
 
@@ -53,21 +59,45 @@ public class MCMoveHO extends MCMoveBox {
 
 
     public boolean doTrial() {
+        double uOld = pm.getLastEnergy();
+        IAtomList atomList = box.getLeafList();
+        IAtom atomi, atomip1;
+        Vector ri, rip1;
+        double uhOld = 0;
+        for (int i = 0; i < nBeads; i++) {
+            atomi = atomList.get(i);
+            atomip1 = (i == nBeads - 1) ? atomList.get(0) : atomList.get(i + 1);
+            ri = atomi.getPosition();
+            oldPositions[i].E(ri);
+            rip1 = atomip1.getPosition();
+            Vector dr = box.getSpace().makeVector();
+            dr.Ev1Mv2(ri, rip1);
+            uhOld += 1.0 / nBeads / 2.0 * mass * (omega_n * omega_n * (dr.squared()) + omega2 * ri.squared());
+        }
+        double uaOld = uOld - uhOld;
+
+        double uhNew = 0;
         double[] q = new double[nBeads];
         for (int k=0; k<nBeads; k++) {
             double fac_k = 1.0/Math.sqrt(lambda[k]);
             q[k] = fac_k*random.nextGaussian();
+            uhNew += 0.5*lambda[k]*q[k]*q[k];
         }
 
-        IAtomList atomList = box.getLeafList();
-        for (int j = 0; j < nBeads; j++) {
-            IAtom atomj = atomList.get(j);
-            Vector rj = atomj.getPosition();
-            rj.E(0);
+        for (int i = 0; i < nBeads; i++) {
+            atomi = atomList.get(i);
+            ri = atomi.getPosition();
+            ri.E(0);
             for (int k = 0; k < nBeads; k++) {
-                rj.PE(eigenvectors[k][j]*q[k]);
+                ri.PE(eigenvectors[i][k]*q[k]);
             }
         }
+        pm.init();
+        double uNew = pm.computeAll(false);
+        for (int k=0; k<nBeads; k++) {
+            uhNew += 0.5*lambda[k]*q[k]*q[k];
+        }
+        double uaNew = uNew - uhNew;
 
         return true;
     }
@@ -75,7 +105,10 @@ public class MCMoveHO extends MCMoveBox {
     public double energyChange() {return 0;}
 
     public double getChi(double temperature) {
-        return 1;
+//        uNew = potentialCompute.computeOneMolecule(molecule);
+//        System.out.println("translate "+molecule.getIndex()+" "+uOld+" => "+uNew);
+        return Math.exp(-(uNew - uOld) / temperature);
+
     }
 
     public void acceptNotify() {}
@@ -87,4 +120,10 @@ public class MCMoveHO extends MCMoveBox {
     protected final IRandom random;
     double[] lambda;
     double[][] eigenvectors;
+    PotentialCompute pm;
+    protected final Vector[] oldPositions;
+    protected double uOld;
+    protected double uNew = Double.NaN;
+    protected double mass, beta, omega_n, beta_n;
+
 }
