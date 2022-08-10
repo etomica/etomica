@@ -74,7 +74,7 @@ public class MCMoveHO extends MCMoveBox {
             dr.Ev1Mv2(ri, rip1);
             uhOld += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * (dr.squared()) + omega2 * ri.squared());
         }
-        double uaOld = uOld - uhOld;
+        uaOld = uOld - uhOld;
 
         double uhNew = 0;
         double[] q = new double[nBeads];
@@ -95,7 +95,7 @@ public class MCMoveHO extends MCMoveBox {
         pm.init();
         double uNew = pm.computeAll(false);
 
-        double uaNew = uNew - uhNew;
+        uaNew = uNew - uhNew;
 
         return true;
     }
@@ -103,13 +103,11 @@ public class MCMoveHO extends MCMoveBox {
     public double energyChange() {return 0;}
 
     public double getChi(double temperature) {
-//        uNew = potentialCompute.computeOneMolecule(molecule);
-//        System.out.println("translate "+molecule.getIndex()+" "+uOld+" => "+uNew);
-        return Math.exp(-(uNew - uOld) / temperature);
+        return Math.exp(-(uaNew - uaOld) / temperature);
 
     }
 
-    public void acceptNotify() {}
+    public void acceptNotify() { /* do nothing */}
 
     public void rejectNotify() {}
 
@@ -121,7 +119,8 @@ public class MCMoveHO extends MCMoveBox {
     PotentialCompute pm;
     protected final Vector[] oldPositions;
     protected double uOld;
-    protected double uNew = Double.NaN;
+    protected double uaOld = Double.NaN;
+    protected double uaNew = Double.NaN;
     protected double mass, beta, omegaN, betaN;
 
 }
