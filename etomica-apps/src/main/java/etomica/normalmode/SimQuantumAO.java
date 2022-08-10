@@ -6,34 +6,28 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
-import etomica.data.*;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
-import etomica.data.types.DataDouble;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.potential.*;
+import etomica.potential.P1Anharmonic;
+import etomica.potential.P2Harmonic;
+import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
-import etomica.space.*;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesManager;
-import etomica.units.dimensions.Null;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import org.apache.commons.math3.analysis.function.Gaussian;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +39,11 @@ public class SimQuantumAO extends Simulation {
 
     public SpeciesGeneral species;
     public Box box;
+    public IntegratorMC integrator;
+    public PotentialComputeField pcP1;
+    public PotentialMasterBonding pmBonding;
+    public PotentialCompute pm;
+    public double betaN;
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
         super(space);
@@ -57,16 +56,16 @@ public class SimQuantumAO extends Simulation {
         box.getBoundary().setBoxSize(Vector.of(new double[]{1}));
         double mass = nBeads*species.getMass();
 
-        //pm1 for sampling the x^4 quartic contribution
-//        PotentialComputeField pm1 = new PotentialComputeField(getSpeciesManager(), box);
-//        P1Anharmonic pQuartic = new P1Anharmonic(space, 0, k4);
-//        pm1.setFieldPotential(species.getLeafType(), pQuartic);
-
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2
-        PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
-        double hbar = 1.0;
-        double k2_kin = mass*temperature*temperature/(hbar*hbar);
+        pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
+        double hbar = Constants.PLANCK_H/(2*Math.PI);
+        double beta = 1.0/(Constants.BOLTZMANN_K*temperature);
+        betaN = beta/nBeads;
+        double omegaN = 1.0/(hbar*betaN);
+
+        double k2_kin = mass*omegaN*omegaN/nBeads;
+
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i=0; i<nBeads; i++) {
@@ -81,18 +80,21 @@ public class SimQuantumAO extends Simulation {
         //potential p1 part
         double k2 = mass*omega*omega;
         P1Anharmonic p1ah = new P1Anharmonic(space, k2, k4);
-        PotentialComputeField pcP1 = new PotentialComputeField(getSpeciesManager(), box);
+        pcP1 = new PotentialComputeField(getSpeciesManager(), box);
         pcP1.setFieldPotential(species.getLeafType(), p1ah);
 
         //TOTAL
-        PotentialCompute pm = new PotentialComputeAggregate(pmBonding, pcP1);
+        pm = new PotentialComputeAggregate(pmBonding, pcP1);
 
 
-        IntegratorMC integratorMC = new IntegratorMC(pm, random, temperature, box);
+        integrator = new IntegratorMC(pm, random, temperature, box);
         MCMoveHO  atomMove = new MCMoveHO(space, pm, random, temperature, omega);
-        integratorMC.getMoveManager().addMCMove(atomMove);
+        integrator.getMoveManager().addMCMove(atomMove);
 
-        getController().addActivity(new ActivityIntegrate(integratorMC));
+
+
+
+        getController().addActivity(new ActivityIntegrate(integrator));
 
 
 
@@ -122,6 +124,39 @@ public class SimQuantumAO extends Simulation {
 
         final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, omega, k4);
 
+        MeterPrimPI meterPrimPI = new MeterPrimPI(sim.pmBonding, sim.pcP1, sim.betaN);
+
+        System.out.flush();
+
+        int numBlocks = 100;
+        long blockSize = numSteps/numBlocks;
+        if (blockSize == 0) blockSize = 1;
+        System.out.println("block size "+blockSize);
+        AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPump = new DataPumpListener(meterPrimPI, accumulator);
+        sim.integrator.getEventManager().addListener(accumulatorPump);
+
+        final long startTime = System.currentTimeMillis();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
+
+        //MeterTargetTP.openFW("x"+numMolecules+".dat");
+        //MeterTargetTP.closeFW();
+
+        DataGroup data = (DataGroup)accumulator.getData();
+        IData dataErr = data.getData(accumulator.ERROR.index);
+        IData dataAvg = data.getData(accumulator.AVERAGE.index);
+        IData dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index);
+        double avg = dataAvg.getValue(0);
+        double err = dataErr.getValue(0);
+        double cor = dataCorrelation.getValue(0);
+
+        System.out.println("Energy_prim: " + avg + " +/- " + err + " cor: " + cor);
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("time: " + (endTime - startTime)/1000.0);
+
+
 
     }
 
@@ -131,6 +166,6 @@ public class SimQuantumAO extends Simulation {
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
         public double k4 = 1.0;
-        public long numSteps = 200000;
+        public long numSteps = 10000;
     }
 }

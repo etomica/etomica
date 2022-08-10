@@ -31,7 +31,7 @@ public class MCMoveHO extends MCMoveBox {
         double hbar = Constants.PLANCK_H/(2*Math.PI);
         beta = 1.0/(Constants.BOLTZMANN_K*temperature);
         betaN = beta/nBeads;
-        omegaN = 1.0/(hbar* betaN);
+        omegaN = 1.0/(hbar*betaN);
         mass = box.getLeafList().get(0).getType().getMass();
         // exp(- betan * 1/2*lambdaN_k q_k^2)
         for(int k = 0; k < nBeads; k++){
