@@ -46,7 +46,7 @@ public class MCMoveHO extends MCMoveBox {
             for (int i = 0; i < nBeads; i++) {
                 double arg = 2*Math.PI/nBeads*i*k;
                 eigenvectors[i][k] = doCos ? Math.cos(arg) : -Math.sin(arg);
-                eigenvectors[i][k] *= 2/Math.sqrt(nBeads);
+                eigenvectors[i][k] *= 2.0/Math.sqrt(nBeads);
             }
         }
 
@@ -98,7 +98,8 @@ public class MCMoveHO extends MCMoveBox {
     public double energyChange() {return 0;}
 
     public double getChi(double temperature) {
-        return Math.exp(-(uaNew - uaOld) / temperature);
+        return 1.0;
+//        return Math.exp(-(uaNew - uaOld) / temperature);
 
     }
 

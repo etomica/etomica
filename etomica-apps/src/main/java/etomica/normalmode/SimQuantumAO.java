@@ -52,6 +52,9 @@ public class SimQuantumAO extends Simulation {
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pm;
     public double betaN;
+    public double mass;
+    private final double k2_kin;
+
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
         super(space);
@@ -71,17 +74,17 @@ public class SimQuantumAO extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, 1);
         box.getBoundary().setBoxSize(Vector.of(new double[]{1}));
-        double mass = nBeads*species.getMass();
+        mass = species.getLeafType().getMass();
 
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
-        double hbar = Constants.PLANCK_H/(2*Math.PI);
+        double hbar = Constants.PLANCK_H/(2.0*Math.PI);
         double beta = 1.0/(Constants.BOLTZMANN_K*temperature);
         betaN = beta/nBeads;
         double omegaN = 1.0/(hbar*betaN);
 
-        double k2_kin = mass*omegaN*omegaN/nBeads;
+        k2_kin = mass*omegaN*omegaN/nBeads;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -123,17 +126,7 @@ public class SimQuantumAO extends Simulation {
     public static void main(String[] args) {
 
         OctaneParams params = new OctaneParams();
-        if (args.length > 0) {
-            ParseArgs.doParseArgs(params, args);
-        }
-        else {
-            double temperature = 1;
-            int nBeads = 10;
-            boolean graphics = false;
-            double omega = 1.0; // m*w^2
-            double k4 = 1.0;
-            long numSteps = 1000000;
-        }
+        ParseArgs.doParseArgs(params, args);
 
         double temperature = params.temperature;
         double omega = params.omega;;
@@ -141,12 +134,17 @@ public class SimQuantumAO extends Simulation {
         int nBeads = params.nBeads;
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
-        System.out.println(numSteps+" steps");
 
         final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, omega, k4);
         sim.integrator.reset();
 
-        MeterPrimPI meterPrimPI = new MeterPrimPI(sim.pmBonding, sim.pcP1, sim.betaN);
+        System.out.println(numSteps+" steps");
+        System.out.println(" nBeads: " + nBeads);
+        System.out.println(" temperature: " + temperature);
+        System.out.println(" mass: " + sim.mass + " omega: " + omega + " k4: " + k4);
+        System.out.println(" k2_kin: " + sim.k2_kin);
+
+        MeterPrimPI meterPrimPI = new MeterPrimPI(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
 
 
 
@@ -204,11 +202,13 @@ public class SimQuantumAO extends Simulation {
 
 
         int numBlocks = 100;
+        int interval = nBeads;
+
         long blockSize = numSteps/numBlocks;
         if (blockSize == 0) blockSize = 1;
         System.out.println("block size "+blockSize);
         AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorPump = new DataPumpListener(meterPrimPI, accumulator);
+        DataPumpListener accumulatorPump = new DataPumpListener(meterPrimPI, accumulator, interval);
         sim.integrator.getEventManager().addListener(accumulatorPump);
 
         final long startTime = System.currentTimeMillis();
@@ -226,7 +226,7 @@ public class SimQuantumAO extends Simulation {
         double err = dataErr.getValue(0);
         double cor = dataCorrelation.getValue(0);
 
-        System.out.println("Energy_prim: " + avg + " +/- " + err + " cor: " + cor);
+        System.out.println("Energy_prim: " + avg/(Constants.BOLTZMANN_K*temperature) + " +/- " + err + " cor: " + cor);
 
         long endTime = System.currentTimeMillis();
         System.out.println("time: " + (endTime - startTime)/1000.0);
@@ -236,11 +236,11 @@ public class SimQuantumAO extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperature = 1;
-        public int nBeads = 10;
+        public double temperature = 100;//1/Constants.BOLTZMANN_K;
+        public int nBeads = 4;
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
-        public double k4 = 1.0;
-        public long numSteps = 1000000;
+        public double k4 = 0.0;
+        public long numSteps = 10_000_000;
     }
 }

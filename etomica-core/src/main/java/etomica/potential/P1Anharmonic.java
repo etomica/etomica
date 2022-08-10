@@ -12,14 +12,6 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 
-/**
- * Potential in which attaches a harmonic spring between each affected atom and
- * the nearest boundary in each direction.
- * <p>
- * This class has not been used or checked for correctness.
- *
- * @author David Kofke
- */
 
 public class P1Anharmonic implements IPotential1 {
 
@@ -59,8 +51,9 @@ public class P1Anharmonic implements IPotential1 {
     }
 
     public double u(IAtom atom) {
-        return 1.0/2.0*k2*atom.getPosition().Mv1Squared(x0) +
-               1.0/24.0*k4*atom.getPosition().Mv1Squared(x0)*atom.getPosition().Mv1Squared(x0) ;
+        Vector dr = space.makeVector();
+        dr.Ev1Mv2(atom.getPosition(), x0);
+        return 1.0/2.0*k2*dr.squared() + 1.0/24.0*k4*dr.squared()*dr.squared() ;
     }
 
     public double udu(IAtom atom, Vector f) {
