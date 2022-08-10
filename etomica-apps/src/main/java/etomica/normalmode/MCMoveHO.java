@@ -34,15 +34,15 @@ public class MCMoveHO extends MCMoveBox {
             oldPositions[i] = space.makeVector();
         }
 
-        lambda = new double[nBeads];
+        lambdaN = new double[nBeads];
         double hbar = Constants.PLANCK_H/(2*Math.PI);
         beta = 1.0/(Constants.BOLTZMANN_K*temperature);
-        beta_n = beta/nBeads;
-        omega_n = 1.0/(hbar*beta_n);
+        betaN = beta/nBeads;
+        omegaN = 1.0/(hbar* betaN);
         mass = box.getLeafList().get(0).getType().getMass();
-        // exp(-1/2 lambda_k q_k^2)
+        // exp(- betan * 1/2*lambdaN_k q_k^2)
         for(int k = 0; k < nBeads; k++){
-            lambda[k] = beta_n*mass*(4.0*omega_n*omega_n*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);//k2=m w^2
+            lambdaN[k] = mass*(4.0* omegaN * omegaN *Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);//k2=m w^2
         }
 
         eigenvectors = new double[nBeads][nBeads];
@@ -72,16 +72,16 @@ public class MCMoveHO extends MCMoveBox {
             rip1 = atomip1.getPosition();
             Vector dr = box.getSpace().makeVector();
             dr.Ev1Mv2(ri, rip1);
-            uhOld += 1.0 / nBeads / 2.0 * mass * (omega_n * omega_n * (dr.squared()) + omega2 * ri.squared());
+            uhOld += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * (dr.squared()) + omega2 * ri.squared());
         }
         double uaOld = uOld - uhOld;
 
         double uhNew = 0;
         double[] q = new double[nBeads];
         for (int k=0; k<nBeads; k++) {
-            double fac_k = 1.0/Math.sqrt(lambda[k]);
-            q[k] = fac_k*random.nextGaussian();
-            uhNew += 0.5*lambda[k]*q[k]*q[k];
+            double fack = 1.0/Math.sqrt(betaN * lambdaN[k]);
+            q[k] = fack*random.nextGaussian();
+            uhNew += 1/beta* 0.5*betaN*lambdaN[k]*q[k]*q[k];
         }
 
         for (int i = 0; i < nBeads; i++) {
@@ -94,9 +94,7 @@ public class MCMoveHO extends MCMoveBox {
         }
         pm.init();
         double uNew = pm.computeAll(false);
-        for (int k=0; k<nBeads; k++) {
-            uhNew += 0.5*lambda[k]*q[k]*q[k];
-        }
+
         double uaNew = uNew - uhNew;
 
         return true;
@@ -118,12 +116,12 @@ public class MCMoveHO extends MCMoveBox {
     protected int nBeads;
     protected double temperature, omega2;
     protected final IRandom random;
-    double[] lambda;
+    double[] lambdaN;
     double[][] eigenvectors;
     PotentialCompute pm;
     protected final Vector[] oldPositions;
     protected double uOld;
     protected double uNew = Double.NaN;
-    protected double mass, beta, omega_n, beta_n;
+    protected double mass, beta, omegaN, betaN;
 
 }
