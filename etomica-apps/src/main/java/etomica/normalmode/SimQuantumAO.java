@@ -6,11 +6,18 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.config.ConformationGeneric;
+import etomica.config.IConformation;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.P1Anharmonic;
 import etomica.potential.P2Harmonic;
@@ -29,6 +36,7 @@ import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,10 +55,19 @@ public class SimQuantumAO extends Simulation {
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
         super(space);
+
+        Vector[] initCoords = new Vector[nBeads];
+        for (int i = 0; i < nBeads; i++){
+            initCoords[i] = space.makeVector();
+        }
+        IConformation conformation = new ConformationGeneric(initCoords);
+
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .addCount(AtomType.simpleFromSim(this), nBeads)
+                .withConformation(conformation)
                 .build();
         addSpecies(species);
+
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, 1);
         box.getBoundary().setBoxSize(Vector.of(new double[]{1}));
@@ -88,7 +105,7 @@ public class SimQuantumAO extends Simulation {
 
 
         integrator = new IntegratorMC(pm, random, temperature, box);
-        MCMoveHO  atomMove = new MCMoveHO(space, pm, random, temperature, omega);
+        MCMoveHO  atomMove = new MCMoveHO(space, pm, random, temperature, omega, box);
         integrator.getMoveManager().addMCMove(atomMove);
 
 
@@ -110,8 +127,12 @@ public class SimQuantumAO extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numSteps = 35000000;
-            params.graphics = false;
+            double temperature = 1;
+            int nBeads = 10;
+            boolean graphics = false;
+            double omega = 1.0; // m*w^2
+            double k4 = 1.0;
+            long numSteps = 1000000;
         }
 
         double temperature = params.temperature;
@@ -123,10 +144,64 @@ public class SimQuantumAO extends Simulation {
         System.out.println(numSteps+" steps");
 
         final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, omega, k4);
+        sim.integrator.reset();
 
         MeterPrimPI meterPrimPI = new MeterPrimPI(sim.pmBonding, sim.pcP1, sim.betaN);
 
+
+
+
+
+        if (graphics) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            simGraphic.setPaintInterval(sim.box, 1000);
+            ColorScheme colorScheme = new ColorScheme() {
+                protected Color[] allColors;
+
+                public Color getAtomColor(IAtom a) {
+                    if (allColors==null) {
+                        allColors = new Color[768];
+                        for (int i=0; i<256; i++) {
+                            allColors[i] = new Color(255-i,i,0);
+                        }
+                        for (int i=0; i<256; i++) {
+                            allColors[i+256] = new Color(0,255-i,i);
+                        }
+                        for (int i=0; i<256; i++) {
+                            allColors[i+512] = new Color(i,0,255-i);
+                        }
+                    }
+                    return allColors[(2*a.getLeafIndex()) % 768];
+                }
+            };
+            simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+
+            DisplayTextBox timer = new DisplayTextBox();
+            DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
+            DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
+            sim.integrator.getEventManager().addListener(counterPump);
+            simGraphic.getPanel().controlPanel.add(timer.graphic());
+
+            simGraphic.makeAndDisplayFrame(" PIMC ");
+
+            return;
+        }
+
+
+
+
+
+
+
+
+
+
+
         System.out.flush();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/5));
+        sim.integrator.getMoveManager().setEquilibrating(false);
+
+
 
         int numBlocks = 100;
         long blockSize = numSteps/numBlocks;
@@ -166,6 +241,6 @@ public class SimQuantumAO extends Simulation {
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
         public double k4 = 1.0;
-        public long numSteps = 10000;
+        public long numSteps = 1000000;
     }
 }

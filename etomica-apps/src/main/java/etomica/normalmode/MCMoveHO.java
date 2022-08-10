@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
@@ -15,13 +16,14 @@ import etomica.util.random.IRandom;
 
 public class MCMoveHO extends MCMoveBox {
 
-    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega) {
+    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega, Box box) {
         super();
         this.pm = pm;
         this.random = random;
         this.temperature = temperature;
         this.omega2 = omega*omega;
-        nBeads = box.getLeafList().size();
+        this.box = box;
+        nBeads = this.box.getMoleculeList().get(0).getChildList().size();
         oldPositions = new Vector[nBeads];
         for (int i=0; i < nBeads; i++){
             oldPositions[i] = space.makeVector();
@@ -124,5 +126,5 @@ public class MCMoveHO extends MCMoveBox {
     protected double uaOld = Double.NaN;
     protected double uaNew = Double.NaN;
     protected double mass, beta, omegaN, betaN;
-
+    protected Box box;
 }
