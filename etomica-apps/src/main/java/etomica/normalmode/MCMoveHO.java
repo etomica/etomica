@@ -13,13 +13,6 @@ import etomica.space.Vector;
 import etomica.util.Constants;
 import etomica.util.random.IRandom;
 
-/**
- * MC move whose purpose in life is to sample an  Einstein crystal.
- * Since the energy is harmonic, each configuration can be
- * independent.
- *
- * @author Andrew Schultz
- */
 public class MCMoveHO extends MCMoveBox {
 
     public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega) {
@@ -109,7 +102,16 @@ public class MCMoveHO extends MCMoveBox {
 
     public void acceptNotify() { /* do nothing */}
 
-    public void rejectNotify() {}
+    public void rejectNotify() {
+        IAtomList atomList = box.getLeafList();
+        IAtom atomi;
+        for (int i = 0; i < nBeads; i++) {
+            atomi = atomList.get(i);
+            atomi.getPosition().E(oldPositions[i]);
+        }
+        pm.init();
+        pm.computeAll(false);
+    }
 
     protected int nBeads;
     protected double temperature, omega2;
