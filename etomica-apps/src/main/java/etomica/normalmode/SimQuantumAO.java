@@ -268,11 +268,11 @@ public class SimQuantumAO extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperature = 10.0;
-        public int nBeads = 4;
+        public double temperature = 1.0;
+        public int nBeads = 11;
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
         public double k4 = 0.0;
-        public long numSteps = 1_000_000;
+        public long numSteps = 10_000_000;
     }
 }
