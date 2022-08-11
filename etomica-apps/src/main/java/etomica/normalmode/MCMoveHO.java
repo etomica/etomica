@@ -37,14 +37,17 @@ public class MCMoveHO extends MCMoveBox {
         omegaN = 1.0/(hbar*betaN);
         mass = box.getLeafList().get(0).getType().getMass();
         // exp(- betan * 1/2*lambdaN_k q_k^2)
-        for(int k = 0; k < nBeads; k++){
-            lambdaN[k] = mass*(4.0*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);//k2=m w^2
+        int nK = nBeads/2;
+        lambdaN[nK] = mass*omega2; //k=0
+        for(int k = 1; k <= nK; k++){ //-2...2
+            double lambda_k = mass*(4.0*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);
+            lambdaN[nK+k] = lambda_k; //3,4
+            lambdaN[nK-k] = lambda_k; //1,0
         }
 
         eigenvectors = new double[nBeads][nBeads];
-        int nK = nBeads/2;
         for (int i = 0; i < nBeads; i++) {
-            eigenvectors[i][nK] = 1.0/Math.sqrt(nBeads);
+            eigenvectors[i][nK] = 1.0/Math.sqrt(nBeads);//k=0
             for (int k = 1; k <= nK; k++) {
                 double arg = 2.0*Math.PI/nBeads*i*k;
                 eigenvectors[i][nK+k] =  2*Math.cos(arg)/Math.sqrt(nBeads);
@@ -87,10 +90,17 @@ public class MCMoveHO extends MCMoveBox {
 
         double uhNew = 0;
         double[] q = new double[nBeads];
-        for (int k=0; k<nBeads; k++) {
-            double fack = 1.0/Math.sqrt(2*betaN * lambdaN[k]);
-            q[k] = fack*random.nextGaussian();
-            uhNew += 1/beta*0.5*betaN*lambdaN[k]*q[k]*q[k];
+        int nK = nBeads/2;
+        double fack = 1.0/Math.sqrt(betaN * lambdaN[nK]);
+        q[nK] = fack*random.nextGaussian();
+        uhNew += 1.0/2.0/beta*betaN*lambdaN[nK]*(q[nK]*q[nK]);
+
+        for (int k=1; k<=nK; k++) {
+            fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK+k]);
+            q[nK+k] = fack*random.nextGaussian();
+            fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK-k]);
+            q[nK-k] = fack*random.nextGaussian();
+            uhNew += 1.0/beta*betaN*(lambdaN[nK+k]*q[nK+k]*q[nK+k] + lambdaN[nK-k]*q[nK-k]*q[nK-k]);
         }
 
         for (int i = 0; i < nBeads; i++) {
@@ -103,7 +113,7 @@ public class MCMoveHO extends MCMoveBox {
         }
 
 
-//
+        //check NM vs real energy
 //        double uReal = 0;
 //        for (int i = 0; i < nBeads; i++) {
 //            atomi = atomList.get(i);

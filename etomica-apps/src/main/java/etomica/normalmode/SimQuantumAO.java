@@ -243,7 +243,7 @@ public class SimQuantumAO extends Simulation {
         double err = dataErr.getValue(0);
         double cor = dataCorrelation.getValue(0);
 
-        System.out.println("Energy_prim: " + avg/(sim.kB*temperature) + " +/- " + err + " cor: " + cor);
+        System.out.println("\nEn_primitive: " + avg  + " +/- " + err + " cor: " + cor);
 
 
         DataGroup dataMSD = (DataGroup)accumulatorMSD.getData();
@@ -261,6 +261,13 @@ public class SimQuantumAO extends Simulation {
         double hbar = Constants.PLANCK_H/(2*Math.PI);
         System.out.println("MSCq: " + hbar/sim.mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
+        double EnQ = hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
+        double EnC = temperature;
+        System.out.println();
+        System.out.println("EnQ: " + EnQ + " EnC: " + EnC);
+
+
+
         long endTime = System.currentTimeMillis();
         System.out.println();
         System.out.println("time: " + (endTime - startTime)/1000.0);
@@ -269,7 +276,7 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1.0;
-        public int nBeads = 11;
+        public int nBeads = 111;
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
         public double k4 = 0.0;
