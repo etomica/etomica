@@ -32,7 +32,6 @@ import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -54,14 +53,19 @@ public class SimQuantumAO extends Simulation {
     public double betaN;
     public double mass;
     public double k2_kin;
-    public double kB;
+
+    public static final double kB = 1.0;//Constants.BOLTZMANN_K
+
+
+
+    public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
+
 
 
 
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
         super(space);
-        this.kB = 1.0;
         Vector[] initCoords = new Vector[nBeads];
         for (int i = 0; i < nBeads; i++){
             initCoords[i] = space.makeVector();
@@ -82,7 +86,7 @@ public class SimQuantumAO extends Simulation {
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
-        double hbar = Constants.PLANCK_H/(2.0*Math.PI);
+
         double beta = 1.0/(kB*temperature);
         betaN = beta/nBeads;
         double omegaN = 1.0/(hbar*betaN);
@@ -147,8 +151,11 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" mass: " + sim.mass + " omega: " + omega + " k4: " + k4);
         System.out.println(" k2_kin: " + sim.k2_kin);
 
-        MeterPrimPI meterPrimPI = new MeterPrimPI(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
         MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
+        MeterPIVir meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
+        MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
+
 
 
 
@@ -217,33 +224,31 @@ public class SimQuantumAO extends Simulation {
         if (blockSize == 0) blockSize = 1;
         System.out.println("block size "+blockSize);
 
-        AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorPump = new DataPumpListener(meterPrimPI, accumulator, interval);
-        sim.integrator.getEventManager().addListener(accumulatorPump);
-
-
         AccumulatorAverageFixed accumulatorMSD = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPumpMSD = new DataPumpListener(meterMSDHO, accumulatorMSD, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpMSD);
+
+        // Primitive E_n
+        AccumulatorAverageFixed accumulatorPrim = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
+
+        // Virial E_n
+        AccumulatorAverageFixed accumulatorVir = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpVir);
+
+        // HMA E_n
+        AccumulatorAverageFixed accumulatorHMA = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterHMA, accumulatorHMA, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+
 
 
         final long startTime = System.currentTimeMillis();
 
         //run
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
-
-        //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        //MeterTargetTP.closeFW();
-
-        DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(accumulator.ERROR.index);
-        IData dataAvg = data.getData(accumulator.AVERAGE.index);
-        IData dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index);
-        double avg = dataAvg.getValue(0);
-        double err = dataErr.getValue(0);
-        double cor = dataCorrelation.getValue(0);
-
-        System.out.println("\nEn_primitive: " + avg  + " +/- " + err + " cor: " + cor);
 
 
         DataGroup dataMSD = (DataGroup)accumulatorMSD.getData();
@@ -254,17 +259,49 @@ public class SimQuantumAO extends Simulation {
         double errMSD = dataMSDErr.getValue(0);
         double corMSD = dataMSDCorrelation.getValue(0);
 
-        System.out.println("MSD: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
 
 
+        DataGroup dataPrim = (DataGroup)accumulatorPrim.getData();
+        IData dataErrPrim = dataPrim.getData(accumulatorPrim.ERROR.index);
+        IData dataAvgPrim = dataPrim.getData(accumulatorPrim.AVERAGE.index);
+        IData dataCorrelationPrim = dataPrim.getData(accumulatorPrim.BLOCK_CORRELATION.index);
+        double avgEnPrim = dataAvgPrim.getValue(0);
+        double errEnPrim = dataErrPrim.getValue(0);
+        double corEnPrim = dataCorrelationPrim.getValue(0);
+        System.out.println("\nEn_primitive: " + avgEnPrim  + " +/- " + errEnPrim + " cor: " + corEnPrim);
+
+
+        DataGroup dataVir = (DataGroup)accumulatorVir.getData();
+        IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
+        IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
+        IData dataCorrelationVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
+        double avgEnVir = dataAvgVir.getValue(0);
+        double errEnVir = dataErrVir.getValue(0);
+        double corEnVir = dataCorrelationVir.getValue(0);
+        System.out.println("En_virial: " + avgEnVir  + " +/- " + errEnVir + " cor: " + corEnVir);
+
+
+        DataGroup dataHMA = (DataGroup)accumulatorHMA.getData();
+        IData dataErrHMA = dataHMA.getData(accumulatorHMA.ERROR.index);
+        IData dataAvgHMA = dataHMA.getData(accumulatorHMA.AVERAGE.index);
+        IData dataCorrelationHMA = dataHMA.getData(accumulatorHMA.BLOCK_CORRELATION.index);
+        double avgEnHMA = dataAvgHMA.getValue(0);
+        double errEnHMA = dataErrHMA.getValue(0);
+        double corEnHMA = dataCorrelationHMA.getValue(0);
+        System.out.println("En_HMA: " + avgEnHMA  + " +/- " + errEnHMA + " cor: " + corEnHMA);
+
+
+
+
+        System.out.println("\n Theory");
+        System.out.println("MSD_sim: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
         System.out.println("MSDc: " + sim.kB*temperature/ sim.mass/omega/omega);
-        double hbar = Constants.PLANCK_H/(2*Math.PI);
-        System.out.println("MSCq: " + hbar/sim.mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
+
+        System.out.println("MSDq: " + hbar/sim.mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
         double EnQ = hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
         double EnC = temperature;
-        System.out.println();
-        System.out.println("EnQ: " + EnQ + " EnC: " + EnC);
+        System.out.println("\nEnQ: " + EnQ + " EnC: " + EnC);
 
 
 
@@ -275,8 +312,8 @@ public class SimQuantumAO extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperature = 1.0;
-        public int nBeads = 111;
+        public double temperature = 0.1;
+        public int nBeads = 65;
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
         public double k4 = 0.0;

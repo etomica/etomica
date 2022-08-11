@@ -15,6 +15,21 @@ import etomica.util.Constants;
 import etomica.util.random.IRandom;
 
 public class MCMoveHO extends MCMoveBox {
+    protected int nBeads;
+    protected double temperature, omega2;
+    protected final IRandom random;
+    double[] lambdaN;
+    double[][] eigenvectors;
+    PotentialCompute pm;
+    protected final Vector[] oldPositions;
+    protected double uOld;
+    protected double uaOld = Double.NaN;
+    protected double uaNew = Double.NaN;
+    protected double mass, beta, omegaN, betaN;
+    protected Box box;
+    public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
+    public static final double kB = 1.0;//Constants.BOLTZMANN_K
+
 
     public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega, Box box) {
         super();
@@ -30,7 +45,6 @@ public class MCMoveHO extends MCMoveBox {
         }
 
         lambdaN = new double[nBeads];
-        double hbar = Constants.PLANCK_H/(2.0*Math.PI);
         double kB = 1.0;
         beta = 1.0/(kB*temperature);
         betaN = beta/nBeads;
@@ -83,9 +97,6 @@ public class MCMoveHO extends MCMoveBox {
             dr.Ev1Mv2(ri, rip1);
             uhOld += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared() + omega2 * ri.squared());
         }
-
-//        System.out.println(atomList.get(0).getPosition().squared());
-
         uaOld = uOld - uhOld;
 
         double uhNew = 0;
@@ -94,7 +105,6 @@ public class MCMoveHO extends MCMoveBox {
         double fack = 1.0/Math.sqrt(betaN * lambdaN[nK]);
         q[nK] = fack*random.nextGaussian();
         uhNew += 1.0/2.0/beta*betaN*lambdaN[nK]*(q[nK]*q[nK]);
-
         for (int k=1; k<=nK; k++) {
             fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK+k]);
             q[nK+k] = fack*random.nextGaussian();
@@ -111,35 +121,8 @@ public class MCMoveHO extends MCMoveBox {
                 ri.PE(eigenvectors[i][k]*q[k]);
             }
         }
-
-
-        //check NM vs real energy
-//        double uReal = 0;
-//        for (int i = 0; i < nBeads; i++) {
-//            atomi = atomList.get(i);
-//            atomip1 = (i == nBeads - 1) ? atomList.get(0) : atomList.get(i + 1);
-//            ri = atomi.getPosition();
-//            rip1 = atomip1.getPosition();
-//            Vector dr = box.getSpace().makeVector();
-//            dr.Ev1Mv2(ri, rip1);
-//            uReal += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared() + omega2 * ri.squared());
-//        }
-//        double uNM = uhNew;
-//        System.out.println(uNM + "   " + uReal + "   " + uNM/uReal);
-//        System.out.println();
-
-
-
-//        System.out.println(atomList.get(0).getPosition().getX(0)*atomList.get(0).getPosition().getX(0));
-//        double r01 = atomList.get(0).getPosition().getX(0) - atomList.get(1).getPosition().getX(0);
-//        double r12 = atomList.get(1).getPosition().getX(0) - atomList.get(2).getPosition().getX(0);
-//        double r23 = atomList.get(2).getPosition().getX(0) - atomList.get(3).getPosition().getX(0);
-//        double r30 = atomList.get(3).getPosition().getX(0) - atomList.get(0).getPosition().getX(0);
-//        System.out.println(r01 + "  " + r12 + "  " + r23 + "  " + r30);
-
         pm.init();
         double uNew = pm.computeAll(false);
-
         uaNew = uNew - uhNew;
 
         return true;
@@ -166,16 +149,4 @@ public class MCMoveHO extends MCMoveBox {
         pm.computeAll(false);
     }
 
-    protected int nBeads;
-    protected double temperature, omega2;
-    protected final IRandom random;
-    double[] lambdaN;
-    double[][] eigenvectors;
-    PotentialCompute pm;
-    protected final Vector[] oldPositions;
-    protected double uOld;
-    protected double uaOld = Double.NaN;
-    protected double uaNew = Double.NaN;
-    protected double mass, beta, omegaN, betaN;
-    protected Box box;
 }
