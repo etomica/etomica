@@ -53,12 +53,15 @@ public class SimQuantumAO extends Simulation {
     public PotentialCompute pm;
     public double betaN;
     public double mass;
-    private final double k2_kin;
+    public double k2_kin;
+    public double kB;
+
+
 
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
         super(space);
-
+        this.kB = 1.0;
         Vector[] initCoords = new Vector[nBeads];
         for (int i = 0; i < nBeads; i++){
             initCoords[i] = space.makeVector();
@@ -80,7 +83,7 @@ public class SimQuantumAO extends Simulation {
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         double hbar = Constants.PLANCK_H/(2.0*Math.PI);
-        double beta = 1.0/(Constants.BOLTZMANN_K*temperature);
+        double beta = 1.0/(kB*temperature);
         betaN = beta/nBeads;
         double omegaN = 1.0/(hbar*betaN);
 
@@ -145,7 +148,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" k2_kin: " + sim.k2_kin);
 
         MeterPrimPI meterPrimPI = new MeterPrimPI(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
-
+        MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
 
 
 
@@ -202,17 +205,31 @@ public class SimQuantumAO extends Simulation {
 
 
         int numBlocks = 100;
-        int interval = nBeads;
+
+
+        ///////////////////////////////////
+        int interval = 10;
+        ////////////////////////////////////////////////
+
+
 
         long blockSize = numSteps/numBlocks;
         if (blockSize == 0) blockSize = 1;
         System.out.println("block size "+blockSize);
+
         AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPump = new DataPumpListener(meterPrimPI, accumulator, interval);
         sim.integrator.getEventManager().addListener(accumulatorPump);
 
+
+        AccumulatorAverageFixed accumulatorMSD = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpMSD = new DataPumpListener(meterMSDHO, accumulatorMSD, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpMSD);
+
+
         final long startTime = System.currentTimeMillis();
 
+        //run
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
@@ -226,21 +243,36 @@ public class SimQuantumAO extends Simulation {
         double err = dataErr.getValue(0);
         double cor = dataCorrelation.getValue(0);
 
-        System.out.println("Energy_prim: " + avg/(Constants.BOLTZMANN_K*temperature) + " +/- " + err + " cor: " + cor);
+        System.out.println("Energy_prim: " + avg/(sim.kB*temperature) + " +/- " + err + " cor: " + cor);
+
+
+        DataGroup dataMSD = (DataGroup)accumulatorMSD.getData();
+        IData dataMSDErr = dataMSD.getData(accumulatorMSD.ERROR.index);
+        IData dataMSDAvg = dataMSD.getData(accumulatorMSD.AVERAGE.index);
+        IData dataMSDCorrelation = dataMSD.getData(accumulatorMSD.BLOCK_CORRELATION.index);
+        double avgMSD = dataMSDAvg.getValue(0);
+        double errMSD = dataMSDErr.getValue(0);
+        double corMSD = dataMSDCorrelation.getValue(0);
+
+        System.out.println("MSD: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
+
+
+        System.out.println("MSDc: " + sim.kB*temperature/ sim.mass/omega/omega);
+        double hbar = Constants.PLANCK_H/(2*Math.PI);
+        System.out.println("MSCq: " + hbar/sim.mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
         long endTime = System.currentTimeMillis();
+        System.out.println();
         System.out.println("time: " + (endTime - startTime)/1000.0);
-
-
 
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperature = 100;//1/Constants.BOLTZMANN_K;
+        public double temperature = 10.0;
         public int nBeads = 4;
         public boolean graphics = false;
         public double omega = 1.0; // m*w^2
         public double k4 = 0.0;
-        public long numSteps = 10_000_000;
+        public long numSteps = 1_000_000;
     }
 }

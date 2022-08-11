@@ -30,23 +30,24 @@ public class MCMoveHO extends MCMoveBox {
         }
 
         lambdaN = new double[nBeads];
-        double hbar = Constants.PLANCK_H/(2*Math.PI);
-        beta = 1.0/(Constants.BOLTZMANN_K*temperature);
+        double hbar = Constants.PLANCK_H/(2.0*Math.PI);
+        double kB = 1.0;
+        beta = 1.0/(kB*temperature);
         betaN = beta/nBeads;
         omegaN = 1.0/(hbar*betaN);
         mass = box.getLeafList().get(0).getType().getMass();
         // exp(- betan * 1/2*lambdaN_k q_k^2)
         for(int k = 0; k < nBeads; k++){
-            lambdaN[k] = mass*(4.0* omegaN * omegaN *Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);//k2=m w^2
+            lambdaN[k] = mass*(4.0*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);//k2=m w^2
         }
 
         eigenvectors = new double[nBeads][nBeads];
         for (int k = 0; k < nBeads; k++) {
             boolean doCos = k <= nBeads/2;
             for (int i = 0; i < nBeads; i++) {
-                double arg = 2*Math.PI/nBeads*i*k;
+                double arg = 2.0*Math.PI/nBeads*i*k;
                 eigenvectors[i][k] = doCos ? Math.cos(arg) : -Math.sin(arg);
-                eigenvectors[i][k] *= 2.0/Math.sqrt(nBeads);
+                eigenvectors[i][k] *= 1.0/Math.sqrt(nBeads);
             }
         }
 
@@ -67,8 +68,11 @@ public class MCMoveHO extends MCMoveBox {
             rip1 = atomip1.getPosition();
             Vector dr = box.getSpace().makeVector();
             dr.Ev1Mv2(ri, rip1);
-            uhOld += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * (dr.squared()) + omega2 * ri.squared());
+            uhOld += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared() + omega2 * ri.squared());
         }
+
+//        System.out.println(atomList.get(0).getPosition().squared());
+
         uaOld = uOld - uhOld;
 
         double uhNew = 0;
@@ -76,7 +80,7 @@ public class MCMoveHO extends MCMoveBox {
         for (int k=0; k<nBeads; k++) {
             double fack = 1.0/Math.sqrt(betaN * lambdaN[k]);
             q[k] = fack*random.nextGaussian();
-            uhNew += 1/beta* 0.5*betaN*lambdaN[k]*q[k]*q[k];
+            uhNew += 1/beta*0.5*betaN*lambdaN[k]*q[k]*q[k];
         }
 
         for (int i = 0; i < nBeads; i++) {
@@ -87,6 +91,31 @@ public class MCMoveHO extends MCMoveBox {
                 ri.PE(eigenvectors[i][k]*q[k]);
             }
         }
+
+        double uReal = 0;
+        for (int i = 0; i < nBeads; i++) {
+            atomi = atomList.get(i);
+            atomip1 = (i == nBeads - 1) ? atomList.get(0) : atomList.get(i + 1);
+            ri = atomi.getPosition();
+            oldPositions[i].E(ri);
+            rip1 = atomip1.getPosition();
+            Vector dr = box.getSpace().makeVector();
+            dr.Ev1Mv2(ri, rip1);
+            uReal += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared() + omega2 * ri.squared());
+        }
+        double uNM = uhNew;
+        System.out.println(uNM + "  " + uReal );
+        System.out.println();
+
+
+
+//        System.out.println(atomList.get(0).getPosition().getX(0)*atomList.get(0).getPosition().getX(0));
+//        double r01 = atomList.get(0).getPosition().getX(0) - atomList.get(1).getPosition().getX(0);
+//        double r12 = atomList.get(1).getPosition().getX(0) - atomList.get(2).getPosition().getX(0);
+//        double r23 = atomList.get(2).getPosition().getX(0) - atomList.get(3).getPosition().getX(0);
+//        double r30 = atomList.get(3).getPosition().getX(0) - atomList.get(0).getPosition().getX(0);
+//        System.out.println(r01 + "  " + r12 + "  " + r23 + "  " + r30);
+
         pm.init();
         double uNew = pm.computeAll(false);
 
@@ -99,7 +128,7 @@ public class MCMoveHO extends MCMoveBox {
 
     public double getChi(double temperature) {
         return 1.0;
-//        return Math.exp(-(uaNew - uaOld) / temperature);
+//        return Math.exp(-(uaNew - uaOld) / (kB*temperature));
 
     }
 

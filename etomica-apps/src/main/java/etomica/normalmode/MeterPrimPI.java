@@ -23,7 +23,6 @@ public class MeterPrimPI extends DataSourceScalar {
 
     @Override
     public double getDataAsScalar() {
-
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
 //        System.out.println(1.0/2.0/betaN + " " + pcP1.getLastEnergy()/nBeads + " " + pmBonding.getLastEnergy());
