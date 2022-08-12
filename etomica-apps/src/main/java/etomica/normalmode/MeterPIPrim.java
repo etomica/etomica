@@ -23,10 +23,7 @@ public class MeterPIPrim extends DataSourceScalar {
     public double getDataAsScalar() {
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
-//        System.out.println(1.0/2.0/betaN + " " + pcP1.getLastEnergy()/nBeads + " " + pmBonding.getLastEnergy());
-//        System.out.println((1.0/2.0/betaN - pmBonding.getLastEnergy()) + "  " + pcP1.getLastEnergy()/nBeads
-//        + "    " + (1.0/2.0/betaN + pcP1.getLastEnergy()/nBeads - pmBonding.getLastEnergy()));
-        double En_prim = 1.0/2.0/betaN + pcP1.getLastEnergy()/nBeads - pmBonding.getLastEnergy();
+        double En_prim = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
 //        System.out.println("prim: " + En_prim);
         return En_prim;
     }

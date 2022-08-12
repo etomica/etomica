@@ -19,6 +19,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P1Anharmonic;
 import etomica.potential.P2Harmonic;
 import etomica.potential.PotentialMasterBonding;
@@ -106,7 +107,7 @@ public class SimQuantumAO extends Simulation {
 
         //potential p1 part
         double k2 = mass*omega*omega;
-        P1Anharmonic p1ah = new P1Anharmonic(space, k2, k4);
+        P1Anharmonic p1ah = new P1Anharmonic(space, k2/nBeads, k4/nBeads);
         pcP1 = new PotentialComputeField(getSpeciesManager(), box);
         pcP1.setFieldPotential(species.getLeafType(), p1ah);
 
@@ -116,6 +117,7 @@ public class SimQuantumAO extends Simulation {
 
         integrator = new IntegratorMC(pm, random, temperature, box);
         MCMoveHO  atomMove = new MCMoveHO(space, pm, random, temperature, omega, box);
+//        MCMoveAtom atomMove = new MCMoveAtom(random, pm, box);
         integrator.getMoveManager().addMCMove(atomMove);
 
 
@@ -312,11 +314,11 @@ public class SimQuantumAO extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperature = 0.1;
-        public int nBeads = 65;
+        public double temperature = 1.0;
+        public int nBeads = 111; //must be odd for now!
         public boolean graphics = false;
-        public double omega = 1.0; // m*w^2
-        public double k4 = 0.0;
-        public long numSteps = 10_000_000;
+        public double omega = 1.0; // k2=m*w^2
+        public double k4 = 24.0;
+        public long numSteps = 1_000_000;
     }
 }

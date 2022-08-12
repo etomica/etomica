@@ -131,8 +131,7 @@ public class MCMoveHO extends MCMoveBox {
     public double energyChange() {return 0;}
 
     public double getChi(double temperature) {
-        return 1.0;
-//        return Math.exp(-(uaNew - uaOld) / (kB*temperature));
+        return Math.exp(-(uaNew - uaOld) / (kB*temperature));
 
     }
 

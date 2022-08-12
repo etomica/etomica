@@ -30,8 +30,8 @@ public class MeterPIVir extends DataSourceScalar {
             Vector xi = box.getLeafList().get(i).getPosition();
             vir -= forces[i].dot(xi);
         }
-        double En_vir = pcP1.getLastEnergy()/nBeads + 1.0/2.0/nBeads*vir;
-//        System.out.println("vir: " + En_vir);
+        double En_vir = pcP1.getLastEnergy() + 1.0/2.0*vir;
+//        System.out.println("vir: " +En_vir);
         return En_vir;
     }
 }

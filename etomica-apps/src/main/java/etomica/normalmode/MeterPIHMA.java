@@ -58,7 +58,7 @@ public class MeterPIHMA extends DataSourceScalar {
         pmBonding.computeAll(true);
         pcP1.computeAll(true);
 
-        double En_HMA = 1.0/2.0/betaN + pcP1.getLastEnergy()/nBeads - pmBonding.getLastEnergy();
+        double En_HMA = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
 
 
         Vector[] forcesU = pcP1.getForces();
@@ -69,9 +69,10 @@ public class MeterPIHMA extends DataSourceScalar {
             En_HMA -= gk[i];
             for (int j = 0; j < nBeads; j++){
                 Vector xj = box.getLeafList().get(j).getPosition();
-                En_HMA -= beta*(forcesU[i].dot(xj)/nBeads + forcesK[i].dot(xj))*M[i][j];
+                En_HMA -= beta*(forcesU[i].dot(xj) + forcesK[i].dot(xj))*M[i][j];
             }
         }
+//        System.out.println("hma: " + En_HMA);
         return En_HMA;
     }
 }
