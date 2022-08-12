@@ -383,7 +383,7 @@ public class GlassProd {
         DataSourceMSD meterMSDA = new DataSourceMSD(configStorageMSD, sim.speciesA.getLeafType());
         configStorageMSD.addListener(meterMSDA);
         DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
-        configStorageMSD.addListener(meterMSDB);
+        if (params.nB > 0) configStorageMSD.addListener(meterMSDB);
 
         DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
         dsCorMSD.setMinInterval(3);
@@ -414,13 +414,13 @@ public class GlassProd {
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, percMinInterval);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(sim.getSpeciesManager(), configStorageMSD, atomFilterDeviation, percMinInterval);
         configStorageMSD.addListener(meterPerc);
 
         AtomTestDeviation atomFilterDeviation3 = new AtomTestDeviation(sim.box, configStorageMSD3);
         atomFilterDeviation3.setMinDistance(params.minDrFilter);
         atomFilterDeviation3.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc3 = new DataSourcePercolation(configStorageMSD3, atomFilterDeviation3, percMinInterval - 1, meterPerc.getHistogram());
+        DataSourcePercolation meterPerc3 = new DataSourcePercolation(sim.getSpeciesManager(), configStorageMSD3, atomFilterDeviation3, percMinInterval - 1, meterPerc.getHistogram());
         configStorageMSD3.addListener(meterPerc3);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
@@ -626,7 +626,7 @@ public class GlassProd {
         MeterGs meterGsB = new MeterGs(configStorageMSD);
         meterGsB.setAtomTypes(sim.speciesB.getLeafType());
         meterGsB.setMinConfigIndex(gsMinConfig);
-        configStorageMSD.addListener(meterGsB);
+        if (params.nB > 0) configStorageMSD.addListener(meterGsB);
         meterGsB.getXDataSource().setXMax(xGsMax);
 
         MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.TOTAL);
@@ -636,7 +636,7 @@ public class GlassProd {
         configStorageMSD.addListener(meterCorrelationSelfMagA);
         MeterCorrelationSelf meterCorrelationSelfMagB = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
         meterCorrelationSelfMagB.setAtomType(sim.speciesB.getLeafType());
-        configStorageMSD.addListener(meterCorrelationSelfMagB);
+        if (params.nB>0) configStorageMSD.addListener(meterCorrelationSelfMagB);
 
         CorrelationSelf2 correlationSelf2 = new CorrelationSelf2(configStorageMSD, CorrelationSelf2.CorrelationType.TOTAL, 0.001, 20);
         configStorageMSD.addListener(correlationSelf2);
@@ -657,7 +657,7 @@ public class GlassProd {
         objects.add(configStorageMSD3);
         objects.add(meterMSD);
         objects.add(meterMSDA);
-        objects.add(meterMSDB);
+        if (params.nB>0) objects.add(meterMSDB);
         objects.add(dsCorMSD);
         objects.add(dsCorP);
         objects.add(dsMSDcorP);
@@ -686,10 +686,10 @@ public class GlassProd {
         objects.add(dsbaSfacKE);
         objects.add(meterGs);
         objects.add(meterGsA);
-        objects.add(meterGsB);
+        if (params.nB>0) objects.add(meterGsB);
         objects.add(meterCorrelationSelf);
         objects.add(meterCorrelationSelfMagA);
-        objects.add(meterCorrelationSelfMagB);
+        if (params.nB>0) objects.add(meterCorrelationSelfMagB);
         objects.add(correlationSelf2);
 
         skipReset = false;
@@ -802,7 +802,7 @@ public class GlassProd {
                 meterGsA.setConfigIndex(i);
                 GlassProd.writeDataToFile(meterGsA, "GsA_t" + i + ".dat");
                 meterGsB.setConfigIndex(i);
-                GlassProd.writeDataToFile(meterGsB, "GsB_t" + i + ".dat");
+                if (params.nB>0) GlassProd.writeDataToFile(meterGsB, "GsB_t" + i + ".dat");
             }
             for (int i = 0; i < accSFacMobility.length; i++) {
                 if (accSFacMobility[i].getSampleCount() < 2) continue;
@@ -855,7 +855,7 @@ public class GlassProd {
 
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
             GlassProd.writeDataToFile(meterCorrelationSelfMagA, "corSelfMagA.dat");
-            GlassProd.writeDataToFile(meterCorrelationSelfMagB, "corSelfMagB.dat");
+            if (params.nB>0) GlassProd.writeDataToFile(meterCorrelationSelfMagB, "corSelfMagB.dat");
             for (int i = 0; i < correlationSelf2.getNumDt(); i++) {
                 CorrelationSelf2.MeterCorrelationSelf2 m = correlationSelf2.makeMeter(i);
                 GlassProd.writeDataToFile(m, "corRSelf_t" + i + ".dat");
@@ -867,7 +867,7 @@ public class GlassProd {
                     meterPerc3.makeImmFractionSource()}, filenameImmFrac);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(sim.speciesA.getLeafType()),
                     meterPerc3.makeImmFractionSource(sim.speciesA.getLeafType())}, filenameImmFracA);
-            GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(sim.speciesB.getLeafType()),
+            if (params.nB>0) GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(sim.speciesB.getLeafType()),
                     meterPerc3.makeImmFractionSource(sim.speciesB.getLeafType())}, filenameImmFracB);
             GlassProd.writeDataToFile(meterPerc.makePerclationByImmFracSource(), filenameImmFracPerc);
             GlassProd.writeDataToFile(accPerc0, filenamePerc0);
@@ -880,7 +880,7 @@ public class GlassProd {
 
             GlassProd.writeDataToFile(meterMSD, meterMSD.errData, filenameMSD);
             GlassProd.writeDataToFile(meterMSDA, meterMSDA.errData, filenameMSDA);
-            GlassProd.writeDataToFile(meterMSDB, meterMSDB.errData, filenameMSDB);
+            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.errData, filenameMSDB);
             GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
             GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
         } catch (IOException e) {

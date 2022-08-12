@@ -13,6 +13,7 @@ import etomica.data.types.DataFunction;
 import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.SpeciesManager;
 import etomica.units.dimensions.*;
 import etomica.util.Statefull;
 
@@ -51,11 +52,11 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     protected final HistogramNotSoSimple histogramImmPerc;
 
-    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin) {
-        this(configStorage, atomTest, log2StepMin, null);
+    public DataSourcePercolation(SpeciesManager sm, ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin) {
+        this(sm, configStorage, atomTest, log2StepMin, null);
     }
 
-    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, HistogramNotSoSimple sharedHistogram) {
+    public DataSourcePercolation(SpeciesManager sm, ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, HistogramNotSoSimple sharedHistogram) {
         this.configStorage = configStorage;
         int nt = 0;
         IAtomList atoms = configStorage.box.getLeafList();
@@ -63,7 +64,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
             int t = a.getType().getIndex();
             if (nt <= t) nt = t + 1;
         }
-        numTypes = nt;
+        numTypes = sm.getAtomTypeCount();
         numAtomsByType = new int[numTypes];
         for (IAtom a : atoms) {
             int t = a.getType().getIndex();
