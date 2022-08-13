@@ -127,12 +127,12 @@ public class SimQuantumAO extends Simulation {
         int nBeads = params.nBeads;
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
-        long numStepsEq = numSteps/5;
+        long numStepsEqu = numSteps/5;
 
         final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, omega, k4);
         sim.integrator.reset();
 
-        System.out.println(" numSteps: " +  numSteps + " numStepsEq: " + numStepsEq);
+        System.out.println(" numSteps: " +  numSteps + " numStepsEqu: " + numStepsEqu);
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" temperature: " + temperature);
         System.out.println(" mass: " + sim.mass + " omega: " + omega + " k4: " + k4);
@@ -181,7 +181,7 @@ public class SimQuantumAO extends Simulation {
 
         System.out.flush();
         final long startTime = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsEq));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsEqu));
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         int numBlocks = 1000;
@@ -272,7 +272,7 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 0.1;
-        public int nBeads = 33; //must be odd for now!
+        public int nBeads = 45; //must be odd for now!
         public boolean graphics = false;
         public double omega = 1.0; // k2=m*w^2
         public double k4 = 24.0;
