@@ -6,6 +6,7 @@ import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
+import etomica.util.Constants;
 
 public class MeterPIHMA extends DataSourceScalar {
     protected final PotentialMasterBonding pmBonding;
@@ -15,12 +16,8 @@ public class MeterPIHMA extends DataSourceScalar {
     protected double[] gk;
     protected double[][] M;
     protected Box box;
-
-
-    public static final double kB = 1.0;//Constants.BOLTZMANN_K
-
-
-    public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
+    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
+    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega, Box box) {
         super("Stuff", Null.DIMENSION);

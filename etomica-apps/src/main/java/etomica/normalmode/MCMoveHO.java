@@ -11,6 +11,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Constants;
 import etomica.util.random.IRandom;
 
 public class MCMoveHO extends MCMoveBox {
@@ -26,8 +27,8 @@ public class MCMoveHO extends MCMoveBox {
     protected double uaNew = Double.NaN;
     protected double mass, beta, omegaN, betaN;
     protected Box box;
-    public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
-    public static final double kB = 1.0;//Constants.BOLTZMANN_K
+    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
+    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
 
     public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega, Box box) {
@@ -57,7 +58,6 @@ public class MCMoveHO extends MCMoveBox {
             if (k != nK || nBeads % 2 != 0){ //odd
                 lambdaN[nK+k] = lambda_k;
             }
-
         }
 
         eigenvectors = new double[nBeads][nBeads];
@@ -96,8 +96,8 @@ public class MCMoveHO extends MCMoveBox {
         double[] q = new double[nBeads];
         int nK = nBeads/2;
         double fack = 1.0/Math.sqrt(betaN * lambdaN[nK]);
-        q[nK] = fack*random.nextGaussian();
-        uhNew += 1.0/2.0/beta*betaN*lambdaN[nK]*(q[nK]*q[nK]);
+        q[nK] = fack*random.nextGaussian();//1.816590212458495
+        uhNew += 1.0/2.0/beta*betaN*lambdaN[nK]*q[nK]*q[nK];
         for (int k=1; k<=nK; k++) {
             fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK-k]);
             q[nK-k] = fack*random.nextGaussian();

@@ -55,8 +55,8 @@ public class SimQuantumAO extends Simulation {
     public double betaN;
     public double mass;
     public double k2_kin;
-    public static final double kB = 1.0;//Constants.BOLTZMANN_K
-    public static final double hbar = Constants.PLANCK_H/(2.0*Math.PI);
+    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
+    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
         super(space);
@@ -136,6 +136,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" temperature: " + temperature);
         System.out.println(" mass: " + sim.mass + " omega: " + omega + " k4: " + k4);
+        System.out.println(" hbar: " + hbar  + "  kB: " + kB);
         System.out.println(" k2_kin: " + sim.k2_kin);
 
         MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
@@ -187,7 +188,7 @@ public class SimQuantumAO extends Simulation {
         int interval = 1;
         long blockSize = numSteps/numBlocks;
         if (blockSize == 0) blockSize = 1;
-        System.out.println(" blocksize: " + blockSize + " interval: " + interval);
+        System.out.println(" numBlocks: " + numBlocks + " blocksize: " + blockSize + " interval: " + interval);
 
         AccumulatorAverageFixed accumulatorMSD = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPumpMSD = new DataPumpListener(meterMSDHO, accumulatorMSD, interval);
@@ -271,7 +272,7 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 0.1;
-        public int nBeads = 224; //must be odd for now!
+        public int nBeads = 33; //must be odd for now!
         public boolean graphics = false;
         public double omega = 1.0; // k2=m*w^2
         public double k4 = 24.0;
