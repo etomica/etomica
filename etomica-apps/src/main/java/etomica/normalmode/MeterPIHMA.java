@@ -37,8 +37,10 @@ public class MeterPIHMA extends DataSourceScalar {
         gk[nK] = -1.0/2.0/beta;
         for(int k = 1; k <= nK; k++){
             double sin = Math.sin(Math.PI*k/nBeads);
-            gk[nK+k] = 1.0/2.0/beta*(sin*sin - a*a)/(sin*sin + a*a);
-            gk[nK-k] = gk[nK+k];
+            gk[nK-k] = 1.0/2.0/beta*(sin*sin - a*a)/(sin*sin + a*a);
+            if (k != nK || nBeads % 2 != 0){ //odd
+                gk[nK+k] = gk[nK-k];
+            }
         }
 
         M = new double[nBeads][nBeads];
@@ -47,7 +49,10 @@ public class MeterPIHMA extends DataSourceScalar {
             for (int j = 0; j < nBeads ; j++){
                 M[i][j] = gk[nK]/nBeads;
                 for (int k = 1; k <= nK ; k++){
-                    M[i][j] += 2.0/nBeads*gk[nK+k]*Math.cos(2.0*Math.PI*k/nBeads*(i-j));
+                    M[i][j] += 1.0/nBeads*gk[nK-k]*Math.cos(2.0*Math.PI*k/nBeads*(i-j));
+                    if (k != nK || nBeads % 2 != 0){ //odd
+                        M[i][j] += 1.0/nBeads*gk[nK+k]*Math.cos(2.0*Math.PI*k/nBeads*(i-j));
+                    }
                 }
             }
         }

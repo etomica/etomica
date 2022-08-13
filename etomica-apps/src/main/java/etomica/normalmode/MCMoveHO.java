@@ -53,8 +53,11 @@ public class MCMoveHO extends MCMoveBox {
         lambdaN[nK] = mass*omega2; //k=0
         for(int k = 1; k <= nK; k++){ //-2...2
             double lambda_k = mass*(4.0*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);
-            lambdaN[nK+k] = lambda_k; //3,4
-            lambdaN[nK-k] = lambda_k; //1,0
+            lambdaN[nK-k] = lambda_k;
+            if (k != nK || nBeads % 2 != 0){ //odd
+                lambdaN[nK+k] = lambda_k;
+            }
+
         }
 
         eigenvectors = new double[nBeads][nBeads];
@@ -62,20 +65,12 @@ public class MCMoveHO extends MCMoveBox {
             eigenvectors[i][nK] = 1.0/Math.sqrt(nBeads);//k=0
             for (int k = 1; k <= nK; k++) {
                 double arg = 2.0*Math.PI/nBeads*i*k;
-                eigenvectors[i][nK+k] =  2*Math.cos(arg)/Math.sqrt(nBeads);
                 eigenvectors[i][nK-k] =  2*Math.sin(-arg)/Math.sqrt(nBeads);
+                if (k != nK || nBeads % 2 != 0){ //odd
+                    eigenvectors[i][nK+k] =  2*Math.cos(arg)/Math.sqrt(nBeads);
+                }
             }
         }
-//        System.out.println();
-//        for (int k = 0; k < nBeads; k++) {
-//            boolean doCos = k <= nBeads/2;
-//            for (int i = 0; i < nBeads; i++) {
-//                double arg = 2.0*Math.PI/nBeads*i*k;
-//                eigenvectors[i][k] = doCos ? Math.cos(arg) : -Math.sin(arg);
-//                eigenvectors[i][k] *= 1.0/Math.sqrt(nBeads);
-//            }
-//        }
-
     }
 
 
@@ -104,11 +99,14 @@ public class MCMoveHO extends MCMoveBox {
         q[nK] = fack*random.nextGaussian();
         uhNew += 1.0/2.0/beta*betaN*lambdaN[nK]*(q[nK]*q[nK]);
         for (int k=1; k<=nK; k++) {
-            fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK+k]);
-            q[nK+k] = fack*random.nextGaussian();
             fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK-k]);
             q[nK-k] = fack*random.nextGaussian();
-            uhNew += 1.0/beta*betaN*(lambdaN[nK+k]*q[nK+k]*q[nK+k] + lambdaN[nK-k]*q[nK-k]*q[nK-k]);
+            uhNew += 1.0/beta*betaN*lambdaN[nK-k]*q[nK-k]*q[nK-k];
+            if (k != nK || nBeads % 2 != 0){ //odd
+                fack = 1.0/Math.sqrt(2*betaN * lambdaN[nK+k]);
+                q[nK+k] = fack*random.nextGaussian();
+                uhNew += 1.0/beta*betaN*lambdaN[nK+k]*q[nK+k]*q[nK+k];
+            }
         }
 
         for (int i = 0; i < nBeads; i++) {
