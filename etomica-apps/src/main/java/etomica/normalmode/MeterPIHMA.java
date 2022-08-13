@@ -32,8 +32,8 @@ public class MeterPIHMA extends DataSourceScalar {
 
         gk = new double[nBeads];
         int nK = nBeads/2;
-        double beta = betaN*nBeads;
-        double a = betaN*hbar*omega/2.0;
+        double beta = this.betaN*nBeads;
+        double a = this.betaN*hbar*omega/2.0;
         gk[nK] = -1.0/2.0/beta;
         for(int k = 1; k <= nK; k++){
             double sin = Math.sin(Math.PI*k/nBeads);
@@ -51,6 +51,12 @@ public class MeterPIHMA extends DataSourceScalar {
                 }
             }
         }
+
+        double En_har = 1.0/2.0/this.betaN;
+        for (int k = 0; k < nBeads; k++){
+            En_har -= gk[k];
+        }
+        System.out.println(" En_harm: " + En_har);
     }
 
     @Override
@@ -69,7 +75,11 @@ public class MeterPIHMA extends DataSourceScalar {
             En_HMA -= gk[i];
             for (int j = 0; j < nBeads; j++){
                 Vector xj = box.getLeafList().get(j).getPosition();
-                En_HMA -= beta*(forcesU[i].dot(xj) + forcesK[i].dot(xj))*M[i][j];
+                if (nBeads == 1) {
+                    En_HMA -= beta*(forcesU[i].dot(xj))*M[i][j];
+                } else {
+                    En_HMA -= beta*(forcesU[i].dot(xj) + forcesK[i].dot(xj))*M[i][j];
+                }
             }
         }
 //        System.out.println("hma: " + En_HMA);

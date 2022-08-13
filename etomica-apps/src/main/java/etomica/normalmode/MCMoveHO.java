@@ -11,7 +11,6 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Constants;
 import etomica.util.random.IRandom;
 
 public class MCMoveHO extends MCMoveBox {
@@ -45,7 +44,6 @@ public class MCMoveHO extends MCMoveBox {
         }
 
         lambdaN = new double[nBeads];
-        double kB = 1.0;
         beta = 1.0/(kB*temperature);
         betaN = beta/nBeads;
         omegaN = 1.0/(hbar*betaN);
