@@ -143,6 +143,7 @@ public class SimQuantumAO extends Simulation {
         MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
         MeterPIVir meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
         MeterPICentVir meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
+        MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box);
         MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
         MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
         MeterPIHMAcent meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
@@ -212,6 +213,11 @@ public class SimQuantumAO extends Simulation {
         DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);
 
+        // Virial-bar
+        AccumulatorAverageFixed accumulatorVirBar = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpVirBar = new DataPumpListener(meterCentVirBar, accumulatorVirBar, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpVirBar);
+
 
         // HMA
         AccumulatorAverageFixed accumulatorHMA = new AccumulatorAverageFixed(blockSize);
@@ -269,6 +275,17 @@ public class SimQuantumAO extends Simulation {
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorrelationCentVir.getValue(0);
         System.out.println(" En_cvir: " + avgEnCentVir  + " +/- " + errEnCentVir + " cor: " + corEnCentVir);
+
+        //Vir-bar
+        DataGroup dataVirBar = (DataGroup)accumulatorVirBar.getData();
+        IData dataErrVirBar = dataVirBar.getData(accumulatorVirBar.ERROR.index);
+        IData dataAvgVirBar = dataVirBar.getData(accumulatorVirBar.AVERAGE.index);
+        IData dataCorrelationVirBar = dataVirBar.getData(accumulatorVirBar.BLOCK_CORRELATION.index);
+        double avgEnVirBar = dataAvgVirBar.getValue(0);
+        double errEnVirBar = dataErrVirBar.getValue(0);
+        double corEnVirBar = dataCorrelationVirBar.getValue(0);
+        System.out.println(" En_vir_bar:  " + avgEnVirBar  + " +/- " + errEnVirBar + " cor: " + corEnVirBar);
+
 
         //HMA
         DataGroup dataHMA = (DataGroup)accumulatorHMA.getData();
