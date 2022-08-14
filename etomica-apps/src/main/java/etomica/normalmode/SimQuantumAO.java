@@ -142,7 +142,10 @@ public class SimQuantumAO extends Simulation {
         MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
         MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
         MeterPIVir meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
         MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
+        MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
+        MeterPIHMAcent meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
 
         if (graphics) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -194,20 +197,36 @@ public class SimQuantumAO extends Simulation {
         DataPumpListener accumulatorPumpMSD = new DataPumpListener(meterMSDHO, accumulatorMSD, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpMSD);
 
-        // Primitive E_n
+        // Primitive
         AccumulatorAverageFixed accumulatorPrim = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
 
-        // Virial E_n
+        // Virial
         AccumulatorAverageFixed accumulatorVir = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpVir);
 
-        // HMA E_n
+        // Centroid Virial
+        AccumulatorAverageFixed accumulatorCentVir = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);
+
+
+        // HMA
         AccumulatorAverageFixed accumulatorHMA = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterHMA, accumulatorHMA, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+
+        // HMAvir
+        AccumulatorAverageFixed accumulatorHMAvir = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpHMAvir = new DataPumpListener(meterHMAvir, accumulatorHMAvir, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpHMAvir);
+
+        // HMA-cent
+        AccumulatorAverageFixed accumulatorHMAcent = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpHMAcent = new DataPumpListener(meterHMAcent, accumulatorHMAcent, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpHMAcent);
 
         //run
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
@@ -229,7 +248,7 @@ public class SimQuantumAO extends Simulation {
         double avgEnPrim = dataAvgPrim.getValue(0);
         double errEnPrim = dataErrPrim.getValue(0);
         double corEnPrim = dataCorrelationPrim.getValue(0);
-        System.out.println("\n En_primitive: " + avgEnPrim  + " +/- " + errEnPrim + " cor: " + corEnPrim);
+        System.out.println("\n En_prim: " + avgEnPrim  + " +/- " + errEnPrim + " cor: " + corEnPrim);
 
         //Vir
         DataGroup dataVir = (DataGroup)accumulatorVir.getData();
@@ -239,7 +258,17 @@ public class SimQuantumAO extends Simulation {
         double avgEnVir = dataAvgVir.getValue(0);
         double errEnVir = dataErrVir.getValue(0);
         double corEnVir = dataCorrelationVir.getValue(0);
-        System.out.println(" En_virial: " + avgEnVir  + " +/- " + errEnVir + " cor: " + corEnVir);
+        System.out.println(" En_vir:  " + avgEnVir  + " +/- " + errEnVir + " cor: " + corEnVir);
+
+        //Cent Vir
+        DataGroup dataCentVir = (DataGroup)accumulatorCentVir.getData();
+        IData dataErrCentVir = dataCentVir.getData(accumulatorCentVir.ERROR.index);
+        IData dataAvgCentVir = dataCentVir.getData(accumulatorCentVir.AVERAGE.index);
+        IData dataCorrelationCentVir = dataCentVir.getData(accumulatorCentVir.BLOCK_CORRELATION.index);
+        double avgEnCentVir = dataAvgCentVir.getValue(0);
+        double errEnCentVir = dataErrCentVir.getValue(0);
+        double corEnCentVir = dataCorrelationCentVir.getValue(0);
+        System.out.println(" En_cvir: " + avgEnCentVir  + " +/- " + errEnCentVir + " cor: " + corEnCentVir);
 
         //HMA
         DataGroup dataHMA = (DataGroup)accumulatorHMA.getData();
@@ -249,7 +278,29 @@ public class SimQuantumAO extends Simulation {
         double avgEnHMA = dataAvgHMA.getValue(0);
         double errEnHMA = dataErrHMA.getValue(0);
         double corEnHMA = dataCorrelationHMA.getValue(0);
-        System.out.println(" En_HMA: " + avgEnHMA  + " +/- " + errEnHMA + " cor: " + corEnHMA);
+        System.out.println(" En_hma:  " + avgEnHMA  + " +/- " + errEnHMA + " cor: " + corEnHMA);
+
+
+        //HMA-vir
+        DataGroup dataHMAvir = (DataGroup)accumulatorHMAvir.getData();
+        IData dataErrHMAvir = dataHMAvir.getData(accumulatorHMAvir.ERROR.index);
+        IData dataAvgHMAvir = dataHMAvir.getData(accumulatorHMAvir.AVERAGE.index);
+        IData dataCorrelationHMAvir = dataHMAvir.getData(accumulatorHMAvir.BLOCK_CORRELATION.index);
+        double avgEnHMAvir = dataAvgHMAvir.getValue(0);
+        double errEnHMAvir = dataErrHMAvir.getValue(0);
+        double corEnHMAvir = dataCorrelationHMAvir.getValue(0);
+        System.out.println(" En_hmavir:  " + avgEnHMAvir  + " +/- " + errEnHMAvir + " cor: " + corEnHMAvir);
+
+
+        //HMA-cent
+        DataGroup dataHMAcent = (DataGroup)accumulatorHMAcent.getData();
+        IData dataErrHMAcent = dataHMAcent.getData(accumulatorHMAcent.ERROR.index);
+        IData dataAvgHMAcent = dataHMAcent.getData(accumulatorHMAcent.AVERAGE.index);
+        IData dataCorrelationHMAcent = dataHMAcent.getData(accumulatorHMAcent.BLOCK_CORRELATION.index);
+        double avgEnHMAcent = dataAvgHMAcent.getValue(0);
+        double errEnHMAcent = dataErrHMAcent.getValue(0);
+        double corEnHMAcent = dataCorrelationHMAcent.getValue(0);
+        System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
 
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
@@ -272,7 +323,7 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 0.1;
-        public int nBeads = 45; //must be odd for now!
+        public int nBeads = 33; //must be odd for now!
         public boolean graphics = false;
         public double omega = 1.0; // k2=m*w^2
         public double k4 = 24.0;

@@ -130,6 +130,25 @@ public class MCMoveHO extends MCMoveBox {
             }
         }
 
+        boolean debug = false;
+        if (debug){
+            double uReal = 0;
+            for (int i = 0; i < nBeads; i++) {
+                atomi = atomList.get(i);
+                atomip1 = (i == nBeads - 1) ? atomList.get(0) : atomList.get(i + 1);
+                ri = atomi.getPosition();
+                oldPositions[i].E(ri);
+                rip1 = atomip1.getPosition();
+                Vector dr = box.getSpace().makeVector();
+                dr.Ev1Mv2(ri, rip1);
+                uReal += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared() + omega2 * ri.squared());
+            }
+            double uNM = uhNew;
+            double foo = uNM/uReal;
+            System.out.println(foo );
+            System.out.println();
+        }
+
         pm.init();
         double uNew = pm.computeAll(false);
         uaNew = uNew - uhNew;
