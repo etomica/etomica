@@ -13,23 +13,28 @@ import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 
 
-public class P1Anharmonic implements IPotential1 {
+public class P1AnharmonicTIA implements IPotential1 {
 
     private final Space space;
     private double k2 = 1.0, k4 = 1.0;
-    private int nBeads;
     private final Vector x0;
+    private int nBeads;
+    private double facTIA;
+    private double mOmegaN2;
 
-    public P1Anharmonic(Space space, double k2, double k4, int nBeads) {
+
+    public P1AnharmonicTIA(Space space, double k2, double k4, int nBeads, double mOmegaN2, double facTIA) {
         this.space = space;
         this.k2 = k2;
         this.k4 = k4;
         this.nBeads = nBeads;
+        this.facTIA = facTIA;
+        this.mOmegaN2 = mOmegaN2;
         x0 = space.makeVector();
     }
     public void setSpringConstants(double k2, double k4) {
         this.k2 = k2;
-        this.k4 = k4;
+        this.k4 = k2;
     }
     
     public double[] getSpringConstants() {
@@ -55,15 +60,22 @@ public class P1Anharmonic implements IPotential1 {
     public double u(IAtom atom) {
         Vector dr = space.makeVector();
         dr.Ev1Mv2(atom.getPosition(), x0);
-        return 1.0/2.0*k2/nBeads*dr.squared() + 1.0/24.0*k4/nBeads*dr.squared()*dr.squared() ;
+        double dr2 = dr.squared();
+        double U =  1.0/2.0*k2/nBeads*dr2 + 1.0/24.0*k4/nBeads*dr2*dr2
+                + facTIA*1.0/24.0/mOmegaN2/nBeads*(k2*k2*dr2 + 1.0/3.0*k2*k4*dr2*dr2 + 1.0/36.0*k4*k4*dr2*dr2*dr2);
+        return U;
     }
 
     public double udu(IAtom atom, Vector f) {
         Vector dr = space.makeVector();
         dr.Ev1Mv2(atom.getPosition(), x0);
-        double u = 1.0/2.0*k2/nBeads*dr.squared()+1.0/24.0*k4/nBeads*dr.squared()*dr.squared();
-        f.PEa1Tv1(-k2/nBeads - k4/nBeads/6.0*dr.squared(), dr);
-        return u;
+        double dr2 = dr.squared();
+        double U =  1.0/2.0*k2/nBeads*dr2 + 1.0/24.0*k4/nBeads*dr2*dr2
+                + facTIA*1.0/24.0/mOmegaN2/nBeads*(k2*k2*dr2 + 1.0/3.0*k2*k4*dr2*dr2 + 1.0/36.0*k4*k4*dr2*dr2*dr2);
+
+        f.PEa1Tv1(-k2/nBeads - k4/nBeads/6.0*dr2, dr);
+        f.PEa1Tv1(-facTIA/24.0/mOmegaN2/nBeads*(2*k2*k2 + 4.0/3.0*k2*k4*dr2 + 1.0/6.0*k4*k4*dr2*dr2), dr);
+        return U;
     }
 
 }

@@ -40,7 +40,7 @@ public class MeterPIVirMidPt extends DataSourceScalar {
             xbar[i].PE(xi);
             xbar[i].PE(xip1);
             xbar[i].TE(0.5);
-            double k2 = 1, k4=24;
+            double k2 = 1.0, k4=24.0;
             Ubar[i] = 0.5*k2*xbar[i].squared() + 1.0/24.0*k4*xbar[i].squared()*xbar[i].squared();
             Fbar[i].PEa1Tv1(-k2, xbar[i]);
             Fbar[i].PEa1Tv1(-k4/6.0*xbar[i].squared(), xbar[i]);

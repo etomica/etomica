@@ -7,7 +7,7 @@ import etomica.potential.compute.PotentialComputeField;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPIHMAcent extends DataSourceScalar {
+public class MeterPIHMATIA extends DataSourceScalar {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialComputeField pcP1;
     protected double betaN;
@@ -18,7 +18,7 @@ public class MeterPIHMAcent extends DataSourceScalar {
     public static final double kB = 1.0; // Constants.BOLTZMANN_K;
     public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
-    public MeterPIHMAcent(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega, Box box) {
+    public MeterPIHMATIA(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega, Box box) {
         super("Stuff", Null.DIMENSION);
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
@@ -57,6 +57,7 @@ public class MeterPIHMAcent extends DataSourceScalar {
         for (int k = 0; k < nBeads; k++){
             En_har -= gk[k];
         }
+        System.out.println(" En_harm: " + En_har);
     }
 
     @Override
@@ -64,25 +65,15 @@ public class MeterPIHMAcent extends DataSourceScalar {
         pmBonding.computeAll(true);
         pcP1.computeAll(true);
 
-        double beta = betaN*nBeads;
-        double En_HMA = -1.0/2.0/beta + 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
+        double En_HMA = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
 
 
         Vector[] forcesU = pcP1.getForces();
         Vector[] forcesK = pmBonding.getForces();
-        Vector xc = box.getSpace().makeVector();
-        Vector Fc = box.getSpace().makeVector();
-        for (int i = 0; i < nBeads; i++){
-            Vector xi = box.getLeafList().get(i).getPosition();
-            xc.PE(xi);
-            Fc.PE(forcesU[i]);
-            Fc.PE(forcesK[i]);
-        }
-        xc.TE(1.0/nBeads);
-        Fc.TE(1.0/nBeads);
+        double beta = betaN*nBeads;
 
         for (int i = 0; i < nBeads; i++){
-            En_HMA -= (gk[i] + 0.5* Fc.dot(xc));
+            En_HMA -= gk[i];
             for (int j = 0; j < nBeads; j++){
                 Vector xj = box.getLeafList().get(j).getPosition();
                 if (nBeads == 1) {

@@ -10,18 +10,13 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConformationGeneric;
 import etomica.config.IConformation;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.potential.P1Anharmonic;
-import etomica.potential.P2Harmonic;
-import etomica.potential.PotentialMasterBonding;
+import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
@@ -32,7 +27,6 @@ import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -49,7 +43,7 @@ public class SimQuantumAO extends Simulation {
     public Box box;
     public IntegratorMC integrator;
     public MCMoveHO  atomMove;
-    public PotentialComputeField pcP1;
+    public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pm;
     public double betaN;
@@ -58,7 +52,7 @@ public class SimQuantumAO extends Simulation {
     public static final double kB = 1.0; // Constants.BOLTZMANN_K;
     public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
-    public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4) {
+    public SimQuantumAO(Space space, int nBeads, double temperature, double omega, double k4, boolean isTIA) {
         super(space);
         Vector[] initCoords = new Vector[nBeads];
         for (int i = 0; i < nBeads; i++){
@@ -94,22 +88,31 @@ public class SimQuantumAO extends Simulation {
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i=0; i<nBeads; i++) {
-            int[] p = new int[]{i,i+1};
-            for (int j=0; j<p.length; j++) {
-                if (p[j] >= nBeads) p[j] -= nBeads;
-            }
+            int[] p = new int[]{i,(i+1)%nBeads};
             pairs.add(p);
         }
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
 
         //potential p1 part
         double k2 = mass*omega*omega;
-        P1Anharmonic p1ah = new P1Anharmonic(space, k2/nBeads, k4/nBeads);
+        IPotential1 p1ah, p1ahUeff;
         pcP1 = new PotentialComputeField(getSpeciesManager(), box);
-        pcP1.setFieldPotential(species.getLeafType(), p1ah);
-
-        //TOTAL
+        if (isTIA){
+            double facUeff = 1.0;
+            p1ahUeff = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facUeff);
+            pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
+        } else {
+            p1ah = new P1Anharmonic(space, k2, k4, nBeads);
+            pcP1.setFieldPotential(species.getLeafType(), p1ah);
+        }
         pm = new PotentialComputeAggregate(pmBonding, pcP1);
+
+        double facEn = 3.0;
+        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
+        pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
+        pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
+
+
         integrator = new IntegratorMC(pm, random, temperature, box);
         atomMove = new MCMoveHO(space, pm, random, temperature, omega, box);
         integrator.getMoveManager().addMCMove(atomMove);
@@ -128,8 +131,9 @@ public class SimQuantumAO extends Simulation {
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
         long numStepsEqu = numSteps/5;
+        boolean isTIA = params.isTIA;
 
-        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, omega, k4);
+        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, omega, k4, isTIA);
         sim.integrator.reset();
 
         System.out.println(" numSteps: " +  numSteps + " numStepsEqu: " + numStepsEqu);
@@ -138,15 +142,27 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" mass: " + sim.mass + " omega: " + omega + " k4: " + k4);
         System.out.println(" hbar: " + hbar  + "  kB: " + kB);
         System.out.println(" k2_kin: " + sim.k2_kin);
+        System.out.println(" isTIA: " + isTIA);
 
         MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
-        MeterPIVir meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
-        MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box);
-        MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
-        MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
-        MeterPIHMAcent meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
+        DataSourceScalar meterPrim, meterVir, meterHMA, meterCentVir;
+        if (isTIA){
+            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, sim.betaN, nBeads);
+            meterVir = new MeterPIVir(sim.pcP1EnTIA, sim.betaN, nBeads, sim.box);
+            meterCentVir = new MeterPICentVir(sim.pcP1EnTIA, sim.betaN, nBeads, sim.box);
+            meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1EnTIA, sim.betaN, nBeads, omega, sim.box);
+        } else {
+            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, sim.betaN, nBeads);
+            meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
+            meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
+            meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);
+        }
+
+
+
+        MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box); //Bad!!
+        MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box);//Bad!!
+        MeterPIHMAcent meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega, sim.box); //Bad!!!
 
         if (graphics) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -339,11 +355,12 @@ public class SimQuantumAO extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperature = 0.1;
-        public int nBeads = 33; //must be odd for now!
+        public double temperature = 1.0;
+        public int nBeads = 111; //must be odd for now!
         public boolean graphics = false;
         public double omega = 1.0; // k2=m*w^2
         public double k4 = 24.0;
         public long numSteps = 1_000_000;
+        public boolean isTIA = true;
     }
 }

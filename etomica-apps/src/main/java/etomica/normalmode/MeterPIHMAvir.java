@@ -53,11 +53,6 @@ public class MeterPIHMAvir extends DataSourceScalar {
             }
         }
 
-        double En_har = 1.0/2.0/this.betaN;
-        for (int k = 0; k < nBeads; k++){
-            En_har -= gk[k];
-        }
-        System.out.println(" En_harm: " + En_har);
     }
 
     @Override
