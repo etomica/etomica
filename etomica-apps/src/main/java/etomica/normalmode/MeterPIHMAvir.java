@@ -18,7 +18,7 @@ public class MeterPIHMAvir extends DataSourceScalar {
     public static final double kB = 1.0; // Constants.BOLTZMANN_K;
     public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
-    public MeterPIHMAvir(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega, Box box) {
+    public MeterPIHMAvir(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega2, Box box) {
         super("Stuff", Null.DIMENSION);
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
@@ -29,11 +29,11 @@ public class MeterPIHMAvir extends DataSourceScalar {
         gk = new double[nBeads];
         int nK = nBeads/2;
         double beta = this.betaN*nBeads;
-        double a = this.betaN*hbar*omega/2.0;
+        double a2 = (this.betaN*hbar/2.0)*(this.betaN*hbar/2.0)*omega2;
         gk[nK] = -1.0/2.0/beta;
         for(int k = 1; k <= nK; k++){
             double sin = Math.sin(Math.PI*k/nBeads);
-            gk[nK-k] = 1.0/2.0/beta*(sin*sin - a*a)/(sin*sin + a*a);
+            gk[nK-k] = 1.0/2.0/beta*(sin*sin - a2)/(sin*sin + a2);
             if (k != nK || nBeads % 2 != 0){ //odd
                 gk[nK+k] = gk[nK-k];
             }

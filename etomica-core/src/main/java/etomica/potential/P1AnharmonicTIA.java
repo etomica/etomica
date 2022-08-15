@@ -74,7 +74,7 @@ public class P1AnharmonicTIA implements IPotential1 {
                 + facTIA*1.0/24.0/mOmegaN2/nBeads*(k2*k2*dr2 + 1.0/3.0*k2*k4*dr2*dr2 + 1.0/36.0*k4*k4*dr2*dr2*dr2);
 
         f.PEa1Tv1(-k2/nBeads - k4/nBeads/6.0*dr2, dr);
-        f.PEa1Tv1(-facTIA/24.0/mOmegaN2/nBeads*(2*k2*k2 + 4.0/3.0*k2*k4*dr2 + 1.0/6.0*k4*k4*dr2*dr2), dr);
+        f.PEa1Tv1(-facTIA/24.0/mOmegaN2/nBeads*(2.0*k2*k2 + 4.0/3.0*k2*k4*dr2 + 1.0/6.0*k4*k4*dr2*dr2), dr);
         return U;
     }
 

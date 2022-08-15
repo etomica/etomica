@@ -31,12 +31,12 @@ public class MCMoveHO extends MCMoveBox {
     public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
 
-    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega, Box box) {
+    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
         super();
         this.pm = pm;
         this.random = random;
         this.temperature = temperature;
-        this.omega2 = omega*omega;
+        this.omega2 = omega2;
         this.box = box;
         nBeads = this.box.getMoleculeList().get(0).getChildList().size();
         oldPositions = new Vector[nBeads];

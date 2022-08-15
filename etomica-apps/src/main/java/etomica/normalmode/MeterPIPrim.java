@@ -11,12 +11,11 @@ public class MeterPIPrim extends DataSourceScalar {
     protected double betaN;
     protected int nBeads;
 
-    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads) {
+    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN) {
         super("Stuff", Null.DIMENSION);
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
         this.betaN = betaN;
-        this.nBeads = nBeads;
     }
 
     @Override
