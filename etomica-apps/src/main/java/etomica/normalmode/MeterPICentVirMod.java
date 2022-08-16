@@ -6,13 +6,13 @@ import etomica.potential.compute.PotentialComputeField;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPICentVir extends DataSourceScalar {
+public class MeterPICentVirMod extends DataSourceScalar {
     protected Box box;
     protected final PotentialComputeField pcP1;
     protected double betaN;
     protected int nBeads;
 
-    public MeterPICentVir(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
+    public MeterPICentVirMod(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
         super("Stuff", Null.DIMENSION);
         this.pcP1 = pcP1;
         this.betaN = betaN;
@@ -35,10 +35,10 @@ public class MeterPICentVir extends DataSourceScalar {
         for (int i = 0; i < nBeads; i++){
             Vector xi = box.getLeafList().get(i).getPosition();
             vir -= forces[i].dot(xi);
-            vir += forces[i].dot(xc);
+            vir += 2*forces[i].dot(xc);
         }
         double beta = betaN*nBeads;
-        double En_vir = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+        double En_vir = 1.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
         return En_vir;
     }
 }
