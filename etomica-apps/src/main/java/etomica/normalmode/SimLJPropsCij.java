@@ -42,7 +42,7 @@ public class SimLJPropsCij extends Simulation {
     public SpeciesGeneral species;
 
 
-    public SimLJPropsCij(Space _space, int nc, double density0, double temperature, double rc, boolean isLRC, double strain_x, double strain_yz, boolean isSS, boolean isBCC, int nSS) {
+    public SimLJPropsCij(Space _space, int nMol, double density0, double temperature, double rc, boolean isLRC, double strain_x, double strain_yz, boolean isSS, boolean isBCC, int nExp) {
         super(_space);
 //        setRandom(new RandomMersenneTwister(1)); // set seed
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
@@ -50,7 +50,7 @@ public class SimLJPropsCij extends Simulation {
 
 
         int nBasis = isBCC ? 2 : 4;
-        nMol = nBasis*nc*nc*nc;
+        int nc = (int)Math.round(Math.pow(nMol/nBasis, 1.0/3.0));
         double L = Math.pow(nBasis / density0, 1.0 / 3.0);
 
         System.out.println(" rc = " + rc);
@@ -84,7 +84,7 @@ public class SimLJPropsCij extends Simulation {
 
         Potential2SoftSpherical potential;
         if (isSS) {
-            potential = new P2SoftSphere(space, 1.0, 1.0, nSS);
+            potential = new P2SoftSphere(space, 1.0, 1.0, nExp);
             System.out.println("** SS potential **");
         } else {
             potential = new P2LennardJones(space);
@@ -148,8 +148,8 @@ public class SimLJPropsCij extends Simulation {
         SimLJPropsCijParam params = new SimLJPropsCijParam();
         ParseArgs.doParseArgs(params, args);
         long numSteps = params.numSteps;
-        int nc = params.nc;
-        int nSS = params.nSS;
+        int nMol = params.nMol;
+        int nExp = params.nExp;
         double density0 = params.density0;
         double rc = params.rc;
         double temperature = params.temperature;
@@ -171,7 +171,7 @@ public class SimLJPropsCij extends Simulation {
         elasticParams[8] = params.gy44;
         elasticParams[9] = params.gx12;
         elasticParams[10] = params.gz12;
-        System.out.println(" HMA Elastic Parameters:" + (isSS ? " SS-"+nSS : " LJ") + (isBCC ? " BCC " : " FCC"));
+        System.out.println(" HMA Elastic Parameters:" + (isSS ? " SS-"+nExp : " LJ") + (isBCC ? " BCC " : " FCC"));
         System.out.println(" gV: " + params.gV + " gVV: " + params.gVV);
         System.out.println(" gx1: " + params.gx1 + " gy1: " + params.gy1 + " gy4 " + params.gy4);
         System.out.println(" gx11: " + params.gx11 + " gy11: " + params.gy11 + " gx44 " + params.gx44);
@@ -179,20 +179,20 @@ public class SimLJPropsCij extends Simulation {
         System.out.println();
 
 
-        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nc, density0, temperature, rc, isLRC, strain_x, strain_yz, isSS, isBCC, nSS);
+        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), nMol, density0, temperature, rc, isLRC, strain_x, strain_yz, isSS, isBCC, nExp);
         sim.integrator.reset(); // so we can ask it for the PE (the integrator already gets reset at the start of the simulation)
 
-        System.out.println(" " + sim.nMol + " atoms " + " temperature " + temperature + " rc " + rc);
+        System.out.println(" " + nMol + " atoms " + " temperature " + temperature + " rc " + rc);
         System.out.println(" " + numSteps + " MC steps");
         System.out.println(" strain_x  " + strain_x + " strain_yz  " + strain_yz);
 
         double volume = sim.box.getBoundary().volume();
-        double density = sim.nMol/volume;
+        double density = nMol/volume;
         System.out.println(" density0 " + density0 + " density " + density + " volume " + volume + "\n");
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         double ULat = meterPE.getDataAsScalar();
-        System.out.println(" u_lat " + (ULat/sim.nMol));
+        System.out.println(" u_lat " + (ULat/nMol));
         //P
         MeterPressure meterP = new MeterPressure(sim.space);
         meterP.setBox(sim.box);
@@ -301,7 +301,7 @@ public class SimLJPropsCij extends Simulation {
 
 
         int numBlocks = 100;
-        int interval = sim.nMol;
+        int interval = nMol;
         long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
         System.out.println(" block size " + blockSize + " interval " + interval);
@@ -436,8 +436,8 @@ public class SimLJPropsCij extends Simulation {
 
 
 //Bulk
-        double Cv_conv = varU_conv / temperature / temperature + 3.0/2.0*(sim.nMol-1);
-        double Cv_hma  = dataElasticAvg.getValue(16) + varU_hma / temperature / temperature + 3.0*(sim.nMol-1.0);
+        double Cv_conv = varU_conv / temperature / temperature + 3.0/2.0*(nMol-1);
+        double Cv_hma  = dataElasticAvg.getValue(16) + varU_hma / temperature / temperature + 3.0*(nMol-1.0);
         double B_conv  = dataElasticAvg.getValue(17) - volume / temperature * varP_conv;
         double B_hma   = dataElasticAvg.getValue(18) - volume / temperature * varP_hma;
 //Cij
@@ -555,8 +555,8 @@ public class SimLJPropsCij extends Simulation {
     public static class SimLJPropsCijParam extends ParameterBase {
         public boolean isBCC = true;
         public boolean isSS = true;
-        public int nSS = 6;
-        public int nc = 5;
+        public int nExp = 6;
+        public int nMol = 500;
         public double density0 = 1.0;
         public long numSteps = 1000000;
         public double temperature = 0.1;
