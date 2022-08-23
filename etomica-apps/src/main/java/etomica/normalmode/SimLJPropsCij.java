@@ -581,16 +581,16 @@ public class SimLJPropsCij extends Simulation {
 
 
         //SS-BCC: nSS=6 , rho=1.0, rc=3.0, nC=5 (N=250)
-        public double gV=1.333333333334733 
-        public double gVV=-1.333333331020438
-        public double gx1=1.321732322767388
-        public double gy1=1.339133838679187
-        public double gy4=1.339133838700971
-        public double gx11=-5.208082731208532
-        public double gy11=-1.366754230260249
-        public double gx44=-6.180381361666975
-        public double gy44=1.328914959737209
-        public double gx12=1.282309044414773
-        public double gz12=-2.593822489037677
+        public double gV=1.333333333334733;
+        public double gVV=-1.333333331020438;
+        public double gx1=1.321732322767388;
+        public double gy1=1.339133838679187;
+        public double gy4=1.339133838700971;
+        public double gx11=-5.208082731208532;
+        public double gy11=-1.366754230260249;
+        public double gx44=-6.180381361666975;
+        public double gy44=1.328914959737209;
+        public double gx12=1.282309044414773;
+        public double gz12=-2.593822489037677;
     }
 }
