@@ -9,8 +9,13 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
-public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceIndependent {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
+public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceIndependent, Statefull {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
@@ -21,7 +26,6 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected long[] nBlockSamplesX;
     protected long nSample = 0;
     protected boolean enabled;
-    protected int interval;
     protected double[] sumP2, sumP4;
     protected int nP, dim;
     protected double volume, temperature, dt;
@@ -163,6 +167,41 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
 
     public TemperatureSink makeTemperatureSink() {
         return new TemperatureSink();
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(getClass().getName()+"\n");
+        fw.write(""+nSample+"\n");
+        if (nSample == 0) {
+            return;
+        }
+        for (int i=0; i<nBlockSamplesX.length && nBlockSamplesX[i] != 0; i++) {
+            fw.write(nBlockSamplesX[i]+" "+sumP2[i]+" "+sumP4[i]);
+            for (int j=0; j<nP; j++) {
+                fw.write(" "+blockSumX[i][j]);
+            }
+            fw.write("\n");
+        }
+        fw.write("\n");
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        if (!br.readLine().equals(getClass().getName())) throw new RuntimeException("oops");
+        nSample = Long.parseLong(br.readLine());
+        if (nSample == 0) return;
+        for (int i=0; i<nBlockSamplesX.length; i++) {
+            String s = br.readLine();
+            if (s.length() < 2) return;
+            String[] bits = s.split(" ");
+            nBlockSamplesX[i] = Long.parseLong(bits[0]);
+            sumP2[i] = Double.parseDouble(bits[1]);
+            sumP4[i] = Double.parseDouble(bits[2]);
+            for (int j=0; j<nP; j++) {
+                blockSumX[i][j] = Double.parseDouble(bits[3+j]);
+            }
+        }
     }
 
     public class TemperatureSink implements IDataSink {

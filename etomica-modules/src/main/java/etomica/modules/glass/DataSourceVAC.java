@@ -13,13 +13,17 @@ import etomica.data.types.DataFunction;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**
  * Computes the excess kurtosis (alpha2) for the distribution of displacements
  */
-public class DataSourceVAC implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceVAC implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -59,8 +63,7 @@ public class DataSourceVAC implements IDataSource, ConfigurationStorage.Configur
 
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -142,5 +145,25 @@ public class DataSourceVAC implements IDataSource, ConfigurationStorage.Configur
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(vacSum.length+"\n");
+        for (int i=0; i<vacSum.length; i++) {
+            fw.write(vacSum[i]+" "+vac2Sum[i]+" "+nSamples[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            vacSum[i] = Double.parseDouble(bits[0]);
+            vac2Sum[i] = Double.parseDouble(bits[1]);
+            nSamples[i] = Long.parseLong(bits[2]);
+        }
     }
 }

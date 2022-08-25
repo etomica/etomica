@@ -794,6 +794,11 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         handlingEvent--;
     }
 
+    public void postRestore() {
+        super.postRestore();
+        computeAllCollisions();
+    }
+
     protected void scaleMomenta() {
         super.scaleMomenta();
         // super.scaleMomenta alters the velocities, so we need to

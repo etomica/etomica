@@ -91,10 +91,18 @@ public class IntegratorVelocityVerlet extends IntegratorMD {
             }
         }
 
+        precomputeForce();
+    }
+
+    public void precomputeForce() {
         eventManager.forcePrecomputed();
 
         currentPotentialEnergy = potentialCompute.computeAll(true);
-
         eventManager.forceComputed();
+    }
+
+    public void postRestore() {
+        super.postRestore();
+        precomputeForce();
     }
 }

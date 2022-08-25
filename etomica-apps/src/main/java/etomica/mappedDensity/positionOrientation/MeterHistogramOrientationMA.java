@@ -11,33 +11,45 @@ import etomica.data.types.DataFunction;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
+import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
-
-import java.util.Random;
 
 public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndependent {
 
     protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;
     protected DataTag tag;
-    protected DataSourceUniform perpSource, cosSource;
+    protected IDataSource perpSource;
+    protected DataSourceUniform cosSource;
     protected final Box box;
     protected int d;
     protected int nBinsCos, nBinsPerp;
     protected double S; //area of surface
     protected final double c;
-    protected final double[] coshz, cosh2z;
+    protected final double[][] coshz, cosh2z, coshzM, cosh2zM;
     protected final PotentialCompute potentialCompute;
     protected final double T;
+    protected final double[] perps;
+    protected final int nmax = 2;
+    protected final double[] corrn = new double[nmax];
+
+    public MeterHistogramOrientationMA(PotentialCompute potentialCompute, Box box, double T, int d, int nBinsCos, double[] perps) {
+        this(potentialCompute, box, T, d, nBinsCos, perps, perps.length);
+    }
 
     public MeterHistogramOrientationMA(PotentialCompute potentialCompute, Box box, double T, int d, int nBinsPerp, int nBinsCos) {
+        this(potentialCompute, box, T, d, nBinsCos, null, nBinsPerp);
+    }
+
+    protected MeterHistogramOrientationMA(PotentialCompute potentialCompute, Box box, double T, int d, int nBinsCos, double[] perps, int nBinsPerp) {
         this.potentialCompute = potentialCompute;
         this.box = box;
         this.T = T;
         this.d = d;
         this.nBinsCos = nBinsCos;
         this.nBinsPerp = nBinsPerp;
+        this.perps = perps;
         double L = box.getBoundary().getBoxSize().getX(d);
         S = box.getBoundary().getBoxSize().getX(0);
         if(d == 3) {
@@ -45,18 +57,40 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
             //c = ?
             throw new RuntimeException("need to figure this out for 3D");
         } else { //d == 2
-            c = 1 / (Math.PI * S * T);
+            c = 1 / (Math.PI * S * L * T);
         }
         int D = box.getSpace().D();
-        perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        if (perps == null) {
+            perpSource = new DataSourceUniform("perp", Length.DIMENSION, nBinsPerp, 0, L/2, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
+        }
+        else {
+            perpSource = new DataSourceStatic("perp", Length.DIMENSION, perps);
+        }
         if(D==2) cosSource = new DataSourceUniform("angle", Null.DIMENSION, nBinsCos, -Math.PI, Math.PI, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
         else cosSource = new DataSourceUniform("cosine", Null.DIMENSION, nBinsCos, 0, 1, DataSourceUniform.LimitType.HALF_STEP, DataSourceUniform.LimitType.HALF_STEP);
-        coshz = new double[nBinsPerp];
-        cosh2z = new double[nBinsPerp];
+        coshz = new double[nBinsPerp][2];
+        cosh2z = new double[nBinsPerp][2];
+        coshzM = new double[nBinsPerp][2];
+        cosh2zM = new double[nBinsPerp][2];
+
         for(int i=0; i<nBinsPerp; i++) {
-            coshz[i] = Math.cosh(perpSource.getData().getValue(i));
-            cosh2z[i] = Math.cosh(2*perpSource.getData().getValue(i));
+            for (int j=0; j<2; j++) {
+                double z = perpSource.getData().getValue(i);
+                if (j == 0) z = L/2 + z;  // from L/2 to L
+                else z = L/2 - z;         // from L/2 to 0
+                double zred = z/L;
+                coshz[i][j] = Math.cosh(zred);
+                cosh2z[i][j] = Math.cosh(2 * zred);
+                coshzM[i][j] = Math.cosh(2-zred);
+                cosh2zM[i][j] = Math.cosh(2 * (2-zred));
+
+            }
         }
+
+        for(int n=0; n<nmax; n++) {
+            corrn[n] = 1.0/Math.sinh(n+1) - 2*Math.exp(-(n+1));
+        }
+
         data = new DataFunction(new int[]{nBinsPerp,nBinsCos});
         dataInfo = new DataFunction.DataInfoFunction("histogram", Null.DIMENSION, this);
         tag = new DataTag();
@@ -101,7 +135,6 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
             //special for 2D
             if(D == 3) throw new RuntimeException("need to update torque for 3D");
             double torq = 0.5*(torque.getX(1)*dr.getX(0) - torque.getX(0)*dr.getX(1)); //fy*rx - fx*ry
-//            System.out.println(fz+", "+torq);
 
             dr.normalize();
             double drd;//= Math.abs(dr.getX(d)); // z coordinate of orientation
@@ -109,71 +142,42 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
             else throw new RuntimeException("Not set up for D != 2");
 //            double zi = (0.5*Lz - Math.abs(xyz.getX(d))); // distance from nearer wall
             double zi = xyz.getX(d) + Lz/2;//distance from bottom wall
+            double ziRed = zi/Lz;
+            double coshzi = Math.cosh(ziRed);
+            double sinhzi = Math.sinh(ziRed);
+            double cosh2zi = coshzi * coshzi + sinhzi * sinhzi;
 
-            // get force and torque on molecule
-
-            //sum over tabulated positions and orientations
-//            for(int nt = 0; nt<nBinsCos; nt++) {
-//                double t = cosSource.getData().getValue(nt); //tabulated orientation, angle wrt x axis
-//                double ti = drd - t; //orientation of molecule relative to tabulated orientation
-//                double costi = Math.cos(ti);
-//                double sinti = Math.sin(ti);
-//                double cos2ti = costi*costi - sinti*sinti;
-//                for (int nz = 0; nz < nBinsPerp; nz++) {
-//                    double z = perpSource.getData().getValue(nz);
-//                    double coshzi = Math.cosh(zi);
-//                    double sinhzi = Math.sinh(zi);
-//                    double cosh2zi = coshzi*coshzi + sinhzi*sinhzi;
-//                    double sinh2zi = 2*coshzi*sinhzi;
-//                    double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
-//                    double tdot = c * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
-//                    double zdot = c * 0.5 * ( -zi/Lz + (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
-//                    //SJWdouble tdot = c * 2 * (coshz[nz]*coshzi*sinti - costi*sinti)/denom;
-//                    //SJW double zdot = c * 0.5 * ( -zi/Lz + 2 * (-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom);
-//                    //SJW if(zi > z) zdot -= 0.5 * c; //Heaviside term
-//                    for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
-//                        tdot += c * Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
-//                                    2.*Math.cosh(n * zi) * Math.sin(n * ti);
-//                    }
-//                    y[nz*nBinsCos + nt] += -(zdot*fz + tdot*torq);
-////                    if(Math.abs(Math.abs(Lz/2-z)-1)<1e-3 && Math.abs(Math.abs(t)-1.0995574287564276)<1e-5) System.out.println(Math.signum(Lz/2-z)+", "+t+", "+ti+", "+tdot);
-//                }
-//            }
-//            //y[perpIdx* cosSource.getNValues() + cosIdx] += inc;
-//        }
             for(int nt = 0; nt<nBinsCos; nt++) {
                 double t = cosSource.getData().getValue(nt); //tabulated orientation, angle wrt x axis
                 double ti = drd - t; //orientation of molecule relative to tabulated orientation
                 double costi = Math.cos(ti);
                 double sinti = Math.sin(ti);
-                double costiP;
-                double sintiP;
-                if(true) {//revised formula based on lab-fixed origin for theta_i
-                    costiP = Math.cos(drd + t);
-                    sintiP = Math.sin(drd + t);
-                } else { //original formula based on theta origin for theta_i
-                    costiP = costi;
-                    sintiP = sinti;
-                }
                 double cos2ti = costi*costi - sinti*sinti;
-                double cos2tiP = costiP*costiP - sintiP*sintiP;
                 for (int nz = 0; nz < nBinsPerp; nz++) {
-                    double z = perpSource.getData().getValue(nz);
-                    double coshzi = Math.cosh(zi);
-                    double sinhzi = Math.sinh(zi);
-                    double cosh2zi = coshzi*coshzi + sinhzi*sinhzi;
-                    double sinh2zi = 2*coshzi*sinhzi;
-                    double denom = 1 + cos2ti + cosh2zi + cosh2z[nz] - 4*costi*coshz[nz]*coshzi;
-                    double denomP = 1 + cos2tiP + cosh2zi + cosh2z[nz] - 4*costiP*coshz[nz]*coshzi;
-                    double tdot = 0.5 * ( (coshz[nz]*coshzi*sinti - costi*sinti)/denom + (coshz[nz]*coshzi*sintiP - costiP*sintiP)/denomP);
-                    double zdot = 0.5 * ( -zi/Lz + 0.5*(-2*costi*coshz[nz]*sinhzi + sinh2zi)/denom + 0.5*(-2*costiP*coshz[nz]*sinhzi + sinh2zi)/denomP);
-                    if(Math.abs(tdot)/Math.PI > 2) tdot = 0;
-                    if(Math.abs(zdot)/Math.PI > 2) zdot = 0;
-                    for(int n = 1; n < 1; n++) {//small-L correction; adjust upper bound to include more terms, or skip entirely
-                        tdot += Math.cosh(n * z)*(1./Math.tanh(n * Lz) - 1) *
-                                2.*Math.cosh(n * zi) * Math.sin(n * ti);
+                    for (int j=0; j<2; j++) {
+                        double z = 0;
+                        if (nmax > 0) {
+                            z = perpSource.getData().getValue(nz);
+                            if (j == 0) z = Lz / 2 + z;  // from Lz/2 to Lz
+                            else z = Lz / 2 - z;          // from Lz/2 to 0
+                        }
+                        double denom = 1 + cos2ti + cosh2zi + cosh2z[nz][j] - 4 * costi * coshz[nz][j] * coshzi;
+                        double denomM = 1 + cos2ti + cosh2zi + cosh2zM[nz][j] - 4 * costi * coshzM[nz][j] * coshzi;
+                        double tdot = 2*sinti * (coshz[nz][j] * coshzi - costi) / denom;//diverges for ri->r, ti->0
+                        if (Math.abs(tdot) / Math.PI > 10) tdot = 0;//truncate if diverging
+                        tdot += 2*sinti * (coshzM[nz][j] * coshzi - costi) / denomM;//doesn't diverge
+                        double zdot = 2*sinhzi * (-costi * coshz[nz][j] + coshzi) / denom;//diverges for ri->r, ti->0
+                        if (Math.abs(zdot) / Math.PI > 10) zdot = 0;//truncate if diverging
+                        zdot += -ziRed + 2*sinhzi * (-costi * coshzM[nz][j] + coshzi) / denomM;//doesn't diverge
+                        for (int n = 1; n<=nmax; n++) {//correction from approximation of 1/sinh
+                            double coshn1r = Math.cosh(n*(1-z/Lz));
+                            zdot += (-2*Math.sinh(n*ziRed)*coshn1r)*corrn[n-1]*Math.cos(n*ti);
+                            tdot += (+2*Math.cosh(n*ziRed)*coshn1r)*corrn[n-1]*Math.sin(n*ti);
+                        }
+                        // 0.5 multiplier is introduced for extension of [0,Pi] solution to [-Pi,Pi]
+                        // another 0.5 multiplier accounts for double counting j = 0, 1, sources
+                        y[nz * nBinsCos + nt] += -c * 0.5 * 0.5 * (Lz * zdot * fz + tdot * torq);
                     }
-                    y[nz*nBinsCos + nt] += -c * (zdot*fz + tdot*torq);
                 }
             }
         }
@@ -221,5 +225,33 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
     @Override
     public DataTag getIndependentTag() {
         return null;
+    }
+
+    public class DataSourceStatic implements IDataSource {
+        protected final DataDoubleArray data;
+        protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
+        protected final DataTag tag;
+
+        public DataSourceStatic(String label, Dimension dim, double[] x) {
+            data = new DataDoubleArray(new int[]{x.length}, x);
+            tag = new DataTag();
+            dataInfo = new DataDoubleArray.DataInfoDoubleArray(label, dim, new int[]{x.length});
+            dataInfo.addTag(tag);
+        }
+
+        @Override
+        public IData getData() {
+            return data;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return tag;
+        }
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return dataInfo;
+        }
     }
 }

@@ -119,13 +119,16 @@ public class LJMCDimer extends Simulation {
             params.temperature = 1.0;
             params.nZdata = 20;
             params.nAngleData = 40;
+
 //            params.D = 2;
-//            params.Lz = 20;
+//            params.Lz = 8;
 //            params.density = 0.35;
-//            params.numMolecules = 100;
+//            params.numMolecules = 40;
 //            params.temperature = 1.0;
-//            params.nZdata = 10;
-//            params.nAngleData = 20;
+//            params.nZdata = 40;
+//            params.nAngleData = 101;
+//            params.perps = new double[]{3,2.5,2,1};
+//            params.widths = new double[]{0.05,0.1,0.2,0.4};
 
         }
         if(params.D == 2) {
@@ -139,6 +142,8 @@ public class LJMCDimer extends Simulation {
         double Lz = params.Lz;
         int nZdata = params.nZdata;
         int nAngleData = params.nAngleData;
+        double[] perps = params.perps;
+        double[] widths = params.widths;
 
         final LJMCDimer sim = new LJMCDimer(D, numMolecules, density, Lz, temperature);
 
@@ -146,7 +151,9 @@ public class LJMCDimer extends Simulation {
 
         MeterPotentialEnergyFromIntegrator energy = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         MeterHistogramOrientation meterOrientation = new MeterHistogramOrientation(sim.box, 2, nZdata, nAngleData);
+        MeterHistogramOrientation2 meterOrientation2 = new MeterHistogramOrientation2(sim.box, 2, nAngleData, perps, widths);
         MeterHistogramOrientationMA meterOrientationMA = new MeterHistogramOrientationMA(sim.potentialMaster, sim.box, params.temperature, 2, nZdata, nAngleData);
+        MeterHistogramOrientationMA meterOrientationMA2 = new MeterHistogramOrientationMA(sim.potentialMaster, sim.box, params.temperature, 2, nAngleData, perps);
         MeterDensityProfile meterDensity = new MeterDensityProfile(sim.box, 2, 20 * nZdata);
         MeterDensityProfileMA meterDensityMA = new MeterDensityProfileMA(sim.potentialMaster, sim.box, params.temperature, 2, 20 * nZdata);
         MeterDensityProfileForceSimple meterDensityForceSimple = new MeterDensityProfileForceSimple(sim.potentialMaster, sim.box, params.temperature, 2,  20*nZdata);
@@ -171,10 +178,23 @@ public class LJMCDimer extends Simulation {
             DataDoubleArray zDataMA = meterOrientationMA.getIndependentData(0);
             for (int i = nZdata - 1; i >= 0; i--) {
                 splitterMA.setDataSink(i, plotHistogramMA.getDataSet().makeDataSink());
-                plotHistogramMA.setLegend(new DataTag[]{splitterMA.getTag(i)}, "z=" + (0.5 * Lz - zDataMA.getValue(i)));
+                plotHistogramMA.setLegend(new DataTag[]{splitterMA.getTag(i)}, "z=" + zDataMA.getValue(i));
             }
             plotHistogramMA.setLabel("HistogramsMA");
             simGraphic.add(plotHistogramMA);
+
+            AccumulatorAverageFixed avgHistogramMA2 = new AccumulatorAverageFixed(1000);
+            DataPumpListener pumpHistogramMA2 = new DataPumpListener(meterOrientationMA2, avgHistogramMA2, numMolecules);
+            sim.integrator.getEventManager().addListener(pumpHistogramMA2);
+            DataHistogramSplitter splitterMA2 = new DataHistogramSplitter();
+            avgHistogramMA2.addDataSink(splitterMA2, new AccumulatorAverageFixed.StatType[]{avgHistogramMA2.AVERAGE});
+            DisplayPlotXChart plotHistogramMA2 = new DisplayPlotXChart();
+            for (int i = perps.length - 1; i >= 0; i--) {
+                splitterMA2.setDataSink(i, plotHistogramMA2.getDataSet().makeDataSink());
+                plotHistogramMA2.setLegend(new DataTag[]{splitterMA2.getTag(i)}, "z=" + perps[i]);
+            }
+            plotHistogramMA2.setLabel("HistogramsMA #2");
+            simGraphic.add(plotHistogramMA2);
 
             // Orientation-density histogramming
             AccumulatorAverageFixed avgHistogram = new AccumulatorAverageFixed(1000);
@@ -186,17 +206,32 @@ public class LJMCDimer extends Simulation {
             DataDoubleArray zData = meterOrientation.getIndependentData(0);
             for (int i = nZdata - 1; i >= 0; i--) {
                 splitter.setDataSink(i, plotHistogram.getDataSet().makeDataSink());
-                plotHistogram.setLegend(new DataTag[]{splitter.getTag(i)}, "z=" + (0.5 * Lz - zData.getValue(i)));
+                plotHistogram.setLegend(new DataTag[]{splitter.getTag(i)}, "z=" + zData.getValue(i));
             }
             plotHistogram.setLabel("Histograms");
             simGraphic.add(plotHistogram);
+
+            AccumulatorAverageFixed avgHistogram2 = new AccumulatorAverageFixed(1000);
+            DataPumpListener pumpHistogram2 = new DataPumpListener(meterOrientation2, avgHistogram2, numMolecules);
+            sim.integrator.getEventManager().addListener(pumpHistogram2);
+            DataHistogramSplitter splitter2 = new DataHistogramSplitter();
+            avgHistogram2.addDataSink(splitter2, new AccumulatorAverageFixed.StatType[]{avgHistogram2.AVERAGE});
+            DisplayPlotXChart plotHistogram2 = new DisplayPlotXChart();
+            for (int i = (widths.length*perps.length) - 1; i >= 0; i--) {
+                splitter2.setDataSink(i, plotHistogram2.getDataSet().makeDataSink());
+                int iw = i/perps.length;
+                int ip = i%perps.length;
+                plotHistogram2.setLegend(new DataTag[]{splitter2.getTag(i)}, "z=" + perps[ip]+", w="+widths[iw]);
+            }
+            plotHistogram2.setLabel("Histograms #2");
+            simGraphic.add(plotHistogram2);
 
             // Density plot -- conventional
             AccumulatorAverageFixed avgDensityProfile = new AccumulatorAverageFixed(1000);
             DataPumpListener pumpDensityProfile = new DataPumpListener(meterDensity, avgDensityProfile, numMolecules);
             sim.integrator.getEventManager().addListener(pumpDensityProfile);
             DisplayPlotXChart plotDensityProfile = new DisplayPlotXChart();
-            avgDensityProfile.addDataSink(plotDensityProfile.getDataSet().makeDataSink(), new AccumulatorAverageFixed.StatType[]{avgHistogram.AVERAGE});
+            avgDensityProfile.addDataSink(plotDensityProfile.getDataSet().makeDataSink(), new AccumulatorAverageFixed.StatType[]{avgDensityProfile.AVERAGE});
             plotDensityProfile.setLabel("Density profile");
             simGraphic.add(plotDensityProfile);
 
@@ -205,7 +240,7 @@ public class LJMCDimer extends Simulation {
             DataPumpListener pumpDensityProfileMA = new DataPumpListener(meterDensityMA, avgDensityProfileMA, numMolecules);
             sim.integrator.getEventManager().addListener(pumpDensityProfileMA);
             DisplayPlotXChart plotDensityProfileMA = new DisplayPlotXChart();
-            avgDensityProfileMA.addDataSink(plotDensityProfileMA.getDataSet().makeDataSink(), new AccumulatorAverageFixed.StatType[]{avgHistogram.AVERAGE});
+            avgDensityProfileMA.addDataSink(plotDensityProfileMA.getDataSet().makeDataSink(), new AccumulatorAverageFixed.StatType[]{avgDensityProfileMA.AVERAGE});
             plotDensityProfileMA.setLabel("Density profile MA");
             simGraphic.add(plotDensityProfileMA);
 
@@ -214,7 +249,7 @@ public class LJMCDimer extends Simulation {
             DataPumpListener pumpDensityProfileF = new DataPumpListener(meterDensityForceSimple, avgDensityProfileF, numMolecules);
             sim.integrator.getEventManager().addListener(pumpDensityProfileF);
             DisplayPlotXChart plotDensityProfileF = new DisplayPlotXChart();
-            avgDensityProfileF.addDataSink(plotDensityProfileF.getDataSet().makeDataSink(), new AccumulatorAverageFixed.StatType[]{avgHistogram.AVERAGE});
+            avgDensityProfileF.addDataSink(plotDensityProfileF.getDataSet().makeDataSink(), new AccumulatorAverageFixed.StatType[]{avgDensityProfileF.AVERAGE});
             plotDensityProfileF.setLabel("Density profile Force");
             simGraphic.add(plotDensityProfileF);
 
@@ -245,7 +280,9 @@ public class LJMCDimer extends Simulation {
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(pump);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogram);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogram2);
             simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA);
+            simGraphic.getController().getDataStreamPumps().add(pumpHistogramMA2);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfile);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileMA);
             simGraphic.getController().getDataStreamPumps().add(pumpDensityProfileF);
@@ -268,6 +305,8 @@ public class LJMCDimer extends Simulation {
         public int D = 3;
         public int nZdata = 10;
         public int nAngleData = 10;
+        public double[] perps = new double[0];
+        public double[] widths = new double[0];
     }
 
     private static class DataProcessorDifficulty extends DataProcessor {

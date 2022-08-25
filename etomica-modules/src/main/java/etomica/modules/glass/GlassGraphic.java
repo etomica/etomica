@@ -700,7 +700,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage, atomFilterDeviationPerc, 8);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(sim.getSpeciesManager(), configStorage, atomFilterDeviationPerc, 8);
         configStorage.addListener(meterPerc);
         DisplayPlotXChart plotPerc = new DisplayPlotXChart();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
@@ -1969,9 +1969,9 @@ public class GlassGraphic extends SimulationGraphic {
                     }
                     accSFacNormalStress.reset();
                     accPerc0.reset();
-                    meterCorrelationSelf.reset();
-                    meterCorrelationSelfMagA.reset();
-                    meterCorrelationSelfMagB.reset();
+                    meterCorrelationSelf.zeroData();
+                    meterCorrelationSelfMagA.zeroData();
+                    meterCorrelationSelfMagB.zeroData();
                 } else {
                     dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -2037,9 +2037,9 @@ public class GlassGraphic extends SimulationGraphic {
                     }
                     accSFacNormalStress.reset();
                     accPerc0.reset();
-                    meterCorrelationSelf.reset();
-                    meterCorrelationSelfMagA.reset();
-                    meterCorrelationSelfMagB.reset();
+                    meterCorrelationSelf.zeroData();
+                    meterCorrelationSelfMagA.zeroData();
+                    meterCorrelationSelfMagB.zeroData();
                 }
             }
 
