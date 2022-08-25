@@ -151,7 +151,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" isTIA: " + isTIA);
 
         MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
-        DataSourceScalar meterPrim, meterVir, meterHMA, meterCentVir, meterCentVirMod;
+        DataSourceScalar meterPrim, meterVir, meterCentVir, meterCentVirMod, meterHMA, meterHMAcent;
 
         if (isTIA){
             meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, sim.betaN);
@@ -159,18 +159,19 @@ public class SimQuantumAO extends Simulation {
             meterCentVir = new MeterPICentVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
             meterCentVirMod = null;
             meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
+            meterHMAcent = null;
         } else {
             meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, sim.betaN);
             meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterCentVirMod = new MeterPICentVirMod(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
+            meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
         }
 
 
         MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box); //Bad!!
         MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);//Bad!!
-        MeterPIHMAcent meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box); //Bad!!!
 
         if (graphics) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -349,15 +350,15 @@ public class SimQuantumAO extends Simulation {
 //        System.out.println(" En_hmavir:  " + avgEnHMAvir  + " +/- " + errEnHMAvir + " cor: " + corEnHMAvir);
 
 
-//        //HMA-cent
-//        DataGroup dataHMAcent = (DataGroup)accumulatorHMAcent.getData();
-//        IData dataErrHMAcent = dataHMAcent.getData(accumulatorHMAcent.ERROR.index);
-//        IData dataAvgHMAcent = dataHMAcent.getData(accumulatorHMAcent.AVERAGE.index);
-//        IData dataCorrelationHMAcent = dataHMAcent.getData(accumulatorHMAcent.BLOCK_CORRELATION.index);
-//        double avgEnHMAcent = dataAvgHMAcent.getValue(0);
-//        double errEnHMAcent = dataErrHMAcent.getValue(0);
-//        double corEnHMAcent = dataCorrelationHMAcent.getValue(0);
-//        System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
+        //HMA-cent
+        DataGroup dataHMAcent = (DataGroup)accumulatorHMAcent.getData();
+        IData dataErrHMAcent = dataHMAcent.getData(accumulatorHMAcent.ERROR.index);
+        IData dataAvgHMAcent = dataHMAcent.getData(accumulatorHMAcent.AVERAGE.index);
+        IData dataCorrelationHMAcent = dataHMAcent.getData(accumulatorHMAcent.BLOCK_CORRELATION.index);
+        double avgEnHMAcent = dataAvgHMAcent.getValue(0);
+        double errEnHMAcent = dataErrHMAcent.getValue(0);
+        double corEnHMAcent = dataCorrelationHMAcent.getValue(0);
+        System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
 
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
@@ -381,11 +382,11 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1.0;
-        public int nBeads = 111; //must be odd for now!
+        public int nBeads = 11; //must be odd for now!
         public boolean graphics = false;
         public double k2 = 1.0;
         public double k4 = 24.0;
         public long numSteps = 1_000_000;
-        public boolean isTIA = !true;
+        public boolean isTIA = false;
     }
 }
