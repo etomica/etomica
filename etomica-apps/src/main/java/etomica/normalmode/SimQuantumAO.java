@@ -16,6 +16,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -42,7 +43,7 @@ public class SimQuantumAO extends Simulation {
     public SpeciesGeneral species;
     public Box box;
     public IntegratorMC integrator;
-    public MCMoveHO  atomMove;
+    public MCMoveBox atomMove;
     public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pm;
@@ -52,7 +53,7 @@ public class SimQuantumAO extends Simulation {
     public static final double kB = 1.0; // Constants.BOLTZMANN_K;
     public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
-    public SimQuantumAO(Space space, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA) {
+    public SimQuantumAO(Space space, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, boolean moveReal) {
         super(space);
         Vector[] initCoords = new Vector[nBeads];
         for (int i = 0; i < nBeads; i++){
@@ -106,7 +107,12 @@ public class SimQuantumAO extends Simulation {
         pm = new PotentialComputeAggregate(pmBonding, pcP1);
 
         integrator = new IntegratorMC(pm, random, temperature, box);
-        atomMove = new MCMoveHO(space, pm, random, temperature, omega2, box);
+        if (moveReal) {
+            atomMove = new MCMoveHOReal(space, pm, random, temperature, omega2, box);
+        }
+        else {
+            atomMove = new MCMoveHO(space, pm, random, temperature, omega2, box);
+        }
         integrator.getMoveManager().addMCMove(atomMove);
 
         double facEn = 3.0;
@@ -120,7 +126,18 @@ public class SimQuantumAO extends Simulation {
     public static void main(String[] args) {
 
         OctaneParams params = new OctaneParams();
-        ParseArgs.doParseArgs(params, args);
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            // custom parameters
+            params.numSteps = 100000;
+            params.temperature = 1;
+            params.nBeads = 256;
+            params.k4 = 0;
+            params.k2 = 1;
+            params.moveReal = true;
+        }
 
         double temperature = params.temperature;
         double k2 = params.k2;;
@@ -128,8 +145,9 @@ public class SimQuantumAO extends Simulation {
         int nBeads = params.nBeads;
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
-        long numStepsEqu = numSteps/5;
+        long numStepsEqu = numSteps/20;
         boolean isTIA = params.isTIA;
+        boolean moveReal = params.moveReal;
 
         double omegaN = nBeads*kB*temperature/hbar; // 1/hbar*betan
 
@@ -139,7 +157,7 @@ public class SimQuantumAO extends Simulation {
             omega2 = omega2*(1.0 + omega2/12.0/omegaN/omegaN);
         }
 
-        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA);
+        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA, moveReal);
         sim.integrator.reset();
 
         System.out.println(" numSteps: " +  numSteps + " numStepsEqu: " + numStepsEqu);
@@ -365,7 +383,6 @@ public class SimQuantumAO extends Simulation {
             System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
         }
 
-
         System.out.println("\n Quantum Harmonic Oscillator Theory");
         double omega = Math.sqrt(omega2);
         System.out.println(" ====================================");
@@ -393,5 +410,6 @@ public class SimQuantumAO extends Simulation {
         public double k4 = 24.0;
         public long numSteps = 1_000_000;
         public boolean isTIA = false;
+        public boolean moveReal = false;
     }
 }
