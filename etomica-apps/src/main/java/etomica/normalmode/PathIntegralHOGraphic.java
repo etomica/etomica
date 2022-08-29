@@ -18,7 +18,6 @@ import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
-import etomica.units.dimensions.Temperature;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
@@ -120,15 +119,18 @@ public class PathIntegralHOGraphic {
         k2Slider.setNMajor(6);
         k2Slider.setLabel("log10(k2)");
         k2Slider.setShowBorder(true);
+        k2Slider.doUpdate();
         k2Slider.setPostAction(updateLambda);
         simGraphic.add(k2Slider);
 
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), new ModifierTemperature(nBeads, sim));
-        temperatureSlider.setPrecision(1);
-        temperatureSlider.setNMajor(5);
+        temperatureSlider.setMinimum(-2);
         temperatureSlider.setMaximum(2);
-        temperatureSlider.setLabel("Temperature");
+        temperatureSlider.setPrecision(1);
+        temperatureSlider.setNMajor(4);
+        temperatureSlider.setLabel("log10(T)");
         temperatureSlider.setShowBorder(true);
+        temperatureSlider.doUpdate();
         temperatureSlider.setPostAction(updateLambda);
         simGraphic.add(temperatureSlider);
 
@@ -196,26 +198,26 @@ public class PathIntegralHOGraphic {
 
         @Override
         public void setValue(double newValue) {
-            if (newValue == 0) throw new IllegalArgumentException("T can't be 0");
-            double beta = 1.0/(newValue);
+            double newT = Math.exp(newValue);
+            double beta = 1.0/(newT);
             double betaN = beta/ nBeads;
             double omegaN = 1.0/(SimQuantumAO.hbar*betaN);
 
             sim.k2_kin = nBeads == 1 ? 0 : (1*omegaN*omegaN/ nBeads);
             // p2Bond.setk2
-            ((MCMoveHOReal) sim.atomMove).setTemperature(newValue);
+            ((MCMoveHOReal) sim.atomMove).setTemperature(newT);
             // doesn't really matter, but we just use this to hold T
-            sim.integrator.setTemperature(newValue);
+            sim.integrator.setTemperature(newT);
         }
 
         @Override
         public double getValue() {
-            return sim.integrator.getTemperature();
+            return Math.log(sim.integrator.getTemperature());
         }
 
         @Override
         public Dimension getDimension() {
-            return Temperature.DIMENSION;
+            return Null.DIMENSION;
         }
 
         @Override
