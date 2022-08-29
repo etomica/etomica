@@ -23,7 +23,7 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveHOReal extends MCMoveBox {
     protected int nBeads;
-    protected double temperature, omega2;
+    protected double omega2;
     protected final IRandom random;
     PotentialCompute pm;
     protected final Vector[][] oldPositions;
@@ -40,7 +40,6 @@ public class MCMoveHOReal extends MCMoveBox {
         super();
         this.pm = pm;
         this.random = random;
-        this.temperature = temperature;
         this.omega2 = omega2;
         this.box = box;
         nBeads = this.box.getMoleculeList().get(0).getChildList().size();
@@ -51,16 +50,27 @@ public class MCMoveHOReal extends MCMoveBox {
             }
         }
 
-        beta = 1.0/(temperature);
+        beta = 1.0/temperature;
+        mass = box.getLeafList().get(0).getType().getMass();
+
+        chainSigmas = new double[nBeads];
+        R11 = new double[nBeads];
+        R1N = new double[nBeads];
+
+        init();
+    }
+
+    protected void init() {
+
         betaN = beta/nBeads;
         omegaN = 1.0/(hbar*betaN);
-        mass = box.getLeafList().get(0).getType().getMass();
 
         {
             double[] lambdaN = new double[nBeads];
             // exp(- betan * 1/2*lambdaN_k q_k^2)
             for(int k = 0; k <= nBeads/2; k++){ //-2...2
                 lambdaN[k] = mass*(4.0*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);
+//                System.out.println("real move "+k+" "+lambdaN[k]);
             }
 
             // eigenvector component for atom 0 is always 1/sqrt(n)
@@ -81,9 +91,6 @@ public class MCMoveHOReal extends MCMoveBox {
         {
             double kSpring = beta * mass * omegaN*omegaN/nBeads/2;
             double k0 = beta * mass * omega2/nBeads/2;
-            chainSigmas = new double[nBeads];
-            R11 = new double[nBeads];
-            R1N = new double[nBeads];
             double D = -2 - k0 / kSpring;
             double alpha = Math.log(-D/2 + Math.sqrt(D*D/4 - 1));
 
@@ -109,6 +116,16 @@ public class MCMoveHOReal extends MCMoveBox {
 //            System.out.println("D "+D+"   alpha "+alpha);
 
         }
+    }
+
+    public void setOmega2(double omega2) {
+        this.omega2 = omega2;
+        init();
+    }
+
+    public void setTemperature(double temperature) {
+        this.beta = 1/temperature;
+        init();
     }
 
     protected double uHarmonic(IMolecule molecule) {
