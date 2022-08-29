@@ -79,11 +79,7 @@ public class SimQuantumAO extends Simulation {
         betaN = beta/nBeads;
         double omegaN = 1.0/(hbar*betaN);
 
-        if (nBeads == 1){
-            k2_kin = 0;
-        } else {
-            k2_kin = mass*omegaN*omegaN/nBeads;
-        }
+        k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -119,8 +115,6 @@ public class SimQuantumAO extends Simulation {
         P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
-
-        getController().addActivity(new ActivityIntegrate(integrator));
     }
 
     public static void main(String[] args) {
@@ -140,8 +134,8 @@ public class SimQuantumAO extends Simulation {
         }
 
         double temperature = params.temperature;
-        double k2 = params.k2;;
-        double k4 = params.k4;;
+        double k2 = params.k2;
+        double k4 = params.k4;
         int nBeads = params.nBeads;
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
@@ -192,6 +186,7 @@ public class SimQuantumAO extends Simulation {
         MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);//Bad!!
 
         if (graphics) {
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
