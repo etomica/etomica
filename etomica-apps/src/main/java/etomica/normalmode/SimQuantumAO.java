@@ -15,9 +15,13 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.potential.*;
+import etomica.potential.P1Anharmonic;
+import etomica.potential.P1AnharmonicTIA;
+import etomica.potential.P2Harmonic;
+import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
@@ -40,13 +44,14 @@ import java.util.List;
  */
 public class SimQuantumAO extends Simulation {
 
-    public SpeciesGeneral species;
     public Box box;
     public IntegratorMC integrator;
     public MCMoveBox atomMove;
     public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pm;
+    public P1Anharmonic p1ah;
+    public P1AnharmonicTIA p1ahUeff;
     public double betaN;
     public double mass;
     public double k2_kin;
@@ -68,7 +73,6 @@ public class SimQuantumAO extends Simulation {
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, 1);
-        box.getBoundary().setBoxSize(Vector.of(new double[]{1}));
         mass = species.getLeafType().getMass();
 
         //pm2 that uses the full PI potential, for data collection
@@ -90,7 +94,6 @@ public class SimQuantumAO extends Simulation {
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
 
 
-        IPotential1 p1ah, p1ahUeff;
         pcP1 = new PotentialComputeField(getSpeciesManager(), box);
         if (isTIA){
             double facUeff = 1.0;
@@ -115,6 +118,10 @@ public class SimQuantumAO extends Simulation {
         P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
+    }
+
+    public Integrator getIntegrator() {
+        return integrator;
     }
 
     public static void main(String[] args) {
