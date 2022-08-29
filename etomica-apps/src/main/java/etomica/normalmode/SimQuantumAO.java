@@ -166,7 +166,7 @@ public class SimQuantumAO extends Simulation {
             meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterCentVirMod = new MeterPICentVirMod(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
-            meterHMAcent = new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
+            meterHMAcent = null; // new MeterPIHMAcent(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
         }
 
 
@@ -260,9 +260,12 @@ public class SimQuantumAO extends Simulation {
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAvir);
 
         // HMA-cent
-        AccumulatorAverageFixed accumulatorHMAcent = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorPumpHMAcent = new DataPumpListener(meterHMAcent, accumulatorHMAcent, interval);
-        sim.integrator.getEventManager().addListener(accumulatorPumpHMAcent);
+        AccumulatorAverageFixed accumulatorHMAcent = null;
+        if (meterHMAcent != null) {
+            accumulatorHMAcent =  new AccumulatorAverageFixed(blockSize);
+            DataPumpListener accumulatorPumpHMAcent = new DataPumpListener(meterHMAcent, accumulatorHMAcent, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpHMAcent);
+        }
 
         //run
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
@@ -351,14 +354,16 @@ public class SimQuantumAO extends Simulation {
 
 
         //HMA-cent
-        DataGroup dataHMAcent = (DataGroup)accumulatorHMAcent.getData();
-        IData dataErrHMAcent = dataHMAcent.getData(accumulatorHMAcent.ERROR.index);
-        IData dataAvgHMAcent = dataHMAcent.getData(accumulatorHMAcent.AVERAGE.index);
-        IData dataCorrelationHMAcent = dataHMAcent.getData(accumulatorHMAcent.BLOCK_CORRELATION.index);
-        double avgEnHMAcent = dataAvgHMAcent.getValue(0);
-        double errEnHMAcent = dataErrHMAcent.getValue(0);
-        double corEnHMAcent = dataCorrelationHMAcent.getValue(0);
-        System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
+        if (accumulatorHMAcent != null) {
+            DataGroup dataHMAcent = (DataGroup)accumulatorHMAcent.getData();
+            IData dataErrHMAcent = dataHMAcent.getData(accumulatorHMAcent.ERROR.index);
+            IData dataAvgHMAcent = dataHMAcent.getData(accumulatorHMAcent.AVERAGE.index);
+            IData dataCorrelationHMAcent = dataHMAcent.getData(accumulatorHMAcent.BLOCK_CORRELATION.index);
+            double avgEnHMAcent = dataAvgHMAcent.getValue(0);
+            double errEnHMAcent = dataErrHMAcent.getValue(0);
+            double corEnHMAcent = dataCorrelationHMAcent.getValue(0);
+            System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
+        }
 
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");

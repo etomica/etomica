@@ -6,7 +6,6 @@ import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
-import etomica.util.Constants;
 
 public class MeterPIHMAcent extends DataSourceScalar {
     protected final PotentialMasterBonding pmBonding;
@@ -61,7 +60,7 @@ public class MeterPIHMAcent extends DataSourceScalar {
  ,{  0.002944568771043 ,  0.005131962412844 ,  0.006580258558806 ,  0.007301426598565 ,  0.007301426598565 ,  0.006580258558806 ,  0.005131962412844 ,  0.002944568771043 , -0.000000000000000 ,  0.496273920820615}};
 
 
-
+        if (M.length != nBeads-1) throw new RuntimeException("this meter is hardcoded for "+(M.length+1)+" beads");
 
 //        for (int i = 0; i < nBeads-1 ; i++){
 //            for (int j = 0; j < nBeads-1 ; j++){
