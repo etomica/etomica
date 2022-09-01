@@ -237,7 +237,7 @@ public class VirialTraPPE {
         }
 
         // Setting up Simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nTypes, temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, nPoints, temperature, refCluster, targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
         if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
