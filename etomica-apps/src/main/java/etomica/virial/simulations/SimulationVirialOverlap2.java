@@ -105,12 +105,12 @@ public class SimulationVirialOverlap2 extends Simulation {
      * set methods before using it.  When you are done calling set methods,
      * you must call init() before using it.
      */
-    public SimulationVirialOverlap2(Space aSpace, SpeciesManager sm, int nMolecules,
+    public SimulationVirialOverlap2(Space aSpace, SpeciesManager sm, int[] nMolecules,
                                     double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
         super(aSpace, sm);
         this.temperature = temperature;
         this.species = new ISpecies[0];
-        this.nMolecules = new int[]{nMolecules};
+        this.nMolecules = nMolecules;
         valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
         sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
         meters = new MeterVirial[2];

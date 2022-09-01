@@ -169,15 +169,12 @@ public class VirialTraPPE {
         refCluster.setTemperature(temperature);
 
         // Setting up Target Cluster Mayer Function
-        ISpecies[] species = null;
         ClusterAbstractMultivalue targetCluster = null;
         ClusterWheatleySoftDerivativesMixBD targetClusterBD = null;
         SpeciesManager.Builder sb = SpeciesManager.builder();
 
         boolean anyPolar = false;
         MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
-        species = new ISpecies[chemForm.length];
-
         TraPPEParams[] TPList = new TraPPEParams[chemForm.length];
 
         for(int i=0; i<TPList.length; i++){
@@ -237,7 +234,7 @@ public class VirialTraPPE {
         }
 
         // Setting up Simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, nPoints, temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, nTypes, temperature, refCluster, targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
         if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
