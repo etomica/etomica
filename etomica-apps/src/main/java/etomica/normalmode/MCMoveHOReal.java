@@ -30,6 +30,7 @@ public class MCMoveHOReal extends MCMoveBox {
     protected double uOld;
     protected double uaOld = Double.NaN;
     protected double uaNew = Double.NaN;
+    protected double duTotal;
     protected double mass, beta, omegaN, betaN, sigma0;
     protected Box box;
     public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
@@ -188,11 +189,12 @@ public class MCMoveHOReal extends MCMoveBox {
         double uNew = pm.computeAll(false);
         uaOld = uOld - uhOld;
         uaNew = uNew - uhNew;
+        duTotal = uNew - uOld;
 
         return true;
     }
 
-    public double energyChange() {return 0;}
+    public double energyChange() {return duTotal;}
 
     public double getChi(double temperature) {
         return Math.exp(-(uaNew - uaOld) / temperature);

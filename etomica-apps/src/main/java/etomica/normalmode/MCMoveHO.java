@@ -25,6 +25,7 @@ public class MCMoveHO extends MCMoveBox {
     protected double uOld;
     protected double uaOld = Double.NaN;
     protected double uaNew = Double.NaN;
+    protected double duTotal;
     protected double mass, beta, omegaN, betaN;
     protected Box box;
     public static final double kB = 1.0; // Constants.BOLTZMANN_K;
@@ -153,14 +154,15 @@ public class MCMoveHO extends MCMoveBox {
         double uNew = pm.computeAll(false);
         uaNew = uNew - uhNew;
 
+        duTotal = uNew - uOld;
+
         return true;
     }
 
-    public double energyChange() {return 0;}
+    public double energyChange() {return duTotal;}
 
     public double getChi(double temperature) {
         return Math.exp(-(uaNew - uaOld) / (kB*temperature));
-
     }
 
     public void acceptNotify() { /* do nothing */}
