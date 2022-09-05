@@ -22,7 +22,7 @@ import java.io.Writer;
 import java.util.Arrays;
 
 /**
- * Computes the excess kurtosis (alpha2) for the distribution of displacements
+ * Computes the incoherent scatting function (Fs).
  */
 public class DataSourceFs implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
