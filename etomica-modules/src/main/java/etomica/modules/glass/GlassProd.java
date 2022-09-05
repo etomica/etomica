@@ -75,6 +75,7 @@ public class GlassProd {
     }
 
     public static void main(String[] args) {
+        double startTime = System.nanoTime()/1e9;
         SimParams params = new SimParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
@@ -115,11 +116,14 @@ public class GlassProd {
         }
         sim.initConfig();
 
+        long blocksize = params.numSteps / 100;
+
         StepsState stepsState = new StepsState();
         StepsState savedSteps = new StepsState();
         int savedStage = 0; // last stage from previous run.  0 means no previous run
         // we need to know how far we got before reading glass.state so that we know what objects to try to read
-        if (new File("glass.steps").exists()) {
+        boolean haveSavedState = new File("glass.steps").exists();
+        if (haveSavedState) {
             try {
                 BufferedReader br = new BufferedReader(new FileReader("glass.steps"));
                 savedSteps.restoreState(br);
@@ -133,12 +137,15 @@ public class GlassProd {
             stepsState.numStepsEqIsothermal = savedSteps.numStepsEqIsothermal;
             stepsState.numStepsIsothermal = savedSteps.numStepsIsothermal;
             stepsState.numSteps = savedSteps.numSteps;
+            params.numStepsEqIsothermal -= savedSteps.numStepsEqIsothermal;
+            params.numStepsIsothermal -= savedSteps.numStepsIsothermal;
+            params.numSteps -= savedSteps.numSteps;
         }
         List<Statefull> objects = new ArrayList<>();
         objects.add(sim.box);
         objects.add(sim.integrator);
         boolean skipReset = false;
-        if (params.numStepsEqIsothermal > 0 && new File("glass.state").exists() && savedStage == 1) {
+        if (params.numStepsEqIsothermal > 0 && haveSavedState && savedStage == 1) {
             // we have a restore file and we need to do isothermal equilibration
             // we should restore and then continue equilibrating isothermally
             restoreObjects(objects);
@@ -157,10 +164,18 @@ public class GlassProd {
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
         // Equilibrate isothermally
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqIsothermal, false, skipReset));
+        double maxTime = params.maxWalltime - (System.nanoTime()/1e9 - startTime);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqIsothermal, false, maxTime, skipReset));
+        if (System.nanoTime()/1e9 - startTime >= params.maxWalltime) {
+            // we've reached our time limit.  disable the rest of the sim.
+            params.numSteps = params.numStepsIsothermal = 0;
+            // and set our eq steps to what we were able to actually run
+            System.out.println(sim.integrator.getStepCount()+" steps of isothermal equilibration finished before time limit");
+        }
 
         long time1eq = System.nanoTime();
-        stepsState.numStepsEqIsothermal += params.numStepsEqIsothermal;
+        // if we actually ran eq, then update the with # of steps we've finished
+        if (params.numStepsEqIsothermal>0) stepsState.numStepsEqIsothermal = sim.integrator.getStepCount();
 
         if (params.numStepsIsothermal + params.numSteps == 0) {
             // we're done!
@@ -171,7 +186,7 @@ public class GlassProd {
         }
 
         skipReset = false;
-        if (params.numStepsEqIsothermal == 0 && new File("glass.state").exists() && savedStage == 1) {
+        if (params.numStepsEqIsothermal == 0 && haveSavedState && savedStage == 1) {
             // we have a restore file, we did not do any isothermal equilibration, but we need to do isothermal
             // collection of total energy
             // we should restore and then collect total energy
@@ -194,7 +209,7 @@ public class GlassProd {
             // add now to read from glass.state, but only if we expect it to be there
             objects.add(accE);
         }
-        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal > 0 && new File("glass.state").exists() && savedStage == 2) {
+        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal > 0 && haveSavedState && savedStage == 2) {
             // we have a restore file, we previously did isothermal collection of total E and need to continue that
             // we should restore and then collect total energy
             restoreObjects(objects);
@@ -211,8 +226,15 @@ public class GlassProd {
                 objects.add(accE);
             }
             // Now collect average total energy (stage 2).
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal, false, skipReset));
-            stepsState.numStepsIsothermal += params.numStepsIsothermal;
+            maxTime = params.maxWalltime - (System.nanoTime()/1e9 - startTime);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal, false, maxTime, skipReset));
+            if (System.nanoTime()/1e9 - startTime >= params.maxWalltime) {
+                // we've reached our time limit.  disable the rest of the sim.
+                params.numSteps = 0;
+                // and set our nvt steps to what we were able to actually run
+                System.out.println(sim.integrator.getStepCount()+" steps of isothermal finished before time limit");
+            }
+            if (params.numStepsIsothermal>0) stepsState.numStepsIsothermal = sim.integrator.getStepCount();
         }
         else {
             // Don't be trying to save/restore into here.
@@ -246,7 +268,7 @@ public class GlassProd {
             return;
         }
 
-        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal == 0 && new File("glass.state").exists() && savedStage < 3) {
+        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal == 0 && haveSavedState && savedStage < 3) {
             // we have a restore file, we need to do production, but have never done production before.
             // we need to restore here before setting up our data collection
             restoreObjects(objects);
@@ -283,8 +305,6 @@ public class GlassProd {
         //Production
         sim.integrator.setIntegratorMC(null, 0);
         sim.integrator.setIsothermal(false);
-
-        long blocksize = params.numSteps / 100;
 
         //P
         IDataSource pTensorMeter;
@@ -693,7 +713,7 @@ public class GlassProd {
         objects.add(correlationSelf2);
 
         skipReset = false;
-        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal == 0 && new File("glass.state").exists() && savedStage == 3) {
+        if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal == 0 && haveSavedState && savedStage == 3) {
             // we started a production run previously
             restoreObjects(objects);
             System.out.println("Continuing production after " + sim.integrator.getStepCount() + " steps");
@@ -705,8 +725,15 @@ public class GlassProd {
 
         //Run
         long time0 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps, false, skipReset));
-        stepsState.numSteps += params.numSteps;
+        maxTime = params.maxWalltime - (System.nanoTime()/1e9 - startTime);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps, false, maxTime, skipReset));
+        if (System.nanoTime()/1e9 - startTime >= params.maxWalltime) {
+            // we've reached our time limit
+            // set our production steps to what we were able to actually run
+            params.numSteps = sim.integrator.getStepCount();
+            System.out.println(params.numSteps+" steps of production finished before time limit");
+        }
+        if (params.numSteps>0) stepsState.numSteps = sim.integrator.getStepCount();
         saveObjects(stepsState, objects);
 
         //Pressure
@@ -892,15 +919,16 @@ public class GlassProd {
     }
 
     public static class SimParams extends SimGlass.GlassParams {
-        public int numStepsEqIsothermal = 10000;
-        public int numStepsIsothermal = 10000;
-        public int numSteps = 1000000;
+        public long numStepsEqIsothermal = 10000;
+        public long numStepsIsothermal = 10000;
+        public long numSteps = 1000000;
         public double minDrFilter = 0.4;
         public double temperatureMelt = 0;
-        public double qx = 7.0;
+        public double qx = 7.0; // for Fs
         public boolean doPxyAutocor = false;
         public int sfacMinInterval = 6;
         public int[] randomSeeds = null;
+        public double maxWalltime = Double.POSITIVE_INFINITY;
     }
 
     public static void writeDataToFile(IDataSource meter, String filename) throws IOException {

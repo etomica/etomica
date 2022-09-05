@@ -15,22 +15,29 @@ import etomica.util.Debug;
  */
 public class ActivityIntegrate extends Activity {
 
+	public static long stepIntervalCheckTime = 1000;
     private final Integrator integrator;
 
     private long maxSteps;
     private boolean ignoreOverlap;
     private long currentStep = 0;
-	protected boolean skipReset = false;
+	private boolean skipReset = false;
+	private final double maxWalltime;
 
-	public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap, boolean skipReset) {
+	public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap, double maxWalltime, boolean skipReset) {
 		this.integrator = integrator;
 		this.maxSteps = maxSteps;
 		this.ignoreOverlap = ignoreOverlap;
+		this.maxWalltime = maxWalltime;
 		this.skipReset = skipReset;
 	}
 
+	public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap, double maxWalltime) {
+		this(integrator, maxSteps, ignoreOverlap, maxWalltime, false);
+	}
+
     public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap) {
-		this(integrator, maxSteps, ignoreOverlap, false);
+		this(integrator, maxSteps, ignoreOverlap, Double.POSITIVE_INFINITY);
 	}
 
 	public ActivityIntegrate(Integrator integrator, long maxSteps) {
@@ -58,6 +65,7 @@ public class ActivityIntegrate extends Activity {
 
 	@Override
 	public void runActivity(Controller.ControllerHandle handle) {
+		long stopTime = System.nanoTime() + (long)(maxWalltime * 1e9);
 		if (!skipReset) {
 			try {
 				this.integrator.reset();
@@ -71,7 +79,8 @@ public class ActivityIntegrate extends Activity {
 
 		for (currentStep = 0; currentStep < this.maxSteps; currentStep++) {
 			handle.yield(this::doAction);
-			if (Debug.ON && currentStep == Debug.STOP) { break; }
+			if (Debug.ON && currentStep == Debug.STOP) break;
+			if (maxWalltime < Double.POSITIVE_INFINITY && currentStep%stepIntervalCheckTime == 0 && System.nanoTime() >= stopTime) break;
 		}
 
 	}
