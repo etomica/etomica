@@ -90,6 +90,7 @@ public class MCMoveHOReal extends MCMoveBox {
         }
 
         {
+            chainSigmas[0] = sigma0;
             double kSpring = beta * mass * omegaN*omegaN/nBeads/2;
             double k0 = beta * mass * omega2/nBeads/2;
             double D = -2 - k0 / kSpring;
@@ -117,6 +118,14 @@ public class MCMoveHOReal extends MCMoveBox {
 //            System.out.println("D "+D+"   alpha "+alpha);
 
         }
+    }
+
+    public double[] getChainSigmas() {
+        return chainSigmas;
+    }
+
+    public double[][] getCenterCoefficients() {
+        return new double[][]{R11,R1N};
     }
 
     public void setOmega2(double omega2) {
