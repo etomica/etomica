@@ -155,12 +155,12 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
             for (int jj = 0; jj < numAtoms*mobFrac; jj++) {
                 if(ii == jj) continue;
                 int j = (int)dr2[jj][0];
-                Vector rj = oldPositions[j];
-                dr.Ev1Mv2(rj, riOld);
+                Vector rjOld = oldPositions[j];
+                dr.Ev1Mv2(rjOld, riOld);
                 box.getBoundary().nearestImage(dr);
                 if (dr.squared() > nbrMax2) continue;
 
-                dr.Ev1Mv2(ri, rj); //i(t) --> j(0)
+                dr.Ev1Mv2(ri, rjOld); //i(t) --> j(0)
                 box.getBoundary().nearestImage(dr);
                 if(dr.squared() > strTol2) continue;
 
