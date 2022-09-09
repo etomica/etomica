@@ -161,7 +161,7 @@ public class GlassProd {
         double temperature0 = Math.max(params.temperatureMelt, params.temperature);
         if (temperature0 > params.temperature) System.out.println("Equilibrating at T=" + temperature0);
         sim.integrator.setIsothermal(true);
-        sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
+        if (params.doSwap) sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
         // Equilibrate isothermally
         double maxTime = params.maxWalltime - (System.nanoTime()/1e9 - startTime);
@@ -201,12 +201,9 @@ public class GlassProd {
         AccumulatorAverageFixed accE = new AccumulatorAverageFixed(1);
         MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
         DataPumpListener pumpE = new DataPumpListener(meterE, accE, 10);
-        if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature) {
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             sim.integrator.getEventManager().addListener(pumpE);
-        }
-
-        if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature && savedSteps.numStepsIsothermal > 0) {
-            // add now to read from glass.state, but only if we expect it to be there
+            // add now to read from glass.state
             objects.add(accE);
         }
         if (params.numStepsEqIsothermal == 0 && params.numStepsIsothermal > 0 && haveSavedState && savedStage == 2) {
@@ -221,10 +218,6 @@ public class GlassProd {
         }
 
         if (temperature0 == params.temperature) {
-            if (sim.potentialChoice != SimGlass.PotentialChoice.HS && savedSteps.numStepsIsothermal == 0 && params.numStepsIsothermal > 0) {
-                // add now to write to glass.state
-                objects.add(accE);
-            }
             // Now collect average total energy (stage 2).
             maxTime = params.maxWalltime - (System.nanoTime()/1e9 - startTime);
             sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal, false, maxTime, skipReset));
@@ -246,10 +239,7 @@ public class GlassProd {
             sim.integrator.setTemperature(params.temperature);
             sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqIsothermal));
             stepsState.numStepsEqIsothermal += params.numStepsEqIsothermal;
-
-            if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
-                sim.integrator.getEventManager().addListener(pumpE);
-            }
+            accE.reset();
 
             // Assume isothermal equilibration.  Now collect average total energy.
             sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsIsothermal));
@@ -258,7 +248,7 @@ public class GlassProd {
 
         long time2eq = System.nanoTime();
         if (params.numStepsEqIsothermal + params.numStepsIsothermal > 0 && params.doSwap) {
-            // only for this sim, swapMove not saved/restored
+            // only for this sim, swapMove not saved/restored (has no state, only tracker has state)
             System.out.println("swap acceptance: "+sim.swapMove.getTracker().acceptanceProbability());
         }
         if (params.numSteps == 0) {
@@ -283,7 +273,6 @@ public class GlassProd {
             // to set the current energy now (via the temperature) so that the average
             // temperature during production will be approximately equal to the set
             // temperature.
-            sim.integrator.getEventManager().removeListener(pumpE);
             double avgE = accE.getData(accE.AVERAGE).getValue(0);
             System.out.println("average energy during second half of eq: " + avgE / numAtoms);
             MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
@@ -295,9 +284,10 @@ public class GlassProd {
             double nowTemp = newKE * 2.0 / params.D / numAtoms;
             double oldTemp = new MeterTemperature(sim.box, params.D).getDataAsScalar();
             System.out.println("setting temp " + oldTemp + " => " + nowTemp); // + " (ke "+ke+" => " + newKE / numAtoms + ")");
-            sim.integrator.setIntegratorMC(null, 0);
+            if (params.doSwap) sim.integrator.setIntegratorMC(null, 0);
             sim.integrator.setIsothermal(false);
             sim.integrator.setTemperature(nowTemp);
+            accE.reset();
 //            double newNewKE = new MeterKineticEnergy(sim.box).getDataAsScalar();
 //            System.out.println("actual KE => "+newNewKE/numAtoms);
         }
@@ -791,9 +781,16 @@ public class GlassProd {
             double tAvg = dataTAvg.getValue(0);
             double tErr = dataTErr.getValue(0);
             double tCorr = dataTCorr.getValue(0);
+
+            IData dataE = accE.getData();
+            double eAvg = dataE.getValue(accE.AVERAGE.index);
+            double eStdev = dataE.getValue(accE.STANDARD_DEVIATION.index);
+            double eCor = dataE.getValue(accE.BLOCK_CORRELATION.index);
+
             System.out.println("T: " + tAvg + "  " + tErr + "  cor: " + tCorr);
             System.out.println("Z: " + pAvg / params.density / tAvg + "  " + pErr / params.density / tAvg + "  cor: " + pCorr);
             System.out.println("U: " + uAvg / numAtoms + "  " + uErr / numAtoms + "  cor: " + uCorr);
+            System.out.println("E: " + eAvg / numAtoms + "  " + eStdev / numAtoms + "  cor: " + eCor);
             fileTag = String.format("Rho%1.3fT%1.3f", rho, params.temperature);
             filenameVisc = String.format("viscRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out", rho, params.temperature);
