@@ -1,29 +1,51 @@
 package etomica.normalmode;
 
-import etomica.data.DataSourceScalar;
+import etomica.data.*;
+import etomica.data.types.DataDoubleArray;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.units.dimensions.Null;
 
-public class MeterPIPrim extends DataSourceScalar {
+public class MeterPIPrim implements IDataSource {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialComputeField pcP1;
-    protected double betaN;
+    protected double beta, betaN;
     protected int nBeads;
+    protected final DataTag tag;
+    protected DataDoubleArray.DataInfoDoubleArray dataInfo;
+    protected DataDoubleArray data;
 
-    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN) {
-        super("Stuff", Null.DIMENSION);
+
+    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, int nBeads, double betaN) {
+        int nData = 2;
+        data = new DataDoubleArray(nData);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
+        tag = new DataTag();
+        dataInfo.addTag(tag);
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
         this.betaN = betaN;
+        this.nBeads = nBeads;
+        this.beta = this.betaN*nBeads;
     }
 
+    public IDataInfo getDataInfo() {
+        return dataInfo;
+    }
+
+    public DataTag getTag() {
+        return tag;
+    }
+
+
     @Override
-    public double getDataAsScalar() {
+    public IData getData() {
+        double[] x = data.getData();
+
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
-        double En_prim = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
-//        System.out.println("prim: " + En_prim);
-        return En_prim;
+        x[0] = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
+        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta;  //Cvn/kb^2, without Var
+        return data;
     }
 }

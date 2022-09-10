@@ -36,7 +36,6 @@ public class MeterPICentVirMod extends DataSourceScalar {
             Vector xi = box.getLeafList().get(i).getPosition();
             if(i==nBeads-1){
                 vir += forces[i].dot(xc);
-
             } else {
                 vir -= forces[i].dot(xi);
                 vir += 2*forces[i].dot(xc);

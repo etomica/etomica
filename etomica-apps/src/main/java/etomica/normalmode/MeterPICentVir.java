@@ -1,44 +1,92 @@
 package etomica.normalmode;
 
+import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.DataSourceScalar;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
+import etomica.data.types.DataDoubleArray;
+import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialComputeField;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPICentVir extends DataSourceScalar {
+public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected Box box;
     protected final PotentialComputeField pcP1;
-    protected double betaN;
+    protected double betaN, beta;
     protected int nBeads;
+    protected double rHr;
+    protected final DataTag tag;
+    protected DataDoubleArray.DataInfoDoubleArray dataInfo;
+    protected DataDoubleArray data;
+    protected Vector ri, rj, rc;
+
 
     public MeterPICentVir(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
-        super("Stuff", Null.DIMENSION);
+        int nData = 2;
+        data = new DataDoubleArray(nData);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
+        tag = new DataTag();
+        dataInfo.addTag(tag);
+
         this.pcP1 = pcP1;
         this.betaN = betaN;
         this.nBeads = nBeads;
+        beta = this.betaN*this.nBeads;
         this.box = box;
+        ri = box.getSpace().makeVector();
+        rj = box.getSpace().makeVector();
+        rc = box.getSpace().makeVector();
     }
 
     @Override
-    public double getDataAsScalar() {
-        pcP1.computeAll(true);
-        Vector[] forces = pcP1.getForces();
+    public IData getData() {
+        double[] x = data.getData();
+        rHr = 0;
         double vir = 0;
-        Vector xc = box.getSpace().makeVector();
         for (int i = 0; i < nBeads; i++){
-            Vector xi = box.getLeafList().get(i).getPosition();
-            xc.PE(xi);
+            ri = box.getLeafList().get(i).getPosition();
+            rc.PE(ri);
         }
-        xc.TE(1.0/nBeads);
+        rc.TE(1.0/nBeads);
 
+        pcP1.computeAll(true, this);//it needs rc
+        Vector[] forces = pcP1.getForces();
         for (int i = 0; i < nBeads; i++){
-            Vector xi = box.getLeafList().get(i).getPosition();
-            vir -= forces[i].dot(xi);
-            vir += forces[i].dot(xc);
+            ri = box.getLeafList().get(i).getPosition();
+            vir -= forces[i].dot(ri);
+            vir += forces[i].dot(rc);
         }
-        double beta = betaN*nBeads;
-        double En_vir = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
-        return En_vir;
+        x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En
+        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        return data;
     }
+
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        IAtom ai = box.getLeafList().get(i);
+        IAtom aj = box.getLeafList().get(j);
+        ri.E(ai.getPosition());
+        rj.E(aj.getPosition());
+        Vector tmpV = box.getSpace().makeVector();
+        tmpV.Ev1Mv2(rj, rc);
+        Hij.transform(tmpV);
+        rHr += ri.dot(tmpV);
+        rHr -= rc.dot(tmpV);
+    }
+
+    public IDataInfo getDataInfo() {
+        return dataInfo;
+    }
+
+    public DataTag getTag() {
+        return tag;
+    }
+
+    public boolean wantsHessian() {
+        return true;
+    }
+
 }
