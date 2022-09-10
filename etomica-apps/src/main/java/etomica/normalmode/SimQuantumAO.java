@@ -94,7 +94,6 @@ public class SimQuantumAO extends Simulation {
         }
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
 
-
         pcP1 = new PotentialComputeField(getSpeciesManager(), box);
         if (isTIA){
             double facUeff = 1.0;
@@ -133,11 +132,11 @@ public class SimQuantumAO extends Simulation {
         }
         else {
             // custom parameters
-            params.numSteps = 100000;
+            params.numSteps = 10000000;
             params.temperature = 1.0;
-            params.nBeads = 55;
-            params.k4 = 0.0;
+            params.nBeads = 5;
             params.k2 = 1.0;
+            params.k4 = 0.0;
             params.moveReal = !true;
         }
 
@@ -171,8 +170,8 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" isTIA: " + isTIA);
 
         MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
-        DataSourceScalar meterHMA, meterHMAcent;
-        IDataSource meterPrim, meterVir, meterCentVir, meterHMAc;
+        DataSourceScalar meterHMAcent;
+        IDataSource meterPrim, meterVir, meterCentVir, meterHMAc, meterHMA;
 
         if (isTIA){
             meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, nBeads, sim.betaN);
@@ -367,6 +366,7 @@ public class SimQuantumAO extends Simulation {
         IData dataAvgHMA = dataHMA.getData(accumulatorHMA.AVERAGE.index);
         IData dataErrHMA = dataHMA.getData(accumulatorHMA.ERROR.index);
         IData dataCorHMA = dataHMA.getData(accumulatorHMA.BLOCK_CORRELATION.index);
+        IData dataCovHMA = dataHMA.getData(accumulatorHMA.COVARIANCE.index);
         double avgEnHMA = dataAvgHMA.getValue(0);
         double errEnHMA = dataErrHMA.getValue(0);
         double corEnHMA = dataCorHMA.getValue(0);
@@ -418,12 +418,14 @@ public class SimQuantumAO extends Simulation {
         double CvnVir = kB_beta2*(dataAvgVir.getValue(1) + dataCovVir.getValue(0));
         double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) + dataCovCentVir.getValue(0));
         double CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) + dataCovHMAc.getValue(0));
+        double CvnHMA  = kB_beta2*(dataAvgHMA.getValue(1) + dataCovHMA.getValue(0));
 
 
         System.out.println(" Cvn_prim: " + CvnPrim);
         System.out.println(" Cvn_vir: " + CvnVir);
         System.out.println(" Cvn_cvir: " + CvnCentVir);
         System.out.println(" Cvn_hmac: " + CvnHMAc);
+        System.out.println(" Cvn_hma: " + CvnHMA);
 
 
         //Acceptance ratio
