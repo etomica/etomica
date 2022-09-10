@@ -118,6 +118,9 @@ public class SimQuantumAO extends Simulation {
         P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
+
+        getController().addActivity(new ActivityIntegrate(integrator));
+
     }
 
     public Integrator getIntegrator() {
@@ -132,12 +135,12 @@ public class SimQuantumAO extends Simulation {
         }
         else {
             // custom parameters
-            params.numSteps = 10000000;
+            params.numSteps = 100000;
             params.temperature = 1.0;
             params.nBeads = 5;
             params.k2 = 1.0;
             params.k4 = 0.0;
-            params.moveReal = !true;
+            params.moveReal = true;
         }
 
         double temperature = params.temperature;
@@ -199,7 +202,6 @@ public class SimQuantumAO extends Simulation {
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
-
                 public Color getAtomColor(IAtom a) {
                     if (allColors==null) {
                         allColors = new Color[768];
@@ -217,15 +219,12 @@ public class SimQuantumAO extends Simulation {
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
-
             simGraphic.makeAndDisplayFrame(" PIMC ");
-
             return;
         }
 
