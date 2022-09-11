@@ -11,7 +11,6 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Constants;
 import etomica.util.random.IRandom;
 
 public class MCMoveHO extends MCMoveBox {
@@ -159,7 +158,7 @@ public class MCMoveHO extends MCMoveBox {
         return true;
     }
 
-    public double energyChange() {return 0;}
+    public double energyChange() {return duTotal;}
 
     public double getChi(double temperature) {
         return Math.exp(-(uaNew - uaOld) / (kB*temperature));
