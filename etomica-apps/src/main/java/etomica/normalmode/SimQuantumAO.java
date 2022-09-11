@@ -118,9 +118,6 @@ public class SimQuantumAO extends Simulation {
         P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
-
-        getController().addActivity(new ActivityIntegrate(integrator));
-
     }
 
     public Integrator getIntegrator() {
