@@ -267,7 +267,6 @@ public class PotentialMasterBonding implements PotentialCompute {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector dr = Vector.d(ri.getD());
-
         dr.Ev1Mv2(rj, ri);
         boundary.nearestImage(dr);
         double r2 = dr.squared();

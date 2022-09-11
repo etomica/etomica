@@ -22,7 +22,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected Vector ri, rj, rc;
+    protected Vector rc;
 
 
     public MeterPIHMAc(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
@@ -37,8 +37,6 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         this.nBeads = nBeads;
         beta = this.betaN*this.nBeads;
         this.box = box;
-        ri = box.getSpace().makeVector();
-        rj = box.getSpace().makeVector();
         rc = box.getSpace().makeVector();
     }
 
@@ -47,6 +45,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         double vir = 0;
+        Vector ri;
         for (int i = 0; i < nBeads; i++){
             ri = box.getLeafList().get(i).getPosition();
             rc.PE(ri);
@@ -73,10 +72,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
-        IAtom ai = box.getLeafList().get(i);
-        IAtom aj = box.getLeafList().get(j);
-        ri.E(ai.getPosition());
-        rj.E(aj.getPosition());
+        Vector ri = box.getLeafList().get(i).getPosition();
+        Vector rj = box.getLeafList().get(j).getPosition();
         Vector tmpV = box.getSpace().makeVector();
         tmpV.Ev1Mv2(rj, rc);
         tmpV.ME(rc);

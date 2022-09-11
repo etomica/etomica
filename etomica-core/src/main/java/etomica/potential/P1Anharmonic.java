@@ -77,6 +77,7 @@ public class P1Anharmonic implements IPotential1 {
     public Tensor d2u(IAtom atom) {
         Tensor Hii = space.makeTensor();
         Vector dr = space.makeVector();
+//        System.out.println(atom + "  " + atom.getPosition());
         dr.Ev1Mv2(atom.getPosition(), x0);
         double dr2 = dr.squared();
         double dr4 = dr2*dr2;
