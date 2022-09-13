@@ -173,6 +173,7 @@ public class SimQuantumAO extends Simulation {
 
         IDataSource meterPrim, meterVir, meterCentVir, meterHMAc;
         MeterPIHMA meterHMA = null;
+        MeterPIHMAReal meterHMAReal = null;
         if (isTIA){
             meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, nBeads, sim.betaN);
             meterVir = new MeterPIVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
@@ -186,6 +187,7 @@ public class SimQuantumAO extends Simulation {
             meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
+            meterHMAReal = new MeterPIHMAReal(sim.pmBonding, sim.pcP1, 1/temperature, (MCMoveHOReal)sim.atomMove);
         }
 
 
@@ -268,6 +270,10 @@ public class SimQuantumAO extends Simulation {
         AccumulatorAverageCovariance accumulatorHMA = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterHMA, accumulatorHMA, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+
+        AccumulatorAverageCovariance accumulatorHMAReal = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener pumpHMAReal = new DataPumpListener(meterHMAReal, accumulatorHMAReal, interval);
+        sim.integrator.getEventManager().addListener(pumpHMAReal);
 
         // HMAvir
 //        AccumulatorAverageCovariance accumulatorHMAvir = new AccumulatorAverageCovariance(blockSize);
@@ -366,6 +372,12 @@ public class SimQuantumAO extends Simulation {
         double errEnHMA = dataErrHMA.getValue(0);
         double corEnHMA = dataCorHMA.getValue(0);
         System.out.println(" En_hma:  " + avgEnHMA  + " +/- " + errEnHMA + " cor: " + corEnHMA);
+
+        IData dataHMAReal = accumulatorHMAReal.getData();
+        double avgEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.AVERAGE.index);
+        double errEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.ERROR.index);
+        double corEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.BLOCK_CORRELATION.index);
+        System.out.println(" En_hmaReal:  " + avgEnHMAReal  + " +/- " + errEnHMAReal + " cor: " + corEnHMAReal);
 
         //        //Vir-bar
 //        DataGroup dataVirBar = (DataGroup)accumulatorVirBar.getData();
