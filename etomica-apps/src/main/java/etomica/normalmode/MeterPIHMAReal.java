@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
@@ -73,10 +74,13 @@ public class MeterPIHMAReal implements IDataSource {
             Vector r0 = rPrev;
 
             for (int j=0; j<beads.size(); j++) {
+                IAtom atomj = beads.get(j);
                 int N = beads.size() - j;
                 En += dSigma[j] / sigma[j]; // Jacobian
+//                System.out.println("realJ: "+j+" "+dSigma[j]/sigma[j]);
 
-                dr.E(beads.get(j).getPosition());
+                Vector rj = atomj.getPosition();
+                dr.E(rj);
                 if (j>0) {
                     dr.PEa1Tv1(-R11[N], rPrev);
                     dr.PEa1Tv1(-R1N[N], r0);
@@ -88,15 +92,17 @@ public class MeterPIHMAReal implements IDataSource {
                     v.PEa1Tv1(R11[N], vPrev);
                     v.PEa1Tv1(R1N[N], v0);
                 }
-                En -= beta*(forcesU[i].dot(v));
+                int jj = atomj.getLeafIndex();
+                En -= beta * forcesU[jj].dot(v);
                 if (nBeads > 1) {
-                    En -= beta*(forcesK[i].dot(v));
+                    En -= beta * forcesK[jj].dot(v);
                 }
-                rPrev = beads.get(j).getPosition();
+                rPrev = rj;
                 if (j==0) v0.E(v);
                 vPrev.E(v);
             }
         }
+//        System.out.println("RealHMA: "+En);
 
         x[0] = En - EnShift;
 
