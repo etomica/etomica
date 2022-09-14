@@ -76,7 +76,7 @@ public class MeterPIHMAReal implements IDataSource {
             for (int j=0; j<beads.size(); j++) {
                 IAtom atomj = beads.get(j);
                 int N = beads.size() - j;
-                En += dSigma[j] / sigma[j]; // Jacobian
+                En -= dSigma[j] / sigma[j]; // Jacobian
 //                System.out.println("realJ: "+j+" "+dSigma[j]/sigma[j]);
 
                 Vector rj = atomj.getPosition();
