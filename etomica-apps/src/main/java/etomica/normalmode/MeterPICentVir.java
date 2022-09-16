@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -45,18 +44,16 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         double vir = 0;
-        Vector ri;
+        rc.E(0);
         for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            rc.PE(ri);
+            rc.PE(box.getLeafList().get(i).getPosition());
         }
         rc.TE(1.0/nBeads);
 
         pcP1.computeAll(true, this);//it needs rc
         Vector[] forces = pcP1.getForces();
         for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            vir -= forces[i].dot(ri);
+            vir -= forces[i].dot(box.getLeafList().get(i).getPosition());
             vir += forces[i].dot(rc);
         }
         x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En

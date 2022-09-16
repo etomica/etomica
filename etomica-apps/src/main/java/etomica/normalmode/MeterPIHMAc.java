@@ -44,19 +44,17 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         double vir = 0;
-        Vector ri;
-        for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            rc.PE(ri);
+        rc.E(0);
+        for (int i = 0; i < nBeads; i++) {
+            rc.PE(box.getLeafList().get(i).getPosition());
         }
-        rc.TE(1.0/nBeads);
+        rc.TE(1.0 / nBeads);
 
         pcP1.computeAll(true, this);//it needs rc
-        Vector[] forces = pcP1.getForces();
-        for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            vir -= forces[i].dot(ri);
-            vir += 2 * forces[i].dot(rc);
+        Vector[] forcesU = pcP1.getForces();
+        for (int i = 0; i < nBeads; i++) {
+            vir -= forcesU[i].dot(box.getLeafList().get(i).getPosition());
+            vir += 2 * forcesU[i].dot(rc);
         }
         x[0] = 1.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
         x[1] = 1.0 / 2.0 / beta / beta + 1.0 / 4.0 / beta * (-3.0 * vir - rHr); //Cvn/kb^2, without Var
