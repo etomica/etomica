@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -56,18 +55,11 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         Vector[] forces = pcP1.getForces();
         for (int i = 0; i < nBeads; i++){
             ri = box.getLeafList().get(i).getPosition();
-            if(i==nBeads-1){
-                vir += forces[i].dot(rc);
-            } else {
-                vir -= forces[i].dot(ri);
-                vir += 2*forces[i].dot(rc);
-            }
-
+            vir -= forces[i].dot(ri);
+            vir += 2 * forces[i].dot(rc);
         }
-        x[0] = 1.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
-
-        x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En
-        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        x[0] = 1.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
+        x[1] = 1.0 / 2.0 / beta / beta + 1.0 / 4.0 / beta * (-3.0 * vir - rHr); //Cvn/kb^2, without Var
         return data;
     }
 
