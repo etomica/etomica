@@ -116,7 +116,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         pmBonding.computeAll(true);
         pcP1.computeAll(true, this);
 
-        double En = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
+        double En = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
         double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
 
         Vector[] forcesU = pcP1.getForces();

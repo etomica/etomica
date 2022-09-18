@@ -23,6 +23,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector rc;
+    protected double EnShift;
 
 
     public MeterPIHMAc(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
@@ -38,6 +39,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         beta = this.betaN*this.nBeads;
         this.box = box;
         rc = box.getSpace().makeVector();
+        this.EnShift = 0;
     }
 
     @Override
@@ -45,42 +47,32 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         double vir = 0;
-        Vector ri;
+        double virc = 0;
+        rc.E(0);
         for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            rc.PE(ri);
+            rc.PE(box.getLeafList().get(i).getPosition());
         }
         rc.TE(1.0/nBeads);
 
         pcP1.computeAll(true, this);//it needs rc
         Vector[] forces = pcP1.getForces();
         for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            if(i==nBeads-1){
-                vir += forces[i].dot(rc);
-            } else {
-                vir -= forces[i].dot(ri);
-                vir += 2*forces[i].dot(rc);
-            }
-
+            vir += forces[i].dot(box.getLeafList().get(i).getPosition());
+            vir -= 2.0*forces[i].dot(rc);
+            virc += forces[i].dot(rc);
         }
-        x[0] = 1.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
 
-        x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En
-        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        x[0] = 1.0/beta + pcP1.getLastEnergy() - 1.0/2.0*vir - EnShift; //En
+        x[1] = 1.0/beta/beta + 1.0/4.0/beta*(3.0*vir + 2.0*virc - rHr); //Cvn/kb^2, without Var
         return data;
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
-        Vector ri = box.getLeafList().get(i).getPosition();
-        Vector rj = box.getLeafList().get(j).getPosition();
         Vector tmpV = box.getSpace().makeVector();
-        tmpV.Ev1Mv2(rj, rc);
+        tmpV.Ev1Mv2(box.getLeafList().get(j).getPosition(), rc);
         tmpV.ME(rc);
         Hij.transform(tmpV);
-        rHr += ri.dot(tmpV);
-        rHr -= rc.dot(tmpV);
-        rHr -= rc.dot(tmpV);
+        rHr += box.getLeafList().get(i).getPosition().dot(tmpV) - 2.0*rc.dot(tmpV);
     }
 
     public IDataInfo getDataInfo() {
@@ -93,6 +85,10 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
 
     public boolean wantsHessian() {
         return true;
+    }
+
+    public void setShift(double EnShift){
+        this.EnShift = EnShift;
     }
 
 }
