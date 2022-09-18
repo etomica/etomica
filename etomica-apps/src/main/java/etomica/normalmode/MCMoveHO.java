@@ -11,7 +11,6 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Constants;
 import etomica.util.random.IRandom;
 
 public class MCMoveHO extends MCMoveBox {

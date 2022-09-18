@@ -34,8 +34,8 @@ public class MCMoveHOReal extends MCMoveBox {
     protected double mass, beta, omegaN, betaN, sigma0;
     protected Box box;
     public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
-    protected final double[] chainSigmas;
-    protected final double[] R11, R1N;
+    protected final double[] chainSigmas, dSigma;
+    protected final double[] R11, R1N, dR11, dR1N;
 
     public MCMoveHOReal(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
         super();
@@ -55,8 +55,11 @@ public class MCMoveHOReal extends MCMoveBox {
         mass = box.getLeafList().get(0).getType().getMass();
 
         chainSigmas = new double[nBeads];
+        dSigma = new double[nBeads];
         R11 = new double[nBeads];
         R1N = new double[nBeads];
+        dR11 = new double[nBeads];
+        dR1N = new double[nBeads];
 
         init();
     }
@@ -65,67 +68,84 @@ public class MCMoveHOReal extends MCMoveBox {
 
         betaN = beta/nBeads;
         omegaN = 1.0/(hbar*betaN);
+        double kSpring = beta * mass * omegaN*omegaN/nBeads/2;
+        double dks = -kSpring/beta;
+        double k0 = beta * mass * omega2/nBeads/2;
+        double dk0 = k0/beta;
 
-        {
-            double[] lambdaN = new double[nBeads];
-            // exp(- betan * 1/2*lambdaN_k q_k^2)
-            for(int k = 0; k <= nBeads/2; k++){ //-2...2
-                lambdaN[k] = mass*(4.0*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + omega2);
-//                System.out.println("real move "+k+" "+lambdaN[k]);
-            }
-
-            // eigenvector component for atom 0 is always 1/sqrt(n)
-            double evec0 = 1 / Math.sqrt(nBeads);
-
-            // for a given atom i and wave vector, sigma_i = ev_i * sigma
-            double sigma2Sum = 0;
-            for (int k = 0; k <= nBeads/2; k++) {
-                double onetwo = k==0 || 2*k==nBeads ? 1 : 2;
-                double fack = Math.sqrt(onetwo/(betaN*lambdaN[k]));
-                double sigmai = fack * evec0;
-                sigma2Sum += sigmai*sigmai;
-            }
-            sigma0 = Math.sqrt(sigma2Sum);
-//            System.out.println("sigma0 "+sigma0+" keff "+0.5/(sigma0*sigma0));
+        double sigma2Sum = 0.5/k0;
+        double dsigma2Sum = -dk0/(2*k0*k0);
+        if (nBeads%2==0) {
+            sigma2Sum += 0.5/(k0 + 4*kSpring);
+            dsigma2Sum -= (2*dk0+8*dks)/((2*k0 + 8*kSpring)*(2*k0+8*kSpring));
         }
+        for (int j=1; j*2 < nBeads; j++) {
+            double s = Math.sin(Math.PI*j/nBeads);
+            double d = k0 + 4*kSpring*s*s;
+            sigma2Sum += 1/d;
+            dsigma2Sum -= (dk0 + 4*dks*s*s)/(d*d);
+        }
+        sigma0 = Math.sqrt(sigma2Sum/nBeads);
+        dSigma[0] = 0.5/sigma0*dsigma2Sum/nBeads;
+        double bA = -Math.log(Math.sqrt(2*Math.PI)*sigma0);
 
         {
             chainSigmas[0] = sigma0;
-            double kSpring = beta * mass * omegaN*omegaN/nBeads/2;
-            double k0 = beta * mass * omega2/nBeads/2;
             double D = -2 - k0 / kSpring;
+            double dD = -dk0/kSpring + k0*dks/(kSpring*kSpring);
             double alpha = Math.log(-D/2 + Math.sqrt(D*D/4 - 1));
+            double dAlpha = (-dD/2 + D*dD/(4*Math.sqrt(D*D/4-1))) / (-D/2 + Math.sqrt(D*D/4 - 1));
+
 
             // chain NM
-            for (int i=1; i<nBeads; i++) {
-                // consider chain of length i+2 with fixed endpoints; i=n-1 corresponds to a chain from 0 to n
-                double var1 = 0;
-                for (int k=0; k<i; k++) {
-                    double s = Math.sin((k + 1) * Math.PI / (2 * (i + 1)));
-                    double lambdak = k0 + 4 * kSpring * s * s;
+//            System.out.println(0+" "+chainSigmas[0]+" "+dSigma[0]);
+            for (int N=1; N<nBeads; N++) {
+                // consider chain of length N+2 with fixed endpoints; N=n-1 corresponds to a chain from 0 back to n
+                // we are computing the sigma and center coefficients for the first of the N beads
+                double var1 = 0, dvar1 = 0;
+                for (int l=1; l<=N; l++) {
+                    double arg = l*Math.PI/(N+1);
+                    double s = Math.sin(0.5*arg);
+                    double lambda = k0 + 4 * kSpring * s * s;
 //                    System.out.println("lambda "+k+" "+lambda[k]);
                     // vjk = sin(k*j*pi/(i+1))
-                    double v0k = Math.sin((k+1)*(0+1)*Math.PI/(i+1)) / Math.sqrt(0.5 + 0.5*i);
-                    double sig = v0k * Math.sqrt(0.5/lambdak);
+                    double v0k = Math.sin(arg) / Math.sqrt(0.5 + 0.5*N);
+                    double sig = v0k * Math.sqrt(0.5/lambda);
                     var1 += sig*sig;
+                    dvar1 -= sig*sig / lambda * (dk0 + 4*dks*s*s);
                 }
-                chainSigmas[i] = Math.sqrt(var1);
-//                System.out.println("chain sigma "+i+" "+chainSigmas[i]);
-                double d = 2*Math.sinh(alpha)*Math.sinh((i+1)*alpha);
-                R11[i] = (Math.cosh((i + 1)*alpha) - Math.cosh((i - 1)*alpha))/d;
-                R1N[i] = (Math.cosh(2*alpha) - Math.cosh(0))/d;
+//                System.out.println(N+" "+var1+" "+dvar1);
+                chainSigmas[N] = Math.sqrt(var1);
+                dSigma[N] = 0.5/chainSigmas[N] * dvar1;
+//                System.out.println(N+" "+chainSigmas[N]+" "+dSigma[N]);
+                double d = 2*Math.sinh(alpha)*Math.sinh((N+1)*alpha);
+                double dd = 2*dAlpha*Math.cosh(alpha)*Math.sinh((N+1)*alpha) + 2*(N+1)*dAlpha*Math.sinh(alpha)*Math.cosh((N+1)*alpha);
+                R11[N] = (Math.cosh((N + 1)*alpha) - Math.cosh((N - 1)*alpha))/d;
+                dR11[N] = ((N+1)*dAlpha*Math.sinh((N + 1)*alpha) - (N-1)*dAlpha*Math.sinh((N - 1)*alpha))/d - R11[N]/d*dd;
+                R1N[N] = (Math.cosh(2*alpha) - Math.cosh(0))/d;
+                dR1N[N] = (2*dAlpha*Math.sinh(2*alpha))/d - R1N[N]/d*dd;
+//                System.out.println(N+" "+R1N[N]+" "+dR1N[N]);
+                bA -= Math.log(Math.sqrt(2*Math.PI)*chainSigmas[N]);
             }
-//            System.out.println("D "+D+"   alpha "+alpha);
 
         }
+//        System.out.println("bA: "+bA);
     }
 
     public double[] getChainSigmas() {
         return chainSigmas;
     }
 
+    public double[] getDChainSigmas() {
+        return dSigma;
+    }
+
     public double[][] getCenterCoefficients() {
         return new double[][]{R11,R1N};
+    }
+
+    public double[][] getDCenterCoefficients() {
+        return new double[][]{dR11,dR1N};
     }
 
     public void setOmega2(double omega2) {
