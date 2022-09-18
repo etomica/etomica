@@ -365,40 +365,6 @@ public class SimQuantumAO extends Simulation {
         double corEnHMA = dataCorHMA.getValue(0);
         System.out.println(" En_hma:  " + avgEnHMA  + " +/- " + errEnHMA + " cor: " + corEnHMA);
 
-        //        //Vir-bar
-//        DataGroup dataVirBar = (DataGroup)accumulatorVirBar.getData();
-//        IData dataErrVirBar = dataVirBar.getData(accumulatorVirBar.ERROR.index);
-//        IData dataAvgVirBar = dataVirBar.getData(accumulatorVirBar.AVERAGE.index);
-//        IData dataCorVirBar = dataVirBar.getData(accumulatorVirBar.BLOCK_CORRELATION.index);
-//        double avgEnVirBar = dataAvgVirBar.getValue(0);
-//        double errEnVirBar = dataErrVirBar.getValue(0);
-//        double corEnVirBar = dataCorVirBar.getValue(0);
-//        System.out.println(" En_vir_bar:  " + avgEnVirBar  + " +/- " + errEnVirBar + " cor: " + corEnVirBar);
-
-
-
-//        //HMA-vir
-//        DataGroup dataHMAvir = (DataGroup)accumulatorHMAvir.getData();
-//        IData dataErrHMAvir = dataHMAvir.getData(accumulatorHMAvir.ERROR.index);
-//        IData dataAvgHMAvir = dataHMAvir.getData(accumulatorHMAvir.AVERAGE.index);
-//        IData dataCorHMAvir = dataHMAvir.getData(accumulatorHMAvir.BLOCK_CORRELATION.index);
-//        double avgEnHMAvir = dataAvgHMAvir.getValue(0);
-//        double errEnHMAvir = dataErrHMAvir.getValue(0);
-//        double corEnHMAvir = dataCorHMAvir.getValue(0);
-//        System.out.println(" En_hmavir:  " + avgEnHMAvir  + " +/- " + errEnHMAvir + " cor: " + corEnHMAvir);
-
-
-        //HMA-cent
-//        if (accumulatorHMAcent != null) {
-//            DataGroup dataHMAcent = (DataGroup)accumulatorHMAcent.getData();
-//            IData dataErrHMAcent = dataHMAcent.getData(accumulatorHMAcent.ERROR.index);
-//            IData dataAvgHMAcent = dataHMAcent.getData(accumulatorHMAcent.AVERAGE.index);
-//            IData dataCorHMAcent = dataHMAcent.getData(accumulatorHMAcent.BLOCK_CORRELATION.index);
-//            double avgEnHMAcent = dataAvgHMAcent.getValue(0);
-//            double errEnHMAcent = dataErrHMAcent.getValue(0);
-//            double corEnHMAcent = dataCorHMAcent.getValue(0);
-//            System.out.println(" En_hmacent:  " + avgEnHMAcent  + " +/- " + errEnHMAcent + " cor: " + corEnHMAcent);
-//        }
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
         double omega = Math.sqrt(omega2);
