@@ -27,6 +27,7 @@ public class MeterPIHMAReal implements IDataSource {
     protected DataDoubleArray data;
     protected double EnShift;
     protected final MCMoveHOReal move;
+    protected int nShifts = 0;
 
     public MeterPIHMAReal(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double beta, MCMoveHOReal move) {
         this.move = move;
@@ -41,6 +42,11 @@ public class MeterPIHMAReal implements IDataSource {
         this.EnShift = 0;
     }
 
+    public void setNumShifts(int nShifts) {
+        if (nShifts < 0) throw new RuntimeException("nShifts cannot be negative");
+        this.nShifts = nShifts;
+    }
+
     @Override
     public IData getData() {
         Box box = move.getBox();
@@ -48,7 +54,8 @@ public class MeterPIHMAReal implements IDataSource {
 //        System.out.println("******** HMA *************");
 
         int nBeads = box.getLeafList().size();
-        double En = 0.5*nBeads/beta + pcP1.computeAll(true) - pmBonding.computeAll(true);
+        double En0 = 0.5*nBeads/beta + pcP1.computeAll(true) - pmBonding.computeAll(true);
+//        System.out.println("real: "+En);
 
         Vector[] forcesU = pcP1.getForces();
         Vector[] forcesK = pmBonding.getForces();
@@ -68,43 +75,51 @@ public class MeterPIHMAReal implements IDataSource {
         Vector dr = box.getSpace().makeVector();
         Vector v0 = box.getSpace().makeVector();
         Vector vPrev = box.getSpace().makeVector();
-        for (int i = 0; i<molecules.size(); i++) {
+        double En = 0;
+        int ns = nShifts+1;
+        for (int i = 0; i < molecules.size(); i++) {
             IAtomList beads = molecules.get(i).getChildList();
-            Vector rPrev = beads.get(0).getPosition();
-            Vector r0 = rPrev;
+            if (ns > beads.size() || (beads.size() / ns) * ns != beads.size()) {
+                throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
+            }
+            for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
+                Vector rPrev = beads.get(indexShift).getPosition();
+                Vector r0 = rPrev;
 
-            for (int j=0; j<beads.size(); j++) {
-                IAtom atomj = beads.get(j);
-                int N = beads.size() - j;
-                En -= dSigma[j] / sigma[j]; // Jacobian
-//                System.out.println("realJ: "+j+" "+dSigma[j]/sigma[j]);
+                for (int j = 0; j < beads.size(); j++) {
+                    int aj = (j + indexShift) % beads.size();
+                    IAtom atomj = beads.get(aj);
+                    int N = beads.size() - j;
+                    En -= dSigma[j] / sigma[j]; // Jacobian
+    //                System.out.println("realJ: "+j+" "+dSigma[j]/sigma[j]);
 
-                Vector rj = atomj.getPosition();
-                dr.E(rj);
-                if (j>0) {
-                    dr.PEa1Tv1(-R11[N], rPrev);
-                    dr.PEa1Tv1(-R1N[N], r0);
+                    Vector rj = atomj.getPosition();
+                    dr.E(rj);
+                    if (j > 0) {
+                        dr.PEa1Tv1(-R11[N], rPrev);
+                        dr.PEa1Tv1(-R1N[N], r0);
+                    }
+                    v.Ea1Tv1(dSigma[j] / sigma[j], dr);
+                    if (j > 0) {
+                        v.PEa1Tv1(dR11[N], rPrev);
+                        v.PEa1Tv1(dR1N[N], r0);
+                        v.PEa1Tv1(R11[N], vPrev);
+                        v.PEa1Tv1(R1N[N], v0);
+                    }
+                    int jj = atomj.getLeafIndex();
+                    En -= beta * forcesU[jj].dot(v);
+                    if (nBeads > 1) {
+                        En -= beta * forcesK[jj].dot(v);
+                    }
+                    rPrev = rj;
+                    if (j == 0) v0.E(v);
+                    vPrev.E(v);
                 }
-                v.Ea1Tv1(dSigma[j]/sigma[j], dr);
-                if (j>0) {
-                    v.PEa1Tv1(dR11[N], rPrev);
-                    v.PEa1Tv1(dR1N[N], r0);
-                    v.PEa1Tv1(R11[N], vPrev);
-                    v.PEa1Tv1(R1N[N], v0);
-                }
-                int jj = atomj.getLeafIndex();
-                En -= beta * forcesU[jj].dot(v);
-                if (nBeads > 1) {
-                    En -= beta * forcesK[jj].dot(v);
-                }
-                rPrev = rj;
-                if (j==0) v0.E(v);
-                vPrev.E(v);
             }
         }
 //        System.out.println("RealHMA: "+En);
 
-        x[0] = En - EnShift;
+        x[0] = En0 + En/ns - EnShift;
 
         return data;
     }
