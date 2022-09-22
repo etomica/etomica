@@ -85,16 +85,9 @@ public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
     }//end of doTrial
 
     public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
+        uNew = 0;
         if (insert) {
-            if (testMolecule.getChildList().get(0).getLeafIndex() == 34) {
-                System.out.println("energy for 34");
-                IAtomList atoms = box.getLeafList();
-                System.out.println("29 " + atoms.get(29).getPosition());
-                System.out.println("34 " + atoms.get(34).getPosition());
-            }
             uNew = potentialMaster.computeOneMolecule(testMolecule);
-        } else {
-            uNew = 0;
         }
         double b = uOld - uNew;
         if (insert) b += mu;
