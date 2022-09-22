@@ -34,7 +34,6 @@ import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -47,6 +46,7 @@ public class SimQuantumAO extends Simulation {
     public Box box;
     public IntegratorMC integrator;
     public MCMoveBox atomMove;
+    public MCMoveHOReal atomMoveReal;
     public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pm;
@@ -106,8 +106,9 @@ public class SimQuantumAO extends Simulation {
         pm = new PotentialComputeAggregate(pmBonding, pcP1);
 
         integrator = new IntegratorMC(pm, random, temperature, box);
+        atomMoveReal = new MCMoveHOReal(space, pm, random, temperature, omega2, box);
         if (moveReal) {
-            atomMove = new MCMoveHOReal(space, pm, random, temperature, omega2, box);
+            atomMove = atomMoveReal;
         }
         else {
             atomMove = new MCMoveHO(space, pm, random, temperature, omega2, box);
@@ -132,7 +133,7 @@ public class SimQuantumAO extends Simulation {
         }
         else {
             // custom parameters
-            params.numSteps = 10000000;
+            params.numSteps = 1000000;
             params.temperature = 1.0;
             params.nBeads = 33;
             params.k2 = 1.0;
@@ -176,6 +177,7 @@ public class SimQuantumAO extends Simulation {
         MeterPICentVir meterCentVir = null;
         MeterPIHMAc meterHMAc = null;
         MeterPIHMA meterHMA = null;
+        MeterPIHMAReal meterHMAReal = null;
         if (isTIA){
 //            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, nBeads, sim.betaN);
 //            meterVir = new MeterPIVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
@@ -189,6 +191,7 @@ public class SimQuantumAO extends Simulation {
             meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
+            meterHMAReal = new MeterPIHMAReal(sim.pmBonding, sim.pcP1, 1/temperature, sim.atomMoveReal);
         }
 
 
@@ -266,6 +269,12 @@ public class SimQuantumAO extends Simulation {
         AccumulatorAverageCovariance accumulatorHMA = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterHMA, accumulatorHMA, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+
+        AccumulatorAverageCovariance accumulatorHMAReal = new AccumulatorAverageCovariance(blockSize);
+        if (meterHMAReal != null) {
+            DataPumpListener pumpHMAReal = new DataPumpListener(meterHMAReal, accumulatorHMAReal, interval);
+            sim.integrator.getEventManager().addListener(pumpHMAReal);
+        }
 
         long Nshort = numSteps/10;
         System.out.println(" N_short_sim = " + Nshort);
@@ -365,6 +374,13 @@ public class SimQuantumAO extends Simulation {
         double corEnHMA = dataCorHMA.getValue(0);
         System.out.println(" En_hma:  " + avgEnHMA  + " +/- " + errEnHMA + " cor: " + corEnHMA);
 
+        if (meterHMAReal != null) {
+            IData dataHMAReal = accumulatorHMAReal.getData();
+            double avgEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.AVERAGE.index);
+            double errEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.ERROR.index);
+            double corEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.BLOCK_CORRELATION.index);
+            System.out.println(" En_hmaReal:  " + avgEnHMAReal + " +/- " + errEnHMAReal + " cor: " + corEnHMAReal);
+        }
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
         double omega = Math.sqrt(omega2);
