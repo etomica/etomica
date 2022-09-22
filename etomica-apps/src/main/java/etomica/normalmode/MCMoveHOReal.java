@@ -32,7 +32,6 @@ public class MCMoveHOReal extends MCMoveBox {
     protected double uaNew = Double.NaN;
     protected double duTotal;
     protected double mass, beta, omegaN, betaN, sigma0;
-    protected Box box;
     public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
     protected final double[] chainSigmas, dSigma;
     protected final double[] R11, R1N, dR11, dR1N;
@@ -42,7 +41,7 @@ public class MCMoveHOReal extends MCMoveBox {
         this.pm = pm;
         this.random = random;
         this.omega2 = omega2;
-        this.box = box;
+        setBox(box);
         nBeads = this.box.getMoleculeList().get(0).getChildList().size();
         oldPositions = new Vector[box.getMoleculeList().size()][nBeads];
         for (int i=0; i<oldPositions.length; i++) {
