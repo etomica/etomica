@@ -14,7 +14,7 @@ public class MeterPIPrim implements IDataSource {
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-
+    protected double EnShift;
 
     public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, int nBeads, double betaN) {
         int nData = 2;
@@ -27,6 +27,7 @@ public class MeterPIPrim implements IDataSource {
         this.betaN = betaN;
         this.nBeads = nBeads;
         this.beta = this.betaN*nBeads;
+        this.EnShift = 0;
     }
 
     public IDataInfo getDataInfo() {
@@ -44,8 +45,13 @@ public class MeterPIPrim implements IDataSource {
 
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
-        x[0] = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
+        x[0] = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift; //En
         x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta;  //Cvn/kb^2, without Var
         return data;
     }
+
+    public void setShift(double EnShift){
+        this.EnShift = EnShift;
+    }
+
 }

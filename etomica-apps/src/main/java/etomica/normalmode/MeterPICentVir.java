@@ -1,5 +1,6 @@
 package etomica.normalmode;
 
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -22,6 +23,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector rc;
+    protected double EnShift;
 
 
     public MeterPICentVir(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
@@ -37,6 +39,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         beta = this.betaN*this.nBeads;
         this.box = box;
         rc = box.getSpace().makeVector();
+        this.EnShift = 0;
     }
 
     @Override
@@ -45,18 +48,21 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         rHr = 0;
         double vir = 0;
         rc.E(0);
+        Vector ri;
         for (int i = 0; i < nBeads; i++){
-            rc.PE(box.getLeafList().get(i).getPosition());
+            ri = box.getLeafList().get(i).getPosition();
+            rc.PE(ri);
         }
         rc.TE(1.0/nBeads);
 
         pcP1.computeAll(true, this);//it needs rc
         Vector[] forces = pcP1.getForces();
         for (int i = 0; i < nBeads; i++){
-            vir -= forces[i].dot(box.getLeafList().get(i).getPosition());
+            ri = box.getLeafList().get(i).getPosition();
+            vir -= forces[i].dot(ri);
             vir += forces[i].dot(rc);
         }
-        x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En
+        x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift; //En
         x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
         return data;
     }
@@ -81,6 +87,10 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
 
     public boolean wantsHessian() {
         return true;
+    }
+
+    public void setShift(double EnShift){
+        this.EnShift = EnShift;
     }
 
 }
