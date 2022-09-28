@@ -101,14 +101,14 @@ public class Adsorption extends Simulation {
 
         getController().addActivity(new ActivityIntegrate(integratorMD));
 
-        mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
+        mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.7, 1);
         mcMoveIDA.setMu(-12);
         integratorMC.getMoveManager().addMCMove(mcMoveIDA);
         mcMoveIDA.setSpecies(speciesA);
         mcMoveIDA.setBox(box);
         integratorMC.getEventManager().addListener(mcMoveIDA);
 
-        mcMoveIDB = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
+        mcMoveIDB = new MyMCMove(integratorMC, random, space, 0.7, 1);
         mcMoveIDB.setMu(-Double.POSITIVE_INFINITY);
         mcMoveIDB.setSpecies(speciesB);
         mcMoveIDB.setBox(box);

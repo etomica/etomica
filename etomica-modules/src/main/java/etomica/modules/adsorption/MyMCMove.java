@@ -5,7 +5,6 @@
 package etomica.modules.adsorption;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.atom.IAtomList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
@@ -26,7 +25,7 @@ import etomica.util.random.IRandom;
  */
 public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
 
-    private double zFraction, sigma;
+    private double zFraction;
     private final Vector position;
     private final MoleculeArrayList activeAtoms;
     private final AtomActionRandomizeVelocity randomizer;
@@ -36,10 +35,10 @@ public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
     protected final int dim;
 
     public MyMCMove(IntegratorBox integrator, IRandom random,
-                    Space space, double zFraction, double sigma, int dim) {
+                    Space space, double zFraction, int dim) {
         super(integrator.getPotentialCompute(), random, space);
         position = space.makeVector();
-        setZFraction(zFraction, sigma);
+        setZFraction(zFraction);
         this.dim = dim;
         this.integrator = integrator;
         randomizer = new AtomActionRandomizeVelocity(0, random);
@@ -73,7 +72,7 @@ public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
             box.addMolecule(testMolecule);
         } else {//delete
             if (activeAtoms.size() == 0) {
-                testMolecule = null;//added this line 09/19/02
+                testMolecule = null;
                 return false;
             }
             testMoleculeIndex = random.nextInt(activeAtoms.size());
@@ -110,12 +109,6 @@ public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
 
     public void acceptNotify() {
 //        System.out.println("accept "+(insert ? "insert" : "delete")+" "+testMolecule.getChildList().get(0).getLeafIndex());
-        if (!insert && testMolecule.getChildList().get(0).getLeafIndex() == 2 && box.getLeafList().size() == 35) {
-            IAtomList atoms = box.getLeafList();
-            System.out.println("2 " + atoms.get(2).getPosition());
-            System.out.println("29 " + atoms.get(29).getPosition());
-            System.out.println("last(" + (atoms.size() - 1) + ") " + atoms.get(atoms.size() - 1).getPosition());
-        }
         super.acceptNotify();
         if (!insert) {
 //	        System.out.println("accepted deleting "+testMolecule.getIndex());
@@ -132,12 +125,13 @@ public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
         activeAtoms.clear();
         double zBoundary = box.getBoundary().getBoxSize().getX(dim);
         int nMolecules = moleculeList.size();
+        double top = zBoundary / 2;
         for (int i = 0; i < nMolecules; i++) {
             IMolecule molecule = moleculeList.get(i);
             if (molecule.getType() != species) continue;
 
             double z = molecule.getChildList().get(0).getPosition().getX(dim);
-            if (z < zBoundary * (0.5 - zFraction)) continue;
+            if (z > top || z < top - zBoundary*zFraction) continue;
             activeAtoms.add(molecule);
         }
     }
@@ -149,9 +143,8 @@ public class MyMCMove extends MCMoveInsertDelete implements IntegratorListener {
      * specify a negative z fraction (a positive value will result in the
      * volume being on the positive z side.
      */
-    public void setZFraction(double zFraction, double zFractionMax) {
+    public void setZFraction(double zFraction) {
         this.zFraction = zFraction;
-        this.sigma = zFractionMax;
     }
 
     public double getZFraction() {
