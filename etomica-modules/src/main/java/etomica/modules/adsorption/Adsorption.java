@@ -10,7 +10,6 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -24,7 +23,6 @@ import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
@@ -126,11 +124,4 @@ public class Adsorption extends Simulation {
         config.initializeCoordinates(box);
     }
 
-    public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-
-        Adsorption sim = new Adsorption();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1);
-        simGraphic.makeAndDisplayFrame();
-    }
 }
