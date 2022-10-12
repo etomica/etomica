@@ -45,7 +45,7 @@ public class PathIntegralHOGraphic {
             omega2 = omega2*(1.0 + omega2/12.0/omegaN/omegaN);
         }
 
-        final SimQuantumAO sim = new SimQuantumAO(Space2D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA, true);
+        final SimQuantumAO sim = new SimQuantumAO(Space2D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA, SimQuantumAO.MoveChoice.Real);
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
