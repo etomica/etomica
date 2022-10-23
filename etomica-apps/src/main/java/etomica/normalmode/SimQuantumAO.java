@@ -45,7 +45,7 @@ public class SimQuantumAO extends Simulation {
     public Box box;
     public IntegratorMC integrator;
     public MCMoveBox atomMove;
-    public MCMoveHOReal atomMoveReal;
+    public MCMoveHOReal2 atomMoveReal2;
     public MCMoveMolecule translateMove;
     public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
@@ -102,11 +102,9 @@ public class SimQuantumAO extends Simulation {
         pm = new PotentialComputeAggregate(pmBonding, pcP1);
 
         integrator = new IntegratorMC(pm, random, temperature, box);
-        atomMoveReal = new MCMoveHOReal(space, pm, random, temperature, omega2, box);
-        if (moveChoice == MoveChoice.Real) {
-            atomMove = atomMoveReal;
-        }
-        else if (moveChoice == MoveChoice.Real2) {
+        atomMoveReal2 = new MCMoveHOReal2(space, pm, random, temperature, omega2, box);
+
+        if (moveChoice == MoveChoice.Real2) {
             atomMove = new MCMoveHOReal2(space, pm, random, temperature, omega2, box);
         }
         else {
@@ -138,10 +136,10 @@ public class SimQuantumAO extends Simulation {
             // custom parameters
             params.numSteps = 1000000;
             params.temperature = 1.0;
-            params.nBeads = 32;
+            params.nBeads = 16;
             params.k2 = 1.0;
             params.k4 = 24.0;
-            params.moveReal = MoveChoice.Real;
+            params.moveReal = MoveChoice.Real2;
         }
 
         double temperature = params.temperature;
@@ -184,7 +182,7 @@ public class SimQuantumAO extends Simulation {
         MeterPICentVir meterCentVir = null;
         MeterPIHMAc meterHMAc = null;
         MeterPIHMA meterHMA = null;
-        MeterPIHMAReal meterHMAReal = null;
+        MeterPIHMAReal2 meterHMAReal2 = null;
         if (isTIA){
 //            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, nBeads, sim.betaN);
 //            meterVir = new MeterPIVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
@@ -198,7 +196,7 @@ public class SimQuantumAO extends Simulation {
             meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
             if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
-//            meterHMAReal = new MeterPIHMAReal(sim.pmBonding, sim.pcP1, 1/temperature, sim.atomMoveReal);
+            meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, 1/temperature, sim.atomMoveReal2);
         }
 
 
@@ -287,10 +285,10 @@ public class SimQuantumAO extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
         }
 
-        AccumulatorAverageCovariance accumulatorHMAReal = new AccumulatorAverageCovariance(blockSize);
-        if (meterHMAReal != null) {
-            DataPumpListener pumpHMAReal = new DataPumpListener(meterHMAReal, accumulatorHMAReal, interval);
-            sim.integrator.getEventManager().addListener(pumpHMAReal);
+        AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
+        if (meterHMAReal2 != null) {
+            DataPumpListener pumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
+            sim.integrator.getEventManager().addListener(pumpHMAReal2);
         }
 
         long Nshort = numSteps/10;
@@ -414,12 +412,13 @@ public class SimQuantumAO extends Simulation {
             if (meterHMA!=null) System.out.println(" Cvn_hma: " + CvnHMA);
         }
 
-        if (meterHMAReal != null) {
-            IData dataHMAReal = accumulatorHMAReal.getData();
-            double avgEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.AVERAGE.index);
-            double errEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.ERROR.index);
-            double corEnHMAReal = dataHMAReal.getValue(accumulatorHMAReal.BLOCK_CORRELATION.index);
-            System.out.println(" En_hmaReal:  " + avgEnHMAReal + " +/- " + errEnHMAReal + " cor: " + corEnHMAReal);
+        System.out.println();
+        if (meterHMAReal2 != null) {
+            IData dataHMAReal2 = accumulatorHMAReal2.getData();
+            double avgEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.AVERAGE.index);
+            double errEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.ERROR.index);
+            double corEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.BLOCK_CORRELATION.index);
+            System.out.println(" En_hmaReal2:  " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
         }
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");

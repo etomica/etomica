@@ -35,8 +35,8 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected double duTotal;
     protected double mass, beta, omegaN, betaN, sigma0;
     public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
-    protected final double[] chainSigmas;
-    protected final double[] f11, f1N;
+    protected final double[] chainSigmas, gamma, dGamma;
+    protected final double[] f11, f1N, df11, df1N;
     protected final MoleculeSource moleculeSource;
     protected IMolecule molecule;
     protected Vector[] latticePositions;
@@ -60,6 +60,10 @@ public class MCMoveHOReal2 extends MCMoveBox {
         chainSigmas = new double[nBeads];
         f11 = new double[nBeads];
         f1N = new double[nBeads];
+        df11 = new double[nBeads];
+        df1N = new double[nBeads];
+        gamma = new double[nBeads];
+        dGamma = new double[nBeads];
 
         moleculeSource = new MoleculeSourceRandomMolecule(box, random);
 
@@ -77,20 +81,47 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         betaN = beta/nBeads;
         omegaN = 1.0/(hbar*betaN);
+        double omegaN2 = omegaN*omegaN;
 
         double D = 2 + omega2 / (omegaN*omegaN);
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
-        double C0 = mass*(omega2 + 2*omegaN*omegaN)*Math.tanh(alpha)*Math.tanh(nBeads*alpha/2);
-        sigma0 = C0 == 0 ? 0 : Math.sqrt(nBeads/(beta*C0));
+        double dAlpha = 2.0/beta/Math.sqrt(1.0+4.0*omegaN2/omega2);
+        double d2Alpha = -1.0/4.0*beta*dAlpha*dAlpha*dAlpha;
+
+        double sinhA = Math.sinh(alpha);
+        double coshA = Math.cosh(alpha);
+        double sinhNA = Math.sinh(nBeads*alpha);
+        double coshhNA = Math.cosh(nBeads*alpha);
+
+        double k0 = 2.0*mass*omegaN2*sinhA*Math.tanh(nBeads*alpha/2.0);
+        sigma0 = k0 == 0 ? 0 : Math.sqrt(nBeads/(beta*k0));
         chainSigmas[0] = sigma0;
+        gamma[0] = 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
+        dGamma[0] = -1.0/2.0/beta/beta - d2Alpha/2.0*(coshA/sinhA+nBeads/sinhNA)+ dAlpha*dAlpha/2.0*(1.0/sinhA);
+
 
         for (int i=1; i<nBeads; i++) {
-            double tanhRatio = alpha == 0 ? 1.0/(nBeads-i) : (Math.tanh(alpha)/Math.tanh((nBeads-i)*alpha));
-            double Ci = 0.5*mass*(omega2 + 2*omegaN*omegaN)*(1 + tanhRatio);
-            chainSigmas[i] = Math.sqrt(nBeads/(beta*Ci));
+            double sinhNmiA = Math.sinh((nBeads-i)*alpha);
+            double coshNmiA = Math.cosh((nBeads-i)*alpha);
+            double sinhNmip1A = Math.sinh((nBeads-i+1)*alpha);
+            double coshNmip1A = Math.cosh((nBeads-i+1)*alpha);
 
-            f11[i] = alpha == 0 ? ((nBeads-i)/(nBeads-i+1.0)) : (Math.sinh((nBeads-i)*alpha)/Math.sinh((nBeads-i+1)*alpha));
-            f1N[i] = alpha == 0 ? (1.0/(nBeads-i+1)) : (Math.sinh(alpha)/Math.sinh((nBeads-i+1)*alpha));
+            double sinhRatio = alpha == 0 ? (nBeads-i+1)/(nBeads-i) : (sinhNmip1A/sinhNmiA);
+            double ki = mass*omegaN2*sinhRatio;
+            chainSigmas[i] = Math.sqrt(nBeads/(beta*ki));
+            gamma[i] = 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A-(nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
+            f11[i] = alpha == 0 ? ((nBeads-i)/(nBeads-i+1.0)) : (sinhNmiA/sinhNmip1A);
+            f1N[i] = alpha == 0 ? (1.0/(nBeads-i+1)) : (sinhA/sinhNmip1A);
+
+            double n11 = sinhNmiA;
+            double n1N = sinhA;
+            double dn11 = (nBeads-i)*dAlpha*coshNmiA;
+            double dn1N = dAlpha*coshA;
+            double d = sinhNmip1A;
+            double dd = (nBeads-i+1)*dAlpha*coshNmip1A;
+            df11[i] = alpha == 0 ? 0 : ((d*dn11-n11*dd)/d/d);
+            df1N[i] = alpha == 0 ? 0 : ((d*dn1N-n1N*dd)/d/d);
+
         }
     }
 
@@ -98,8 +129,16 @@ public class MCMoveHOReal2 extends MCMoveBox {
         return chainSigmas;
     }
 
+    public double[] getGamma() {
+        return gamma;
+    }
+
     public double[][] getCenterCoefficients() {
         return new double[][]{f11,f1N};
+    }
+
+    public double[][] getDCenterCoefficients() {
+        return new double[][]{df11,df1N};
     }
 
     public void setOmega2(double omega2) {
