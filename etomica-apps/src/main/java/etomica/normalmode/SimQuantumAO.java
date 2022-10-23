@@ -8,8 +8,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.config.ConformationGeneric;
-import etomica.config.IConformation;
+import etomica.config.ConformationLinear;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -29,7 +28,6 @@ import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
@@ -63,20 +61,16 @@ public class SimQuantumAO extends Simulation {
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, MoveChoice moveChoice) {
         super(space);
-        Vector[] initCoords = new Vector[nBeads];
-        for (int i = 0; i < nBeads; i++){
-            initCoords[i] = space.makeVector();
-        }
-        IConformation conformation = new ConformationGeneric(initCoords);
+
+        mass = 1;
         SpeciesGeneral species = new SpeciesBuilder(space)
-                .addCount(AtomType.simpleFromSim(this), nBeads)
-                .withConformation(conformation)
+                .addCount(AtomType.simple("A", mass/nBeads), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
                 .build();
         addSpecies(species);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, 1);
-        mass = species.getLeafType().getMass();
 
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2

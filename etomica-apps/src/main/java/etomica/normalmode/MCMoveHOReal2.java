@@ -8,8 +8,10 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeSource;
+import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -26,7 +28,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected double omega2;
     protected final IRandom random;
     PotentialCompute pm;
-    protected final Vector[][] oldPositions;
+    protected final Vector[] oldPositions;
     protected double uOld;
     protected double uaOld = Double.NaN;
     protected double uaNew = Double.NaN;
@@ -35,6 +37,9 @@ public class MCMoveHOReal2 extends MCMoveBox {
     public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
     protected final double[] chainSigmas;
     protected final double[] f11, f1N;
+    protected final MoleculeSource moleculeSource;
+    protected IMolecule molecule;
+    protected Vector[] latticePositions;
 
     public MCMoveHOReal2(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
         super();
@@ -43,21 +48,29 @@ public class MCMoveHOReal2 extends MCMoveBox {
         this.omega2 = omega2;
         setBox(box);
         nBeads = this.box.getMoleculeList().get(0).getChildList().size();
-        oldPositions = new Vector[box.getMoleculeList().size()][nBeads];
-        for (int i=0; i<oldPositions.length; i++) {
-            for (int j=0; j < nBeads; j++) {
-                oldPositions[i][j] = space.makeVector();
-            }
+        oldPositions = new Vector[nBeads];
+        for (int j=0; j < nBeads; j++) {
+            oldPositions[j] = space.makeVector();
         }
 
         beta = 1.0/temperature;
-        mass = box.getLeafList().get(0).getType().getMass();
+        // mass here is the mass of the whole ring
+        mass = box.getLeafList().get(0).getType().getMass()*nBeads;
 
         chainSigmas = new double[nBeads];
         f11 = new double[nBeads];
         f1N = new double[nBeads];
 
+        moleculeSource = new MoleculeSourceRandomMolecule(box, random);
+
         init();
+
+        perParticleFrequency = true;
+
+        latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        for (int i=0; i<latticePositions.length; i++) {
+            latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
+        }
     }
 
     protected void init() {
@@ -102,71 +115,81 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected double uHarmonic(IMolecule molecule) {
         IAtomList atoms = molecule.getChildList();
         double uh = 0;
-        for (int j = 0; j < nBeads; j++) {
+        Vector dr = box.getSpace().makeVector();
+        for (int j = 0; omega2 > 0 && j < nBeads; j++) {
             Vector rj = atoms.get(j).getPosition();
-            uh += 1.0 / nBeads / 2.0 * mass * (omega2 * rj.squared());
+            dr.Ev1Mv2(rj, latticePositions[molecule.getIndex()]);
+            box.getBoundary().nearestImage(dr);
+            uh += 1.0 / nBeads / 2.0 * mass * (omega2 * dr.squared());
         }
         for (int j = 0; j < nBeads; j++) {
             Vector rj = atoms.get(j).getPosition();
             int jj = j+1;
             if (jj==nBeads) jj=0;
             Vector rjj = atoms.get(jj).getPosition();
-            uh += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * rjj.Mv1Squared(rj));
+            dr.Ev1Mv2(rjj, rj);
+            box.getBoundary().nearestImage(dr);
+            uh += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared());
         }
         return uh;
     }
 
     public boolean doTrial() {
-        double uOld = pm.getLastEnergy();
-        IMoleculeList molecules = box.getMoleculeList();
+        molecule = moleculeSource.getMolecule();
 
-        double uhOld = 0, uhNew = 0;
+        double uOld = pm.computeOneOldMolecule(molecule);
 
-        for (int i = 0; i<molecules.size(); i++) {
-            IAtomList atoms = molecules.get(i).getChildList();
-            Vector COM = box.getSpace().makeVector();
+        IAtomList atoms = molecule.getChildList();
+        Vector oldCOM = CenterOfMass.position(box, molecule);
 
-            uhOld += uHarmonic(molecules.get(i));
-            for (int j = 0; j < nBeads; j++) {
-                Vector rj = atoms.get(j).getPosition();
-                oldPositions[i][j].E(rj);
-                COM.PE(rj);
+        double uhOld = uHarmonic(molecule);
+        for (int j = 0; j < nBeads; j++) {
+            Vector rj = atoms.get(j).getPosition();
+            oldPositions[j].E(rj);
+        }
+
+        IAtom atom0 = atoms.get(0);
+        Vector prevAtomPosition = atom0.getPosition();
+        for (int j = 0; j < prevAtomPosition.getD(); j++) {
+            prevAtomPosition.setX(j, sigma0 * random.nextGaussian());
+        }
+        Vector newCOM = box.getSpace().makeVector();
+        for (int k = 1; k < nBeads; k++) {
+            Vector kPosition = atoms.get(k).getPosition();
+
+            double sigma = chainSigmas[k];
+
+            for (int j = 0; j < kPosition.getD(); j++) {
+                kPosition.setX(j, sigma * random.nextGaussian());
             }
 
-            IAtom atom0 = atoms.get(0);
-            oldPositions[i][0].E(atom0.getPosition());
-            Vector prevAtomPosition = atom0.getPosition();
-            for (int j = 0; j < prevAtomPosition.getD(); j++) {
-                prevAtomPosition.setX(j, sigma0 * random.nextGaussian());
-            }
-            for (int k = 1; k < nBeads; k++) {
-                Vector kPosition = atoms.get(k).getPosition();
-                oldPositions[i][k].E(kPosition);
+            kPosition.PEa1Tv1( f11[k], prevAtomPosition);
+            kPosition.PEa1Tv1( f1N[k], atom0.getPosition());
 
-                double sigma = chainSigmas[k];
+            prevAtomPosition = kPosition;
 
-                for (int j = 0; j < kPosition.getD(); j++) {
-                    kPosition.setX(j, sigma * random.nextGaussian());
-                }
+            newCOM.PE(kPosition);
+        }
 
-                kPosition.PEa1Tv1( f11[k], prevAtomPosition);
-                kPosition.PEa1Tv1( f1N[k], atom0.getPosition());
-
-                prevAtomPosition = kPosition;
-
-                COM.ME(kPosition);
-            }
-            uhNew += uHarmonic(molecules.get(i));
-            COM.TE(1.0/nBeads);
-
-            if (omega2 == 0) {
-                for (int k = 0; k < nBeads; k++) {
-                    atoms.get(k).getPosition().PE(COM);
-                }
+        if (omega2 == 0) {
+            newCOM.TE(1.0/nBeads);
+            newCOM.ME(oldCOM);
+            for (int k = 0; k < nBeads; k++) {
+                atoms.get(k).getPosition().ME(newCOM);
             }
         }
-        pm.init();
-        double uNew = pm.computeAll(false);
+        else {
+            for (int k = 0; k < nBeads; k++) {
+                atoms.get(k).getPosition().PE(latticePositions[molecule.getIndex()]);
+            }
+        }
+
+        for (int k = 0; k < nBeads; k++) {
+            pm.updateAtom(atoms.get(k));
+        }
+
+        double uhNew = uHarmonic(molecule);
+        double uNew = pm.computeOneMolecule(molecule);
         uaOld = uOld - uhOld;
         uaNew = uNew - uhNew;
         duTotal = uNew - uOld;
@@ -177,22 +200,36 @@ public class MCMoveHOReal2 extends MCMoveBox {
     public double energyChange() {return duTotal;}
 
     public double getChi(double temperature) {
+//        System.out.println("chi: "+Math.exp(-(uaNew - uaOld) / temperature)+" "+uaOld+" "+uaNew+" "+temperature);
         return Math.exp(-(uaNew - uaOld) / temperature);
-
     }
 
-    public void acceptNotify() { /* do nothing */}
+    public void acceptNotify() {
+        pm.processAtomU(1);
+        // put it back, then compute old contributions to energy
+        IAtomList atoms = molecule.getChildList();
+        Vector[] newPositions = box.getSpace().makeVectorArray(nBeads);
+        for (int j=0; j<nBeads; j++) {
+            Vector r = atoms.get(j).getPosition();
+            newPositions[j].E(r);
+            r.E(oldPositions[j]);
+            pm.updateAtom(atoms.get(j));
+        }
+        pm.computeOneMolecule(molecule);
+        pm.processAtomU(-1);
+        for (int j=0; j<nBeads; j++) {
+            atoms.get(j).getPosition().E(newPositions[j]);
+            pm.updateAtom(atoms.get(j));
+        }
+    }
 
     public void rejectNotify() {
-        IMoleculeList molecules = box.getMoleculeList();
-        for (int i = 0; i<molecules.size(); i++) {
-            IAtomList atoms = molecules.get(i).getChildList();
-            for (int j=0; j<nBeads; j++) {
-                atoms.get(j).getPosition().E(oldPositions[i][j]);
-            }
+
+        IAtomList atoms = molecule.getChildList();
+        for (int j=0; j<nBeads; j++) {
+            atoms.get(j).getPosition().E(oldPositions[j]);
+            pm.updateAtom(atoms.get(j));
         }
-        pm.init();
-        pm.computeAll(false);
     }
 
 }
