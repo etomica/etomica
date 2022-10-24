@@ -36,7 +36,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected double mass, beta, omegaN, betaN, sigma0;
     public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
     protected final double[] chainSigmas, gamma, dGamma;
-    protected final double[] f11, f1N, df11, df1N;
+    protected final double[] f11, f1N, df11, df1N,d2f11, d2f1N;
     protected final MoleculeSource moleculeSource;
     protected IMolecule molecule;
     protected Vector[] latticePositions;
@@ -62,6 +62,8 @@ public class MCMoveHOReal2 extends MCMoveBox {
         f1N = new double[nBeads];
         df11 = new double[nBeads];
         df1N = new double[nBeads];
+        d2f11 = new double[nBeads];
+        d2f1N = new double[nBeads];
         gamma = new double[nBeads];
         dGamma = new double[nBeads];
 
@@ -97,7 +99,8 @@ public class MCMoveHOReal2 extends MCMoveBox {
         sigma0 = k0 == 0 ? 0 : Math.sqrt(nBeads/(beta*k0));
         chainSigmas[0] = sigma0;
         gamma[0] = 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
-        dGamma[0] = -1.0/2.0/beta/beta - d2Alpha/2.0*(coshA/sinhA+nBeads/sinhNA)+ dAlpha*dAlpha/2.0*(1.0/sinhA);
+        dGamma[0] = -1.0/2.0/beta/beta - d2Alpha/2.0*(coshA/sinhA+nBeads/sinhNA)
+                + dAlpha*dAlpha/2.0*(1.0/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
 
 
         for (int i=1; i<nBeads; i++) {
@@ -109,19 +112,23 @@ public class MCMoveHOReal2 extends MCMoveBox {
             double sinhRatio = alpha == 0 ? (nBeads-i+1)/(nBeads-i) : (sinhNmip1A/sinhNmiA);
             double ki = mass*omegaN2*sinhRatio;
             chainSigmas[i] = Math.sqrt(nBeads/(beta*ki));
-            gamma[i] = 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A-(nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
+            gamma[i] = 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
+            dGamma[i] = -1.0/2.0/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
+                      + dAlpha*dAlpha/2.0*(nBeads-i+1)/sinhNmip1A/sinhNmip1A
+                      + dAlpha*dAlpha/2.0*(nBeads-i)*coshA/sinhNmip1A/sinhNmiA
+                      - dAlpha*dAlpha/2.0*(nBeads-i)*(nBeads-i+1)*sinhA/sinhNmip1A*coshNmip1A/sinhNmip1A/sinhNmiA
+                      - dAlpha*dAlpha/2.0*(nBeads-i)*(nBeads-i)*sinhA/sinhNmip1A/sinhNmiA*coshNmiA/sinhNmiA;
             f11[i] = alpha == 0 ? ((nBeads-i)/(nBeads-i+1.0)) : (sinhNmiA/sinhNmip1A);
             f1N[i] = alpha == 0 ? (1.0/(nBeads-i+1)) : (sinhA/sinhNmip1A);
 
-            double n11 = sinhNmiA;
-            double n1N = sinhA;
-            double dn11 = (nBeads-i)*dAlpha*coshNmiA;
-            double dn1N = dAlpha*coshA;
-            double d = sinhNmip1A;
-            double dd = (nBeads-i+1)*dAlpha*coshNmip1A;
-            df11[i] = alpha == 0 ? 0 : ((d*dn11-n11*dd)/d/d);
-            df1N[i] = alpha == 0 ? 0 : ((d*dn1N-n1N*dd)/d/d);
+            df11[i] = alpha == 0 ? 0 : dAlpha/sinhNmip1A*((nBeads-i)*coshNmiA-(nBeads-i+1)*sinhNmiA*coshNmip1A/sinhNmip1A);
+            df1N[i] = alpha == 0 ? 0 : dAlpha/sinhNmip1A*(coshA - (nBeads-i+1)*sinhA*coshNmip1A/sinhNmip1A);
 
+            d2f11[i] = alpha == 0 ? 0 : (d2Alpha/dAlpha*df11[i] + dAlpha/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
+                     - 2*(nBeads-i+1)*(nBeads-i)*coshNmiA*coshNmip1A/sinhNmip1A
+                     + 1.0/2.0*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*alpha))));
+            d2f1N[i] = alpha == 0 ? 0 : (d2Alpha/dAlpha*df1N[i] + dAlpha/sinhNmip1A*(-2*(nBeads-i+1)*coshA*coshNmip1A/sinhNmip1A
+                     + sinhA + 1.0/2.0*(nBeads-i+1)*(nBeads-i+1)*sinhA/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*alpha))));
         }
     }
 
@@ -133,12 +140,18 @@ public class MCMoveHOReal2 extends MCMoveBox {
         return gamma;
     }
 
-    public double[][] getCenterCoefficients() {
-        return new double[][]{f11,f1N};
+    public double[] getdGamma() {
+        return dGamma;
     }
+
+    public double[][] getCenterCoefficients() { return new double[][]{f11,f1N}; }
 
     public double[][] getDCenterCoefficients() {
         return new double[][]{df11,df1N};
+    }
+
+    public double[][] getD2CenterCoefficients() {
+        return new double[][]{d2f11,d2f1N};
     }
 
     public void setOmega2(double omega2) {
