@@ -11,7 +11,7 @@ import etomica.units.dimensions.Null;
 public class MeterMSDHO extends DataSourceScalar {
     protected Box box;
 
-    public MeterMSDHO(int nBeads, Box box) {
+    public MeterMSDHO(Box box) {
         super("PI MSD", Null.DIMENSION);
         this.box = box;
     }

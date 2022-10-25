@@ -175,7 +175,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" k2_kin: " + sim.k2_kin);
         System.out.println(" isTIA: " + isTIA);
 
-        MeterMSDHO meterMSDHO = new MeterMSDHO(nBeads, sim.box);
+        MeterMSDHO meterMSDHO = new MeterMSDHO(sim.box);
 
         MeterPIPrim meterPrim = null;
         MeterPIVir meterVir = null;
@@ -434,7 +434,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" EnQ: " + EnQ);
 
         //Acceptance ratio
-        System.out.println("\n acceptance %: " + 100*sim.atomMove.getTracker().acceptanceRatio());
+        System.out.println("\n acceptance %: " + 100*sim.atomMove.getTracker().acceptanceProbability());
         if (sim.translateMove!= null) {
             System.out.println(" translate step size: " + sim.translateMove.getStepSize());
         }

@@ -11,20 +11,21 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -46,12 +47,13 @@ import java.util.List;
 
 public class LJPIMC extends Simulation {
 
-    public final PotentialMasterCell potentialMaster;
+    public final PotentialMasterCellPI potentialMaster;
     public final IntegratorMC integrator;
     public final PotentialMasterBonding pmBonding;
     public final MCMoveHOReal2 ringMove;
     public final Box box;
     public final MCMoveMolecule mcMoveTranslate;
+    public final PotentialComputeAggregate pmAgg;
 
     /**
      * Creates simulation with the given parameters
@@ -67,7 +69,7 @@ public class LJPIMC extends Simulation {
 
         box = new Box(space);
         addBox(box);
-        potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        potentialMaster = new PotentialMasterCellPI(getSpeciesManager(), box, 2, BondingInfo.noBonding());
 
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
@@ -97,16 +99,18 @@ public class LJPIMC extends Simulation {
         AtomType atomType = species.getLeafType();
         potentialMaster.setPairPotential(atomType, atomType, p2);
 
-        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
+        pmAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
 
+        integrator = new IntegratorMC(pmAgg, random, temperature, box);
+
+        double omega2 = .5;
         mcMoveTranslate = new MCMoveMolecule(random, potentialMaster, box);
-        integrator.getMoveManager().addMCMove(mcMoveTranslate);
+        if (omega2 == 0) integrator.getMoveManager().addMCMove(mcMoveTranslate);
 
         ((MCMoveStepTracker)mcMoveTranslate.getTracker()).setNoisyAdjustment(true);
 
-        double omega2 = 0;
         System.out.println("omega2: "+omega2);
-        ringMove = new MCMoveHOReal2(space, potentialMaster, random, temperature, omega2, box);
+        ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
         integrator.getMoveManager().addMCMove(ringMove);
     }
 
@@ -130,7 +134,7 @@ public class LJPIMC extends Simulation {
 
         LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc);
         long steps = params.steps;
-        int interval = 10;
+        int interval = numAtoms;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
 
@@ -168,7 +172,40 @@ public class LJPIMC extends Simulation {
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
+
+            MeterMSDHO meterMSD = new MeterMSDHO(sim.box);
+            AccumulatorHistory historyMSD = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyMSD.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            DataPumpListener pumpMSD = new DataPumpListener(meterMSD, historyMSD, interval);
+            sim.integrator.getEventManager().addListener(pumpMSD);
+            DisplayPlotXChart plotMSD = new DisplayPlotXChart();
+            plotMSD.setLabel("MSD");
+            plotMSD.setDoLegend(false);
+            historyMSD.addDataSink(plotMSD.makeSink("MSD history"));
+            simGraphic.add(plotMSD);
+
+            MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+            AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyPE.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            DataPumpListener pumpPE = new DataPumpListener(meterPE, historyPE, interval);
+            sim.integrator.getEventManager().addListener(pumpPE);
+            MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
+            AccumulatorHistory historyPE2 = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyPE2.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            DataPumpListener pumpPE2 = new DataPumpListener(meterPE2, historyPE2, interval);
+            sim.integrator.getEventManager().addListener(pumpPE2);
+            DisplayPlotXChart plotPE = new DisplayPlotXChart();
+            plotPE.setLabel("PE");
+//            plotPE.setDoLegend(false);
+            historyPE.addDataSink(plotPE.makeSink("PE history"));
+            plotPE.setLegend(new DataTag[]{meterPE.getTag()}, "Integrator PE");
+            historyPE2.addDataSink(plotPE.makeSink("PE2 history"));
+            plotPE.setLegend(new DataTag[]{meterPE2.getTag()}, "recompute PE");
+            simGraphic.add(plotPE);
+
             simGraphic.makeAndDisplayFrame(" PIMC ");
+
+
             return;
         }
 
@@ -183,23 +220,35 @@ public class LJPIMC extends Simulation {
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
         sim.integrator.getEventManager().addListener(pump);
 
+        // data collection
+        MeterMSDHO meterMSD = new MeterMSDHO(sim.box);
+        AccumulatorAverageFixed accMSD = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpMSD = new DataPumpListener(meterMSD, accMSD, interval);
+        sim.integrator.getEventManager().addListener(pumpMSD);
+
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         long t2 = System.currentTimeMillis();
 
+        System.out.println();
+        System.out.println("acceptance probability: " + sim.ringMove.getTracker().acceptanceProbability());
+        System.out.println("translate step size: " + sim.mcMoveTranslate.getStepSize());
+
         DataGroup dataPE = (DataGroup) acc.getData();
         double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
         double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
         double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
 
-        System.out.println();
-        System.out.println("acceptance probability: " + sim.ringMove.getTracker().acceptanceProbability());
-        System.out.println("translate step size: " + sim.mcMoveTranslate.getStepSize());
+        DataGroup dataMSD = (DataGroup) accMSD.getData();
+        double avgMSD = dataMSD.getValue(accMSD.AVERAGE.index);
+        double errMSD = dataMSD.getValue(accMSD.ERROR.index);
+        double corMSD = dataMSD.getValue(accMSD.BLOCK_CORRELATION.index);
 
         System.out.println();
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
+        System.out.println("MSD avg: " + avgMSD + "  err: " + errMSD + "  cor: " + corMSD);
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
