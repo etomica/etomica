@@ -40,6 +40,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected final MoleculeSource moleculeSource;
     protected IMolecule molecule;
     protected Vector[] latticePositions;
+    protected int nGrow;
 
     public MCMoveHOReal2(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
         super();
@@ -75,6 +76,12 @@ public class MCMoveHOReal2 extends MCMoveBox {
         for (int i=0; i<latticePositions.length; i++) {
             latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
+
+        nGrow = nBeads;
+    }
+
+    public void setNumGrow(int nGrow) {
+        this.nGrow = nGrow;
     }
 
     protected void init() {
@@ -163,8 +170,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
         }
         for (int j = 0; j < nBeads; j++) {
             Vector rj = atoms.get(j).getPosition();
-            int jj = j+1;
-            if (jj==nBeads) jj=0;
+            int jj = (j+1)%nBeads;
             Vector rjj = atoms.get(jj).getPosition();
             dr.Ev1Mv2(rjj, rj);
             box.getBoundary().nearestImage(dr);
@@ -179,7 +185,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
         double uOld = pm.computeOneOldMolecule(molecule);
 
         IAtomList atoms = molecule.getChildList();
-        Vector oldCOM = CenterOfMass.position(box, molecule);
+        Vector oldCOM = omega2 == 0 && nGrow == nBeads ? CenterOfMass.position(box, molecule) : null;
 
         double uhOld = uHarmonic(molecule);
         for (int j = 0; j < nBeads; j++) {
@@ -189,37 +195,48 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         IAtom atom0 = atoms.get(0);
         Vector prevAtomPosition = atom0.getPosition();
-        for (int j = 0; j < prevAtomPosition.getD(); j++) {
-            prevAtomPosition.setX(j, sigma0 * random.nextGaussian());
+        Vector endAtomPosition = prevAtomPosition;
+        int atomStart = 1, numToPlace = nGrow;
+        if (nGrow == nBeads) {
+            for (int j = 0; j < prevAtomPosition.getD(); j++) {
+                prevAtomPosition.setX(j, sigma0 * random.nextGaussian());
+            }
+            prevAtomPosition.PE(latticePositions[molecule.getIndex()]);
+            numToPlace--;
+        }
+        else {
+            int prevAtom = random.nextInt(nBeads);
+            atomStart = (prevAtom+1)%nBeads;
+            // need to add nBeads because (-1)%nBeads = -1
+            prevAtomPosition = atoms.get(prevAtom).getPosition();
+            endAtomPosition = atoms.get((atomStart+nGrow)%nBeads).getPosition();
         }
         Vector newCOM = box.getSpace().makeVector();
-        for (int k = 1; k < nBeads; k++) {
-            Vector kPosition = atoms.get(k).getPosition();
+        for (int k = 0; k < numToPlace; k++) {
+            int numPlaced = nBeads - numToPlace + k;
+            int kk = (atomStart + k) % nBeads;
+            Vector kPosition = atoms.get(kk).getPosition();
 
-            double sigma = chainSigmas[k];
+            double sigma = chainSigmas[numPlaced];
 
             for (int j = 0; j < kPosition.getD(); j++) {
                 kPosition.setX(j, sigma * random.nextGaussian());
             }
 
-            kPosition.PEa1Tv1( f11[k], prevAtomPosition);
-            kPosition.PEa1Tv1( f1N[k], atom0.getPosition());
+            kPosition.PEa1Tv1( f11[numPlaced], prevAtomPosition);
+            kPosition.PEa1Tv1( f1N[numPlaced], endAtomPosition);
+            kPosition.PEa1Tv1(1 - f11[numPlaced] - f1N[numPlaced], latticePositions[molecule.getIndex()]);
 
             prevAtomPosition = kPosition;
 
             newCOM.PE(kPosition);
         }
 
-        if (omega2 == 0) {
-            newCOM.TE(1.0/nBeads);
+        if (nGrow == nBeads && omega2 == 0) {
+            newCOM.TE(1.0 / nBeads);
             newCOM.ME(oldCOM);
             for (int k = 0; k < nBeads; k++) {
                 atoms.get(k).getPosition().ME(newCOM);
-            }
-        }
-        else {
-            for (int k = 0; k < nBeads; k++) {
-                atoms.get(k).getPosition().PE(latticePositions[molecule.getIndex()]);
             }
         }
 
