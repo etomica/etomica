@@ -34,8 +34,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected Vector[] rdot;
     protected double drdotHdrdot;
 
-
-
     public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double beta, MCMoveHOReal2 move) {
         this.move = move;
         this.beta = beta;
@@ -70,7 +68,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         int nBeads = box.getLeafList().size();
 
         pmBonding.computeAll(true);
-        pcP1.computeAll(true, null);
+        pcP1.computeAll(true);
 
         double En0 = 0.5*nBeads/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
         double Cvn0 = nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
@@ -136,8 +134,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
                         a.PEa1Tv1(d2f11[j], rPrev);
                         a.PEa1Tv1(d2f1N[j], r0);
-                        a.PEa1Tv1(2*df11[j], vPrev);
-                        a.PEa1Tv1(2*df1N[j], v0);
+                        a.PEa1Tv1(2.0*df11[j], vPrev);
+                        a.PEa1Tv1(2.0*df1N[j], v0);
                         a.PEa1Tv1(f11[j], aPrev);
                         a.PEa1Tv1(f1N[j], a0);
 
@@ -173,9 +171,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
         pcP1.computeAll(true, this);
         Cvn -= beta*drdotHdrdot;
-
-//        System.out.println("RealHMA: "+En);
-
         x[0] = En0 + En/ns - EnShift;
         x[1] = Cvn0 + Cvn/ns;
 

@@ -134,7 +134,7 @@ public class SimQuantumAO extends Simulation {
         }
         else {
             // custom parameters
-            params.numSteps = 100000;
+            params.numSteps = 1000000;
             params.temperature = 1.0;
             params.nBeads = 32;
             params.k2 = 1.0;
@@ -198,7 +198,6 @@ public class SimQuantumAO extends Simulation {
             if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
             meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, 1/temperature, sim.atomMoveReal2);
         }
-
 
         MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box); //Bad!!
         MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);//Bad!!
@@ -315,7 +314,6 @@ public class SimQuantumAO extends Simulation {
         accumulatorHMAc.reset();
         accumulatorHMA.reset();
         accumulatorReal2.reset();
-
 
         //run
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
