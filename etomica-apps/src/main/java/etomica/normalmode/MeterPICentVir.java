@@ -7,6 +7,8 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.molecule.CenterOfMass;
+import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.space.Tensor;
@@ -22,7 +24,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected Vector rc;
+    protected Vector[] rc;
     protected double EnShift;
 
 
@@ -38,8 +40,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         this.nBeads = nBeads;
         beta = this.betaN*this.nBeads;
         this.box = box;
-        rc = box.getSpace().makeVector();
         this.EnShift = 0;
+        rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
     }
 
     @Override
@@ -47,21 +49,18 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         double vir = 0;
-        rc.E(0);
-        Vector ri;
-        for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            rc.PE(ri);
-        }
-        rc.TE(1.0/nBeads);
-
         pcP1.computeAll(true, this);//it needs rc
         Vector[] forces = pcP1.getForces();
-        for (int i = 0; i < nBeads; i++){
-            ri = box.getLeafList().get(i).getPosition();
-            vir -= forces[i].dot(ri);
-            vir += forces[i].dot(rc);
+        for (IMolecule molecule : box.getMoleculeList()) {
+            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
+            for (IAtom atom : molecule.getChildList()) {
+                Vector ri = atom.getPosition();
+                vir -= forces[atom.getLeafIndex()].dot(ri);
+                vir += forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
+
+            }
         }
+
         x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift; //En
         x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
         return data;
@@ -71,10 +70,11 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector rj = box.getLeafList().get(j).getPosition();
         Vector tmpV = box.getSpace().makeVector();
-        tmpV.Ev1Mv2(rj, rc);
+        int moleculeIndex = box.getLeafList().get(i).getParentGroup().getIndex();
+        tmpV.Ev1Mv2(rj, rc[moleculeIndex]);
         Hij.transform(tmpV);
         rHr += ri.dot(tmpV);
-        rHr -= rc.dot(tmpV);
+        rHr -= rc[moleculeIndex].dot(tmpV);
     }
 
     public IDataInfo getDataInfo() {
