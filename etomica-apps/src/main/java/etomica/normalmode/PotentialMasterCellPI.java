@@ -161,4 +161,63 @@ public class PotentialMasterCellPI extends PotentialMasterCell {
         tMC += System.nanoTime() - t1;
         return u1;
     }
+
+    public void computeAllTruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        if (!doAllTruncationCorrection) {
+            return;
+        }
+        double uCor = 0;
+        double duCor = 0;
+        if (box.getMoleculeList().size() == 0) {
+            uCorrection[0] = uCor;
+            duCorrection[0] = duCor;
+            return;
+        }
+        int nBeads = box.getMoleculeList().get(0).getChildList().size();
+        for (int i = 0; i < atomCountByType.length; i++) {
+            for (int j = i; j < atomCountByType.length; j++) {
+                IPotential2 p = pairPotentials[i][j];
+                if (p == null) continue;
+                int numPairs;
+                if (j == i) {
+                    // numMolecules * (numMoleclues-1)/2 * nBeads
+                    numPairs = atomCountByType[i] * (atomCountByType[j]/nBeads - 1) / 2;
+                } else {
+                    // numMolecules * numMoleclues * nBeads
+                    numPairs = atomCountByType[i] * atomCountByType[j] / nBeads;
+                }
+                double pairDensity = numPairs / box.getBoundary().volume();
+
+                double[] u = new double[1];
+                double[] du = new double[1];
+                p.u01TruncationCorrection(space, u, du);
+                uCor += pairDensity * u[0];
+                duCor += pairDensity * du[0];
+
+            }
+        }
+        uCorrection[0] = uCor;
+        duCorrection[0] = duCor;
+    }
+
+    public double computeOneTruncationCorrection(int iAtom) {
+        if (!doOneTruncationCorrection) {
+            return 0;
+        }
+        int iType = box.getLeafList().get(iAtom).getType().getIndex();
+        int nBeads = box.getMoleculeList().get(0).getChildList().size();
+        double uCorrection = 0;
+        for (int j = 0; j < atomCountByType.length; j++) {
+            IPotential2 p = pairPotentials[iType][j];
+            double pairDensity;
+            if (iType == j) {
+                pairDensity = (atomCountByType[j]/nBeads - 1) / box.getBoundary().volume();
+            } else {
+                pairDensity = atomCountByType[j]/nBeads / box.getBoundary().volume();
+            }
+            double integral = p.integral(space, p.getRange());
+            uCorrection += pairDensity * integral;
+        }
+        return uCorrection;
+    }
 }
