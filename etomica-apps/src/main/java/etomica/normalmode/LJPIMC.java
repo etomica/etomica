@@ -25,7 +25,9 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -58,7 +60,7 @@ public class LJPIMC extends Simulation {
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMC(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc) {
+    public LJPIMC(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -103,13 +105,11 @@ public class LJPIMC extends Simulation {
 
         integrator = new IntegratorMC(pmAgg, random, temperature, box);
 
-        double omega2 = .5;
         mcMoveTranslate = new MCMoveMolecule(random, potentialMaster, box);
         if (omega2 == 0) integrator.getMoveManager().addMCMove(mcMoveTranslate);
 
         ((MCMoveStepTracker)mcMoveTranslate.getTracker()).setNoisyAdjustment(true);
 
-        System.out.println("omega2: "+omega2);
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
         integrator.getMoveManager().addMCMove(ringMove);
     }
@@ -121,7 +121,7 @@ public class LJPIMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.steps = 100000;
+//            params.steps = 1000000;
         }
 
         Space space = Space.getInstance(params.D);
@@ -131,20 +131,26 @@ public class LJPIMC extends Simulation {
         double temperature = params.temperature;
         double density = params.density;
         double rc = params.rc;
+        double omega2 = params.k2/mass;
+        boolean isGraphic = params.isGraphic;
 
-        LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc);
+        LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc, omega2);
         long steps = params.steps;
         int interval = numAtoms;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
 
         System.out.println("Lennard-Jones Monte Carlo simulation");
-        System.out.println("N: " + params.numAtoms);
-        System.out.println("T: " + params.temperature);
-        System.out.println("density: " + params.density);
-        System.out.println("steps: " + params.steps);
+        System.out.println("mass: " + mass);
+        System.out.println("k2: " + params.k2);
+        System.out.println("N: " + numAtoms);
+        System.out.println("nBeads: " + nBeads);
+        System.out.println("T: " + temperature);
+        System.out.println("density: " + density);
+        System.out.println("steps: " + steps);
+        System.out.println("rc: " + rc);
 
-        if (false) {
+        if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -214,18 +220,35 @@ public class LJPIMC extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
-        // data collection
-        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-        sim.integrator.getEventManager().addListener(pump);
+        // <U>
+//        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+//        AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
+//        sim.integrator.getEventManager().addListener(pump);
 
-        // data collection
-        MeterMSDHO meterMSD = new MeterMSDHO(sim.box);
-        AccumulatorAverageFixed accMSD = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMSD = new DataPumpListener(meterMSD, accMSD, interval);
-        sim.integrator.getEventManager().addListener(pumpMSD);
+//            public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, int nBeads, double betaN, Box box) {
 
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, sim.ringMove.betaN, sim.box);
+        AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
+
+        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, sim.ringMove.betaN, nBeads, sim.box);
+        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpVir);
+
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, sim.ringMove.betaN, nBeads, sim.box);
+        AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);
+
+        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, sim.ringMove.betaN, nBeads, sim.box);
+        AccumulatorAverageCovariance accumulatorHMAc = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
+
+        //Run ...
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
@@ -236,30 +259,57 @@ public class LJPIMC extends Simulation {
         System.out.println("acceptance probability: " + sim.ringMove.getTracker().acceptanceProbability());
         System.out.println("translate step size: " + sim.mcMoveTranslate.getStepSize());
 
-        DataGroup dataPE = (DataGroup) acc.getData();
-        double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
-        double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
-        double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
+        //<U>
+//        DataGroup dataPE = (DataGroup) acc.getData();
+//        double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
+//        double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
+//        double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
+//
+//        System.out.println();
+//        double En_sim = avg + sim.box.getSpace().D()/2.0*temperature;
+//        System.out.println("energy avg: " + En_sim + "  err: " + err + "  cor: " + cor);
 
-        DataGroup dataMSD = (DataGroup) accMSD.getData();
-        double avgMSD = dataMSD.getValue(accMSD.AVERAGE.index);
-        double errMSD = dataMSD.getValue(accMSD.ERROR.index);
-        double corMSD = dataMSD.getValue(accMSD.BLOCK_CORRELATION.index);
+        //Prim
+        DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();
+        double avgEnPrim = dataPrim.getValue(accumulatorPrim.AVERAGE.index)/numAtoms;
+        double errEnPrim = dataPrim.getValue(accumulatorPrim.ERROR.index)/numAtoms;
+        double corEnPrim = dataPrim.getValue(accumulatorPrim.BLOCK_CORRELATION.index);
+        System.out.println(" En_prim: " + avgEnPrim + " +/- " + errEnPrim + " cor: " + corEnPrim);
 
-        System.out.println();
-        System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
-        System.out.println("MSD avg: " + avgMSD + "  err: " + errMSD + "  cor: " + corMSD);
+        //Vir
+        DataGroup dataVir = (DataGroup) accumulatorVir.getData();
+        double avgEnVir = dataVir.getValue(accumulatorVir.AVERAGE.index)/numAtoms;
+        double errEnVir = dataVir.getValue(accumulatorVir.ERROR.index)/numAtoms;
+        double corEnVir = dataVir.getValue(accumulatorVir.BLOCK_CORRELATION.index);
+        System.out.println(" En_vir: " + avgEnVir + " +/- " + errEnVir + " cor: " + corEnVir);
+
+        //CentVir
+        DataGroup dataCentVir = (DataGroup) accumulatorCentVir.getData();
+        double avgEnCentVir = dataCentVir.getValue(accumulatorCentVir.AVERAGE.index)/numAtoms;
+        double errEnCentVir = dataCentVir.getValue(accumulatorCentVir.ERROR.index)/numAtoms;
+        double corEnCentVir = dataCentVir.getValue(accumulatorCentVir.BLOCK_CORRELATION.index);
+        System.out.println(" En_cvir: " + avgEnCentVir + " +/- " + errEnCentVir + " cor: " + corEnCentVir);
+
+        //HMAc
+        DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
+        double avgEnHMAc = dataHMAc.getValue(accumulatorHMAc.AVERAGE.index)/numAtoms;
+        double errEnHMAc = dataHMAc.getValue(accumulatorHMAc.ERROR.index)/numAtoms;
+        double corEnHMAc = dataHMAc.getValue(accumulatorHMAc.BLOCK_CORRELATION.index);
+        System.out.println(" En_hmac: " + avgEnHMAc + " +/- " + errEnHMAc + " cor: " + corEnHMAc);
+
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
         public int nBeads = 16;
-        public long steps = 1000000;
-        public double density = 1;
+        public double k2 = 219.23;
+        public long steps = 100000;
+        public double density = 1.0;
         public double temperature = 0.5;
         public int numAtoms = 108;
-        public double mass = 1000;
+        public double mass = 100.0;
         public double rc = 2.5;
+        public boolean isGraphic = false;
     }
 }

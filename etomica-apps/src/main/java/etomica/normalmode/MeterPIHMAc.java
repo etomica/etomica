@@ -7,27 +7,31 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.molecule.CenterOfMass;
+import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCallback;
-import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected Box box;
-    protected final PotentialComputeField pcP1;
+    protected final PotentialCompute pcP1;
     protected double betaN, beta;
     protected int nBeads;
     protected double rHr;
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected Vector rc;
+    protected Vector[] rc;
     protected double EnShift;
+    protected double dim;
+    protected int numAtoms;
 
 
-    public MeterPIHMAc(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
-        int nData = 2;
+    public MeterPIHMAc(PotentialCompute pcP1, double betaN, int nBeads, Box box) {
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -38,8 +42,10 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         this.nBeads = nBeads;
         beta = this.betaN*this.nBeads;
         this.box = box;
-        rc = box.getSpace().makeVector();
         this.EnShift = 0;
+        rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        dim = box.getSpace().D();
+        numAtoms = box.getMoleculeList().size();
     }
 
     @Override
@@ -48,31 +54,34 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         rHr = 0;
         double vir = 0;
         double virc = 0;
-        rc.E(0);
-        for (int i = 0; i < nBeads; i++){
-            rc.PE(box.getLeafList().get(i).getPosition());
-        }
-        rc.TE(1.0/nBeads);
 
-        pcP1.computeAll(true, this);//it needs rc
+        pcP1.computeAll(true);
+//        pcP1.computeAll(true, this);//it needs rc
         Vector[] forces = pcP1.getForces();
-        for (int i = 0; i < nBeads; i++){
-            vir += forces[i].dot(box.getLeafList().get(i).getPosition());
-            vir -= 2.0*forces[i].dot(rc);
-            virc += forces[i].dot(rc);
+        for (IMolecule molecule : box.getMoleculeList()) {
+            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
+            for (IAtom atom : molecule.getChildList()) {
+                Vector ri = atom.getPosition();
+                vir -= forces[atom.getLeafIndex()].dot(ri);
+                vir += 2.0*forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
+                virc -= forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
+            }
         }
 
-        x[0] = 1.0/beta + pcP1.getLastEnergy() - 1.0/2.0*vir - EnShift; //En
-        x[1] = 1.0/beta/beta + 1.0/4.0/beta*(3.0*vir + 2.0*virc - rHr); //Cvn/kb^2, without Var
+        x[0] = dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift; //En
+//        x[1] = 1.0/beta/beta + 1.0/4.0/beta*(3.0*vir - 2.0*virc - rHr); //Cvn/kb^2, without Var
         return data;
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        Vector ri = box.getLeafList().get(i).getPosition();
+        Vector rj = box.getLeafList().get(j).getPosition();
         Vector tmpV = box.getSpace().makeVector();
-        tmpV.Ev1Mv2(box.getLeafList().get(j).getPosition(), rc);
-        tmpV.ME(rc);
+        int moleculeIndex = box.getLeafList().get(i).getParentGroup().getIndex();
+        tmpV.Ev1Mv2(rj, rc[moleculeIndex]);
+        tmpV.ME(rc[moleculeIndex]);
         Hij.transform(tmpV);
-        rHr += box.getLeafList().get(i).getPosition().dot(tmpV) - 2.0*rc.dot(tmpV);
+        rHr += ri.dot(tmpV) - 2.0*rc[moleculeIndex].dot(tmpV);
     }
 
     public IDataInfo getDataInfo() {

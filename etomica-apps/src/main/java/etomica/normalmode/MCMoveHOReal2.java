@@ -79,7 +79,11 @@ public class MCMoveHOReal2 extends MCMoveBox {
             latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
 
-        nGrow = nBeads;
+        nGrow = 1;
+        if (nBeads > 1) {
+            nGrow = nBeads/2;
+        }
+        System.out.println("nGrow: " + nGrow);
     }
 
     public void setNumGrow(int nGrow) {

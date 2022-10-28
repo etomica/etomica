@@ -10,14 +10,14 @@ import etomica.data.types.DataDoubleArray;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCallback;
-import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected Box box;
-    protected final PotentialComputeField pcP1;
+    protected final PotentialCompute pcP1;
     protected double betaN, beta;
     protected int nBeads;
     protected double rHr;
@@ -26,10 +26,11 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected DataDoubleArray data;
     protected Vector[] rc;
     protected double EnShift;
+    protected double dim;
+    protected int numAtoms;
 
-
-    public MeterPICentVir(PotentialComputeField pcP1, double betaN, int nBeads, Box box) {
-        int nData = 2;
+    public MeterPICentVir(PotentialCompute pcP1, double betaN, int nBeads, Box box) {
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -42,6 +43,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         this.box = box;
         this.EnShift = 0;
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        dim = box.getSpace().D();
+        numAtoms = box.getMoleculeList().size();
     }
 
     @Override
@@ -49,7 +52,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         double vir = 0;
-        pcP1.computeAll(true, this);//it needs rc
+//        pcP1.computeAll(true, this);//it needs rc
+        pcP1.computeAll(true);//it needs rc
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
@@ -61,8 +65,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
             }
         }
 
-        x[0] = 1.0/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift; //En
-        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift; //En
+//        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
         return data;
     }
 

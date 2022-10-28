@@ -1,23 +1,27 @@
 package etomica.normalmode;
 
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.potential.PotentialMasterBonding;
-import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Null;
 
 public class MeterPIPrim implements IDataSource {
     protected final PotentialMasterBonding pmBonding;
-    protected final PotentialComputeField pcP1;
+    protected final PotentialCompute pcP1;
     protected double beta, betaN;
     protected int nBeads;
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected double EnShift;
+    protected double dim;
+    protected int numAtoms;
+    protected Box box;
 
-    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, int nBeads, double betaN) {
-        int nData = 2;
+    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double betaN, Box box) {
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -28,6 +32,9 @@ public class MeterPIPrim implements IDataSource {
         this.nBeads = nBeads;
         this.beta = this.betaN*nBeads;
         this.EnShift = 0;
+        dim = box.getSpace().D();
+        numAtoms = box.getMoleculeList().size();
+        this.box = box;
     }
 
     public IDataInfo getDataInfo() {
@@ -45,8 +52,8 @@ public class MeterPIPrim implements IDataSource {
 
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
-        x[0] = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift; //En
-        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta;  //Cvn/kb^2, without Var
+        x[0] = dim*numAtoms/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift; //En
+//        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta;  //Cvn/kb^2, without Var
         return data;
     }
 

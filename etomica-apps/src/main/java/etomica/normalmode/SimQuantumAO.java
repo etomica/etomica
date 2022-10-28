@@ -191,7 +191,7 @@ public class SimQuantumAO extends Simulation {
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
-            if (!onlyCentroid) meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, sim.betaN);
+            if (!onlyCentroid) meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, sim.betaN, sim.box);
             if (!onlyCentroid) meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterCentVir = new MeterPICentVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
