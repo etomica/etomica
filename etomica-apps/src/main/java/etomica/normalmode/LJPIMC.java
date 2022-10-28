@@ -72,6 +72,7 @@ public class LJPIMC extends Simulation {
         box = new Box(space);
         addBox(box);
         potentialMaster = new PotentialMasterCellPI(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
 
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
