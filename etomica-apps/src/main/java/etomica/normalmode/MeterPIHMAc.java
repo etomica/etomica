@@ -28,7 +28,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected double EnShift;
     protected double dim;
     protected int numAtoms;
-
+    protected Vector[] latticePositions;
 
     public MeterPIHMAc(PotentialCompute pcP1, double betaN, int nBeads, Box box) {
         int nData = 1;
@@ -46,6 +46,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
+
+        latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        for (int i=0; i<latticePositions.length; i++) {
+            latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
+        }
+
     }
 
     @Override
@@ -54,6 +60,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         rHr = 0;
         double vir = 0;
         double virc = 0;
+        Vector drc = box.getSpace().makeVector();
+        Vector dri = box.getSpace().makeVector();
 
         pcP1.computeAll(true);
 //        pcP1.computeAll(true, this);//it needs rc
@@ -62,9 +70,14 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
-                vir -= forces[atom.getLeafIndex()].dot(ri);
-                vir += 2.0*forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
-                virc -= forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
+                dri.Ev1Mv2(ri, latticePositions[molecule.getIndex()]);
+                drc.Ev1Mv2(rc[molecule.getIndex()], latticePositions[molecule.getIndex()]);
+                box.getBoundary().nearestImage(dri);
+                box.getBoundary().nearestImage(drc);
+
+                vir -= forces[atom.getLeafIndex()].dot(dri);
+                vir += 2.0*forces[atom.getLeafIndex()].dot(drc);
+                virc -= forces[atom.getLeafIndex()].dot(drc);
             }
         }
 

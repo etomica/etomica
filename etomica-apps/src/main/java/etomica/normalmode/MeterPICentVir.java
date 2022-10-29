@@ -50,6 +50,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     @Override
     public IData getData() {
         double[] x = data.getData();
+        Vector rirc = box.getSpace().makeVector();
         rHr = 0;
         double vir = 0;
 //        pcP1.computeAll(true, this);//it needs rc
@@ -59,9 +60,9 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
-                vir -= forces[atom.getLeafIndex()].dot(ri);
-                vir += forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
-
+                rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
+                box.getBoundary().nearestImage(rirc);
+                vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
 

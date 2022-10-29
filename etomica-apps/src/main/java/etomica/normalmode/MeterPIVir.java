@@ -7,6 +7,7 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
@@ -26,6 +27,7 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
     protected double EnShift;
     protected double dim;
     protected int numAtoms;
+    protected Vector[] rc;
 
     public MeterPIVir(PotentialCompute pcP1, double betaN, int nBeads, Box box) {
         int nData = 1;
@@ -41,11 +43,13 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         this.EnShift = 0;
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
+        rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
     }
 
     @Override
     public IData getData() {
         double[] x = data.getData();
+        Vector rirc = box.getSpace().makeVector();
         rHr = 0;
         pcP1.computeAll(true);
 //        pcP1.computeAll(true, this);
@@ -53,8 +57,13 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         double vir = 0;
 
         for (IMolecule molecule : box.getMoleculeList()) {
+            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
+//                rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
+//                box.getBoundary().nearestImage(rirc);
+//                vir -= forces[atom.getLeafIndex()].dot(rirc);
+//                vir -= forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
                 vir -= forces[atom.getLeafIndex()].dot(ri);
             }
         }

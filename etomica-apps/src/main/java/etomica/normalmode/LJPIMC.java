@@ -249,6 +249,11 @@ public class LJPIMC extends Simulation {
         DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
 
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, sim.ringMove.beta, sim.ringMove);
+        AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);
+
         //Run ...
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
@@ -298,13 +303,20 @@ public class LJPIMC extends Simulation {
         double corEnHMAc = dataHMAc.getValue(accumulatorHMAc.BLOCK_CORRELATION.index);
         System.out.println(" En_hmac: " + avgEnHMAc + " +/- " + errEnHMAc + " cor: " + corEnHMAc);
 
+        //HMA-EC-staging
+        DataGroup dataHMAReal2 = (DataGroup) accumulatorHMAReal2.getData();
+        double avgEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.AVERAGE.index)/numAtoms;
+        double errEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.ERROR.index)/numAtoms;
+        double corEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.BLOCK_CORRELATION.index);
+        System.out.println(" En_hma2: " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
+
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public int nBeads = 16;
-        public double k2 = 219.23;
+        public int nBeads = 4;
+        public double k2 = 219.231319;
         public long steps = 100000;
         public double density = 1.0;
         public double temperature = 0.5;
