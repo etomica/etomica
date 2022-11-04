@@ -22,4 +22,5 @@ public class MCMoveTrialCompletedEvent extends MCMoveEvent implements java.io.Se
     
     private final boolean isAccepted;
     private final MCMoveManager moveManager;
+    public double chi;
 }
