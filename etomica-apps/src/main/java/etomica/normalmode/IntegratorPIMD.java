@@ -47,10 +47,10 @@ public class IntegratorPIMD extends IntegratorMD {
         mScale = new double[n];
         fScale = new double[n];
         fScale0 = new double[n];
-        mScale[0] = Math.sinh(alpha) * Math.tanh(n*alpha/2);
-        fScale0[0] = Math.sinh((n / 2) * alpha) / Math.sinh((n / 2) * alpha); // =1
+        mScale[0] = 2 * Math.sinh(alpha) * Math.tanh(n*alpha/2);
+        fScale0[0] = Math.cosh((n / 2) * alpha) / Math.cosh((n / 2) * alpha); // =1
         for (int i=1; i<mScale.length; i++) {
-            fScale0[i] = Math.sinh((n / 2 - i) * alpha) / Math.sinh((n / 2) * alpha);
+            fScale0[i] = Math.cosh((n / 2 - i) * alpha) / Math.cosh((n / 2) * alpha);
             fScale[i] = Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i) * alpha);
             mScale[i] = Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i) * alpha);
         }
