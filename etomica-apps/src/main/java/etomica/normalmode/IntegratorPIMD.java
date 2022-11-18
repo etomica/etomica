@@ -48,6 +48,7 @@ public class IntegratorPIMD extends IntegratorMD {
         fScale = new double[n];
         fScale0 = new double[n];
         mScale[0] = Math.sinh(alpha) * Math.tanh(n*alpha/2);
+        fScale0[0] = Math.sinh((n / 2) * alpha) / Math.sinh((n / 2) * alpha); // =1
         for (int i=1; i<mScale.length; i++) {
             fScale0[i] = Math.sinh((n / 2 - i) * alpha) / Math.sinh((n / 2) * alpha);
             fScale[i] = Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i) * alpha);
@@ -59,9 +60,6 @@ public class IntegratorPIMD extends IntegratorMD {
         super.doStepInternal();
         Vector[] forces = potentialCompute.getForces();
         int n = box.getMoleculeList().get(0).getChildList().size();
-        double omegaN = temperature*n;
-        double D = 2 + omega2 / (omegaN*omegaN);
-        double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
         for (IMolecule m : box.getMoleculeList()) {
             IAtomList atoms = m.getChildList();
             Vector dr0 = box.getSpace().makeVector();
@@ -79,7 +77,7 @@ public class IntegratorPIMD extends IntegratorMD {
                 dr.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(dr);
                 Vector foo = box.getSpace().makeVector();
-                foo.Ea1Tv1(-mass * omega2, dr);
+                foo.Ea1Tv1(mass * omega2, dr);
                 foo.ME(forces[a.getLeafIndex()]);
                 fu[0].PEa1Tv1(fScale0[i], foo);
                 if (i > 0) {
@@ -95,7 +93,6 @@ public class IntegratorPIMD extends IntegratorMD {
                     u[i].PEa1Tv1(-f11[i], drPrev);
                     u[i].PEa1Tv1(-f1N[i], dr0);
                 }
-                u[i].TE(1.0 / sigma[i]);
                 drPrev.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(drPrev);
 
@@ -105,8 +102,8 @@ public class IntegratorPIMD extends IntegratorMD {
             // as atom's velocity.
             for (IAtom a : atoms) {
                 // velocity-Verlet: propagate velocity by half, u by full timestep
-//                v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), force);  // p += f(old)*dt/2
-//                r.PEa1Tv1(timeStep, v);         // r += p*dt/m
+//                v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), force);
+//                r.PEa1Tv1(timeStep, v);
                 int i = a.getIndex();
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 double meff = mass * mScale[i];
