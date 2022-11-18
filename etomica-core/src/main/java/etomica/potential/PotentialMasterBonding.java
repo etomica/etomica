@@ -279,9 +279,11 @@ public class PotentialMasterBonding implements PotentialCompute {
         if (pc != null) pc.pairCompute(iAtom.getLeafIndex(), jAtom.getLeafIndex(), dr, u012);
         if (doForces) {
             double duij = u012[1];
-            dr.TE(duij / r2);
-            forces[iAtom.getLeafIndex()].PE(dr);
-            forces[jAtom.getLeafIndex()].ME(dr);
+            if  (duij != 0) {
+                dr.TE(duij / r2);
+                forces[iAtom.getLeafIndex()].PE(dr);
+                forces[jAtom.getLeafIndex()].ME(dr);
+            }
         }
         return uij;
     }
