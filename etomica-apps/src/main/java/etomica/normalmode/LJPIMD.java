@@ -66,7 +66,7 @@ public class LJPIMD extends Simulation {
 
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .setDynamic(true)
-                .addCount(AtomType.simple("A", mass/nBeads), nBeads)
+                .addCount(AtomType.simple("A", mass), nBeads)
                 .withConformation(new ConformationLinear(space, 0))
                 .build();
         addSpecies(species);
@@ -108,7 +108,7 @@ public class LJPIMD extends Simulation {
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
-        integrator = new IntegratorPIMD(pmAgg, random, temperature, temperature, box, ringMove);
+        integrator = new IntegratorPIMD(pmAgg, random, 0.001, temperature, box, ringMove);
     }
 
     public static void main(String[] args) {
