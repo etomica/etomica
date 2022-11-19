@@ -48,9 +48,9 @@ public class IntegratorPIMD extends IntegratorMD {
         fScale = new double[n];
         fScale0 = new double[n];
         mScale[0] = 2 * Math.sinh(alpha) * Math.tanh(n*alpha/2);
-        fScale0[0] = Math.cosh((n / 2) * alpha) / Math.cosh((n / 2) * alpha); // =1
+        fScale0[0] = 1;
         for (int i=1; i<mScale.length; i++) {
-            fScale0[i] = Math.cosh((n / 2 - i) * alpha) / Math.cosh((n / 2) * alpha);
+            fScale0[i] = Math.cosh((n / 2.0 - i) * alpha) / Math.cosh((n / 2.0) * alpha);
             fScale[i] = Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i) * alpha);
             mScale[i] = Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i) * alpha);
         }
@@ -71,17 +71,16 @@ public class IntegratorPIMD extends IntegratorMD {
             Vector drPrev = box.getSpace().makeVector();
             drPrev.E(dr0);
             // first compute collective coordinates and forces
-            for (IAtom a : atoms) {
-                int i = a.getIndex();
+            for (int i=atoms.size()-1; i>=0; i--) {
+                IAtom a = atoms.get(i);
                 Vector dr = box.getSpace().makeVector();
                 dr.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(dr);
                 Vector foo = box.getSpace().makeVector();
-                foo.Ea1Tv1(mass * omega2, dr);
-                foo.ME(forces[a.getLeafIndex()]);
+                foo.E(forces[a.getLeafIndex()]);
                 fu[0].PEa1Tv1(fScale0[i], foo);
                 if (i > 0) {
-                    fu[a.getIndex()].E(foo);
+                    fu[i].E(foo);
                     if (i < n - 1) {
                         fu[a.getIndex()].PEa1Tv1(fScale[i], fu[i + 1]);
                     }
@@ -132,17 +131,16 @@ public class IntegratorPIMD extends IntegratorMD {
             double mass = atoms.get(0).getType().getMass();
             // first compute collective forces
             Vector[] fu = box.getSpace().makeVectorArray(atoms.size());
-            for (IAtom a : atoms) {
-                int i = a.getIndex();
+            for (int i=atoms.size()-1; i>=0; i--) {
+                IAtom a = atoms.get(i);
                 Vector dr = box.getSpace().makeVector();
                 dr.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(dr);
                 Vector foo = box.getSpace().makeVector();
-                foo.Ea1Tv1(-mass * omega2, dr);
-                foo.ME(forces[a.getLeafIndex()]);
+                foo.E(forces[a.getLeafIndex()]);
                 fu[0].PEa1Tv1(fScale0[i], foo);
                 if (i > 0) {
-                    fu[a.getIndex()].E(foo);
+                    fu[i].E(foo);
                     if (i < n - 1) {
                         fu[a.getIndex()].PEa1Tv1(fScale[i], fu[i + 1]);
                     }
