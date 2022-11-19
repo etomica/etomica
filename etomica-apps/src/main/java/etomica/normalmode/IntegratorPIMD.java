@@ -86,14 +86,6 @@ public class IntegratorPIMD extends IntegratorMD {
                     }
                 }
 
-                u[i].Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(u[i]);
-                if (i > 0) {
-                    u[i].PEa1Tv1(-f11[i], drPrev);
-                    u[i].PEa1Tv1(-f1N[i], dr0);
-                }
-                drPrev.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(drPrev);
 
             }
             drPrev.E(dr0);
@@ -104,6 +96,14 @@ public class IntegratorPIMD extends IntegratorMD {
 //                v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), force);
 //                r.PEa1Tv1(timeStep, v);
                 int i = a.getIndex();
+
+                u[i].Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
+                box.getBoundary().nearestImage(u[i]);
+                if (i > 0) {
+                    u[i].PEa1Tv1(-f11[i], drPrev);
+                    u[i].PEa1Tv1(-f1N[i], dr0);
+                }
+
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 double meff = mass * mScale[i];
                 v.PEa1Tv1(0.5 * timeStep / meff, fu[i]);
@@ -116,6 +116,7 @@ public class IntegratorPIMD extends IntegratorMD {
                     r.PEa1Tv1(f1N[i], dr0);
                 }
                 r.PE(u[i]);
+                drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
             }
         }
 
