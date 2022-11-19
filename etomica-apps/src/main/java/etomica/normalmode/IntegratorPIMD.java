@@ -110,6 +110,8 @@ public class IntegratorPIMD extends IntegratorMD {
                 u[i].PEa1Tv1(timeStep, v);
 
                 Vector r = a.getPosition();
+                Vector rOrig = box.getSpace().makeVector();
+                rOrig.E(r);
                 r.E(latticePositions[m.getIndex()]);
                 if (i>0) {
                     r.PEa1Tv1(f11[i], drPrev);
@@ -117,6 +119,11 @@ public class IntegratorPIMD extends IntegratorMD {
                 }
                 r.PE(u[i]);
                 drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
+                // shift atom back to side of box where it started, even if outside
+                Vector drShift = box.getSpace().makeVector();
+                drShift.Ev1Mv2(r, rOrig);
+                box.getBoundary().nearestImage(drShift);
+                r.Ev1Pv2(rOrig, drShift);
             }
         }
 
