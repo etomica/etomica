@@ -47,12 +47,13 @@ public class IntegratorPIMD extends IntegratorMD {
         mScale = new double[n];
         fScale = new double[n];
         fScale0 = new double[n];
-        mScale[0] = 2 * Math.sinh(alpha) * Math.tanh(n*alpha/2);
+        mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(n*alpha/2.0);
+        if (alpha == 0 || n == 1) mScale[0] = 1.0;
         fScale0[0] = 1;
         for (int i=1; i<mScale.length; i++) {
-            fScale0[i] = Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
-            fScale[i] = Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i) * alpha);
-            mScale[i] = Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i) * alpha);
+            fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
+            fScale[i]  = alpha == 0 ? (n - i - 1)/(n - i) : Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha);
+            mScale[i]  = alpha == 0 ? (n - i + 1)/(n - i) : Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha);
         }
     }
 
@@ -80,11 +81,9 @@ public class IntegratorPIMD extends IntegratorMD {
                 if (i > 0) {
                     fu[i].E(foo);
                     if (i < n - 1) {
-                        fu[a.getIndex()].PEa1Tv1(fScale[i], fu[i + 1]);
+                        fu[i].PEa1Tv1(fScale[i], fu[i + 1]);
                     }
                 }
-
-
             }
             // now propogate coordinates and velocities.  collective velocities are stored
             // as atom's velocity.
@@ -146,7 +145,7 @@ public class IntegratorPIMD extends IntegratorMD {
                 if (i > 0) {
                     fu[i].E(foo);
                     if (i < n - 1) {
-                        fu[a.getIndex()].PEa1Tv1(fScale[i], fu[i + 1]);
+                        fu[i].PEa1Tv1(fScale[i], fu[i + 1]);
                     }
                 }
             }

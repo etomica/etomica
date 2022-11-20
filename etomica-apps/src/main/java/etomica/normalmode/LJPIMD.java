@@ -20,6 +20,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
@@ -53,6 +54,7 @@ public class LJPIMD extends Simulation {
 
     public final PotentialComputePair potentialMaster;
     public final IntegratorPIMD integrator;
+//    public final IntegratorVelocityVerlet integrator;
     public final PotentialMasterBonding pmBonding;
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
@@ -108,8 +110,10 @@ public class LJPIMD extends Simulation {
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
+//        integrator = new IntegratorVelocityVerlet(potentialMaster,random,timeStep,temperature,box);
         integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
         integrator.setThermostatNoDrift(true);
+        integrator.setIsothermal(false);
     }
 
     public static void main(String[] args) {
@@ -122,7 +126,7 @@ public class LJPIMD extends Simulation {
             params.nBeads = 2;
             params.steps = 100000000;
             params.isGraphic = true;
-//            params.k2 = 0;
+            params.k2 = 0;
         }
 
         Space space = Space.getInstance(params.D);
