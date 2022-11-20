@@ -20,6 +20,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
@@ -53,8 +54,7 @@ import java.util.List;
 public class LJPIMD extends Simulation {
 
     public final PotentialComputePair potentialMaster;
-    public final IntegratorPIMD integrator;
-//    public final IntegratorVelocityVerlet integrator;
+    public final IntegratorMD integrator;
     public final PotentialMasterBonding pmBonding;
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
@@ -110,8 +110,8 @@ public class LJPIMD extends Simulation {
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
-//        integrator = new IntegratorVelocityVerlet(potentialMaster,random,timeStep,temperature,box);
-        integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+        integrator = new IntegratorVelocityVerlet(potentialMaster,random,timeStep,temperature,box);
+//        integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
         integrator.setThermostatNoDrift(true);
         integrator.setIsothermal(false);
     }
@@ -126,7 +126,6 @@ public class LJPIMD extends Simulation {
             params.nBeads = 2;
             params.steps = 100000000;
             params.isGraphic = true;
-            params.k2 = 0;
         }
 
         Space space = Space.getInstance(params.D);
@@ -234,7 +233,6 @@ public class LJPIMD extends Simulation {
                         Vector R = latticePositions[atom.getParentGroup().getIndex()];
                         dr.Ev1Mv2(atom.getPosition(), R);
                         sim.box.getBoundary().nearestImage(dr);
-                        dr.PE(R);
                         COM.PE(dr);
                     }
                     COM.TE(1.0/sim.box.getLeafList().size());
@@ -246,9 +244,9 @@ public class LJPIMD extends Simulation {
             DataPumpListener pumpCOM = new DataPumpListener(meterCOM, historyCOM, interval);
             sim.integrator.getEventManager().addListener(pumpCOM);
             DisplayPlotXChart plotCOM = new DisplayPlotXChart();
-            plotCOM.setLabel("COM");
-            historyCOM.addDataSink(plotCOM.makeSink("COM"));
-            plotCOM.setLegend(new DataTag[]{meterCOM.getTag()}, "COM");
+            plotCOM.setLabel("COM drift");
+            historyCOM.addDataSink(plotCOM.makeSink("COM drift"));
+            plotCOM.setDoLegend(false);
             simGraphic.add(plotCOM);
 
             simGraphic.makeAndDisplayFrame("PIMD");
