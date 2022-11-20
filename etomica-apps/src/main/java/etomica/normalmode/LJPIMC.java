@@ -21,18 +21,22 @@ import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.*;
-import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
-import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
+import etomica.util.IListener;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -210,8 +214,53 @@ public class LJPIMC extends Simulation {
             plotPE.setLegend(new DataTag[]{meterPE2.getTag()}, "recompute PE");
             simGraphic.add(plotPE);
 
-            simGraphic.makeAndDisplayFrame(" PIMC ");
+            Vector[] latticePositions = space.makeVectorArray(numAtoms);
+            Vector COM0 = space.makeVector();
+            for (IAtom atom : sim.box.getLeafList()) {
+                if (atom.getIndex() == 0) {
+                    latticePositions[atom.getParentGroup().getIndex()].E(atom.getPosition());
+                }
+                COM0.PE(atom.getPosition());
+            }
+            COM0.TE(1.0/sim.box.getLeafList().size());
 
+            DataSourceScalar meterCOM = new DataSourceScalar("COM", Length.DIMENSION) {
+                @Override
+                public double getDataAsScalar() {
+                    Vector COM = sim.box.getSpace().makeVector();
+                    Vector dr = sim.box.getSpace().makeVector();
+                    for (IAtom atom : sim.box.getLeafList()) {
+                        Vector R = latticePositions[atom.getParentGroup().getIndex()];
+                        dr.Ev1Mv2(atom.getPosition(), R);
+                        sim.box.getBoundary().nearestImage(dr);
+                        dr.PE(R);
+                        COM.PE(dr);
+                    }
+                    COM.TE(1.0/sim.box.getLeafList().size());
+                    return Math.sqrt(COM.squared());
+                }
+            };
+            AccumulatorHistory historyCOM = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyCOM.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            DataPumpListener pumpCOM = new DataPumpListener(meterCOM, historyCOM, interval);
+            sim.integrator.getEventManager().addListener(pumpCOM);
+            DisplayPlotXChart plotCOM = new DisplayPlotXChart();
+            plotCOM.setLabel("COM");
+            historyCOM.addDataSink(plotCOM.makeSink("COM"));
+            plotCOM.setLegend(new DataTag[]{meterCOM.getTag()}, "COM");
+            simGraphic.add(plotCOM);
+
+            MeterAcceptance meterAcceptance = new MeterAcceptance();
+            AccumulatorHistory historyAcceptance = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyAcceptance.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            DataPumpListener pumpAcceptance = new DataPumpListener(meterAcceptance, historyAcceptance, interval);
+            sim.integrator.getEventManager().addListener(pumpAcceptance);
+            historyAcceptance.addDataSink(plotCOM.makeSink("acceptance"));
+            plotCOM.setLegend(new DataTag[]{meterAcceptance.getTag()}, "acceptance");
+            sim.integrator.getMoveEventManager().addListener(meterAcceptance);
+
+
+            simGraphic.makeAndDisplayFrame(" PIMC ");
 
             return;
         }
@@ -324,5 +373,30 @@ public class LJPIMC extends Simulation {
         public double mass = 100.0;
         public double rc = 2.5;
         public boolean isGraphic = false;
+    }
+
+    public static class MeterAcceptance extends DataSourceScalar implements IListener<MCMoveEvent> {
+
+        protected double chiSum = 0;
+        protected int numTrials = 0;
+
+        public MeterAcceptance() {
+            super("acceptance", Null.DIMENSION);
+        }
+
+        @Override
+        public double getDataAsScalar() {
+            double avg = chiSum / numTrials;
+            chiSum = 0;
+            numTrials = 0;
+            return avg;
+        }
+
+        @Override
+        public void actionPerformed(MCMoveEvent event) {
+            if (!(event instanceof MCMoveTrialCompletedEvent)) return;
+            chiSum += Math.min(((MCMoveTrialCompletedEvent)event).chi, 1);
+            numTrials++;
+        }
     }
 }
