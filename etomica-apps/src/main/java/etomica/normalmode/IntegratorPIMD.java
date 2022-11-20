@@ -52,8 +52,8 @@ public class IntegratorPIMD extends IntegratorMD {
         fScale0[0] = 1;
         for (int i=1; i<mScale.length; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
-            fScale[i]  = alpha == 0 ? (n - i - 1)/(n - i) : Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha);
-            mScale[i]  = alpha == 0 ? (n - i + 1)/(n - i) : Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha);
+            fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha);
+            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha);
         }
     }
 
@@ -93,21 +93,20 @@ public class IntegratorPIMD extends IntegratorMD {
 //                r.PEa1Tv1(timeStep, v);
                 int i = a.getIndex();
 
-                u[i].Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
+                Vector r = a.getPosition();
+                u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(u[i]);
+                drPrev0.E(u[i]);
                 if (i > 0) {
                     u[i].PEa1Tv1(-f11[i], drPrev0);
                     u[i].PEa1Tv1(-f1N[i], dr0);
                 }
-                drPrev0.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(drPrev0);
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 double meff = mass * mScale[i];
                 v.PEa1Tv1(0.5 * timeStep / meff, fu[i]);
                 u[i].PEa1Tv1(timeStep, v);
 
-                Vector r = a.getPosition();
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
                 r.E(latticePositions[m.getIndex()]);
