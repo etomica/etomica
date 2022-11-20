@@ -50,7 +50,7 @@ public class IntegratorPIMD extends IntegratorMD {
         mScale[0] = 2 * Math.sinh(alpha) * Math.tanh(n*alpha/2);
         fScale0[0] = 1;
         for (int i=1; i<mScale.length; i++) {
-            fScale0[i] = Math.cosh((n / 2.0 - i) * alpha) / Math.cosh((n / 2.0) * alpha);
+            fScale0[i] = Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
             fScale[i] = Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i) * alpha);
             mScale[i] = Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i) * alpha);
         }
@@ -60,6 +60,9 @@ public class IntegratorPIMD extends IntegratorMD {
         super.doStepInternal();
         Vector[] forces = potentialCompute.getForces();
         int n = box.getMoleculeList().get(0).getChildList().size();
+        Vector drPrev0 = box.getSpace().makeVector();
+        Vector drPrev = box.getSpace().makeVector();
+
         for (IMolecule m : box.getMoleculeList()) {
             IAtomList atoms = m.getChildList();
             Vector dr0 = box.getSpace().makeVector();
@@ -68,14 +71,9 @@ public class IntegratorPIMD extends IntegratorMD {
             Vector[] u = box.getSpace().makeVectorArray(atoms.size());
             Vector[] fu = box.getSpace().makeVectorArray(atoms.size());
             double mass = atoms.get(0).getType().getMass();
-            Vector drPrev = box.getSpace().makeVector();
-            drPrev.E(dr0);
             // first compute collective coordinates and forces
             for (int i=atoms.size()-1; i>=0; i--) {
                 IAtom a = atoms.get(i);
-                Vector dr = box.getSpace().makeVector();
-                dr.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(dr);
                 Vector foo = box.getSpace().makeVector();
                 foo.E(forces[a.getLeafIndex()]);
                 fu[0].PEa1Tv1(fScale0[i], foo);
@@ -88,7 +86,6 @@ public class IntegratorPIMD extends IntegratorMD {
 
 
             }
-            drPrev.E(dr0);
             // now propogate coordinates and velocities.  collective velocities are stored
             // as atom's velocity.
             for (IAtom a : atoms) {
@@ -100,9 +97,11 @@ public class IntegratorPIMD extends IntegratorMD {
                 u[i].Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(u[i]);
                 if (i > 0) {
-                    u[i].PEa1Tv1(-f11[i], drPrev);
+                    u[i].PEa1Tv1(-f11[i], drPrev0);
                     u[i].PEa1Tv1(-f1N[i], dr0);
                 }
+                drPrev0.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
+                box.getBoundary().nearestImage(drPrev0);
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 double meff = mass * mScale[i];
@@ -115,7 +114,7 @@ public class IntegratorPIMD extends IntegratorMD {
                 r.E(latticePositions[m.getIndex()]);
                 if (i>0) {
                     r.PEa1Tv1(f11[i], drPrev);
-                    r.PEa1Tv1(f1N[i], dr0);
+                    r.PEa1Tv1(f1N[i], u[0]);
                 }
                 r.PE(u[i]);
                 drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
@@ -141,9 +140,6 @@ public class IntegratorPIMD extends IntegratorMD {
             Vector[] fu = box.getSpace().makeVectorArray(atoms.size());
             for (int i=atoms.size()-1; i>=0; i--) {
                 IAtom a = atoms.get(i);
-                Vector dr = box.getSpace().makeVector();
-                dr.Ev1Mv2(a.getPosition(), latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(dr);
                 Vector foo = box.getSpace().makeVector();
                 foo.E(forces[a.getLeafIndex()]);
                 fu[0].PEa1Tv1(fScale0[i], foo);

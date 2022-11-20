@@ -61,7 +61,7 @@ public class LJPIMD extends Simulation {
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2) {
+    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double timeStep) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -108,7 +108,8 @@ public class LJPIMD extends Simulation {
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
-        integrator = new IntegratorPIMD(pmAgg, random, 0.001, temperature, box, ringMove);
+        integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+        integrator.setThermostatNoDrift(true);
     }
 
     public static void main(String[] args) {
@@ -132,9 +133,10 @@ public class LJPIMD extends Simulation {
         double density = params.density;
         double rc = params.rc;
         double omega2 = params.k2/mass;
+        double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
 
-        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2);
+        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, timeStep);
         long steps = params.steps;
         int interval = 10;
         int blocks = 100;
@@ -345,7 +347,7 @@ public class LJPIMD extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public int nBeads = 4;
+        public int nBeads = 2;
         public double k2 = 219.231319;
         public long steps = 100000;
         public double density = 1.0;
@@ -353,6 +355,7 @@ public class LJPIMD extends Simulation {
         public int numAtoms = 108;
         public double mass = 100.0;
         public double rc = 2.5;
+        public double timeStep = 0.001;
         public boolean isGraphic = false;
     }
 
