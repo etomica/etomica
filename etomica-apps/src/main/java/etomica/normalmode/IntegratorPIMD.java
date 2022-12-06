@@ -52,8 +52,8 @@ public class IntegratorPIMD extends IntegratorMD {
         fScale0[0] = 1;
         for (int i=1; i<mScale.length; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
-            fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha);
-            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha);
+            fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : (Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha));
+            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha));
         }
     }
 
@@ -96,11 +96,13 @@ public class IntegratorPIMD extends IntegratorMD {
                 Vector r = a.getPosition();
                 u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(u[i]);
-                drPrev0.E(u[i]);
+                Vector usave = box.getSpace().makeVector();
+                usave.E(u[i]);
                 if (i > 0) {
                     u[i].PEa1Tv1(-f11[i], drPrev0);
                     u[i].PEa1Tv1(-f1N[i], dr0);
                 }
+                drPrev0.E(usave);
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 double meff = mass * mScale[i];
