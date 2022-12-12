@@ -209,17 +209,19 @@ public class IntegratorPIMD extends IntegratorMD {
         for (IMolecule m : box.getMoleculeList()) {
             int n = m.getChildList().size();
             Vector[] u = box.getSpace().makeVectorArray(n);
-            Vector vPrev = null, v0 = ((IAtomKinetic) m.getChildList().get(0)).getVelocity();
+            Vector vPrev = box.getSpace().makeVector();
             for (IAtom a : m.getChildList()) {
                 int i = a.getIndex();
 
                 Vector v = ((IAtomKinetic) a).getVelocity();
                 u[i].Ea1Tv1(Math.sqrt(n), v);
+                Vector usave = box.getSpace().makeVector();
+                usave.E(u[i]);
                 if (i > 0) {
                     u[i].PEa1Tv1(-f11[i], vPrev);
-                    u[i].PEa1Tv1(-f1N[i], v0);
+                    u[i].PEa1Tv1(-f1N[i], u[0]);
                 }
-                vPrev = v;
+                vPrev.E(usave);
             }
             // actually assign velocities
             for (IAtom a : m.getChildList()) {
