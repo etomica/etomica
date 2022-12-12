@@ -202,4 +202,29 @@ public class IntegratorPIMD extends IntegratorMD {
         eventManager.forceComputed();
     }
 
+    public void doThermostat() {
+        // let superclass set random velocities pretending v is atomic v
+        super.doThermostat();
+        // now transform velocities to our coordinate system
+        for (IMolecule m : box.getMoleculeList()) {
+            int n = m.getChildList().size();
+            Vector[] u = box.getSpace().makeVectorArray(n);
+            Vector vPrev = null, v0 = ((IAtomKinetic) m.getChildList().get(0)).getVelocity();
+            for (IAtom a : m.getChildList()) {
+                int i = a.getIndex();
+
+                Vector v = ((IAtomKinetic) a).getVelocity();
+                u[i].Ea1Tv1(Math.sqrt(n), v);
+                if (i > 0) {
+                    u[i].PEa1Tv1(-f11[i], vPrev);
+                    u[i].PEa1Tv1(-f1N[i], v0);
+                }
+                vPrev = v;
+            }
+            // actually assign velocities
+            for (IAtom a : m.getChildList()) {
+                ((IAtomKinetic) a).getVelocity().E(u[a.getIndex()]);
+            }
+        }
+    }
 }
