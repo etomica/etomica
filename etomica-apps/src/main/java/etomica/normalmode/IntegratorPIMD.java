@@ -163,11 +163,15 @@ public class IntegratorPIMD extends IntegratorMD {
         eventManager.preThermostat();
 
         currentKineticEnergy = 0;
-        IAtomList leafList = box.getLeafList();
-        for (int iLeaf = 0; iLeaf < leafList.size(); iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            Vector velocity = a.getVelocity();
-            currentKineticEnergy += 0.5 * a.getType().getMass() * velocity.squared();
+        for (IMolecule m : box.getMoleculeList()) {
+            IAtomList atoms = m.getChildList();
+            double mass = atoms.get(0).getType().getMass();
+            for (int i = 0; i < atoms.size(); i++) {
+                double meff = mass * mScale[i];
+                IAtom a = atoms.get(i);
+                Vector velocity = ((IAtomKinetic) a).getVelocity();
+                currentKineticEnergy += 0.5 * meff * velocity.squared();
+            }
         }
 
         if (isothermal) {

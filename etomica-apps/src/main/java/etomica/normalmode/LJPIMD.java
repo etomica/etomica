@@ -13,6 +13,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.MeterEnergyFromIntegrator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataGroup;
@@ -110,8 +111,11 @@ public class LJPIMD extends Simulation {
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster,random,timeStep,temperature,box);
-//        integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+
+//        integrator = new IntegratorVelocityVerlet(potentialMaster,random,timeStep,temperature,box);
+        integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+
+
         integrator.setThermostatNoDrift(true);
         integrator.setIsothermal(false);
     }
@@ -200,6 +204,14 @@ public class LJPIMD extends Simulation {
             historyPE.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
             DataPumpListener pumpPE = new DataPumpListener(meterPE, historyPE, interval);
             sim.integrator.getEventManager().addListener(pumpPE);
+
+            MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
+            AccumulatorHistory historyE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyE.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            DataPumpListener pumpE = new DataPumpListener(meterE, historyE, interval);
+            sim.integrator.getEventManager().addListener(pumpE);
+
+
             MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
             AccumulatorHistory historyPE2 = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyPE2.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
@@ -213,6 +225,13 @@ public class LJPIMD extends Simulation {
             historyPE2.addDataSink(plotPE.makeSink("PE2 history"));
             plotPE.setLegend(new DataTag[]{meterPE2.getTag()}, "recompute PE");
             simGraphic.add(plotPE);
+
+            DisplayPlotXChart plotE = new DisplayPlotXChart();
+            plotE.setLabel("E");
+//            plotE.setDoLegend(false);
+            historyE.addDataSink(plotE.makeSink("E history"));
+            plotE.setLegend(new DataTag[]{meterE.getTag()}, "Integrator E");
+            simGraphic.add(plotE);
 
             Vector[] latticePositions = space.makeVectorArray(numAtoms);
             Vector COM0 = space.makeVector();
