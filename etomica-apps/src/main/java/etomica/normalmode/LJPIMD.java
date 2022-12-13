@@ -182,14 +182,14 @@ public class LJPIMD extends Simulation {
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             DisplayTextBox timer = new DisplayTextBox();
-            DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
+            DataSourceCountTime counter = new DataSourceCountTime(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
 
             MeterMSDHO meterMSD = new MeterMSDHO(sim.box);
             AccumulatorHistory historyMSD = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyMSD.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            historyMSD.setTimeDataSource(counter);
             DataPumpListener pumpMSD = new DataPumpListener(meterMSD, historyMSD, interval);
             sim.integrator.getEventManager().addListener(pumpMSD);
             DisplayPlotXChart plotMSD = new DisplayPlotXChart();
@@ -200,20 +200,20 @@ public class LJPIMD extends Simulation {
 
             MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyPE.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            historyPE.setTimeDataSource(counter);
             DataPumpListener pumpPE = new DataPumpListener(meterPE, historyPE, interval);
             sim.integrator.getEventManager().addListener(pumpPE);
 
             MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory historyE = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyE.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            historyE.setTimeDataSource(counter);
             DataPumpListener pumpE = new DataPumpListener(meterE, historyE, interval);
             sim.integrator.getEventManager().addListener(pumpE);
 
 
             MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
             AccumulatorHistory historyPE2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyPE2.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            historyPE2.setTimeDataSource(counter);
             DataPumpListener pumpPE2 = new DataPumpListener(meterPE2, historyPE2, interval);
             sim.integrator.getEventManager().addListener(pumpPE2);
             DisplayPlotXChart plotPE = new DisplayPlotXChart();
@@ -224,6 +224,15 @@ public class LJPIMD extends Simulation {
             historyPE2.addDataSink(plotPE.makeSink("PE2 history"));
             plotPE.setLegend(new DataTag[]{meterPE2.getTag()}, "recompute PE");
             simGraphic.add(plotPE);
+
+            MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1/temperature, nBeads, sim.box);
+            AccumulatorHistory historyPECV = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyPECV.setTimeDataSource(counter);
+            DataPumpListener pumpPECV = new DataPumpListener(meterCentVir, historyPECV, interval);
+            sim.integrator.getEventManager().addListener(pumpPECV);
+            historyPECV.addDataSink(plotPE.makeSink("PE CV history"));
+            plotPE.setLegend(new DataTag[]{meterCentVir.getTag()}, "PE CV");
+
 
             DisplayPlotXChart plotE = new DisplayPlotXChart();
             plotE.setLabel("E");
