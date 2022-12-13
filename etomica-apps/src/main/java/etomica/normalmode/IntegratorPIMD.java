@@ -206,7 +206,7 @@ public class IntegratorPIMD extends IntegratorMD {
         // let superclass set random velocities pretending v is atomic v
         super.doThermostat();
         // now transform velocities to our coordinate system
-        double realKE = 0, KE = 0;
+        double KE = 0;
         for (IMolecule m : box.getMoleculeList()) {
             int n = m.getChildList().size();
             Vector[] u = box.getSpace().makeVectorArray(n);
@@ -215,7 +215,6 @@ public class IntegratorPIMD extends IntegratorMD {
                 int i = a.getIndex();
 
                 Vector v = ((IAtomKinetic) a).getVelocity();
-                realKE += 0.5*a.getType().getMass()*v.squared();
                 u[i].E(v);
                 Vector usave = box.getSpace().makeVector();
                 usave.E(u[i]);
@@ -232,6 +231,6 @@ public class IntegratorPIMD extends IntegratorMD {
             }
         }
         // scale masses so that kinetic energy is the same for real and transformed systems
-        mScaleAll = realKE / KE;
+        mScaleAll = currentKineticEnergy / KE;
     }
 }
