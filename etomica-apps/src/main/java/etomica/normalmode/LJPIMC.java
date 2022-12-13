@@ -288,7 +288,7 @@ public class LJPIMC extends Simulation {
         DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpVir);
 
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, sim.ringMove.betaN, nBeads, sim.box);
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1/temperature, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);

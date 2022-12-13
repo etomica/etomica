@@ -258,7 +258,7 @@ public class LJPIMD extends Simulation {
                 }
             };
             AccumulatorHistory historyCOM = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyCOM.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            historyCOM.setTimeDataSource(counter);
             DataPumpListener pumpCOM = new DataPumpListener(meterCOM, historyCOM, interval);
             sim.integrator.getEventManager().addListener(pumpCOM);
             DisplayPlotXChart plotCOM = new DisplayPlotXChart();

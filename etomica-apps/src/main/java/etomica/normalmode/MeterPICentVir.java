@@ -18,7 +18,7 @@ import etomica.units.dimensions.Null;
 public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected Box box;
     protected final PotentialCompute pcP1;
-    protected double betaN, beta;
+    protected double beta;
     protected int nBeads;
     protected double rHr;
     protected final DataTag tag;
@@ -29,7 +29,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected double dim;
     protected int numAtoms;
 
-    public MeterPICentVir(PotentialCompute pcP1, double betaN, int nBeads, Box box) {
+    public MeterPICentVir(PotentialCompute pcP1, double beta, int nBeads, Box box) {
         int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
@@ -37,9 +37,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         dataInfo.addTag(tag);
 
         this.pcP1 = pcP1;
-        this.betaN = betaN;
         this.nBeads = nBeads;
-        beta = this.betaN*this.nBeads;
+        this.beta = beta;
         this.box = box;
         this.EnShift = 0;
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
