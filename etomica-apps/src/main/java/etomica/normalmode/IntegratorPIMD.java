@@ -71,7 +71,6 @@ public class IntegratorPIMD extends IntegratorMD {
             box.getBoundary().nearestImage(dr0);
             Vector[] u = box.getSpace().makeVectorArray(atoms.size());
             Vector[] fu = box.getSpace().makeVectorArray(atoms.size());
-            double mass = atoms.get(0).getType().getMass();
             // first compute collective coordinates and forces
             for (int i=atoms.size()-1; i>=0; i--) {
                 IAtom a = atoms.get(i);
@@ -105,7 +104,7 @@ public class IntegratorPIMD extends IntegratorMD {
                 drPrev0.E(usave);
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
-                double meff = mass * mScale[i];
+                double meff = a.getType().getMass() * mScale[i];
                 v.PEa1Tv1(0.5 * timeStep / meff, fu[i]);
                 u[i].PEa1Tv1(timeStep, v);
 
@@ -214,7 +213,7 @@ public class IntegratorPIMD extends IntegratorMD {
                 int i = a.getIndex();
 
                 Vector v = ((IAtomKinetic) a).getVelocity();
-                u[i].Ea1Tv1(Math.sqrt(n), v);
+                u[i].E(v);
                 Vector usave = box.getSpace().makeVector();
                 usave.E(u[i]);
                 if (i > 0) {

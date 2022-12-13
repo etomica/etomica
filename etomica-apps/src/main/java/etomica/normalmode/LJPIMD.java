@@ -22,7 +22,6 @@ import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
@@ -69,7 +68,7 @@ public class LJPIMD extends Simulation {
 
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .setDynamic(true)
-                .addCount(AtomType.simple("A", mass), nBeads)
+                .addCount(AtomType.simple("A", mass/nBeads), nBeads)
                 .withConformation(new ConformationLinear(space, 0))
                 .build();
         addSpecies(species);
@@ -85,7 +84,7 @@ public class LJPIMD extends Simulation {
         double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
+        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN);
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -112,7 +111,7 @@ public class LJPIMD extends Simulation {
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
 
-//        integrator = new IntegratorVelocityVerlet(potentialMaster,random,timeStep,temperature,box);
+//        integrator = new IntegratorVelocityVerlet(pmAgg,random,timeStep,temperature,box);
         integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
 
 
