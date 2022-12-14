@@ -7,10 +7,12 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorMD;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
+import etomica.units.dimensions.Energy;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
@@ -56,6 +58,8 @@ public class IntegratorPIMD extends IntegratorMD {
             fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : (Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha));
             mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha));
         }
+
+        meterKE = new MeterKineticEnergy(box, mScale);
     }
 
     public void doStepInternal() {
@@ -202,7 +206,7 @@ public class IntegratorPIMD extends IntegratorMD {
         eventManager.forceComputed();
     }
 
-    public void doThermostat() {
+    public void doThermostat2() {
         // let superclass set random velocities pretending v is atomic v
         super.doThermostat();
         // now transform velocities to our coordinate system
@@ -232,5 +236,60 @@ public class IntegratorPIMD extends IntegratorMD {
         }
         // scale masses so that kinetic energy is the same for real and transformed systems
         mScaleAll = currentKineticEnergy / KE;
+        System.out.println("m global scale: "+mScaleAll);
+    }
+
+    public void randomizeMomenta() {
+        atomActionRandomizeVelocity.setTemperature(temperature);
+        IAtomList leafList = box.getLeafList();
+        for (IAtom a : leafList) {
+            atomActionRandomizeVelocity.actionPerformed(a);
+            ((IAtomKinetic)a).getVelocity().TE(1/Math.sqrt(mScale[a.getIndex()]));
+        }
+        if (alwaysScaleMomenta) {
+            if (thermostatNoDrift) {
+                shiftMomenta();
+            }
+            scaleMomenta();
+        }
+    }
+
+    public void shiftMomenta() {
+        Vector[] p = box.getSpace().makeVectorArray(box.getMoleculeList().get(0).getChildList().size());
+        int n = box.getMoleculeList().size();
+        double[] totalMass = new double[p.length];
+        for (IAtom a : box.getLeafList()) {
+            int i = a.getIndex();
+            p[i].PEa1Tv1(a.getType().getMass(), ((IAtomKinetic)a).getVelocity());
+            totalMass[i] += a.getType().getMass();
+        }
+        for (int i=0; i<p.length; i++) {
+            p[i].TE(1/totalMass[i]);
+        }
+        for (IAtom a : box.getLeafList()) {
+            ((IAtomKinetic)a).getVelocity().ME(p[a.getIndex()]);
+        }
+    }
+
+    public static class MeterKineticEnergy extends DataSourceScalar {
+
+        protected final Box box;
+        protected final double[] mScale;
+
+        public MeterKineticEnergy(Box box, double[] mScale) {
+            super("KE", Energy.DIMENSION);
+            this.box = box;
+            this.mScale = mScale;
+        }
+
+        public double getDataAsScalar() {
+            double ke = 0.0;
+            for (IAtom atom : box.getLeafList()) {
+                double mass = atom.getType().getMass() * mScale[atom.getIndex()];
+                if (mass == Double.POSITIVE_INFINITY) continue;
+                ke += 0.5 * mass * (((IAtomKinetic)atom).getVelocity().squared());
+            }
+            return ke;
+        }
     }
 }
