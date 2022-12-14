@@ -48,17 +48,18 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
         this.EnShift = 0;
-        int nBeads = move.getBox().getLeafList().size();
+        Box box = move.getBox();
+        int nBeads = box.getLeafList().size();
         rdot = new Vector[nBeads];
         for (int i=0; i<nBeads; i++) {
-            rdot[i] = move.getBox().getSpace().makeVector();
+            rdot[i] = box.getSpace().makeVector();
         }
-        latticePositions = move.getBox().getSpace().makeVectorArray(move.getBox().getMoleculeList().size());
+        latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (int i=0; i<latticePositions.length; i++) {
-            latticePositions[i].E(CenterOfMass.position(move.getBox(), move.getBox().getMoleculeList().get(i)));
+            latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
-        numAtoms = move.getBox().getMoleculeList().size();
-        dim = move.getBox().getSpace().D();
+        numAtoms = box.getMoleculeList().size();
+        dim = box.getSpace().D();
     }
 
     public void setNumShifts(int nShifts) {
