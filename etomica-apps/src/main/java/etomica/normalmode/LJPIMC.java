@@ -21,10 +21,7 @@ import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -84,7 +81,7 @@ public class LJPIMC extends Simulation {
         double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
+        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN);
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -102,7 +99,7 @@ public class LJPIMC extends Simulation {
         config.initializeCoordinates(box);
 
         P2LennardJones p2lj = new P2LennardJones(1, 1.0/nBeads);
-        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(p2lj, rc);
+        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(p2lj, rc);
         AtomType atomType = species.getLeafType();
         potentialMaster.setPairPotential(atomType, atomType, p2);
 
@@ -116,7 +113,14 @@ public class LJPIMC extends Simulation {
         ((MCMoveStepTracker)mcMoveTranslate.getTracker()).setNoisyAdjustment(true);
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
-        integrator.getMoveManager().addMCMove(ringMove);
+        if (false) {
+            integrator.getMoveManager().addMCMove(ringMove);
+        }
+        else {
+            integrator.getMoveManager().addMCMove(mcMoveTranslate);
+            integrator.getMoveManager().addMCMove(new MCMoveMoleculeRotate(random, potentialMaster, box));
+            integrator.getMoveManager().addMCMove(new MCMoveAtom(random, pmAgg, box));
+        }
     }
 
     public static void main(String[] args) {
@@ -127,6 +131,8 @@ public class LJPIMC extends Simulation {
         } else {
             // modify parameters here for interactive testing
 //            params.steps = 1000000;
+            params.nBeads = 16;
+            params.isGraphic = true;
         }
 
         Space space = Space.getInstance(params.D);
@@ -250,7 +256,7 @@ public class LJPIMC extends Simulation {
             plotCOM.setLegend(new DataTag[]{meterCOM.getTag()}, "COM");
             simGraphic.add(plotCOM);
 
-            MeterAcceptance meterAcceptance = new MeterAcceptance();
+            MeterAcceptance meterAcceptance = new MeterAcceptance(sim.ringMove);
             AccumulatorHistory historyAcceptance = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyAcceptance.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
             DataPumpListener pumpAcceptance = new DataPumpListener(meterAcceptance, historyAcceptance, interval);
@@ -377,11 +383,13 @@ public class LJPIMC extends Simulation {
 
     public static class MeterAcceptance extends DataSourceScalar implements IListener<MCMoveEvent> {
 
+        protected final MCMove move;
         protected double chiSum = 0;
         protected int numTrials = 0;
 
-        public MeterAcceptance() {
+        public MeterAcceptance(MCMove move) {
             super("acceptance", Null.DIMENSION);
+            this.move = move;
         }
 
         @Override
@@ -394,7 +402,7 @@ public class LJPIMC extends Simulation {
 
         @Override
         public void actionPerformed(MCMoveEvent event) {
-            if (!(event instanceof MCMoveTrialCompletedEvent)) return;
+            if (!(event instanceof MCMoveTrialCompletedEvent) || (move != null && event.getMCMove() != move)) return;
             chiSum += Math.min(((MCMoveTrialCompletedEvent)event).chi, 1);
             numTrials++;
         }
