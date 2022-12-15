@@ -120,6 +120,8 @@ public class LJPIMD extends Simulation {
         }
         else {
             integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+            IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, 2);
+            integrator.getEventManager().addListener(nhc);
         }
 
 
@@ -134,9 +136,10 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.nBeads = 2;
+            params.nBeads = 16;
             params.steps = 100000000;
             params.isGraphic = true;
+            params.timeStep = 0.0001;
         }
 
         Space space = Space.getInstance(params.D);

@@ -206,6 +206,10 @@ public class IntegratorPIMD extends IntegratorMD {
         eventManager.forceComputed();
     }
 
+    public double[] getMassScale() {
+        return mScale;
+    }
+
     public void doThermostat2() {
         // let superclass set random velocities pretending v is atomic v
         super.doThermostat();
@@ -256,7 +260,6 @@ public class IntegratorPIMD extends IntegratorMD {
 
     public void shiftMomenta() {
         Vector[] p = box.getSpace().makeVectorArray(box.getMoleculeList().get(0).getChildList().size());
-        int n = box.getMoleculeList().size();
         double[] totalMass = new double[p.length];
         for (IAtom a : box.getLeafList()) {
             int i = a.getIndex();
