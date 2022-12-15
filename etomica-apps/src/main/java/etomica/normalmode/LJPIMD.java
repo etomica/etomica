@@ -21,7 +21,9 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerNHC;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.LatticeCubicFcc;
@@ -111,8 +113,14 @@ public class LJPIMD extends Simulation {
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
 
-//        integrator = new IntegratorVelocityVerlet(pmAgg,random,timeStep,temperature,box);
-        integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+        if (false) {
+            integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
+            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
+            integrator.getEventManager().addListener(nhc);
+        }
+        else {
+            integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+        }
 
 
         integrator.setThermostatNoDrift(true);
