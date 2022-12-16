@@ -35,9 +35,9 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected Vector[] rdot;
     protected double drdotHdrdot;
     protected Vector[] latticePositions;
-    protected int numAtoms;
+    protected int numAtoms, nBeads;
 
-    public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double beta, MCMoveHOReal2 move) {
+    public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double beta, MCMoveHOReal2 move) {
         this.move = move;
         this.beta = beta;
         int nData = 1;
@@ -49,9 +49,9 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         this.pcP1 = pcP1;
         this.EnShift = 0;
         Box box = move.getBox();
-        int nBeads = box.getLeafList().size();
-        rdot = new Vector[nBeads];
-        for (int i=0; i<nBeads; i++) {
+        this.nBeads = nBeads;
+        rdot = new Vector[this.nBeads];
+        for (int i=0; i<this.nBeads; i++) {
             rdot[i] = box.getSpace().makeVector();
         }
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
@@ -73,8 +73,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         Box box = move.getBox();
         double[] x = data.getData();
 //        System.out.println("******** HMA *************");
-
-        int nBeads = box.getLeafList().size();
 
         pmBonding.computeAll(true);
         pcP1.computeAll(true);
@@ -99,7 +97,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         double[] d2f11 = d2CenterCoefficients[0];
         double[] d2f1N = d2CenterCoefficients[1];
 
-
         Vector tmp_r = box.getSpace().makeVector();
         Vector drj = box.getSpace().makeVector();
         Vector v = box.getSpace().makeVector();
@@ -111,7 +108,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         double En = 0;
         double Cvn = 0;
         rHr = 0;
-
 
         int ns = nShifts+1;
         for (int i = 0; i < molecules.size(); i++) {
@@ -160,8 +156,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                             tmpV.Ev1Mv2(v0, v);
                             Cvn -= beta/nBeads*move.mass*move.omegaN*move.omegaN*(tmpV.squared());
                         }
-
-
                     }
                     int jj = atomj.getLeafIndex();
                     En -= beta*forcesU[jj].dot(v);
@@ -185,7 +179,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
 //        pcP1.computeAll(true, this);
         Cvn -= beta*drdotHdrdot;
-        x[0] = En0 + En/ns - EnShift;
+        x[0] = En0 + En/ns ;//- EnShift;
 //        x[1] = Cvn0 + Cvn/ns;
 
         return data;

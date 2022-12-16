@@ -196,7 +196,7 @@ public class SimQuantumAO extends Simulation {
             meterCentVir = new MeterPICentVir(sim.pcP1, 1/temperature, nBeads, sim.box);
             if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
             if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
-            meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, 1/temperature, sim.atomMoveReal2);
+            meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, 1/temperature, sim.atomMoveReal2);
         }
 
         MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box); //Bad!!

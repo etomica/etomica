@@ -81,7 +81,7 @@ public class LJPIMC extends Simulation {
         double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN);
+        double k2_kin = nBeads == 1 ? 0 : (mass/nBeads/nBeads*omegaN*omegaN);
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -130,9 +130,9 @@ public class LJPIMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-//            params.steps = 1000000;
-            params.nBeads = 16;
-            params.isGraphic = true;
+            params.steps = 1000000;
+            params.nBeads = 10;
+            params.isGraphic = !true;
         }
 
         Space space = Space.getInstance(params.D);
@@ -142,7 +142,7 @@ public class LJPIMC extends Simulation {
         double temperature = params.temperature;
         double density = params.density;
         double rc = params.rc;
-        double omega2 = params.k2/mass;
+        double omega2 = params.k2/(mass/nBeads);
         boolean isGraphic = params.isGraphic;
 
         LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc, omega2);
@@ -304,7 +304,7 @@ public class LJPIMC extends Simulation {
         DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
 
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, sim.ringMove.beta, sim.ringMove);
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, 1/temperature, sim.ringMove);
         AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);
@@ -370,7 +370,7 @@ public class LJPIMC extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public int nBeads = 4;
+        public int nBeads = 2;
         public double k2 = 219.231319;
         public long steps = 100000;
         public double density = 1.0;
