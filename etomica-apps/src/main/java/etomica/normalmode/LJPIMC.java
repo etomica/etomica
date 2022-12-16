@@ -81,7 +81,7 @@ public class LJPIMC extends Simulation {
         double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : (mass/nBeads/nBeads*omegaN*omegaN);
+        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -131,7 +131,7 @@ public class LJPIMC extends Simulation {
         } else {
             // modify parameters here for interactive testing
             params.steps = 1000000;
-            params.nBeads = 10;
+            params.nBeads = 4;
             params.isGraphic = !true;
         }
 
@@ -142,7 +142,7 @@ public class LJPIMC extends Simulation {
         double temperature = params.temperature;
         double density = params.density;
         double rc = params.rc;
-        double omega2 = params.k2/(mass/nBeads);
+        double omega2 = params.k2/mass;
         boolean isGraphic = params.isGraphic;
 
         LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc, omega2);

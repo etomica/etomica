@@ -179,7 +179,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
 //        pcP1.computeAll(true, this);
         Cvn -= beta*drdotHdrdot;
-        x[0] = En0 + En/ns ;//- EnShift;
+        x[0] = En0 + En/ns - EnShift;
 //        x[1] = Cvn0 + Cvn/ns;
 
         return data;

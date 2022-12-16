@@ -86,7 +86,7 @@ public class LJPIMD extends Simulation {
         double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : (mass/nBeads/nBeads*omegaN*omegaN);
+        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN/nBeads;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -134,7 +134,7 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.nBeads = 2;
+            params.nBeads = 16;
             params.steps = 100000;
             params.isGraphic = false;
             params.timeStep = 0.001;
@@ -147,7 +147,7 @@ public class LJPIMD extends Simulation {
         double temperature = params.temperature;
         double density = params.density;
         double rc = params.rc;
-        double omega2 = params.k2/(mass/nBeads);
+        double omega2 = params.k2/mass;
         double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
 
@@ -164,7 +164,7 @@ public class LJPIMD extends Simulation {
         System.out.println("nBeads: " + nBeads);
         System.out.println("T: " + temperature);
         System.out.println("density: " + density);
-        System.out.println("steps: " + steps);
+        System.out.println("steps: " + steps + " timestep: " + timeStep);
         System.out.println("rc: " + rc);
 
         if (isGraphic) {
