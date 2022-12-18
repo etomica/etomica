@@ -16,6 +16,7 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergyFromIntegrator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlotXChart;
@@ -65,7 +66,7 @@ public class LJPIMD extends Simulation {
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double timeStep) {
+    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double timeStep, boolean isStaging) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -112,19 +113,19 @@ public class LJPIMD extends Simulation {
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
 
-        if (false) {
-            integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
-            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
-            integrator.getEventManager().addListener(nhc);
-        }
-        else {
+        if (isStaging) {
             integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
-            IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, 2);
-            integrator.getEventManager().addListener(nhc);
+//            IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, 2);
+//            integrator.getEventManager().addListener(nhc);
+        } else {
+            integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
+//            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
+//            integrator.getEventManager().addListener(nhc);
         }
 
-        integrator.setThermostatNoDrift(true);
-        integrator.setIsothermal(false);
+//        integrator.setThermostatNoDrift(true);
+//        integrator.setIsothermal(false);
+        integrator.setIsothermal(true);
     }
 
     public static void main(String[] args) {
@@ -134,9 +135,10 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.nBeads = 16;
+            params.nBeads = 1;
             params.steps = 100000;
-            params.isGraphic = false;
+            params.isGraphic = !false;
+            params.isStaging = false;
             params.timeStep = 0.001;
         }
 
@@ -150,14 +152,16 @@ public class LJPIMD extends Simulation {
         double omega2 = params.k2/mass;
         double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
+        boolean isStaging = params.isStaging;
 
-        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, timeStep);
+        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, timeStep, isStaging);
         long steps = params.steps;
         int interval = 10;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
 
-        System.out.println("Lennard-Jones Monte Carlo simulation");
+        System.out.println("Lennard-Jones PIMD");
+        System.out.println("isStaging: " + isStaging);
         System.out.println("mass: " + mass);
         System.out.println("k2: " + params.k2);
         System.out.println("N: " + numAtoms);
@@ -303,6 +307,14 @@ public class LJPIMD extends Simulation {
 
 //            public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, int nBeads, double betaN, Box box) {
 
+
+        MeterTemperature meterT = new MeterTemperature(sim.box, space.getD());
+        AccumulatorAverageCovariance accumulatorT = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpT = new DataPumpListener(meterT, accumulatorT, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpT);
+
+
+
         double betaN = 1/(temperature*nBeads);
         MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, betaN, sim.box);
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
@@ -345,6 +357,14 @@ public class LJPIMD extends Simulation {
 //        double En_sim = avg + sim.box.getSpace().D()/2.0*temperature;
 //        System.out.println("energy avg: " + En_sim + "  err: " + err + "  cor: " + cor);
 
+        //T
+        DataGroup dataT = (DataGroup) accumulatorT.getData();
+        double avgT = dataT.getValue(accumulatorT.AVERAGE.index);
+        double errT = dataT.getValue(accumulatorT.ERROR.index);
+        double corT = dataT.getValue(accumulatorT.BLOCK_CORRELATION.index);
+        System.out.println(" T_measured: " + avgT + " +/- " + errT + " cor: " + corT);
+
+
         //Prim
         DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();
         double avgEnPrim = dataPrim.getValue(accumulatorPrim.AVERAGE.index)/numAtoms;
@@ -380,12 +400,12 @@ public class LJPIMD extends Simulation {
         double corEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.BLOCK_CORRELATION.index);
         System.out.println(" En_hma2: " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
 
-        System.out.println("time: " + (t2 - t1) * 0.001);
+        System.out.println("time: " + (t2 - t1) * 0.001/60.0 + " mins");
     }
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public int nBeads = 10;
+        public int nBeads = 1;
         public double k2 = 219.231319;
         public long steps = 100000;
         public double density = 1.0;
@@ -394,7 +414,8 @@ public class LJPIMD extends Simulation {
         public double mass = 100.0;
         public double rc = 2.5;
         public double timeStep = 0.001;
-        public boolean isGraphic = false;
+        public boolean isGraphic = !false;
+        public boolean isStaging = false;
     }
 
     public static class MeterAcceptance extends DataSourceScalar implements IListener<MCMoveEvent> {

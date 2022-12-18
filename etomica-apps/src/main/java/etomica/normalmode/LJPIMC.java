@@ -55,7 +55,8 @@ public class LJPIMC extends Simulation {
     public final PotentialMasterBonding pmBonding;
     public final MCMoveHOReal2 ringMove;
     public final Box box;
-    public final MCMoveMolecule mcMoveTranslate;
+//    public final MCMoveMolecule mcMoveTranslate;
+    public final MCMoveMoleculeCoupled mcMoveTranslate;
     public final PotentialComputeAggregate pmAgg;
 
     /**
@@ -107,7 +108,8 @@ public class LJPIMC extends Simulation {
 
         integrator = new IntegratorMC(pmAgg, random, temperature, box);
 
-        mcMoveTranslate = new MCMoveMolecule(random, potentialMaster, box);
+//        mcMoveTranslate = new MCMoveMolecule(random, potentialMaster, box);
+        mcMoveTranslate = new MCMoveMoleculeCoupled(potentialMaster, random, space);
         if (omega2 == 0) integrator.getMoveManager().addMCMove(mcMoveTranslate);
 
         ((MCMoveStepTracker)mcMoveTranslate.getTracker()).setNoisyAdjustment(true);
@@ -119,7 +121,8 @@ public class LJPIMC extends Simulation {
         else {
             integrator.getMoveManager().addMCMove(mcMoveTranslate);
             integrator.getMoveManager().addMCMove(new MCMoveMoleculeRotate(random, potentialMaster, box));
-            integrator.getMoveManager().addMCMove(new MCMoveAtom(random, pmAgg, box));
+//            integrator.getMoveManager().addMCMove(new MCMoveAtom(random, pmAgg, box));
+            integrator.getMoveManager().addMCMove(new MCMoveAtomCoupled(pmAgg, random, space));
         }
     }
 
@@ -130,9 +133,9 @@ public class LJPIMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.steps = 1000000;
-            params.nBeads = 4;
-            params.isGraphic = !true;
+            params.steps = 10000000;
+            params.nBeads = 2;
+            params.isGraphic = true;
         }
 
         Space space = Space.getInstance(params.D);
@@ -372,7 +375,7 @@ public class LJPIMC extends Simulation {
         public int D = 3;
         public int nBeads = 2;
         public double k2 = 219.231319;
-        public long steps = 100000;
+        public long steps = 1000000;
         public double density = 1.0;
         public double temperature = 0.5;
         public int numAtoms = 108;
