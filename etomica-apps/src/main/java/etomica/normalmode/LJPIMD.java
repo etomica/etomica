@@ -116,17 +116,16 @@ public class LJPIMD extends Simulation {
 
         if (isStaging) {
             integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
-//            IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, 2);
-//            integrator.getEventManager().addListener(nhc);
+            IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, 2);
+            integrator.getEventManager().addListener(nhc);
         } else {
             integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
-//            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
-//            integrator.getEventManager().addListener(nhc);
+            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
+            integrator.getEventManager().addListener(nhc);
         }
 
-//        integrator.setThermostatNoDrift(true);
-//        integrator.setIsothermal(false);
-        integrator.setIsothermal(true);
+        integrator.setThermostatNoDrift(true);
+        integrator.setIsothermal(false);
     }
 
     public static void main(String[] args) {
@@ -136,9 +135,9 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.nBeads = 1;
-            params.steps = 100000;
-            params.isGraphic = !false;
+            params.nBeads = 4;
+            params.steps = 1000000;
+            params.isGraphic = false;
             params.isStaging = false;
             params.timeStep = 0.001;
         }
@@ -415,7 +414,7 @@ public class LJPIMD extends Simulation {
         public double mass = 100.0;
         public double rc = 2.5;
         public double timeStep = 0.001;
-        public boolean isGraphic = !false;
+        public boolean isGraphic = false;
         public boolean isStaging = false;
     }
 

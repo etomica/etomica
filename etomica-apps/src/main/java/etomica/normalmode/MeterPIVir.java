@@ -60,10 +60,6 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
-//                rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
-//                box.getBoundary().nearestImage(rirc);
-//                vir -= forces[atom.getLeafIndex()].dot(rirc);
-//                vir -= forces[atom.getLeafIndex()].dot(rc[molecule.getIndex()]);
                 vir -= forces[atom.getLeafIndex()].dot(ri);
             }
         }
