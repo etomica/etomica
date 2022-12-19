@@ -109,6 +109,7 @@ public class LJPIMD extends Simulation {
         AtomType atomType = species.getLeafType();
         potentialMaster.setPairPotential(atomType, atomType, p2);
 
+        PotentialComputeAggregate.localStorageDefault = true;
         pmAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
