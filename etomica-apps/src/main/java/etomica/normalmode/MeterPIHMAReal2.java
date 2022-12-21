@@ -116,11 +116,11 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
             }
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
-                Vector drPrev = box.getSpace().makeVector();
-                drPrev.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
-                box.getBoundary().nearestImage(drPrev);
+                Vector dr0 = box.getSpace().makeVector();
+                dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
+                box.getBoundary().nearestImage(dr0);
 
-                Vector dr0 = drPrev;
+                Vector drPrev = box.getSpace().makeVector();
 
                 for (int j = 0; j < beads.size(); j++) {
                     int aj = (j + indexShift) % beads.size();
@@ -165,7 +165,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                         Cvn += beta*forcesK[jj].dot(a) - 2.0*forcesK[jj].dot(v);
                     }
 
-                    drPrev = drj;
+                    drPrev.E(drj);
                     if (j == 0) {
                         v0.E(v);
                         a0.E(a);
