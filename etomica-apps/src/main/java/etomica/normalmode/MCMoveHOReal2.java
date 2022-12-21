@@ -110,7 +110,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
         double k0 = 2.0*mass*omegaN2*sinhA*Math.tanh(nBeads*alpha/2.0);
         sigma0 = k0 == 0 ? 0 : Math.sqrt(nBeads/(beta*k0));
         chainSigmas[0] = sigma0;
-        gamma[0] = 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
+        gamma[0] = alpha == 0 ? 0 : 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
         dGamma[0] = -1.0/2.0/beta/beta - d2Alpha/2.0*(coshA/sinhA+nBeads/sinhNA)
                 + dAlpha2/2.0*(1.0/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
 
@@ -121,10 +121,10 @@ public class MCMoveHOReal2 extends MCMoveBox {
             double sinhNmip1A = Math.sinh((nBeads-i+1)*alpha);
             double coshNmip1A = Math.cosh((nBeads-i+1)*alpha);
 
-            double sinhRatio = alpha == 0 ? (nBeads-i+1)/(nBeads-i) : (sinhNmip1A/sinhNmiA);
+            double sinhRatio = alpha == 0 ? (nBeads-i+1.0)/(nBeads-i) : (sinhNmip1A/sinhNmiA);
             double ki = mass*omegaN2*sinhRatio;
             chainSigmas[i] = Math.sqrt(nBeads/(beta*ki));
-            gamma[i] = 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
+            gamma[i] = alpha == 0 ? 1.0/2.0/beta : 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
             dGamma[i] = -1.0/2.0/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
                       + dAlpha2/2.0*(nBeads-i+1)/sinhNmip1A/sinhNmip1A
                       + dAlpha2/2.0*(nBeads-i)*coshA/sinhNmip1A/sinhNmiA
