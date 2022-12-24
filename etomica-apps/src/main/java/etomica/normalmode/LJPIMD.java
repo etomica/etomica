@@ -7,6 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -18,10 +19,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayPlotXChart;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerNHC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -66,7 +64,7 @@ public class LJPIMD extends Simulation {
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double timeStep, boolean isStaging, double tauNHC) {
+    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double timeStep, boolean isStaging, double tauNHC, double hbar) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -84,7 +82,6 @@ public class LJPIMD extends Simulation {
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
         double beta = 1/temperature;
-        double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
         double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN/nBeads;
@@ -112,15 +109,15 @@ public class LJPIMD extends Simulation {
         PotentialComputeAggregate.localStorageDefault = true;
         pmAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
 
-        ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
+        ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
 
         if (isStaging) {
-            integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove);
+            integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove, hbar);
             IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, tauNHC);
             integrator.getEventManager().addListener(nhc);
         } else {
             integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
-            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
+            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, tauNHC);
             integrator.getEventManager().addListener(nhc);
         }
 
@@ -136,14 +133,16 @@ public class LJPIMD extends Simulation {
         } else {
             // modify parameters here for interactive testing
             params.nBeads = 2;
-            params.steps = 1000000;
-            params.isGraphic = false;
+            params.steps = 100000;
+            params.isGraphic = !false;
             params.isStaging = true;
             params.timeStep = 0.001;
+            params.hbar = 1.0;
         }
 
         Space space = Space.getInstance(params.D);
         double mass = params.mass;
+        double hbar = params.hbar;
         int numAtoms = params.numAtoms;
         int nBeads = params.nBeads;
         double temperature = params.temperature;
@@ -155,7 +154,7 @@ public class LJPIMD extends Simulation {
         boolean isGraphic = params.isGraphic;
         boolean isStaging = params.isStaging;
 
-        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, timeStep, isStaging, tauNHC);
+        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, timeStep, isStaging, tauNHC, hbar);
         long steps = params.steps;
         int interval = 10;
         int blocks = 100;
@@ -164,7 +163,9 @@ public class LJPIMD extends Simulation {
         System.out.println("Lennard-Jones PIMD");
         System.out.println("isStaging: " + isStaging);
         System.out.println("mass: " + mass);
+        System.out.println("hbar: " + hbar);
         System.out.println("k2: " + params.k2);
+        System.out.println("tauNHC: " + params.tauNHC);
         System.out.println("N: " + numAtoms);
         System.out.println("nBeads: " + nBeads);
         System.out.println("T: " + temperature);
@@ -195,6 +196,10 @@ public class LJPIMD extends Simulation {
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+
+            ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0),0.2);
+
+
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountTime counter = new DataSourceCountTime(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
@@ -373,21 +378,6 @@ public class LJPIMD extends Simulation {
         System.out.println("time: " + (t2 - t1) * 0.001/60.0 + " mins");
     }
 
-    public static class SimParams extends ParameterBase {
-        public int D = 3;
-        public int nBeads = 1;
-        public double k2 = 219.23;
-        public double tauNHC = 1.0;
-        public long steps = 1000000;
-        public double density = 1.0;
-        public double temperature = 0.5;
-        public int numAtoms = 108;
-        public double mass = 100.0;
-        public double rc = 2.5;
-        public double timeStep = 0.001;
-        public boolean isGraphic = false;
-        public boolean isStaging = true;
-    }
 
     public static class MeterAcceptance extends DataSourceScalar implements IListener<MCMoveEvent> {
 
@@ -412,5 +402,22 @@ public class LJPIMD extends Simulation {
             chiSum += Math.min(((MCMoveTrialCompletedEvent)event).chi, 1);
             numTrials++;
         }
+    }
+
+    public static class SimParams extends ParameterBase {
+        public int D = 3;
+        public int nBeads = 2;
+        public double k2 = 219.232;
+        public double tauNHC = 2.0;
+        public long steps = 100000;
+        public double density = 1.0;
+        public double temperature = 0.5;
+        public int numAtoms = 108;
+        public double mass = 1000.0;
+        public double hbar = 1.0;
+        public double rc = 2.5;
+        public double timeStep = 0.001;
+        public boolean isGraphic = false;
+        public boolean isStaging = true;
     }
 }

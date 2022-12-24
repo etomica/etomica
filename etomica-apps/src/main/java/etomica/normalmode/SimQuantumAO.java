@@ -57,9 +57,9 @@ public class SimQuantumAO extends Simulation {
     public double mass;
     public double k2_kin;
     public static final double kB = 1.0; // Constants.BOLTZMANN_K;
-    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
+    public double hbar;
 
-    public SimQuantumAO(Space space, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, MoveChoice moveChoice) {
+    public SimQuantumAO(Space space, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, MoveChoice moveChoice, double hbar) {
         super(space);
 
         mass = 1;
@@ -103,10 +103,10 @@ public class SimQuantumAO extends Simulation {
         pm = new PotentialComputeAggregate(pmBonding, pcP1);
 
         integrator = new IntegratorMC(pm, random, temperature, box);
-        atomMoveReal2 = new MCMoveHOReal2(space, pm, random, temperature, omega2, box);
+        atomMoveReal2 = new MCMoveHOReal2(space, pm, random, temperature, omega2, box, hbar);
 
         if (moveChoice == MoveChoice.Real2) {
-            atomMove = new MCMoveHOReal2(space, pm, random, temperature, omega2, box);
+            atomMove = new MCMoveHOReal2(space, pm, random, temperature, omega2, box, hbar);
         }
         else {
             atomMove = new MCMoveHO(space, pm, random, temperature, omega2, box);
@@ -141,9 +141,11 @@ public class SimQuantumAO extends Simulation {
             params.k2 = 1.0;
             params.k4 = 24.0;
             params.moveReal = MoveChoice.Real2;
+            params.hbar = 1.0;
         }
 
         double temperature = params.temperature;
+        double hbar = params.hbar;
         double k2 = params.k2;
         double k4 = params.k4;
         int nBeads = params.nBeads;
@@ -155,7 +157,7 @@ public class SimQuantumAO extends Simulation {
         boolean zerok0 = params.zerok0;
         boolean onlyCentroid = params.onlyCentroid;
 
-        double omegaN = nBeads*kB*temperature/hbar; // 1/hbar*betan
+        double omegaN = nBeads*temperature/hbar; // 1/hbar*betan
 
         double massssss = 1.0;
         double omega2 = k2/massssss;
@@ -165,7 +167,7 @@ public class SimQuantumAO extends Simulation {
         double actualOmega2 = omega2;
         if (zerok0) omega2 = 0;
 
-        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA, moveReal);
+        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA, moveReal, hbar);
         sim.integrator.reset();
 
         System.out.println(" numSteps: " +  numSteps + " numStepsEqu: " + numStepsEqu);
@@ -455,6 +457,7 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1.0;
+        public double hbar = 1.0;
         public int nBeads = 11;
         public boolean graphics = false;
         public double k2 = 1.0;

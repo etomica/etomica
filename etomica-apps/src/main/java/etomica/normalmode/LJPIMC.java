@@ -62,7 +62,7 @@ public class LJPIMC extends Simulation {
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMC(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2) {
+    public LJPIMC(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double hbar) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -79,7 +79,6 @@ public class LJPIMC extends Simulation {
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
         double beta = 1/temperature;
-        double hbar = 1;
         double omegaN = nBeads/(hbar*beta);
 
         double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
@@ -114,7 +113,7 @@ public class LJPIMC extends Simulation {
 
         ((MCMoveStepTracker)mcMoveTranslate.getTracker()).setNoisyAdjustment(true);
 
-        ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box);
+        ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         if (false) {
             integrator.getMoveManager().addMCMove(ringMove);
         }
@@ -136,10 +135,12 @@ public class LJPIMC extends Simulation {
             params.steps = 10000000;
             params.nBeads = 2;
             params.isGraphic = true;
+            params.hbar = 1.0;
         }
 
         Space space = Space.getInstance(params.D);
         double mass = params.mass;
+        double hbar = params.hbar;
         int numAtoms = params.numAtoms;
         int nBeads = params.nBeads;
         double temperature = params.temperature;
@@ -148,7 +149,7 @@ public class LJPIMC extends Simulation {
         double omega2 = params.k2/mass;
         boolean isGraphic = params.isGraphic;
 
-        LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc, omega2);
+        LJPIMC sim = new LJPIMC(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, hbar);
         long steps = params.steps;
         int interval = numAtoms;
         int blocks = 100;
@@ -371,18 +372,6 @@ public class LJPIMC extends Simulation {
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
-    public static class SimParams extends ParameterBase {
-        public int D = 3;
-        public int nBeads = 2;
-        public double k2 = 219.231319;
-        public long steps = 1000000;
-        public double density = 1.0;
-        public double temperature = 0.5;
-        public int numAtoms = 108;
-        public double mass = 100.0;
-        public double rc = 2.5;
-        public boolean isGraphic = false;
-    }
 
     public static class MeterAcceptance extends DataSourceScalar implements IListener<MCMoveEvent> {
 
@@ -410,4 +399,20 @@ public class LJPIMC extends Simulation {
             numTrials++;
         }
     }
+
+    public static class SimParams extends ParameterBase {
+        public int D = 3;
+        public int nBeads = 2;
+        public double k2 = 219.231319;
+        public double hbar = 1.0;
+        public long steps = 1000000;
+        public double density = 1.0;
+        public double temperature = 0.5;
+        public int numAtoms = 108;
+        public double mass = 100.0;
+        public double rc = 2.5;
+        public boolean isGraphic = false;
+    }
+
+
 }

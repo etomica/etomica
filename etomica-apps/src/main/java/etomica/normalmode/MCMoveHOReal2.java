@@ -33,8 +33,8 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected double uaOld = Double.NaN;
     protected double uaNew = Double.NaN;
     protected double duTotal;
+    protected double hbar;
     protected double mass, beta, omegaN, betaN, sigma0;
-    public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
     protected final double[] chainSigmas, gamma, dGamma;
     protected final double[] f11, f1N, df11, df1N,d2f11, d2f1N;
     protected final MoleculeSource moleculeSource;
@@ -42,11 +42,12 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected Vector[] latticePositions;
     protected int nGrow;
 
-    public MCMoveHOReal2(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
+    public MCMoveHOReal2(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box, double hbar) {
         super();
         this.pm = pm;
         this.random = random;
         this.omega2 = omega2;
+        this.hbar = hbar;
         setBox(box);
         nBeads = this.box.getMoleculeList().get(0).getChildList().size();
         oldPositions = new Vector[nBeads];

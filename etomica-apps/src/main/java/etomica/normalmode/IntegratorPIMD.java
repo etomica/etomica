@@ -33,7 +33,7 @@ public class IntegratorPIMD extends IntegratorMD {
      * @param temperature      used by thermostat and/or to initialize velocities
      * @param box
      */
-    public IntegratorPIMD(PotentialCompute potentialCompute, IRandom random, double timeStep, double temperature, Box box, MCMoveHOReal2 move) {
+    public IntegratorPIMD(PotentialCompute potentialCompute, IRandom random, double timeStep, double temperature, Box box, MCMoveHOReal2 move, double hbar) {
         super(potentialCompute, random, timeStep, temperature, box);
         sigma = move.chainSigmas;
         f11 = move.f11;
@@ -44,19 +44,21 @@ public class IntegratorPIMD extends IntegratorMD {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
         int n = box.getMoleculeList().get(0).getChildList().size();
-        double omegaN = temperature*n;
+        double omegaN = temperature*n/hbar;
         double D = 2 + omega2 / (omegaN*omegaN);
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
         mScale = new double[n];
         fScale = new double[n];
         fScale0 = new double[n];
         mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(n*alpha/2.0);
+//        mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(n*alpha/2.0)*omegaN*omegaN/omega2;
         if (alpha == 0 || n == 1) mScale[0] = 1.0;
         fScale0[0] = 1;
         for (int i=1; i<n; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
             fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : (Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha));
             mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha));
+//            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha)*omegaN*omegaN/omega2);
         }
 
         meterKE = new MeterKineticEnergy(box, mScale);
