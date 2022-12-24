@@ -32,11 +32,10 @@ public class MCMoveHOReal extends MCMoveBox {
     protected double uaNew = Double.NaN;
     protected double duTotal;
     protected double mass, beta, omegaN, betaN, sigma0;
-    public static final double hbar = 1.0; //Constants.PLANCK_H/(2.0*Math.PI);
     protected final double[] chainSigmas, dSigma;
     protected final double[] R11, R1N, dR11, dR1N;
 
-    public MCMoveHOReal(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
+    public MCMoveHOReal(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box, double hbar) {
         super();
         this.pm = pm;
         this.random = random;
@@ -59,6 +58,7 @@ public class MCMoveHOReal extends MCMoveBox {
         R1N = new double[nBeads];
         dR11 = new double[nBeads];
         dR1N = new double[nBeads];
+        omegaN = 1.0/(hbar*betaN);
 
         init();
     }
@@ -66,7 +66,6 @@ public class MCMoveHOReal extends MCMoveBox {
     protected void init() {
 
         betaN = beta/nBeads;
-        omegaN = 1.0/(hbar*betaN);
         double kSpring = beta * mass * omegaN*omegaN/nBeads/2;
         double dks = -kSpring/beta;
         double k0 = beta * mass * omega2/nBeads/2;

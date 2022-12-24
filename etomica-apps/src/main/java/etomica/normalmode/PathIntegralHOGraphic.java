@@ -21,7 +21,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 public class PathIntegralHOGraphic {
-    public static double hbar;
+
     public static void main(String[] args) {
         SimQuantumAO.OctaneParams params = new SimQuantumAO.OctaneParams();
         if (args.length > 0) {
@@ -32,7 +32,7 @@ public class PathIntegralHOGraphic {
         }
 
         double temperature = params.temperature;
-        hbar = params.hbar;
+        double hbar = params.hbar;
         double k2 = params.k2;
         double k4 = params.k4;
         int nBeads = params.nBeads;
@@ -72,7 +72,7 @@ public class PathIntegralHOGraphic {
         };
         simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         simGraphic.remove(simGraphic.getTrioControllerButton());
-        TransformerNormalMode transformerNM = new TransformerNormalMode(sim.box, k2, temperature);
+        TransformerNormalMode transformerNM = new TransformerNormalMode(sim.box, k2, temperature, hbar);
         TransformerReal transformerReal = new TransformerReal(sim.box, (MCMoveHOReal) sim.atomMove);
         NewConfigAction newConfigAction = new NewConfigAction(sim, simGraphic, transformerNM);
         DeviceButton newConfigButton = new DeviceButton(sim.getController(), newConfigAction);
@@ -94,7 +94,7 @@ public class PathIntegralHOGraphic {
         k2Slider.setPostAction(updateLambda);
         simGraphic.add(k2Slider);
 
-        DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), new ModifierTemperature(nBeads, sim));
+        DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), new ModifierTemperature(nBeads, sim, hbar));
         temperatureSlider.setMinimum(-2);
         temperatureSlider.setMaximum(2);
         temperatureSlider.setPrecision(1);
@@ -232,9 +232,11 @@ public class PathIntegralHOGraphic {
         public final double[] lambda;
         public final double[][] eigenvectors;
         public final Box box;
+        public final double hbar;
 
-        public TransformerNormalMode(Box box, double k2, double temperature) {
+        public TransformerNormalMode(Box box, double k2, double temperature, double hbar) {
             this.box = box;
+            this.hbar = hbar;
             int nBeads = box.getLeafList().size();
             double mass = 1;
             double omegaN = nBeads*temperature/hbar; // 1/hbar*betan
@@ -360,8 +362,10 @@ public class PathIntegralHOGraphic {
     private static class ModifierTemperature implements Modifier {
         private final int nBeads;
         private final SimQuantumAO sim;
+        private final double hbar;
 
-        public ModifierTemperature(int nBeads, SimQuantumAO sim) {
+        public ModifierTemperature(int nBeads, SimQuantumAO sim, double hbar) {
+            this.hbar = hbar;
             this.nBeads = nBeads;
             this.sim = sim;
         }

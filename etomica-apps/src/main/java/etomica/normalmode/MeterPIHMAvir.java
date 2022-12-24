@@ -15,10 +15,8 @@ public class MeterPIHMAvir extends DataSourceScalar {
     protected double[] gk;
     protected double[][] M;
     protected Box box;
-    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
-    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
-    public MeterPIHMAvir(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega2, Box box) {
+    public MeterPIHMAvir(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
         super("Stuff", Null.DIMENSION);
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;

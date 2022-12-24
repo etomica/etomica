@@ -56,8 +56,6 @@ public class SimQuantumAO extends Simulation {
     public int nBeads;
     public double mass;
     public double k2_kin;
-    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
-    public double hbar;
 
     public SimQuantumAO(Space space, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, MoveChoice moveChoice, double hbar) {
         super(space);
@@ -75,7 +73,7 @@ public class SimQuantumAO extends Simulation {
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
-        double beta = 1.0/(kB*temperature);
+        double beta = 1.0/temperature;
         betaN = beta/nBeads;
         double omegaN = 1.0/(hbar*betaN);
 
@@ -109,7 +107,7 @@ public class SimQuantumAO extends Simulation {
             atomMove = new MCMoveHOReal2(space, pm, random, temperature, omega2, box, hbar);
         }
         else {
-            atomMove = new MCMoveHO(space, pm, random, temperature, omega2, box);
+            atomMove = new MCMoveHO(space, pm, random, temperature, omega2, box, hbar);
         }
         integrator.getMoveManager().addMCMove(atomMove);
         if (omega2 == 0) {
@@ -174,7 +172,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" temperature: " + temperature);
         System.out.println(" mass: " + sim.mass + " k2: " + k2 + " k4: " + k4);
-        System.out.println(" hbar: " + hbar  + "  kB: " + kB);
+        System.out.println(" hbar: " + hbar);
         System.out.println(" k2_kin: " + sim.k2_kin);
         System.out.println(" isTIA: " + isTIA);
 
@@ -198,12 +196,12 @@ public class SimQuantumAO extends Simulation {
             if (!onlyCentroid) meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
             meterCentVir = new MeterPICentVir(sim.pcP1, 1/temperature, nBeads, sim.box);
             if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
-            if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
+            if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
             meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, 1/temperature, sim.atomMoveReal2);
         }
 
         MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box); //Bad!!
-        MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);//Bad!!
+        MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);//Bad!!
 
         if (graphics) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
@@ -330,7 +328,7 @@ public class SimQuantumAO extends Simulation {
         double errMSD = dataMSDErr.getValue(0);
         double corMSD = dataMSDCorrelation.getValue(0);
 
-        double kB_beta2 = kB*sim.betaN*sim.betaN*nBeads*nBeads;
+        double kB_beta2 = sim.betaN*sim.betaN*nBeads*nBeads;
 
         //Prim
         if (meterPrim!=null) {
@@ -435,7 +433,7 @@ public class SimQuantumAO extends Simulation {
         double omega = Math.sqrt(actualOmega2);
         System.out.println(" ====================================");
         System.out.println(" MSD_sim: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
-        System.out.println(" MSDc: " + sim.kB*temperature/ sim.mass/omega2);
+        System.out.println(" MSDc: " + temperature/ sim.mass/omega2);
         System.out.println(" MSDq: " + hbar/sim.mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
         double EnQ = hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));

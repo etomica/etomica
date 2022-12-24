@@ -156,6 +156,7 @@ public class LJPIMC extends Simulation {
         long blockSize = steps / (interval * blocks);
 
         System.out.println("Lennard-Jones Monte Carlo simulation");
+        System.out.println("hbar: " + hbar);
         System.out.println("mass: " + mass);
         System.out.println("k2: " + params.k2);
         System.out.println("N: " + numAtoms);

@@ -27,11 +27,9 @@ public class MCMoveHO extends MCMoveBox {
     protected double duTotal;
     protected double mass, beta, omegaN, betaN;
     protected Box box;
-    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
-    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
 
 
-    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box) {
+    public MCMoveHO(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box, double hbar) {
         super();
         this.pm = pm;
         this.random = random;
@@ -45,7 +43,7 @@ public class MCMoveHO extends MCMoveBox {
         }
 
         lambdaN = new double[nBeads];
-        beta = 1.0/(kB*temperature);
+        beta = 1.0/temperature;
         betaN = beta/nBeads;
         omegaN = 1.0/(hbar*betaN);
         mass = box.getLeafList().get(0).getType().getMass();
@@ -161,7 +159,7 @@ public class MCMoveHO extends MCMoveBox {
     public double energyChange() {return duTotal;}
 
     public double getChi(double temperature) {
-        return Math.exp(-(uaNew - uaOld) / (kB*temperature));
+        return Math.exp(-(uaNew - uaOld) / temperature);
     }
 
     public void acceptNotify() { /* do nothing */}

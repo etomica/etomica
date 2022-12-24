@@ -1,8 +1,10 @@
 package etomica.normalmode;
 
-import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCallback;
@@ -26,10 +28,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected Vector[] rdot, rddot;
     protected double EnShift;
 
-    public static final double kB = 1.0; // Constants.BOLTZMANN_K;
-    public static final double hbar = 1.0;// Constants.PLANCK_H/(2.0*Math.PI);
-
-    public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega2, Box box) {
+    public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
@@ -92,7 +91,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             En_harm -= gk[k];
             Cvn_harm += gk2[k];
         }
-        Cvn_harm *= kB*beta*beta;
+        Cvn_harm *= beta*beta;
         System.out.println(" En_harm: " + En_harm + " Cvn_harm: " + Cvn_harm);
         this.EnShift = 0;
     }

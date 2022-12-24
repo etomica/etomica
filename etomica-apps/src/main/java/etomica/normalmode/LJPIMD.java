@@ -137,7 +137,7 @@ public class LJPIMD extends Simulation {
             params.isGraphic = !false;
             params.isStaging = true;
             params.timeStep = 0.001;
-            params.hbar = 1.0;
+            params.hbar = 0.1;
         }
 
         Space space = Space.getInstance(params.D);
@@ -413,8 +413,8 @@ public class LJPIMD extends Simulation {
         public double density = 1.0;
         public double temperature = 0.5;
         public int numAtoms = 108;
-        public double mass = 1000.0;
-        public double hbar = 1.0;
+        public double mass = 1.0;
+        public double hbar = 0.1;
         public double rc = 2.5;
         public double timeStep = 0.001;
         public boolean isGraphic = false;
