@@ -60,6 +60,7 @@ public class LJPIMD extends Simulation {
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
     public final MCMoveHOReal2 ringMove;
+    public final IntegratorListenerNHC nhc;
 
     /**
      * Creates simulation with the given parameters
@@ -113,11 +114,11 @@ public class LJPIMD extends Simulation {
 
         if (isStaging) {
             integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove, hbar);
-            IntegratorListenerNHCPI nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, tauNHC);
+            nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, tauNHC);
             integrator.getEventManager().addListener(nhc);
         } else {
             integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
-            IntegratorListenerNHC nhc = new IntegratorListenerNHC(integrator, random, 3, tauNHC);
+            nhc = new IntegratorListenerNHC(integrator, random, 3, tauNHC);
             integrator.getEventManager().addListener(nhc);
         }
 
@@ -250,6 +251,14 @@ public class LJPIMD extends Simulation {
             historyE.addDataSink(plotE.makeSink("E history"));
             plotE.setLegend(new DataTag[]{meterE.getTag()}, "Integrator E");
             simGraphic.add(plotE);
+
+            DataSourceScalar dsEnergyNHC = new IntegratorListenerNHC.DataSourceTotalEnergy(sim.integrator, sim.nhc);
+            AccumulatorHistory historyEnergyNHC = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyEnergyNHC.setTimeDataSource(counter);
+            DataPumpListener pumpEnergyNHC = new DataPumpListener(dsEnergyNHC, historyEnergyNHC, interval);
+            sim.integrator.getEventManager().addListener(pumpEnergyNHC);
+            historyEnergyNHC.addDataSink(plotE.makeSink("NHC+E history"));
+            plotE.setLegend(new DataTag[]{dsEnergyNHC.getTag()}, "NHC+E");
 
             Vector[] latticePositions = space.makeVectorArray(numAtoms);
             Vector COM0 = space.makeVector();
