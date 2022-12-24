@@ -22,7 +22,6 @@ public class IntegratorPIMD extends IntegratorMD {
     protected double omega2;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
-    protected double mScaleAll = 1;
 
     /**
      * Constructs integrator with a default for non-isothermal sampling.
@@ -59,6 +58,33 @@ public class IntegratorPIMD extends IntegratorMD {
             fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : (Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha));
             mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha));
 //            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha)*omegaN*omegaN/omega2);
+        }
+
+        // F = M a;  M = F / a = (sum fi) / (sum ai); fi=1 => sum fi = n
+        double[] fu = new double[n];
+        for (int i=n-1; i>=0; i--) {
+            fu[0] += fScale0[i];
+            if (i>0) {
+                fu[i] = 1;
+                if (i < n - 1) {
+                    fu[i] += fScale[i] * fu[i + 1];
+                }
+            }
+        }
+
+        double aSum = 0;
+        for (int i=0; i<n; i++) {
+            aSum += fu[i] / mScale[i];
+            if (i>0) {
+                aSum += f11[i] * (fu[i-1] / mScale[i-1]);
+                aSum += f1N[i] * (fu[0] / mScale[0]);
+            }
+        }
+        // M is the effective mass we have now; we want ring mass = n * atomType mass
+        double M = n / (aSum/n);
+        double s = (n * box.getLeafList().get(0).getType().getMass()) / M;
+        for (int i=0; i<mScale.length; i++) {
+            mScale[i] *= s;
         }
 
         meterKE = new MeterKineticEnergy(box, mScale);
@@ -111,7 +137,7 @@ public class IntegratorPIMD extends IntegratorMD {
                 drPrev0.E(usave);
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
-                double meff = a.getType().getMass() * mScaleAll * mScale[i];
+                double meff = a.getType().getMass() * mScale[i];
                 v.PEa1Tv1(0.5 * timeStep / meff, fu[i]);
                 u[i].PEa1Tv1(timeStep, v);
 
@@ -161,7 +187,7 @@ public class IntegratorPIMD extends IntegratorMD {
 //                velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);
                 int i = a.getIndex();
                 Vector v = ((IAtomKinetic) a).getVelocity();
-                double meff = mass * mScaleAll * mScale[i];
+                double meff = mass * mScale[i];
                 v.PEa1Tv1(0.5 * timeStep / meff, fu[i]);
             }
         }
@@ -173,7 +199,7 @@ public class IntegratorPIMD extends IntegratorMD {
             IAtomList atoms = m.getChildList();
             double mass = atoms.get(0).getType().getMass();
             for (int i = 0; i < atoms.size(); i++) {
-                double meff = mass * mScaleAll * mScale[i];
+                double meff = mass * mScale[i];
                 IAtom a = atoms.get(i);
                 Vector velocity = ((IAtomKinetic) a).getVelocity();
                 currentKineticEnergy += 0.5 * meff * velocity.squared();
@@ -210,39 +236,6 @@ public class IntegratorPIMD extends IntegratorMD {
 
     public double[] getMassScale() {
         return mScale;
-    }
-
-    public void doThermostat2() {
-        // let superclass set random velocities pretending v is atomic v
-        super.doThermostat();
-        // now transform velocities to our coordinate system
-        double KE = 0;
-        for (IMolecule m : box.getMoleculeList()) {
-            int n = m.getChildList().size();
-            Vector[] u = box.getSpace().makeVectorArray(n);
-            Vector vPrev = box.getSpace().makeVector();
-            for (IAtom a : m.getChildList()) {
-                int i = a.getIndex();
-
-                Vector v = ((IAtomKinetic) a).getVelocity();
-                u[i].E(v);
-                Vector usave = box.getSpace().makeVector();
-                usave.E(u[i]);
-                if (i > 0) {
-                    u[i].PEa1Tv1(-f11[i], vPrev);
-                    u[i].PEa1Tv1(-f1N[i], u[0]);
-                }
-                vPrev.E(usave);
-                KE += 0.5*a.getType().getMass()*mScale[i]*u[i].squared();
-            }
-            // actually assign velocities
-            for (IAtom a : m.getChildList()) {
-                ((IAtomKinetic) a).getVelocity().E(u[a.getIndex()]);
-            }
-        }
-        // scale masses so that kinetic energy is the same for real and transformed systems
-        mScaleAll = currentKineticEnergy / KE;
-        System.out.println("m global scale: "+mScaleAll);
     }
 
     public void randomizeMomenta() {
