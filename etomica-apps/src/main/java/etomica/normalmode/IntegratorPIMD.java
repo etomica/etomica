@@ -72,13 +72,16 @@ public class IntegratorPIMD extends IntegratorMD {
             }
         }
 
+        double[] ai = new double[n];
+        double mm = box.getLeafList().get(0).getType().getMass();
         double aSum = 0;
         for (int i=0; i<n; i++) {
-            aSum += fu[i] / mScale[i];
+            ai[i] = fu[i] / (mm*mScale[i]);
             if (i>0) {
-                aSum += f11[i] * (fu[i-1] / mScale[i-1]);
-                aSum += f1N[i] * (fu[0] / mScale[0]);
+                ai[i] += f11[i] * ai[i-1];
+                ai[i] += f1N[i] * ai[0];
             }
+            aSum += ai[i];
         }
         // M is the effective mass we have now; we want ring mass = n * atomType mass
         double M = n / (aSum/n);
