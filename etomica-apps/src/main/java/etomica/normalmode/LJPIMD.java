@@ -59,13 +59,13 @@ public class LJPIMD extends Simulation {
     public final PotentialMasterBonding pmBonding;
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
-    public final MCMoveHOReal2 ringMove;
+    public final MCMoveHOReal2 ringMove, ringMoveHMA2;
     public final IntegratorListenerNHC nhc;
 
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double timeStep, boolean isStaging, double tauNHC, double hbar) {
+    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double omega2HMA2, double timeStep, boolean isStaging, double tauNHC, double hbar) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -79,14 +79,10 @@ public class LJPIMD extends Simulation {
         addBox(box);
         NeighborListManagerPI neighborManager = new NeighborListManagerPI(getSpeciesManager(), box, 2, 3, BondingInfo.noBonding());
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
-
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
-
         double beta = 1/temperature;
         double omegaN = nBeads/(hbar*beta);
-
         double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN/nBeads;
-
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i=0; i<nBeads; i++) {
@@ -98,7 +94,6 @@ public class LJPIMD extends Simulation {
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space, density);
         inflater.actionPerformed();
-
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
@@ -111,6 +106,7 @@ public class LJPIMD extends Simulation {
         pmAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
 
         ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
+        ringMoveHMA2 = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2HMA2, box, hbar);
 
         if (isStaging) {
             integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove, hbar);
@@ -127,15 +123,15 @@ public class LJPIMD extends Simulation {
     }
 
     public static void main(String[] args) {
-
+        long t1 = System.currentTimeMillis();
         SimParams params = new SimParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
             params.nBeads = 2;
-            params.steps = 100000;
-            params.isGraphic = !false;
+            params.steps = 1000000;
+            params.isGraphic = false;
             params.isStaging = true;
             params.timeStep = 0.001;
             params.hbar = 0.1;
@@ -150,12 +146,13 @@ public class LJPIMD extends Simulation {
         double density = params.density;
         double rc = params.rc;
         double omega2 = params.k2/mass;
+        double omega2HMA2 = params.k2HMA2/mass;
         double tauNHC = params.tauNHC;
         double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
         boolean isStaging = params.isStaging;
 
-        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, timeStep, isStaging, tauNHC, hbar);
+        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, omega2HMA2, timeStep, isStaging, tauNHC, hbar);
         long steps = params.steps;
         int interval = 10;
         int blocks = 100;
@@ -166,6 +163,7 @@ public class LJPIMD extends Simulation {
         System.out.println("mass: " + mass);
         System.out.println("hbar: " + hbar);
         System.out.println("k2: " + params.k2);
+        System.out.println("k2HMA2: " + params.k2HMA2);
         System.out.println("tauNHC: " + params.tauNHC);
         System.out.println("N: " + numAtoms);
         System.out.println("nBeads: " + nBeads);
@@ -300,38 +298,47 @@ public class LJPIMD extends Simulation {
             return;
         }
 
+        System.out.flush();
+
+
+//        MeterPIRingEnergy meterUring = new MeterPIRingEnergy(sim.pmBonding);
+
+        double betaN = 1/(temperature*nBeads);
+        MeterTemperature meterT = new MeterTemperature(sim.box, space.getD());
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, betaN, sim.box);
+        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, betaN, nBeads, sim.box);
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1.0/temperature, nBeads, sim.box);
+        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads,1/temperature, sim.ringMoveHMA2);
+
         // equilibration
-        long t1 = System.currentTimeMillis();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
-        MeterTemperature meterT = new MeterTemperature(sim.box, space.getD());
+//        AccumulatorAverageFixed accumulatorUring = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener accumulatorPumpUring = new DataPumpListener(meterUring, accumulatorUring, interval);
+//        sim.integrator.getEventManager().addListener(accumulatorPumpUring);
+
         AccumulatorAverageCovariance accumulatorT = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpT = new DataPumpListener(meterT, accumulatorT, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpT);
 
-        double betaN = 1/(temperature*nBeads);
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, betaN, sim.box);
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
 
-        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, betaN, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpVir);
 
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1.0/temperature, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);
 
-        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorHMAc = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
 
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads,1/temperature, sim.ringMove);
         AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);
@@ -339,8 +346,6 @@ public class LJPIMD extends Simulation {
         //Run ...
         sim.integrator.resetStepCount();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
-
-        long t2 = System.currentTimeMillis();
 
         //T
         DataGroup dataT = (DataGroup) accumulatorT.getData();
@@ -384,6 +389,7 @@ public class LJPIMD extends Simulation {
         double corEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.BLOCK_CORRELATION.index);
         System.out.println(" En_hma2: " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
 
+        long t2 = System.currentTimeMillis();
         System.out.println("time: " + (t2 - t1) * 0.001/60.0 + " mins");
     }
 
@@ -416,11 +422,12 @@ public class LJPIMD extends Simulation {
     public static class SimParams extends ParameterBase {
         public int D = 3;
         public int nBeads = 2;
-        public double k2 = 219.232;
-        public double tauNHC = 2.0;
+        public double k2 = 1.0;
+        public double k2HMA2 = 219.231319;
+        public double tauNHC = 5.0;
         public long steps = 100000;
         public double density = 1.0;
-        public double temperature = 0.5;
+        public double temperature = 0.2;
         public int numAtoms = 108;
         public double mass = 1.0;
         public double hbar = 0.1;
