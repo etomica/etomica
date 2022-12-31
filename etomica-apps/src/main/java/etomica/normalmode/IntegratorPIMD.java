@@ -272,6 +272,51 @@ public class IntegratorPIMD extends IntegratorMD {
         }
     }
 
+    protected void scaleMomenta(Vector t) {
+        IAtomList leafList = box.getLeafList();
+        int nLeaf = leafList.size();
+        currentKineticEnergy = 0;
+        if (nLeaf == 0) return;
+        // calculate current kinetic temperature.
+        for (int i = 0; i < space.D(); i++) {
+            // scale independently in each dimension
+            double sum = 0.0;
+            int nLeafNotFixed = 0;
+            for (int iAtom = 0; iAtom < nLeaf; iAtom++) {
+                IAtomKinetic atom = (IAtomKinetic) leafList.get(iAtom);
+                double mass = atom.getType().getMass();
+                if (mass == Double.POSITIVE_INFINITY) continue;
+                double v = atom.getVelocity().getX(i);
+                sum += mass * mScale[atom.getIndex()] * v * v;
+                nLeafNotFixed++;
+            }
+            if (sum == 0) {
+                if (t.getX(i) == 0) {
+                    continue;
+                }
+                if (i > 0) {
+                    // wonky.  possible in theory.  but then, you called
+                    // scaleMomenta, so you're probably a bad person and
+                    // deserve this.
+                    throw new RuntimeException("atoms have no velocity component in " + i + " dimension");
+                }
+                randomizeMomenta();
+                i--;
+                // try again, we could infinite loop in theory
+                continue;
+            }
+            double s = Math.sqrt(t.getX(i) / (sum / nLeafNotFixed));
+            currentKineticEnergy += 0.5 * sum * s * s;
+            if (s == 1) continue;
+            for (int iAtom = 0; iAtom < nLeaf; iAtom++) {
+                IAtomKinetic atom = (IAtomKinetic) leafList.get(iAtom);
+                Vector vel = atom.getVelocity();
+                vel.setX(i, vel.getX(i) * s); //scale momentum
+            }
+        }
+    }
+
+
     public static class MeterKineticEnergy extends DataSourceScalar {
 
         protected final Box box;
