@@ -452,15 +452,22 @@ public class GlassProd {
         configStorageMSD.addListener(meterAlpha2);
 
         //S(q)
-        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
         double cut10 = 10;
         if (numAtoms > 500) cut10 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
+        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
         MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut10);
         meterSFac.setNormalizeByN(true);
         DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 5000);
         sim.integrator.getEventManager().addListener(pumpSFac);
         double vB = sim.getSpace().powerD(sim.sigmaB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
+
+        AccumulatorAverageFixed accSFacAB = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+        MeterStructureFactor meterSFacAB = new MeterStructureFactor(sim.box, cut10);
+        meterSFacAB.setNormalizeByN(true);
+        DataPumpListener pumpSFacAB = new DataPumpListener(meterSFacAB, accSFacAB, 5000);
+        sim.integrator.getEventManager().addListener(pumpSFacAB);
+        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacAB.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
 
         double cut3 = 3;
         if (numAtoms > 500) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
@@ -680,6 +687,7 @@ public class GlassProd {
         objects.add(meterL);
         objects.add(meterAlpha2);
         objects.add(accSFac);
+        objects.add(accSFacAB);
         for (int i = 0; i < 30; i++) {
             objects.add(accSFacMobility[i]);
             objects.add(accSFacMotion[i]);
@@ -736,7 +744,7 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenamePerc,
-                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameVAC;
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameSqAB, filenameVAC;
 
         String fileTag;
         String filenamePxyAC = "";
@@ -758,6 +766,7 @@ public class GlassProd {
             filenameImmFracPerc = String.format("immFracPercRho%1.3f.out", rho);
             filenameAlpha2 = String.format("alpha2Rho%1.3f.out", rho);
             filenameSq = String.format("sqRho%1.3f.out", rho);
+            filenameSqAB = String.format("sqRhoAB%1.3f.out", rho);
         } else {
             // Energy
             DataGroup dataU = (DataGroup) accPE.getData();
@@ -808,6 +817,7 @@ public class GlassProd {
             filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out", rho, params.temperature);
             filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameSq = String.format("sqRho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameSqAB = String.format("sqRhoAB%1.3fT%1.3f.out", rho, params.temperature);
             double V = sim.box.getBoundary().volume();
             System.out.println("G: " + V * avgG / tAvg + " " + V * errG / tAvg + " cor: " + corG + "\n");
         }
@@ -900,7 +910,8 @@ public class GlassProd {
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeChi4Source(), meterPerc3.makeChi4Source()}, "chi4Star" + fileTag + ".out");
             GlassProd.writeDataToFile(meterQ4.makeChi4Meter(), "chi4" + fileTag + ".out");
             GlassProd.writeDataToFile(meterAlpha2, filenameAlpha2);
-            GlassProd.writeDataToFile(meterSFac, filenameSq);
+            GlassProd.writeDataToFile(accSFac, filenameSq);
+            GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 
             GlassProd.writeDataToFile(meterMSD, meterMSD.errData, filenameMSD);
             GlassProd.writeDataToFile(meterMSDA, meterMSDA.errData, filenameMSDA);
