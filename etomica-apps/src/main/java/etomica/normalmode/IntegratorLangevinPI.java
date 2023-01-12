@@ -28,6 +28,9 @@ import etomica.util.random.IRandom;
  *
  * With isothermal = false or gamma = 0, the thermostat will be disabled, resulting in velocity-Verlet
  * integration for NVE.
+ *
+ * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum whenever
+ * the transformed coordinates are propagatated.  As such, the kinetic energy should be the full 3/2 Nn kT.
  */
 public class IntegratorLangevinPI extends IntegratorMD {
 
@@ -36,6 +39,8 @@ public class IntegratorLangevinPI extends IntegratorMD {
     protected double omega2;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
+    protected final Vector[] netMomentum;
+    protected final double[] totalMass;
 
     public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
                                 double timeStep, double temperature, Box box, double gamma,
@@ -101,6 +106,9 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
 
+        // what the net momentum would be if we weren't consistently zeroing it out
+        netMomentum = space.makeVectorArray(n);
+        totalMass = new double[n];
     }
 
     public void setGamma(double newGamma) {
@@ -134,6 +142,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 u[i].PEa1Tv1(dt, v);
+                u[i].PEa1Tv1(-dt/totalMass[i], netMomentum[i]);
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
@@ -157,8 +166,8 @@ public class IntegratorLangevinPI extends IntegratorMD {
         Vector[] forces = potentialCompute.getForces();
         for (IMolecule m : box.getMoleculeList()) {
             IAtomList atoms = m.getChildList();
-            Vector[] fu = box.getSpace().makeVectorArray(atoms.size());
             int n = atoms.size();
+            Vector[] fu = box.getSpace().makeVectorArray(n);
 
             // first compute collective forces
             for (int i = n - 1; i >= 0; i--) {
@@ -202,15 +211,22 @@ public class IntegratorLangevinPI extends IntegratorMD {
         Vector rand = space.makeVector();
         IAtomList atoms = box.getLeafList();
         double expX = Math.exp(-x);
+        Vector vOld = space.makeVector();
         for (IAtom atom : atoms) {
             IAtomKinetic a = (IAtomKinetic) atom;
-            double sqrtM = Math.sqrt(a.getType().getMass() * mScale[a.getIndex()]);
+            double m = a.getType().getMass() * mScale[a.getIndex()];
+            double sqrtM = Math.sqrt(m);
             for (int i = 0; i < rand.getD(); i++) {
                 rand.setX(i, c * sqrtT / sqrtM * random.nextGaussian());
             }
             Vector v = a.getVelocity();
+            vOld.E(v);
             v.TE(expX);
             v.PE(rand);
+            if (thermostatNoDrift) {
+                vOld.ME(v);
+                netMomentum[a.getIndex()].PEa1Tv1(-m, vOld);
+            }
         }
     }
 
@@ -276,18 +292,15 @@ public class IntegratorLangevinPI extends IntegratorMD {
     }
 
     public void shiftMomenta() {
-        Vector[] p = box.getSpace().makeVectorArray(box.getMoleculeList().get(0).getChildList().size());
-        double[] totalMass = new double[p.length];
+        for (int i=0; i<netMomentum.length; i++) {
+            netMomentum[i].E(0);
+            totalMass[i] = 0;
+        }
         for (IAtom a : box.getLeafList()) {
             int i = a.getIndex();
-            p[i].PEa1Tv1(a.getType().getMass(), ((IAtomKinetic)a).getVelocity());
-            totalMass[i] += a.getType().getMass();
-        }
-        for (int i=0; i<p.length; i++) {
-            p[i].TE(1/totalMass[i]);
-        }
-        for (IAtom a : box.getLeafList()) {
-            ((IAtomKinetic)a).getVelocity().ME(p[a.getIndex()]);
+            double m = a.getType().getMass()*mScale[a.getIndex()];
+            netMomentum[i].PEa1Tv1(m, ((IAtomKinetic)a).getVelocity());
+            totalMass[i] += m;
         }
     }
 
