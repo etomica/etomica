@@ -22,7 +22,6 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorLangevin;
-import etomica.integrator.IntegratorListenerNHC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
@@ -60,12 +59,11 @@ public class LJPIMD extends Simulation {
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
     public final MCMoveHOReal2 ringMove, ringMoveHMA2;
-    public IntegratorListenerNHC nhc;
 
     /**
      * Creates simulation with the given parameters
      */
-    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double omega2HMA2, double timeStep, boolean isStaging, double tauNHC, double gammaLangevin, double hbar) {
+    public LJPIMD(Space space, double mass, int numAtoms, int nBeads, double temperature, double density, double rc, double omega2, double omega2HMA2, double timeStep, boolean isStaging, double gammaLangevin, double hbar) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -110,27 +108,13 @@ public class LJPIMD extends Simulation {
         ringMoveHMA2 = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2HMA2, box, hbar);
 
         if (isStaging) {
-            if (gammaLangevin > 0){
-                integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, ringMove, hbar);
-            }
-            else {
-                integrator = new IntegratorPIMD(pmAgg, random, timeStep, temperature, box, ringMove, hbar);
-                nhc = new IntegratorListenerNHCPI((IntegratorPIMD) integrator, random, 3, tauNHC);
-                integrator.getEventManager().addListener(nhc);
-            }
+            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, ringMove, hbar);
         } else {
-            if (gammaLangevin > 0) {
-                integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
-            }
-            else {
-                integrator = new IntegratorVelocityVerlet(pmAgg, random, timeStep, temperature, box);
-                nhc = new IntegratorListenerNHC(integrator, random, 3, tauNHC);
-                integrator.getEventManager().addListener(nhc);
-            }
+            integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         }
 
         integrator.setThermostatNoDrift(true);
-        integrator.setIsothermal(tauNHC > 0 ? false : true);
+        integrator.setIsothermal(true);
     }
 
     public static void main(String[] args) {
@@ -158,19 +142,12 @@ public class LJPIMD extends Simulation {
         double rc = params.rc;
         double omega2 = params.k2/mass;
         double omega2HMA2 = params.k2HMA2/mass;
-        double tauNHC = params.tauNHC;
         double gammaLangevin = params.gammaLangevin;
-        if (tauNHC * gammaLangevin > 0) {
-            throw new RuntimeException("Cannot do both NHC and Langevin");
-        }
-        if (tauNHC + gammaLangevin == 0) {
-            throw new RuntimeException("Must enable either NHC or Langevin");
-        }
         double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
         boolean isStaging = params.isStaging;
 
-        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, omega2HMA2, timeStep, isStaging, tauNHC, gammaLangevin, hbar);
+        LJPIMD sim = new LJPIMD(space, mass, numAtoms, nBeads, temperature, density, rc, omega2, omega2HMA2, timeStep, isStaging, gammaLangevin, hbar);
         long steps = params.steps;
         int interval = 10;
         int blocks = 100;
@@ -182,8 +159,7 @@ public class LJPIMD extends Simulation {
         System.out.println("hbar: " + hbar);
         System.out.println("k2: " + params.k2);
         System.out.println("k2HMA2: " + params.k2HMA2);
-        if (tauNHC>0) System.out.println("tauNHC: " + params.tauNHC);
-        else if (gammaLangevin>0) System.out.println("gammaLangevin: " + gammaLangevin);
+        System.out.println("gammaLangevin: " + gammaLangevin);
         System.out.println("N: " + numAtoms);
         System.out.println("nBeads: " + nBeads);
         System.out.println("T: " + temperature);
@@ -268,16 +244,6 @@ public class LJPIMD extends Simulation {
             historyE.addDataSink(plotE.makeSink("E history"));
             plotE.setLegend(new DataTag[]{meterE.getTag()}, "Integrator E");
             simGraphic.add(plotE);
-
-            if (sim.nhc != null) {
-                DataSourceScalar dsEnergyNHC = new IntegratorListenerNHC.DataSourceTotalEnergy(sim.integrator, sim.nhc);
-                AccumulatorHistory historyEnergyNHC = new AccumulatorHistory(new HistoryCollapsingAverage());
-                historyEnergyNHC.setTimeDataSource(counter);
-                DataPumpListener pumpEnergyNHC = new DataPumpListener(dsEnergyNHC, historyEnergyNHC, interval);
-                sim.integrator.getEventManager().addListener(pumpEnergyNHC);
-                historyEnergyNHC.addDataSink(plotE.makeSink("NHC+E history"));
-                plotE.setLegend(new DataTag[]{dsEnergyNHC.getTag()}, "NHC+E");
-            }
 
             Vector[] latticePositions = space.makeVectorArray(numAtoms);
             Vector COM0 = space.makeVector();
@@ -419,7 +385,6 @@ public class LJPIMD extends Simulation {
         public int nBeads = 2;
         public double k2 = 1.0;
         public double k2HMA2 = 219.231319;
-        public double tauNHC = 0;
         public double gammaLangevin = 1;
         public long steps = 100000;
         public double density = 1.0;

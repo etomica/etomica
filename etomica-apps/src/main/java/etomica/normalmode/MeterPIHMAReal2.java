@@ -125,8 +125,10 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 for (int j = 0; j < beads.size(); j++) {
                     int aj = (j + indexShift) % beads.size();
                     IAtom atomj = beads.get(aj);
-                    En -= dim*gamma[j];
-                    Cvn += dGamma[j];
+                    if (i != 0 || j != 0) {
+                        En -= dim*gamma[j];
+                        Cvn += dim*dGamma[j];
+                    }
                     drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
                     box.getBoundary().nearestImage(drj);
                     tmp_r.E(drj);
