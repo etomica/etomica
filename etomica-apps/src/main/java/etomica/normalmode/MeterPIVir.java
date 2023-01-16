@@ -64,7 +64,7 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
             }
         }
 
-        x[0] =   dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;//En
+        x[0] =   dim*nBeads/beta + dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;//En
 //        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
         return data;
     }
