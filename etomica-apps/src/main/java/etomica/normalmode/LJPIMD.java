@@ -17,13 +17,11 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergyFromIntegrator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorLangevin;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -167,6 +165,14 @@ public class LJPIMD extends Simulation {
         System.out.println("steps: " + steps + " timestep: " + timeStep);
         System.out.println("rc: " + rc);
 
+        double betaN = 1/(temperature*nBeads);
+        DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, betaN, sim.box);
+        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, betaN, nBeads, sim.box);
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster,1.0/temperature, nBeads, sim.box);
+        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads,1/temperature, sim.ringMoveHMA2);
+
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -217,6 +223,16 @@ public class LJPIMD extends Simulation {
             DataPumpListener pumpPE = new DataPumpListener(meterPE, historyPE, interval);
             sim.integrator.getEventManager().addListener(pumpPE);
 
+            AccumulatorHistory historyCV = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyCV.setTimeDataSource(counter);
+            DataPumpListener pumpCV = new DataPumpListener(meterCentVir, historyCV, interval);
+            sim.integrator.getEventManager().addListener(pumpCV);
+
+            AccumulatorHistory historyPrim = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyPrim.setTimeDataSource(counter);
+            DataPumpListener pumpPrim = new DataPumpListener(meterPrim, historyPrim, interval);
+            sim.integrator.getEventManager().addListener(pumpPrim);
+
             MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory historyE = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyE.setTimeDataSource(counter);
@@ -236,6 +252,10 @@ public class LJPIMD extends Simulation {
             plotPE.setLegend(new DataTag[]{meterPE.getTag()}, "Integrator PE");
             historyPE2.addDataSink(plotPE.makeSink("PE2 history"));
             plotPE.setLegend(new DataTag[]{meterPE2.getTag()}, "recompute PE");
+            historyCV.addDataSink(plotPE.makeSink("CV history"));
+            plotPE.setLegend(new DataTag[]{meterCentVir.getTag()}, "centroid virial");
+            historyPrim.addDataSink(plotPE.makeSink("Prim history"));
+            plotPE.setLegend(new DataTag[]{meterPrim.getTag()}, "primitive");
             simGraphic.add(plotPE);
 
             DisplayPlotXChart plotE = new DisplayPlotXChart();
@@ -244,6 +264,13 @@ public class LJPIMD extends Simulation {
             historyE.addDataSink(plotE.makeSink("E history"));
             plotE.setLegend(new DataTag[]{meterE.getTag()}, "Integrator E");
             simGraphic.add(plotE);
+
+            AccumulatorHistory historyEnergyKE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyEnergyKE.setTimeDataSource(counter);
+            DataPumpListener pumpEnergyKE = new DataPumpListener(meterKE, historyEnergyKE, interval);
+            sim.integrator.getEventManager().addListener(pumpEnergyKE);
+            historyEnergyKE.addDataSink(plotE.makeSink("KE history"));
+            plotE.setLegend(new DataTag[]{meterKE.getTag()}, "KE");
 
             Vector[] latticePositions = space.makeVectorArray(numAtoms);
             Vector COM0 = space.makeVector();
@@ -290,14 +317,6 @@ public class LJPIMD extends Simulation {
 
 //        MeterPIRingEnergy meterUring = new MeterPIRingEnergy(sim.pmBonding);
 
-        double betaN = 1/(temperature*nBeads);
-        MeterTemperature meterT = new MeterTemperature(sim.box, space.getD());
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, betaN, sim.box);
-        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, betaN, nBeads, sim.box);
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1.0/temperature, nBeads, sim.box);
-        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads,1/temperature, sim.ringMoveHMA2);
-
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
@@ -306,9 +325,9 @@ public class LJPIMD extends Simulation {
 //        DataPumpListener accumulatorPumpUring = new DataPumpListener(meterUring, accumulatorUring, interval);
 //        sim.integrator.getEventManager().addListener(accumulatorPumpUring);
 
-        AccumulatorAverageCovariance accumulatorT = new AccumulatorAverageCovariance(blockSize);
-        DataPumpListener accumulatorPumpT = new DataPumpListener(meterT, accumulatorT, interval);
-        sim.integrator.getEventManager().addListener(accumulatorPumpT);
+        AccumulatorAverageCovariance accumulatorKE = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpKE = new DataPumpListener(meterKE, accumulatorKE, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpKE);
 
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
@@ -335,11 +354,11 @@ public class LJPIMD extends Simulation {
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         //T
-        DataGroup dataT = (DataGroup) accumulatorT.getData();
-        double avgT = dataT.getValue(accumulatorT.AVERAGE.index);
-        double errT = dataT.getValue(accumulatorT.ERROR.index);
-        double corT = dataT.getValue(accumulatorT.BLOCK_CORRELATION.index);
-        System.out.println(" T_measured: " + avgT + " +/- " + errT + " cor: " + corT);
+        DataGroup dataKE = (DataGroup) accumulatorKE.getData();
+        double avgKE = dataKE.getValue(accumulatorKE.AVERAGE.index);
+        double errKE = dataKE.getValue(accumulatorKE.ERROR.index);
+        double corKE = dataKE.getValue(accumulatorKE.BLOCK_CORRELATION.index);
+        System.out.println(" T_measured: " + avgKE/(1.5*numAtoms*nBeads) + " +/- " + errKE/(1.5*numAtoms*nBeads) + " cor: " + corKE);
 
         //Prim
         DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();
