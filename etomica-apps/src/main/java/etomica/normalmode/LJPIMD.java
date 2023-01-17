@@ -233,6 +233,16 @@ public class LJPIMD extends Simulation {
             DataPumpListener pumpPrim = new DataPumpListener(meterPrim, historyPrim, interval);
             sim.integrator.getEventManager().addListener(pumpPrim);
 
+            AccumulatorHistory historyHMAc = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyHMAc.setTimeDataSource(counter);
+            DataPumpListener pumpHMAc = new DataPumpListener(meterHMAc, historyHMAc, interval);
+            sim.integrator.getEventManager().addListener(pumpHMAc);
+
+            AccumulatorHistory historyHMA2 = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyHMA2.setTimeDataSource(counter);
+            DataPumpListener pumpHMA2 = new DataPumpListener(meterHMAReal2, historyHMA2, interval);
+            sim.integrator.getEventManager().addListener(pumpHMA2);
+
             MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory historyE = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyE.setTimeDataSource(counter);
@@ -256,6 +266,10 @@ public class LJPIMD extends Simulation {
             plotPE.setLegend(new DataTag[]{meterCentVir.getTag()}, "centroid virial");
             historyPrim.addDataSink(plotPE.makeSink("Prim history"));
             plotPE.setLegend(new DataTag[]{meterPrim.getTag()}, "primitive");
+            historyHMAc.addDataSink(plotPE.makeSink("HMAc history"));
+            plotPE.setLegend(new DataTag[]{meterHMAc.getTag()}, "HMAc");
+            historyHMA2.addDataSink(plotPE.makeSink("HMA2 history"));
+            plotPE.setLegend(new DataTag[]{meterHMAReal2.getTag()}, "HMA2");
             simGraphic.add(plotPE);
 
             DisplayPlotXChart plotE = new DisplayPlotXChart();
