@@ -109,6 +109,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         double Cvn = 0;
         rHr = 0;
 
+        Vector dr0ref = box.getSpace().makeVector();
+
         int ns = nShifts+1;
         for (int i = 0; i < molecules.size(); i++) {
             IAtomList beads = molecules.get(i).getChildList();
@@ -118,7 +120,11 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
-                box.getBoundary().nearestImage(dr0);
+                if(i==0){
+                    dr0ref.E(dr0);
+                }
+                dr0.Ev1Mv2(dr0, dr0ref);
+//                box.getBoundary().nearestImage(dr0);
 
                 Vector drPrev = box.getSpace().makeVector();
 
@@ -130,6 +136,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                         Cvn += dim*dGamma[j];
                     }
                     drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
+                    drj.Ev1Mv2(drj, dr0ref);
                     box.getBoundary().nearestImage(drj);
                     tmp_r.E(drj);
                     if (j > 0) {

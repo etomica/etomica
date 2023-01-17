@@ -122,11 +122,11 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.nBeads = 2;
-            params.steps = 1000000;
+            params.nBeads = 8;
+            params.steps = 100000;
             params.isGraphic = false;
             params.isStaging = true;
-            params.timeStep = 0.001;
+            params.timeStep = 0.005;
             params.hbar = 0.1;
         }
 
@@ -402,13 +402,13 @@ public class LJPIMD extends Simulation {
     public static class SimParams extends ParameterBase {
         public int D = 3;
         public int nBeads = 2;
-        public double k2 = 1.0;
+        public double k2 = 219.231319;
         public double k2HMA2 = 219.231319;
-        public double gammaLangevin = 1;
+        public double gammaLangevin = 2.0*Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;
         public double temperature = 0.5;
-        public int numAtoms = 108;
+        public int numAtoms = 32;
         public double mass = 1.0;
         public double hbar = 0.1;
         public double rc = 2.5;
