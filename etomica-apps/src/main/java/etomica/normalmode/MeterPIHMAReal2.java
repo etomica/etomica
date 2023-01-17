@@ -123,8 +123,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 if(i==0){
                     dr0ref.E(dr0);
                 }
-                dr0.Ev1Mv2(dr0, dr0ref);
-//                box.getBoundary().nearestImage(dr0);
+                dr0.ME(dr0ref);
+                box.getBoundary().nearestImage(dr0);
 
                 Vector drPrev = box.getSpace().makeVector();
 
