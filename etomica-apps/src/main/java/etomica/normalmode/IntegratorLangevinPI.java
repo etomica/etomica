@@ -39,8 +39,8 @@ public class IntegratorLangevinPI extends IntegratorMD {
     protected double omega2;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
-    protected final Vector[] netMomentum;
-    protected final double[] totalMass;
+    protected final Vector netMomentum0;
+    protected double totalMass0;
 
     public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
                                 double timeStep, double temperature, Box box, double gamma,
@@ -107,8 +107,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
 
         // what the net momentum would be if we weren't consistently zeroing it out
-        netMomentum = space.makeVectorArray(n);
-        totalMass = new double[n];
+        netMomentum0 = space.makeVector();
     }
 
     public void setGamma(double newGamma) {
@@ -142,7 +141,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 u[i].PEa1Tv1(dt, v);
-                if (i==0) u[i].PEa1Tv1(-dt/totalMass[i], netMomentum[i]);
+                if (i==0 && thermostatNoDrift) u[i].PEa1Tv1(-dt/totalMass0, netMomentum0);
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
@@ -188,6 +187,9 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
                 double meff = a.getType().getMass() * mScale[i];
                 v.PEa1Tv1(dt / meff, fu[i]);
+                if (i==0 && thermostatNoDrift) {
+                    netMomentum0.PEa1Tv1(dt, fu[i]);
+                }
             }
         }
     }
@@ -223,9 +225,9 @@ public class IntegratorLangevinPI extends IntegratorMD {
             vOld.E(v);
             v.TE(expX);
             v.PE(rand);
-            if (thermostatNoDrift) {
+            if (thermostatNoDrift && a.getIndex()==0) {
                 vOld.ME(v);
-                netMomentum[a.getIndex()].PEa1Tv1(-m, vOld);
+                netMomentum0.PEa1Tv1(-m, vOld);
             }
         }
     }
@@ -292,15 +294,14 @@ public class IntegratorLangevinPI extends IntegratorMD {
     }
 
     public void shiftMomenta() {
-        for (int i=0; i<netMomentum.length; i++) {
-            netMomentum[i].E(0);
-            totalMass[i] = 0;
-        }
+        netMomentum0.E(0);
+        totalMass0 = 0;
         for (IAtom a : box.getLeafList()) {
             int i = a.getIndex();
-            double m = a.getType().getMass()*mScale[a.getIndex()];
-            netMomentum[i].PEa1Tv1(m, ((IAtomKinetic)a).getVelocity());
-            totalMass[i] += m;
+            if (i!=0) continue;
+            double m = a.getType().getMass()*mScale[0];
+            netMomentum0.PEa1Tv1(m, ((IAtomKinetic)a).getVelocity());
+            totalMass0 += m;
         }
     }
 
