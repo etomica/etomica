@@ -62,6 +62,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         double virc = 0;
         Vector drc = box.getSpace().makeVector();
         Vector dri = box.getSpace().makeVector();
+        Vector dr0Ref = box.getSpace().makeVector();
 
         pcP1.computeAll(true);
         Vector[] forces = pcP1.getForces();
@@ -70,7 +71,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
                 dri.Ev1Mv2(ri, latticePositions[molecule.getIndex()]);
+                if (atom.getLeafIndex() == 0) {
+                    dr0Ref.E(dri);
+                }
+                dri.ME(dr0Ref);
                 drc.Ev1Mv2(rc[molecule.getIndex()], latticePositions[molecule.getIndex()]);
+                drc.ME(dr0Ref);
                 box.getBoundary().nearestImage(dri);
                 box.getBoundary().nearestImage(drc);
 

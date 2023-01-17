@@ -120,7 +120,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
-                if(i==0){
+                if(i==0 && indexShift==0){
                     dr0ref.E(dr0);
                 }
                 dr0.ME(dr0ref);
