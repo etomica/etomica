@@ -29,8 +29,8 @@ import etomica.util.random.IRandom;
  * With isothermal = false or gamma = 0, the thermostat will be disabled, resulting in velocity-Verlet
  * integration for NVE.
  *
- * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum whenever
- * the transformed coordinates are propagatated.  As such, the kinetic energy should be the full 3/2 Nn kT.
+ * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum of mode
+ * 0 whenever the transformed coordinates are propagated.  As such, the kinetic energy should be the full 3/2 Nn kT.
  */
 public class IntegratorLangevinPI extends IntegratorMD {
 
@@ -142,7 +142,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 u[i].PEa1Tv1(dt, v);
-                u[i].PEa1Tv1(-dt/totalMass[i], netMomentum[i]);
+                if (i==0) u[i].PEa1Tv1(-dt/totalMass[i], netMomentum[i]);
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
