@@ -39,8 +39,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
     protected double omega2;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
-    protected final Vector netMomentum0;
-    protected double totalMass0;
 
     public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
                                 double timeStep, double temperature, Box box, double gamma,
@@ -105,9 +103,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
         }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
-
-        // what the net momentum would be if we weren't consistently zeroing it out
-        netMomentum0 = space.makeVector();
     }
 
     public void setGamma(double newGamma) {
@@ -141,7 +136,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 u[i].PEa1Tv1(dt, v);
-                if (i==0 && thermostatNoDrift) u[i].PEa1Tv1(-dt/totalMass0, netMomentum0);
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
@@ -187,9 +181,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
                 double meff = a.getType().getMass() * mScale[i];
                 v.PEa1Tv1(dt / meff, fu[i]);
-                if (i==0 && thermostatNoDrift) {
-                    netMomentum0.PEa1Tv1(dt, fu[i]);
-                }
             }
         }
     }
@@ -225,10 +216,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
             vOld.E(v);
             v.TE(expX);
             v.PE(rand);
-            if (thermostatNoDrift && a.getIndex()==0) {
-                vOld.ME(v);
-                netMomentum0.PEa1Tv1(-m, vOld);
-            }
         }
     }
 
@@ -279,30 +266,22 @@ public class IntegratorLangevinPI extends IntegratorMD {
     }
 
     public void randomizeMomenta() {
+        if (thermostatNoDrift) {
+            throw new RuntimeException("Langevin for PI is currently unable to prevent drift");
+        }
         atomActionRandomizeVelocity.setTemperature(temperature);
         IAtomList leafList = box.getLeafList();
         for (IAtom a : leafList) {
             atomActionRandomizeVelocity.actionPerformed(a);
-            ((IAtomKinetic)a).getVelocity().TE(1/Math.sqrt(mScale[a.getIndex()]));
+            ((IAtomKinetic) a).getVelocity().TE(1 / Math.sqrt(mScale[a.getIndex()]));
         }
         if (alwaysScaleMomenta) {
-            if (thermostatNoDrift) {
-                shiftMomenta();
-            }
             scaleMomenta();
         }
     }
 
     public void shiftMomenta() {
-        netMomentum0.E(0);
-        totalMass0 = 0;
-        for (IAtom a : box.getLeafList()) {
-            int i = a.getIndex();
-            if (i!=0) continue;
-            double m = a.getType().getMass()*mScale[0];
-            netMomentum0.PEa1Tv1(m, ((IAtomKinetic)a).getVelocity());
-            totalMass0 += m;
-        }
+        // do nothing
     }
 
     protected void scaleMomenta(Vector t) {

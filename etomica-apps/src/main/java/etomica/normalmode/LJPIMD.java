@@ -111,7 +111,7 @@ public class LJPIMD extends Simulation {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         }
 
-        integrator.setThermostatNoDrift(true);
+        integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
     }
 
