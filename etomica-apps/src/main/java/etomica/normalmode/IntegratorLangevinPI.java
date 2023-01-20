@@ -62,14 +62,12 @@ public class IntegratorLangevinPI extends IntegratorMD {
         fScale = new double[n];
         fScale0 = new double[n];
         mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(n*alpha/2.0);
-//        mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(n*alpha/2.0)*omegaN*omegaN/omega2;
         if (alpha == 0 || n == 1) mScale[0] = 1.0;
         fScale0[0] = 1;
         for (int i=1; i<n; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
             fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : (Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha));
             mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha));
-//            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha)*omegaN*omegaN/omega2);
         }
 
         // F = M a;  M = F / a = (sum fi) / (sum ai); fi=1 => sum fi = n
