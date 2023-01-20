@@ -328,12 +328,23 @@ public class LJPIMD extends Simulation {
 
         System.out.flush();
 
+        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
+        DataSourceBAC meterBAC = new DataSourceBAC(configStorage);
+        DataSourceRAC meterRAC = new DataSourceRAC(configStorage);
+        DataSourceMSDAC meterMSDAC = new DataSourceMSDAC(configStorage);
+
 
 //        MeterPIRingEnergy meterUring = new MeterPIRingEnergy(sim.pmBonding);
 
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
+
+        configStorage.setEnabled(true);
+        sim.integrator.getEventManager().addListener(configStorage);
+        configStorage.addListener(meterBAC);
+        configStorage.addListener(meterRAC);
+        configStorage.addListener(meterMSDAC);
 
 //        AccumulatorAverageFixed accumulatorUring = new AccumulatorAverageFixed(blockSize);
 //        DataPumpListener accumulatorPumpUring = new DataPumpListener(meterUring, accumulatorUring, interval);
@@ -410,8 +421,47 @@ public class LJPIMD extends Simulation {
         System.out.println(" En_hma2: " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
 
         long t2 = System.currentTimeMillis();
+        try {
+            writeDataToFile(meterBAC, meterBAC.getErrorData(), "bac.dat");
+            writeDataToFile(meterRAC, meterRAC.getErrorData(), "rac.dat");
+            writeDataToFile(meterMSDAC, meterMSDAC.getErrorData(), "msdac.dat");
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         System.out.println("time: " + (t2 - t1) * 0.001/60.0 + " mins");
     }
+
+    public static void writeDataToFile(IDataSource meter, IData errData, String filename) throws IOException {
+        IData data;
+        IData xData;
+        if (meter instanceof AccumulatorAverage) {
+            AccumulatorAverage acc = (AccumulatorAverage) meter;
+            data = acc.getData(acc.AVERAGE);
+            xData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) acc.getDataInfo()).getSubDataInfo(acc.AVERAGE.index)).getXDataSource().getIndependentData(0);
+        } else {
+            data = meter.getData();
+            xData = ((DataFunction.DataInfoFunction) meter.getDataInfo()).getXDataSource().getIndependentData(0);
+        }
+        boolean allNaN = true;
+        for (int i = 0; i < xData.getLength(); i++) {
+            if (!Double.isNaN(data.getValue(i))) allNaN = false;
+        }
+        if (allNaN) return;
+        FileWriter fw = new FileWriter(filename);
+        for (int i = 0; i < xData.getLength(); i++) {
+            double y = data.getValue(i);
+            if (Double.isNaN(y)) continue;
+            if (errData == null) {
+                fw.write(xData.getValue(i) + " " + y + "\n");
+            } else {
+                fw.write(xData.getValue(i) + " " + y + " " + errData.getValue(i) + "\n");
+            }
+        }
+        fw.close();
+    }
+
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
