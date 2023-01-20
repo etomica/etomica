@@ -31,6 +31,7 @@ public class DataSourceBAC implements IDataSource, ConfigurationStorage.Configur
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected int minInterval = 3;
+    protected double sum0;
 
     public DataSourceBAC(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
@@ -72,11 +73,13 @@ public class DataSourceBAC implements IDataSource, ConfigurationStorage.Configur
         double[] y = data.getData();
         double[] yErr = errData.getData();
         int nAtoms = configStorage.getSavedConfig(0).length;
+        double norm = sum0/(nAtoms*nSamples[0]);
 
         for (int i = 0; i < bacSum.length; i++) {
             long M = nAtoms*nSamples[i];
-            y[i] = bacSum[i]/M / (bacSum[0]/(nAtoms*nSamples[0]));
-            yErr[i] = Math.sqrt((bac2Sum[i]/M - y[i]*y[i]) / (M - 1)) / (bacSum[0]/(nAtoms*nSamples[0]));
+            y[i] = bacSum[i]/M;
+            yErr[i] = Math.sqrt((bac2Sum[i]/M - y[i]*y[i]) / (M - 1)) / norm;
+            y[i] /= norm;
         }
         return data;
     }
@@ -118,6 +121,7 @@ public class DataSourceBAC implements IDataSource, ConfigurationStorage.Configur
                     double dot = dr.dot(idr);
                     bacSum[i] += dot;
                     bac2Sum[i] += dot*dot;
+                    if (i == 0) sum0 += dr.squared();
                 }
                 nSamples[i]++;
             }

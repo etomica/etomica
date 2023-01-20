@@ -34,6 +34,7 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
     protected long[] nSamples;
     protected int minInterval = 3;
     protected final Vector[] latticePositions;
+    protected double sum0;
 
     public DataSourceRAC(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
@@ -82,11 +83,13 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
         double[] y = data.getData();
         double[] yErr = errData.getData();
         int nMolecules = configStorage.getBox().getMoleculeList().size();
+        double norm = sum0/(nMolecules*nSamples[0]);
 
         for (int i = 0; i < bacSum.length; i++) {
             long M = nMolecules*nSamples[i];
-            y[i] = bacSum[i]/M / (bacSum[0]/(nMolecules*nSamples[0]));
-            yErr[i] = Math.sqrt((bac2Sum[i]/M - y[i]*y[i]) / (M - 1)) / (bacSum[0]/(nMolecules*nSamples[0]));
+            y[i] = bacSum[i]/M;
+            yErr[i] = Math.sqrt((bac2Sum[i]/M - y[i]*y[i]) / (M - 1)) / norm;
+            y[i] /= norm;
         }
         return data;
     }
@@ -111,28 +114,56 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
         Vector[] coords = configStorage.getSavedConfig(0);
         Box box = configStorage.getBox();
         int n = box.getMoleculeList().get(0).getChildList().size();
+        Vector shift = computeShift(coords, n);
         for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, minInterval);
             if (step % (1L << x) == 0) {
                 if (i >= bacSum.length) reallocate(i + 1);
                 Vector[] iCoords = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < box.getMoleculeList().size(); j++) {
-                    double dot = computeDR(coords, j, n).dot(computeDR(iCoords, j, n));
+                    double dot = computeDR(coords, j, n, shift).dot(computeDR(iCoords, j, n, shift));
                     bacSum[i] += dot;
                     bac2Sum[i] += dot*dot;
+                    if (i==0) sum0 += computeDR(coords, j, n, shift).dot(computeDR(coords, j, n, shift));
                 }
                 nSamples[i]++;
             }
         }
     }
 
-    protected Vector computeDR(Vector[] rAtom, int jMol, int n) {
+    protected Vector computeShift(Vector[] rAtom, int n) {
+        Box box = configStorage.getBox();
+        Vector shift0 = box.getSpace().makeVector();
+        Boundary boundary = box.getBoundary();
+        Vector dr = box.getSpace().makeVector();
+        for (int i=0; i<n; i++) {
+            dr.Ev1Mv2(rAtom[i], latticePositions[0]);
+            boundary.nearestImage(dr);
+            shift0.PE(dr);
+        }
+        // will shift ring0 back to lattice site
+        shift0.TE(-1.0/n);
+        Vector totalShift = box.getSpace().makeVector();
+        for (int j = 0; j < box.getMoleculeList().size(); j++) {
+            for (int i = 0; i < n; i++) {
+                dr.Ev1Mv2(rAtom[j*n+i], latticePositions[j]);
+                dr.PE(shift0);
+                boundary.nearestImage(dr);
+                totalShift.PE(dr);
+            }
+        }
+        totalShift.TE(-1.0/(n*(box.getMoleculeList().size()-1)));
+        return totalShift;
+    }
+
+    protected Vector computeDR(Vector[] rAtom, int jMol, int n, Vector shift) {
         Vector dr = configStorage.getBox().getSpace().makeVector();
         Vector drSum = configStorage.getBox().getSpace().makeVector();
         Vector site = latticePositions[jMol];
         Boundary boundary = configStorage.getBox().getBoundary();
         for (int i = jMol*n; i < (jMol+1)*n; i++) {
             dr.Ev1Mv2(rAtom[i], site);
+            dr.PE(shift);
             boundary.nearestImage(dr);
             drSum.PE(dr);
         }
