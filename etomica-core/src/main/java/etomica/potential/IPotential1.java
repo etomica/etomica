@@ -5,6 +5,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 
 public interface IPotential1 {
@@ -20,7 +21,11 @@ public interface IPotential1 {
      */
     double udu(IAtom atom, Vector f);
 
-    default double uduTorque(IAtom atom, Vector f, Vector t) {
+    default Tensor d2u(IAtom atom) {
+        throw new RuntimeException("d2u");
+    }
+
+        default double uduTorque(IAtom atom, Vector f, Vector t) {
         return udu(atom, f);
     }
 

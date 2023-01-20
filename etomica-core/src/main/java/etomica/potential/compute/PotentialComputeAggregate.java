@@ -4,6 +4,7 @@ import etomica.atom.IAtom;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.molecule.IMolecule;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 import java.util.ArrayList;
@@ -13,10 +14,15 @@ import java.util.stream.Collectors;
 
 public class PotentialComputeAggregate implements PotentialCompute {
     private final List<PotentialCompute> potentialComputes;
-    private Vector[] torques;
+    private Vector[] torques, forces;
+    private final boolean localStorage;
+    // determines if forces and torques will be stored as separate fields of this class
+    // rather than re-using the first PotentialCompute's force vectors to store the total
+    public static boolean localStorageDefault = false;
 
     public PotentialComputeAggregate() {
         potentialComputes = new ArrayList<>(1);
+        localStorage = localStorageDefault;
     }
 
     public PotentialComputeAggregate(PotentialCompute... computes) {
@@ -47,14 +53,13 @@ public class PotentialComputeAggregate implements PotentialCompute {
 
     @Override
     public Vector[] getForces() {
-        return this.potentialComputes.get(0).getForces();
+        return localStorage ? forces : this.potentialComputes.get(0).getForces();
     }
 
     @Override
     public Vector[] getTorques() {
         return torques;
     }
-
 
     @Override
     public double getLastVirial() {
@@ -80,25 +85,62 @@ public class PotentialComputeAggregate implements PotentialCompute {
             sum += potentialCompute.computeAll(doForces, pc);
         }
         if (doForces) {
-            Vector[] forces = potentialComputes.get(0).getForces();
-            potentialComputes.stream()
-                    .skip(1)
-                    .forEach(compute -> {
-                        Vector[] f = compute.getForces();
-                        for (int i = 0; i < forces.length; i++) {
-                            forces[i].PE(f[i]);
-                        }
-                    });
-            torques = null;
-            for (PotentialCompute potentialCompute : potentialComputes) {
-                Vector[] iTorques = potentialCompute.getTorques();
-                if (iTorques == null) continue;
-                if (torques == null) {
-                    torques = iTorques;
-                    continue;
+            int n = potentialComputes.get(0).getForces().length;
+            if (localStorage) {
+                if (forces == null || forces.length != n) {
+                    int D = potentialComputes.get(0).getForces()[0].getD();
+                    forces = Space.getInstance(D).makeVectorArray(n);
+                } else {
+                    for (Vector f : forces) {
+                        f.E(0);
+                    }
                 }
-                for (int j=0; j<torques.length; j++) {
-                    torques[j].PE(iTorques[j]);
+                boolean firstTorque = true;
+                for (PotentialCompute compute : potentialComputes) {
+                    Vector[] f = compute.getForces();
+                    for (int i = 0; i < n; i++) {
+                        forces[i].PE(f[i]);
+                    }
+
+                    Vector[] t = compute.getTorques();
+                    if (t == null) continue;
+                    if (torques == null || torques.length != n) {
+                        int D = potentialComputes.get(0).getForces()[0].getD();
+                        forces = Space.getInstance(D).makeVectorArray(n);
+                    }
+                    else if (firstTorque) {
+                        for (Vector torq : torques) {
+                            torq.E(0);
+                        }
+                        firstTorque = false;
+                    }
+                    for (int i = 0; i < n; i++) {
+                        torques[i].PE(t[i]);
+                    }
+                }
+            }
+            else {
+                Vector[] forces = potentialComputes.get(0).getForces();
+
+                potentialComputes.stream()
+                        .skip(1)
+                        .forEach(compute -> {
+                            Vector[] f = compute.getForces();
+                            for (int i = 0; i < forces.length; i++) {
+                                forces[i].PE(f[i]);
+                            }
+                        });
+                torques = null;
+                for (PotentialCompute potentialCompute : potentialComputes) {
+                    Vector[] iTorques = potentialCompute.getTorques();
+                    if (iTorques == null) continue;
+                    if (torques == null) {
+                        torques = iTorques;
+                        continue;
+                    }
+                    for (int j = 0; j < torques.length; j++) {
+                        torques[j].PE(iTorques[j]);
+                    }
                 }
             }
         }

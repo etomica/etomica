@@ -1,6 +1,7 @@
 package etomica.modules.glass;
 
 import etomica.atom.IAtom;
+import etomica.data.ConfigurationStorage;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.space.Vector;
 

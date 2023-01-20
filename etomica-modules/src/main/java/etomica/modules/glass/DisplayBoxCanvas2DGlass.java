@@ -5,6 +5,7 @@ package etomica.modules.glass;
 
 import etomica.action.controller.Controller;
 import etomica.atom.IAtom;
+import etomica.data.ConfigurationStorage;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.space.Space;

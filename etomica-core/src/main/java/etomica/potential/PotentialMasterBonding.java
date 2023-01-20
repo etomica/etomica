@@ -267,7 +267,6 @@ public class PotentialMasterBonding implements PotentialCompute {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector dr = Vector.d(ri.getD());
-
         dr.Ev1Mv2(rj, ri);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -280,9 +279,11 @@ public class PotentialMasterBonding implements PotentialCompute {
         if (pc != null) pc.pairCompute(iAtom.getLeafIndex(), jAtom.getLeafIndex(), dr, u012);
         if (doForces) {
             double duij = u012[1];
-            dr.TE(duij / r2);
-            forces[iAtom.getLeafIndex()].PE(dr);
-            forces[jAtom.getLeafIndex()].ME(dr);
+            if  (duij != 0) {
+                dr.TE(duij / r2);
+                forces[iAtom.getLeafIndex()].PE(dr);
+                forces[jAtom.getLeafIndex()].ME(dr);
+            }
         }
         return uij;
     }

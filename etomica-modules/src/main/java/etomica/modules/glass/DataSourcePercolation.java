@@ -59,7 +59,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     public DataSourcePercolation(SpeciesManager sm, ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, HistogramNotSoSimple sharedHistogram) {
         this.configStorage = configStorage;
         int nt = 0;
-        IAtomList atoms = configStorage.box.getLeafList();
+        IAtomList atoms = configStorage.getBox().getLeafList();
         for (IAtom a : atoms) {
             int t = a.getType().getIndex();
             if (nt <= t) nt = t + 1;
@@ -84,7 +84,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         clusterSize = new int[numAtoms][2];
         clusterStack = new int[numAtoms];
         isVisited = new boolean[numAtoms];
-        space = configStorage.box.getSpace();
+        space = configStorage.getBox().getSpace();
         percP = new double[0];
         imm2Total = immTotal = new long[0];
         immFractionByType = new long[0][0];

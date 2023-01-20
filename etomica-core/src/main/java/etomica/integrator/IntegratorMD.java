@@ -137,6 +137,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         return currentKineticEnergy;
     }
 
+    public DataSourceScalar getMeterKineticEnergy() {
+        return meterKE;
+    }
+
     public void setIsothermal(boolean b) {
         super.setIsothermal(b);
         if (initialized && isothermal) {

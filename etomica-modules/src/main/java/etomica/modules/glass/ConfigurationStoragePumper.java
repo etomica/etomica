@@ -1,5 +1,6 @@
 package etomica.modules.glass;
 
+import etomica.data.ConfigurationStorage;
 import etomica.data.DataPump;
 
 /**
