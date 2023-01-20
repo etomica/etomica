@@ -141,8 +141,9 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
             boundary.nearestImage(dr);
             shift0.PE(dr);
         }
-        // will shift ring0 back to lattice site
         shift0.TE(-1.0/n);
+        // will shift ring0 back to lattice site; everything should be close and PBC should lock in
+        // now determine additional shift needed to bring back to original COM
         Vector totalShift = box.getSpace().makeVector();
         for (int j = 0; j < box.getMoleculeList().size(); j++) {
             for (int i = 0; i < n; i++) {
@@ -153,6 +154,7 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
             }
         }
         totalShift.TE(-1.0/(n*(box.getMoleculeList().size()-1)));
+        totalShift.PE(shift0);
         return totalShift;
     }
 
