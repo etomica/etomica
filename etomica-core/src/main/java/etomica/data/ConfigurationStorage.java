@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package etomica.modules.glass;
+package etomica.data;
 
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * Listener that can store configurations.  For the purposes of MSD, it
  * will save all configurations that will be needed to compute MSD from.
- * Otherwise, it will store configurations that are (more or less)
+ * With LOG2 storage, it will store configurations that are (more or less)
  * 1, 2, 4, 8, 16... steps ago.
  */
 public class ConfigurationStorage implements IntegratorListener, Statefull {
