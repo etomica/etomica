@@ -469,11 +469,16 @@ public class GlassProd {
         sim.integrator.getEventManager().addListener(pumpSFacAB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFacAB.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
 
+        double[][] sfacMSD = null;
+        if (params.sfacMSDAfile != null) {
+            sfacMSD = new double[][]{readMSD(params.sfacMSDAfile), readMSD(params.sfacMSDBfile)};
+        }
+
         double cut3 = 3;
         if (numAtoms > 500) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
-            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
             signalMobility.setPrevConfig(i + 1);
             MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, cut3, signalMobility);
             meterSFacMobility.setNormalizeByN(true);
@@ -610,7 +615,7 @@ public class GlassProd {
             cspMotion2.setBigStep(minIntervalSfac2);
             configStorageMSD.addListener(cspMotion2);
 
-            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             meterSFacMobility2[i].setNormalizeByN(true);
@@ -937,6 +942,28 @@ public class GlassProd {
         public int sfacMinInterval = 6;
         public int[] randomSeeds = null;
         public double maxWalltime = Double.POSITIVE_INFINITY;
+        public String sfacMSDAfile = null;
+        public String sfacMSDBfile = null;
+    }
+
+    public static double[] readMSD(String filename) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            ArrayList<Double> vals = new ArrayList<>();
+            String l = null;
+            while ((l = br.readLine()) != null) {
+                String[] bits = l.split(" ");
+                vals.add(Double.parseDouble(bits[1]));
+            }
+            double[] rv = new double[vals.size()+1];
+            for (int i=0; i<vals.size(); i++) {
+                rv[i+1] = vals.get(i);
+            }
+            return rv;
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public static void writeDataToFile(IDataSource meter, String filename) throws IOException {

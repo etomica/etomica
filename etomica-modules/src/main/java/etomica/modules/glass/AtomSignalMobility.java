@@ -8,9 +8,15 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
     protected final ConfigurationStorage configStorage;
     protected final Vector dr;
     protected int prevConfigIndex;
+    protected double[][] msd;
 
     public AtomSignalMobility(ConfigurationStorage configStorage) {
+        this(configStorage, null);
+    }
+
+    public AtomSignalMobility(ConfigurationStorage configStorage, double[][] msd) {
         this.configStorage = configStorage;
+        this.msd = msd;
         dr = configStorage.getBox().getSpace().makeVector();
     }
 
@@ -37,6 +43,10 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         Vector[] prevPositions = configStorage.getSavedConfig(idx);
         int atomIndex = atom.getLeafIndex();
         dr.Ev1Mv2(positions[atomIndex], prevPositions[atomIndex]);
-        return s * Math.sqrt(dr.squared());
+        double r = Math.sqrt(dr.squared());
+        if (msd != null) {
+            r -= msd[atom.getType().getIndex()][idx];
+        }
+        return s * r;
     }
 }
