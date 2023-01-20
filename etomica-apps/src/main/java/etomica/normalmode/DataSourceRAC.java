@@ -120,8 +120,9 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
             if (step % (1L << x) == 0) {
                 if (i >= bacSum.length) reallocate(i + 1);
                 Vector[] iCoords = configStorage.getSavedConfig(i + 1);
+                Vector iShift = computeShift(iCoords, n);
                 for (int j = 0; j < box.getMoleculeList().size(); j++) {
-                    double dot = computeDR(coords, j, n, shift).dot(computeDR(iCoords, j, n, shift));
+                    double dot = computeDR(coords, j, n, shift).dot(computeDR(iCoords, j, n, iShift));
                     bacSum[i] += dot;
                     bac2Sum[i] += dot*dot;
                     if (i==0) sum0 += computeDR(coords, j, n, shift).dot(computeDR(coords, j, n, shift));
