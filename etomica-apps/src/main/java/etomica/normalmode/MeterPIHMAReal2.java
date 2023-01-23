@@ -13,10 +13,12 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.molecule.CenterOfMass;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
+import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -67,6 +69,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         this.nShifts = nShifts;
     }
 
+    public boolean doOldShift = false;
+
     @Override
     public IData getData() {
         drdotHdrdot = 0 ;
@@ -109,7 +113,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         double Cvn = 0;
         rHr = 0;
 
-        Vector dr0ref = box.getSpace().makeVector();
+        Vector[] drShift = box.getSpace().makeVectorArray(nBeads);
 
         int ns = nShifts+1;
         for (int i = 0; i < molecules.size(); i++) {
@@ -120,10 +124,15 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
-                if(i==0 && indexShift==0){
-                    dr0ref.E(dr0);
+                if (i==0) {
+                    if (doOldShift) {
+                        drShift[indexShift].Ea1Tv1(-1, dr0);
+                    }
+                    else {
+                        drShift[indexShift] = computeShift(indexShift);
+                    }
                 }
-                dr0.ME(dr0ref);
+                dr0.PE(drShift[indexShift]);
                 box.getBoundary().nearestImage(dr0);
 
                 Vector drPrev = box.getSpace().makeVector();
@@ -136,7 +145,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                         Cvn += dim*dGamma[j];
                     }
                     drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
-                    drj.Ev1Mv2(drj, dr0ref);
+                    drj.PE(drShift[indexShift]);
                     box.getBoundary().nearestImage(drj);
                     tmp_r.E(drj);
                     if (j > 0) {
@@ -192,6 +201,29 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 //        x[1] = Cvn0 + Cvn/ns;
 
         return data;
+    }
+
+    protected Vector computeShift(int ii) {
+        Box box = move.getBox();
+        Vector shift0 = box.getSpace().makeVector();
+        Boundary boundary = box.getBoundary();
+        Vector dr = box.getSpace().makeVector();
+        dr.Ev1Mv2(box.getMoleculeList().get(0).getChildList().get(ii).getPosition(), latticePositions[0]);
+        boundary.nearestImage(dr);
+        shift0.Ea1Tv1(-1, dr);
+        // will shift bead0 of ring0 back to lattice site; everything should be close and PBC should lock in
+        // now determine additional shift needed to bring other bead0 back to original COM on average
+        Vector totalShift = box.getSpace().makeVector();
+        for (IMolecule m : box.getMoleculeList()) {
+            Vector lat = latticePositions[m.getIndex()];
+            dr.Ev1Mv2(m.getChildList().get(ii).getPosition(), lat);
+            dr.PE(shift0);
+            boundary.nearestImage(dr);
+            totalShift.PE(dr);
+        }
+        totalShift.TE(-1.0/((box.getMoleculeList().size()-1)));
+        totalShift.PE(shift0);
+        return totalShift;
     }
 
 
