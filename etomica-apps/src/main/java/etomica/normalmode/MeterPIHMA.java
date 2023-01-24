@@ -8,7 +8,6 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMasterBonding;
@@ -115,7 +114,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         Vector drj = box.getSpace().makeVector();
         for (IMolecule m : molecules) {
             IAtomList atoms = m.getChildList();
-            Vector com = CenterOfMass.position(box, m);
             for (int i = 0; i < nBeads; i++) {
                 int ia = atoms.get(i).getLeafIndex();
                 rdot[ia].E(0);
@@ -124,7 +122,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
 //            System.out.println(box.getLeafList().get(i).getPosition());
             for (int j = 0; j < nBeads; j++) {
-                computeDR(atoms.get(j).getPosition(), com, shift, drj);
+                computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], shift, drj);
                 for (int i=0; i<nBeads; i++) {
                     int ia = atoms.get(i).getLeafIndex();
                     rdot[ia].PEa1Tv1(M[i][j], drj);
@@ -136,11 +134,12 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         pmBonding.computeAll(true);
         pcP1.computeAll(true, this);
 
-        double En = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
+        int dim = box.getSpace().D();
+        double En = 0.5*dim*box.getMoleculeList().size()/beta - dim/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
         double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
         for (int i=0; i<nBeads; i++) {
-            En -= box.getMoleculeList().size()*gk[i];
-            Cvn += box.getMoleculeList().size()*gk2[i];
+            En -= dim*box.getMoleculeList().size()*gk[i];
+            Cvn += dim*box.getMoleculeList().size()*gk2[i];
         }
 
         Vector[] forcesU = pcP1.getForces();
@@ -196,8 +195,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         return totalShift;
     }
 
-    protected void computeDR(Vector r, Vector com, Vector shift, Vector dr) {
-        dr.Ev1Mv2(r, com);
+    protected void computeDR(Vector r, Vector latticeSite, Vector shift, Vector dr) {
+        dr.Ev1Mv2(r, latticeSite);
         dr.PE(shift);
         box.getBoundary().nearestImage(dr);
     }
