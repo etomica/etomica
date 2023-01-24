@@ -168,6 +168,8 @@ public class LJPIMD extends Simulation {
         MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
         MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, 1 / temperature, sim.ringMoveHMA2);
 
+        MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, nBeads/temperature, nBeads, omega2, sim.box, hbar);
+
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -238,6 +240,11 @@ public class LJPIMD extends Simulation {
             DataPumpListener pumpHMA2 = new DataPumpListener(meterHMAReal2, historyHMA2, interval);
             sim.integrator.getEventManager().addListener(pumpHMA2);
 
+            AccumulatorHistory historyHMA = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyHMA.setTimeDataSource(counter);
+            DataPumpListener pumpHMA = new DataPumpListener(meterHMA, historyHMA, interval);
+            sim.integrator.getEventManager().addListener(pumpHMA);
+
             MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory historyE = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyE.setTimeDataSource(counter);
@@ -259,6 +266,8 @@ public class LJPIMD extends Simulation {
             plotPE.setLegend(new DataTag[]{meterCentVir.getTag()}, "centroid virial");
             historyPrim.addDataSink(plotPE.makeSink("Prim history"));
             plotPE.setLegend(new DataTag[]{meterPrim.getTag()}, "primitive");
+            historyHMA.addDataSink(plotPE.makeSink("HMA history"));
+            plotPE.setLegend(new DataTag[]{meterHMA.getTag()}, "HMA");
             historyHMAc.addDataSink(plotPE.makeSink("HMAc history"));
             plotPE.setLegend(new DataTag[]{meterHMAc.getTag()}, "HMAc");
             historyHMA2.addDataSink(plotPE.makeSink("HMA2 history"));
