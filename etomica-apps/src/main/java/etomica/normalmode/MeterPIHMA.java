@@ -112,7 +112,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         Vector shift = computeShift();
 //        System.out.println("******** HMA *************");
         IMoleculeList molecules = box.getMoleculeList();
-        Vector dr = box.getSpace().makeVector();
+        Vector drj = box.getSpace().makeVector();
         for (IMolecule m : molecules) {
             IAtomList atoms = m.getChildList();
             Vector com = CenterOfMass.position(box, m);
@@ -120,11 +120,15 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
                 int ia = atoms.get(i).getLeafIndex();
                 rdot[ia].E(0);
                 rddot[ia].E(0);
+            }
+
 //            System.out.println(box.getLeafList().get(i).getPosition());
-                for (int j = 0; j < nBeads; j++) {
-                    computeDR(atoms.get(j).getPosition(), com, shift, dr);
-                    rdot[ia].PEa1Tv1(M[i][j], dr);
-                    rddot[ia].PEa1Tv1(M2[i][j], dr);
+            for (int j = 0; j < nBeads; j++) {
+                computeDR(atoms.get(j).getPosition(), com, shift, drj);
+                for (int i=0; i<nBeads; i++) {
+                    int ia = atoms.get(i).getLeafIndex();
+                    rdot[ia].PEa1Tv1(M[i][j], drj);
+                    rddot[ia].PEa1Tv1(M2[i][j], drj);
                 }
             }
         }
@@ -134,25 +138,22 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
         double En = 1.0/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
         double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
+        for (int i=0; i<nBeads; i++) {
+            En -= box.getMoleculeList().size()*gk[i];
+            Cvn += box.getMoleculeList().size()*gk2[i];
+        }
 
         Vector[] forcesU = pcP1.getForces();
         Vector[] forcesK = pmBonding.getForces();
 
         for (IAtom a : box.getLeafList()) {
-            int i = a.getIndex();
             int j = a.getLeafIndex();
-            En -= gk[i];
-            Cvn += gk2[i];
-            if (nBeads == 1){
-                En -= beta*(forcesU[j].dot(rdot[j]));
-                Cvn += 2.0*(forcesU[j].dot(rdot[j]));//rdot
-                Cvn += beta*(forcesU[j].dot(rddot[j]));//rddot
-            } else {
-                En -= beta*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
-                Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));//rdot
-                Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));//rddot
-            }
-            int jp = i == nBeads-1 ?  (j-nBeads+1) : j+1;
+
+            En -= beta*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
+            Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));//rdot
+            Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));//rddot
+
+            int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
             Vector tmpV = box.getSpace().makeVector();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
             Cvn -= betaN*omegan*omegan*(tmpV.squared());
