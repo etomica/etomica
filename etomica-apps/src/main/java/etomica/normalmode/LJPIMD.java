@@ -168,7 +168,7 @@ public class LJPIMD extends Simulation {
         MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
         MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, 1 / temperature, sim.ringMoveHMA2);
 
-        MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, nBeads/temperature, nBeads, omega2, sim.box, hbar);
+        MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, betaN, nBeads, omega2, sim.box, hbar);
 
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
