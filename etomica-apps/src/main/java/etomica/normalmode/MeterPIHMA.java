@@ -178,12 +178,9 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         Boundary boundary = box.getBoundary();
         Vector dr = box.getSpace().makeVector();
         IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        for (int i=0; i<n; i++) {
-            dr.Ev1Mv2(atoms.get(i).getPosition(), latticePositions[0]);
-            boundary.nearestImage(dr);
-            shift0.PE(dr);
-        }
-        shift0.TE(-1.0/n);
+        dr.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
+        boundary.nearestImage(dr);
+        shift0.Ea1Tv1(-1, dr);
         // will shift ring0 back to lattice site; everything should be close and PBC should lock in
         // now determine additional shift needed to bring back to original COM
         Vector totalShift = box.getSpace().makeVector();
@@ -197,7 +194,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
                 totalShift.PE(dr);
             }
         }
-        totalShift.TE(-1.0/(n*(box.getMoleculeList().size()-1)));
+        totalShift.TE(-1.0/box.getLeafList().size());
         totalShift.PE(shift0);
         return totalShift;
     }
