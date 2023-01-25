@@ -81,7 +81,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         pmBonding.computeAll(true);
         pcP1.computeAll(true);
 
-        double En0 = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
+        double En0 = dim*nBeads*numAtoms/2.0/beta - dim/2.0/beta/nBeads + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
         double Cvn0 = nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
 
         Vector[] forcesU = pcP1.getForces();
@@ -140,10 +140,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 for (int j = 0; j < beads.size(); j++) {
                     int aj = (j + indexShift) % beads.size();
                     IAtom atomj = beads.get(aj);
-                    if (i != 0 || j != 0) {
-                        En -= dim*gamma[j];
-                        Cvn += dim*dGamma[j];
-                    }
+                    En -= dim*gamma[j];
+                    Cvn += dim*dGamma[j];
                     drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
                     drj.PE(drShift[indexShift]);
                     box.getBoundary().nearestImage(drj);

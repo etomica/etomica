@@ -118,7 +118,7 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.nBeads = 4;
-            params.steps = 100000;
+            params.steps = 200000;
             params.isGraphic = false;
             params.isStaging = true;
             params.timeStep = 0.005;
@@ -431,6 +431,10 @@ public class LJPIMD extends Simulation {
         DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);
 
+        AccumulatorAverageCovariance accumulatorHMA = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterHMA, accumulatorHMA, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+
         //Run ...
         sim.integrator.resetStepCount();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
@@ -476,6 +480,13 @@ public class LJPIMD extends Simulation {
         double errEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.ERROR.index) / numAtoms;
         double corEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.BLOCK_CORRELATION.index);
         System.out.println(" En_hma2: " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
+
+        //HMA-EC-NM
+        DataGroup dataHMA = (DataGroup) accumulatorHMA.getData();
+        double avgEnHMA = dataHMA.getValue(accumulatorHMA.AVERAGE.index) / numAtoms;
+        double errEnHMA = dataHMA.getValue(accumulatorHMA.ERROR.index) / numAtoms;
+        double corEnHMA = dataHMA.getValue(accumulatorHMA.BLOCK_CORRELATION.index);
+        System.out.println(" En_hma: " + avgEnHMA + " +/- " + errEnHMA + " cor: " + corEnHMA);
 
         long t2 = System.currentTimeMillis();
         try {

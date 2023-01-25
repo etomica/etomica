@@ -136,7 +136,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
         int dim = box.getSpace().D();
         int numAtoms = molecules.size();
-        double En = 0.5*dim*numAtoms/beta - dim/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
+        double En = dim*nBeads*numAtoms/2.0/beta - dim/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
         double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
         for (int i=0; i<nBeads; i++) {
             En -= dim*numAtoms*gk[i];
