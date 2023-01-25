@@ -225,7 +225,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             boundary.nearestImage(dr);
             totalShift.PE(dr);
         }
-        totalShift.TE(-1.0/((box.getMoleculeList().size()-1)));
+        totalShift.TE(-1.0/box.getMoleculeList().size());
         totalShift.PE(shift0);
         return totalShift;
     }
