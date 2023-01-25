@@ -81,7 +81,10 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         pmBonding.computeAll(true);
         pcP1.computeAll(true);
 
-        double En0 = dim*nBeads*numAtoms/2.0/beta - dim/2.0/beta/nBeads + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
+        double En0 = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
+        if (box.getMoleculeList().size() > 1) {
+            En0 -= dim/2.0/beta/nBeads;
+        }
         double Cvn0 = nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
 
         Vector[] forcesU = pcP1.getForces();
