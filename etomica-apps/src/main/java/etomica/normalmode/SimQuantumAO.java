@@ -135,7 +135,7 @@ public class SimQuantumAO extends Simulation {
             // custom parameters
             params.numSteps = 100000;
             params.temperature = 1.0;
-            params.nBeads = 32;
+            params.nBeads = 4;
             params.k2 = 1.0;
             params.k4 = 24.0;
             params.moveReal = MoveChoice.Real2;

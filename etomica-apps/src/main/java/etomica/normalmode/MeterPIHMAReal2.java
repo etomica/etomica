@@ -205,6 +205,9 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
     protected Vector computeShift(int ii) {
         Box box = move.getBox();
+        if (box.getMoleculeList().size() == 1) {
+            return box.getSpace().makeVector();
+        }
         Vector shift0 = box.getSpace().makeVector();
         Boundary boundary = box.getBoundary();
         Vector dr = box.getSpace().makeVector();

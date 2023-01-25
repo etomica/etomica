@@ -135,11 +135,12 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         pcP1.computeAll(true, this);
 
         int dim = box.getSpace().D();
-        double En = 0.5*dim*box.getMoleculeList().size()/beta - dim/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
+        int numAtoms = molecules.size();
+        double En = 0.5*dim*numAtoms/beta - dim/2.0/betaN + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
         double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
         for (int i=0; i<nBeads; i++) {
-            En -= dim*box.getMoleculeList().size()*gk[i];
-            Cvn += dim*box.getMoleculeList().size()*gk2[i];
+            En -= dim*numAtoms*gk[i];
+            Cvn += dim*numAtoms*gk2[i];
         }
 
         Vector[] forcesU = pcP1.getForces();
@@ -166,6 +167,9 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     }
 
     protected Vector computeShift() {
+        if (box.getMoleculeList().size() == 1) {
+            return box.getSpace().makeVector();
+        }
         int n = box.getMoleculeList().get(0).getChildList().size();
         Vector shift0 = box.getSpace().makeVector();
         Boundary boundary = box.getBoundary();
