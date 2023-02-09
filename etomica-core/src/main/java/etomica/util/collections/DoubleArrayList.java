@@ -2,9 +2,7 @@ package etomica.util.collections;
 
 import etomica.util.Debug;
 
-import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.RandomAccess;
 
 public final class DoubleArrayList {
     private double[] data;
@@ -66,12 +64,11 @@ public final class DoubleArrayList {
         Arrays.fill(data, x);
     }
 
-//    @Override
-//    public Double get(int i) {
-//        return getDouble(i);
-//    }
-//
-//    @Override
+    public void set(int i, int x) {
+        if (Debug.ON && i >= size) throw new IndexOutOfBoundsException();
+        data[i] = x;
+    }
+
     public int size() {
         return size;
     }
