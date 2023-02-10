@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * The class is derived from the wall_list class, which encapsulates routines
  * for associating walls with the container, and the voro_base class, which
  * encapsulates routines about the underlying computational grid. */
-public abstract class ContainerBase extends ContainerBaseBase implements Radius {
+public abstract class ContainerBase extends ContainerBaseBase {
 
     /** The minimum x coordinate of the container. */
     public final double ax;
