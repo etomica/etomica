@@ -404,4 +404,8 @@ public abstract class ContainerBase extends ContainerBaseBase {
         ijk[0]=ci[0]+nx*cj[0]+nxy*ck[0];
         return true;
     }
+
+    public void add_wall(ArrayList<Wall> wl) {
+        this.wl.addAll(wl);
+    }
 }

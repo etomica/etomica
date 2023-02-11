@@ -30,7 +30,7 @@ import java.util.Arrays;
  * The class is derived from the unitcell class, which encapsulates information
  * about the domain geometry, and the voro_base class, which encapsulates
  * information about the underlying computational grid. */
-public class ContainerPeriodicBase extends ContainerBaseBase {
+public abstract class ContainerPeriodicBase extends ContainerBaseBase {
 
     // unitcell bits
     /** The x coordinate of the first vector defining the periodic

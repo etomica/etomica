@@ -85,4 +85,5 @@ public abstract class ContainerBaseBase extends VoroBase implements Radius {
 
     public abstract void initialize_search(int ci,int cj,int ck,int ijk,int[] i,int[] j,int[] k,int[] disp);
 
+    public abstract boolean compute_cell(VoronoiCellBase[] c,CLoopBase vl);
 }
