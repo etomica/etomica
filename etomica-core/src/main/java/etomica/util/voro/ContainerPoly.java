@@ -22,6 +22,8 @@ public class ContainerPoly extends ContainerBase {
                    int nx_,int ny_,int nz_,boolean xperiodic_,boolean yperiodic_,boolean zperiodic_,int init_mem) {
         super(ax_,bx_,ay_,by_,az_,bz_,nx_,ny_,nz_,xperiodic_,yperiodic_,zperiodic_,init_mem,4);
         vc = new VoroCompute(this,xperiodic_?2*nx_+1:nx_,yperiodic_?2*ny_+1:ny_,zperiodic_?2*nz_+1:nz_);
+        radius = new RadiusPoly();
+        ((RadiusPoly)radius).ppr = p;
     }
 
     /** Clears a container of particles, also clearing resetting the maximum radius
@@ -43,11 +45,11 @@ public class ContainerPoly extends ContainerBase {
         if(put_locate_block(ijk,xout,yout,zout)) {
             id[ijk[0]][co[ijk[0]]]=n;
             double[] pijk = p[ijk[0]];
-            int pp = 2*co[ijk[0]];
+            int pp = 4*co[ijk[0]];
             co[ijk[0]]++;
-            pijk[pp+0] = x;
-            pijk[pp+1] = y;
-            pijk[pp+2] = z;
+            pijk[pp+0] = xout[0];
+            pijk[pp+1] = yout[0];
+            pijk[pp+2] = zout[0];
             pijk[pp+3] = r;
             ((RadiusPoly)radius).max_radius = Math.max(((RadiusPoly)radius).max_radius, r);
         }
@@ -293,10 +295,12 @@ public class ContainerPoly extends ContainerBase {
         if(vl.start()) {
             VoronoiCell c = new VoronoiCell(this);
             VoronoiCell[] cout = new VoronoiCell[]{c};
-            do if(compute_cell(cout,vl)) {
-                double[] pijk = p[vl.ijk];
-                int pp = ps*vl.q;
-                cout[0].draw_gnuplot(pijk[pp],pijk[pp+1],pijk[pp+2],fp);
+            do {
+                if(compute_cell(cout,vl)) {
+                    double[] pijk = p[vl.ijk];
+                    int pp = ps*vl.q;
+                    cout[0].draw_gnuplot(pijk[pp],pijk[pp+1],pijk[pp+2],fp);
+                }
             } while(vl.inc());
         }
     }
@@ -532,6 +536,6 @@ public class ContainerPoly extends ContainerBase {
         return false;
     }
 
-    VoroCompute vc;
+    public VoroCompute vc;
 
 }

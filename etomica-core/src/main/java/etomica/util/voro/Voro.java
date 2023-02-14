@@ -116,7 +116,7 @@ public class Voro {
     // Prints an error message. This is called when the program is unable to make
     // sense of the command-line options.
     public static void error_message() {
-        System.err.println("voro++: Unrecognized command-line options; type \"voro++ -h\" for more\ninformation.\n");
+        System.err.println("voro++: Unrecognized command-line options; type \"voro++ -h\" for more\ninformation.");
     }
 
     // Carries out the Voronoi computation and outputs the results to the requested

@@ -393,7 +393,7 @@ public class Container extends ContainerBase {
     public void print_custom(String format) {
         print_custom(format, System.out);
     }
-    void print_custom(String format, OutputStream fp) {
+    public void print_custom(String format, OutputStream fp) {
         CLoopAll vl = new CLoopAll(this);
         print_custom(vl,format,fp);
     }
@@ -401,7 +401,7 @@ public class Container extends ContainerBase {
     /** Computes all the Voronoi cells and saves customized information about them.
      * \param[in] format the custom output string to use.
      * \param[in] filename the name of the file to write to. */
-    void print_custom(String format, String filename) {
+    public void print_custom(String format, String filename) {
         try {
             FileOutputStream fp = new FileOutputStream(filename);
             print_custom(format, fp);

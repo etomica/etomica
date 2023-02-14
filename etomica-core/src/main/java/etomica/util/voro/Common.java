@@ -61,15 +61,15 @@ public class Common {
         int k,s=v.size();
         try {
             for (k = 0; k + 4 < s; k += 4) {
-                fp.write(String.format("%g %g %g %g ", v.getInt(k), v.getInt(k + 1), v.getInt(k + 2), v.getInt(k + 3)).getBytes());
+                fp.write(String.format("%d %d %d %d ", v.getInt(k), v.getInt(k + 1), v.getInt(k + 2), v.getInt(k + 3)).getBytes());
             }
             if (k + 3 <= s) {
                 if (k + 4 == s)
-                    fp.write(String.format("%g %g %g %g", v.getInt(k), v.getInt(k + 1), v.getInt(k + 2), v.getInt(k + 3)).getBytes());
-                else fp.write(String.format("%g %g %g", v.getInt(k), v.getInt(k + 1), v.getInt(k + 2)).getBytes());
+                    fp.write(String.format("%d %d %d %d", v.getInt(k), v.getInt(k + 1), v.getInt(k + 2), v.getInt(k + 3)).getBytes());
+                else fp.write(String.format("%d %d %d", v.getInt(k), v.getInt(k + 1), v.getInt(k + 2)).getBytes());
             } else {
-                if (k + 2 == s) fp.write(String.format("%g %g", v.getInt(k), v.getInt(k + 1)).getBytes());
-                else fp.write(String.format("%g", v.getInt(k)).getBytes());
+                if (k + 2 == s) fp.write(String.format("%d %d", v.getInt(k), v.getInt(k + 1)).getBytes());
+                else fp.write(String.format("%d", v.getInt(k)).getBytes());
             }
         }
         catch (IOException ex) {
@@ -121,7 +121,7 @@ public class Common {
                     fp.write(String.format("(%d", v.getInt(k)).getBytes());
                     k++;
                     for (; k < j; k++) fp.write(String.format(",%d", v.getInt(k)).getBytes());
-                    fp.write(")\n".getBytes());
+                    fp.write(")".getBytes());
                 }
                 while (k < v.size()) {
                     l = v.getInt(k);
@@ -130,13 +130,13 @@ public class Common {
                         if (l == 1) {
                             fp.write(String.format(" (%d)", v.getInt(k)).getBytes());
                             k++;
-                        } else fp.write(" ()\n".getBytes());
+                        } else fp.write(" ()".getBytes());
                     } else {
                         int j = k + l;
                         fp.write(String.format(" (%d", v.getInt(k)).getBytes());
                         k++;
                         for (; k < j; k++) fp.write(String.format(",%d", v.getInt(k)).getBytes());
-                        fp.write(")\n".getBytes());
+                        fp.write(")".getBytes());
                     }
                 }
             }

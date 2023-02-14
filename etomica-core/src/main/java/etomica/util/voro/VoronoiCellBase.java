@@ -592,8 +592,8 @@ public abstract class VoronoiCellBase {
     public void output_vertex_orders(OutputStream fp) {
         if(p>0) {
             try {
-                fp.write(("" + nu[0]).getBytes());
-                for (int i = 1; i < p; i++) fp.write(("" + nu[0]).getBytes());
+                fp.write(String.format("%d", nu[0]).getBytes());
+                for (int nup = 1; nup < p; nup++) fp.write(String.format(" %d", nu[nup]).getBytes());
             }
             catch (IOException ex) {
                 throw new RuntimeException(ex);

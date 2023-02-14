@@ -7,10 +7,8 @@
 package etomica.util.voro.examples.basic;
 
 import etomica.util.voro.Container;
+import etomica.util.voro.examples.ResourceHelper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class Import {
@@ -31,20 +29,7 @@ public class Import {
                 false,false,false,8);
 
         //Randomly add particles into the container
-        InputStream in = null;
-        String fn = "pack_ten_cube";
-        if (new File(fn).exists()) {
-            // local file exists; use that
-            try {
-                in = new FileInputStream(fn);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        else {
-            // use file from resources
-            in = Import.class.getResourceAsStream(fn);
-        }
+        InputStream in = ResourceHelper.getStreamForFile("pack_ten_cube", Import.class);
         con.import_(in);
 
         // Save the Voronoi network of all the particles to text files
