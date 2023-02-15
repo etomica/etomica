@@ -66,7 +66,7 @@ public static final int VOROPP_VERBOSE = 2;
 
 /** If a point is within this distance of a cutting plane, then the code
  * assumes that point exactly lies on the plane. */
-public static final double tolerance=1e-10*2.22045e-16;
+public static final double tolerance=10*2.22045e-16;
 
 public static final double big_tolerance_fac=20.;
 

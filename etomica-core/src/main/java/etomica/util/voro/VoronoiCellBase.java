@@ -288,9 +288,9 @@ public abstract class VoronoiCellBase {
      * \param[in] filename the name of the file to write to. */
     public void draw_pov(double x,double y,double z, String filename) {
         try {
-            FileOutputStream fw = new FileOutputStream(filename);
-            draw_pov(x, y, z, fw);
-            fw.close();
+            FileOutputStream fp = new FileOutputStream(filename);
+            draw_pov(x, y, z, fp);
+            fp.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -302,14 +302,14 @@ public abstract class VoronoiCellBase {
         try {
             fp.write(("mesh2 {\nvertex_vectors {\n" + p + "\n").getBytes());
             for (int i = 0; i < p; i++)
-                fp.write((",<" + (x + pts[4 * i + 0]) + "," + (y + pts[4 * i + 1]) + "," + (z + pts[4 * i + 2]) + ">\n").getBytes());
+                fp.write(String.format(",<%g,%g,%g>\n", x + pts[4 * i + 0]*0.5, y + pts[4 * i + 1]*0.5, z+pts[4 * i + 2]*0.5).getBytes());
             fp.write(("}\nface_indices {\n"+((p - 2) << 1)+"\n").getBytes());
             for (int i = 1; i < p; i++)
                 for (int j = 0; j < nu[i]; j++) {
                     int k = ed_.get(i,j);
                     if (k >= 0) {
                         ed_.set(i,j,-1-k);
-                        int l = cycle_up(ed_.get(i,nu[i]), k);
+                        int l = cycle_up(ed_.get(i,nu[i]+j), k);
                         int m = ed_.get(k,l);
                         ed_.set(k,l,-1-m);
                         while (m != i) {
@@ -2048,7 +2048,7 @@ public abstract class VoronoiCellBase {
                         if(mep[nu[j]]!=ed_.getStorage(j) || edd != ed_.getOffset(j)) {
                             for(int lll=0;lll<=(nu[j]<<1);lll++) ed_.set(j,lll,mep[nu[j]][edd+lll]);
                             n_set_aux2_copy(j,nu[j]);
-                            n_copy_pointer(edd + nu[j]<<1,j); // ??????
+                            n_copy_pointer(edd + nu[j]<<1,j);
                             ed_.setIndex(mep[nu[j]][edd+nu[j]<<1], ed_.getStorage(j), 0);
                         }
                         n_set_to_aux1(j);
