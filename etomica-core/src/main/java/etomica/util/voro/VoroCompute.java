@@ -1057,7 +1057,7 @@ public class VoroCompute {
             qu_e[0]+=3;
         }
         if(ej>0 && mask[mijk-hx]!=mv) {
-            if(qu_e[0]==qu.length) qu_e=qu;
+            if(qu_e[0]==qu.length) qu_e[0]=0;
             mask[mijk-hx]=mv;
             qu[qu_e[0]] = ei;
             qu[qu_e[0]+1] = ej-1;
@@ -1065,7 +1065,7 @@ public class VoroCompute {
             qu_e[0]+=3;
         }
         if(ei>0 && mask[mijk-1]!=mv) {
-            if(qu_e[0]==qu.length) qu_e=qu;
+            if(qu_e[0]==qu.length) qu_e[0]=0;
             mask[mijk-1]=mv;
             qu[qu_e[0]] = ei-1;
             qu[qu_e[0]+1] = ej;
@@ -1073,7 +1073,7 @@ public class VoroCompute {
             qu_e[0]+=3;
         }
         if(ei<hx-1 && mask[mijk+1]!=mv) {
-            if(qu_e[0]==qu.length) qu_e=qu;
+            if(qu_e[0]==qu.length) qu_e[0]=0;
             mask[mijk+1]=mv;
             qu[qu_e[0]] = ei+1;
             qu[qu_e[0]+1] = ej;
@@ -1081,7 +1081,7 @@ public class VoroCompute {
             qu_e[0]+=3;
         }
         if(ej<hy-1 && mask[mijk+hx]!=mv) {
-            if(qu_e[0]==qu.length) qu_e=qu;
+            if(qu_e[0]==qu.length) qu_e[0]=0;
             mask[mijk+hx]=mv;
             qu[qu_e[0]] = ei;
             qu[qu_e[0]+1] = ej+1;
@@ -1089,7 +1089,7 @@ public class VoroCompute {
             qu_e[0]+=3;
         }
         if(ek<hz-1 && mask[mijk+hxy]!=mv) {
-            if(qu_e[0]==qu.length) qu_e=qu;
+            if(qu_e[0]==qu.length) qu_e[0]=0;
             mask[mijk+hxy]=mv;
             qu[qu_e[0]] = ei;
             qu[qu_e[0]+1] = ej;

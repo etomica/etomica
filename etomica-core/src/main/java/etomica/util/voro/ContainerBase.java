@@ -405,6 +405,10 @@ public abstract class ContainerBase extends ContainerBaseBase {
         return true;
     }
 
+    public void add_wall(Wall w) {
+        wl.add(w);
+    }
+
     public void add_wall(ArrayList<Wall> wl) {
         this.wl.addAll(wl);
     }

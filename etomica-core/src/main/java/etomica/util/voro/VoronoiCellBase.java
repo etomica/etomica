@@ -248,10 +248,10 @@ public abstract class VoronoiCellBase {
      * \param[in] (x,y,z) the coordinates of the vector. */
     public void translate(double x,double y,double z) {
         x*=2;y*=2;z*=2;
-        for (int i=0; i<p; i+=4) {
-            pts[i+0] = x;
-            pts[i+1] = y;
-            pts[i+2] = z;
+        for (int i=0; i<p; i++) {
+            pts[4*i+0] += x;
+            pts[4*i+1] += y;
+            pts[4*i+2] += z;
         }
     }
 
@@ -2408,7 +2408,7 @@ public abstract class VoronoiCellBase {
                                m_test(lp[0],l);
                                up=qp;
                                uw[0]=qw;
-                               u=q;
+                               u[0]=q[0];
                                while(stackp>0) {
                                    stackp--;
                                    flip(ds[stackp]);
