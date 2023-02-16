@@ -79,8 +79,10 @@ public class PreContainerBase {
         int index_sz = Config.init_chunk_size;
         pre_id = new int[index_sz][];
         end_id = 0;
+        pre_id[end_id] = new int[Config.pre_container_chunk_size];
         pre_p = new double[index_sz][];
         end_p = 0;
+        pre_p[end_p] = new double[ps*Config.pre_container_chunk_size];
     }
     /** Calculates and returns the total number of particles stored
      * within the class.
