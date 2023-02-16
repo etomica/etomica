@@ -127,6 +127,9 @@ public abstract class VoronoiCellBase {
         ed_ = new Int2Darray();
 
     }
+
+    public abstract void equalOperator(VoronoiCell c);
+
     public abstract void init(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
 
     /** Initializes a Voronoi cell as a rectangular box with the given dimensions.

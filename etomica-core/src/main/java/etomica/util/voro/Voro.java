@@ -131,12 +131,11 @@ public class Voro {
         if(con.contains_neighbor(format)) {
             if(vl.start()) {
                 VoronoiCellNeighbor c = new VoronoiCellNeighbor(con);
-                VoronoiCellNeighbor[] cout = new VoronoiCellNeighbor[]{c};
                 do {
-                    if(con.compute_cell(cout,vl)) {
+                    if(con.compute_cell(c,vl)) {
                         vl.pos(pid,x,y,z,r);
-                        if(outfile!=null) cout[0].output_custom(format,pid[0],x[0],y[0],z[0],r[0],outfile);
-                        if(gnu_file!=null) cout[0].draw_gnuplot(x[0],y[0],z[0],gnu_file);
+                        if(outfile!=null) c.output_custom(format,pid[0],x[0],y[0],z[0],r[0],outfile);
+                        if(gnu_file!=null) c.draw_gnuplot(x[0],y[0],z[0],gnu_file);
                         if(povp_file!=null) {
                             try {
                                 povp_file.write(String.format("// id %d\n", pid[0]).getBytes());
@@ -156,7 +155,7 @@ public class Voro {
                             catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
-                            cout[0].draw_pov(x[0],y[0],z[0],povv_file);
+                            c.draw_pov(x[0],y[0],z[0],povv_file);
                         }
                         if(verbose) {
                             vol[0]+=c.volume();
@@ -168,12 +167,11 @@ public class Voro {
         } else {
             if(vl.start()) {
                 VoronoiCell c = new VoronoiCell(con);
-                VoronoiCell[] cout = new VoronoiCell[]{c};
                 do {
-                    if(con.compute_cell(cout,vl)) {
+                    if(con.compute_cell(c,vl)) {
                         vl.pos(pid,x,y,z,r);
-                        if(outfile!=null) cout[0].output_custom(format,pid[0],x[0],y[0],z[0],r[0],outfile);
-                        if(gnu_file!=null) cout[0].draw_gnuplot(x[0],y[0],z[0],gnu_file);
+                        if(outfile!=null) c.output_custom(format,pid[0],x[0],y[0],z[0],r[0],outfile);
+                        if(gnu_file!=null) c.draw_gnuplot(x[0],y[0],z[0],gnu_file);
                         if(povp_file!=null) {
                             try {
                                 povp_file.write(String.format("// id %d\n", pid[0]).getBytes());
@@ -189,14 +187,14 @@ public class Voro {
                         if(povv_file!=null) {
                             try {
                                 povv_file.write(String.format("// cell %d\n", pid[0]).getBytes());
-                                cout[0].draw_pov(x[0], y[0], z[0], povv_file);
+                                c.draw_pov(x[0], y[0], z[0], povv_file);
                             }
                             catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
                         }
                         if(verbose) {
-                            vol[0]+=cout[0].volume();
+                            vol[0]+=c.volume();
                             vcc[0]++;
                         }
                     }

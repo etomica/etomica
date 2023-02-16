@@ -187,9 +187,8 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
         CLoopAllPeriodic vl = new CLoopAllPeriodic(this);
         if(vl.start()) {
             VoronoiCell c = new VoronoiCell(this);
-            VoronoiCell[] cout = new VoronoiCell[]{c};
             do {
-                compute_cell(cout,vl);
+                compute_cell(c,vl);
             }
             while(vl.inc());
         }
@@ -204,9 +203,8 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
         CLoopAllPeriodic vl = new CLoopAllPeriodic(this);
         if(vl.start()) {
             VoronoiCell c = new VoronoiCell(this);
-            VoronoiCell[] cout = new VoronoiCell[]{c};
             do {
-                if(compute_cell(cout,vl)) vol+=c.volume();
+                if(compute_cell(c,vl)) vol+=c.volume();
             }while(vl.inc());
         }
         return vol;
@@ -293,7 +291,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
             do {
                 VoronoiCell c = new VoronoiCell(this);
                 VoronoiCell[] cout = new VoronoiCell[]{c};
-                if(compute_cell(cout,vl)) {
+                if(compute_cell(c,vl)) {
                     double[] pijk = p[vl.ijk];
                     int pp=+ps*vl.q;
                     cout[0].draw_gnuplot(pijk[pp],pijk[pp+1],pijk[pp+2],fp);
@@ -334,7 +332,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
                 VoronoiCell c = new VoronoiCell(this);
                 VoronoiCell[] cout = new VoronoiCell[]{c};
                 do {
-                    if (compute_cell(cout, vl)) {
+                    if (compute_cell(c, vl)) {
                         fp.write(String.format("// cell %d\n", id[vl.ijk][vl.q]).getBytes());
                         double[] pijk = p[vl.ijk];
                         int pp = ps * vl.q;
@@ -380,26 +378,24 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
         if(contains_neighbor(format)) {
             if(vl.start()) {
                 VoronoiCellNeighbor c = new VoronoiCellNeighbor(this);
-                VoronoiCellNeighbor[] cout = new VoronoiCellNeighbor[]{c};
                 do {
-                    if(compute_cell(cout,vl)) {
+                    if(compute_cell(c,vl)) {
                         ijk=vl.ijk;
                         q=vl.q;
                         int pp=ps*q; //p[ijk]
-                        cout[0].output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
+                        c.output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
                     }
                 } while(vl.inc());
             }
         } else {
             if(vl.start()) {
                 VoronoiCell c = new VoronoiCell(this);
-                VoronoiCell[] cout = new VoronoiCell[]{c};
                 do {
-                    if(compute_cell(cout,vl)) {
+                    if(compute_cell(c,vl)) {
                         ijk=vl.ijk;
                         q=vl.q;
                         int pp=ps*q; //p[ijk]
-                        cout[0].output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
+                        c.output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
                     }
                 } while(vl.inc());
             }
@@ -479,7 +475,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
      * \return True if the cell was computed. If the cell cannot be
      * computed because it was removed entirely for some reason,
      * then the routine returns false. */
-    public boolean compute_cell(VoronoiCellBase[] c,CLoopBase vl) {
+    public boolean compute_cell(VoronoiCellBase c,CLoopBase vl) {
         return vc.compute_cell(c,vl.ijk,vl.q,vl.i,vl.j,vl.k);
     }
     /** Computes the Voronoi cell for given particle.
@@ -490,7 +486,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
      * \return True if the cell was computed. If the cell cannot be
      * computed because it was removed entirely for some reason,
      * then the routine returns false. */
-    public boolean compute_cell(VoronoiCellBase[] c,int ijk,int q) {
+    public boolean compute_cell(VoronoiCellBase c,int ijk,int q) {
         int k = ijk/(nx*oy);
         int ijkt = ijk-(nx*oy)*k;
         int j = ijkt/nx;
@@ -505,7 +501,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
      * \return True if the cell was computed. If the cell cannot be
      * computed, if it is removed entirely by a wall or boundary
      * condition, then the routine returns false. */
-    public boolean compute_ghost_cell(VoronoiCellBase[] c,double x,double y,double z) {
+    public boolean compute_ghost_cell(VoronoiCellBase c,double x,double y,double z) {
         int[] ijk = new int[1];
         double[] xout = new double[]{x};
         double[] yout = new double[]{y};

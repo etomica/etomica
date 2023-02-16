@@ -173,9 +173,8 @@ public class Container extends ContainerBase {
         CLoopAll vl = new CLoopAll(this);
         if(vl.start()) {
             VoronoiCell c = new VoronoiCell(this);
-            VoronoiCell[] cout = new VoronoiCell[]{c};
             do {
-                compute_cell(cout,vl);
+                compute_cell(c,vl);
             }
             while(vl.inc());
         }
@@ -187,12 +186,11 @@ public class Container extends ContainerBase {
      * \return The sum of all of the computed Voronoi volumes. */
     public double sum_cell_volumes() {
         VoronoiCell c = new VoronoiCell(this);
-        VoronoiCell[] cout = new VoronoiCell[]{c};
         double vol=0;
         CLoopAll vl = new CLoopAll(this);
         if(vl.start()) {
             do {
-                if(compute_cell(cout,vl)) vol+=cout[0].volume();
+                if(compute_cell(c,vl)) vol+=c.volume();
             }while(vl.inc());
         }
         return vol;
@@ -275,11 +273,10 @@ public class Container extends ContainerBase {
     void draw_cells_gnuplot(CLoopBase vl,OutputStream fp) {
         if(vl.start()) {
             VoronoiCell c = new VoronoiCell(this);
-            VoronoiCell[] cout = new VoronoiCell[]{c};
             do {
-                if(compute_cell(cout,vl)) {
+                if(compute_cell(c,vl)) {
                     int pp = ps*vl.q; // p[vl.ijk]
-                    cout[0].draw_gnuplot(p[vl.ijk][pp],p[vl.ijk][pp+1],p[vl.ijk][pp+2],fp);
+                    c.draw_gnuplot(p[vl.ijk][pp],p[vl.ijk][pp+1],p[vl.ijk][pp+2],fp);
                 }
             } while(vl.inc());
         }
@@ -317,10 +314,10 @@ public class Container extends ContainerBase {
                 VoronoiCell c = new VoronoiCell(this);
                 VoronoiCell[] cout = new VoronoiCell[]{c};
                 do {
-                    if (compute_cell(cout, vl)) {
+                    if (compute_cell(c, vl)) {
                         fp.write(String.format("// cell %d\n", id[vl.ijk][vl.q]).getBytes());
                         int pp = ps * vl.q; // p[vl.ijk]
-                        cout[0].draw_pov(p[vl.ijk][pp], p[vl.ijk][pp + 1], p[vl.ijk][pp + 2], fp);
+                        c.draw_pov(p[vl.ijk][pp], p[vl.ijk][pp + 1], p[vl.ijk][pp + 2], fp);
                     }
                 } while (vl.inc());
             }
@@ -362,25 +359,23 @@ public class Container extends ContainerBase {
         if(contains_neighbor(format)) {
             if(vl.start()) {
                 VoronoiCellNeighbor c = new VoronoiCellNeighbor(this);
-                VoronoiCellNeighbor[] cout = new VoronoiCellNeighbor[]{c};
                 do {
-                    if(compute_cell(cout,vl)) {
+                    if(compute_cell(c,vl)) {
                         ijk=vl.ijk;
                         q=vl.q;
                         int pp = ps*q; // p[ijk]
-                        cout[0].output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
+                        c.output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
                     }
                 } while(vl.inc());
             }
         } else {
             if(vl.start()) {
                 VoronoiCell c = new VoronoiCell(this);
-                VoronoiCell[] cout = new VoronoiCell[]{c};
                 do {
-                    if(compute_cell(cout,vl)) {
+                    if(compute_cell(c,vl)) {
                         ijk=vl.ijk;q=vl.q;
                         int pp = ps*q; //p[ijk]
-                        cout[0].output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
+                        c.output_custom(format,id[ijk][q],p[ijk][pp],p[ijk][pp+1],p[ijk][pp+2],Config.default_radius,fp);
                     }
                 } while(vl.inc());
             }
@@ -462,7 +457,7 @@ public class Container extends ContainerBase {
      * \return True if the cell was computed. If the cell cannot be
      * computed, if it is removed entirely by a wall or boundary
      * condition, then the routine returns false. */
-    public boolean compute_cell(VoronoiCellBase[] c,CLoopBase vl) {
+    public boolean compute_cell(VoronoiCellBase c,CLoopBase vl) {
         return vc.compute_cell(c,vl.ijk,vl.q,vl.i,vl.j,vl.k);
     }
     /** Computes the Voronoi cell for given particle.
@@ -473,7 +468,7 @@ public class Container extends ContainerBase {
      * \return True if the cell was computed. If the cell cannot be
      * computed, if it is removed entirely by a wall or boundary
      * condition, then the routine returns false. */
-    public boolean compute_cell(VoronoiCellBase[] c,int ijk,int q) {
+    public boolean compute_cell(VoronoiCellBase c,int ijk,int q) {
         int k=ijk/nxy,ijkt=ijk-nxy*k,j=ijkt/nx,i=ijkt-j*nx;
         return vc.compute_cell(c,ijk,q,i,j,k);
     }
@@ -485,7 +480,7 @@ public class Container extends ContainerBase {
      * \return True if the cell was computed. If the cell cannot be
      * computed, if it is removed entirely by a wall or boundary
      * condition, then the routine returns false. */
-    public boolean compute_ghost_cell(VoronoiCellBase[] c,double x,double y,double z) {
+    public boolean compute_ghost_cell(VoronoiCellBase c,double x,double y,double z) {
         int[] ijk = new int[1];
         double[] xout = new double[]{x}, yout = new double[]{y}, zout = new double[]{z};
         boolean plb = put_locate_block(ijk,xout,yout,zout);

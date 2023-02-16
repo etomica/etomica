@@ -107,7 +107,7 @@ public class VoroCompute {
      *                       in relative to the container data structure.
      * \return False if the Voronoi cell was completely removed during the
      *         computation and has zero volume, true otherwise. */
-    public boolean compute_cell(VoronoiCellBase[] c,int ijk,int s,int ci,int cj,int ck) {
+    public boolean compute_cell(VoronoiCellBase c,int ijk,int s,int ci,int cj,int ck) {
         final int count_list[]=new int[]{7,11,15,19,26,35,45,59};
         int count_e=8; // count_list
         double[] x = new double[1];
@@ -141,7 +141,7 @@ public class VoroCompute {
             y1=p[ijk][ps*l+1]-y[0];
             z1=p[ijk][ps*l+2]-z[0];
             rs=con.r_scale(x1*x1+y1*y1+z1*z1,ijk,l);
-            if(!c[0].nplane(x1,y1,z1,rs,id[ijk][l])) return false;
+            if(!c.nplane(x1,y1,z1,rs,id[ijk][l])) return false;
         }
         l++;
         while(l<co[ijk]) {
@@ -149,14 +149,14 @@ public class VoroCompute {
             y1=p[ijk][ps*l+1]-y[0];
             z1=p[ijk][ps*l+2]-z[0];
             rs=con.r_scale(x1*x1+y1*y1+z1*z1,ijk,l);
-            if(!c[0].nplane(x1,y1,z1,rs,id[ijk][l])) return false;
+            if(!c.nplane(x1,y1,z1,rs,id[ijk][l])) return false;
             l++;
         }
 
         // Now compute the maximum distance squared from the cell center to a
         // vertex. This is used to cut off the calculation since we only need
         // to test out to twice this range.
-        mrs=c[0].max_radius_squared();
+        mrs=c.max_radius_squared();
 
         // Now compute the fractional position of the particle within its
         // region and store it in (fx,fy,fz). We use this to compute an index
@@ -209,7 +209,7 @@ public class VoroCompute {
             // At the intervals specified by count_list, we recompute the
             // maximum radius squared
             if(g==next_count) {
-                mrs=c[0].max_radius_squared();
+                mrs=c.max_radius_squared();
                 if(count_p!=count_e) {
                     next_count=count_list[count_p];
                     count_p++;
@@ -260,7 +260,7 @@ public class VoroCompute {
                         y1=p[ijk][ps*l+1]-y2;
                         z1=p[ijk][ps*l+2]-z2;
                         rs=con.r_scale(x1*x1+y1*y1+z1*z1,ijk,l);
-                        if(!c[0].nplane(x1,y1,z1,rs,id[ijk][l])) return false;
+                        if(!c.nplane(x1,y1,z1,rs,id[ijk][l])) return false;
                         l++;
                     } while (l<co[ijk]);
                 } else {
@@ -272,7 +272,7 @@ public class VoroCompute {
                         double[] rsout = new double[]{rs};
                         if(con.r_scale_check(rsout,mrs,ijk,l)) {
                             rs = rsout[0];
-                            if (!c[0].nplane(x1, y1, z1, rs, id[ijk][l])) return false;
+                            if (!c.nplane(x1, y1, z1, rs, id[ijk][l])) return false;
                         }
                         rs = rsout[0];
                         l++;
@@ -302,7 +302,7 @@ public class VoroCompute {
             // At the intervals specified by count_list, we recompute the
             // maximum radius squared
             if(g==next_count) {
-                mrs=c[0].max_radius_squared();
+                mrs=c.max_radius_squared();
                 if(count_p!=count_e) {
                     next_count=count_list[count_p];
                     count_p++;
@@ -362,7 +362,7 @@ public class VoroCompute {
                         y1=p[ijk][ps*l+1]-y2;
                         z1=p[ijk][ps*l+2]-z2;
                         rs=con.r_scale(x1*x1+y1*y1+z1*z1,ijk,l);
-                        if(!c[0].nplane(x1,y1,z1,rs,id[ijk][l])) return false;
+                        if(!c.nplane(x1,y1,z1,rs,id[ijk][l])) return false;
                         l++;
                     } while (l<co[ijk]);
                 } else {
@@ -374,7 +374,7 @@ public class VoroCompute {
                         double[] rsout = new double[]{rs};
                         if(con.r_scale_check(rsout,mrs,ijk,l)) {
                             rs = rsout[0];
-                            if (!c[0].nplane(x1, y1, z1, rs, id[ijk][l])) return false;
+                            if (!c.nplane(x1, y1, z1, rs, id[ijk][l])) return false;
                         }
                         rs = rsout[0];
                         l++;
@@ -421,44 +421,44 @@ public class VoroCompute {
             // could possibly intersect the cell
             if(ei>i[0]) {
                 if(ej>j[0]) {
-                    if(ek>k[0]) {if(corner_test(c[0],xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
-                    else if(ek<k[0]) {if(corner_test(c[0],xlo,ylo,zhi,xhi,yhi,zlo)) continue;}
-                    else {if(edge_z_test(c[0],xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
+                    if(ek>k[0]) {if(corner_test(c,xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
+                    else if(ek<k[0]) {if(corner_test(c,xlo,ylo,zhi,xhi,yhi,zlo)) continue;}
+                    else {if(edge_z_test(c,xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
                 } else if(ej<j[0]) {
-                    if(ek>k[0]) {if(corner_test(c[0],xlo,yhi,zlo,xhi,ylo,zhi)) continue;}
-                    else if(ek<k[0]) {if(corner_test(c[0],xlo,yhi,zhi,xhi,ylo,zlo)) continue;}
-                    else {if(edge_z_test(c[0],xlo,yhi,zlo,xhi,ylo,zhi)) continue;}
+                    if(ek>k[0]) {if(corner_test(c,xlo,yhi,zlo,xhi,ylo,zhi)) continue;}
+                    else if(ek<k[0]) {if(corner_test(c,xlo,yhi,zhi,xhi,ylo,zlo)) continue;}
+                    else {if(edge_z_test(c,xlo,yhi,zlo,xhi,ylo,zhi)) continue;}
                 } else {
-                    if(ek>k[0]) {if(edge_y_test(c[0],xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
-                    else if(ek<k[0]) {if(edge_y_test(c[0],xlo,ylo,zhi,xhi,yhi,zlo)) continue;}
-                    else {if(face_x_test(c[0],xlo,ylo,zlo,yhi,zhi)) continue;}
+                    if(ek>k[0]) {if(edge_y_test(c,xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
+                    else if(ek<k[0]) {if(edge_y_test(c,xlo,ylo,zhi,xhi,yhi,zlo)) continue;}
+                    else {if(face_x_test(c,xlo,ylo,zlo,yhi,zhi)) continue;}
                 }
             } else if(ei<i[0]) {
                 if(ej>j[0]) {
-                    if(ek>k[0]) {if(corner_test(c[0],xhi,ylo,zlo,xlo,yhi,zhi)) continue;}
-                    else if(ek<k[0]) {if(corner_test(c[0],xhi,ylo,zhi,xlo,yhi,zlo)) continue;}
-                    else {if(edge_z_test(c[0],xhi,ylo,zlo,xlo,yhi,zhi)) continue;}
+                    if(ek>k[0]) {if(corner_test(c,xhi,ylo,zlo,xlo,yhi,zhi)) continue;}
+                    else if(ek<k[0]) {if(corner_test(c,xhi,ylo,zhi,xlo,yhi,zlo)) continue;}
+                    else {if(edge_z_test(c,xhi,ylo,zlo,xlo,yhi,zhi)) continue;}
                 } else if(ej<j[0]) {
-                    if(ek>k[0]) {if(corner_test(c[0],xhi,yhi,zlo,xlo,ylo,zhi)) continue;}
-                    else if(ek<k[0]) {if(corner_test(c[0],xhi,yhi,zhi,xlo,ylo,zlo)) continue;}
-                    else {if(edge_z_test(c[0],xhi,yhi,zlo,xlo,ylo,zhi)) continue;}
+                    if(ek>k[0]) {if(corner_test(c,xhi,yhi,zlo,xlo,ylo,zhi)) continue;}
+                    else if(ek<k[0]) {if(corner_test(c,xhi,yhi,zhi,xlo,ylo,zlo)) continue;}
+                    else {if(edge_z_test(c,xhi,yhi,zlo,xlo,ylo,zhi)) continue;}
                 } else {
-                    if(ek>k[0]) {if(edge_y_test(c[0],xhi,ylo,zlo,xlo,yhi,zhi)) continue;}
-                    else if(ek<k[0]) {if(edge_y_test(c[0],xhi,ylo,zhi,xlo,yhi,zlo)) continue;}
-                    else {if(face_x_test(c[0],xhi,ylo,zlo,yhi,zhi)) continue;}
+                    if(ek>k[0]) {if(edge_y_test(c,xhi,ylo,zlo,xlo,yhi,zhi)) continue;}
+                    else if(ek<k[0]) {if(edge_y_test(c,xhi,ylo,zhi,xlo,yhi,zlo)) continue;}
+                    else {if(face_x_test(c,xhi,ylo,zlo,yhi,zhi)) continue;}
                 }
             } else {
                 if(ej>j[0]) {
-                    if(ek>k[0]) {if(edge_x_test(c[0],xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
-                    else if(ek<k[0]) {if(edge_x_test(c[0],xlo,ylo,zhi,xhi,yhi,zlo)) continue;}
-                    else {if(face_y_test(c[0],xlo,ylo,zlo,xhi,zhi)) continue;}
+                    if(ek>k[0]) {if(edge_x_test(c,xlo,ylo,zlo,xhi,yhi,zhi)) continue;}
+                    else if(ek<k[0]) {if(edge_x_test(c,xlo,ylo,zhi,xhi,yhi,zlo)) continue;}
+                    else {if(face_y_test(c,xlo,ylo,zlo,xhi,zhi)) continue;}
                 } else if(ej<j[0]) {
-                    if(ek>k[0]) {if(edge_x_test(c[0],xlo,yhi,zlo,xhi,ylo,zhi)) continue;}
-                    else if(ek<k[0]) {if(edge_x_test(c[0],xlo,yhi,zhi,xhi,ylo,zlo)) continue;}
-                    else {if(face_y_test(c[0],xlo,yhi,zlo,xhi,zhi)) continue;}
+                    if(ek>k[0]) {if(edge_x_test(c,xlo,yhi,zlo,xhi,ylo,zhi)) continue;}
+                    else if(ek<k[0]) {if(edge_x_test(c,xlo,yhi,zhi,xhi,ylo,zlo)) continue;}
+                    else {if(face_y_test(c,xlo,yhi,zlo,xhi,zhi)) continue;}
                 } else {
-                    if(ek>k[0]) {if(face_z_test(c[0],xlo,ylo,zlo,xhi,yhi)) continue;}
-                    else if(ek<k[0]) {if(face_z_test(c[0],xlo,ylo,zhi,xhi,yhi)) continue;}
+                    if(ek>k[0]) {if(face_z_test(c,xlo,ylo,zlo,xhi,yhi)) continue;}
+                    else if(ek<k[0]) {if(face_z_test(c,xlo,ylo,zhi,xhi,yhi)) continue;}
                     else voro_fatal_error("Compute cell routine revisiting central block, which should never happen.",Config.Voropp.INTERNAL_ERROR);
                 }
             }
@@ -477,7 +477,7 @@ public class VoroCompute {
                     y1=p[ijk][ps*l+1]-y2;
                     z1=p[ijk][ps*l+2]-z2;
                     rs=con.r_scale(x1*x1+y1*y1+z1*z1,ijk,l);
-                    if(!c[0].nplane(x1,y1,z1,rs,id[ijk][l])) return false;
+                    if(!c.nplane(x1,y1,z1,rs,id[ijk][l])) return false;
                     l++;
                 } while (l<co[ijk]);
             }

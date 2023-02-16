@@ -160,7 +160,7 @@ public abstract class ContainerBase extends ContainerBaseBase {
      *		    compute_cell routine.
      * \return False if the plane cuts applied by walls completely
      * removed the cell, true otherwise. */
-    public boolean initialize_voronoicell(VoronoiCellBase[] c,int ijk,int q,int ci,int cj,int ck,
+    public boolean initialize_voronoicell(VoronoiCellBase c,int ijk,int q,int ci,int cj,int ck,
             int[] i,int[] j,int[] k,double[] x,double[] y,double[] z,int[] disp) {
         double x1,x2,y1,y2,z1,z2;
         x[0] = p[ijk][ps*q];
@@ -169,8 +169,8 @@ public abstract class ContainerBase extends ContainerBaseBase {
         if(xperiodic) {x1=-(x2=0.5*(bx-ax));i[0]=nx;} else {x1=ax-x[0];x2=bx-x[0];i[0]=ci;}
         if(yperiodic) {y1=-(y2=0.5*(by-ay));j[0]=ny;} else {y1=ay-y[0];y2=by-y[0];j[0]=cj;}
         if(zperiodic) {z1=-(z2=0.5*(bz-az));k[0]=nz;} else {z1=az-z[0];z2=bz-z[0];k[0]=ck;}
-        c[0].init(x1,x2,y1,y2,z1,z2);
-        if(!apply_walls(c[0],x[0],y[0],z[0])) return false;
+        c.init(x1,x2,y1,y2,z1,z2);
+        if(!apply_walls(c,x[0],y[0],z[0])) return false;
         disp[0]=ijk-i[0]-nx*(j[0]+ny*k[0]);
         return true;
     }

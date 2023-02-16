@@ -471,8 +471,8 @@ public abstract class ContainerPeriodicBase extends ContainerBaseBase {
      *		    compute_cell routine.
      * \return False if the plane cuts applied by walls completely
      * removed the cell, true otherwise. */
-    public boolean initialize_voronoicell(VoronoiCellBase[] c,int ijk,int q,int ci,int cj,int ck,int[] i,int[] j,int[] k,double[] x,double[] y,double[] z,int[] disp) {
-        c[0]=unit_voro;
+    public boolean initialize_voronoicell(VoronoiCellBase c,int ijk,int q,int ci,int cj,int ck,int[] i,int[] j,int[] k,double[] x,double[] y,double[] z,int[] disp) {
+        c.equalOperator(unit_voro);
         int pp = ps*q;  // p[ijk]
         x[0] = p[ijk][pp];
         y[0] = p[ijk][pp+1];

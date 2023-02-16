@@ -48,10 +48,19 @@ public class VoronoiCellNeighbor extends VoronoiCellBase {
         memory_setup();
     }
 
+    public void equalOperator(VoronoiCellBase c) {
+        if (c instanceof VoronoiCell) {
+            equalOperator((VoronoiCell) c);
+        }
+        else {
+            equalOperator((VoronoiCellNeighbor) c);
+        }
+    }
+
     /** Copies the information from another voronoicell class into this
      * class, extending memory allocation if necessary.
      * \param[in] c the class to copy. */
-    public void equalOp(VoronoiCell c) {
+    public void equalOperator(VoronoiCell c) {
         check_memory_for_copy(c);
         copy(c);
         int i,j;
@@ -60,7 +69,7 @@ public class VoronoiCellNeighbor extends VoronoiCellBase {
             for(j=0;j<c.mec[i];j++) ne_.setIndex(c.mep[i][(2*i+1)*j+2*i], mne[i], j*i);
         }
     }
-    public void equalOp(VoronoiCellNeighbor c) {
+    public void equalOperator(VoronoiCellNeighbor c) {
         check_memory_for_copy(c);
         copy(c);
         int i,j;

@@ -38,7 +38,7 @@ public class LShape {
         public boolean cut_cell(VoronoiCellNeighbor c, double x, double y, double z) {
 
             // Set the cell to be equal to the L-shape
-            c.equalOp(v);
+            c.equalOperator(v);
             c.translate(-x,-y,-z);
 
             // Set the tolerance to 100, to make the code search

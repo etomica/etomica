@@ -42,7 +42,7 @@ public class Irregular {
         public boolean cut_cell(VoronoiCellNeighbor c, double x, double y, double z) {
 
             // Set the cell to be equal to the dodecahedron
-            c.equalOp(v);
+            c.equalOperator(v);
             return true;
         }
 

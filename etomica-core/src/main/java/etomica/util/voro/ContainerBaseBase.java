@@ -75,7 +75,7 @@ public abstract class ContainerBaseBase extends VoroBase implements Radius {
     }
 
 
-    public abstract boolean initialize_voronoicell(VoronoiCellBase[] c, int ijk, int q, int ci, int cj, int ck,
+    public abstract boolean initialize_voronoicell(VoronoiCellBase c, int ijk, int q, int ci, int cj, int ck,
                                                    int[] i, int[] j, int[] k, double[] x, double[] y, double[] z, int[] disp);
 
     public abstract void frac_pos(double x, double y, double z, double ci, double cj, double ck,
@@ -85,5 +85,5 @@ public abstract class ContainerBaseBase extends VoroBase implements Radius {
 
     public abstract void initialize_search(int ci,int cj,int ck,int ijk,int[] i,int[] j,int[] k,int[] disp);
 
-    public abstract boolean compute_cell(VoronoiCellBase[] c,CLoopBase vl);
+    public abstract boolean compute_cell(VoronoiCellBase c,CLoopBase vl);
 }
