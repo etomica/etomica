@@ -17,7 +17,7 @@ public class CLoopAllPeriodic extends CLoopBase {
     /** The constructor copies several necessary constants from the
      * base periodic container class.
      * \param[in] con the periodic container class to use. */
-    CLoopAllPeriodic(ContainerPeriodicBase con) {
+    public CLoopAllPeriodic(ContainerPeriodicBase con) {
         super(con);
         ey = con.ey;
         ez = con.ez;

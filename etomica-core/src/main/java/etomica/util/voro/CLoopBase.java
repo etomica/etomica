@@ -78,6 +78,16 @@ public abstract class CLoopBase {
         y[0]=p[ijk][pp+1];
         z[0]=p[ijk][pp+2];
     }
+
+    /** Returns the position vector of the particle currently being
+     * considered by the loop. */
+    public double[] pos() {
+        int pp = ps*q;
+        return new double[]{p[ijk][pp],
+                            p[ijk][pp+1],
+                            p[ijk][pp+2]};
+    }
+
     /** Returns the ID, position vector, and radius of the particle
      * currently being considered by the loop.
      * \param[out] pid the particle ID.

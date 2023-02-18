@@ -28,6 +28,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
                        int nx_,int ny_,int nz_,int init_mem_) {
        	super(bx_,bxy_,by_,bxz_,byz_,bz_,nx_,ny_,nz_,init_mem_,3);
         vc = new VoroCompute(this,2*nx_+1,2*ey+1,2*ez+1);
+        radius = new RadiusMono();
     }
 
     /** Clears a container of particles. */
@@ -183,7 +184,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
      * with the output. It is useful for measuring the pure computation time
      * of the Voronoi algorithm, without any additional calculations such as
      * volume evaluation or cell output. */
-    void compute_all_cells() {
+    public void compute_all_cells() {
         CLoopAllPeriodic vl = new CLoopAllPeriodic(this);
         if(vl.start()) {
             VoronoiCell c = new VoronoiCell(this);
@@ -198,7 +199,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
      * without walls, the sum of the Voronoi cell volumes should equal the volume
      * of the container to numerical precision.
      * \return The sum of all of the computed Voronoi volumes. */
-    double sum_cell_volumes() {
+    public double sum_cell_volumes() {
         double vol=0;
         CLoopAllPeriodic vl = new CLoopAllPeriodic(this);
         if(vl.start()) {
@@ -212,7 +213,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
     /** Dumps particle IDs and positions to a file.
      * \param[in] vl the loop class to use.
      * \param[in] fp a file handle to write to. */
-    void draw_particles(CLoopBase vl,OutputStream fp) {
+    public void draw_particles(CLoopBase vl,OutputStream fp) {
         try {
             if (vl.start()) do {
                 int pp = 3 * vl.q; //p[vl.ijk]
@@ -248,7 +249,7 @@ public class ContainerPeriodic extends ContainerPeriodicBase {
     /** Dumps particle positions in POV-Ray format.
      * \param[in] vl the loop class to use.
      * \param[in] fp a file handle to write to. */
-    void draw_particles_pov(CLoopBase vl,OutputStream fp) {
+    public void draw_particles_pov(CLoopBase vl,OutputStream fp) {
         try {
             if (vl.start()) do {
                 double[] pijk = p[vl.ijk];

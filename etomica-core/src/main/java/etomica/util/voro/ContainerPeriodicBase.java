@@ -341,7 +341,7 @@ public abstract class ContainerPeriodicBase extends ContainerBaseBase {
      *                particle. */
     public ContainerPeriodicBase(double bx_,double bxy_,double by_,double bxz_,double byz_,double bz_,
                             int nx_,int ny_,int nz_,int init_mem_,int ps_) {
-        super(nx_, ny_, nz_, bx_, by_, bz_, ps_);
+        super(nx_, ny_, nz_, bx_/nx_, by_/ny_, bz_/nz_, ps_);
         bx = bx_;
         bxy = bxy_;
         by = by_;

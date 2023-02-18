@@ -1112,7 +1112,7 @@ public class VoroCompute {
                 qu_e[0]+=3;
             }
             if((q&b1)==0&&ei<hx-1) {
-                mask[mijk-1]=mv;
+                mask[mijk+1]=mv;
                 qu[qu_e[0]+0]=ei+1;
                 qu[qu_e[0]+1]=ej;
                 qu[qu_e[0]+2]=ek;
