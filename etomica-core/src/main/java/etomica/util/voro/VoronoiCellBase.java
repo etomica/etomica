@@ -1049,6 +1049,8 @@ public abstract class VoronoiCellBase {
         }
     }
 
+    public abstract boolean nplane(double x,double y,double z,int p_id);
+
     /** Cuts the Voronoi cell by a particle whose center is at a separation of
      * (x,y,z) from the cell center. The value of rsq should be initially set to
      * \f$x^2+y^2+z^2\f$.
