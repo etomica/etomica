@@ -243,9 +243,9 @@ public class Voro {
         // We have enough arguments. Now start searching for command-line
         // options.
         int i;
-        for (i=0; i<args.length-6; i++) {
+        for (i=0; i<args.length-7; i++) {
             if(args[i].equals("-c")) {
-                if(i>=args.length-7) {
+                if(i>=args.length-6) {
                     error_message();
                     throw new RuntimeException();
                 }
@@ -392,7 +392,6 @@ public class Voro {
                 error_message();
                 throw new RuntimeException();
             }
-            i++;
         }
 
         // Check the memory guess is positive
@@ -487,10 +486,10 @@ public class Voro {
         }
 
         // Open files for output
-        String buffer = String.format("%s.vol", args[i+6]);
         FileOutputStream outfile = null;
         FileOutputStream gnu_file = null, povp_file = null, povv_file = null;
         try {
+            String buffer = String.format("%s.vol", args[i+6]);
             outfile = new FileOutputStream(buffer);
             if (gnuplot_output) {
                 buffer = String.format("%s.gnu", args[i + 6]);

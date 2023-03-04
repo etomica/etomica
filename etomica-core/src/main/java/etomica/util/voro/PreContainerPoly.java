@@ -95,10 +95,10 @@ public class PreContainerPoly extends PreContainerBase {
 
     /** Transfers the particles stored within the class to a container_poly class.
      * \param[in] con the container_poly class to transfer to. */
-    void setup(ContainerPoly con) {
+    public void setup(ContainerPoly con) {
         for (int c_id=0, c_p=0; c_id<end_id; c_id++, c_p++) {
             int ide=Config.pre_container_chunk_size;
-            for (int pp=0, idp=0; idp<ide; idp++, pp+=3) {
+            for (int pp=0, idp=0; idp<ide; idp++, pp+=4) {
                 int n = pre_id[c_id][idp];
                 double x = pre_p[c_p][pp+0];
                 double y = pre_p[c_p][pp+1];
@@ -108,7 +108,7 @@ public class PreContainerPoly extends PreContainerBase {
                 idp++;
             }
         }
-        for (int idp=0, pp=0; idp<ch_id; idp++, pp+=3) {
+        for (int idp=0, pp=0; idp<ch_id; idp++, pp+=4) {
             int n = pre_id[end_id][idp];
             double x = pre_p[end_id][pp+0];
             double y = pre_p[end_id][pp+1];
