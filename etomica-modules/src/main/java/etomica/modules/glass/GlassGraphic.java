@@ -37,7 +37,7 @@ import java.util.List;
 
 public class GlassGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = " Molecular Dynamics";
+    private final static String APP_NAME = "Glass Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
     protected SimGlass sim;
 
@@ -91,6 +91,7 @@ public class GlassGraphic extends SimulationGraphic {
             c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         } else {
             c = new DisplayBoxCanvas3DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            ((DisplayBoxCanvas3DGlass)c).setVoronoiRadii(new double[]{0.5,sim.sigmaB*0.5});
         }
         canvas = (DisplayBoxCanvasGlass) c;
         remove(getDisplayBox(sim.box));
@@ -402,6 +403,25 @@ public class GlassGraphic extends SimulationGraphic {
 
         flipDispCheckbox.setController(sim.getController());
         add(flipDispCheckbox);
+
+        if (sim.getSpace().D() == 3) {
+            DeviceCheckBox voronoiCheckbox = new DeviceCheckBox(sim.getController(), "voronoi cells", new ModifierBoolean() {
+                @Override
+                public void setBoolean(boolean b) {
+                    if (((DisplayBoxCanvas3DGlass) canvas).getShowVoronoiCells() == b) return;
+                    ((DisplayBoxCanvas3DGlass) canvas).setShowVoronoiCells(b);
+                    dbox.repaint();
+                }
+
+                @Override
+                public boolean getBoolean() {
+                    return ((DisplayBoxCanvas3DGlass)canvas).getShowVoronoiCells();
+                }
+            });
+
+            voronoiCheckbox.setController(sim.getController());
+            add(voronoiCheckbox);
+        }
 
         IAction repaintAction = new IAction() {
             public void actionPerformed() {
@@ -2168,7 +2188,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
-                (ljmdGraphic.getPanel(), sim.potentialChoice + APP_NAME);
+                (ljmdGraphic.getPanel(), sim.potentialChoice + " " + APP_NAME);
         if (params.potential == SimGlass.PotentialChoice.HS) {
             JFrame f = new JFrame();
             f.setSize(700, 500);

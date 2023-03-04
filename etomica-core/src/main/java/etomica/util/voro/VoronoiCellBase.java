@@ -13,7 +13,9 @@ import etomica.util.collections.IntArrayList;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static etomica.util.voro.Common.*;
 
@@ -77,7 +79,6 @@ public abstract class VoronoiCellBase {
      * ed[ed[i][j]][ed[i][m+j]]=i. The final entry holds a back
      * pointer, so that ed[i+2*m]=i. The back pointers are used
      * when rearranging the memory. */
-//    public int[][] ed;
     public Int2Darray ed_;
     /** This array holds the order of the vertices in the Voronoi
      * cell. This array is dynamically allocated, with its current
@@ -493,7 +494,6 @@ public abstract class VoronoiCellBase {
                     wz=ux*vy-uy*vx;
                     area+=Math.sqrt(wx*wx+wy*wy+wz*wz);
                     k=m;l=n;
-//                    m=ed_.get(k,l);ed_.set(k,l,-1-m);
                     m = ed_.get(k,l);
                     ed_.set(k,l,-1-m);
                 }
@@ -578,6 +578,54 @@ public abstract class VoronoiCellBase {
         int edges=0;
         for (int i=0; i<p; i++) edges += nu[i];
         return edges>>1;
+    }
+
+    public static class Edge {
+        public double x1, y1, z1;
+        public double x2, y2, z2;
+        public Edge(double x1, double x2, double y1, double y2, double z1, double z2) {
+            this.x1 = x1;
+            this.x2 = x2;
+            this.y1 = y1;
+            this.y2 = y2;
+            this.z1 = z1;
+            this.z2 = z2;
+        }
+
+        public double[] toArray() {
+            return new double[]{x1,x2,y1,y2,z1,z2};
+        }
+
+        public boolean equals(Object e) {
+            if (!(e instanceof  Edge)) return false;
+            return Arrays.equals(toArray(), ((Edge)e).toArray());
+        }
+
+        public int hashCode() {
+            return Arrays.hashCode(toArray());
+        }
+    }
+
+    public List<Edge> edges(double x, double y, double z) {
+        ArrayList<Edge> l = new ArrayList<>();
+        for (int i = 0; i < p; i++) {
+            double x1 = x + pts[4*i+0]*0.5;
+            double y1 = y + pts[4*i+1]*0.5;
+            double z1 = z + pts[4*i+2]*0.5;
+            for (int j = 0; j < nu[i]; j++) {
+                int k = ed_.get(i,j);
+                if (k < i) {
+                    double x2 = x + pts[4*k+0]*0.5;
+                    double y2 = y + pts[4*k+1]*0.5;
+                    double z2 = z + pts[4*k+2]*0.5;
+                    if (x2 != x1|| y2 != y1 || z2 != z1) {
+                        Edge e = new Edge(x1, x2, y1, y2, z1, z2);
+                        l.add(e);
+                    }
+                }
+            }
+        }
+        return l;
     }
 
     /** Returns a vector of the vertex orders.
@@ -800,7 +848,7 @@ public abstract class VoronoiCellBase {
                         l=cycle_up(ed_.get(k,nu[k]+l),m);
                         k=m;
                     } while (k!=i);
-                    v.add(q);;
+                    v.add(q);
                 }
             }
         reset_edges();
