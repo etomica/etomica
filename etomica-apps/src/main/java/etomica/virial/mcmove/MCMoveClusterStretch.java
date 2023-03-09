@@ -53,7 +53,10 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
 
     public void setBox(Box p) {
         super.setBox(p);
-        position = new Vector[p.getMoleculeList().size()][p.getMoleculeList().get(0).getChildList().size()];
+        position = new Vector[p.getMoleculeList().size()][];
+        for (int j=0; j<position.length; j++) {
+            position[j] = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
+        }
     }
 
     @Override
@@ -73,7 +76,6 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
             IMolecule molecule = moleculeList.get(i);
             IAtomList atoms = molecule.getChildList();
             for(int j = 0; j < molecule.getChildList().size(); j++) {
-                position[i][j] = space.makeVector();
                 position[i][j].E(molecule.getChildList().get(j).getPosition());
             }
             modifiedIndex = 0;
@@ -110,7 +112,7 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
 
     protected double transformBondedAtoms(Vector dr, int index, IAtomList atoms, Vector shift){
         double m = 0;
-        for(int k = 0; k < bonding[index].size(); k++){
+        for(int k = 0; k < bonding[index].size(); k++) {
             boolean rotated = false;
             for (int l = 0; l < modifiedIndex; l++) {
                 if (bonding[index].getInt(k) == modified[l]) {

@@ -87,12 +87,13 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
             modified[modifiedIndex]=b;
             ++modifiedIndex;
             int a = random.nextInt(bonding[b].size());
-            modified[modifiedIndex] = bonding[b].getInt(a);
+            a = bonding[b].getInt(a);
+            modified[modifiedIndex] = a;
             ++modifiedIndex;
             Vector axis = space.makeVector();
             axis.setRandomSphere(random);
             Vector r = space.makeVector();
-            r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(bonding[b].getInt(a)).getPosition());
+            r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(a).getPosition());
             Vector projection = space.makeVector();
             projection.Ea1Tv1(axis.dot(r)/r.squared(), r);
             axis.ME(projection);
@@ -100,8 +101,8 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
             RotationTensor3D rotationTensor = new RotationTensor3D();
             rotationTensor.setRotationAxis(axis, dt);
             Vector shift = space.makeVector();
-            transform(rotationTensor, bonding[b].getInt(a), atoms, shift);
-            transformBondedAtoms(rotationTensor, bonding[b].getInt(a), atoms, shift);
+            transform(rotationTensor, a, atoms, shift);
+            transformBondedAtoms(rotationTensor, a, atoms, shift);
             double mt = 0;
             for (IAtom aa : atoms) {
                 mt += aa.getType().getMass();
