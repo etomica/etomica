@@ -1919,6 +1919,24 @@ public class GlassGraphic extends SimulationGraphic {
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("normal stress");
 
+        VoronoiFaceOrders faceOrders = new VoronoiFaceOrders(sim.box, new double[]{1,sim.sigmaB});
+
+        DisplayTable voronoiFaceTableA = new DisplayTable();
+        DataPumpListener pumpFaceOrdersA = new DataPumpListener(new VoronoiFaceOrders.DataSourceVoronoiFaceOrders(faceOrders, sim.integrator, sim.speciesA.getLeafType()), voronoiFaceTableA.getDataTable().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(pumpFaceOrdersA);
+        voronoiFaceTableA.setLabel("Face Orders A");
+
+        DisplayTable voronoiFaceTableB = new DisplayTable();
+        DataPumpListener pumpFaceOrdersB = new DataPumpListener(new VoronoiFaceOrders.DataSourceVoronoiFaceOrders(faceOrders, sim.integrator, sim.speciesB.getLeafType()), voronoiFaceTableB.getDataTable().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(pumpFaceOrdersB);
+        voronoiFaceTableB.setLabel("Face Orders B");
+
+        JPanel faceOrdersPanel = new JPanel(new MigLayout("fill"));
+        faceOrdersPanel.add(voronoiFaceTableA.graphic(), "grow");
+        faceOrdersPanel.add(voronoiFaceTableB.graphic(), "grow");
+        JScrollPane faceOrdersPane = new JScrollPane(faceOrdersPanel);
+        getPanel().tabbedPane.add("Face Orders", faceOrdersPane);
+
         //************* Lay out components ****************//
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox(sim.getController(), "isothermal", new ModifierBoolean() {
