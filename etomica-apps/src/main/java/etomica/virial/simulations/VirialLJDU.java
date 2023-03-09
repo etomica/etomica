@@ -4,7 +4,8 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -17,19 +18,24 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.CoordinatePairSet;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import java.awt.*;
 import java.io.File;
@@ -58,7 +64,6 @@ public class VirialLJDU {
             params.doChainRef = true;
             params.uWeights = null;
             params.writeRefPref = true;
-            params.restartFilename = "foo";
         }
 
         runVirial(params);
@@ -108,17 +113,13 @@ public class VirialLJDU {
             public void setBox(Box box) {
             }
 
-            public IPotential getPotential() {
-                return null;
-            }
-
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
             }
         };
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2SoftSpherical pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones(space) : new P2SoftSphere(space, 1, 4, 12);
+        IPotential2 pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones() : new P2SoftSphere(1, 4, 12);
 
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         if (doChainRef) System.out.println("HS Chain reference");
@@ -134,7 +135,7 @@ public class VirialLJDU {
         ClusterMultivalueUmbrella targetUmbrella = new ClusterMultivalueUmbrella(targetCluster);
         targetUmbrella.setWeightCoefficients(uWeights);
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints, temperature, refCluster, targetCluster);
         if (params.randomSeeds == null) {
             System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
         } else {
@@ -170,7 +171,7 @@ public class VirialLJDU {
 
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             refBlocksize = Math.max(steps / (100 * 1000), 1);
             sim.accumulators[0].setBlockSize(refBlocksize);
@@ -181,7 +182,7 @@ public class VirialLJDU {
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
+        if(false) {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -195,9 +196,9 @@ public class VirialLJDU {
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 
@@ -206,15 +207,9 @@ public class VirialLJDU {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -307,11 +302,10 @@ public class VirialLJDU {
         }
 
         sim.integratorOS.setNumSubSteps((int) blockSize);
-        sim.ai.setMaxSteps(steps / blockSize);
         for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS, steps / blockSize));
         long t2 = System.nanoTime();
 
         if (doHist) {

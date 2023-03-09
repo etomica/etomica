@@ -6,8 +6,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
-import etomica.simulation.prototypes.HSMD2D;
+import etomica.action.controller.Controller;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -70,7 +69,7 @@ public class DeviceButton extends Device {
                     doAction(targetAction);
                 }
                 catch (RuntimeException e) {
-                    System.err.println(e+" "+e.getMessage());
+                    e.printStackTrace();
                 }
             }
         };
@@ -80,7 +79,7 @@ public class DeviceButton extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return button;
     }
     
@@ -96,27 +95,4 @@ public class DeviceButton extends Device {
     private ActionListener buttonAction;
     protected JButton button;
     protected IAction targetAction;
-    
-    /**
-     * Method to demonstrate and test the use of this class.  
-     * Slider is used to control the temperature of a hard-sphere MD simulation
-     */
-    public static void main(String[] args) {
-        
-    	final String APP_NAME = "Device Button";
-
-    	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        
-        //here's the part unique to this class
-        etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);
-        DeviceButton button = new DeviceButton(sim.getController(),action);
-        button.setLabel("Device Button");
-
-        //end of unique part
-        graphic.add(button);
-        graphic.makeAndDisplayFrame(APP_NAME);
-    }
-    
 }

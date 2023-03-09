@@ -5,13 +5,21 @@
 package etomica.molecule;
 
 import etomica.box.Box;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.util.random.IRandom;
 
 /**
  * MoleculeSource that returns a completely random molecule.
  */
 public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Serializable {
+
+    public MoleculeSourceRandomMolecule() {
+
+    }
+
+    public MoleculeSourceRandomMolecule(Box box, IRandom random) {
+        this.box = box;
+        this.random = random;
+    }
 
     /**
      * Sets the random number generator used to pick molecules
@@ -34,12 +42,10 @@ public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Ser
     /**
      * returns a random molecule from the box
      */
-    @IgnoreProperty
     public IMolecule getMolecule() {
         return box.getMoleculeList().get(random.nextInt(box.getMoleculeList().size()));
     }
     
-    private static final long serialVersionUID = 1L;
     protected Box box = null;
     protected IRandom random;
 }

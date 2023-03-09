@@ -7,27 +7,29 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveAtomRotate;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.P2HardAssociationCone;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.NeighborManagerSimple;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 
 import java.awt.*;
@@ -40,8 +42,8 @@ import java.awt.*;
 public class GEMCWithRotation extends Simulation {
 
     public Box box1, box2;
-    public IntegratorGEMC integrator;
-    public SpeciesSpheresRotating species;
+    public IntegratorManagerMC integrator;
+    public SpeciesGeneral species;
     public P2HardAssociationCone potential;
 
     public GEMCWithRotation() {
@@ -51,39 +53,40 @@ public class GEMCWithRotation extends Simulation {
     public GEMCWithRotation(Space _space) {
         super(_space);
 
-        species = new SpeciesSpheresRotating(this, space);
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false, true);
         addSpecies(species);
 
-        double sigma = 1.2;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorGEMC(getRandom(), space);
-        integrator.setTemperature(0.420);
-        integrator.setEventInterval(400);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setSleepPeriod(1);
-
         box1 = this.makeBox();
+        box2 = this.makeBox();
+
+        double sigma = 1.2;
+        NeighborManagerSimple neighborManager1 = new NeighborManagerSimple(box1);
+        NeighborManagerSimple neighborManager2 = new NeighborManagerSimple(box2);
+        PotentialComputePairGeneral potentialMaster1 = new PotentialComputePairGeneral(getSpeciesManager(), box1, neighborManager1);
+        PotentialComputePairGeneral potentialMaster2 = new PotentialComputePairGeneral(getSpeciesManager(), box2, neighborManager2);
+
+//        getController().setSleepPeriod(1);
+
         box1.setNMolecules(species, 200);
 
-        IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster, box1);
+        IntegratorMC integratorMC1 = new IntegratorMC(potentialMaster1, this.getRandom(), 1.0, box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
-        moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
-        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
-        integrator.addIntegrator(integratorMC1);
+        moveManager.addMCMove(new MCMoveAtomRotate(random, potentialMaster1, box1));
+        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster1, box1));
 
-
-        box2 = this.makeBox();
         box2.setNMolecules(species, 200);
-        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster, box2);
+        IntegratorMC integratorMC2 = new IntegratorMC(potentialMaster2, this.getRandom(), 1.0, box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
-        moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
-        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
-        // GEMC integrator adds volume and molecule exchange moves once
-        // it has 2 integrators
-        integrator.addIntegrator(integratorMC2);
+        moveManager.addMCMove(new MCMoveAtomRotate(random, potentialMaster2, box2));
+        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster2, box2));
+
+        // GEMC integrator adds volume and molecule exchange moves
+        integrator = IntegratorGEMC.buildGEMC(integratorMC1, integratorMC2, getRandom(), space);
+        integrator.setTemperature(0.420);
+        integrator.setEventInterval(400);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         SpaceLattice lattice;
         if (space.D() == 2) {
@@ -99,7 +102,8 @@ public class GEMCWithRotation extends Simulation {
         potential.setSigma(sigma);
         potential.setWellCutoffFactor(1.5);
 
-        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster1.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
+        potentialMaster2.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
 
         integratorMC1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box1, space)));
         integratorMC2.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box2, space)));

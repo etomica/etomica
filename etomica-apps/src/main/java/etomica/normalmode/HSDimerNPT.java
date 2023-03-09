@@ -8,7 +8,6 @@ import etomica.action.BoxInflateAnisotropic;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -28,9 +27,10 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcpBaseCentered;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionHSDimer.IntegerFunction;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -38,11 +38,13 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -61,19 +63,17 @@ public class HSDimerNPT extends Simulation {
     public static boolean doGraphics = true;
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
-    public final SpeciesHSDimer species;
+    public final SpeciesGeneral species;
     public final Box box, latticeBox;
-    public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinitionHSDimer coordinateDefinition;
     public final double theta;
 
     public HSDimerNPT(final Space space, int numMolecules, boolean fancyMove, double pSet, double rho, int[] nC, int cp, double L, double thetaFrac, double targetAcc) {
         super(space);
+        setRandom(new RandomMersenneTwister(3));
 
-        species = new SpeciesHSDimer(space, true, L);
+        species = SpeciesHSDimer.create(space, true, L);
         addSpecies(species);
-
-        potentialMaster = new PotentialMasterList(this, 2, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2), space);
 
         double tol = 1e-8;
         double a = Math.sqrt(3.0) + tol;
@@ -103,23 +103,24 @@ public class HSDimerNPT extends Simulation {
             throw new RuntimeException("not yet");
         }
         latticeBox = this.makeBox(new BoundaryDeformablePeriodic(space, boxDim));
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, latticeBox);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        P2HardSphere p2 = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
 
         Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         box = this.makeBox(boundary);
         box.setNMolecules(species, numMolecules);
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 1, 2, BondingInfo.noBonding());
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
+
+        P2HardGeneric p2 = P2HardSphere.makePotential(sigma);
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2);
 
         Primitive primitive = new PrimitiveMonoclinic(space, nC[0] * a, nC[1] * b, nC[2] * c,
                 boxAngle);
 
         Basis basis = new BasisBigCell(space, unitBasis, new int[]{nC[0], nC[1], nC[2]});
 
-        coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionHSDimer(getSpeciesManager(), box, primitive, basis, space);
         Vector[][] axes = new Vector[1][3];
         int[] iaxis = new int[]{2, 0, 1};
         for (int i = 0; i < 3; i++) {
@@ -134,15 +135,14 @@ public class HSDimerNPT extends Simulation {
         coordinateDefinition.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         latticeBox.setNMolecules(species, numMolecules);
-        CoordinateDefinitionHSDimer coordinateDefinitionLattice = new CoordinateDefinitionHSDimer(this, latticeBox, primitive, basis, space);
+        CoordinateDefinitionHSDimer coordinateDefinitionLattice = new CoordinateDefinitionHSDimer(getSpeciesManager(), latticeBox, primitive, basis, space);
         coordinateDefinitionLattice.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinitionLattice.initializeCoordinates(new int[]{1, 1, 1});
-
-        potentialMaster.getNeighborManager(box).reset();
 
         MCMoveMoleculeCoupled mcMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
         mcMove.setBox(box);
         mcMove.setDoExcludeNonNeighbors(true);
+//        ((MCMoveStepTracker)mcMove.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMove);
 
         Vector[] drSum = new Vector[nC[2]];
@@ -151,14 +151,16 @@ public class HSDimerNPT extends Simulation {
         }
         double maxPhi = Math.PI / 6;
         if (doRot) {
-            MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-            rotate.setBox(box);
-//            integrator.getMoveManager().addMCMove(rotate);
-            MCMoveRotateMoleculePhiTheta rotateTheta = new MCMoveRotateMoleculePhiTheta(potentialMaster, random, space, drSum, false);
+            MCMoveMoleculeRotate rotate = new MCMoveMoleculeRotate(random, potentialMaster, box);
+//            ((MCMoveStepTracker)rotate.getTracker()).setNoisyAdjustment(true);
+            integrator.getMoveManager().addMCMove(rotate);
+            MCMoveRotateMoleculePhiTheta rotateTheta = new MCMoveRotateMoleculePhiTheta(potentialMaster, box, random, drSum, false);
+//            ((MCMoveStepTracker)rotateTheta.getTracker()).setNoisyAdjustment(true);
             rotateTheta.setMaxPhi(maxPhi);
             integrator.getMoveManager().addMCMove(rotateTheta);
 //            ((MCMoveStepTracker)rotateTheta.getTracker()).setNoisyAdjustment(true);
-            MCMoveRotateMoleculePhiTheta rotatePhi = new MCMoveRotateMoleculePhiTheta(potentialMaster, random, space, drSum, true);
+            MCMoveRotateMoleculePhiTheta rotatePhi = new MCMoveRotateMoleculePhiTheta(potentialMaster, box, random, drSum, true);
+//            ((MCMoveStepTracker)rotatePhi.getTracker()).setNoisyAdjustment(true);
             rotatePhi.setMaxPhi(maxPhi);
             integrator.getMoveManager().addMCMove(rotatePhi);
             integrator.getMoveManager().setFrequency(rotateTheta, 0.5);
@@ -199,10 +201,10 @@ public class HSDimerNPT extends Simulation {
             if (fancyMove) {
                 // fancy move
                 if (false) {
-                    mcMoveVolume = new MCMoveVolumeSolidNPTMolecular(potentialMaster, getRandom(), space, p);
+                    mcMoveVolume = new MCMoveVolumeSolidNPTMolecular(potentialMaster, integrator, getRandom(), p);
                 } else {
                     if (!doRot) throw new RuntimeException("oops");
-                    mcMoveVolume = new MCMoveVolumeSolidNPTMolecularOriented(potentialMaster, getRandom(), space, p, drSum);
+                    mcMoveVolume = new MCMoveVolumeSolidNPTMolecularOriented(potentialMaster, integrator, getRandom(), p, drSum);
                     ((MCMoveVolumeSolidNPTMolecularOriented) mcMoveVolume).setNominalTheta(theta);
                     ((MCMoveVolumeSolidNPTMolecularOriented) mcMoveVolume).setMaxPhi(maxPhi);
                     ((MCMoveVolumeSolidNPTMolecularOriented) mcMoveVolume).setThetaFrac(thetaFrac);
@@ -214,7 +216,7 @@ public class HSDimerNPT extends Simulation {
                 if (doShape) {
                     if (doFancyMonoclinic) {
 
-                        MCMoveVolumeMonoclinicScaled mcMoveVolMonoclinic = new MCMoveVolumeMonoclinicScaled(potentialMaster, getRandom(), space, p);
+                        MCMoveVolumeMonoclinicScaled mcMoveVolMonoclinic = new MCMoveVolumeMonoclinicScaled(potentialMaster, integrator, random, p);
                         mcMoveVolMonoclinic.setTemperature(1.0);
                         mcMoveVolMonoclinic.setInflater(inflaterLat);
                         mcMoveVolMonoclinic.setLatticeBox(latticeBox);
@@ -222,7 +224,7 @@ public class HSDimerNPT extends Simulation {
                         ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
                         integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
                     } else {
-                        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space);
+                        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, integrator, random);
                         mcMoveVolMonoclinic.setInflater(inflater);
                         mcMoveVolMonoclinic.setStepSize(0.001);
                         ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
@@ -256,26 +258,27 @@ public class HSDimerNPT extends Simulation {
 
             } else {
                 // standard move
-                mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
+                mcMoveVolume = new MCMoveVolume(integrator, random, p);
                 mcMoveVolume.setStepSize(1e-4);
+//                ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
                 ((MCMoveVolume) mcMoveVolume).setInflater(inflater);
 
-                MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space);
+                MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, integrator, random);
                 mcMoveVolMonoclinic.setInflater(inflater);
                 mcMoveVolMonoclinic.setStepSize(0.0001);
-                ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+//                ((MCMoveStepTracker) mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
                 if (doShape) {
                     integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
                 }
             }
             ((MCMoveStepTracker) mcMoveVolume.getTracker()).setAcceptanceTarget(targetAcc);
-            ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
+//            ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
             integrator.getMoveManager().addMCMove(mcMoveVolume);
 
-            MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, box);
+            MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, integrator, random);
             mcMoveVolMonoclinicAngle.setBox(box);
             mcMoveVolMonoclinicAngle.setStepSize(0.001);
-            ((MCMoveStepTracker) mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
+//            ((MCMoveStepTracker) mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
             if (doShape) {
                 integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
             }
@@ -291,6 +294,9 @@ public class HSDimerNPT extends Simulation {
         if (args.length > 0) {
             ParseArgs parseArgs = new ParseArgs(params);
             parseArgs.parseArgs(args);
+        }
+        else {
+
         }
 
         int[] nC = params.nC;
@@ -486,7 +492,7 @@ public class HSDimerNPT extends Simulation {
 
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DiameterHashByType diameter = new DiameterHashByType();
-            diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
+            diameter.setDiameter(sim.species.getLeafType(), 1.0);
             graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 
 //			ColorSchemeNeighbor colorScheme = new ColorSchemeNeighbor(sim, sim.potentialMaster, sim.box);
@@ -667,16 +673,14 @@ public class HSDimerNPT extends Simulation {
 
             return;
         }
-        sim.activityIntegrate.setMaxSteps(params.numSteps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         volumeAvg.reset();
         displacementAvg.reset();
         thetaDeviationAvg.reset();
         phiDeviationAvg.reset();
         System.out.println("equilibration finished");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
         if (params.rho <= 0) {
             double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);
@@ -705,7 +709,7 @@ public class HSDimerNPT extends Simulation {
 
     public static class HSMD3DParameters extends ParameterBase {
         public int[] nC = new int[]{3, 6, 4};
-        public long numSteps = 10000000;
+        public long numSteps = 100000;
         public double pressure = 45;
         public int cp = 2;
         public double L = 0.6;

@@ -20,14 +20,16 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P1HardBoundary;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.NeighborManagerSimpleHard;
+import etomica.potential.compute.PotentialComputeField;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -37,13 +39,12 @@ import etomica.species.SpeciesSpheresMono;
 
 public class HSMD2D_noNbr extends Simulation {
 
-    public ActivityIntegrate activityIntegrate;
     public AccumulatorAverageCollapsing pressureAverage;
     public AccumulatorHistory pressureHistory;
     public AccumulatorAverageCollapsing temperatureAverage;
     public AccumulatorHistory temperatureHistory;
     public Box box;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public IntegratorHard integrator;
     public DataPump pressurePump;
     public DataPump temperaturePump;
@@ -52,28 +53,28 @@ public class HSMD2D_noNbr extends Simulation {
     public HSMD2D_noNbr() {
         super(Space2D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+
+        NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
+
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        P2HardSphere potential = new P2HardSphere(space);
-        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        P1HardBoundary potentialBoundary = new P1HardBoundary(space);
-        potentialMaster.addPotential(potentialBoundary, new AtomType[]{species.getLeafType()});
+        P2HardGeneric potential = P2HardSphere.makePotential(1.0);
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), potential);
+        P1HardBoundary potentialBoundary = new P1HardBoundary(space, false, box);
+        pcField.setFieldPotential(species.getLeafType(), potentialBoundary);
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), pcField.getFieldPotentials(), neighborManager, random, 0.05, 1, box, getSpeciesManager(), null);
         integrator.setIsothermal(true);
 
         meterPressure = new MeterPressureHard(integrator);
@@ -107,7 +108,8 @@ public class HSMD2D_noNbr extends Simulation {
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-        sim.activityIntegrate.setSleepPeriod(10);
+        sim.getController().setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setAccumulator(sim.pressureAverage);

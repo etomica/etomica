@@ -4,20 +4,18 @@
 
 package etomica.potential;
 
-import java.util.List;
-
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomTypeSpheroPolyhedron;
+import etomica.atom.IAtom;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.spaceNd.VectorND;
 
-public class P2SpheroPolyhedron extends Potential2 {
+import java.util.List;
 
-    protected Boundary boundary;
+public class P2SpheroPolyhedron implements IPotential2 {
+
+    protected final Space space;
     protected final Vector dr;
     protected final Vector v, w;
     protected final Vector W0, W1, W2;
@@ -28,7 +26,7 @@ public class P2SpheroPolyhedron extends Potential2 {
     protected final Vector norm0, norm1, norm2;
     
     public P2SpheroPolyhedron(Space space) {
-        super(space);
+        this.space = space;
         dr = space.makeVector();
         v = space.makeVector();
         W0 = space.makeVector();
@@ -50,25 +48,6 @@ public class P2SpheroPolyhedron extends Potential2 {
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
-    }
-
-    public double energy(IAtomList atoms) {
-        AtomOrientedQuaternion atom0 = (AtomOrientedQuaternion)atoms.get(0);
-        AtomOrientedQuaternion atom1 = (AtomOrientedQuaternion)atoms.get(1);
-        AtomTypeSpheroPolyhedron atomType0 = (AtomTypeSpheroPolyhedron)atom0.getType();
-        AtomTypeSpheroPolyhedron atomType1 = (AtomTypeSpheroPolyhedron)atom1.getType();
-        Vector position0 = atom0.getPosition();
-        Vector position1 = atom1.getPosition();
-        
-        dr.Ev1Mv2(position0, position1);
-        double r2 = dr.squared();
-        double din = atomType0.getInnerRadius() + atomType1.getInnerRadius();
-        if (r2 < din*din) return Double.POSITIVE_INFINITY;
-
-        double dout = atomType0.getOuterRadius() + atomType1.getOuterRadius();
-        if (r2 > dout*dout) return 0;
-
-        return gjke(atom0, atom1);
     }
 
     protected void inverseProduct4D(Vector q0, Vector q1, Vector q2) {
@@ -258,10 +237,25 @@ public class P2SpheroPolyhedron extends Potential2 {
         }
         throw new RuntimeException("Infinite Loop Detected!");
     }
-    
-//    public long isum, callcount;
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
+    @Override
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        AtomOrientedQuaternion atom1q = (AtomOrientedQuaternion)atom1;
+        AtomOrientedQuaternion atom2q = (AtomOrientedQuaternion)atom2;
+        AtomTypeSpheroPolyhedron atomType1 = (AtomTypeSpheroPolyhedron)atom1q.getType();
+        AtomTypeSpheroPolyhedron atomType2 = (AtomTypeSpheroPolyhedron)atom2q.getType();
+        Vector position0 = atom1q.getPosition();
+        Vector position1 = atom2q.getPosition();
+
+        dr.Ev1Mv2(position0, position1);
+        double r2 = dr.squared();
+        double din = atomType1.getInnerRadius() + atomType2.getInnerRadius();
+        if (r2 < din*din) return Double.POSITIVE_INFINITY;
+
+        double dout = atomType1.getOuterRadius() + atomType2.getOuterRadius();
+        if (r2 > dout*dout) return 0;
+
+        return gjke(atom1q, atom2q);
     }
+
 }

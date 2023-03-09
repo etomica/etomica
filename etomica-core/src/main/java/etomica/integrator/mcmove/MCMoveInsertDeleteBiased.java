@@ -5,7 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.box.Box;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.util.random.IRandom;
 
@@ -26,7 +26,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     protected int minN, maxN;
     protected double[] lnbias;
 
-    public MCMoveInsertDeleteBiased(PotentialMaster potentialMaster,
+    public MCMoveInsertDeleteBiased(PotentialCompute potentialMaster,
                                     IRandom random, Space _space, int minN, int maxN) {
         super(potentialMaster, random, _space);
         lnbias = new double[0];
@@ -70,18 +70,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     }
 
     public double getChi(double temperature) {
-        if (insert) {
-            energyMeter.setTarget(testMolecule);
-            uNew = energyMeter.getDataAsScalar();
-        }
-        else {
-            uNew = 0.0;
-        }
-        double b = uOld - uNew;
-
-        int numMolecules = box.getNMolecules(species);
-        double a = box.getBoundary().volume() / numMolecules;
-        return Math.exp(getLnBiasDiff()) * a * Math.exp(b / temperature);
+        return Math.exp(getLnBiasDiff()) * super.getChi(temperature);
     }
     
     public double getLnBiasDiff() {

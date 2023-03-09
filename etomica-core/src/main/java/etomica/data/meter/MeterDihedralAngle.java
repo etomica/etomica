@@ -6,7 +6,6 @@ package etomica.data.meter;
 
 import etomica.action.IAction;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
@@ -203,7 +202,6 @@ public class MeterDihedralAngle implements IAction, IDataSource, DataSourceIndep
     protected DataFunction data;
     private IDataInfo dataInfo;
     protected DataDoubleArray phiData;
-    protected AtomsetIteratorBoxDependent iterator;
     private final Vector dr1, dr2, dr3;
     private Boundary boundary;
     protected final DataSourceUniform xDataSource;

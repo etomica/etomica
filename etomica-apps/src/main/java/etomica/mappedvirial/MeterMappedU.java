@@ -4,47 +4,32 @@
 
 package etomica.mappedvirial;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
-import etomica.space.Vector;
+import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Energy;
 
 public class MeterMappedU extends DataSourceScalar {
 
-    protected final Space space;
-    protected final PotentialMaster potentialMaster;
-    protected final PotentialCalculationForceSum pcForce;
+    protected final PotentialCompute potentialMaster;
     protected final Box box;
-    protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<Vector> forceManager;
-    protected final PotentialCalculationMappedEnergy pc;
+    protected final PotentialCallbackMappedEnergy pc;
 
-    public MeterMappedU(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
+    public MeterMappedU(PotentialCompute potentialMaster, Box box, int nbins) {
         super("pma",Energy.DIMENSION);
-        this.space = space;
         this.box = box;
         this.potentialMaster = potentialMaster;
-        pcForce = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        pcForce.setAgentManager(forceManager);
-        pc = new PotentialCalculationMappedEnergy(space, box, nbins, forceManager);
-        allAtoms = new IteratorDirective();
+        pc = new PotentialCallbackMappedEnergy(potentialMaster, box, nbins);
     }
 
-    public PotentialCalculationMappedEnergy getPotentialCalculation() {
+    public PotentialCallbackMappedEnergy getPotentialCallback() {
         return pc;
     }
 
     public double getDataAsScalar() {
-        pcForce.reset();
-        potentialMaster.calculate(box, allAtoms, pcForce);
+        potentialMaster.computeAll(true);
         pc.reset();
-        potentialMaster.calculate(box, allAtoms, pc);
+        potentialMaster.computeAll(false, pc);
         return pc.getEnergy();
     }
 }

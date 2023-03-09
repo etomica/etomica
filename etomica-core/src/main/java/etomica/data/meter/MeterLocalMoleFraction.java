@@ -5,12 +5,9 @@
 package etomica.data.meter;
 
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -23,14 +20,10 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
 
     public MeterLocalMoleFraction(Space space, Box _box) {
         super("Local Mole Fraction",Fraction.DIMENSION);
-        if(!(_box.getBoundary() instanceof Boundary)) {
-        	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");
-        }
         box = _box;
         tempVec = space.makeVector();
         shapeOrigin = space.makeVector();
-        iterator.setBox(box);
-        setShape(((Boundary)box.getBoundary()).getShape());
+        setShape(box.getBoundary().getShape());
     }
 
     /**
@@ -79,9 +72,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         int totalSum = 0, speciesSum = 0;
-        iterator.reset();
-        for (IAtom a = iterator.nextAtom(); a != null;
-             a = iterator.nextAtom()) {
+        for (IAtom a : box.getLeafList()) {
             tempVec.Ev1Mv2(a.getPosition(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;
@@ -92,47 +83,12 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
         return (double)speciesSum/(double)totalSum;
     }
     
-    /**
-     * @return Returns the box.
-     */
-    public Box getBox() {
-        return box;
-    }
-    /**
-     * @param box The box to set.
-     */
-/*
-    public void setBox(Box newBox) {
-        box = newBox;
-        tempVec = space.makeVector();
-        shapeOrigin = space.makeVector();
-        iterator.setBox(box);
-        if (shape == null) {
-            setShape(box.getBoundary().getShape());
-        }
-    }
-*/
-    /**
-     * @return Returns the iterator.
-     */
-    public AtomIteratorBoxDependent getIterator() {
-        return iterator;
-    }
-    /**
-     * @param iterator The iterator to set.
-     */
-    public void setIterator(AtomIteratorBoxDependent iterator) {
-        this.iterator = iterator;
-    }
-
-    private static final long serialVersionUID = 1L;
-    private Box box;
+    private final Box box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */
     private ISpecies species;
-    private AtomIteratorBoxDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
     private Vector shapeOrigin;
-    private Vector tempVec;
+    private final Vector tempVec;
 }

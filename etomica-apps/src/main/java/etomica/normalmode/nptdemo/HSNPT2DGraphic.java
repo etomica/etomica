@@ -3,29 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode.nptdemo;
-import javax.swing.JFrame;
 
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.ColorSchemeOverlap;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayCanvas;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.ModifierBoolean;
+
+import javax.swing.*;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
  *
  * @author David Kofke
  */
- 
+
 public class HSNPT2DGraphic extends SimulationGraphic {
-    
-    private static final long serialVersionUID = 1L;
+
     public double nominalScale;
     public DisplayBox displayBoxScaled;
     public HSNPT2DSim sim;
@@ -39,7 +33,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.8);
         redColorScheme = getDisplayBox(sim.box).getColorScheme();
 
-        displayBoxScaled = new DisplayBox(sim, sim.box);
+        displayBoxScaled = new DisplayBox(sim.getController(), sim.box);
         displayBoxScaled.setScale(0.9);
         System.out.println("displayBoxScaled created");
         DisplayCanvas oldCanvas = displayBoxScaled.canvas;
@@ -56,10 +50,10 @@ public class HSNPT2DGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(repaintAction);
         displayBoxScaled.setDiameterHash(getDisplayBox(sim.box).getDiameterHash());
         
-        colorSchemeOverlap = new ColorSchemeOverlap(sim.getSpace(), sim.potentialMaster, sim.box);
+        colorSchemeOverlap = new ColorSchemeOverlap(sim.getSpace(), sim.neighborManager, sim.box);
         getDisplayBox(sim.box).setColorScheme(colorSchemeOverlap);
         
-        colorSchemeScaled = new ColorSchemeScaledOverlap(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition);
+        colorSchemeScaled = new ColorSchemeScaledOverlap(sim.getSpace(), sim.neighborManager, sim.coordinateDefinition);
         displayBoxScaled.setColorScheme(colorSchemeScaled);
 
         getController().getReinitButton().setPostAction(new IAction() {
@@ -149,24 +143,12 @@ public class HSNPT2DGraphic extends SimulationGraphic {
         return sim.pressure;
     }
 
-    public static class Applet extends javax.swing.JApplet {
-        public void init() {
-            HSNPT2DSim sim = new HSNPT2DSim();
-            sim.ai.setSleepPeriod(1);
-            
-            HSNPT2DGraphic graphic = new HSNPT2DGraphic(sim);
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
-
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
         HSNPT2DSim sim = new HSNPT2DSim();
-        sim.ai.setSleepPeriod(1);
+        sim.getController().setSleepPeriod(1);
         HSNPT2DGraphic graphic = new HSNPT2DGraphic(sim);
         JFrame f = graphic.makeAndDisplayFrame();
         f.setSize(700, 500);

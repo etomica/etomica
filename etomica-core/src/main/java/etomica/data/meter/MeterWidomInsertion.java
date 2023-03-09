@@ -9,9 +9,8 @@ import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
-import etomica.space.Space;
+import etomica.potential.compute.PotentialCompute;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
@@ -30,20 +29,24 @@ import etomica.util.random.IRandom;
  * the residual chemical potential, the insertion average will be multiplied by
  * the species number density in the box in its current configuration.  Default
  * behavior will give residual chemical potential.
- * 
+ * <p>
  * The actual chemical potential can be calculated as -kT ln(<x>) where x is
  * the value returned by getDataAsScalar.
- * 
+ *
  * @author David Kofke
  */
 public class MeterWidomInsertion extends DataSourceScalar {
 
-    public MeterWidomInsertion(Space space, IRandom random) {
+    public MeterWidomInsertion(Box box, IRandom random, PotentialCompute potentialCompute, double temperature) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         setResidual(true);
-        atomTranslator = new MoleculeActionTranslateTo(space);
-        positionSource = new RandomPositionSourceRectangular(space, random);
+        atomTranslator = new MoleculeActionTranslateTo(box.getSpace());
+        positionSource = new RandomPositionSourceRectangular(box.getSpace(), random);
+        this.box = box;
+        positionSource.setBox(box);
+        this.temperature = temperature;
+        this.potentialCompute = potentialCompute;
     }
 
     /**
@@ -101,19 +104,17 @@ public class MeterWidomInsertion extends DataSourceScalar {
      * Performs a Widom insertion average, doing nInsert insertion attempts
      * Temperature used to get exp(-uTest/kT) is that of the integrator for the
      * box
-     * 
-     * @return the sum of exp(-uTest/kT)/nInsert, multiplied by V/N if 
+     *
+     * @return the sum of exp(-uTest/kT)/nInsert, multiplied by V/N if
      * <code>residual</code> is false
      */
     public double getDataAsScalar() {
         double sum = 0.0; //sum for local insertion average
-        energyMeter.setTarget(testMolecule);
-        if (integrator != null) temperature = integrator.getTemperature();
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             box.addMolecule(testMolecule);
-            double u = energyMeter.getDataAsScalar();
+            double u = potentialCompute.computeOneMolecule(testMolecule);
             sum += Math.exp(-u / temperature);
             if (Double.isInfinite(sum)) {
                 throw new RuntimeException("oops");
@@ -123,47 +124,17 @@ public class MeterWidomInsertion extends DataSourceScalar {
 
         if (!residual) {
             // multiply by V/N
-            sum *= box.getBoundary().volume() / (box.getNMolecules(species)+1);
-        }
-        else if (!Double.isNaN(pressure)) {
-            sum *= pressure*box.getBoundary().volume() / ((box.getNMolecules(species) + 1)*temperature);
+            sum *= box.getBoundary().volume() / (box.getNMolecules(species) + 1);
+        } else if (!Double.isNaN(pressure)) {
+            sum *= pressure * box.getBoundary().volume() / ((box.getNMolecules(species) + 1) * temperature);
         }
         return sum / nInsert; //return average
-    }
-
-    /**
-     * Returns the integrator associated with this class.  The box, potentialMaster
-     * and temperature are taken from the integrator.
-     */
-    public IntegratorBox getIntegrator() {
-        return integrator;
-    }
-
-    /**
-     * Sets the integrator associated with this class.  The box, potentialMaster
-     * and temperature are taken from the integrator.  Alternatively, you can
-     * set the temperature, box and energy meter separately.
-     */
-    public void setIntegrator(IntegratorBox newIntegrator) {
-        integrator = newIntegrator;
-        setEnergyMeter(new MeterPotentialEnergy(integrator.getPotentialMaster()));
-        setBox(integrator.getBox());
-    }
-
-    public void setEnergyMeter(MeterPotentialEnergy newEnergyMeter) {
-        energyMeter = newEnergyMeter;
-    }
-
-    public void setBox(Box newBox) {
-        this.box = newBox;
-        energyMeter.setBox(box);
-        positionSource.setBox(box);
     }
 
     public void setTemperature(double newTemperature) {
         this.temperature = newTemperature;
     }
-    
+
     /**
      * Sets a new RandomPositionSource for this meter to use.  By default, a
      * position source is used which assumes rectangular boundaries.
@@ -173,11 +144,8 @@ public class MeterWidomInsertion extends DataSourceScalar {
         if (box != null) {
             positionSource.setBox(box);
         }
-        else if (integrator != null) {
-            positionSource.setBox(integrator.getBox());
-        }
     }
-    
+
     /**
      * Returns the RandomPositionSource used by this meter.
      */
@@ -185,7 +153,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
         return positionSource;
     }
 
-    private IntegratorBox integrator;
 
     /**
      * Number of insertions attempted in each call to currentValue Default is
@@ -195,10 +162,10 @@ public class MeterWidomInsertion extends DataSourceScalar {
     private ISpecies species;
     private IMolecule testMolecule;// prototype insertion molecule
     private boolean residual; // flag to specify if total or residual chemical
-                              // potential evaluated. Default true
-    private MoleculeActionTranslateTo atomTranslator;
+    // potential evaluated. Default true
+    private final MoleculeActionTranslateTo atomTranslator;
+    private final PotentialCompute potentialCompute;
     protected RandomPositionSource positionSource;
-    private MeterPotentialEnergy energyMeter;
     protected Box box;
     protected double temperature;
     protected double pressure = Double.NaN;

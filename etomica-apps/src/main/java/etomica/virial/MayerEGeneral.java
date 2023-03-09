@@ -6,7 +6,6 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.IPotentialMolecular;
 
 /**
@@ -30,15 +29,6 @@ public class MayerEGeneral implements MayerFunction, java.io.Serializable {
 
 	private final IPotentialMolecular potential;
 
-	/* (non-Javadoc)
-	 * @see etomica.virial.MayerFunction#getPotential()
-	 */
-	public IPotential getPotential() {
-		// TODO Auto-generated method stub
-		return potential;
-	}
-	
-	public void setBox(Box newBox) {
-	    potential.setBox(newBox);
+    public void setBox(Box newBox) {
 	}
 }

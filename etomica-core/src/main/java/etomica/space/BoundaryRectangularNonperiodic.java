@@ -20,7 +20,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
      * Make a boundary with unit volume.
      */
     public BoundaryRectangularNonperiodic(Space space) {
-        super(space, 1.0);//boolean elements will all be false
+        super(space, 10.0);//boolean elements will all be false
         zero = space.makeVector();
     }
 

@@ -4,42 +4,31 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
-import etomica.space.Space;
+import etomica.molecule.MoleculeArrayList;
 
-public class PotentialNonAdditiveDifference extends PotentialMolecular {
+public class PotentialNonAdditiveDifference implements IPotentialMolecular {
 
     protected final IPotentialMolecular p2, pFull;
-    protected final MoleculePair pair;
+    protected final MoleculeArrayList pair;
     
-    public PotentialNonAdditiveDifference(Space space, IPotentialMolecular p2, IPotentialMolecular pFull) {
-        super(Integer.MAX_VALUE, space);
+    public PotentialNonAdditiveDifference(IPotentialMolecular p2, IPotentialMolecular pFull) {
+        super();
         this.p2 = p2;
         this.pFull = pFull;
-        pair = new MoleculePair();
-    }
-
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
+        pair = new MoleculeArrayList(2);
     }
 
     public double energy(IMoleculeList molecules) {
         double u = pFull.energy(molecules);
+
         for (int i = 0; i<molecules.size(); i++) {
-            pair.mol0 = molecules.get(i);
+            pair.set(0, molecules.get(i));
             for (int j = i+1; j<molecules.size(); j++) {
-                pair.mol1 = molecules.get(j);
+                pair.set(1, molecules.get(j));
                 u -= p2.energy(pair);
             }
         }
         return u;
     }
-
-    public void setBox(Box box) {
-        pFull.setBox(box);
-        p2.setBox(box);
-    }
-
 }

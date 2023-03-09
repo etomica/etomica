@@ -4,14 +4,15 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.graphics.Drawable;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.util.Debug;
@@ -22,63 +23,141 @@ import etomica.util.Debug;
  *
  * @author David Kofke
  */
-public class P1HardBoundary implements PotentialHard, Drawable {
-    
-    private static final long serialVersionUID = 1L;
-    private double collisionRadius = 0.0;
+public class P1HardBoundary implements Drawable, IPotential1 {
+
+    protected double collisionRadius = 0.0;
     private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
     private int nominalThickness = 1;
-    private boolean ignoreOverlap;
+    protected boolean ignoreOverlap;
     private double lastVirial;
     private int lastCollisionDim;
     private final Tensor lastVirialTensor;
     protected Boundary boundary;
-    
+
     public P1HardBoundary(Space space) {
         this(space, false);
     }
-    
+
     public P1HardBoundary(Space space, boolean ignoreOverlap) {
+        this(space, ignoreOverlap, null);
+    }
+
+    public P1HardBoundary(Space space, boolean ignoreOverlap, Box box) {
         this.ignoreOverlap = ignoreOverlap;
+        this.boundary = box == null ? null : box.getBoundary();
         work = space.makeVector();
         lastVirialTensor = space.makeTensor();
         isActiveDim = new boolean[space.D()][2];
-        for (int i=0; i<isActiveDim.length; i++) {
+        for (int i = 0; i < isActiveDim.length; i++) {
             isActiveDim[i][0] = true;
             isActiveDim[i][1] = true;
         }
     }
 
-    public int nBody() {
-        return 1;
+    @Override
+    public int getState(IAtomKinetic atom) {
+        return 0;
+    }
+
+    @Override
+    public double getEnergyForState(int state) {
+        return 0;
+    }
+
+    @Override
+    public double collisionTime(IAtomKinetic atom, Vector r, Vector v, int state, double falseTime) {
+        Vector dimensions = boundary.getBoxSize();
+        double tmin = Double.POSITIVE_INFINITY;
+        for (int i = r.getD() - 1; i >= 0; i--) {
+            double vx = v.getX(i);
+            if (vx == 0.0) continue;
+            double rx = r.getX(i);
+            double dxHalf = 0.5 * dimensions.getX(i);
+            double t;
+            if (vx > 0.0) {
+                if (isActiveDim[i][1]) {
+                    t = (dxHalf - rx - collisionRadius) / vx;
+                } else {
+                    continue;
+                }
+            } else if (isActiveDim[i][0]) {
+                t = (-dxHalf - rx + collisionRadius) / vx;
+            } else {
+                continue;
+            }
+            if (t < tmin) tmin = t;
+        }
+        if (ignoreOverlap && tmin < 0.0) tmin = 0.0;
+        if (Debug.ON && tmin < 0.0) {
+            System.out.println("t " + tmin + " " + atom + " " + work + " " + v + " " + boundary.getBoxSize());
+            throw new RuntimeException("you screwed up");
+        }
+        return tmin;
+    }
+
+    @Override
+    public int bump(IAtomKinetic atom, int oldState, Vector r, double falseTime, Vector deltaP, double[] du) {
+        Vector v = atom.getVelocity();
+        Vector dimensions = boundary.getBoxSize();
+        double delmin = Double.MAX_VALUE;
+        int imin = 0;
+        //figure out which component is colliding
+        for (int i = r.getD() - 1; i >= 0; i--) {
+            double rx = r.getX(i);
+            double vx = v.getX(i);
+            double dxHalf = 0.5 * dimensions.getX(i);
+            double del = (vx > 0.0) ? Math.abs(dxHalf - rx - collisionRadius) : Math.abs(-dxHalf - rx + collisionRadius);
+            if (del < delmin) {
+                delmin = del;
+                imin = i;
+            }
+        }
+        if (Debug.ON && collisionRadius > 0 && Math.abs(r.getX(imin) - collisionRadius + dimensions.getX(imin) * 0.5) / collisionRadius > 1.e-9
+                && Math.abs(0.5 * dimensions.getX(imin) - r.getX(imin) - collisionRadius) / collisionRadius > 1.e-9) {
+            System.out.println(atom + " " + work + " " + dimensions);
+            System.out.println("stop that");
+        }
+        deltaP.E(0);
+        deltaP.setX(imin, -2 * v.getX(imin));
+        deltaP.TE(atom.getType().getMass());
+        v.setX(imin, -v.getX(imin));
+        // dv = 2*NewVelocity
+        double newP = atom.getPosition().getX(imin) - falseTime * v.getX(imin) * 2.0;
+        atom.getPosition().setX(imin, newP);
+        double dp = 2.0 / (atom.getType().rm()) * (-v.getX(imin));
+        lastVirial = dp;
+        lastCollisionDim = imin;
+        return 0;
     }
 
     public double getRange() {
         return collisionRadius;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
-    public double energy(IAtomList a) {
+    public double u(IAtom atom) {
+        if (ignoreOverlap) return 0;
         Vector dimensions = boundary.getBoxSize();
-        Vector pos = a.get(0).getPosition();
-        for (int i=0; i<work.getD(); i++) {
+        Vector pos = atom.getPosition();
+        for (int i = 0; i < work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
             }
             double rx = pos.getX(i);
-            double dxHalf = 0.5*dimensions.getX(i);
-            if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius)) {
-                 return Double.POSITIVE_INFINITY;
+            double dxHalf = 0.5 * dimensions.getX(i);
+            if ((rx < -dxHalf + collisionRadius) || (rx > dxHalf - collisionRadius)) {
+                return Double.POSITIVE_INFINITY;
             }
         }
         return 0;
     }
-     
+
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        throw new RuntimeException("Can't compute force with hard potential");
+    }
+
     public double energyChange() {return 0.0;}
     
     public double collisionTime(IAtomList a, double falseTime) {

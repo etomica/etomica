@@ -1,464 +1,475 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.potential;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.box.Box;
-import etomica.chem.models.Model;
-import etomica.chem.models.Model.PotentialAndIterator;
-import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.iterator.IteratorFactory;
-import etomica.molecule.iterator.MoleculeIteratorAll;
-import etomica.molecule.iterator.MoleculesetIteratorPDT;
+import etomica.box.*;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialCompute;
+import etomica.space.Boundary;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
+import etomica.util.collections.DoubleArrayList;
+import etomica.util.collections.IntArrayList;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
+public class PotentialMaster implements PotentialCompute {
+    protected final BondingInfo bondingInfo;
+    protected final IPotential2[][] pairPotentials;
+    protected final Box box;
+    protected final Vector dr;
+    protected double[] uAtom;
+    protected final DoubleArrayList duAtom;
+    protected final IntArrayList uAtomsChanged;
+    protected Vector zero;
+    protected double virialTot = Double.NaN, energyTot = Double.NaN;
+    protected Vector[] forces;
+    protected final Space space;
+    protected double minR2;
 
-/**
- * Manager of all potentials in simulation.
- * Most calls to compute the energy or other potential calculations begin
- * with the calculate method of this class.  It then passes the calculation
- * on to the contained potentials.
- *
- * @author David Kofke
- */
-public class PotentialMaster {
+    protected final boolean isPureAtoms;
+    protected final int[] atomCountByType;
+    protected boolean duAtomMulti = false;
 
-    protected PotentialMasterLrc lrcMaster;
-    protected IteratorFactory iteratorFactory;
-    protected List<PotentialLinker> potentialList;
-    protected boolean enabled = true;
-    protected boolean isPotentialHard = false;
+    public boolean doAllTruncationCorrection = true;
+    public boolean doOneTruncationCorrection = false;
+    boolean first = true;
+    public long tAll, numAll;
+    public long numMC, tMC;
 
-    public PotentialMaster() {
-        this(IteratorFactory.INSTANCE);
+    public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
+        this(sm, box, bondingInfo, new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
     }
 
-    public PotentialMaster(IteratorFactory iteratorFactory) {
-        this.iteratorFactory = iteratorFactory;
-        potentialList = new ArrayList<PotentialLinker>();
-    }
+    public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo, IPotential2[][] pairPotentials) {
+        space = box.getSpace();
+        this.bondingInfo = bondingInfo;
+        this.pairPotentials = pairPotentials;
+        this.box = box;
+        dr = box.getSpace().makeVector();
 
-    /**
-     * Returns the object that oversees the long-range
-     * correction zero-body potentials.
-     */
-    public PotentialMasterLrc lrcMaster() {
-        if (lrcMaster == null) lrcMaster = new PotentialMasterLrc();
-        return lrcMaster;
-    }
+        uAtom = new double[box.getLeafList().size()];
+        uAtomsChanged = new IntArrayList(16);
+        duAtom = new DoubleArrayList(16);
+        zero = box.getSpace().makeVector();
+        forces = new Vector[0];
 
-    /**
-     * Returns an nBody PotentialGroup appropriate for this type of
-     * PotentialMaster.
-     */
-    public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroup(nBody);
-    }
+        isPureAtoms = sm.isPureAtoms();
 
-    /**
-     * Performs the given PotentialCalculation on the atoms of the given Box.
-     * Sets the box for all molecule iterators and potentials, sets target
-     * and direction for iterators as specified by given IteratorDirective,
-     * and applies doCalculation of given PotentialCalculation with the iterators
-     * and potentials.
-     */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
-        if (!enabled) return;
-        IMolecule targetMolecule = id.getTargetMolecule();
-        IAtom targetAtomLeaf = id.getTargetAtom();
-        if (targetAtomLeaf != null) {
-            targetMolecule = targetAtomLeaf.getParentGroup();
-        }
-
-        for (PotentialLinker link : potentialList) {
-            if (!link.enabled) continue;
-            final MoleculesetIteratorPDT atomIterator = link.iterator;
-            final IPotentialMolecular potential = link.potential;
-            atomIterator.setBox(box);
-            potential.setBox(box);
-            atomIterator.setTarget(targetMolecule);
-            atomIterator.setDirection(id.direction());
-            if (potential instanceof PotentialGroup) {
-                ((PotentialGroup) potential).calculate(atomIterator, id.direction(), targetAtomLeaf, pc);
-            } else if (pc instanceof PotentialCalculationMolecular) {
-                atomIterator.reset();
-                for (IMoleculeList atoms = atomIterator.next(); atoms != null;
-                     atoms = atomIterator.next()) {
-                    ((PotentialCalculationMolecular) pc).doCalculation(atoms, potential);
-                }
+        this.atomCountByType = new int[sm.getAtomTypeCount()];
+        for (ISpecies s : sm.getSpeciesArray()) {
+            int nMols = box.getNMolecules(s);
+            for (AtomType type : s.getAtomTypes()) {
+                atomCountByType[type.getIndex()] += nMols;
             }
         }
+        box.getEventManager().addListener(new BoxEventListener() {
+            @Override
+            public void boxMoleculeAdded(BoxMoleculeEvent e) {
+                for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
+                    atomCountByType[atomType.getIndex()]++;
+                }
 
-        if (lrcMaster != null) {
-            lrcMaster.calculate(box, id, pc);
+                int newAtoms = e.getMolecule().getType().getLeafAtomCount();
+                int nowAtoms = box.getLeafList().size();
+                if (nowAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms - newAtoms);
+                    uAtom = uAtomNew;
+                } else {
+                    Arrays.fill(uAtom, nowAtoms - newAtoms, nowAtoms, 0);
+                }
+            }
+
+            @Override
+            public void boxNumberMolecules(BoxMoleculeCountEvent e) {
+                int n = e.getCount();
+
+                int nowAtoms = box.getLeafList().size();
+                int newAtoms = e.getSpecies().getLeafAtomCount() * n;
+                if (nowAtoms + newAtoms > uAtom.length) {
+                    double[] uAtomNew = new double[nowAtoms + newAtoms];
+                    System.arraycopy(uAtom, 0, uAtomNew, 0, nowAtoms);
+                    uAtom = uAtomNew;
+                }
+            }
+
+            @Override
+            public void boxAtomLeafIndexChanged(BoxAtomIndexEvent e) {
+                int oldIndex = e.getIndex();
+                int newIndex = e.getAtom().getLeafIndex();
+                uAtom[newIndex] = uAtom[oldIndex];
+            }
+
+            @Override
+            public void boxMoleculeRemoved(BoxMoleculeEvent e) {
+                for (AtomType atomType : e.getMolecule().getType().getAtomTypes()) {
+                    atomCountByType[atomType.getIndex()]--;
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean needForcesForVirial() {
+        return !isPureAtoms;
+    }
+
+    @Override
+    public void init() {
+        Vector L = box.getBoundary().getBoxSize();
+        double minL = Double.POSITIVE_INFINITY;
+        for (int i=0; i<L.getD(); i++) {
+            minL = Math.min(minL, L.getX(0));
+        }
+        minR2 = 0.25*minL*minL;
+    }
+
+    @Override
+    public Vector[] getForces() {
+        return forces;
+    }
+
+    @Override
+    public double getLastVirial() {
+        return virialTot;
+    }
+
+    @Override
+    public double getLastEnergy() {
+        return energyTot;
+    }
+
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
+        pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
+        pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
+    }
+
+    public IPotential2[][] getPairPotentials() {
+        return pairPotentials;
+    }
+
+    @Override
+    public void updateAtom(IAtom atom) {
+
+    }
+
+    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, IPotential2 pij, PotentialCallback pc, boolean skipIntra) {
+        if (pc != null && pc.skipPair(iAtom, jAtom)) return 0;
+        numAll++;
+        dr.Ev1Mv2(rj, ri);
+        dr.PE(jbo);
+        double[] u012 = new double[3];
+        double r2 = dr.squared();
+        if (skipIntra && r2 < minR2) return 0;
+        pij.u012add(r2, u012);
+        double uij = u012[0];
+//        double uij = pij.u(dr.squared());
+        if (uij == 0) return 0;
+        if (pc != null) pc.pairCompute(iAtom, jAtom, dr, u012);
+//        System.out.println(iAtom+" "+jAtom+" "+uij);
+        uAtom[iAtom] += 0.5 * uij;
+        uAtom[jAtom] += 0.5 * uij;
+        double duij = u012[1];
+        virialTot += duij;
+        if (doForces && duij != 0) {
+            dr.TE(duij / r2);
+            forces[iAtom].PE(dr);
+            forces[jAtom].ME(dr);
+        }
+        return uij;
+    }
+
+    protected final void zeroArrays(boolean doForces) {
+        virialTot = 0;
+
+        int numAtoms = box.getLeafList().size();
+        if (doForces && numAtoms > forces.length) {
+            int oldLength = forces.length;
+            forces = Arrays.copyOf(forces, numAtoms);
+            for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+        }
+        if (numAtoms > uAtom.length) {
+            uAtom = new double[numAtoms];
+        }
+        for (int i = 0; i < numAtoms; i++) {
+            uAtom[i] = 0;
+            if (doForces) forces[i].E(0);
         }
     }
 
-    /**
-     * Add the given Model's intramolecular potentials to this PotentialMaster
-     */
-    public void addModel(Model newModel) {
-        if (getPotential(new ISpecies[]{newModel.getSpecies()}) != null) {
-            throw new IllegalArgumentException(newModel + " has already been added");
+    @Override
+    public double computeAll(boolean doForces, PotentialCallback pc) {
+        double[] uAtomOld = new double[uAtom.length];
+        boolean debug = false;
+        if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
+        zeroArrays(doForces);
+
+        IAtomList atoms = box.getLeafList();
+        double u = 0;
+        Boundary boundary = box.getBoundary();
+        long t1 = System.nanoTime();
+        for (int i = 0; i < atoms.size(); i++) {
+            IAtom iAtom = atoms.get(i);
+            Vector ri = iAtom.getPosition();
+            int iType = iAtom.getType().getIndex();
+            IPotential2[] ip = pairPotentials[iType];
+            for (int j = i + 1; j < atoms.size(); j++) {
+                IAtom jAtom = atoms.get(j);
+                int jType = jAtom.getType().getIndex();
+                IPotential2 pij = ip[jType];
+                if (pij == null) continue;
+
+                if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
+
+                dr.Ev1Mv2(jAtom.getPosition(), ri);
+                boundary.nearestImage(dr);
+                u += handleComputeAll(doForces, i, j, zero, dr, zero, pij, pc, false);
+            }
         }
-        PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
-        PotentialGroup pGroup = makePotentialGroup(1);
-        for (int i = 0; i < potentialsAndIterators.length; i++) {
-            pGroup.addPotential(potentialsAndIterators[i].getPotential(),
-                    potentialsAndIterators[i].getIterator());
+        tAll += System.nanoTime() - t1;
+
+        double[] uCorrection = new double[1];
+        double[] duCorrection = new double[1];
+        this.computeAllTruncationCorrection(uCorrection, duCorrection);
+        u += uCorrection[0];
+        virialTot += duCorrection[0];
+
+        if (doForces && !isPureAtoms) {
+            virialTot += PotentialCompute.computeVirialIntramolecular(forces, box);
         }
-        addPotential(pGroup, new ISpecies[]{newModel.getSpecies()});
+
+        if (debug && uAtom.length == uAtomOld.length && !first) {
+            boolean success = true;
+            for (int i = 0; i < uAtom.length; i++) {
+                if (Math.abs(uAtom[i] - uAtomOld[i]) > 1e-9) {
+                    System.out.println("uAtom diff " + i + " " + uAtom[i] + " " + uAtomOld[i]);
+                    success = false;
+                }
+            }
+            if (!success) throw new RuntimeException("oops");
+        }
+        first = false;
+        energyTot = u;
+        return u;
     }
 
-    /**
-     * Indicates to the PotentialMaster that the given potential should apply to
-     * the specified species.  Exception is thrown if the potential.nBody() value
-     * is different from the length of the species array.  Thus, for example, if
-     * giving a 2-body potential, then the array should contain exactly
-     * two species; the species may refer to the same instance (appropriate for an
-     * intra-species potential, defining the interactions between molecules of the
-     * same species).
-     */
-    public void addPotential(IPotentialMolecular potential, ISpecies[] species) {
-        if (potential.nBody() == 0) {
-            addPotential(potential, new MoleculeIterator0(), null);
-        } else if (potential.nBody() == Integer.MAX_VALUE) {
-            addPotential(potential, new MoleculeIteratorAll(species), null);
-        } else if (potential.nBody() != species.length) {
-            throw new IllegalArgumentException("Illegal species length");
+    @Override
+    public double computeOneOld(IAtom iAtom) {
+        double u = this.computeOneTruncationCorrection(iAtom.getLeafIndex());
+        return u + uAtom[iAtom.getLeafIndex()] * 2;
+    }
+
+    @Override
+    public double computeManyAtomsOld(IAtom... atoms) {
+        double u = 0;
+        for (IAtom atom : atoms) {
+            u += uAtom[atom.getLeafIndex()] * 2;
+            u += this.computeOneTruncationCorrection(atom.getLeafIndex());
+        }
+        u -= computeIntraAtoms(atoms);
+        return u;
+    }
+
+    protected boolean arrayContains(IAtom a, int startIdx, IAtom... atoms) {
+        for (int i=startIdx; i<atoms.length; i++) {
+            if (atoms[i] == a) return true;
+        }
+        return false;
+    }
+
+    protected double computeIntraAtoms(IAtom... atoms) {
+        // XXX when using neighbor lists, we should only include neighbors
+        //     or, computeOneInternal needs to avoid double-counting
+        double uIntra = 0;
+        for (int i = 0; i < atoms.length; i++) {
+            IAtom atom1 = atoms[i];
+            for (int j = i + 1; j < atoms.length; j++) {
+                IAtom atom2 = atoms[j];
+                if (bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2)) continue;
+                IPotential2 pij = pairPotentials[atom1.getType().getIndex()][atom2.getType().getIndex()];
+                if (pij == null) continue;
+                Vector rij = space.makeVector();
+                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                box.getBoundary().nearestImage(rij);
+                double uij = pij.u(rij.squared());
+                uIntra += uij;
+            }
+        }
+        return uIntra;
+    }
+
+    protected double handleComputeOne(IPotential2 pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom, boolean skipIntra) {
+        numMC++;
+        dr.Ev1Mv2(rj, ri);
+        dr.PE(jbo);
+        double r2 = dr.squared();
+        if (skipIntra && r2 < minR2) return 0;
+        double uij = pij.u(r2);
+        if (uij == 0) return 0;
+
+        uAtomsChanged.add(jAtom);
+        if (duAtomMulti) {
+            duAtom.plusEquals(iAtom, 0.5 * uij);
+            duAtom.plusEquals(jAtom, 0.5 * uij);
         } else {
-            MoleculesetIteratorPDT iterator = iteratorFactory.makeMoleculeIterator(species);
-            addPotential(potential, iterator, species);
+            duAtom.plusEquals(0, 0.5 * uij);
+            duAtom.add(0.5 * uij);
         }
+        return uij;
     }
 
-    /**
-     * Indicates to the PotentialMaster that the given potential should apply to
-     * the specified atom types.  The potential is assumed to be intermolecular.
-     * The given types should not include any type which is the descendent of
-     * another.  Potential group hierarchy will be constructed as needed above
-     * the level of the given atom types.
-     */
-    public void addPotential(IPotentialAtomic potential, AtomType[] atomTypes) {
-        if (potential.nBody() != Integer.MAX_VALUE && potential.nBody() != atomTypes.length) {
-            throw new IllegalArgumentException("nBody of potential must match number of atom types");
-        }
+    @Override
+    public double computeOne(IAtom iAtom) {
+        this.duAtomMulti = false;
+        int i = iAtom.getLeafIndex();
+        IAtomList atoms = box.getLeafList();
+        uAtomsChanged.clear();
+        uAtomsChanged.ensureCapacity(atoms.size());
+        uAtomsChanged.add(i);
+        duAtom.clear();
+        duAtom.ensureCapacity(atoms.size());
+        duAtom.add(0);
 
-        // depth of molecules
-        ISpecies[] parentAtomTypes = new ISpecies[atomTypes.length];
-        for (int i = 0; i < atomTypes.length; i++) {
-            parentAtomTypes[i] = atomTypes[i].getSpecies();
-        }
-        // look for a PotentialGroup that applies to parentAtomTypes
-        PotentialGroup pGroup = getPotential(parentAtomTypes);
-        if (pGroup == null) { // didn't find an appropriate potentialgroup
-            pGroup = makePotentialGroup(potential.nBody());
-            addPotential(pGroup, parentAtomTypes);
-        }
-        pGroup.addPotential(potential, atomTypes);
+        double u = computeOneInternal(iAtom);
+        u += this.computeOneTruncationCorrection(i);
+        return u;
     }
 
-    /**
-     * Notifies the PotentialMaster that the sub-potential has been added to
-     * the given PotentialGroup, which is associated (but not necessarily held
-     * by) this PotentialMaster.
-     * This method is called by PotentialGroup and should not be called in
-     * other circumstances.
-     */
-    public void potentialAddedNotify(IPotentialAtomic subPotential, PotentialGroup pGroup) {
-        // do nothing.  this is here for subclasses to override
+    protected double computeOneInternal(IAtom atom) {
+        return computeOneInternal(atom, 0, new IAtom[0]);
     }
 
-    /**
-     * Returns the potential that applies to the specified types,
-     * or null of no existing potential applies.
-     */
-    public PotentialGroup getPotential(ISpecies[] types) {
-        for (PotentialLinker link : potentialList) {
-            if (link.potential instanceof PotentialGroup) {
-                if (Arrays.equals(types, link.types)) {
-                    return (PotentialGroup) link.potential;
-                }
-            }
+    protected double computeOneInternal(IAtom atom, int startExcludeIdx, IAtom... excludedAtoms) {
+        int iType = atom.getType().getIndex();
+        int i = atom.getLeafIndex();
+        IPotential2[] ip = pairPotentials[iType];
+        double u = 0;
+        Boundary boundary = box.getBoundary();
+        long t1 = System.nanoTime();
+        for (int j = 0; j < box.getLeafList().size(); j++) {
+            if (i == j) continue;
+            IAtom jAtom = box.getLeafList().get(j);
+            int jType = jAtom.getType().getIndex();
+            IPotential2 pij = ip[jType];
+            if (pij == null) continue;
+            if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
+            if (bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom)) continue;
+            dr.Ev1Mv2(jAtom.getPosition(), atom.getPosition());
+            boundary.nearestImage(dr);
+            u += handleComputeOne(pij, zero, dr, zero, i, j, false);
         }
-        return null;
+        tMC += System.nanoTime() - t1;
+        return u;
     }
 
-    public ISpecies[] getSpecies(IPotentialMolecular potential) {
-        for (PotentialLinker link : potentialList) {
-            if (link.potential == potential) {
-                return link.types;
-            }
+    @Override
+    public double computeManyAtoms(IAtom... atoms) {
+        duAtomMulti = true;
+        uAtomsChanged.clear();
+        duAtom.setAll(0);
+        duAtom.ensureCapacity(box.getLeafList().size());
+        double u = 0;
+
+        for (int i=0; i<atoms.length; i++) {
+            IAtom atom = atoms[i];
+            uAtomsChanged.add(atom.getLeafIndex());
+            u += computeOneInternal(atom, i+1, atoms);
+            u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
-        return null;
+        if (u == Double.POSITIVE_INFINITY) return u;
+
+        return u;
     }
 
-    public void addPotential(IPotentialMolecular potential, MoleculesetIteratorPDT iterator, ISpecies[] types) {
-        //the order of the given potential should be consistent with the order of the iterator
-        if (potential.nBody() != iterator.nBody()) {
-            throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
-        }
-        //Set up to evaluate zero-body potentials last, since they may need other potentials
-        //to be configured for calculation first
-        potentialList.add(new PotentialLinker(potential, iterator, types));
-        if (potential instanceof PotentialGroup) {
-            ((PotentialGroup) potential).setPotentialMaster(this);
-        }
-    }
-
-    /**
-     * Removes given potential from the group.  No error is generated if
-     * potential is not in group.
-     */
-    public synchronized void removePotential(IPotentialMolecular potential) {
-
-        for (PotentialLinker link : potentialList) {
-            if (link.potential == potential) {
-                potentialList.remove(link);
-                return;
-            }
-        }
-        throw new RuntimeException("potential not found");
-    }
-
-    /**
-     * Removes given potential from the group.  No error is generated if
-     * potential is not in group.
-     */
-    public synchronized void removePotential(IPotentialAtomic potential) {
-
-        for (PotentialLinker link : potentialList) {
-            if (link.potential instanceof PotentialGroup && ((PotentialGroup) link.potential).contains(potential)) {
-                ((PotentialGroup) link.potential).removePotential(potential);
-                return;
-            }
-        }
-        throw new RuntimeException("potential not found");
-    }
-
-    /**
-     * @return Returns enabled flag.
-     */
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Permits enabling/disabling of all potentials.  Default is enabled (true).
-     *
-     * @param enabled flags if potentials are enabled.
-     */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    /**
-     * Indicates that the specified potential should not contribute to potential
-     * calculations. If potential is not in this group, no action is taken.
-     */
-    public void setEnabled(IPotentialMolecular potential, boolean enabled) {
-        for (PotentialLinker link : potentialList) {
-            if (link.potential == potential) {
-                link.enabled = enabled;
-                return;
-            }
-        }
-    }
-
-    /**
-     * Flag indicating indicating that the only energetic interactions are based on hard potentials, which
-     * prohibit overlap but otherwise have zero energy. If this flag is true, then it is assumed
-     * that the energy of an equilibriated configuration (e.g., not an initial configuration; not a configuration
-     * generated by an unprocessed MC trial; etc.) is zero, and thus it need not be computed. Value is established solely
-     * via setPotentialHard method, and is not determined by any analysis of potentials in simulation.
-     * Default is false.
-     *
-     * @return true if simulations elements can assume an equilibrated configuration has zero energy
-     */
-    public boolean isPotentialHard() {
-        return isPotentialHard;
-    }
-
-    /**
-     *
-     * @param potentialHard new value of field indicating that simulation involves only hard potentials. No check
-     *                      is made to ensure that they are indeed only hard potentials.
-     */
-    public void setPotentialHard(boolean potentialHard) {
-        isPotentialHard = potentialHard;
-    }
-
-
-    /**
-     * Indicates that the specified potential should not contribute to potential
-     * calculations. If potential is not in this group, no action is taken.
-     */
-    public void setEnabled(IPotentialAtomic potential, boolean enabled) {
-        for (PotentialLinker link : potentialList) {
-            if (link.potential instanceof PotentialGroup && ((PotentialGroup) link.potential).contains(potential)) {
-                ((PotentialGroup) link.potential).setEnabled(potential, enabled);
-                return;
-            }
-        }
-    }
-
-    /**
-     * Returns true if the potential is in this group and has not been disabled
-     * via a previous call to setEnabled; returns false otherwise.
-     */
-    public boolean isEnabled(IPotentialAtomic potential) {
-        for (PotentialLinker link : potentialList) {
-            if (link.potential instanceof PotentialGroup && ((PotentialGroup) link.potential).contains(potential)) {
-                return ((PotentialGroup) link.potential).isEnabled(potential);
-            }
-        }
-        throw new RuntimeException("I don't know about " + potential);
-    }
-
-
-
-    /**
-     * Returns true if the potential is in this group and has not been disabled
-     * via a previous call to setEnabled; returns false otherwise.
-     */
-    public boolean isEnabled(IPotentialMolecular potential) {
-        for (PotentialLinker link : potentialList) {
-            if (link.potential == potential) {
-                return link.enabled;
-            }
-        }
-        throw new RuntimeException("I don't know about " + potential);
-    }
-
-    /**
-     * Returns an array containing all molecular Potentials.
-     */
-    public IPotentialMolecular[] getPotentials() {
-        IPotentialMolecular[] potentials = new IPotentialMolecular[potentialList.size()];
-        int i = 0;
-        for (PotentialLinker link : potentialList) {
-            potentials[i++] = link.potential;
-        }
-        return potentials;
-    }
-
-    public static class MoleculeIterator0 implements MoleculesetIteratorPDT {
-        protected final MoleculeArrayList list = new MoleculeArrayList(0);
-        protected boolean finished;
-
-        public MoleculeIterator0() {
-        }
-
-        public void setBox(Box box) {
-        }
-
-        public void setTarget(IMolecule target) {
-        }
-
-        public void setDirection(IteratorDirective.Direction direction) {
-        }
-
-        public int nBody() {
-            return 0;
-        }
-
-        public IMoleculeList next() {
-            if (finished) {
-                return null;
-            }
-            finished = true;
-            return list;
-        }
-
-        public void reset() {
-            finished = false;
-        }
-
-        public int size() {
-            return 1;
-        }
-
-        public void unset() {
-            finished = true;
-        }
-    }
-
-    //Added
-    public static class AtomIterator0 implements AtomsetIteratorBasisDependent {
-        protected final AtomArrayList list = new AtomArrayList(0);
-        protected boolean finished;
-
-        public AtomIterator0() {
-        }
-
-        public void setTarget(IAtom target) {
-        }
-
-        public int nBody() {
-            return 0;
-        }
-
-        public IAtomList next() {
-            if (finished) {
-                return null;
-            }
-            finished = true;
-            return list;
-        }
-
-        public void reset() {
-            finished = false;
-        }
-
-        public int size() {
-            return 1;
-        }
-
-        public void unset() {
-            finished = true;
-        }
-
-        public void setBasis(IMoleculeList atoms) {
-        }
-
-        public int basisSize() {
-            return 0;
-        }
-
-        public boolean haveTarget(IAtom target) {
-            return false;
-        }
-    }
-
-
-    public static class PotentialLinker {
-        public final IPotentialMolecular potential;
-        public final MoleculesetIteratorPDT iterator;
-        public final ISpecies[] types;
-        public boolean enabled = true;
-
-        //Constructors
-        public PotentialLinker(IPotentialMolecular a, MoleculesetIteratorPDT i, ISpecies[] t) {
-            potential = a;
-            iterator = i;
-            if (t != null) {
-                types = t.clone();
+    @Override
+    public void processAtomU(double fac) {
+        for (int j = 0; j < uAtomsChanged.size(); j++) {
+            int jj = uAtomsChanged.getInt(j);
+            if (duAtomMulti) {
+                uAtom[jj] += fac * duAtom.getDouble(jj);
+                duAtom.replace(jj, 0);
             } else {
-                types = null;
+                uAtom[jj] += fac * duAtom.getDouble(j);
             }
         }
-    }//end of PotentialLinker
-}//end of PotentialMaster
-    
+    }
+
+    @Override
+    public IntegratorListener makeIntegratorListener() {
+        return new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+                init();
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+
+            }
+        };
+    }
+
+    public void computeAllTruncationCorrection(double[] uCorrection, double[] duCorrection) {
+        if (!doAllTruncationCorrection) {
+            return;
+        }
+        double uCor = 0;
+        double duCor = 0;
+        for (int i = 0; i < atomCountByType.length; i++) {
+            for (int j = i; j < atomCountByType.length; j++) {
+                IPotential2 p = pairPotentials[i][j];
+                if (p == null) continue;
+                int numPairs;
+                if (j == i) {
+                    numPairs = atomCountByType[i] * (atomCountByType[j] - 1) / 2;
+                } else {
+                    numPairs = atomCountByType[i] * atomCountByType[j];
+                }
+                double pairDensity = numPairs / box.getBoundary().volume();
+
+                double[] u = new double[1];
+                double[] du = new double[1];
+                p.u01TruncationCorrection(space, u, du);
+                uCor += pairDensity * u[0];
+                duCor += pairDensity * du[0];
+
+            }
+        }
+        uCorrection[0] = uCor;
+        duCorrection[0] = duCor;
+    }
+
+    public double computeOneTruncationCorrection(int iAtom) {
+        if (!doOneTruncationCorrection) {
+            return 0;
+        }
+        int iType = box.getLeafList().get(iAtom).getType().getIndex();
+        double uCorrection = 0;
+        for (int j = 0; j < atomCountByType.length; j++) {
+            IPotential2 p = pairPotentials[iType][j];
+            double pairDensity;
+            if (iType == j) {
+                pairDensity = (atomCountByType[j] - 1) / box.getBoundary().volume();
+            } else {
+                pairDensity = atomCountByType[j] / box.getBoundary().volume();
+            }
+            double integral = p.integral(space, p.getRange());
+            uCorrection += pairDensity * integral;
+        }
+        return uCorrection;
+    }
+}

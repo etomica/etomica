@@ -15,6 +15,8 @@ public class ConformationWater3P implements IConformation {
 
     public static final double bondLengthOH = 1.0;
     public static final double angleHOH = 109.5*Math.PI/180.;
+    public static final double sinAngleHOH = Math.sin(0.5*angleHOH);
+    public static final double cosAngleHOH = Math.cos(0.5*angleHOH);
 
     public ConformationWater3P(Space space) {
         this.space = space;
@@ -25,8 +27,8 @@ public class ConformationWater3P implements IConformation {
         IAtom o = list.get(2);
         o.getPosition().E(new double[] {0, 0, 0.0});
 
-        double x = bondLengthOH*Math.sin(0.5*angleHOH);
-        double y = bondLengthOH*Math.cos(0.5*angleHOH);
+        double x = bondLengthOH*sinAngleHOH;
+        double y = bondLengthOH*cosAngleHOH;
         
         IAtom h1 = list.get(0);
         h1.getPosition().E(new double[] {-x, y, 0.0});
@@ -35,6 +37,5 @@ public class ConformationWater3P implements IConformation {
         h2.getPosition().E(new double[] {+x, y, 0.0});
     }
     
-    private static final long serialVersionUID = 1L;
     protected final Space space;
 }

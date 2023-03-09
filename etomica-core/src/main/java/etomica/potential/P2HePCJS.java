@@ -6,8 +6,6 @@
 package etomica.potential;
 
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
@@ -17,7 +15,11 @@ import etomica.units.Kelvin;
  *
  * @author Navneeth Gokul
  */
-public class P2HePCJS extends Potential2SoftSpherical {
+public class P2HePCJS implements IPotential2 {
+
+    public static IPotential2 makeTruncated(double sigma, TruncationFactory tf) {
+        return tf.make(new P2HePCJS(sigma));
+    }
 
     protected final int M_BO;
     protected final int I0_BO, I1_BO;
@@ -50,12 +52,12 @@ public class P2HePCJS extends Potential2SoftSpherical {
     protected final double[][] aS_BO, aS_AD, aS_REL, aS_QED;
     protected final double sigma;
 
-    public P2HePCJS(Space space) {
-        this(space, 0);
+    public P2HePCJS() {
+        this(0);
     }
 
-    public P2HePCJS(Space space, double sigma) {
-        super(space);
+    public P2HePCJS(double sigma) {
+        super();
         this.sigma = sigma;
 
         M_BO = 3;
@@ -542,7 +544,7 @@ public class P2HePCJS extends Potential2SoftSpherical {
      * @param r2 square of the distance in Angstrom^2.
      */
     public double u(double r2) {
-        if (r2 < 1e-8) return Double.MAX_VALUE;
+        if (r2 < 1e-6) return Double.MAX_VALUE;
 
         double r = Math.sqrt(r2); //distance in Angstrom
         double rBohr = BohrRadius.UNIT.fromSim(r); //distance in Bohr
@@ -567,17 +569,11 @@ public class P2HePCJS extends Potential2SoftSpherical {
     */
     public double d2u(double r2) { throw new MethodNotImplementedException(); }
 
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) { throw new MethodNotImplementedException(); }
-
     public static void main(String[] args){
-        Space space = Space3D.getInstance();
-        final P2HePCJS pnew = new P2HePCJS(space);
-        final P2HePCJS pnewp = new P2HePCJS(space, 1);
-        final P2HePCKLJS pold = new P2HePCKLJS(space);
-        final P2HePCKLJS poldp = new P2HePCKLJS(space, 1);
+        final P2HePCJS pnew = new P2HePCJS();
+        final P2HePCJS pnewp = new P2HePCJS(1);
+        final P2HePCKLJS pold = new P2HePCKLJS();
+        final P2HePCKLJS poldp = new P2HePCKLJS(1);
         //double V1 = p.V(5.6,false);
         double tempK = 300; // Kelvin
         double beta = 1/Kelvin.UNIT.toSim(tempK);

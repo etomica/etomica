@@ -11,10 +11,10 @@ import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.history.HistoryScrolling;
-import etomica.data.meter.MeterEnergy;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.meter.MeterEnergyFromIntegrator;
 import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -37,56 +37,58 @@ import etomica.units.dimensions.Null;
 import javax.swing.*;
 import java.awt.*;
 
+/*
+ * FIXME: Need a way to draw contiguous molecules that may go outside the box.
+ */
 public class SamGraphic extends SimulationGraphic {
-    
+
     public final ActionMoveWall moveWallAction;
     public final DeviceButton wallButton;
     public final DeviceButton corrugationButton;
     public final DeviceSlider thetaSlider;
     public final DeviceSlider[] phiSlider;
     public final DeviceSlider numCellsSlider;
-    
+
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM");
         DisplayBox displayBox = getDisplayBox(sim.box);
         displayBox.setPixelUnit(new Pixel(8));
         setPaintInterval(sim.box, 1);
         displayBox.setShowBoundary(false);
-        
+
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
-        
-        ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new WallPlane(space, sim.wallPotential));
-        
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH2Type(), new Color(190, 190, 190));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH3Type(), new Color(230, 230, 230));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
-        
-        DiameterHashByType diameterHash = (DiameterHashByType)displayBox.getDiameterHash();
+
+        ((DisplayBoxCanvasG3DSys) displayBox.canvas).addPlane(new WallPlane(space, sim.wallPotential));
+
+        ((ColorSchemeByType) displayBox.getColorScheme()).setColor(sim.species.getTypeByName("CH2"), new Color(190, 190, 190));
+        ((ColorSchemeByType) displayBox.getColorScheme()).setColor(sim.species.getTypeByName("CH3"), new Color(230, 230, 230));
+        ((ColorSchemeByType) displayBox.getColorScheme()).setColor(sim.species.getTypeByName("S"), new Color(255, 200, 50));
+        ((ColorSchemeByType) displayBox.getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
+
+        DiameterHashByType diameterHash = (DiameterHashByType) displayBox.getDiameterHash();
         diameterHash.setDiameter(sim.speciesSurface.getLeafType(), 3.0);
-        diameterHash.setDiameter(sim.species.getCH2Type(), sim.p2CH2.getSigma());
-        diameterHash.setDiameter(sim.species.getCH3Type(), sim.p2CH3.getSigma());
-        diameterHash.setDiameter(sim.species.getSulfurType(), sim.p2S.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("CH2"), sim.p2CH2.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("CH3"), sim.p2CH3.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("S"), sim.p2S.getSigma());
 
 
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
-        
+
         final IAction moveWallToggle = new IAction() {
             public void actionPerformed() {
                 if (moveWallAction.enabled) {
                     moveWallAction.enabled = false;
                     wallButton.setLabel("Lower wall");
                     thetaSlider.setEnabled(true);
-                    for (int i=0; i<4; i++) {
+                    for (int i = 0; i < 4; i++) {
                         phiSlider[i].setEnabled(true);
                     }
                     numCellsSlider.setEnabled(true);
                     corrugationButton.getButton().setEnabled(true);
-                }
-                else {
+                } else {
                     moveWallAction.enabled = true;
                     thetaSlider.setEnabled(false);
-                    for (int i=0; i<4; i++) {
+                    for (int i = 0; i < 4; i++) {
                         phiSlider[i].setEnabled(false);
                     }
                     numCellsSlider.setEnabled(false);
@@ -97,7 +99,7 @@ public class SamGraphic extends SimulationGraphic {
         };
         wallButton = new DeviceButton(sim.getController(), moveWallToggle);
         wallButton.setLabel("Lower wall");
-        
+
         JTabbedPane moreTabs = new JTabbedPane();
         getPanel().controlPanel.add(moreTabs, SimulationPanel.getVertGBC());
         JPanel wallTab = new JPanel(new GridBagLayout());
@@ -112,10 +114,10 @@ public class SamGraphic extends SimulationGraphic {
         JPanel stateTab = new JPanel(new GridBagLayout());
         moreTabs.add(stateTab, "state");
         stateTab.add(thermoSlider.graphic(), SimulationPanel.getVertGBC());
-        
+
         DisplayTimer timer = new DisplayTimer(sim.integrator);
         add(timer);
-        MeterTemperature thermometer = new MeterTemperature(sim, sim.box, 3);
+        MeterTemperature thermometer = new MeterTemperature(sim.getSpeciesManager(), sim.box, 3);
         DisplayTextBox temperatureDisplay = new DisplayTextBox();
         temperatureDisplay.setUnit(Kelvin.UNIT);
         DataPump pump = new DataPump(thermometer, temperatureDisplay);
@@ -129,18 +131,17 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setLabel("Wall position");
         wallPositionSlider.setMinimum(15);
         double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
-        double sliderValue = sim.wallPotential.getWallPosition()-surfacePosition;
+        double sliderValue = sim.wallPotential.getWallPosition() - surfacePosition;
         if (sliderValue < 30) {
             wallPositionSlider.setMaximum(30);
-        }
-        else {
+        } else {
             wallPositionSlider.setMaximum(40);
             wallPositionSlider.setNMajor(5);
         }
         wallPositionSlider.setShowValues(true);
         wallPositionSlider.setPostAction(getPaintAction(sim.box));
         wallTab.add(wallPositionSlider.graphic(), SimulationPanel.getVertGBC());
-        
+
         JTabbedPane conformationTabs = new JTabbedPane();
         getPanel().controlPanel.add(conformationTabs, SimulationPanel.getVertGBC());
 
@@ -163,8 +164,8 @@ public class SamGraphic extends SimulationGraphic {
                 sim.integrator.resetStepCount();
                 try {
                     sim.integrator.reset();
+                } catch (ConfigurationOverlapException e) {
                 }
-                catch (ConfigurationOverlapException e) {}
                 getDisplayBox(sim.box).repaint();
                 resetAction.actionPerformed();
             }
@@ -187,12 +188,11 @@ public class SamGraphic extends SimulationGraphic {
 
         JPanel chainPhi = null;
         phiSlider = new DeviceSlider[4];
-        for (int i=0; i<4; i++) {
-            if (i==0) {
+        for (int i = 0; i < 4; i++) {
+            if (i == 0) {
                 chainPhi = new JPanel(new GridBagLayout());
                 conformationTabs.add(chainPhi, "phi 1,2");
-            }
-            else if (i==2) {
+            } else if (i == 2) {
                 chainPhi = new JPanel(new GridBagLayout());
                 conformationTabs.add(chainPhi, "phi 3,4");
             }
@@ -204,7 +204,7 @@ public class SamGraphic extends SimulationGraphic {
                 }
 
                 public String getLabel() {
-                    return "Phi "+iChain;
+                    return "Phi " + iChain;
                 }
 
                 public double getValue() {
@@ -218,7 +218,7 @@ public class SamGraphic extends SimulationGraphic {
             phiSlider[i] = new DeviceSlider(sim.getController(), phiModifier);
             phiSlider[i].setShowBorder(true);
             phiSlider[i].setUnit(Degree.UNIT);
-            phiSlider[i].setLabel("Phi "+(i+1));
+            phiSlider[i].setLabel("Phi " + (i + 1));
             phiSlider[i].setMinimum(0);
             phiSlider[i].setMaximum(360);
             phiSlider[i].setShowValues(true);
@@ -235,7 +235,7 @@ public class SamGraphic extends SimulationGraphic {
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
         sim.integrator.getEventManager().addListener(pumpListener);
         pumpListener.setInterval(10);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory historyPE = new AccumulatorHistory();
         historyPE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterPE, historyPE);
@@ -243,7 +243,7 @@ public class SamGraphic extends SimulationGraphic {
         pumpListener = new IntegratorListenerAction(pump);
         sim.integrator.getEventManager().addListener(pumpListener);
         pumpListener.setInterval(10);
-        MeterEnergy meterEnergy = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterEnergyFromIntegrator meterEnergy = new MeterEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory historyE = new AccumulatorHistory();
         historyE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterEnergy, historyE);
@@ -262,13 +262,13 @@ public class SamGraphic extends SimulationGraphic {
             }
 
             public double getValue() {
-                return sim.getNumXCells()/2;
+                return sim.getNumXCells() / 2;
             }
 
             public void setValue(double newValue) {
                 if (newValue > 2 && newValue < 4) return;
-                sim.setNumXCells(2*(int)newValue);
-                sim.setNumZCells((int)newValue);
+                sim.setNumXCells(2 * (int) newValue);
+                sim.setNumZCells((int) newValue);
             }
         };
         numCellsSlider = new DeviceSlider(sim.getController(), nCellsModifier);
@@ -285,9 +285,8 @@ public class SamGraphic extends SimulationGraphic {
         });
 
         getPanel().controlPanel.add(numCellsSlider.graphic(), SimulationPanel.getVertGBC());
-        
-        MeterWallPressure wallPressure = new MeterWallPressure(sim.forceSum);
-        wallPressure.setBox(sim.box);
+
+        MeterWallPressure wallPressure = new MeterWallPressure(sim);
         DataFork fork = new DataFork();
         pump = new DataPump(wallPressure, fork);
         getController().getDataStreamPumps().add(pump);
@@ -305,16 +304,16 @@ public class SamGraphic extends SimulationGraphic {
         wallPressureHistory.setTimeDataSource(timeCounter);
         fork.addDataSink(wallPressureHistory);
         wallPressureHistory.setPushInterval(10);
-        DisplayPlot pressurePlot = new DisplayPlot();
+        DisplayPlotXChart pressurePlot = new DisplayPlotXChart();
         pressurePlot.setUnit(Bar.UNIT);
         wallPressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
         pressurePlot.setLabel("Stress");
         pressurePlot.setLegend(new DataTag[]{wallPressure.getTag()}, "Wall Stress (bar)");
         add(pressurePlot);
-        
+
         final MeterTilt meterTilt = new MeterTilt(space, sim.species);
         meterTilt.setBox(sim.box);
-        DataSplitter tiltSplitter = new DataSplitter(); 
+        DataSplitter tiltSplitter = new DataSplitter();
         pump = new DataPump(meterTilt, tiltSplitter);
         getController().getDataStreamPumps().add(pump);
         DataFork tiltFork = new DataFork();
@@ -330,11 +329,11 @@ public class SamGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpListener);
         pumpListener.setInterval(10);
         add(tiltDisplay);
-        
+
         AccumulatorHistory tiltHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tiltHistory.setTimeDataSource(timeCounter);
         tiltFork.addDataSink(tiltHistory);
-        DisplayPlot tiltPlot = new DisplayPlot();
+        DisplayPlotXChart tiltPlot = new DisplayPlotXChart();
         tiltHistory.setDataSink(tiltPlot.getDataSet().makeDataSink());
         tiltPlot.setLegend(new DataTag[]{tiltHistory.getTag()}, "net tilt");
         tiltPlot.setUnit(Degree.UNIT);
@@ -347,44 +346,44 @@ public class SamGraphic extends SimulationGraphic {
         tilt2History.setDataSink(tiltPlot.getDataSet().makeDataSink());
         tiltPlot.setLegend(new DataTag[]{tilt2History.getTag()}, "avg tilt");
         add(tiltPlot);
-        
+
         AccumulatorHistogram stressStrainHistogram = new AccumulatorHistogram(new HistogramNotSoSimple(100, new DoubleRange(0, 40)));
         DataPipe stressStrainPipe = new DataPipeStressStrain(sim);
         fork.addDataSink(stressStrainPipe);
         stressStrainPipe.setDataSink(stressStrainHistogram);
-        final DisplayPlot stressStrainPlot = new DisplayPlot();
+        final DisplayPlotXChart stressStrainPlot = new DisplayPlotXChart();
         stressStrainHistogram.setDataSink(stressStrainPlot.getDataSet().makeDataSink());
         stressStrainPlot.setLabel("Stress vs. Strain");
         stressStrainPlot.setXLabel("Wall Position");
         stressStrainPlot.setDoLegend(false);
         add(stressStrainPlot);
-        
-        AccumulatorHistory energyTilt = new AccumulatorHistory(new HistoryScrolling(1));
+
+        AccumulatorHistory energyTilt = new AccumulatorHistory(new HistoryCollapsingDiscard(10000));
         energyTilt.setTimeDataSource(new DataSourceScalar("Tilt Angle", Angle.DIMENSION) {
             public double getDataAsScalar() {
                 return meterTilt.getData().getValue(0);
             }
         });
         DataPump energyTiltPump = new DataPump(meterPE, energyTilt);
+        getController().getDataStreamPumps().add(energyTiltPump);
         IntegratorListenerAction energyTiltPumpListener = new IntegratorListenerAction(energyTiltPump);
         sim.integrator.getEventManager().addListener(energyTiltPumpListener);
         energyTiltPumpListener.setInterval(10);
-        final DisplayPlot energyTiltPlot = new DisplayPlot();
+        final DisplayPlotXChart energyTiltPlot = new DisplayPlotXChart();
         energyTiltPlot.setXUnit(Degree.UNIT);
         energyTilt.setDataSink(energyTiltPlot.getDataSet().makeDataSink());
         energyTiltPlot.setLabel("Energy vs. Tilt");
         energyTiltPlot.setDoLegend(false);
-        energyTiltPlot.setDoClear(false);
         energyTiltPlot.setDoDrawLines(new DataTag[]{energyTilt.getTag()}, false);
         add(energyTiltPlot);
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
-                energyTiltPlot.getPlot().clear(false);
-                stressStrainPlot.getPlot().clear(false);
+                energyTiltPlot.clearData();
+                stressStrainPlot.clearData();
             }
         });
 
-        DisplayPlot plot = new DisplayPlot();
+        DisplayPlotXChart plot = new DisplayPlotXChart();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{meterKE.getTag()}, "KE");
         historyPE.setDataSink(plot.getDataSet().makeDataSink());
@@ -392,16 +391,16 @@ public class SamGraphic extends SimulationGraphic {
         historyE.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{meterEnergy.getTag()}, "E");
         plot.setLabel("Energy");
-        
+
         corrugationButton = new DeviceButton(sim.getController());
         IAction corrugationAction = new IAction() {
             public void actionPerformed() {
                 sinusoidalEnabled = !sinusoidalEnabled;
                 sim.p1SurfaceBond.setB(sinusoidalEnabled ? sim.sinusoidalB : 0);
-                ((P2LennardJones)sim.p2SulfurSurfaceLJ.getWrappedPotential()).setEpsilon(sinusoidalEnabled ? 0 : 
-                    ((P2LennardJones)sim.p2CH2Surface.getWrappedPotential()).getEpsilon());
+                ((P2LennardJones) sim.p2SulfurSurfaceLJ.getWrappedPotential()).setEpsilon(sinusoidalEnabled ? 0 :
+                        ((P2LennardJones) sim.p2CH2Surface.getWrappedPotential()).getEpsilon());
                 sim.p2SurfaceBond.setSpringConstant(sinusoidalEnabled ? 0 : sim.harmonicStrength);
-                sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getSulfurType() : null);
+                sim.integratorListener.atomTypeFixedY = sinusoidalEnabled ? sim.species.getTypeByName("S") : null;
 
                 sim.wallPotential.setWallPosition(20);
                 wallPositionSlider.doUpdate();
@@ -409,12 +408,13 @@ public class SamGraphic extends SimulationGraphic {
                 sim.findTetherBonds();
                 try {
                     sim.integrator.reset();
+                } catch (ConfigurationOverlapException e) {
                 }
-                catch (ConfigurationOverlapException e) {}
                 getDisplayBox(sim.box).repaint();
                 resetAction.actionPerformed();
                 corrugationButton.setLabel(sinusoidalEnabled ? "Use harmonic corrugation" : "Use sinusoidal corrugation");
             }
+
             boolean sinusoidalEnabled = false;
         };
         corrugationButton.setAction(corrugationAction);
@@ -422,13 +422,13 @@ public class SamGraphic extends SimulationGraphic {
         corrugationButton.setLabel("Use sinusoidal corrugation");
 
         add(plot);
-        
+
         moveWallAction = new ActionMoveWall(wallPositionSlider, sim, moveWallToggle);
         IntegratorListenerAction moveWallActionListener = new IntegratorListenerAction(moveWallAction);
         sim.integrator.getEventManager().addListener(moveWallActionListener);
         moveWallActionListener.setInterval(200);
     }
-    
+
     public static void main(String[] args) {
         Sam sim = new Sam();
         SamGraphic graphic = new SamGraphic(sim);
@@ -448,7 +448,7 @@ public class SamGraphic extends SimulationGraphic {
         protected IData processData(IData inputData) {
             double[] xy = data.getData();
             double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
-            xy[0] = sim.wallPotential.wallPosition-surfacePosition;
+            xy[0] = sim.wallPotential.wallPosition - surfacePosition;
             xy[1] = inputData.getValue(0);
             return data;
         }
@@ -467,7 +467,7 @@ public class SamGraphic extends SimulationGraphic {
         public boolean enabled;
 
         protected ActionMoveWall(DeviceSlider wallPositionSlider, Sam sim,
-                IAction moveWallToggle) {
+                                 IAction moveWallToggle) {
             this.wallPositionSlider = wallPositionSlider;
             this.sim = sim;
             this.moveWallToggle = moveWallToggle;
@@ -478,11 +478,11 @@ public class SamGraphic extends SimulationGraphic {
             if (!enabled) {
                 return;
             }
-            double position = sim.wallPotential.getWallPosition()-0.1;
+            double position = sim.wallPotential.getWallPosition() - 0.1;
             sim.wallPotential.setWallPosition(position);
             wallPositionSlider.doUpdate();
             double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
-            if (position-surfacePosition < 15.01) {
+            if (position - surfacePosition < 15.01) {
                 // turn ourselves off
                 moveWallToggle.actionPerformed();
             }
@@ -505,14 +505,14 @@ public class SamGraphic extends SimulationGraphic {
         public void setValue(double newValue) {
             double maxAtomPos = -100;
             IAtomList leafList = sim.box.getLeafList();
-            for (int i = 0; i<leafList.size(); i++) {
+            for (int i = 0; i < leafList.size(); i++) {
                 IAtom atom = leafList.get(i);
                 double atomPos = atom.getPosition().getX(1);
                 if (atomPos > maxAtomPos) {
                     maxAtomPos = atomPos;
                 }
             }
-            if (newValue+surfacePosition < maxAtomPos + 4) {
+            if (newValue + surfacePosition < maxAtomPos + 4) {
                 throw new RuntimeException("Slow down tiger!");
             }
             sim.wallPotential.setWallPosition(newValue + surfacePosition);
@@ -529,18 +529,5 @@ public class SamGraphic extends SimulationGraphic {
         public String getLabel() {
             return "Wall Position";
         }
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            getRootPane().putClientProperty(
-                            "defeatSystemEventQueueCheck", Boolean.TRUE);
-            SamGraphic samGraphic = new SamGraphic(new Sam());
-
-            getContentPane().add(samGraphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
     }
 }

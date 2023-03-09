@@ -4,11 +4,8 @@
 
 package etomica.virial;
 
+import etomica.potential.IPotential2;
 import etomica.potential.P2ArgonAziz1993;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -24,7 +21,7 @@ public class B2ForSphericallySymmetricUByTrapezoidRule {
 		
 	}
 	
-public static void main(String[] args) {
+	public static void main(String[] args) {
 		
 		double r_max = 100.0;
 		
@@ -33,7 +30,7 @@ public static void main(String[] args) {
 		System.out.println("T (K)    B2       difference between value and that computed with half as many points");
 		
 		Space space = Space3D.getInstance();
-		P2ArgonAziz1993 p2 = new P2ArgonAziz1993(space);
+		P2ArgonAziz1993 p2 = new P2ArgonAziz1993();
 		
 		int power = 10;
 		
@@ -84,7 +81,7 @@ public static void main(String[] args) {
 
 	}
 
-    public static double[] getResults (Potential2SoftSpherical p2, double power, double r_max, double temp, boolean printapalooza) {
+    public static double[] getResults (IPotential2 p2, double power, double r_max, double temp, boolean printapalooza) {
     	
     	double B2 = 0;
 		int count = 0;
@@ -145,7 +142,7 @@ public static void main(String[] args) {
 		
     }
 
-	public static double[] getfr(Potential2SoftSpherical p2, int N, double del_r, double temp) {
+	public static double[] getfr(IPotential2 p2, int N, double del_r, double temp) {
 		
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		

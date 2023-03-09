@@ -1,15 +1,20 @@
 package etomica.modules.glass;
 
+import etomica.data.ConfigurationStorage;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSink;
 import etomica.data.meter.MeterStructureFactor;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataSinkBlockAveragerSFac implements IDataSink {
+public class DataSinkBlockAveragerSFac implements IDataSink, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected final MeterStructureFactor meterSFac;
@@ -91,6 +96,32 @@ public class DataSinkBlockAveragerSFac implements IDataSink {
         for (int i = 0; i < blockAvg.length; i++) {
             blockAvg[i] = new double[nData][2];
             nSamples[i] = 0;
+        }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(nSamples.length+"\n");
+        for (int i=0; i<nSamples.length; i++) {
+            fw.write(""+nSamples[i]);
+            for (int j=0; j<blockAvg[i].length; j++) {
+                fw.write(" "+blockAvg[i][j][0]+" "+blockAvg[i][j][1]);
+            }
+            fw.write("\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            nSamples[i] = Long.parseLong(bits[0]);
+            for (int j=0; j<blockAvg[i].length; j++) {
+                blockAvg[i][j][0] = Double.parseDouble(bits[1+2*j]);
+                blockAvg[i][j][1] = Double.parseDouble(bits[1+2*j+1]);
+            }
         }
     }
 

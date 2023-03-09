@@ -5,13 +5,13 @@
 package etomica.config;
 
 import etomica.action.BoxInflate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class ConfigurationReplicate {
 
@@ -21,7 +21,7 @@ public class ConfigurationReplicate {
      */
     public static void replicate(Configuration config, Box boxBig, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
-        ISpecies species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box0 = new Box(space);
         sim.addBox(box0);

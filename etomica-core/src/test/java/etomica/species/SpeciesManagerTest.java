@@ -4,6 +4,7 @@
 
 package etomica.species;
 
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.simulation.Simulation;
@@ -34,7 +35,7 @@ public class SpeciesManagerTest {
 		ISpecies species[] = new ISpecies[numSpecies];
 
 		for(int i = 0; i < numSpecies; i++) {
-		    species[i] = new SpeciesSpheresMono(space, element);
+		    species[i] = SpeciesGeneral.monatomic(space, AtomType.element(element));
 		    simulation.addSpecies(species[i]);
 		}
 
@@ -44,7 +45,7 @@ public class SpeciesManagerTest {
 		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
 			Assertions.assertSame(species[i], simulation.getSpecies(i));
 			Assertions.assertSame(i, species[i].getIndex());
-			for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+			for(int j = 0; j < species[i].getUniqueAtomTypeCount(); j++) {
 			    Assertions.assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}

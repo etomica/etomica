@@ -5,6 +5,11 @@
 package etomica.integrator;
 
 import etomica.space.Vector;
+import etomica.util.Statefull;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -15,7 +20,7 @@ import etomica.space.Vector;
  *
  * @author David Kofke and Andrew Schultz
  */
-public abstract class Integrator {
+public abstract class Integrator implements Statefull {
 
     protected final IntegratorEventManager eventManager;
     protected boolean initialized = false;
@@ -139,5 +144,19 @@ public abstract class Integrator {
      */
     public interface Torquable {
         Vector torque();
+    }
+
+    public void saveState(Writer fw) throws IOException {
+        fw.write("" + stepCount + " " + iieCount + "\n");
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        String[] bits = br.readLine().split(" ");
+        stepCount = Long.parseLong(bits[0]);
+        iieCount = Integer.parseInt(bits[1]);
+    }
+
+    public void postRestore() {
+        eventManager.initialized();
     }
 }

@@ -4,9 +4,8 @@
 
 package etomica.graphics;
 
+import javax.swing.*;
 import java.util.Hashtable;
-
-import javax.swing.JLabel;
 
 /**
  * Slider that permits variation of decimal (non-integer) values.  Extends
@@ -22,16 +21,19 @@ import javax.swing.JLabel;
  * @author S.K. Kwak
  */
 public class DecimalSlider extends javax.swing.JSlider {
-    
-    private Hashtable labelTable;
+
     private int maximum, minimum;
     private long precision;
     private int spacing, halfSpacing;
     private int standardSpacingLabel;
     
     public DecimalSlider() {
+        this(0);
+    }
+
+    public DecimalSlider(int precision) {
         super();
-        setPrecision(0);
+        setPrecision(precision);
     }
     
     /**
@@ -99,33 +101,33 @@ public class DecimalSlider extends javax.swing.JSlider {
     }
         
     public double getDecimalSliderValue(){
-        double realValue =((double) super.getValue())/(double)(precision);
+        double realValue = ((double) super.getValue())/(double)(precision);
         return realValue;
     }
     public void setDecimalSliderValue(double n){
         super.setValue((int)Math.round(n*precision));
     }
    
-    public Hashtable createDecimalSliderStandardLabels(double n){
+    public Hashtable<Integer, JComponent> createDecimalSliderStandardLabels(double n){
         standardSpacingLabel = Math.max((int)Math.round(n*precision),1);
         return super.createStandardLabels(standardSpacingLabel);
     }
         
-    public void setDecimalSliderLabelTable(Hashtable labels){
-        labelTable = new Hashtable();
+    public void setDecimalSliderLabelTable(Hashtable<Integer, JComponent> labels){
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
         
         double mm = minimum/(double)precision;               
-        labelTable.put(new Integer(minimum), new JLabel(labelValue(mm)));
+        labelTable.put(minimum, new JLabel(labelValue(mm)));
         
         for(int i =1; i<labels.size(); i++){
                 if(labels.size()-1!=i){
                        int nn = minimum+standardSpacingLabel*i;
                        mm = nn/(double)(precision);
-                       labelTable.put(new Integer(nn), new JLabel(labelValue(mm)));    
+                       labelTable.put(nn, new JLabel(labelValue(mm)));
                  }
                  else if(labels.size()-1==i){
                        mm = maximum/(double)precision;
-                       labelTable.put(new Integer(maximum), new JLabel(labelValue(mm)));    
+                       labelTable.put(maximum, new JLabel(labelValue(mm)));
                  }
          }        
         super.setLabelTable(labelTable);

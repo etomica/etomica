@@ -11,7 +11,13 @@ import etomica.models.water.SpeciesWater4PCOM;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialNonAdditiveDifference;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.species.SpeciesGeneral;
+import etomica.virial.cluster.ClusterWeight;
+import etomica.virial.cluster.ClusterWeightAbs;
+import etomica.virial.wheatley.ClusterWheatleyMultibodyDerivatives;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,13 +36,14 @@ public class ClusterWheatleyMultibodyDerivativesTest {
 
     @BeforeEach
     public void setUp() {
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
-        final PNWaterGCPM pTarget = new PNWaterGCPM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
+        Boundary b = new BoundaryRectangularNonperiodic(space);
+        final PNWaterGCPM pTarget = new PNWaterGCPM(space, b);
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         PNWaterGCPM.PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
-        PNWaterGCPM pFull = new PNWaterGCPM(space);
+        PNWaterGCPM pFull = new PNWaterGCPM(space, b);
         pFull.setComponent(PNWaterGCPM.Component.INDUCTION);
-        PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
+        PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(p2, pFull);
         MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);
 
         cwmd = new ClusterWheatleyMultibodyDerivatives(npoints, fTarget,fnad, 1e-12, nder, true);
@@ -75,9 +82,9 @@ public class ClusterWheatleyMultibodyDerivativesTest {
         box.acceptNotify();
 
         testvalue = cwmd.getAllLastValues(box);
-        shouldbe = new double[] {0.1979388860690684,0.011353771009840455,-0.06281513469827756,0.3512268208807423,-2.0136871903644056,12.204107861554826};
+        shouldbe = new double[] {0.19793888606280885, 0.011353771037695998, -0.06281513482115919, 0.3512268214582845, -2.0136871937865037, 12.204107890382543};
 
-//        System.out.println(Arrays.toString(testvalue));
+//        System.out.println(java.util.Arrays.toString(testvalue));
 
         Assertions.assertArrayEquals(shouldbe,testvalue,1e-12);
 

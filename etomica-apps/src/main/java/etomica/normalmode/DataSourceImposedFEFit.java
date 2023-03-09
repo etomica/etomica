@@ -34,7 +34,7 @@ public class DataSourceImposedFEFit implements IDataSource, DataSourceIndependen
     protected final DataTag tag, xTag;
     protected double bmu;
     protected final MCMoveInsertDeleteBiased mcMoveID;
-    
+
     public DataSourceImposedFEFit(MCMoveOverlapListener mcMoveOverlapMeter, MCMoveInsertDeleteBiased mcMoveID, double bmu) {
         tag = new DataTag();
         xTag = new DataTag();

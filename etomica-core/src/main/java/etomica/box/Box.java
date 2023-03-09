@@ -17,6 +17,11 @@ import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
+import etomica.util.Statefull;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
@@ -53,7 +58,7 @@ import etomica.util.Debug;
  * @see Boundary
  * @see BoxEventManager
  */
-public class Box {
+public class Box implements Statefull {
 
     /**
      * List of leaf atoms in box
@@ -207,7 +212,8 @@ public class Box {
                 IAtom movedAtom = leafList.get(leafIndex);
                 int movedLeafIndex = movedAtom.getLeafIndex();
                 movedAtom.setLeafIndex(leafIndex);
-                eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
+                if (movedAtom.getParentGroup() != molecule)
+                    eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
             }
         }
         leafList.maybeTrimToSize();
@@ -263,6 +269,18 @@ public class Box {
         return moleculeLists[speciesIndex].size();
     }
 
+    public int getMoleculeGlobalIndex(IMolecule molecule) {
+        int is = molecule.getType().getIndex();
+        int globalIndex = 0;
+        for (int i=0; i<moleculeLists.length; i++) {
+            if (i==is) {
+                return globalIndex + molecule.getIndex();
+            }
+            globalIndex += moleculeLists[i].size();
+        }
+        throw new RuntimeException("Unexpected species");
+    }
+
     /**
      * Returns the list of molecules of the given species.
      *
@@ -316,19 +334,7 @@ public class Box {
      * @param species the added species
      */
     public void addSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[]) Arrays.addObject(moleculeLists, new MoleculeArrayList());
-        allMoleculeList.setMoleculeLists(moleculeLists);
-    }
-
-    /**
-     * Notifies the Box that a Species has been removed.  This method should
-     * only be called by the simulation.  This triggers the removal of all
-     * molecules of the given species from this box.
-     *
-     * @param species the removed species
-     */
-    public void removeSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[]) Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
+        moleculeLists = Arrays.addObject(moleculeLists, new MoleculeArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
@@ -351,5 +357,56 @@ public class Box {
         if (numNewLeafAtoms > 1) {
             eventManager.globalAtomLeafIndexChanged(leafList.size() + numNewLeafAtoms);
         }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        // This method will save the # of molecules for each species and the
+        // positions+velocities of all atoms.  It will not save the ordering of leafList
+        for (MoleculeArrayList moleculeList : moleculeLists) {
+            fw.write(""+moleculeList.size()+"\n");
+            for (IMolecule iMolecule : moleculeList) {
+                iMolecule.saveState(fw);
+            }
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        // We need our leafList to be in the same order as before and our molecules
+        // to be in the same order as before.  We'll reconstruct our leafList from
+        // scratch.
+        AtomArrayList newList = new AtomArrayList(leafList.size());
+        newList.ensureCapacity(leafList.size());
+        for (MoleculeArrayList moleculeList : moleculeLists) {
+            int s = Integer.parseInt(br.readLine());
+            int currentNMolecules = moleculeList.size();
+            if (s > currentNMolecules) {
+                if (currentNMolecules == 0) {
+                    throw new RuntimeException("If I'm going to make new molecules, there needs to be at least one to start with.");
+                }
+                ISpecies species = moleculeList.get(0).getType();
+                moleculeLists[species.getIndex()].ensureCapacity(s);
+                int moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
+                leafList.ensureCapacity(leafList.size() + (s - currentNMolecules) * moleculeLeafAtoms);
+                newList.ensureCapacity(leafList.size());
+                for (int j = currentNMolecules; j < s; j++) {
+                    addMolecule(species.makeMolecule());
+                }
+            }
+            for (int j = currentNMolecules; j > s; j--) {
+                removeMolecule(moleculeList.get(j - 1));
+            }
+            for (IMolecule iMolecule : moleculeList) {
+                iMolecule.restoreState(br);
+                for (IAtom atom : iMolecule.getChildList()) {
+                    int leafIndex = atom.getLeafIndex();
+                    while (newList.size() <= leafIndex) newList.add(null);
+                    newList.set(leafIndex, atom);
+                }
+            }
+        }
+        leafList.clear();
+        leafList.addAll(newList);
     }
 }

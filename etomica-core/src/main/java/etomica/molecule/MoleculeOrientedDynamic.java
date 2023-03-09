@@ -31,7 +31,12 @@ public class MoleculeOrientedDynamic extends MoleculeOriented implements IMolecu
         return velocity;
     }
 
-    private static final long serialVersionUID = 1L;
+    public void copyCoordinatesFrom(IMolecule molecule) {
+        super.copyCoordinatesFrom(molecule);
+        velocity.E(((IMoleculeOrientedKinetic) molecule).getVelocity());
+        angularMomentum.E(((IMoleculeOrientedKinetic) molecule).getAngularVelocity());
+    }
+
     protected final Vector angularMomentum;
     protected final Vector velocity;
 }

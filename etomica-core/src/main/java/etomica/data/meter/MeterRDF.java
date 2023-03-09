@@ -5,10 +5,10 @@
 package etomica.data.meter;
 
 import etomica.action.IAction;
+import etomica.atom.AtomPairTest;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.iterator.ApiLeafAtoms;
-import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.DataSourceUniform.LimitType;
@@ -39,7 +39,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
     protected long[] gSum;
     protected DataFunction data;
     protected DataDoubleArray rData;
-    protected AtomsetIteratorBoxDependent iterator;
+    protected AtomPairTest test;
     protected double xMax;
     protected long callCount;
     protected AtomType type1, type2;
@@ -70,7 +70,6 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
         gSum = new long[rData.getLength()];
         dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
 
-	    iterator = new ApiLeafAtoms();
         dr = space.makeVector();
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -123,19 +122,23 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
         }
 
         double xMaxSquared = xMax*xMax;
-        iterator.setBox(box);
-        iterator.reset();
         Boundary boundary = box.getBoundary();
         // iterate over all pairs
-        for (IAtomList pair = iterator.next(); pair != null;
-             pair = iterator.next()) {
-            if (type1 != null && (pair.get(0).getType() != type1 || pair.get(1).getType() != type2)) continue;
-            dr.Ev1Mv2(pair.get(1).getPosition(),pair.get(0).getPosition());
-            boundary.nearestImage(dr);
-            double r2 = dr.squared();       //compute pair separation
-            if(r2 < xMaxSquared) {
-                int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
-                gSum[index]++;                        //add once for each atom
+        IAtomList atoms = box.getLeafList();
+        for (int i=0; i<atoms.size(); i++) {
+            IAtom atom1 = atoms.get(i);
+            if (type1 != null && atom1.getType() != type1) continue;
+            for (int j=i+1; j<atoms.size(); j++) {
+                IAtom atom2 = atoms.get(j);
+                if (type2 != null && atom2.getType() != type2) continue;
+                if (test != null && !test.test(atom1, atom2)) continue;
+                dr.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
+                boundary.nearestImage(dr);
+                double r2 = dr.squared();       //compute pair separation
+                if(r2 < xMaxSquared) {
+                    int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
+                    gSum[index]++;                        //add once for each atom
+                }
             }
         }
         callCount++;
@@ -162,16 +165,21 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
         }
         final double[] y = data.getData();
         long numAtomPairs = 0;
+        // for some reason, we need to ignore test here
         if (type1 == null) {
             long numAtoms = box.getLeafList().size();
             numAtomPairs = numAtoms*(numAtoms-1)/2;
         }
         else {
-            iterator.setBox(box);
-            iterator.reset();
-            for (IAtomList pair = iterator.next(); pair != null; pair = iterator.next()) {
-                if (pair.get(0).getType() != type1 || pair.get(1).getType() != type2) continue;
-                numAtomPairs++;
+            IAtomList atoms = box.getLeafList();
+            for (int i=0; i<atoms.size(); i++) {
+                IAtom atom1 = atoms.get(i);
+                if (type1 != null && atom1.getType() != type1) continue;
+                for (int j = i + 1; j < atoms.size(); j++) {
+                    IAtom atom2 = atoms.get(i);
+                    if (type2 != null && atom2.getType() != type2) continue;
+                    numAtomPairs++;
+                }
             }
         }
 	    double norm = numAtomPairs * callCount / box.getBoundary().volume();

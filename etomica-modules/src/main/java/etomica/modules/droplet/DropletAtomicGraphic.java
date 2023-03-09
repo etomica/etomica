@@ -8,16 +8,13 @@ import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.lattice.CellLattice;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.nbr.cell.Cell;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.units.Angstrom;
@@ -39,46 +36,47 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Droplet";
     private final static int REPAINT_INTERVAL = 1;
     protected DropletAtomic sim;
-    
+
     public DropletAtomicGraphic(final DropletAtomic simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
-    	this.sim = simulation;
-    	
-    	getController().getReinitButton().setPostAction(new IAction() {
-    	    public void actionPerformed() {
-    	        sim.makeDropShape();
-    	    }
-    	});
+        this.sim = simulation;
 
-        final AtomTestLiquidAtomic liquidFilter = new AtomTestLiquidAtomic(sim.potentialMaster, sim.box);
-    	sim.potentialMaster.reset();
-    	final ColorSchemeLiquidVapor colorScheme = new ColorSchemeLiquidVapor(liquidFilter);
-    	colorScheme.setDoResetFilter(true);
-    	getDisplayBox(sim.box).setColorScheme(colorScheme);
-    	((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.sigma);
+        getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                sim.makeDropShape();
+            }
+        });
+
+        sim.potentialMaster.getNeighborManager().setDoDownNeighbors(true);
+        final AtomTestLiquidAtomic liquidFilter = new AtomTestLiquidAtomic(sim.potentialMaster.getNeighborManager(), sim.box);
+        sim.potentialMaster.init();
+        final ColorSchemeLiquidVapor colorScheme = new ColorSchemeLiquidVapor(liquidFilter);
+        colorScheme.setDoResetFilter(true);
+        getDisplayBox(sim.box).setColorScheme(colorScheme);
+        ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.sigma);
         final DeviceButton cutawayButton = new DeviceButton(sim.getController());
         cutawayButton.setLabel("Liquid Atoms");
         cutawayButton.setAction(new IAction() {
             public void actionPerformed() {
                 if (filterIsActive) {
                     getDisplayBox(sim.box).setAtomTestDoDisplay(null);
-                }
-                else {
+                } else {
                     getDisplayBox(sim.box).setAtomTestDoDisplay(liquidFilter);
                 }
                 filterIsActive = !filterIsActive;
                 colorScheme.setDoResetFilter(!filterIsActive);
-                
+
                 cutawayButton.setLabel(filterIsActive ? "All Atoms" : "Liquid Atoms");
             }
+
             boolean filterIsActive = false;
         });
         cutawayButton.setPostAction(getPaintAction(sim.box));
-        ((JPanel)getController().graphic()).add(cutawayButton.graphic());
+        ((JPanel) getController().graphic()).add(cutawayButton.graphic());
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
         getPanel().controlPanel.add(displayTimer.graphic(), SimulationPanel.getVertGBC());
@@ -99,7 +97,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             }
 
             public String getLabel() {
-                return "Droplet Radius ("+Angstrom.UNIT.symbol()+")";
+                return "Droplet Radius (" + Angstrom.UNIT.symbol() + ")";
             }
 
             public double getValue() {
@@ -108,18 +106,17 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
             public void setValue(double newValue) {
                 sim.dropRadius = newValue;
-                sim.potentialMaster.getNeighborManager(sim.box);
                 sim.makeDropShape();
 
                 if (sim.integrator.getStepCount() > 0) {
-                    sim.potentialMaster.getNeighborManager(sim.box).reset();
+                    sim.potentialMaster.init();
                     sim.integrator.reset();
                 }
 
                 getDisplayBox(sim.box).repaint();
             }
         });
-      //  add(radiusSlider);
+        //  add(radiusSlider);
 
         DeviceSlider squeezeSlider = new DeviceSlider(sim.getController());
         squeezeSlider.setShowBorder(true);
@@ -129,16 +126,16 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         squeezeSlider.setMaximum(10);
         squeezeSlider.setNMajor(4);
         squeezeSlider.setShowValues(true);
-        squeezeSlider.setLabel("Squeezing force ("+Angstrom.UNIT.symbol()+"/ps^2)");
+        squeezeSlider.setLabel("Squeezing force (" + Angstrom.UNIT.symbol() + "/ps^2)");
         add(squeezeSlider);
-        float dropDiameter = (float)(0.5*sim.dropRadius*sim.getBox(0).getBoundary().getBoxSize().getX(0));
+        float dropDiameter = (float) (0.5 * sim.dropRadius * sim.getBox(0).getBoundary().getBoxSize().getX(0));
         final EllipseDisplayAction ellipseDisplayAction = new EllipseDisplayAction(this, dropDiameter);
         squeezeSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 ellipseDisplayAction.displayEllipse(sim.p1Smash.g);
             }
         });
-        
+
 //        nSlider = new DeviceNSelector(sim.getController());
 //        nSlider.setSpecies(sim.species);
 //        nSlider.setBox(sim.box);
@@ -165,7 +162,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
 //        JPanel systemPanel = new JPanel(new GridBagLayout());
 //        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-        
+
         //************* Lay out components ****************//
 
 //        JTabbedPane tabbedPane = new JTabbedPane();
@@ -180,16 +177,16 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        getPanel().controlPanel.add(tabbedPane);
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-        
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         DataProcessor foo = new DataProcessor() {
-        
+
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
                 return inputDataInfo;
             }
-        
+
             protected IData processData(IData inputData) {
-                ((DataDouble)inputData).x /= sim.box.getMoleculeList().size() * Kelvin.UNIT.toSim(118);
+                ((DataDouble) inputData).x /= sim.box.getMoleculeList().size() * Kelvin.UNIT.toSim(118);
                 return inputData;
             }
         };
@@ -220,7 +217,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        AccumulatorHistory keHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
 //        keFork.addDataSink(keHistory);
 //        keHistory.setTimeDataSource(timeCounter);
-        
+
 //        MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
 //        DataFork eFork = new DataFork();
 //        DataPump ePump = new DataPump(meterE, eFork);
@@ -230,8 +227,8 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        AccumulatorHistory eHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
 //        eFork.addDataSink(eHistory);
 //        eHistory.setTimeDataSource(timeCounter);
-        
-        DisplayPlot ePlot = new DisplayPlot();
+
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        eHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -239,7 +236,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         ePlot.setDoLegend(false);
         ePlot.setLabel("Energy");
         add(ePlot);
-        
+
         MeterDeformation meterDeformation = new MeterDeformation(space);
         meterDeformation.setBox(sim.box);
         meterDeformation.setFilter(liquidFilter);
@@ -249,33 +246,33 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         IntegratorListenerAction dPumpListener = new IntegratorListenerAction(dPump);
         sim.integrator.getEventManager().addListener(dPumpListener);
         dPumpListener.setInterval(10);
-        
+
         DataFork dFork = new DataFork();
         dSplitter.setDataSink(1, dFork);
         AccumulatorHistory dHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         dFork.addDataSink(dHistory);
         dHistory.setTimeDataSource(timeCounter);
-        
-        DisplayPlot deformationPlot = new DisplayPlot();
+
+        DisplayPlotXChart deformationPlot = new DisplayPlotXChart();
         dHistory.setDataSink(deformationPlot.getDataSet().makeDataSink());
         deformationPlot.setLabel("Deformation");
         deformationPlot.getPlot().setYLabel("Deformation");
         deformationPlot.setDoLegend(false);
         add(deformationPlot);
-        
+
         DataFork rFork = new DataFork();
         dSplitter.setDataSink(0, rFork);
         AccumulatorHistory rHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         rFork.addDataSink(rHistory);
         rHistory.setTimeDataSource(timeCounter);
-        
-        DisplayPlot radiusPlot = new DisplayPlot();
+
+        DisplayPlotXChart radiusPlot = new DisplayPlotXChart();
         rHistory.setDataSink(radiusPlot.getDataSet().makeDataSink());
         radiusPlot.setLabel("Radius");
-        radiusPlot.getPlot().setYLabel("Radius ("+Angstrom.UNIT.symbol()+")");
+        radiusPlot.getPlot().setYLabel("Radius (" + Angstrom.UNIT.symbol() + ")");
         radiusPlot.setDoLegend(false);
         add(radiusPlot);
-        
+
 //        
 //        DataSourceScalar liquidDensity = new DataSourceScalar("Liquid Density", new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION)) {
 //            private static final long serialVersionUID = 1L;
@@ -311,7 +308,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        vdFork.addDataSink(vdHistory);
 //        vdHistory.setTimeDataSource(timeCounter);
 //        
-//        DisplayPlot dPlot = new DisplayPlot();
+//        DisplayPlotXChart dPlot = new DisplayPlotXChart();
 //        ldHistory.setDataSink(dPlot.getDataSet().makeDataSink());
 //        vdHistory.setDataSink(dPlot.getDataSet().makeDataSink());
 //        dPlot.setLabel("Density");
@@ -320,62 +317,25 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
     public static void main(String[] args) {
         Space sp = null;
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     sp = Space3D.getInstance();
+                } else {
+                    sp = Space2D.getInstance();
                 }
-                else {
-                	sp = Space2D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-        else {
-        	sp = Space3D.getInstance();
+            } catch (NumberFormatException e) {
+            }
+        } else {
+            sp = Space3D.getInstance();
         }
 
         DropletAtomic sim = new DropletAtomic();
         DropletAtomicGraphic swGraphic = new DropletAtomicGraphic(sim, sp);
         swGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
-		SimulationGraphic.makeAndDisplayFrame
-		        (swGraphic.getPanel(), APP_NAME);
-    }
-    
-    public final class DataSourceVaporDensity extends DataSourceScalar {
-        private static final long serialVersionUID = 1L;
-        protected final Vector v;
-
-        public DataSourceVaporDensity(String label, Dimension dimension) {
-            super(label, dimension);
-            v = space.makeVector();
-            v.E(sim.box.getBoundary().getBoxSize());
-            v.TE(0.499);
-        }
-
-        public double getDataAsScalar() {
-            CellLattice lattice = sim.potentialMaster.getNbrCellManager(sim.box).getLattice();
-            Cell cell = (Cell)lattice.site(v);
-            
-            double[] size = lattice.getCellSize();
-            return cell.occupants().size() / (size[0]*size[1]*size[2]);
-        }
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space3D.getInstance();
-	        DropletAtomic sim = new DropletAtomic();
-            DropletAtomicGraphic ljmdGraphic = new DropletAtomicGraphic(sim, sp);
-            ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
-
-		    getContentPane().add(ljmdGraphic.getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
+        SimulationGraphic.makeAndDisplayFrame
+                (swGraphic.getPanel(), APP_NAME);
     }
 }
 

@@ -1,0 +1,44 @@
+This voro package is a translation of the voro++ library, written in C++.  This
+implementation stays as close to the C++ as possible, with the primary
+differences being due to C++ constructs that have no Java equivalent.  No
+attempt to update documentation or comments for Java.
+
+The Java code is distributed under the BSD license.  See the LICENSE file.
+
+The voro++ library was developed by Chris H. Rycroft and is currently hosted at
+https://github.com/chr1shr/voro
+
+The following are the primary differences between the C++ and Java libraries:
+
+* Java generics work differently than C++ templates, so a ContainerBaseBase
+class exists and includes methods that are common to both Container and
+ContainerPeriodic.  C++ methods that take the instead take ContainerBaseBase
+in Java.
+
+* Some C++ methods take |this| as a templated object, forcing C++ to compile
+different methods for the various implementations.  The Java methods do not
+take |this|.
+
+* Java does not have multiple inheritence, so the container classes
+cannot inherit from both container_base and (radius_mono or radius_poly). The
+ContainerBaseBase holds a Radius instance and also implement the Radius
+interface.  Also, the Java library does not include a distinct unitcell class;
+ContainerPeriodic class simply includes the fields and methods.  And the
+ContainerBase class wraps the WallList class rather than inheriting from it.
+
+* Java does not have pointers, so simple pointers (into arrays) from C++ are
+represented as indices in JAva.  More complex arrays like ed in
+voronoicell_base need to be implemented with custom classes in Java (Int1Darray
+and Int2Darray).
+
+* std<vector>s of ints and doubles are handled by IntArrayList and DoubleArrayList.
+std<queue> of ints is handled by an IntQueue class.
+
+* Java does not need destructors does not need to keep track of the size of
+arrays.
+
+* Java has no out parameters, so these are mostly implemented as 1-element arrays,
+except that VoronoiCellBase::centroid simply returns a 3-element array.
+
+* import is a reserved word in Java, so the import methods from C++ are named
+import_.

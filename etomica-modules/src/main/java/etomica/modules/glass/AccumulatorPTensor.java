@@ -3,14 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
-public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceIndependent {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
+public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceIndependent, Statefull {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
@@ -19,18 +24,15 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected final DataTag xTag, tag, errTag;
     protected double[][] blockSumX;
     protected long[] nBlockSamplesX;
-    protected final IntegratorMD integrator;
     protected long nSample = 0;
     protected boolean enabled;
-    protected int interval;
     protected double[] sumP2, sumP4;
     protected int nP, dim;
     protected double volume, temperature, dt;
 
-    public AccumulatorPTensor(IntegratorMD integrator, double dt) {
-        this.integrator = integrator;
+    public AccumulatorPTensor(Box box, double dt) {
         this.dt = dt;
-        this.nP = integrator.getBox().getSpace().D() == 2 ? 1 : 3;
+        this.nP = box.getSpace().D() == 2 ? 1 : 3;
         tag = new DataTag();
         errTag = new DataTag();
         xTag = new DataTag();
@@ -38,9 +40,9 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         blockSumX = new double[60][nP];
         sumP2 = new double[60];
         sumP4 = new double[60];
-        volume = integrator.getBox().getBoundary().volume();
+        volume = box.getBoundary().volume();
         temperature = 1;
-        dim = integrator.getBox().getSpace().D();
+        dim = box.getSpace().D();
         reset();
     }
 
@@ -165,6 +167,41 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
 
     public TemperatureSink makeTemperatureSink() {
         return new TemperatureSink();
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(getClass().getName()+"\n");
+        fw.write(""+nSample+"\n");
+        if (nSample == 0) {
+            return;
+        }
+        for (int i=0; i<nBlockSamplesX.length && nBlockSamplesX[i] != 0; i++) {
+            fw.write(nBlockSamplesX[i]+" "+sumP2[i]+" "+sumP4[i]);
+            for (int j=0; j<nP; j++) {
+                fw.write(" "+blockSumX[i][j]);
+            }
+            fw.write("\n");
+        }
+        fw.write("\n");
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        if (!br.readLine().equals(getClass().getName())) throw new RuntimeException("oops");
+        nSample = Long.parseLong(br.readLine());
+        if (nSample == 0) return;
+        for (int i=0; i<nBlockSamplesX.length; i++) {
+            String s = br.readLine();
+            if (s.length() < 2) return;
+            String[] bits = s.split(" ");
+            nBlockSamplesX[i] = Long.parseLong(bits[0]);
+            sumP2[i] = Double.parseDouble(bits[1]);
+            sumP4[i] = Double.parseDouble(bits[2]);
+            for (int j=0; j<nP; j++) {
+                blockSumX[i][j] = Double.parseDouble(bits[3+j]);
+            }
+        }
     }
 
     public class TemperatureSink implements IDataSink {

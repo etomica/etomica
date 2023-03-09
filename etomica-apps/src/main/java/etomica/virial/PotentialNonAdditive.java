@@ -4,15 +4,10 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
-import etomica.chem.elements.Argon;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.IPotentialMolecular;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.virial.cluster.ClusterSumMultibody;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
@@ -33,19 +28,8 @@ public class PotentialNonAdditive implements IPotentialMolecular {
     
     public PotentialNonAdditive(IPotentialMolecular[] potentials) {
         this.potentials = potentials;
-        int nb = 0;
-        for (int i=0; i<potentials.length; i++) {
-            if (potentials[i].nBody() > nb) nb = potentials[i].nBody();
-        }
-        nBody = nb;
-        p = new IPotentialMolecular[nBody+1];
-        for (int i=0; i<potentials.length; i++) {
-            nb = potentials[i].nBody();
-            if (p[nb] != null) {
-                throw new RuntimeException("we can handle zero or one "+nb+"-body potentials, but not more");
-            }
-            p[nb] = potentials[i];
-        }
+        nBody = potentials.length - 1;
+        p = potentials;
         una = new double[nBody+1][0];
         for (int i=2; i<una.length; i++) {
             int[] ids = new int[i];
@@ -83,20 +67,6 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         moleculeList = new MoleculeArrayList(nBody);
     }
 
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        for (int i=0; i<potentials.length; i++) {
-            potentials[i].setBox(box);
-        }
-    }
-
-    public int nBody() {
-        return nBody;
-    }
-
     public double energy(IMoleculeList molecules) {
         
         for (int i=1; i<=nBody; i++) {
@@ -119,23 +89,25 @@ public class PotentialNonAdditive implements IPotentialMolecular {
             }
             for(int j=i+1; j<nPoints; j++) {
                 moleculeList.add(molecules.get(j));
+                double u12 = una[1][i] + una[1][j];
                 if (size==2) {
-                    una[2][VirialDiagrams.pairId(i,j,nBody)] = p[2].energy(moleculeList);
+                    una[2][VirialDiagrams.pairId(i,j,nBody)] = p[2].energy(moleculeList) - u12;
                 }
                 for (int k=j+1; k<nPoints; k++) {
                     moleculeList.add(molecules.get(k));
+                    double u13 = u12 + una[1][k];
                     double u23 = una[2][VirialDiagrams.pairId(i,j,nBody)] + una[2][VirialDiagrams.pairId(i,k,nBody)] + una[2][VirialDiagrams.pairId(j,k,nBody)];
                     double u33 = 0;
                     if (size==3) {
                         if (u23 < Double.POSITIVE_INFINITY) {
-                            una[3][groupID] = p[3].energy(moleculeList) - u23;
+                            una[3][groupID] = p[3].energy(moleculeList) - u23 - u13;
                         }
                         else {
                             una[3][groupID] = 0;
                         }
                         u33 = una[3][groupID];
                         if (debugme) {
-                            System.out.println("3 "+groupID+" "+ClusterSumMultibody.m2s(moleculeList)+" "+una[3][groupID]);
+                            System.out.println("3 "+groupID+" "+ ClusterSumMultibody.m2s(moleculeList)+" "+una[3][groupID]);
                         }
                         groupID++;
                         moleculeList.remove(2);
@@ -143,12 +115,13 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                     }
                     for (int l=k+1; l<nPoints; l++) {
                         moleculeList.add(molecules.get(l));
+                        double u14 = u13 + una[1][l];
                         double u24 = u23 + una[2][VirialDiagrams.pairId(i,l,nBody)] + una[2][VirialDiagrams.pairId(j,l,nBody)] + una[2][VirialDiagrams.pairId(k,l,nBody)];
                         double u34 = u33 + una[3][VirialDiagrams.tripletId(i,j,l,nBody)] + una[3][VirialDiagrams.tripletId(i,k,l,nBody)] + una[3][VirialDiagrams.tripletId(j,k,l,nBody)];
                         double u44 = 0;
                         if (size==4) {
                             if (u24 < Double.POSITIVE_INFINITY) {
-                                una[4][groupID] = p[4].energy(moleculeList) - u34 - u24;
+                                una[4][groupID] = p[4].energy(moleculeList) - u34 - u24 - u14;
                             }
                             else {
                                 una[4][groupID] = 0;
@@ -164,6 +137,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                         
                         for (int m=l+1; m<nPoints; m++) {
                             moleculeList.add(molecules.get(m));
+                            double u15 = u14 + una[1][m];
                             double u25 = u24 + una[2][VirialDiagrams.pairId(i,m,nBody)] + una[2][VirialDiagrams.pairId(j,m,nBody)] + una[2][VirialDiagrams.pairId(k,m,nBody)]
                                     + una[2][VirialDiagrams.pairId(l,m,nBody)];
                             double u35 = u34 + una[3][VirialDiagrams.tripletId(i,j,m,nBody)] + una[3][VirialDiagrams.tripletId(i,k,m,nBody)] + una[3][VirialDiagrams.tripletId(i,l,m,nBody)]
@@ -173,7 +147,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                             double u55 = 0;
                             if (size==5) {
                                 if (u25 < Double.POSITIVE_INFINITY) {
-                                    una[5][groupID] = p[5].energy(moleculeList) - u45 - u35 - u25;
+                                    una[5][groupID] = p[5].energy(moleculeList) - u45 - u35 - u25 - u15;
                                 }
                                 else {
                                     una[5][groupID] = 0;
@@ -189,6 +163,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
 
                             for (int mm=m+1; mm<nPoints; mm++) {
                                 moleculeList.add(molecules.get(mm));
+                                double u16 = u15 + una[1][mm];
                                 double u26 = u25 + una[2][VirialDiagrams.pairId(i,mm,nBody)] + una[2][VirialDiagrams.pairId(j,mm,nBody)] + una[2][VirialDiagrams.pairId(k,mm,nBody)]
                                         + una[2][VirialDiagrams.pairId(l,mm,nBody)] + una[2][VirialDiagrams.pairId(m,mm,nBody)];
                                 double u36 = u35 + una[3][VirialDiagrams.tripletId(i,j,mm,nBody)] + una[3][VirialDiagrams.tripletId(i,k,mm,nBody)] + una[3][VirialDiagrams.tripletId(i,l,mm,nBody)]
@@ -203,7 +178,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                                                  + una[5][VirialDiagrams.quintId(j,k,l,m,mm,nBody)];
                                 if (size==6) {
                                     if (u26 < Double.POSITIVE_INFINITY) {
-                                        una[6][groupID] = p[6].energy(moleculeList) - u56 - u46 - u36 - u26;
+                                        una[6][groupID] = p[6].energy(moleculeList) - u56 - u46 - u36 - u26 - u16;
                                     }
                                     else {
                                         una[6][groupID] = 0;
@@ -228,74 +203,17 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         }
     }
 
-    public PotentialNonAdditiveNB makeNB(int nBodyPretend) {
-        return new PotentialNonAdditiveNB(nBodyPretend);
+    public PotentialNonAdditiveNB makeNB() {
+        return new PotentialNonAdditiveNB();
     }
 
     public class PotentialNonAdditiveNB implements IPotentialMolecular {
-        protected int nBodyPretend;
-        public PotentialNonAdditiveNB(int nBody) {
-            nBodyPretend = nBody;
-        }
-        public int nBody() {
-            return nBodyPretend;
-        }
 
-        public double getRange() {
-            return PotentialNonAdditive.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            PotentialNonAdditive.this.setBox(box);
+        public PotentialNonAdditiveNB() {
         }
 
         public double energy(IMoleculeList molecules) {
             return PotentialNonAdditive.this.energy(molecules);
-        }
-    }
-
-    public static void main(String[] args) {
-
-        Space space = Space3D.getInstance();
-        PotentialEmulCached p3 = new PotentialEmulCached(space, "3body_template.in", 3);
-        PotentialEmulCached p2 = new PotentialEmulCached(space, "2body_template.in", 3);
-        Simulation sim = new Simulation(space);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(space, Argon.INSTANCE);
-        sim.addSpecies(species);
-        BoxCluster box = new BoxCluster(null, space);
-        sim.addBox(box);
-        box.setNMolecules(species, 3);
-        p2.setBox(box);
-        p3.setBox(box);
-        box.getLeafList().get(0).getPosition().setX(0, -4);
-        box.getLeafList().get(1).getPosition().setX(0, -4);
-        box.getLeafList().get(0).getPosition().setX(1, -3);
-        box.getLeafList().get(1).getPosition().setX(1, 3);
-        MoleculeArrayList molecules02 = new MoleculeArrayList(2);
-        molecules02.add(box.getMoleculeList().get(0));
-        molecules02.add(box.getMoleculeList().get(1));
-        double u01 = p2.energy(molecules02);
-        molecules02.clear();
-        molecules02.add(box.getMoleculeList().get(0));
-        molecules02.add(box.getMoleculeList().get(2));
-        MoleculeArrayList molecules12 = new MoleculeArrayList(2);
-        molecules12.add(box.getMoleculeList().get(1));
-        molecules12.add(box.getMoleculeList().get(2));
-        
-        PotentialNonAdditive p3NA = new PotentialNonAdditive(new IPotentialMolecular[]{p2, p3});
-        p3NA.setBox(box);
-        
-        for (int i=0; i<100; i++) {
-            double r = -3 + i*0.1;
-            box.getLeafList().get(2).getPosition().setX(0, r);
-            box.trialNotify();
-            box.acceptNotify();
-            p3NA.setBox(box);
-            double uEmul = p3.energy(box.getMoleculeList(species));
-            double u02 = p2.energy(molecules02);
-            double u12 = p2.energy(molecules12);
-            System.out.printf("%5.2f ", r);
-            System.out.println(uEmul+" "+(uEmul - (u01+u02+u12))+" "+p3NA.energy(box.getMoleculeList(species)));
         }
     }
 }

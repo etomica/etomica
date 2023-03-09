@@ -5,11 +5,10 @@
       package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
 import etomica.species.ISpecies;
 
@@ -41,7 +40,7 @@ public class DeviceCellNumXYSlider extends Device {
     
 	
 	public DeviceCellNumXYSlider(Controller cont) {
-		
+		super(cont);
         //using x-axis or y-axis radio button
         ButtonGroup numCellGroup = new ButtonGroup();
         buttonXComp = new JRadioButton("x-Cell");
@@ -70,8 +69,6 @@ public class DeviceCellNumXYSlider extends Device {
         yCellNumSlider.setValue(0);
         yCellNumSlider.getSlider().setEnabled(false);
         yCellNumSlider.getTextField().setEnabled(false);
-        
-        setController(cont);
 
         // Tie the "x-axis"/"y-axis" setting to the selectable status of
         // numCells slider
@@ -232,8 +229,8 @@ public class DeviceCellNumXYSlider extends Device {
     /**
      * @return The panel that holds all graphical objects for the DeviceCellNumXYSlider.
      */
-    public Component graphic(Object obj) {
-    	return numCellPanel;
+    public Component graphic() {
+        return numCellPanel;
     }
 
 
@@ -355,28 +352,6 @@ public class DeviceCellNumXYSlider extends Device {
         }
     }
 
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
-
-       
-        etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D();
-        
-        DeviceCellNumXYSlider device = new DeviceCellNumXYSlider(new Controller());
-        device.setMinimum(1);
-        device.setMaximum(50);
-        //device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
 
 
 

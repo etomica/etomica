@@ -4,20 +4,19 @@
 
 package etomica.modules.vle;
 
-import etomica.atom.iterator.ApiIntergroup;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LJQ;
-import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
+import etomica.virial.MayerGeneralAtomic;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoft;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -28,31 +27,29 @@ public class VirialLJQB2 {
     public static double calcB2(double temperature, double moment) {
         if (temperature <= 0) return Double.NaN;
         int nPoints = 2;
-        long steps = 1000000l;
+        long steps = 1000000L;
         double sigmaHSRef = 1.5;
         moment *= moment;
         double HSB2 = Standard.B2HS(sigmaHSRef);
 		
         Space space = Space3D.getInstance();
         
-        PotentialGroup pTargetGroup = new PotentialGroup(2);
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         P2LJQ pTarget = new P2LJQ(space);
         pTarget.setEpsilon(1.0);
         pTarget.setSigma(1.0);
         pTarget.setQuadrupolarMomentSquare(moment);
-        pTargetGroup.addPotential(pTarget, new ApiIntergroup());
-        MayerGeneral fTarget = new MayerGeneral(pTargetGroup);
-        MayerEGeneral eTarget = new MayerEGeneral(pTargetGroup);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
+        MayerGeneralAtomic fTarget = new MayerGeneralAtomic(space, pTarget);
+        ClusterWheatleySoft targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
         targetCluster.setTemperature(temperature);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
+        ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
         steps /= 1000;
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature,refCluster,targetCluster);
+
+        ISpecies species = SpeciesSpheresRotating.create(space, new ElementSimple("O"));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature,refCluster,targetCluster);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -61,10 +58,9 @@ public class VirialLJQB2 {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(ai);
 
         double ratio = sim.dvo.getAverageAndError()[0];
         return ratio*HSB2;

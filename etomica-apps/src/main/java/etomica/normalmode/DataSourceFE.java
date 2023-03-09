@@ -28,7 +28,7 @@ public class DataSourceFE implements IDataSource, DataSourceIndependent {
     protected DataInfoDoubleArray xDataInfo;
     protected final DataTag tag, xTag;
     protected boolean doSubtractComb, doAvgDef;
-    
+
     public DataSourceFE(MCMoveOverlapListener mcMoveOverlapMeter) {
         tag = new DataTag();
         xTag = new DataTag();

@@ -14,15 +14,17 @@ import etomica.box.*;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.molecule.IMolecule;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Time;
-import etomica.util.Debug;
 import etomica.util.random.IRandom;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Superclass of all molecular-dynamics integrators.
@@ -41,7 +43,8 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     protected MeterTemperature meterTemperature;
     protected double currentTime;
     protected boolean thermostatting = false;
-    protected boolean thermostatNoDrift = false, alwaysScaleMomenta = false;
+    protected boolean thermostatNoDrift = false;
+    protected boolean alwaysScaleMomenta = false;
     protected double oldEnergy = Double.NaN, oldPotentialEnergy = Double.NaN;
     protected long nRejected = 0, nAccepted = 0;
     protected AtomLeafAgentManager<Vector> oldPositionAgentManager = null;
@@ -51,13 +54,13 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     /**
      * Constructs integrator with a default for non-isothermal sampling.
      *
-     * @param potentialMaster PotentialMaster instance used to compute the energy and forces
+     * @param potentialCompute PotentialMaster instance used to compute the energy and forces
      * @param random          random number generator used for initial velocities and some thermostats
      * @param timeStep        time step for integration
      * @param temperature     used by thermostat and/or to initialize velocities
      */
-    public IntegratorMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
-        super(potentialMaster, temperature, box);
+    public IntegratorMD(PotentialCompute potentialCompute, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialCompute, temperature, box);
         this.random = random;
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
@@ -104,20 +107,15 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     }
 
     public void reset() {
-        ConfigurationOverlapException overlapException = null;
-        try {
-            super.reset();
-        } catch (ConfigurationOverlapException e) {
-            overlapException = e;
-        }
+        super.reset();
         currentKineticEnergy = meterKE.getDataAsScalar();
-        if (overlapException != null) {
-            throw overlapException;
-        }
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
             oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
-        oldEnergy = Double.NaN;
+        if (thermostat == ThermostatType.HYBRID_MC && isothermal) {
+            oldPotentialEnergy = currentPotentialEnergy;
+            oldEnergy = currentKineticEnergy + oldPotentialEnergy;
+        }
     }
 
     protected void doStepInternal() {
@@ -137,6 +135,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      */
     public double getKineticEnergy() {
         return currentKineticEnergy;
+    }
+
+    public DataSourceScalar getMeterKineticEnergy() {
+        return meterKE;
     }
 
     public void setIsothermal(boolean b) {
@@ -186,7 +188,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         }
         this.integratorMC = integratorMC;
         integratorMC.setTemperature(temperature);
-        integratorMC.reset();
         this.mcSteps = mcSteps;
     }
 
@@ -209,10 +210,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     }
 
     /**
-     *
      * @return flag specifying whether net momentum should be removed after application of thermostat
      */
-    public boolean isThermostatNoDrift() {return thermostatNoDrift;}
+    public boolean isThermostatNoDrift() {
+        return thermostatNoDrift;
+    }
 
     /**
      * Configure thermostat to always scale randomized momenta to match the set
@@ -231,7 +233,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     }
 
     /**
-     *
      * @return the type of thermostat used to implement isothermal sampling.
      */
     public ThermostatType getThermostat() {
@@ -264,7 +265,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     }
 
     /**
-     *
      * @return the value of the thermostat interval
      */
     public int getThermostatInterval() {
@@ -305,10 +305,12 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
             if (thermostat == ThermostatType.HYBRID_MC) {
                 if (!Double.isNaN(oldEnergy)) {
                     // decide whether or not to go back to the old configuration
-                    double newPotentialEnergy = meterPE.getDataAsScalar();
-                    double newKineticEnergy = meterKE.getDataAsScalar();
+                    double newPotentialEnergy = currentPotentialEnergy;
+                    double newKineticEnergy = currentKineticEnergy;
 //                    System.out.println(newPotentialEnergy+" "+newKineticEnergy+" "+oldEnergy);
                     double energyDiff = newPotentialEnergy + newKineticEnergy - oldEnergy;
+//                    System.out.println("energy "+oldEnergy+" => "+(newPotentialEnergy+newKineticEnergy));
+//                    System.out.println("PE "+oldPotentialEnergy+" => "+newPotentialEnergy);
 //                    System.out.println(energyDiff+" "+Math.exp(-energyDiff/temperature));
                     if (energyDiff > 0 && Math.exp(-energyDiff / temperature) < random.nextDouble()) {
                         // energy increased and we are rejecting the trajectory
@@ -342,11 +344,16 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                         IAtom a = leafAtoms.get(i);
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
-                    oldPotentialEnergy = meterPE.getDataAsScalar();
-                    oldEnergy = oldPotentialEnergy;
+                    // we're still inside reset, which will compute oldEnergy
+                    oldEnergy = 0;
                 }
 
                 if (initialized && integratorMC != null) {
+                    for (IAtom atom : box.getLeafList()) {
+                        Vector dr = box.getBoundary().centralImage(atom.getPosition());
+                        atom.getPosition().PE(dr);
+                    }
+                    integratorMC.reset();
                     for (int i = 0; i < mcSteps; i++) {
                         integratorMC.doStep();
                     }
@@ -355,11 +362,12 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                         IAtom a = leafAtoms.get(i);
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
+                    reset();
                     randomizeMomenta();
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    reset();
+                    currentKineticEnergy = meterKE.getDataAsScalar();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
                 } else if (rejected) {
@@ -391,7 +399,9 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
             }
         }
         if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
-            shiftMomenta();
+            if (thermostatNoDrift) {
+                shiftMomenta();
+            }
             scaleMomenta();
         } else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
             if (initialized) {
@@ -416,7 +426,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     }
 
     /**
-     *
      * @return fraction of Monte Carlo trials that were accepted when using HYBRID_MC thermostat,
      * since construction, or since last call to resetHybridAcceptance.
      */
@@ -507,7 +516,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * reset after calling this method).
      *
      * @param atom whose momenta is be randomized
-     *
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         atomActionRandomizeVelocity.setTemperature(temperature);
@@ -519,46 +527,8 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * the whole system is zero.
      */
     protected void shiftMomenta() {
-        momentum.E(0);
-        IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.size();
-        if (nLeaf == 0) return;
-        if (nLeaf > 1) {
-            double totalMass = 0;
-            for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-                IAtom a = leafList.get(iLeaf);
-                double mass = a.getType().getMass();
-                if (mass != Double.POSITIVE_INFINITY) {
-                    momentum.PEa1Tv1(mass, ((IAtomKinetic) a).getVelocity());
-                    totalMass += mass;
-                }
-            }
-            if (totalMass == 0) return;
-            momentum.TE(1.0 / totalMass);
-            //momentum is now net velocity
-            //set net momentum to 0
-            for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-                double rm = a.getType().rm();
-                if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
-                    a.getVelocity().ME(momentum);
-                }
-            }
-            if (Debug.ON) {
-                momentum.E(0);
-                for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-                    double mass = a.getType().getMass();
-                    if (mass != Double.POSITIVE_INFINITY) {
-                        momentum.PEa1Tv1(mass, a.getVelocity());
-                    }
-                }
-                momentum.TE(1.0 / totalMass);
-                if (Math.sqrt(momentum.squared()) > 1.e-10) {
-                    System.out.println("Net momentum per leaf atom is " + momentum + " but I expected it to be 0");
-                }
-            }
-            momentum.E(0);
+        if (box.getLeafList().size() > 1) {
+            ActionZeroMomentum.zeroMomenta(box);
         }
     }
 
@@ -691,6 +661,21 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
 
         public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
         }
+    }
+
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        fw.write(""+currentTime+" "+currentKineticEnergy+" "+thermostatCount+" "+nRejected+" "+nAccepted+"\n");
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        String[] bits = br.readLine().split(" ");
+        currentTime = Double.parseDouble(bits[0]);
+        currentKineticEnergy = Double.parseDouble(bits[1]);
+        thermostatCount = Integer.parseInt(bits[2]);
+        nRejected = Long.parseLong(bits[3]);
+        nAccepted = Long.parseLong(bits[4]);
     }
 }
 

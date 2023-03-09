@@ -4,78 +4,68 @@
 
 package etomica.data;
 
-import etomica.action.MoleculeActionTranslateTo;
-import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.atom.IAtom;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
-import etomica.space.Space;
-import etomica.space.Vector;
-import etomica.species.ISpecies;
+import etomica.potential.P2HardGeneric;
 import etomica.units.dimensions.Null;
 
 /**
  * Calculates the Boltzmann factor at a position within a box a molecule of a
  * particular species would have if it existed at that point.  Only works for
  * monatomic molecules (no rotation is attempted).
- * 
+ *
  * @author Andrew Schultz
  */
-public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned {
+public class DataSourcePositionedBoltzmannFactor implements DataSourceMolecular {
 
-    public DataSourcePositionedBoltzmannFactor(Space space) {
+    protected final DataInfoDouble dataInfo;
+    protected final DataDouble data;
+    protected IntegratorBox integrator;
+    protected final DataTag tag;
+    protected final P2HardGeneric p2Ghost, p2GhostHead, p2GhostTail;
+    protected double headEpsilon;
+
+    public DataSourcePositionedBoltzmannFactor(IntegratorBox integrator, P2HardGeneric p2Ghost,
+                                               P2HardGeneric p2GhostHead, P2HardGeneric p2GhostTail, double headEpsilon) {
         data = new DataDouble();
         dataInfo = new DataInfoDouble("chemical potential", Null.DIMENSION);
         tag = new DataTag();
-        atomTranslator = new MoleculeActionTranslateTo(space);
+        this.integrator = integrator;
+        this.p2Ghost = p2Ghost;
+        this.p2GhostHead = p2GhostHead;
+        this.p2GhostTail = p2GhostTail;
+        setHeadEpsilon(headEpsilon);
     }
 
-    /**
-     * Sets the integrator.  The integrator is used to obtain the
-     * PotentialMaster, Box and temperature.
-     */
-    public void setIntegrator(IntegratorBox newIntegrator) {
-        integrator = newIntegrator;
-        energyMeter = new MeterPotentialEnergy(integrator.getPotentialMaster(), integrator.getBox());
+    public void setHeadEpsilon(double newHeadEpsilon) {
+        headEpsilon = newHeadEpsilon;
     }
 
-    /**
-     * Sets the ISpecies for which the chemical potential is to be measured.
-     */
-    public void setSpecies(ISpecies newSpecies) {
-        testMolecule = newSpecies.makeMolecule();
-    }
+    public IData getData(IMolecule molecule) {
+        p2Ghost.setEnergyForState(0, Double.POSITIVE_INFINITY);
+        p2Ghost.setEnergyForState(1, -1.0);
+        p2GhostHead.setEnergyForState(0, Double.POSITIVE_INFINITY);
+        p2GhostHead.setEnergyForState(1, -1.0);
+        p2GhostTail.setEnergyForState(0, Double.POSITIVE_INFINITY);
 
-    /**
-     * Returns the ISpecies for which the chemical potential is to be measured.
-     */
-    public ISpecies getSpecies() {
-        return testMolecule.getType();
-    }
-
-    public IData getData(Vector a) {
-        atomTranslator.setDestination(a);
-        atomTranslator.actionPerformed(testMolecule);
-        Box box = integrator.getBox();
-        box.addMolecule(testMolecule);
-        energyMeter.setTarget(testMolecule);
+        IAtom atom = molecule.getChildList().get(0);
+        double u = integrator.getPotentialCompute().computeOne(atom);
         double temp = integrator.getTemperature();
-        data.x = Math.exp(-energyMeter.getDataAsScalar()/temp);
+        data.x = Math.exp(-u / temp);
 
-        box.removeMolecule(testMolecule);
+        p2Ghost.setEnergyForState(0, 0);
+        p2Ghost.setEnergyForState(1, 0);
+        p2GhostHead.setEnergyForState(0, 0);
+        p2GhostHead.setEnergyForState(1, 0);
+        p2GhostTail.setEnergyForState(0, 0);
 
         return data;
     }
 
-    public void setBox(Box newBox) {
-        if (integrator != null && newBox != integrator.getBox()) {
-            throw new RuntimeException("You should really figure out which Box is for me!");
-        }
-    }
-
-    public IDataInfo getPositionDataInfo() {
+    public IDataInfo getMoleculeDataInfo() {
         return dataInfo;
     }
 
@@ -83,11 +73,4 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return tag;
     }
 
-    protected IMolecule testMolecule;// prototype insertion molecule
-    protected MoleculeActionTranslateTo atomTranslator;
-    protected MeterPotentialEnergy energyMeter;
-    protected final DataInfoDouble dataInfo;
-    protected final DataDouble data;
-    protected IntegratorBox integrator;
-    protected final DataTag tag;
 }

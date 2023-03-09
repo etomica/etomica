@@ -13,12 +13,14 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Hard-sphere molecular dynamics simulation of two species in 2D.
@@ -32,58 +34,53 @@ import etomica.species.SpeciesSpheresMono;
 public class HSMD2D extends Simulation {
 
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species1, species2;
+    public SpeciesGeneral species1;
+    public SpeciesGeneral species2;
     public Box box;
-    public Potential2 potential11;
-    public Potential2 potential12;
-    public Potential2 potential22;
+    public P2HardGeneric potential11;
+    public P2HardGeneric potential12;
+    public P2HardGeneric potential22;
 
     public HSMD2D() {
         super(Space2D.getInstance());
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species1);
         addSpecies(species2);
 
         box = this.makeBox();
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
+
         double sigma = 1;
-
         double neighborRangeFac = 1.6;
-        potentialMaster.setRange(neighborRangeFac * sigma);
+        NeighborListManagerHard neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, neighborRangeFac * sigma, BondingInfo.noBonding());
+        neighborManager.setDoDownNeighbors(true);
+        PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setIsothermal(false);
-        integrator.setTimeStep(0.01);
-
-        potentialMaster.setRange(sigma * 1.6);
-
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
         ((ElementSimple) leafType2.getElement()).setMass(10);
 
-        potential11 = new P2HardSphere(space, sigma, false);
-        potential12 = new P2HardSphere(space, sigma, false);
-        potential22 = new P2HardSphere(space, sigma, false);
+        potential11 = P2HardSphere.makePotential(sigma);
+        potential12 = P2HardSphere.makePotential(sigma);
+        potential22 = P2HardSphere.makePotential(sigma);
 
-        potentialMaster.addPotential(potential11, new AtomType[]{leafType1, leafType1});
+        potentialMaster.setPairPotential(leafType1, leafType1, potential11);
+        potentialMaster.setPairPotential(leafType1, leafType2, potential12);
+        potentialMaster.setPairPotential(leafType2, leafType2, potential22);
 
-        potentialMaster.addPotential(potential12, new AtomType[]{leafType2, leafType2});
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1, box, getSpeciesManager());
+        integrator.setIsothermal(false);
 
-        potentialMaster.addPotential(potential22, new AtomType[]{leafType1, leafType2});
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
 
         BoxInflate bi = new BoxInflate(box, space);
         bi.setTargetDensity(0.5);
         bi.actionPerformed();
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
     }
 

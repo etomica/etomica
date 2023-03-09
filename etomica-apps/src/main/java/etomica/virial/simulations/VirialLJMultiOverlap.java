@@ -5,21 +5,20 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.util.ParseArgs;
+import etomica.virial.*;
+import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -32,8 +31,10 @@ public class VirialLJMultiOverlap {
 
         VirialMixParam params = new VirialMixParam();
         if (args.length > 0) {
-            ReadParameters readParameters = new ReadParameters(args[0], params);
-            readParameters.readParameters();
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            // play with params here
         }
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
@@ -105,11 +106,11 @@ public class VirialLJMultiOverlap {
         else if (mixID != 0) {
             throw new RuntimeException("Don't know how to do mix "+mixID);
         }
-        Potential2Spherical p11Target = new P2LennardJones(space, sigma11, epsilon11);
+        IPotential2 p11Target = new P2LennardJones(sigma11, epsilon11);
         MayerGeneralSpherical f11Target = new MayerGeneralSpherical(p11Target);
-        Potential2Spherical p12Target = new P2LennardJones(space, sigma12, epsilon12);
+        IPotential2 p12Target = new P2LennardJones(sigma12, epsilon12);
         MayerGeneralSpherical f12Target = new MayerGeneralSpherical(p12Target);
-        Potential2Spherical p22Target = new P2LennardJones(space, sigma22, epsilon22);
+        IPotential2 p22Target = new P2LennardJones(sigma22, epsilon22);
         MayerGeneralSpherical f22Target = new MayerGeneralSpherical(p22Target);
         MayerESpherical e11Target = new MayerESpherical(p11Target);
         MayerESpherical e12Target = new MayerESpherical(p12Target);
@@ -121,8 +122,10 @@ public class VirialLJMultiOverlap {
         refCluster.setTemperature(temperature);
 
         System.out.println((numSteps*1000)+" steps ("+numSteps+" blocks of 1000)");
-		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, refCluster, targetCluster);
+
+        ISpecies species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints}, temperature, refCluster, targetCluster);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         sim.setAccumulatorBlockSize(10*numSteps);
         // if running interactively, don't use the file
@@ -133,7 +136,7 @@ public class VirialLJMultiOverlap {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, numSteps/40);
-        
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, numSteps);
         System.out.println("equilibration finished");
 
         if (false) {
@@ -148,13 +151,12 @@ public class VirialLJMultiOverlap {
             progressReportListener.setInterval((int)(numSteps/10));
             sim.integratorOS.getEventManager().addListener(progressReportListener);
         }
-        
+
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(numSteps);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -166,12 +168,12 @@ public class VirialLJMultiOverlap {
      * Inner class for parameters
      */
     public static class VirialMixParam extends ParameterBase {
-        public int nPoints = 6;
+        public int nPoints = 5;
         public double temperature = 1.0;
-        public long numSteps = 50;
+        public long numSteps = 1000;
         public double sigmaHSRef = 1.5;
         public int mixID = 0;
-        public int[] nTypes = new int[]{nPoints,0};
+        public int[] nTypes = new int[]{nPoints-1,1};
     }
 }
 

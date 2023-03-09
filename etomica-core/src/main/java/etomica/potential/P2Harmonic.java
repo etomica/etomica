@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -18,28 +17,38 @@ import etomica.units.dimensions.Length;
  * @author Jhumpa Adhikari
  * @author David Kofke
  */
-public class P2Harmonic extends Potential2SoftSpherical {
+public class P2Harmonic implements IPotential2 {
 
-    private static final long serialVersionUID = 1L;
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
 	private final boolean r0Zero;
 	private double r0;
     
-    public P2Harmonic(Space space, double w) {
-    	this(space, w, 0.0);
+    public P2Harmonic(double w) {
+    	this(w, 0.0);
     }
     /**
      * 
-     * @param space
      * @param w spring constant
      * @param r0  Separation at which potential is at its minimum.  Default is
      * zero.
      */
-    public P2Harmonic(Space space, double w, double r0) {
-        super(space);
+    public P2Harmonic(double w, double r0) {
         setSpringConstant(w);
         r0Zero = (r0 == 0.0);
         setR0(r0);
+    }
+
+    public void u012add(double r2, double[] u012) {
+        if (r0Zero) {
+            u012[0] = u012[1] = u012[2] = w*r2;
+            u012[0] *= 0.5;
+            return;
+        }
+        double r = Math.sqrt(r2);
+        double dx = r - r0;
+        u012[0] = 0.5*w*dx*dx;
+        u012[1] = w*r*dx;
+        u012[2] = w*r2;
     }
 
     public double u(double r2) {
@@ -63,13 +72,6 @@ public class P2Harmonic extends Potential2SoftSpherical {
     */
     public double d2u(double r2) {
         return w*r2;
-    }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        return 0.0;
     }
 
     /**

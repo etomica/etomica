@@ -4,9 +4,7 @@
 
 package etomica.potential;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -19,7 +17,7 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class P3HydrogenManzhos implements IPotential{
+public class P3HydrogenManzhos {
     public static void main(String[] args) {       
 
         Space space = Space3D.getInstance();
@@ -102,7 +100,6 @@ public class P3HydrogenManzhos implements IPotential{
             throw new RuntimeException("caught IOException: " + e.getMessage());            
         }
     }
-    protected Boundary boundary;
     protected final static int D = 12;
     protected final static int d = 9;
     protected final static int L = 1;
@@ -253,20 +250,6 @@ public class P3HydrogenManzhos implements IPotential{
         }
     }
 
-
-    public double getRange() {        
-        return Double.POSITIVE_INFINITY;
-    }
-
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();        
-    }
-
-
-    public int nBody() {
-        return 3;
-    }
     public static class P3HydrogenManzhosMolecular extends P3HydrogenManzhos implements IPotentialMolecular {
         protected Vector[] v = new Vector[6];
         public P3HydrogenManzhosMolecular(Space space) {

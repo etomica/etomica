@@ -5,14 +5,11 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorBox;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Pressure;
@@ -25,39 +22,28 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveVolume extends MCMoveBoxStep {
 
+    protected final IntegratorBox integrator;
     protected double pressure;
-    protected final MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     protected final int D;
     protected final IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected IFunction vBias;
 
     protected double biasOld, uOld, hOld, vNew, vScale, hNew;
     protected double uNew = Double.NaN;
 
-    public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster,
-                        Space space) {
-        this(potentialMaster, sim.getRandom(), space, 1.0);
-    }
-
-    /**
-     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param space the governing space for the simulation
-     */
-    public MCMoveVolume(PotentialMaster potentialMaster, IRandom random,
-                        Space space, double pressure) {
-        super(potentialMaster);
+    public MCMoveVolume(IntegratorBox integrator, IRandom random,
+                        double pressure) {
+        super();
+        this.integrator = integrator;
         this.random = random;
+        Space space = integrator.getBox().getSpace();
         this.D = space.D();
         inflate = new BoxInflate(space);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
         setPressure(pressure);
-        energyMeter.setIncludeLrc(true);
-        affectedAtomIterator = new AtomIteratorLeafAtoms();
         vBias = new Function.Constant(1);
     }
 
@@ -68,9 +54,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         inflate.setBox(p);
-        affectedAtomIterator.setBox(p);
     }
 
     public void setVolumeBias(IFunction vBias) {
@@ -79,21 +63,19 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
-        if(potential.isPotentialHard()) {
-            uOld = 0.0;
-        } else {
-            uOld = energyMeter.getDataAsScalar();
-        }
-        hOld = uOld + pressure*vOld;
+        uOld = integrator.getPotentialEnergy();
+        hOld = uOld + pressure * vOld;
         biasOld = vBias.f(vOld);
-        vScale = (2.*random.nextDouble()-1.)*stepSize;
+        vScale = (2. * random.nextDouble() - 1.) * stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
-        double rScale = Math.exp(vScale/D);
+        double rScale = Math.exp(vScale / D);
         inflate.setScale(rScale);
         //cells+neighbords get updated here
         inflate.actionPerformed();
-        uNew = energyMeter.getDataAsScalar();
-        hNew = uNew + pressure*vNew;
+        PotentialCompute potentialCompute = integrator.getPotentialCompute();
+        potentialCompute.init();
+        uNew = potentialCompute.computeAll(false);
+        hNew = uNew + pressure * vNew;
         return true;
     }//end of doTrial
 
@@ -108,15 +90,24 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     public void rejectNotify() {
         inflate.undo();
+        PotentialCompute potentialCompute = integrator.getPotentialCompute();
+        potentialCompute.init();
+        potentialCompute.computeAll(false);
     }
 
-    public double energyChange() {return uNew - uOld;}
-
-    public AtomIterator affectedAtoms() {
-        return affectedAtomIterator;
+    public double energyChange() {
+        return uNew - uOld;
     }
 
-    public void setPressure(double p) {pressure = p;}
-    public final double getPressure() {return pressure;}
-    public Dimension getPressureDimension() {return Pressure.DIMENSION;}
+    public void setPressure(double p) {
+        pressure = p;
+    }
+
+    public final double getPressure() {
+        return pressure;
+    }
+
+    public Dimension getPressureDimension() {
+        return Pressure.DIMENSION;
+    }
 }

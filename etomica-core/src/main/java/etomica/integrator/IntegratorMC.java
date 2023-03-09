@@ -6,8 +6,7 @@ package etomica.integrator;
 
 import etomica.box.Box;
 import etomica.integrator.mcmove.*;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.potential.compute.PotentialCompute;
 import etomica.util.EventManager;
 import etomica.util.random.IRandom;
 
@@ -28,25 +27,16 @@ public class IntegratorMC extends IntegratorBox {
     protected final IRandom random;
     protected final EventManager<MCMoveEvent> moveEventManager;
     private final MCMoveEvent trialEvent, trialFailedEvent;
-    private final MCMoveEvent acceptedEvent, rejectedEvent;
+    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
     protected MCMoveManager moveManager;
 
     /**
-     * @param sim             Simulation where this integrator is used
-     * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
-     */
-
-    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster, sim.getRandom(), 1.0, box);
-    }
-
-    /**
-     * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
+     * @param potentialCompute PotentialMaster instance used by moves to calculate the energy
      * @param random          random number generator used to select moves and decide acceptance
      * @param temperature     temperature of the ensemble
      */
-    public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature, Box box) {
-        super(potentialMaster, temperature, box);
+    public IntegratorMC(PotentialCompute potentialCompute, IRandom random, double temperature, Box box) {
+        super(potentialCompute, temperature, box);
         this.random = random;
         setIsothermal(true); //has no practical effect, but sets value of
         // isothermal to be consistent with way integrator
@@ -105,6 +95,7 @@ public class IntegratorMC extends IntegratorBox {
             move.getTracker().updateCounts(false, chi);
             move.rejectNotify();
             //notify listeners of outcome
+            rejectedEvent.chi = chi;
             moveEventManager.fireEvent(rejectedEvent);
         } else {
             if (dodebug) {
@@ -113,6 +104,7 @@ public class IntegratorMC extends IntegratorBox {
             move.getTracker().updateCounts(true, chi);
             move.acceptNotify();
             currentPotentialEnergy += move.energyChange();
+            acceptedEvent.chi = chi;
             //notify listeners of outcome
             moveEventManager.fireEvent(acceptedEvent);
         }
@@ -121,6 +113,7 @@ public class IntegratorMC extends IntegratorBox {
     /**
      * Notifies the IntegratorMC that the energy changed allowing
      * the internal potential energy field to be updated.
+     *
      * @param energyChange Change in the energy
      */
     public void notifyEnergyChange(double energyChange) {

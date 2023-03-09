@@ -4,24 +4,50 @@
 
 package etomica.molecule;
 
-import etomica.atom.IAtomOriented;
-import etomica.space3d.IOrientationFull3D;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.IAtomOrientedKinetic;
+import etomica.box.Box;
+import etomica.space.IOrientation;
+import etomica.space.Vector;
 
 /**
  * OrientationCalc implementation that handles a monotomic oriented molecule.
  *
  * @author Andrew Schultz
  */
-public class OrientationCalcAtom implements OrientationCalc {
+public class OrientationCalcAtom extends OrientationCalcNonLinear {
 
+    private IAtomOrientedKinetic getAtom(IMolecule molecule) {
+        return (IAtomOrientedKinetic)molecule.getChildList().get(0);
+    }
+
+    @Override
+    public Vector getMomentOfInertia(IMolecule molecule) {
+        return ((AtomTypeOriented) getAtom(molecule).getType()).getMomentOfInertia();
+    }
+
+    @Override
     public void calcOrientation(IMolecule molecule,
-                                IOrientationFull3D orientation) {
-        orientation.E(((IMoleculeOriented) molecule).getOrientation());
+                                IOrientation orientation) {
+        IAtomOrientedKinetic a =  getAtom(molecule);
+        orientation.E(a.getOrientation());
     }
 
-    public void setOrientation(IMolecule molecule,
-                               IOrientationFull3D orientation) {
-        ((IMoleculeOriented) molecule).getOrientation().E(orientation);
+    @Override
+    public void setOrientation(IMolecule molecule, Box box,
+                               IOrientation orientation) {
+        getAtom(molecule).getOrientation().E(orientation);
     }
 
+    @Override
+    public Vector getAngularMomentum(IMolecule molecule, Vector com, Box box) {
+        Vector omega = getAtom(molecule).getAngularVelocity();
+        return angularVelocityToMomentum(molecule, box, omega);
+    }
+
+    @Override
+    public void setAngularMomentum(IMolecule molecule, Vector com, Box box, Vector L) {
+        Vector omega = getAtom(molecule).getAngularVelocity();
+        omega.E(angularMomentumToVelocity(molecule, box.getSpace(), L));
+    }
 }

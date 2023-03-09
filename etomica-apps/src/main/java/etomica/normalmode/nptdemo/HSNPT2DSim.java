@@ -3,21 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode.nptdemo;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.list.NeighborListManagerHard;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -26,43 +29,39 @@ import etomica.species.SpeciesSpheresMono;
  */
  
 public class HSNPT2DSim extends Simulation {
-    
-    private static final long serialVersionUID = 1L;
-    public ActivityIntegrate ai;
+
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species1;
+    public SpeciesGeneral species1;
     public Box box;
-    public Potential2 potential;
-    public PotentialMasterList potentialMaster;
+    public P2HardGeneric potential;
+    public PotentialComputePair potentialMaster;
+    public NeighborListManagerHard neighborManager;
     public CoordinateDefinition coordinateDefinition;
     public double pressure;
 
     public HSNPT2DSim() {
         super(Space2D.getInstance());
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species1);
-
-        potentialMaster = new PotentialMasterList(this, space);
-        double sigma = 1;
-
-        double neighborRangeFac = 1.4;
-        potentialMaster.setRange(neighborRangeFac * sigma);
-
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
+
+        double sigma = 1;
+        double neighborRangeFac = 1.6;
+        double nbrRange = sigma * neighborRangeFac;
+        neighborManager = new NeighborListManagerHard(getSpeciesManager(), box, 2, nbrRange, BondingInfo.noBonding());
+        potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+
+        AtomType leafType1 = species1.getLeafType();
+        potential = P2HardSphere.makePotential(sigma);
+
+        potentialMaster.setPairPotential(leafType1, leafType1, potential);
+
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.05, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.05);
 
-        potentialMaster.setRange(sigma * 1.6);
-
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
-        AtomType leafType1 = species1.getLeafType();
-        potential = new P2HardSphere(space, sigma, false);
-
-        potentialMaster.addPotential(potential, new AtomType[]{leafType1, leafType1});
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         int nx = 10;
         int ny = 6;
         double rho = 1.0;
@@ -74,13 +73,12 @@ public class HSNPT2DSim extends Simulation {
         bx *= nx * Math.sqrt(v2 / v1);
         by *= ny * Math.sqrt(v2 / v1);
         box.getBoundary().setBoxSize(Vector.of(new double[]{bx, by}));
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, bx / nx), new BasisOrthorhombicHexagonal(), space);
         coordinateDefinition.initializeCoordinates(new int[]{nx, ny});
 
-        potentialMaster.getNeighborManager(box).reset();
-        integrator.getEventManager().removeListener(potentialMaster.getNeighborManager(box));
+        potentialMaster.init();
+        integrator.getEventManager().removeListener(neighborManager);
     }
 
 }

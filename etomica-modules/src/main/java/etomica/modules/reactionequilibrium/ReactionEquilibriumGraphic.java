@@ -4,12 +4,13 @@
 
 package etomica.modules.reactionequilibrium;
 
+import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.*;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
@@ -18,14 +19,14 @@ import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.potential.P2SquareWell;
+import etomica.modifier.ModifierSQWEpsilon;
+import etomica.potential.P2HardGeneric;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Angstrom;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
@@ -40,37 +41,35 @@ import java.awt.*;
 public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Reaction Equilibrium";
-	private static final int REPAINT_INTERVAL = 10;
-    protected final ReactionEquilibrium sim;
-    protected boolean initializing;
-    protected AccumulatorAverage densityAccum;
-    protected DataPump dimerPump;
-    protected DisplayTextBoxesCAE densityDisplay;
-    private DeviceThermoSlider temperatureSelect;
-    protected final IAction resetAction;
+	private static final int REPAINT_INTERVAL = 1;
+	protected final ReactionEquilibrium sim;
+	protected boolean initializing;
+	protected AccumulatorAverage densityAccum;
+	protected DataPump dimerPump;
+	protected DisplayTextBoxesCAE densityDisplay;
+	private DeviceThermoSlider temperatureSelect;
+	protected final IAction resetAction;
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, Space space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
-        this.sim = simulation;
+		this.sim = simulation;
 
-        resetAction = getController().getSimRestart().getDataResetAction();
+		resetAction = getController().getSimRestart().getDataResetAction();
 
-        sim.integratorHard1.setTimeStep(0.01);
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(5));
+		getDisplayBox(sim.box).setPixelUnit(new Pixel(5));
 
 		temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard1);
-        sim.integratorHard1.getEventManager().addListener(new IntegratorListenerAction(this.getPaintAction(sim.box)));
 		temperatureSelect.setUnit(Kelvin.UNIT);
 		temperatureSelect.setMaximum(2500);
 		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
-        temperatureSelect.setIsothermal();
-        temperatureSelect.setSliderPostAction(resetAction);
-        temperatureSelect.setRadioGroupPostAction(resetAction);
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
+		temperatureSelect.setIsothermal();
+		temperatureSelect.setSliderPostAction(resetAction);
+		temperatureSelect.setRadioGroupPostAction(resetAction);
+		((ColorSchemeByType) getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getLeafType(), Color.RED);
+		((ColorSchemeByType) getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getLeafType(), Color.BLACK);
 
 		//	adjustment of species properties
 		MySpeciesEditor AEditor = new MySpeciesEditor(sim.speciesA, "Red");
@@ -85,15 +84,16 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		BEditor.nSlider.getSlider().setLabelTable(
 				AEditor.nSlider.getSlider().createStandardLabels(ms));
 
-        MassEditor AMassEditor = new MassEditor(sim.speciesA, "Red");
-        MassEditor BMassEditor = new MassEditor(sim.speciesB, "Black");
+		MassEditor AMassEditor = new MassEditor(sim.getController(), sim.speciesA, "Red");
+		MassEditor BMassEditor = new MassEditor(sim.getController(), sim.speciesB, "Black");
+
+		ActionGroupSeries fullResetAction = new ActionGroupSeries(resetAction, () -> sim.integratorHard1.reset());
 
 		//sliders to adjust potentials well depth
 		int eMin = 0;
 		int eMax = 1000;
 		//    final DeviceSlider AASlider = new DeviceSlider(AAbonded, "epsilon");
-		final DeviceSlider AASlider = new DeviceSlider(sim.getController(), new WellDepthModifier(
-				sim.AAbonded));
+		final DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierSQWEpsilon(sim.AAbonded));
 		AASlider.setUnit((Kelvin.UNIT));
 		AASlider.setShowBorder(true);
 		AASlider.setLabel("RR epsilon");
@@ -101,10 +101,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		AASlider.setMaximum(eMax);
 		AASlider.setNMajor(5);
 		AASlider.getSlider().setSnapToTicks(true);
-        AASlider.setPostAction(resetAction);
+		AASlider.setPostAction(fullResetAction);
 		//    final DeviceSlider ABSlider = new DeviceSlider(ABbonded, "epsilon");
-		final DeviceSlider ABSlider = new DeviceSlider(sim.getController(), new WellDepthModifier(
-				sim.ABbonded));
+		final DeviceSlider ABSlider = new DeviceSlider(sim.getController(), new ModifierSQWEpsilon(sim.ABbonded));
 		ABSlider.setUnit((Kelvin.UNIT));
 		ABSlider.setShowBorder(true);
 		ABSlider.setLabel("RB epsilon");
@@ -112,10 +111,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		ABSlider.setMaximum(eMax);
 		ABSlider.setNMajor(5);
 		ABSlider.getSlider().setSnapToTicks(true);
-        ABSlider.setPostAction(resetAction);
+		ABSlider.setPostAction(fullResetAction);
 		//    final DeviceSlider BBSlider = new DeviceSlider(BBbonded, "epsilon");
-		final DeviceSlider BBSlider = new DeviceSlider(sim.getController(), new WellDepthModifier(
-				sim.BBbonded));
+		final DeviceSlider BBSlider = new DeviceSlider(sim.getController(), new ModifierSQWEpsilon(sim.BBbonded));
 		BBSlider.setUnit((Kelvin.UNIT));
 		BBSlider.setShowBorder(true);
 		BBSlider.setLabel("BB epsilon");
@@ -123,7 +121,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		BBSlider.setMaximum(eMax);
 		BBSlider.setNMajor(5);
 		BBSlider.getSlider().setSnapToTicks(true);
-		BBSlider.setPostAction(resetAction);
+		BBSlider.setPostAction(fullResetAction);
 
 		DiameterModifier sizeModifier = new DiameterModifier(sim.AAbonded,
 				sim.ABbonded, sim.BBbonded, sim.speciesA, sim.speciesB);
@@ -139,16 +137,16 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		sizeSlider.setValue(2.0);
 		sizeSlider.setShowValues(true);
 		sizeSlider.setEditValues(true);
-		sizeSlider.setPostAction(resetAction);
+		sizeSlider.setPostAction(fullResetAction);
 
 		//sliders to adjust widths of wells
 		eMin = 10;
 		eMax = 100;
 		int majorSpacing = 15;
 		int minorSpacing = 5;
-		DeviceSlider AAWellSlider = new DeviceSlider(sim.getController(),new WellModifier(sim.AAbonded));
-		DeviceSlider ABWellSlider = new DeviceSlider(sim.getController(),new WellModifier(sim.ABbonded));
-		DeviceSlider BBWellSlider = new DeviceSlider(sim.getController(),new WellModifier(sim.BBbonded));
+		DeviceSlider AAWellSlider = new DeviceSlider(sim.getController(), new WellModifier(sim.AAbonded));
+		DeviceSlider ABWellSlider = new DeviceSlider(sim.getController(), new WellModifier(sim.ABbonded));
+		DeviceSlider BBWellSlider = new DeviceSlider(sim.getController(), new WellModifier(sim.BBbonded));
 		AAWellSlider.setShowBorder(true);
 		ABWellSlider.setShowBorder(true);
 		BBWellSlider.setShowBorder(true);
@@ -179,13 +177,13 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				ABWellSlider.getSlider().createStandardLabels(majorSpacing));
 		BBWellSlider.getSlider().setLabelTable(
 				BBWellSlider.getSlider().createStandardLabels(majorSpacing));
-		AAWellSlider.setPostAction(resetAction);
-        ABWellSlider.setPostAction(resetAction);
-        BBWellSlider.setPostAction(resetAction);
+		AAWellSlider.setPostAction(fullResetAction);
+		ABWellSlider.setPostAction(fullResetAction);
+		BBWellSlider.setPostAction(fullResetAction);
 
 		//so that display is updated when slider changes atom sizes
 		sizeModifier.setDisplay(getDisplayBox(sim.box));
-        
+
 //		DisplayTextBox tBox = new DisplayTextBox(sim.thermometer.getDataInfo());
 //		DataPump tPump = new DataPump (sim.thermometer, tBox);
 //        sim.integratorHard1.addIntervalAction(tPump);
@@ -194,127 +192,125 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 //		tBox.setLabel("Measured Temperature");
 //		tBox.setLabelPosition(CompassDirection.NORTH);
 
-        final AccumulatorAverageCollapsing tempAccum = new AccumulatorAverageCollapsing();
-        final DataPump tPump = new DataPump (sim.thermometer, tempAccum);
-        IntegratorListenerAction tPumpListener = new IntegratorListenerAction(tPump);
-        sim.integratorHard1.getEventManager().addListener(tPumpListener);
-        tPumpListener.setInterval(10);
-        tempAccum.setPushInterval(10);
-        tPump.setDataSink(tempAccum);
-        final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
-        tempAccum.addDataSink(tBox,
-                        new AccumulatorAverage.StatType[]{tempAccum.MOST_RECENT,
-                        tempAccum.AVERAGE, tempAccum.ERROR});
-        tBox.setLabel("Measured Temperature (K)");
-        tBox.setUnit(Kelvin.UNIT);
-        tBox.setLabelPosition(CompassDirection.NORTH);
-        tBox.setLabelType(LabelType.BORDER);
-        getController().getDataStreamPumps().add(tPump);
+		final AccumulatorAverageCollapsing tempAccum = new AccumulatorAverageCollapsing();
+		final DataPump tPump = new DataPump(sim.thermometer, tempAccum);
+		IntegratorListenerAction tPumpListener = new IntegratorListenerAction(tPump);
+		sim.integratorHard1.getEventManager().addListener(tPumpListener);
+		tPumpListener.setInterval(10);
+		tempAccum.setPushInterval(10);
+		tPump.setDataSink(tempAccum);
+		final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
+		tempAccum.addDataSink(tBox,
+				new AccumulatorAverage.StatType[]{tempAccum.MOST_RECENT,
+						tempAccum.AVERAGE, tempAccum.ERROR});
+		tBox.setLabel("Measured Temperature (K)");
+		tBox.setUnit(Kelvin.UNIT);
+		tBox.setLabelPosition(CompassDirection.NORTH);
+		tBox.setLabelType(LabelType.BORDER);
+		getController().getDataStreamPumps().add(tPump);
 
 // NOTE : THE FOLLOWING IMPLEMENTATION IS CAUSING THE GRAPHIC
 // TO BE UPDATED.  NEED TO REMOVE THE UPDATE OF THE GRAPHIC
 // FROM THIS IMPLEMENTATION OF AVERAGE DISPLAY.
 		//display of averages
-        DataFork dimerFork = new DataFork();
-		dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
-        IntegratorListenerAction dimerPumpListener = new IntegratorListenerAction(dimerPump);
-        sim.integratorHard1.getEventManager().addListener(dimerPumpListener);
-        dimerPumpListener.setInterval(100);
-        getController().getDataStreamPumps().add(dimerPump);
+		DataFork dimerFork = new DataFork();
+		dimerPump = new DataPump(sim.meterDimerFraction, dimerFork);
+		IntegratorListenerAction dimerPumpListener = new IntegratorListenerAction(dimerPump);
+		sim.integratorHard1.getEventManager().addListener(dimerPumpListener);
+		dimerPumpListener.setInterval(100);
+		getController().getDataStreamPumps().add(dimerPump);
 
-        DataGroupFilter filter1 = new DataGroupFilter(0);
-        dimerFork.addDataSink(filter1);
+		DataGroupFilter filter1 = new DataGroupFilter(0);
+		dimerFork.addDataSink(filter1);
 
-        AccumulatorAverageFixed dimerFractionAccum = new AccumulatorAverageFixed(100);
-        dimerFractionAccum.setPushInterval(10);
-        filter1.setDataSink(dimerFractionAccum);
+		AccumulatorAverageFixed dimerFractionAccum = new AccumulatorAverageFixed(100);
+		dimerFractionAccum.setPushInterval(10);
+		filter1.setDataSink(dimerFractionAccum);
 
-        DisplayTable table = new DisplayTable();
-        dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(dimerFractionAccum.getDataInfo()),
-                new AccumulatorAverage.StatType[]{dimerFractionAccum.AVERAGE, dimerFractionAccum.ERROR});
+		DisplayTable table = new DisplayTable();
+		dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(dimerFractionAccum.getDataInfo()),
+				new AccumulatorAverage.StatType[]{dimerFractionAccum.AVERAGE, dimerFractionAccum.ERROR});
 
 
-        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.AVERAGE)}, "Average");
-        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.ERROR)}, "Error");
+		table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.AVERAGE)}, "Average");
+		table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.ERROR)}, "Error");
 		table.setLabel("Fractions");
 
-        DataSplitter splitter = new DataSplitter();
-        DataGroupFilter filter2 = new DataGroupFilter(0);
-        dimerFork.addDataSink(filter2);
-        filter2.setDataSink(splitter);
-         
+		DataSplitter splitter = new DataSplitter();
+		DataGroupFilter filter2 = new DataGroupFilter(0);
+		dimerFork.addDataSink(filter2);
+		filter2.setDataSink(splitter);
+
 		//display for history of mole fractions
-        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
-        DisplayPlot plot = new DisplayPlot();
-        plot.setLabel("Composition");
-        plot.setDoLegend(true);
+		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
+		DisplayPlotXChart plot = new DisplayPlotXChart();
+		plot.setLabel("Composition");
+		plot.setDoLegend(true);
 //        int nData = sim.meterDimerFraction.getDataInfo().getLength();
 //        DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)sim.meterDimerFraction.getDataInfo();
-        int nData = filter1.getDataInfo().getLength();
-        DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)filter1.getDataInfo();
+		int nData = filter1.getDataInfo().getLength();
+		DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable) filter1.getDataInfo();
 
-        final AccumulatorHistory[] fractionHistory = new AccumulatorHistory[nData];
-        for (int i=0; i<nData; i++) {
-            fractionHistory[i] = new AccumulatorHistory();
-            fractionHistory[i].setTimeDataSource(timeCounter);
+		final AccumulatorHistory[] fractionHistory = new AccumulatorHistory[nData];
+		for (int i = 0; i < nData; i++) {
+			fractionHistory[i] = new AccumulatorHistory();
+			fractionHistory[i].setTimeDataSource(timeCounter);
 
-    		splitter.setDataSink(i, fractionHistory[i]);
-    		fractionHistory[i].addDataSink (plot.getDataSet().makeDataSink());
-    		plot.setLegend(new DataTag[]{fractionHistory[i].getTag()}, dimerInfo.getRowHeader(i));
-        }
+			splitter.setDataSink(i, fractionHistory[i]);
+			fractionHistory[i].addDataSink(plot.getDataSet().makeDataSink());
+			plot.setLegend(new DataTag[]{fractionHistory[i].getTag()}, dimerInfo.getRowHeader(i));
+		}
 
-        DataGroupFilter filter3 = new DataGroupFilter(1);
-        dimerFork.addDataSink(filter3);
-        densityAccum = new AccumulatorAverageCollapsing();
-        densityAccum.setPushInterval(10);
-        filter3.setDataSink(densityAccum);
+		DataGroupFilter filter3 = new DataGroupFilter(1);
+		dimerFork.addDataSink(filter3);
+		densityAccum = new AccumulatorAverageCollapsing();
+		densityAccum.setPushInterval(10);
+		filter3.setDataSink(densityAccum);
 
-        densityDisplay = new DisplayTextBoxesCAE();
-        densityAccum.addDataSink(densityDisplay,
-                new AccumulatorAverage.StatType[]{densityAccum.MOST_RECENT,
-                densityAccum.AVERAGE,
-                densityAccum.ERROR});
-        densityDisplay.setLabel("Molecular density (" + Angstrom.UNIT.symbol()+"^-2)");
-        dimerPump.actionPerformed();
-        densityDisplay.putData(densityAccum.getData());
-        densityDisplay.setLabelType(LabelType.BORDER);
+		densityDisplay = new DisplayTextBoxesCAE();
+		densityAccum.addDataSink(densityDisplay,
+				new AccumulatorAverage.StatType[]{densityAccum.MOST_RECENT,
+						densityAccum.AVERAGE,
+						densityAccum.ERROR});
+		densityDisplay.setLabel("Molecular density (" + Angstrom.UNIT.symbol() + "^-2)");
+		dimerPump.actionPerformed();
+		densityDisplay.putData(densityAccum.getData());
+		densityDisplay.setLabelType(LabelType.BORDER);
 
 //        filter3.setDataSink(new DataSinkConsole());
-		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
 		//************* Lay out components ****************//
 
-        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
-
 		//panel for the species editors
-		JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
+		JPanel speciesEditors = new JPanel(new GridLayout(0, 1));
 		speciesEditors.add(AEditor);
 		speciesEditors.add(BEditor);
 		speciesEditors.setBorder(new TitledBorder(
 				null, "Species Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
 
-		JPanel massEditors = new JPanel(new java.awt.GridLayout(0, 1));
-        massEditors.add(AMassEditor);
-        massEditors.add(BMassEditor);
+		JPanel massEditors = new JPanel(new GridLayout(0, 1));
+		massEditors.add(AMassEditor);
+		massEditors.add(BMassEditor);
 
 		//panel of well-depth sliders
-		JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
-		epsilonSliders.add(AASlider.graphic(null));
-		epsilonSliders.add(ABSlider.graphic(null));
-		epsilonSliders.add(BBSlider.graphic(null));
+		JPanel epsilonSliders = new JPanel(new GridLayout(0, 1));
+		epsilonSliders.add(AASlider.graphic());
+		epsilonSliders.add(ABSlider.graphic());
+		epsilonSliders.add(BBSlider.graphic());
 
 		//panel of well-width sliders
-		JPanel lambdaSliders = new JPanel(new java.awt.GridLayout(0, 1));
-		lambdaSliders.add(AAWellSlider.graphic(null));
-		lambdaSliders.add(ABWellSlider.graphic(null));
-		lambdaSliders.add(BBWellSlider.graphic(null));
+		JPanel lambdaSliders = new JPanel(new GridLayout(0, 1));
+		lambdaSliders.add(AAWellSlider.graphic());
+		lambdaSliders.add(ABWellSlider.graphic());
+		lambdaSliders.add(BBWellSlider.graphic());
 
 		//panel for size slider
-		JPanel sizeSliders = new JPanel(new java.awt.GridLayout(0, 1));
-		sizeSliders.add(sizeSlider.graphic(null));
+		JPanel sizeSliders = new JPanel(new GridLayout(0, 1));
+		sizeSliders.add(sizeSlider.graphic());
 
 		//tabbed pane for both sets of sliders
-		final javax.swing.JTabbedPane sliderPanel = new javax.swing.JTabbedPane();
+		final JTabbedPane sliderPanel = new JTabbedPane();
 		sliderPanel.setBorder(new TitledBorder(
 				null, "Potential Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
 		sliderPanel.add("Well depth (K)", epsilonSliders);
@@ -326,35 +322,34 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				sliderPanel.validate();
 			}
 		});
-        sliderPanel.add("Species", speciesEditors);
-        sliderPanel.add("Mass (Da)", massEditors);
+		sliderPanel.add("Species", speciesEditors);
+		sliderPanel.add("Mass (Da)", massEditors);
 
 		//top panel for control, temperature, potential adjustment
 		add(temperatureSelect);
 		getPanel().controlPanel.add(sliderPanel, vertGBC);
+		getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 		add(plot);
 		add(table);
 		add(tBox);
 		add(densityDisplay);
 
-        getController().getReinitButton().setPostAction(new IAction() {
-            public void actionPerformed() {
-                for (int i=0; i<fractionHistory.length; i++) {
-                    fractionHistory[i].reset();
-                }
+		getController().getReinitButton().setPostAction(new IAction() {
+			public void actionPerformed() {
+				for (int i = 0; i < fractionHistory.length; i++) {
+					fractionHistory[i].reset();
+				}
 
-                tPump.actionPerformed();
-                tBox.putData(tempAccum.getData());
-                tBox.repaint();
+				tPump.actionPerformed();
+				tBox.putData(tempAccum.getData());
 
-                dimerPump.actionPerformed();
-                densityDisplay.putData(densityAccum.getData());
-                densityDisplay.repaint();
+				dimerPump.actionPerformed();
+				densityDisplay.putData(densityAccum.getData());
 
-                getDisplayBox(sim.box).graphic().repaint();
-            }
-        });
-        
+				getDisplayBox(sim.box).graphic().repaint();
+			}
+		});
+
 
 		table.setPrecision(6);
 
@@ -371,84 +366,73 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 	//=================================================================
 	//panel containing species-editing devices
 
-	public class MySpeciesEditor extends javax.swing.JPanel {
+	public class MySpeciesEditor extends JPanel {
 
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-        public MySpeciesEditor(SpeciesSpheresMono s, String label) {
-            super();
-            nSlider = new DeviceNSelector(sim.getController());
+		public MySpeciesEditor(SpeciesGeneral s, String label) {
+			super();
+			nSlider = new DeviceNSelector(sim.getController());
 			nSlider.setResetAction(new SimulationRestart(sim));
 			nSlider.setSpecies(s);
-            nSlider.setBox(sim.box);
-            //nSlider.setDisplayBox(DisplayBox1);
-            nSlider.setMinimum(0);
-            nSlider.setMaximum(60);
-            nSlider.setPostAction(new IAction() {
-                public void actionPerformed() {
-                    AtomLeafAgentManager agentManager = sim.getAgentManager();
-                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
-                    iter.reset();
-                    for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {
-                        //                      System.out.println(iter.peek().toString());
-                        agentManager.setAgent(a, null);
-                    }
-                    try {
-                    	sim.integratorHard1.reset();
-                    } catch(ConfigurationOverlapException e) {}
-                    getDisplayBox(sim.box).repaint();
+			nSlider.setBox(sim.box);
+			//nSlider.setDisplayBox(DisplayBox1);
+			nSlider.setMinimum(0);
+			nSlider.setMaximum(60);
+			nSlider.setPostAction(new IAction() {
+				public void actionPerformed() {
+					AtomLeafAgentManager<IAtom> agentManager = sim.getAgentManager();
 
-                    resetAction.actionPerformed();
-                    //yay for a push data model
-                    dimerPump.actionPerformed();
-                    densityDisplay.putData(densityAccum.getData());
-                }
-           });
-			setLayout(new java.awt.FlowLayout());
+					for (IAtom a : sim.box.getLeafList()) {
+						agentManager.setAgent(a, null);
+					}
+					try {
+						sim.integratorHard1.reset();
+					} catch (ConfigurationOverlapException e) {
+					}
+					getDisplayBox(sim.box).repaint();
+
+					resetAction.actionPerformed();
+					//yay for a push data model
+					dimerPump.actionPerformed();
+					densityDisplay.putData(densityAccum.getData());
+				}
+			});
+			setLayout(new FlowLayout());
 			add(nSlider.graphic());
-			setBorder(new javax.swing.border.TitledBorder(label));
+			setBorder(new TitledBorder(label));
 		}
 	} //end of MySpeciesEditor
 
-    public static class MassEditor extends javax.swing.JPanel {
+	public static class MassEditor extends JPanel {
 
-        public final DeviceBox mass = new DeviceBox();
+		public final DeviceBox mass;
 
-        public MassEditor(SpeciesSpheresMono species, String label) {
-            super();
-            //listener for changes to mass textbox
-            mass.setModifier(new ModifierGeneral(species.getLeafType().getElement(), "mass"));
-            mass.setInteger(true);
-            setLayout(new java.awt.FlowLayout());
-            add(mass.graphic());
-            setBorder(new javax.swing.border.TitledBorder(label));
-        }
-    } //end of MySpeciesEditor
-
-	public static class Applet extends javax.swing.JApplet {
-
-		public void init() {
-			getRootPane().putClientProperty("defeatSystemEventQueueCheck",
-					Boolean.TRUE);
-			ReactionEquilibrium sim = new ReactionEquilibrium();
-			ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim, sim.getSpace());
-			getContentPane().add(graphic.getPanel());
+		public MassEditor(Controller controller, SpeciesGeneral species, String label) {
+			super();
+			mass = new DeviceBox(controller);
+			//listener for changes to mass textbox
+			mass.setModifier(new ModifierGeneral(species.getLeafType().getElement(), "mass"));
+			mass.setInteger(true);
+			setLayout(new FlowLayout());
+			add(mass.graphic());
+			setBorder(new TitledBorder(label));
 		}
-	}//end of Applet
+	} //end of MySpeciesEditor
 
 	//---------------------------------------------
 
 	class DiameterModifier implements Modifier {
 		P2SquareWellBonded potentialRR, potentialRB, potentialBB;
 
-		SpeciesSpheresMono speciesR, speciesB;
+		SpeciesGeneral speciesR, speciesB;
 
 		DisplayBox display;
 
 		DiameterModifier(P2SquareWellBonded potentialRR,
-				P2SquareWellBonded potentialRB, P2SquareWellBonded potentialBB,
-				SpeciesSpheresMono speciesR, SpeciesSpheresMono speciesB) {
+                         P2SquareWellBonded potentialRB, P2SquareWellBonded potentialBB,
+                         SpeciesGeneral speciesR, SpeciesGeneral speciesB) {
 			this.potentialRR = potentialRR;
 			this.potentialRB = potentialRB;
 			this.potentialBB = potentialBB;
@@ -463,21 +447,27 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		public void setValue(double d) {
 			if (d == 0.0)
 				d = 0.01;
-			double changeFraction = d
-					/ (potentialRR.getCoreDiameter() * potentialRR.getLambda());
-			double newCoreDiameter = changeFraction
-					* potentialRR.getCoreDiameter();
-			potentialRR.setCoreDiameter(newCoreDiameter);
-			potentialRB.setCoreDiameter(newCoreDiameter);
-			potentialBB.setCoreDiameter(newCoreDiameter);
-			((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(speciesR.getLeafType(), d);
-            ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(speciesB.getLeafType(), d);
+			double oldValue = potentialRR.getCollisionDiameter(1);
+			double lambda = oldValue / potentialRR.getCollisionDiameter(0);
+			potentialRR.setCollisionDiameter(0, d / lambda);
+			lambda = oldValue / potentialRB.getCollisionDiameter(0);
+			potentialRB.setCollisionDiameter(0, d / lambda);
+			lambda = oldValue / potentialBB.getCollisionDiameter(0);
+			potentialBB.setCollisionDiameter(0, d / lambda);
+			potentialRR.setCollisionDiameter(1, d);
+			potentialRB.setCollisionDiameter(1, d);
+			potentialBB.setCollisionDiameter(1, d);
+			sim.integratorHard1.setMaxCollisionDiameter(speciesB.getLeafType(), d);
+			sim.integratorHard1.setMaxCollisionDiameter(speciesR.getLeafType(), d);
+			((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(speciesR.getLeafType(), d);
+			((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(speciesB.getLeafType(), d);
+			sim.resetBonding();
 			if (display != null)
 				display.repaint();
 		}
 
 		public double getValue() {
-			return ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).getDiameter(speciesR.getLeafType());
+			return ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).getDiameter(speciesR.getLeafType());
 		}
 
 		public void setDisplay(DisplayBox display) {
@@ -489,38 +479,11 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		}
 	}
 
-	//---------------------------------------------
-
-	class WellDepthModifier implements Modifier {
-
-		P2SquareWell potential;
-
-		WellDepthModifier(P2SquareWell pot) {
-			potential = pot;
-		}
-
-		public String getLabel() {
-			return "WellDepth";
-		}
-
-		public Dimension getDimension() {
-			return Energy.DIMENSION;
-		}
-
-		public void setValue(double d) {
-			potential.setEpsilon(d);
-		}
-
-		public double getValue() {
-			return potential.getEpsilon();
-		}
-	}
-
 	class WellModifier implements Modifier {
 
-		P2SquareWell potential;
+		P2HardGeneric potential;
 
-		WellModifier(P2SquareWell pot) {
+		WellModifier(P2HardGeneric pot) {
 			potential = pot;
 		}
 
@@ -535,14 +498,11 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		public synchronized void setValue(double d) {
 			if (initializing)
 				return;
-			double x = 0.01 * d;
-			double fullDiameter = potential.getCoreDiameter() * potential.getLambda();
-			potential.setCoreDiameter(x * fullDiameter);
-			potential.setLambda(1.0 / x);
+			potential.setCollisionDiameter(0, 0.01 * d * potential.getCollisionDiameter(1));
 		}
 
 		public double getValue() {
-			return 100.0/potential.getLambda();
+			return 100.0 * potential.getCollisionDiameter(0) / potential.getCollisionDiameter(1);
 		}
 	}//end of WellModulator
 

@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -27,17 +28,23 @@ import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.IFunction;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 import etomica.potential.P2SpheroPolyhedron;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.mcmove.MCMoveClusterAtomHSRing;
+import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
+import etomica.virial.mcmove.MCMoveClusterAtomQ;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyPartitionScreening;
 
 import javax.swing.*;
 import java.awt.*;
@@ -100,7 +107,7 @@ public class VirialPolyhedra {
         Space space = Space3D.getInstance();
 
         P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
-        MayerFunction fTarget = new MayerGeneralAtomic(p2);
+        MayerFunction fTarget = new MayerGeneralAtomic(space, p2);
 
         ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
 //        double v0 = 32;
@@ -163,11 +170,11 @@ public class VirialPolyhedra {
 //        if (nTO>0 && sigmaTO>shsref) shsref = sigmaTO;
 //        final double sigmaHSRef = shsref;
         
-        SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[shapes.length];
+        SpeciesGeneral[] allSpecies = new SpeciesGeneral[shapes.length];
         double shsref = 0;
         for (int i=0; i<shapes.length; i++) {
             List<Vector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
-            allSpecies[i] = new SpeciesPolyhedron(space, vertices, 0.0, new ElementSimple("P"+i));
+            allSpecies[i] = SpeciesPolyhedron.create(space, vertices, 0.0, new ElementSimple("P" + i));
             double s = 2*((AtomTypeSpheroPolyhedron)allSpecies[i].getAtomType(0)).getOuterRadius();
             shsref = shsref < s ? s : shsref;
         }
@@ -178,7 +185,6 @@ public class VirialPolyhedra {
         MayerFunction fRefPos = new MayerFunction() {
 
             public void setBox(Box box) {}
-            public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHSRef*sigmaHSRef ? 1 : 0;
@@ -289,7 +295,7 @@ public class VirialPolyhedra {
 
         System.out.println(steps+" steps");
 
-        final SimulationVirial sim = new SimulationVirial(space, allSpecies, nShapes, 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
+        final SimulationVirial sim = new SimulationVirial(space, allSpecies, nShapes, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
@@ -301,48 +307,48 @@ public class VirialPolyhedra {
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
-            MCMoveClusterAtomHSTree mcMoveTree = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveTree));
+            MCMoveClusterAtomHSTree mcMoveTree = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveTree));
         }
         else if (ref == VirialHSParam.CHAINS) {
-            MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
+            MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHSRef);
+            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHS));
         }
         else if (ref == VirialHSParam.RINGS) {
-            MCMoveClusterAtomHSRing mcMoveHS = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
+            MCMoveClusterAtomHSRing mcMoveHS = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHSRef);
+            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHS));
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHST);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-chainFrac);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSC);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSC);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, chainFrac);
         }
         else if (ref == VirialHSParam.RING_TREE) {
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHST);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-ringFrac);
-            MCMoveClusterAtomHSRing mcMoveHSCR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSCR);
+            MCMoveClusterAtomHSRing mcMoveHSCR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSCR);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, ringFrac);
         }
         else if (ref == VirialHSParam.RING_CHAIN_TREES) {
-            MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), space, sigmaHSRef);
-            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSR);
+            MCMoveClusterAtomHSRing mcMoveHSR = new MCMoveClusterAtomHSRing(sim.getRandom(), sim.box, sigmaHSRef);
+            MCMoveClusterAtomQ mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSR);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, ringFrac);
-            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHSC);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHSC);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, chainFrac);
-            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), space, sigmaHSRef);
-            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHST);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, sigmaHSRef);
+            mcmcaq = new MCMoveClusterAtomQ(sim.getRandom(), sim.box, mcMoveHST);
             sim.integrator.getMoveManager().addMCMove(mcmcaq);
             sim.integrator.getMoveManager().setFrequency(mcmcaq, 1-ringFrac-chainFrac);
         }
@@ -451,7 +457,7 @@ public class VirialPolyhedra {
 
             sim.setAccumulatorBlockSize(1000);
             
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -489,9 +495,9 @@ public class VirialPolyhedra {
                 
                 DataDouble data = new DataDouble();
             };
-            IDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfoSteps = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             stepsBox.putDataInfo(dataInfoSteps);
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfo = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
@@ -530,8 +536,7 @@ public class VirialPolyhedra {
 
         long t1 = System.currentTimeMillis();
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         

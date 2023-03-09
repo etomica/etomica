@@ -5,11 +5,10 @@
       package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.SimulationGraphic;
 import etomica.modifier.Modifier;
 import etomica.species.ISpecies;
 
@@ -36,7 +35,7 @@ public class DeviceCellNum3DSlider extends Device {
     
 	
 	public DeviceCellNum3DSlider(Controller cont) {
-		
+		super(cont);
         //n-CellNum selector
         nCellNumSlider = new DeviceSlider(controller);
         nCellNumSlider.setShowValues(true);
@@ -46,8 +45,6 @@ public class DeviceCellNum3DSlider extends Device {
         nCellNumSlider.setNMajor(5);
         nCellNumSlider.getSlider().setEnabled(true);
         nCellNumSlider.getTextField().setEnabled(true);
-
-        setController(cont);
 
         numCellPanel = new JPanel(new GridBagLayout());
         numCellPanel.setBorder(new TitledBorder(null, "Set 3D n-Cell Numbers", TitledBorder.CENTER, TitledBorder.TOP));
@@ -109,8 +106,8 @@ public class DeviceCellNum3DSlider extends Device {
     /**
      * @return The panel that holds all graphical objects for the DeviceCellNumXYSlider.
      */
-    public Component graphic(Object obj) {
-    	return numCellPanel;
+    public Component graphic() {
+        return numCellPanel;
     }
 
 
@@ -169,28 +166,6 @@ public class DeviceCellNum3DSlider extends Device {
         return species;
     }
 
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
-
-       
-        etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D();
-        
-        DeviceCellNum3DSlider device = new DeviceCellNum3DSlider(new Controller());
-        device.setMinimum(1);
-        device.setMaximum(5);
-        //device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
 
 
 }

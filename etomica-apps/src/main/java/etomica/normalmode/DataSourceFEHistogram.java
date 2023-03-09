@@ -28,7 +28,7 @@ public class DataSourceFEHistogram implements IDataSource, DataSourceIndependent
     protected DataInfoDoubleArray xDataInfo;
     protected final DataTag tag, xTag;
     protected double bmu;
-    
+
     public DataSourceFEHistogram(MCMoveOverlapListener mcMoveOverlapMeter, double bmu) {
         tag = new DataTag();
         xTag = new DataTag();

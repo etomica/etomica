@@ -14,35 +14,33 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveMoleculeExchangeVLE;
+import etomica.integrator.mcmove.MCMoveVolumeExchangeVLE;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.modules.vle.MCMoveMoleculeExchangeVLE;
-import etomica.modules.vle.MCMoveVolumeExchangeVLE;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
-import etomica.util.random.RandomMersenneTwister;
+import etomica.species.SpeciesGeneral;
 
 public class SWVLESim extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
-    public final ActivityIntegrate activityIntegrate;
-    protected final P2SquareWell p2;
+
+    protected final P2HardGeneric p2;
     protected double temperature;
     protected double density;
 
     public SWVLESim(int D) {
         super(Space.getInstance(D));
-        setRandom(new RandomMersenneTwister(5));
         boolean doNBR = true;
         int initNumMolecules = 400;
         temperature = 1;
@@ -50,7 +48,7 @@ public class SWVLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / D));
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         boxLiquid = this.makeBox(new BoundaryRectangularPeriodic(space, initBoxSize));
@@ -62,22 +60,27 @@ public class SWVLESim extends Simulation {
         config.initializeCoordinates(boxVapor);
 
         final double range = 1.5;
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMasterV = new PotentialMaster(getSpeciesManager(), boxVapor, BondingInfo.noBonding());
+        PotentialMaster potentialMasterL = new PotentialMaster(getSpeciesManager(), boxLiquid, BondingInfo.noBonding());
+        p2 = P2SquareWell.makePotential(1.0, 1.5, 1.0);
         if (doNBR) {
-            potentialMaster = new PotentialMasterCell(this, range, space);
-            ((PotentialMasterCell) potentialMaster).setCellRange(2);
+            potentialMasterV = new PotentialMasterCell(getSpeciesManager(), boxVapor, 2, BondingInfo.noBonding());
+            potentialMasterL = new PotentialMasterCell(getSpeciesManager(), boxLiquid, 2, BondingInfo.noBonding());
+        } else {
+            potentialMasterV = new PotentialMaster(getSpeciesManager(), boxVapor, BondingInfo.noBonding());
+            potentialMasterL = new PotentialMaster(getSpeciesManager(), boxLiquid, BondingInfo.noBonding());
         }
-        p2 = new P2SquareWell(space, 1.0, 1.5, 1.0, false);
-        potentialMaster.addPotential(p2, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMasterV.setPairPotential(species.getLeafType(), species.getLeafType(), p2);
+        potentialMasterL.setPairPotential(species.getLeafType(), species.getLeafType(), p2);
 
-        integratorLiquid = new IntegratorMC(potentialMaster, random, temperature, boxLiquid);
+        integratorLiquid = new IntegratorMC(potentialMasterL, random, temperature, boxLiquid);
         integratorLiquid.getMoveManager().setEquilibrating(true);
-        MCMoveAtom atomMove = new MCMoveAtom(random, potentialMaster, space, 0.5, 5.0, true);
+        MCMoveAtom atomMove = new MCMoveAtom(random, potentialMasterL, boxLiquid);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
 
-        integratorVapor = new IntegratorMC(potentialMaster, random, temperature, boxVapor);
+        integratorVapor = new IntegratorMC(potentialMasterV, random, temperature, boxVapor);
         integratorVapor.getMoveManager().setEquilibrating(true);
-        atomMove = new MCMoveAtom(random, potentialMaster, space, 0.5, 5.0, true);
+        atomMove = new MCMoveAtom(random, potentialMasterV, boxVapor);
         integratorVapor.getMoveManager().addMCMove(atomMove);
 
         if (!doNBR) {
@@ -97,24 +100,15 @@ public class SWVLESim extends Simulation {
         integratorGEMC.setGlobalMoveInterval(2);
         integratorGEMC.addIntegrator(integratorLiquid);
         integratorGEMC.addIntegrator(integratorVapor);
-        final MCMoveVolumeExchangeVLE volumeExchange = new MCMoveVolumeExchangeVLE(
-                potentialMaster, random, space, integratorLiquid, integratorVapor);
+        final MCMoveVolumeExchangeVLE volumeExchange = new MCMoveVolumeExchangeVLE(random, space, integratorLiquid, integratorVapor);
         volumeExchange.setStepSize(0.05);
         MCMoveMoleculeExchangeVLE moleculeExchange = new MCMoveMoleculeExchangeVLE(
-                potentialMaster, random, space, integratorLiquid, integratorVapor);
+                random, space, integratorLiquid, integratorVapor);
         integratorGEMC.getMoveManager().addMCMove(volumeExchange);
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
 //        integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
 
-        activityIntegrate = new ActivityIntegrate(integratorGEMC);
-        getController().addAction(activityIntegrate);
-
-        if (doNBR) {
-            ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();
-            ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxVapor).assignCellAll();
-            integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid)).makeMCMoveListener());
-            integratorVapor.getMoveEventManager().addListener((((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxVapor)).makeMCMoveListener()));
-        }
+        getController().addActivity(new ActivityIntegrate(integratorGEMC));
     }
 
 }

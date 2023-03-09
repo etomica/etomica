@@ -5,7 +5,6 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.modifier.Modifier;
-import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 
@@ -32,14 +31,15 @@ public class ModifierPistonPressure implements Modifier {
     public Dimension getDimension() {
         return pressureDim;
     }
-    
+
     public String getLabel() {
         return "Piston pressure";
     }
-    
+
     public String toString() {
         return getLabel();
     }
+
     private final P1HardMovingBoundary pistonPotential;
     private final Dimension pressureDim;
     private Space space;

@@ -4,14 +4,14 @@
 
 package etomica.normalmode;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Normal-mode quantities for a 1-dimensional system of hard rods.  Frequencies are defined
@@ -92,7 +92,7 @@ public class NormalModes1DHR implements NormalModes {
         int N = 8;
         Space space = Space1D.getInstance();
         Simulation sim = new Simulation(space);
-        ISpecies species = new SpeciesSpheresMono(sim,space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box = new Box(space);
         sim.addBox(box);

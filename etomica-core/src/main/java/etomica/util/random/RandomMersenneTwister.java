@@ -47,8 +47,6 @@ package etomica.util.random;
     email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-import etomica.meta.annotations.IgnoreProperty;
-
 /**
  * Mersenne Twister RNG.  seed initialization and nextInt() methods written in
  * C by Takuji Nishimura and Makoto Matsumoto as described above, and
@@ -93,7 +91,6 @@ public class RandomMersenneTwister implements IRandom {
         setSeedArray(s);
     }
 
-    @IgnoreProperty
     public int getSeed() {
         if (savedSeedArray != null) throw new RuntimeException("it's a seed array");
         return savedSeed;

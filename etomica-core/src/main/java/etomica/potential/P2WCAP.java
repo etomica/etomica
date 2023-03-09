@@ -4,8 +4,6 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -16,7 +14,7 @@ import etomica.units.dimensions.Length;
 /**
  * LJ potential minus WCA.
  */
-public class P2WCAP implements Potential2Spherical {
+public class P2WCAP implements IPotential2 {
 
     protected Boundary boundary;
     protected final Vector dr;
@@ -32,33 +30,6 @@ public class P2WCAP implements Potential2Spherical {
         dr = space.makeVector();
         setSigma(sigma);
         setEpsilon(epsilon);
-    }
-
-    /**
-     * Returns the range of the potential, which is the point of truncation.  This
-     * is equal to 2^(1/6) * sigma.
-     */
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
-    @Override
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
-    @Override
-    public int nBody() {
-        return 2;
-    }
-
-    /**
-     * Energy of the pair as given by the u(double) method
-     */
-    public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
-        boundary.nearestImage(dr);
-        return u(dr.squared());
     }
 
     /**

@@ -7,34 +7,37 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOrientedKinetic;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.molecule.*;
-import etomica.potential.PotentialMaster;
+import etomica.molecule.OrientationCalcAtomLinear;
+import etomica.potential.P2LJDipoleAtomic;
+import etomica.potential.compute.NeighborManagerSimple;
+import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IOrientation;
 import etomica.space.Space;
-import etomica.space.Vector;
-import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresRotatingMolecule;
+import etomica.species.SpeciesGeneral;
+import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 
 public class DipoleBox extends Simulation {
 
     public final IntegratorRigidIterative integrator;
-    public final ActivityIntegrate ai;
     public final Box box;
-    
+
     public DipoleBox(Space space, int nAtoms, double dt) {
         super(space);
-        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, Vector.of(new double[]{0.025, 0.025, 0.025}));
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesSpheresRotating
+                .create(space, new ElementSimple("A"), true, true);
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));
         box.setNMolecules(species, nAtoms);
@@ -42,30 +45,29 @@ public class DipoleBox extends Simulation {
         inflater.setTargetDensity(0.5);
         inflater.actionPerformed();
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        IMoleculeList molecules = box.getMoleculeList();
+        IAtomList atoms = box.getLeafList();
         for (int i = 0; i < nAtoms; i++) {
-            IMolecule molecule = molecules.get(i);
-            ((IMoleculePositioned) molecule).getPosition().E(molecule.getChildList().get(0).getPosition());
-            IOrientationFull3D orientation = (IOrientationFull3D) ((IMoleculeOriented) molecule).getOrientation();
+            IAtomOrientedKinetic atom = (IAtomOrientedKinetic) atoms.get(i);
+            IOrientation orientation = atom.getOrientation();
             for (int j = 0; j < 20; j++) {
                 orientation.randomRotation(getRandom(), 1);
             }
         }
-        PotentialMaster potentialMaster = new PotentialMaster();
+        NeighborManagerSimple neighborManager = new NeighborManagerSimple(box);
+        PotentialComputePairGeneral potentialMaster = new PotentialComputePairGeneral(getSpeciesManager(), box, neighborManager);
         int maxIterations = 20;
-        integrator = new IntegratorRigidIterative(this, potentialMaster, dt, 1, box);
+        integrator = new IntegratorRigidIterative(getSpeciesManager(), random, potentialMaster, dt, 1, box);
         integrator.setTemperature(1);
         integrator.setIsothermal(false);
-        integrator.printInterval = 1;
+        integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
-        OrientationCalcAtom calcer = new OrientationCalcAtom();
+        OrientationCalcAtomLinear calcer = new OrientationCalcAtomLinear();
         integrator.setOrientationCalc(species, calcer);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
-        P2LJDipole p2 = new P2LJDipole(space, 1.0, 1.0, 2.0);
+        P2LJDipoleAtomic p2 = new P2LJDipoleAtomic(space, 1.0, 1.0, 2.0);
         p2.setTruncationRadius(2.5);
-        potentialMaster.addPotential(p2, new ISpecies[]{species, species});
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), p2);
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
@@ -78,7 +80,7 @@ public class DipoleBox extends Simulation {
         double dt = 0.01;
         if (args.length == 0) {
             DipoleBox sim = new DipoleBox(space, nAtoms, dt);
-            sim.ai.setSleepPeriod(10);
+            sim.getController().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
             graphic.makeAndDisplayFrame();
@@ -88,22 +90,8 @@ public class DipoleBox extends Simulation {
             nAtoms = Integer.parseInt(args[1]);
             DipoleBox sim = new DipoleBox(space, nAtoms, dt);
             sim.integrator.printInterval = 100;
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
         }
     }
 
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            Space space = Space3D.getInstance();
-            DipoleBox sim = new DipoleBox(space, 864, 0.01);
-            sim.ai.setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-            graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
-
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
 }

@@ -4,24 +4,20 @@
 
 package etomica.modules.multiharmonic;
 
-import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorListenerAction;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.P1Harmonic;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -31,52 +27,47 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class MultiharmonicMC extends Simulation {
 
-    private static final long serialVersionUID = 1L;
-    MeterPotentialEnergy meterEnergy;
+    MeterPotentialEnergyFromIntegrator meterEnergy;
     AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
-    SpeciesSpheresMono species;
+    SpeciesGeneral species;
     Box box;
-    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorMC integrator;
-    ActivityIntegrate activityIntegrate;
     MeterFreeEnergy meter;
     AccumulatorAverageCollapsing accumulator;
-    DataPump dataPump, dataPumpEnergy;
-    SimulationDataAction resetAccumulators;
+    DataPumpListener dataPump, dataPumpEnergy;
     DataSourceCountSteps stepCounter;
+
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        box.getBoundary().setBoxSize(new Vector1D(3.0));
-        controller = getController();
-        integrator = new IntegratorMC(this, potentialMaster, box);
+        box.getBoundary().setBoxSize(new Vector1D(6.0));
+        PotentialComputeField potentialMaster = new PotentialComputeField(getSpeciesManager(), box);
+        integrator = new IntegratorMC(potentialMaster, this.getRandom(), 1.0, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
-        integrator.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
-        potentialMaster.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+        integrator.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integrator, potentialA, random));
+        potentialMaster.setFieldPotential(species.getLeafType(), potentialA);
 
         box.setNMolecules(species, 10);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialB = new P1Harmonic(space);
         meter = new MeterFreeEnergy(potentialA, potentialB);
         meter.setBox(box);
         accumulator = new AccumulatorAverageCollapsing();
-        dataPump = new DataPump(meter, accumulator);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
+        dataPump = new DataPumpListener(meter, accumulator);
+        integrator.getEventManager().addListener(dataPump);
 
-        meterEnergy = new MeterPotentialEnergy(potentialMaster, box);
+        meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
-        dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
+        dataPumpEnergy = new DataPumpListener(meterEnergy, accumulatorEnergy);
+        integrator.getEventManager().addListener(dataPumpEnergy);
 
         historyEnergy = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[]{accumulatorEnergy.AVERAGE});

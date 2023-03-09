@@ -6,7 +6,6 @@ package etomica.virial;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
 
 /**
  * @author kofke
@@ -49,10 +48,6 @@ public class MayerHardSphere implements MayerFunction {
     public void setSigma(double sigma) {
         this.sigma = sigma;
         sigma2 = sigma*sigma;
-    }
-
-    public IPotential getPotential() {
-        return null;
     }
 
     public void setBox(Box newBox) {

@@ -4,21 +4,19 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.ElectronVolt;
-import etomica.util.Constants;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class P2O2Bartolomei implements IPotentialAtomic {
+public class P2O2Bartolomei implements IPotential2 {
     
     public static void main (String [] args) {        
         int [] is = new int [] {0,1,2};
@@ -123,22 +121,11 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         this.space = space;
     }
 
-    public double getRange() {        
-        return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
-    public int nBody() {     
-        return 2;
-    }
-
-    public double energy(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
-        double rCM = Math.sqrt(atom0.getPosition().Mv1Squared(atom1.getPosition()));        
+    @Override
+    public double u(Vector dr12, IAtom at1, IAtom at2) {
+        IAtomOriented atom1 = (IAtomOriented)at1;
+        IAtomOriented atom2 = (IAtomOriented)at2;
+        double rCM = Math.sqrt(dr12.squared());
         double th1 = 0;
         double th2 = 0;
         double phi = 0;
@@ -156,8 +143,8 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         ez.E(0);
         ez.setX(2, 1);
                 
-        a0.E(atom0.getOrientation().getDirection());
-        a1.E(atom1.getOrientation().getDirection());
+        a0.E(atom1.getOrientation().getDirection());
+        a1.E(atom2.getOrientation().getDirection());
         
         dr.E(0);
         dr.setX(0, rCM);        
@@ -736,49 +723,4 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         return plm;
     }
 
-    public P2O2TI makeTI(double temperature) {
-        return new P2O2TI(temperature);
-    }
-
-    public class P2O2TI implements IPotentialAtomic {
-
-        protected final double temperature;
-        protected final double mass = 4.002602;
-        protected final double fac;
-        protected final Vector dr;
-
-        public P2O2TI(double temperature) {
-            dr = space.makeVector();
-            this.temperature = temperature;
-            double hbar = Constants.PLANCK_H/(2*Math.PI);
-            fac = hbar*hbar/(24*mass/2)/(temperature*temperature);
-        }
-
-        public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
-            boundary.nearestImage(dr);
-            return u(dr.squared());
-        }
-
-        public double getRange() {
-            return P2O2Bartolomei.this.getRange();
-        }
-
-        public void setBox(Box box) {
-            P2O2Bartolomei.this.setBox(box);
-        }
-
-        public int nBody() {
-            return 2;
-        }
-
-        public double u(double r2) {
-            double r = Math.sqrt(r2);
-            r = BohrRadius.UNIT.fromSim(r);
-            double uc = 0;
-            double duc = 0;
-            double u = uc + (fac/r2)*duc*duc;
-            return u;
-        }
-    }
 }

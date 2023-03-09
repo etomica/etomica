@@ -4,33 +4,30 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
 
 /**
  * slight modification from P4BondTorsion class(change energyAtAngle method)
  * Siepmann's Alkane TraPPE-EH model, XCCH torsion potential, X can be H or C, H is for H on CH3 only
- * U(torsion) = Cx * (1 -cos(3phi)); C(C):854K, C(H):717K 
- * 
+ * U(torsion) = Cx * (1 -cos(3phi)); C(C):854K, C(H):717K
+ *
  * @author shu
  * Mar 2013
  */
-public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft {
-	public P4BondTorsionAlkaneXCCH(Space space, double a0, double a1, double a2, double a3) {
-    	
-        super(4, space);
+public class P4BondTorsionAlkaneXCCH implements IPotentialBondTorsion {
+    public P4BondTorsionAlkaneXCCH(Space space, double a0, double a1, double a2, double a3) {
         dr21 = space.makeVector();
         dr23 = space.makeVector();
         dr34 = space.makeVector();
@@ -49,10 +46,6 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         }
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public double energy(IAtomList atomSet) {
         IAtom atom0 = atomSet.get(0);
         IAtom atom1 = atomSet.get(1);
@@ -69,31 +62,40 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         double dr23Sq = dr23.squared();
         dr21.PEa1Tv1(-dr21.dot(dr23)/dr23Sq, dr23);
         dr34.PEa1Tv1(-dr34.dot(dr23)/dr23Sq, dr23);
-        
-        double cosphi = dr21.dot(dr34)/Math.sqrt(dr21.squared()*dr34.squared());
+
+        double cosphi = dr21.dot(dr34) / Math.sqrt(dr21.squared() * dr34.squared());
         // :::::::::::::: check torsion angles ::::::::::::::::: //
 //        	int i0 = atom0.getIndex();
 //        	int i1 = atom1.getIndex();
 //        	int i2 = atom2.getIndex();
 //        	int i3 = atom3.getIndex();
 //        		System.out.println(String.format("%2d %2d %2d %2d %f", i0, i1, i2, i3, cosphi));
-        return energyAtAngle(cosphi);
-        
-    }
-    
-    public double energyAtAngle(double cosphi) {
-        double cos2phi = 2*cosphi*cosphi-1;
-        double cos3phi = cosphi*(2*cos2phi-1);
-        return a0 + a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1-cos3phi);
-     //original:   return a0 + a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1+cos3phi);
+        return u(cosphi);
 
+    }
+
+    @Override
+    public double u(double cosphi) {
+        double cos2phi = 2 * cosphi * cosphi - 1;
+        double cos3phi = cosphi * (2 * cos2phi - 1);
+        return a0 + a1 * (1 + cosphi) + a2 * (1 - cos2phi) + a3 * (1 - cos3phi);
+        //original:   return a0 + a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1+cos3phi);
+
+    }
+
+    @Override
+    public void udu(double costheta, double[] u, double[] du) {
+        double cos2theta = 2 * costheta * costheta - 1;
+        double cos3theta = costheta * (2 * cos2theta - 1);
+        u[0] = a0 + a1 * (1 + costheta) + a2 * (1 - cos2theta) + a3 * (1 - cos3theta);
+        du[0] = 12.0 * a3 * cos2theta - 4.0 * a2 * costheta + a1 - 3 * a3;
     }
 
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }
-    
-    public Vector[] gradient(IAtomList atoms) {
+
+    private Vector[] gradient(IAtomList atoms) {
         IAtom atom0 = atoms.get(0);
         IAtom atom1 = atoms.get(1);
         IAtom atom2 = atoms.get(2);
@@ -174,15 +176,6 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         return gradient;
     }
 
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
-    private static final long serialVersionUID = 1L;
     protected final Vector dr21, dr23, dr34;
     protected final Vector v1, v2;
     protected final Vector gtmp;
@@ -197,7 +190,6 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
         positionSource.setBox(box);
-        potential.setBox(box);
         Atom atom0 = new Atom(space);
         Atom atom1 = new Atom(space);
         Atom atom2 = new Atom(space);

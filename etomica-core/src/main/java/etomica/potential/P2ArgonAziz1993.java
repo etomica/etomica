@@ -3,20 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.Space;
 
 /**
  * Pair potential for argon from Aziz (1993) JCP 99(6): 4518.  This is a true pair potential, rather than a pairwise-additive potential.
- * 
+ * <p>
  * In this class, only the pair potential is valid, not the gradients, etc.  I am unlikely to ever include those...
  *
  * @author Kate Shaul
  */
-public class P2ArgonAziz1993 extends Potential2SoftSpherical {
-    
-    public P2ArgonAziz1993(Space space) {
-        super(space);
-   
+public class P2ArgonAziz1993 implements IPotential2 {
+
+    public static IPotential2 makeTruncated(TruncationFactory tf) {
+        return tf.make(new P2ArgonAziz1993());
     }
 
     /**
@@ -65,17 +63,7 @@ public class P2ArgonAziz1993 extends Potential2SoftSpherical {
      
         return 0;
     }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        
-        return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-    }
 
-   
-   
     private static final long serialVersionUID = 1L;
     
 }

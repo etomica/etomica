@@ -8,6 +8,8 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorMD;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -16,23 +18,23 @@ public class AtomHardStressCollector implements IntegratorHard.CollisionListener
     private boolean velIncluded = false;
     private final double[][][] stress;
     private final Tensor stressPair;
-    private final IntegratorHard integrator;
+    private final IntegratorMD timeSource;
     private double t0;
 
-    public AtomHardStressCollector(IntegratorHard integrator) {
-        this.integrator = integrator;
-        Box box = integrator.getBox();
+    public AtomHardStressCollector(IntegratorMD timeSource) {
+        this.timeSource = timeSource;
+        Box box = timeSource.getBox();
         int n = box.getLeafList().size();
         int D = box.getSpace().D();
         stress = new double[n][D][D];
         stressPair = box.getSpace().makeTensor();
-        t0 = integrator.getCurrentTime();
+        t0 = timeSource.getCurrentTime();
     }
 
     public double[][][] getStress() {
         if (!velIncluded) {
-            IAtomList atoms = integrator.getBox().getLeafList();
-            double t = integrator.getCurrentTime();
+            IAtomList atoms = timeSource.getBox().getLeafList();
+            double t = timeSource.getCurrentTime();
             double idt = 1 / (t - t0);
             int D = stress[0].length;
             for (int i = 0; i < atoms.size(); i++) {
@@ -58,7 +60,8 @@ public class AtomHardStressCollector implements IntegratorHard.CollisionListener
         return stress;
     }
 
-    public void collisionAction(IntegratorHard.Agent agent) {
+    @Override
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision) {
         if (velIncluded) {
             final int l = stress[0].length;
             for (int i = 0; i < stress.length; i++) {
@@ -70,14 +73,16 @@ public class AtomHardStressCollector implements IntegratorHard.CollisionListener
             }
             velIncluded = false;
         }
-        Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
-        int idx0 = agent.atom.getLeafIndex();
-        int idx1 = agent.collisionPartner.getLeafIndex();
-        int D = lcvt.D();
+        Tensor t = Space.getInstance(atom1.getPosition().getD()).makeTensor();
+        t.Ev1v2(rij, rij);
+        t.TE(virial / rij.squared());
+        int idx1 = atom1.getLeafIndex();
+        int idx2 = atom2.getLeafIndex();
+        int D = t.D();
         for (int i = 0; i < D; i++) {
             for (int j = 0; j < D; j++) {
-                stress[idx0][i][j] += lcvt.component(i, j);
-                stress[idx1][i][j] += lcvt.component(i, j);
+                stress[idx1][i][j] += t.component(i, j);
+                stress[idx2][i][j] += t.component(i, j);
             }
         }
     }

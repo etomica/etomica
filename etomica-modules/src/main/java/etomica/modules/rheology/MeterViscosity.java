@@ -6,9 +6,9 @@ package etomica.modules.rheology;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -37,7 +37,7 @@ public class MeterViscosity extends DataSourceScalar {
             return Double.NaN;
         }
         double b = integrator.getB();
-        IAtomList list = box.getMoleculeList().get(0).getChildList();
+        IAtomList list = box.getLeafList();
         double v = 0;
         for (int i = 0; i<list.size()-1; i++) {
             Vector p0 = list.get(i).getPosition();
@@ -48,7 +48,6 @@ public class MeterViscosity extends DataSourceScalar {
         return v/shearRate;
     }
 
-    private static final long serialVersionUID = 1L;
     protected Box box;
     protected Vector dr;
     protected IntegratorPolymer integrator;
