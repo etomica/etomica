@@ -40,7 +40,6 @@ public class GlassGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Glass Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
     protected SimGlass sim;
-    public final DeviceCheckBox swapCheckbox;
 
     public GlassGraphic(final SimGlass simulation) {
 
@@ -1940,7 +1939,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //************* Lay out components ****************//
 
-        swapCheckbox = new DeviceCheckBox(sim.getController(), "isothermal", new ModifierBoolean() {
+        DeviceCheckBox swapCheckbox = new DeviceCheckBox(sim.getController(), "isothermal", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
 
@@ -2209,27 +2208,22 @@ public class GlassGraphic extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame
                 (ljmdGraphic.getPanel(), sim.potentialChoice + " " + APP_NAME);
         if (params.potential == SimGlass.PotentialChoice.HS && sim.chs < 100) {
-            ljmdGraphic.swapCheckbox.getCheckBox().setEnabled(false);
             JFrame f = new JFrame();
             f.setSize(700, 500);
             JPanel panel = new JPanel();
-            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps.  Please be patient.</div></html>"));
+            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps. Controls probably won't work properly until this dialog disappears. </div></html>"));
             f.getContentPane().add(panel);
             f.pack();
             f.setTitle("Generating configuration");
+            f.setLocationRelativeTo(null);
             f.setVisible(true);
-            sim.getController().removeAction(sim.activityIntegrate);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initConfig();
-                    ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
-                    f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
-                    ljmdGraphic.swapCheckbox.getCheckBox().setEnabled(true);
-                }
+            sim.getController().addActivity(sim.makeInitConfigActivity()).future.whenComplete((res, ex) -> {
+                ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
+                f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
             });
-            sim.getController().addAction(sim.activityIntegrate);
         }
-     }
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+    }
 
     /**
      * Inner class to find the total pressure of the system from the pressure
