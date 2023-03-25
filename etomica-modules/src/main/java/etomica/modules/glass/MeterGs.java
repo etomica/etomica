@@ -76,6 +76,10 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
         }
     }
 
+    public void reset() {
+        reallocate(0);
+    }
+
     public void setMinConfigIndex(int idx) {
         minConfigIndex = idx;
     }

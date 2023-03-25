@@ -448,8 +448,10 @@ public class GlassProd {
         configStorageMSD.addListener(meterL);
 
         //Alpha2
-        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
-        configStorageMSD.addListener(meterAlpha2);
+        DataSourceAlpha2 meterAlpha2A = new DataSourceAlpha2(configStorageMSD, sim.speciesA);
+        configStorageMSD.addListener(meterAlpha2A);
+        DataSourceAlpha2 meterAlpha2B = new DataSourceAlpha2(configStorageMSD, sim.speciesB);
+        configStorageMSD.addListener(meterAlpha2B);
 
         //S(q)
         double cut10 = 10;
@@ -690,7 +692,8 @@ public class GlassProd {
         objects.add(accPerc0);
         objects.add(meterQ4);
         objects.add(meterL);
-        objects.add(meterAlpha2);
+        objects.add(meterAlpha2A);
+        objects.add(meterAlpha2B);
         objects.add(accSFac);
         objects.add(accSFacAB);
         for (int i = 0; i < 30; i++) {
@@ -749,7 +752,7 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenamePerc,
-                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameSqAB, filenameVAC;
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
 
         String fileTag;
         String filenamePxyAC = "";
@@ -769,7 +772,8 @@ public class GlassProd {
             filenameImmFracA = String.format("immFracARho%1.3f.dat", rho);
             filenameImmFracB = String.format("immFracBRho%1.3f.dat", rho);
             filenameImmFracPerc = String.format("immFracPercRho%1.3f.dat", rho);
-            filenameAlpha2 = String.format("alpha2Rho%1.3f.dat", rho);
+            filenameAlpha2A = String.format("alpha2ARho%1.3f.dat", rho);
+            filenameAlpha2B = String.format("alpha2BRho%1.3f.dat", rho);
             filenameSq = String.format("sqRho%1.3f.dat", rho);
             filenameSqAB = String.format("sqRhoAB%1.3f.dat", rho);
         } else {
@@ -819,7 +823,8 @@ public class GlassProd {
             filenameImmFracA = String.format("immFracARho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameImmFracB = String.format("immFracBRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameImmFracPerc = String.format("immFracPercRho%1.3fT%1.3f.dat", rho, params.temperature);
-            filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.dat", rho, params.temperature);
+            filenameAlpha2A = String.format("alpha2ARho%1.3fT%1.3f.dat", rho, params.temperature);
+            filenameAlpha2B = String.format("alpha2BRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameSq = String.format("sqRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameSqAB = String.format("sqRhoAB%1.3fT%1.3f.dat", rho, params.temperature);
@@ -914,7 +919,8 @@ public class GlassProd {
             GlassProd.writeDataToFile(meterL, filenameL);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeChi4Source(), meterPerc3.makeChi4Source()}, "chi4Star" + fileTag + ".dat");
             GlassProd.writeDataToFile(meterQ4.makeChi4Meter(), "chi4" + fileTag + ".dat");
-            GlassProd.writeDataToFile(meterAlpha2, filenameAlpha2);
+            GlassProd.writeDataToFile(meterAlpha2A, filenameAlpha2A);
+            GlassProd.writeDataToFile(meterAlpha2B, filenameAlpha2B);
             GlassProd.writeDataToFile(accSFac, filenameSq);
             GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 

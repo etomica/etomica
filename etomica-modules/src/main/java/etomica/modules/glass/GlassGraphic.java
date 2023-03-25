@@ -1370,17 +1370,23 @@ public class GlassGraphic extends SimulationGraphic {
         plotVAC.getPlot().setXLog(true);
         add(plotVAC);
 
-
-        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorage);
-        configStorage.addListener(meterAlpha2);
         DisplayPlotXChart plotAlpha2 = new DisplayPlotXChart();
-        DataPumpListener pumpAlpha2 = new DataPumpListener(meterAlpha2, plotAlpha2.getDataSet().makeDataSink(), 1000);
-        sim.integrator.getEventManager().addListener(pumpAlpha2);
         plotAlpha2.setLabel("alpha2");
         plotAlpha2.getPlot().setXLog(true);
-        plotAlpha2.setDoLegend(false);
-        add(plotAlpha2);
 
+        DataSourceAlpha2 meterAlpha2A = new DataSourceAlpha2(configStorage, sim.speciesA);
+        configStorage.addListener(meterAlpha2A);
+        DataPumpListener pumpAlpha2A = new DataPumpListener(meterAlpha2A, plotAlpha2.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpAlpha2A);
+        plotAlpha2.setLegend(new DataTag[]{meterAlpha2A.getTag()}, "A");
+
+        DataSourceAlpha2 meterAlpha2B = new DataSourceAlpha2(configStorage, sim.speciesB);
+        configStorage.addListener(meterAlpha2B);
+        DataPumpListener pumpAlpha2B = new DataPumpListener(meterAlpha2B, plotAlpha2.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpAlpha2B);
+        plotAlpha2.setLegend(new DataTag[]{meterAlpha2B.getTag()}, "B");
+
+        add(plotAlpha2);
 
         //F - new
         DataSourceF meterF = new DataSourceF(configStorage);
@@ -1954,6 +1960,11 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(false);
                     configStorage.reset();
                     configStorage.setEnabled(false);
+                    meterAlpha2A.reset();
+                    meterAlpha2B.reset();
+                    meterGs.reset();
+                    meterGsA.reset();
+                    meterGsB.reset();
                     meterMSD.reset();
                     meterMSDA.reset();
                     meterMSDB.reset();
@@ -2018,6 +2029,11 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(true);
                     configStorage.reset();
                     configStorage.setEnabled(true);
+                    meterAlpha2A.reset();
+                    meterAlpha2B.reset();
+                    meterGs.reset();
+                    meterGsA.reset();
+                    meterGsB.reset();
                     meterMSD.reset();
                     meterMSDA.reset();
                     meterMSDB.reset();
@@ -2207,7 +2223,7 @@ public class GlassGraphic extends SimulationGraphic {
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
                 (ljmdGraphic.getPanel(), sim.potentialChoice + " " + APP_NAME);
-        if (params.potential == SimGlass.PotentialChoice.HS && sim.chs < 100) {
+        if (params.potential == SimGlass.PotentialChoice.HS) {
             JFrame f = new JFrame();
             f.setSize(700, 500);
             JPanel panel = new JPanel();
