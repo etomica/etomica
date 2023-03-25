@@ -447,7 +447,7 @@ public class GlassProd {
         sim.integrator.getEventManager().addListener(pumpPerc0);
 
         DataSourceQ4 meterQ4 = new DataSourceQ4(configStorageMSD, percMinInterval + 1);
-        meterQ4.setMaxDr(0.2);
+        meterQ4.setMaxDr(params.minDrFilter);
         configStorageMSD.addListener(meterQ4);
 
         //Strings
