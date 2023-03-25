@@ -1389,7 +1389,7 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotAlpha2);
 
         //F - new
-        DataSourceF meterF = new DataSourceF(configStorage);
+        DataSourceF meterF = new DataSourceF(configStorage, 7);
         configStorage.addListener(meterF);
         DisplayPlotXChart plotF = new DisplayPlotXChart();
         DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);

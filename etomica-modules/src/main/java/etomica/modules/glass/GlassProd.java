@@ -419,6 +419,9 @@ public class GlassProd {
         meterFs.setQ(q);
         configStorageMSD.addListener(meterFs);
 
+        DataSourceF meterF = new DataSourceF(configStorageMSD, params.qx);
+        configStorageMSD.addListener(meterF);
+
         //Percolation
         int percMinInterval = 11;
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
@@ -687,6 +690,7 @@ public class GlassProd {
         objects.add(dsMSDcorP);
         objects.add(meterVAC);
         objects.add(meterFs);
+        objects.add(meterF);
         objects.add(meterPerc);
         objects.add(meterPerc3);
         objects.add(accPerc0);
@@ -751,7 +755,7 @@ public class GlassProd {
         double pErr = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenamePerc,
+        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenameF, filenamePerc,
                 filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
 
         String fileTag;
@@ -764,7 +768,8 @@ public class GlassProd {
             filenameMSDA = String.format("msdARho%1.3f.dat", rho);
             filenameMSDB = String.format("msdBRho%1.3f.dat", rho);
             filenameVAC = String.format("vacRho%1.3f.dat", rho);
-            filenameFs = String.format("fsRho%1.3fQ%1.2f.dat", rho, params.qx);
+            filenameFs = String.format("FsRho%1.3fQ%1.2f.dat", rho, params.qx);
+            filenameF = String.format("FRho%1.3fQ%1.2f.dat", rho, params.qx);
             filenamePerc = String.format("percRho%1.3f.dat", rho);
             filenamePerc0 = String.format("perc0Rho%1.3f.dat", rho);
             filenameL = String.format("lRho%1.3f.dat", rho);
@@ -815,7 +820,8 @@ public class GlassProd {
             filenameMSDA = String.format("msdARho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameMSDB = String.format("msdBRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameVAC = String.format("vacRho%1.3fT%1.3f.dat", rho, params.temperature);
-            filenameFs = String.format("fsRho%1.3fT%1.3fQ%1.2f.dat", rho, params.temperature, params.qx);
+            filenameFs = String.format("FsRho%1.3fT%1.3fQ%1.2f.dat", rho, params.temperature, params.qx);
+            filenameF = String.format("FRho%1.3fT%1.3fQ%1.2f.dat", rho, params.temperature, params.qx);
             filenamePerc = String.format("percRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenamePerc0 = String.format("perc0Rho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.dat", rho, params.temperature);
@@ -906,6 +912,7 @@ public class GlassProd {
             }
 
             GlassProd.writeDataToFile(meterFs, filenameFs);
+            GlassProd.writeDataToFile(meterF, filenameF);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc, meterPerc3}, filenamePerc);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(),
                     meterPerc3.makeImmFractionSource()}, filenameImmFrac);
