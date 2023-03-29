@@ -13,9 +13,16 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pixel;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 //Class used to define canvas onto which configuration is drawn
@@ -44,6 +51,47 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             public void componentMoved(ComponentEvent e) {}
             public void componentShown(ComponentEvent e) {}
             public void componentResized(ComponentEvent e) { refreshSize(); }});
+
+        {
+            final JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem exportImageMenuItem = new JMenuItem("export image" );
+            exportImageMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    double scale = 2;
+                    DisplayBox db = new DisplayBox(controller, displayBox.getBox());
+                    db.setScale(displayBox.getScale() * scale);
+                    db.setDiameterHash(displayBox.getDiameterHash());
+                    db.setColorScheme(displayBox.getColorScheme());
+                    db.setAtomTestDoDisplay(displayBox.getAtomTestDoDisplay());
+                    DisplayBoxCanvas2D canvas = makeCopy(db);
+                    Vector L = displayBox.getBox().getBoundary().getBoxSize();
+                    int width = 1 + (int)((L.getX(0) + db.getPaddingSigma()) * pixel.toPixels() * db.scale);
+                    int height = 1 + (int)((L.getX(1) + db.getPaddingSigma()) * pixel.toPixels() * db.scale);
+                    BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2d = image.createGraphics();
+                    canvas.doPaint(g2d, width, height);
+                    g2d.dispose();
+                    File imageFile = new File("config.png");
+                    try {
+                        ImageIO.write(image, "png", imageFile);
+                    }
+                    catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            popupMenu.add(exportImageMenuItem);
+
+            addMouseListener(new DisplayPlot.PopupListener(popupMenu));
+
+        }
+
+    }
+
+    protected DisplayBoxCanvas2D makeCopy(DisplayBox db) {
+        DisplayBoxCanvas2D canvas = new DisplayBoxCanvas2D(db, db.getBox().getSpace(), controller);
+        canvas.setPixelUnit(pixel);
+        return canvas;
     }
 
     protected void refreshSize() {
@@ -130,15 +178,21 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     * @param g The graphic object to which the image of the box is drawn
     */
     public void doPaint(Graphics g) {
-        if(!isVisible() || displayBox.getBox() == null) {return;}
+        if (!isVisible() || displayBox.getBox() == null) {
+            return;
+        }
         int w = getSize().width;
         int h = getSize().height;
+        doPaint(g, w, h);
+    }
+
+    public void doPaint(Graphics g, int w, int h) {
 
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayBox.computeImageParameters2(w, h);
         boundingBox.E(displayBox.getBox().getBoundary().getBoxSize());
-        int[] origin = displayBox.getOrigin();
+        int[] origin = displayBox.centralOrigin;
         double toPixels = displayBox.getScale() * pixel.toPixels();
 
         //Draw other features if indicated
