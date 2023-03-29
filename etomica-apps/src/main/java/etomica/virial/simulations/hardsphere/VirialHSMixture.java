@@ -92,7 +92,7 @@ public class VirialHSMixture {
                 int jjj = 0;
                 for (int j = 0; j <= i; j++) {
                     for (int jj = 0; jj <= ((i == j) ? ii : (nTypes[j] - 1)); jj++) {
-                        double x = nonAdd == null ? 0 : nonAdd[i][j];
+                        double x = nonAdd[i][j];
                         pairSigma[jjj][iii] = pairSigma[iii][jjj] = (1 + x) * (sigma[i] + sigma[j]) / 2;
                         jjj++;
                     }
@@ -107,32 +107,32 @@ public class VirialHSMixture {
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
-        final ClusterAbstract refCluster;
+        final ClusterWeightUmbrella refCluster;
         double ri;
         if (ref == VirialHSParam.TREE) {
             System.out.println("using a tree reference");
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{ct});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
+            refCluster.setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
             ri = 1;
         } else if (ref == VirialHSParam.CHAINS) {
             System.out.println("using a chain reference");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
+            refCluster.setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
             ri = 1;
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             System.out.println("using a chain/tree reference (" + chainFrac + " chains)");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
+            refCluster.setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
             ri = 1;
         } else if (ref == VirialHSParam.RANDOM) {
             System.out.println("using random particles in box reference");
             ClusterConstant cc = new ClusterConstant(nPoints, Math.pow(1.0/L, 3.0*(nPoints-1)));
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0});
+            refCluster.setWeightCoefficients(new double[]{1.0});
             ri = 1;
         } else {
             throw new RuntimeException();
@@ -272,15 +272,12 @@ public class VirialHSMixture {
         double err = errorData.getValue(0);
 
 
-        System.out.print(String.format("target average: %20.15e error: %9.4e\n", avg, err));
+        System.out.printf("target average: %20.15e error: %9.4e\n", avg, err);
 
-        System.out.println();
-
-        System.out.println(String.format("abs average: %20.15e  error: %9.4e\n", avg * refIntegral, err * Math.abs(refIntegral)));
+        System.out.printf("abs average: %20.15e  error: %9.4e\n", avg * refIntegral, err * Math.abs(refIntegral));
 
         long t2 = System.currentTimeMillis();
         System.out.println("time:" + (t2 - t1) / 1000.0);
-        System.out.println("#################################");
     }
 
 
