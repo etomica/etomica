@@ -108,38 +108,31 @@ public class VirialHSMixture {
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
         final ClusterWeightUmbrella refCluster;
-        double ri;
         if (ref == VirialHSParam.TREE) {
             System.out.println("using a tree reference");
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{ct});
             refCluster.setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
-            ri = 1;
         } else if (ref == VirialHSParam.CHAINS) {
             System.out.println("using a chain reference");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
             refCluster.setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
-            ri = 1;
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             System.out.println("using a chain/tree reference (" + chainFrac + " chains)");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
             refCluster.setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
-            ri = 1;
         } else if (ref == VirialHSParam.RANDOM) {
             System.out.println("using random particles in box reference");
             ClusterConstant cc = new ClusterConstant(nPoints, Math.pow(1.0/L, 3.0*(nPoints-1)));
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
             refCluster.setWeightCoefficients(new double[]{1.0});
-            ri = 1;
         } else {
             throw new RuntimeException();
         }
 
-        final double refIntegral = ri;
-        System.out.println("reference integral: " + refIntegral);
         refCluster.setTemperature(1.0);
 
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
@@ -234,9 +227,9 @@ public class VirialHSMixture {
                     IData avgData = accumulator.getData();
                     double avg = ((DataGroup) avgData).getData(accumulator.AVERAGE.index).getValue(0);
                     double error = ((DataGroup) avgData).getData(accumulator.ERROR.index).getValue(0);
-                    data.x = avg * refIntegral;
+                    data.x = avg;
                     averageBox.putData(data);
-                    data.x = error * Math.abs(refIntegral);
+                    data.x = error;
                     errorBox.putData(data);
 
                     data.x = sim.integrator.getStepCount();
@@ -271,13 +264,10 @@ public class VirialHSMixture {
         double avg = averageData.getValue(0);
         double err = errorData.getValue(0);
 
-
         System.out.printf("target average: %20.15e error: %9.4e\n", avg, err);
 
-        System.out.printf("abs average: %20.15e  error: %9.4e\n", avg * refIntegral, err * Math.abs(refIntegral));
-
         long t2 = System.currentTimeMillis();
-        System.out.println("time:" + (t2 - t1) / 1000.0);
+        System.out.println("time: " + (t2 - t1) / 1000.0);
     }
 
 
