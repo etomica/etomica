@@ -4,23 +4,23 @@
 
 package etomica.normalmode.nptdemo;
 
-import java.awt.Graphics;
-
 import etomica.action.controller.Controller;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space2d.Space2D;
+
+import java.awt.*;
 
 public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
 
-    public DisplayBoxCanvas2DNpTScaling(DisplayBox _box, Space _space,
+    public DisplayBoxCanvas2DNpTScaling(DisplayBox _box,
             Controller controller, CoordinateDefinition coordinateDefinition) {
-        super(_box, _space, controller);
-        p = _space.makeVector();
+        super(_box, controller);
+        p = Space2D.getInstance().makeVector();
         this.coordinateDefinition = coordinateDefinition;
     }
     

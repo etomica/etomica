@@ -13,9 +13,9 @@ import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
 import etomica.space.IOrientation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
+import etomica.space3d.Space3D;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
 import g3dsys.control.G3DSys;
@@ -33,7 +33,6 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
     protected final Map<AtomType, OrientedSite[]> atomTypeOrientedManager;
     private final double[] coords;
-    private final Space space;
     protected AtomLeafAgentManager<Ball> aam;
     protected LineSegment[] lines;
     protected Line[] lineFigures;
@@ -56,10 +55,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private double[] planeAngles;
     private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
 
-    public DisplayBoxCanvasG3DSys(DisplayBox _box, Space _space, Controller controller) {
+    public DisplayBoxCanvasG3DSys(DisplayBox _box, Controller controller) {
 		super(controller);
 		displayBox = _box;
-		space = _space;
 
 		// init G3DSys
 		// adding JPanel flickers, Panel does not. Nobody knows why.
@@ -92,9 +90,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         lines = new LineSegment[0];
         lineFigures = new Line[0];
         planeAngles = new double[0];
-        work = space.makeVector();
-        work2 = space.makeVector();
-        work3 = space.makeVector();
+        work = Space3D.getInstance().makeVector();
+        work2 = Space3D.getInstance().makeVector();
+        work3 = Space3D.getInstance().makeVector();
 
         pixel = new Pixel();
 	}
@@ -435,10 +433,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             boundaryDisplayed = displayBox.getShowBoundary() != false;
 
 
-
 			// set boundary vectors for image shell
 			int n=0;
-			for (int i=0; i<space.D(); i++) {
+			for (int i=0; i<3; i++) {
 			    if (boundary.getPeriodicity(i)) {
 			        n++;
 			    }
@@ -446,7 +443,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			double[] dvecs = new double[n * 3]; // assuming
 															// 3-dimensional vectors
 			int j = 0;
-			for (int i = 0; i < space.D(); i++) {
+			for (int i = 0; i < 3; i++) {
 			    Vector v = boundary.getEdgeVector(i);
 			    if (!boundary.getPeriodicity(i)) {
 			        continue;
@@ -551,7 +548,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             if (alpha >= 0 && alpha <= 1) {
                 Vector newIntersection;
                 if (planeIntersections.length == intersectionCount) {
-                    newIntersection = space.makeVector();
+                    newIntersection = Space3D.getInstance().makeVector();
                     planeIntersections = (Vector[])Arrays.addObject(planeIntersections, newIntersection);
                 }
                 else {
