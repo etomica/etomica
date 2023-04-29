@@ -593,7 +593,7 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(kePump);
             dsCorKE.setMinInterval(3);
         }
-        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
+        DataSourceCorBlock dsCorMSD = new DataSourceCorBlock(sim.integrator);
         dsCorMSD.setMinInterval(3);
 
         DataSourceHisogram dsHistogramP = new DataSourceHisogram(sim.integrator);
@@ -610,6 +610,8 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             dsMSDcorU = null;
         }
+
+        DataSourceCorBlock dsCorVisc = new DataSourceCorBlock(sim.integrator);
 
 
         //Gs: total
@@ -1499,6 +1501,10 @@ public class GlassGraphic extends SimulationGraphic {
             plotMSDcorUP.setLegend(new DataTag[]{dsCorKE.getTag()}, "KE");
             sim.integrator.getEventManager().addListener(pumpKEcor);
         }
+        pTensorAccum.addViscositySink(dsCorVisc);
+        DataPumpListener pumpViscCor = new DataPumpListener(dsCorVisc, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
+        plotMSDcorUP.setLegend(new DataTag[]{dsCorVisc.getTag()}, "eta");
+        sim.integrator.getEventManager().addListener(pumpViscCor);
 
         if (dsMSDcorU != null) {
             meterMSD.addMSDSink(dsMSDcorU);
@@ -1974,13 +1980,14 @@ public class GlassGraphic extends SimulationGraphic {
                     dsCorP.setEnabled(false);
                     if (dsCorKE != null) dsCorKE.setEnabled(false);
                     dsCorMSD.setEnabled(false);
+                    dsCorVisc.setEnabled(false);
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
                     dpAutocor.reset();
                     dpxyAutocor.reset();
                     pTensorAccum.setEnabled(false);
                     pTensorAccum.reset();
-                    dsMSDcorU.setEnabled(false);
+                    if (dsMSDcorU != null) dsMSDcorU.setEnabled(false);
                     meterFs.reset();
                     meterFsA.reset();
                     meterFsB.reset();
@@ -2043,6 +2050,7 @@ public class GlassGraphic extends SimulationGraphic {
                     dsCorP.setEnabled(true);
                     dsCorKE.setEnabled(true);
                     dsCorMSD.setEnabled(true);
+                    dsCorVisc.setEnabled(false);
                     dsHistogramP.setEnabled(true);
                     dsPMSDhistory.setEnabled(true);
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(true);
@@ -2213,9 +2221,9 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 250;
-            params.nB = 250;
-            params.density = 1.52;
+            params.nA = 100;
+            params.nB = 100;
+            params.density = 1.6;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);

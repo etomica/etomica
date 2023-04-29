@@ -82,12 +82,13 @@ public class GlassProd {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 50;
-            params.nB = 50;
-            params.density = 1.2; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.nA = 100;
+            params.nB = 100;
+            params.density = 1.0; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
             params.numStepsEqIsothermal = 10000;
+            params.numStepsIsothermal = 0;
             params.numSteps = 100000;
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
@@ -395,7 +396,7 @@ public class GlassProd {
         DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
         if (params.nB > 0) configStorageMSD.addListener(meterMSDB);
 
-        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
+        DataSourceCorBlock dsCorMSD = new DataSourceCorBlock(sim.integrator);
         dsCorMSD.setMinInterval(3);
         meterMSD.addMSDSink(dsCorMSD);
         dsCorMSD.setEnabled(true);
@@ -406,6 +407,10 @@ public class GlassProd {
         pFork.addDataSink(dsMSDcorP);
         meterMSD.addMSDSink(dsMSDcorP);
         dsMSDcorP.setEnabled(true);
+
+        DataSourceCorBlock dsCorVisc = new DataSourceCorBlock(sim.integrator);
+        pTensorAccumVisc.addViscositySink(dsCorVisc);
+        dsCorVisc.setEnabled(true);
 
         //VAC
         configStorageMSD.setDoVelocity(true);
@@ -693,6 +698,7 @@ public class GlassProd {
         objects.add(meterMSDA);
         if (params.nB>0) objects.add(meterMSDB);
         objects.add(dsCorMSD);
+        objects.add(dsCorVisc);
         objects.add(dsCorP);
         objects.add(dsMSDcorP);
         objects.add(meterVAC);
@@ -863,6 +869,7 @@ public class GlassProd {
             GlassProd.writeDataToFile(dsCorMSD, "MSDcor.dat");
             GlassProd.writeDataToFile(dsCorP, "Pcor.dat");
             GlassProd.writeDataToFile(dsMSDcorP, "MSDcorP.dat");
+            GlassProd.writeDataToFile(dsCorVisc, "viscCor.dat");
             for (int i = 0; i < configStorageMSD.getLastConfigIndex() - 1; i++) {
                 meterGs.setConfigIndex(i);
                 GlassProd.writeDataToFile(meterGs, "Gs_t" + i + ".dat");
@@ -950,9 +957,11 @@ public class GlassProd {
             GlassProd.writeDataToFile(accSFac, filenameSq);
             GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 
-            GlassProd.writeDataToFile(meterMSD, meterMSD.errData, filenameMSD);
-            GlassProd.writeDataToFile(meterMSDA, meterMSDA.errData, filenameMSDA);
-            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.errData, filenameMSDB);
+            GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), filenameMSD);
+            GlassProd.writeDataToFile(dsCorMSD.getFullCorrelation(), "msdFullCor.dat");
+            GlassProd.writeDataToFile(dsCorVisc.getFullCorrelation(), "viscFullCor.dat");
+            GlassProd.writeDataToFile(meterMSDA, meterMSDA.getError(), filenameMSDA);
+            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.getError(), filenameMSDB);
             GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
             GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
         } catch (IOException e) {
@@ -1027,6 +1036,18 @@ public class GlassProd {
             } else {
                 fw.write(xData.getValue(i) + " " + y + " " + errData.getValue(i) + "\n");
             }
+        }
+        fw.close();
+    }
+
+    public static void writeDataToFile(double[][] data, String filename) throws IOException {
+        FileWriter fw = new FileWriter(filename);
+        for (int i = 0; i < data.length; i++) {
+            for (int j=0; j<data[i].length; j++) {
+                double y = data[i][j];
+                fw.write(String.format("% 8.5f ", y));
+            }
+            fw.write("\n");
         }
         fw.close();
     }
