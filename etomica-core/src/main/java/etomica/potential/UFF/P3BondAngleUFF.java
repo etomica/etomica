@@ -21,6 +21,6 @@ public class P3BondAngleUFF implements IPotentialBondAngle {
     public void udu(double costheta, double[] u, double[] du) {
         double cos2theta = 2 * costheta * costheta - 1;
         u[0] =  kijk * ( c0 + c1 * costheta + c2 * cos2theta);
-        du[0] =  kijk*(c1 + 4*costheta*c2);
+        du[0] =  -kijk*(c1 + 4*costheta*c2);
     }
 }

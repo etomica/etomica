@@ -101,22 +101,22 @@ public class UFF {
         //System.out.println(atomName + "AtomName");
         if(atomName.equals("C")){
             V = 2.119;
-            System.out.println("C " + 2.119 );
+            //System.out.println("C " + 2.119 );
         } else if (atomName.equals("O")) {
             V = 0.018;
-            System.out.println("O " + V);
+            //System.out.println("O " + V);
         } else if (atomName.equals("N")){
             V = 0.450;
-            System.out.println("N " + V );
+            //System.out.println("N " + V );
         }else if (atomName.equals("P")){
             V = 1.225;
-            System.out.println("P " + V );
+            //System.out.println("P " + V );
         }else if (atomName.equals("Si")){
             V =  2.400;
-            System.out.println("Si " + V );
+            //System.out.println("Si " + V );
         }else {
             V = 2.400;
-            System.out.println("none " + V );
+            //System.out.println("none " + V );
         }
         /*
         switch (atomName){
@@ -195,11 +195,17 @@ public class UFF {
         p2electro.setCharge2(q2);
         return new P2Electrostatic(q1, q2);
     }
+    public LJUFF vanderWaals(double xa, double xb, double da, double db, double sciA, double sciB){
+        double xab = (xa + xb)/2;
+        double dab = da * db;
+        double sciAB = (sciA + sciB)/2;
+        return new LJUFF(xab, dab, sciAB);
+    }
 
     public P2LennardJones vdw(double xa, double xb, double da, double db){
-        double xab = xa * xb;
+        double xab = (xa + xb)/2;
         double dab = da * db;
-        return new P2LennardJones( xab/Math.pow(2, 1.0/6.0),dab);
 
+        return new P2LennardJones( xab/Math.pow(2, 1.0/6.0),dab);
     }
 }

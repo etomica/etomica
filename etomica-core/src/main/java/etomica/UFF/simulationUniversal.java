@@ -6,7 +6,6 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.SpeciesMethane;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
@@ -26,6 +25,7 @@ import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
+import etomica.potential.UFF.LJUFF;
 import etomica.potential.UFF.P3BondAngleUFF;
 import etomica.potential.UFF.P4BondTorsionUFF;
 import etomica.potential.UFF.UFF;
@@ -36,9 +36,7 @@ import etomica.simulation.prototypes.MCMoveWiggle;
 import etomica.simulation.prototypes.MeterTorsionAngle;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpBuilder;
-import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesManager;
+import etomica.species.*;
 import etomica.units.*;
 import etomica.units.dimensions.Null;
 import etomica.util.Constants;
@@ -55,33 +53,39 @@ public class simulationUniversal extends Simulation {
 
     public PotentialCompute pcAgg;
     public IntegratorMC integratorMC;
-    public SpeciesGeneral species;
+   // public SpeciesGeneral species;
     public Box box;
     public MCMoveVolume mcMoveVolume;
     public MCMoveMolecule mcMoveMolecule;
+    public ISpecies species;
     // static ArrayList<ArrayList<Integer>> connectivity = new ArrayList<>();
     //Map<Integer, String> atomMap = new HashMap<>();
+
     public simulationUniversal(Space space, double density, int numMoleules, double temperature, String configFileName, double rc, double pressure, double rcElectric) {
         super(space);
         int atom1 = 0, atom2 = 0, atom3=0;
-        String confName = "F:/methane";
+        String confName = "F:/benzene";
+        species = PDBBuilder.getSpeciesNew(confName);
+       // IMolecule molecule = species.makeMolecule();
+        SpeciesBuilder speciesBuilder = new SpeciesBuilder(Space3D.getInstance());
+        speciesBuilder.setDynamic(true);
         String atomName1 = null, atomName2= null, atomName3= null;
         setRandom(new RandomMersenneTwister(1));
-        species = (SpeciesGeneral) SpeciesMethane.buildMethane(true, confName );
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numMoleules);
         new BoxInflate(box, space, density).actionPerformed();
+        System.out.println(species);
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
-
-        ArrayList<ArrayList<Integer>> connectedAtoms = PDBBuilder.getConnectivityWithSpecies(confName);
+        System.out.println("In simulation Universal");
+        ArrayList<ArrayList<Integer>> connectedAtoms = PDBBuilder.getConnectivityWithoutRunning();
         System.out.println(connectedAtoms+ ": connectedAtom");
-        ArrayList<ArrayList<Integer>> connectivityModified = PDBBuilder.getconnectivityModified(connectedAtoms);
+        ArrayList<ArrayList<Integer>> connectivityModified = PDBBuilder.getConnectivityModifiedWithoutRunning();
         System.out.println(connectivityModified+ ": connectedAtomModified" );
-        Map<Integer,String> atomMap = PDBBuilder.getAtomMap(connectedAtoms);
+        Map<Integer,String> atomMap = PDBBuilder.getAtomMapWithoutRunning();
         System.out.println(atomMap + ": atomMap");
-        HashMap<Integer, String> atomMapModified = PDBBuilder.getatomMapModified(atomMap);
+        HashMap<Integer, String> atomMapModified = PDBBuilder.getAtomMapModifiedWithoutRunning();
         System.out.println(atomMapModified + ": atomMapModified");
         List<int[]> duplets = PDBBuilder.getBondList(connectivityModified);
         System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
@@ -93,30 +97,36 @@ public class simulationUniversal extends Simulation {
         System.out.println(uniqueElements + "Set of Unique Elements");
         ArrayList<Integer> bondList = PDBBuilder.getBonding(confName);
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        Unit Radian = new Radian();
+        //Unit Radian = new Radian();
         Map<String, double[]> atomicPotMap = PDBBuilder.atomicPotMap();
         System.out.println(atomicPotMap + "atomicPotMap");
         Map<Integer, String> atomIdentifierMapModified = PDBBuilder.atomIdentifierMapModified(connectivityModified, atomMapModified);
         System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
         Set<String> uniqueAtoms = PDBBuilder.uniqueElementIdentifier();
         System.out.println(uniqueAtoms);
-
-        AtomType typeC_3 = species.getTypeByName("C");
-        //AtomType typeC_2 = species.getTypeByName("C");
+        System.out.println(Arrays.toString(PDBBuilder.atomicPotMap().get("C_2")));
+        System.out.println(species);
+        String C = "C_2";
+        AtomType typeC_3 = species.getTypeByName(C);
         AtomType typeH = species.getTypeByName("H");
-        //AtomType typeCl = species.getTypeByName("CL");
-        SpBuilder spBuilder = new SpBuilder();
-
-        String keyC = "C-ene";
+        //AtomType typeO = species.getTypeByName("O");
+        //AtomType typeCu = species.getTypeByName("Cu");
+        //AtomType typeN = species.getTypeByName("N");
+        String keyC = "C-Ar";
         String keyH = "H";
-        String keyCl = "Cl";
+        String keyN = "N-Ar";
+        String keyCu ="Cu";
+       // String keyCl = "Cl";
         String keyO ="O";
 
         double[] Carb = SpBuilder.atomicPot(keyC);
         //System.out.println(Arrays.toString(Carb) + "Carb");
         double[] Hydr = SpBuilder.atomicPot(keyH);
+        double[] Copp = SpBuilder.atomicPot(keyCu);
+        double[] Nitr = SpBuilder.atomicPot(keyN);
+        double[] Oxy = SpBuilder.atomicPot(keyO);
         //System.out.println(Arrays.toString(Hydr) + "Hydr");
-        double[] Chlor = SpBuilder.atomicPot(keyCl);
+        //double[] Chlor = SpBuilder.atomicPot(keyCl);
         //System.out.println(Arrays.toString(Chlor) + "Chlor");
         UFF uff = new UFF();
         //System.out.println("After duplet");
@@ -132,8 +142,9 @@ public class simulationUniversal extends Simulation {
         bondListAtoms.add(new int[]{atom1, atom2});
         // System.out.println(bondListAtoms + " " + bondListWithnames);
         //Combine both loops
-        System.out.println("\n\nbonds");
-        System.out.println("Entered bonding"); int i =0;
+        //System.out.println("\n\nbonds");
+        //System.out.println("Entered bonding");
+        int i =0;
         for (int[] bond : duplets) {
             atom1 = bond[0];
             atom2 = bond[1];
@@ -145,10 +156,11 @@ public class simulationUniversal extends Simulation {
             arraytoList.add(bond);
             i++;
         }
+        //System.out.println(species + "speciesHere");
         //System.out.println("out of bonding");
-        System.out.println(Arrays.deepToString(arraytoList.toArray()));
+       // System.out.println(Arrays.deepToString(arraytoList.toArray()));
         pmBonding.setBondingPotentialPair(species, bondUFFArray, arraytoList);
-
+        //System.out.println("After bonding");
         //System.out.println("\n \n Angles start");
         List<String[]> angleListWithNames = new ArrayList<>();
        // System.out.println("In angles");
@@ -168,8 +180,9 @@ public class simulationUniversal extends Simulation {
             angleUFF =  UFF.angleUFF(atomOnePot[0], atomTwoPot[0], atomThreePot[0],1, 0.1332, atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], thetha0Rad);
 
         }
-        //System.out.println("out of angles");
+        System.out.println("out of angles");
         pmBonding.setBondingPotentialTriplet(species, angleUFF, triplets);
+        System.out.println();
 
         P4BondTorsionUFF torsionUFF = null;
         double Vi =0, Vj =0, V=0, Vtrue=0,  type;
@@ -200,8 +213,9 @@ public class simulationUniversal extends Simulation {
                    
                     torsionUFF = UFF.torsionUFF(Vtrue, p);
         }
-        pmBonding.setBondingPotentialTriplet(species, angleUFF, quadruplets);
-        
+        //System.out.println("After  triplet loop and before forming");
+        pmBonding.setBondingPotentialQuad(species, torsionUFF, quadruplets);
+        //System.out.println("After  triplet forming");
         PotentialMasterCell potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, pmBonding.getBondingInfo());
         potentialMaster.doAllTruncationCorrection = true;
         pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
@@ -225,34 +239,100 @@ public class simulationUniversal extends Simulation {
         P2Electrostatic electrostaticFF = null;
 
         double epsilonH = kcals.toSim(Hydr[2]);
-        double epsilonC = kcals.toSim(Carb[2]);;
+        double epsilonC = kcals.toSim(Carb[2]);
+        //double epsilonO = kcals.toSim(Oxy[2]);
+        //double epsilonN = kcals.toSim(Carb[2]);
+        //double epsilonCu = kcals.toSim(Carb[2]);
         double sigmaH = Hydr[3];
         double sigmaC = Carb[3];
+       // double sigmaO = Oxy[3];
+        //double sigmaN = Nitr[3];
+        //double sigmaCu = Copp[3];
         double sigmaCH = (Hydr[3]+Carb[3])/2;
+        //double sigmaOC = (Oxy[3]+Carb[3])/2;
+       // double sigmaOH = (Oxy[3]+Hydr[3])/2;
+        //double sigmaNH = (Nitr[3] + Hydr[3])/2;
+        //double sigmaCuN = (Nitr[3] + Copp[3])/2;
+        double sciC = Hydr[4];
+        double sciH = Carb[4];
+       // double sciO = Oxy[4];
+        //double sciCu = Copp[4];
+        //double sciN = Nitr[4];
+       // double sciCH = (Hydr[4]+Carb[4])/2;
+        //double sciNH = (Nitr[4]+Hydr[4])/2;
+        //double sciCuN = (Copp[4]+Nitr[4])/2;
         TruncationFactory tf = new TruncationFactoryForceShift(rc);
-        P2LennardJones p2LJHH = uff.vdw(epsilonH, epsilonH, sigmaH, sigmaH);
+        LJUFF p2LJHH = uff.vanderWaals(epsilonH, epsilonH, sigmaH, sigmaH, sciH, sciH);
+       // LJUFF p2LJOH = uff.vanderWaals(epsilonO, epsilonH, sigmaO, sigmaH, sciO, sciH);
+       // LJUFF p2LJOC = uff.vanderWaals(epsilonO, epsilonC, sigmaO, sigmaC, sciO, sciC);
+        //LJUFF p2LJHN = uff.vanderWaals(epsilonH, epsilonN, sigmaH, sigmaN, sciH, sciN);
+        //LJUFF p2LJHCu = uff.vanderWaals(epsilonH, epsilonCu, sigmaH, sigmaCu, sciH, sciCu);
+        LJUFF p2LJCC = uff.vanderWaals(epsilonC, epsilonC, sigmaC, sigmaC, sciC, sciC);
+        LJUFF p2LJCH = uff.vanderWaals(epsilonC, epsilonH, sigmaC, sigmaH, sciC, sciH);
+        //LJUFF p2LJCCu = uff.vanderWaals(epsilonC, epsilonCu, sigmaC, sigmaCu, sciC, sciCu);
+        //LJUFF p2LJCN = uff.vanderWaals(epsilonC, epsilonN, sigmaC, sigmaN, sciC, sciN);
+        //LJUFF p2LJNN = uff.vanderWaals(epsilonN, epsilonN, sigmaN, sigmaN, sciN, sciN);
+       /* P2LennardJones p2LJHH = uff.vdw(epsilonH, epsilonH, sigmaH, sigmaH);
         P2LennardJones p2LJCH = uff.vdw(epsilonH, epsilonC, sigmaH, sigmaC);
-        P2LennardJones p2LJCC = uff.vdw(epsilonC, epsilonC, sigmaC, sigmaC);
+        P2LennardJones p2LJCC = uff.vdw(epsilonC, epsilonC, sigmaC, sigmaC);*/
         IPotential2 p2HH = tf.make(p2LJHH);
         IPotential2 p2HC = tf.make(p2LJCH);
         IPotential2 p2CC = tf.make(p2LJCC);
-
+        //IPotential2 p2OH = tf.make(p2LJOH);
+       // IPotential2 p2OC = tf.make(p2LJOC);
+        //IPotential2 p2HN = tf.make(p2LJHN);
+        //IPotential2 p2HCu = tf.make(p2LJHCu);
+        //IPotential2 p2CCu = tf.make(p2LJCCu);
+        //IPotential2 p2CN = tf.make(p2LJCN);
+        //IPotential2 p2NN = tf.make(p2LJNN);
+        //System.out.println("after Inter atomic electrostatic potential");
         double chargeH = Hydr[5];
         double chargeC = Carb[5];
+        //double chargeO = Oxy[5];
+        double chargeCu = Copp[5];
+        double chargeN = Nitr[5];
         TruncationFactory tfe = new TruncationFactoryForceShift(rcElectric);
         P2Electrostatic p2ElectrostaticHH = uff.electroUFF(chargeH, chargeH);
         P2Electrostatic p2ElectrostaticCH = uff.electroUFF(chargeC, chargeH);
         P2Electrostatic p2ElectrostaticCC = uff.electroUFF(chargeC, chargeC);
-
+       // P2Electrostatic p2ElectrostaticOH = uff.electroUFF(chargeO, chargeH);
+        //P2Electrostatic p2ElectrostaticOC = uff.electroUFF(chargeO, chargeC);
+        //P2Electrostatic p2ElectrostaticHN = uff.electroUFF(chargeH, chargeN);
+        //P2Electrostatic p2ElectrostaticHCu = uff.electroUFF(chargeH, chargeCu);
+        //P2Electrostatic p2ElectrostaticCCu = uff.electroUFF(chargeC, chargeCu);
+        //P2Electrostatic p2ElectrostaticCN = uff.electroUFF(chargeC, chargeN);
+        //P2Electrostatic p2ElectrostaticNN = uff.electroUFF(chargeN, chargeN);
         IPotential2 p2EHH = tfe.make(p2ElectrostaticHH);
         p2EHH = new P2SoftSphericalSumTruncated(rc, p2EHH, p2LJHH);
         IPotential2 p2ECH = tfe.make(p2ElectrostaticCH);
         p2ECH = new P2SoftSphericalSumTruncated(rc, p2ECH, p2LJCH);
         IPotential2 p2ECC = tfe.make(p2ElectrostaticCC);
         p2ECC = new P2SoftSphericalSumTruncated(rc, p2ECC, p2LJCC);
+        //IPotential2 p2EOH = tfe.make(p2ElectrostaticOH);
+        //p2EOH = new P2SoftSphericalSumTruncated(rc, p2EOH, p2LJOH);
+       // IPotential2 p2EOC = tfe.make(p2ElectrostaticOC);
+        //p2EOC = new P2SoftSphericalSumTruncated(rc, p2EOC, p2LJOC);
+        /*IPotential2 p2EHN = tfe.make(p2ElectrostaticHN);
+        p2EHN = new P2SoftSphericalSumTruncated(rc, p2EHN, p2LJHN);
+        IPotential2 p2EHCu = tfe.make(p2ElectrostaticHCu);
+        p2EHCu = new P2SoftSphericalSumTruncated(rc, p2EHCu, p2LJHCu);
+        IPotential2 p2ECCu = tfe.make(p2ElectrostaticCCu);
+        p2ECCu = new P2SoftSphericalSumTruncated(rc, p2ECCu, p2LJCCu);
+        IPotential2 p2ECN = tfe.make(p2ElectrostaticCN);
+        p2ECN = new P2SoftSphericalSumTruncated(rc, p2ECN, p2LJCN);
+        IPotential2 p2ENN = tfe.make(p2ElectrostaticNN);
+        p2ENN = new P2SoftSphericalSumTruncated(rc, p2ENN, p2LJNN);*/
         potentialMaster.setPairPotential(typeH, typeH, p2EHH);
         potentialMaster.setPairPotential(typeC_3, typeH, p2ECH);
         potentialMaster.setPairPotential(typeC_3, typeC_3, p2ECC);
+        //potentialMaster.setPairPotential(typeO, typeH, p2EOH);
+        //potentialMaster.setPairPotential(typeO, typeC_3, p2EOC);
+       /* potentialMaster.setPairPotential(typeH, typeN, p2EHN);
+        potentialMaster.setPairPotential(typeH, typeCu, p2EHCu);
+        potentialMaster.setPairPotential(typeC_2, typeCu, p2ECCu);
+        potentialMaster.setPairPotential(typeC_2, typeN, p2ECN);
+        potentialMaster.setPairPotential(typeN, typeN, p2ENN);*/
+
 
         if (configFileName != null) {
             ConfigurationFile config = new ConfigurationFile(configFileName);
@@ -273,6 +353,13 @@ public class simulationUniversal extends Simulation {
                 ((P2SoftSphericalSumTruncatedForceShifted)p2HH).setTruncationRadius(rc);
                 ((P2SoftSphericalSumTruncatedForceShifted)p2HC).setTruncationRadius(rc);
                 ((P2SoftSphericalSumTruncatedForceShifted)p2CC).setTruncationRadius(rc);
+               // ((P2SoftSphericalSumTruncatedForceShifted)p2OH).setTruncationRadius(rc);
+               // ((P2SoftSphericalSumTruncatedForceShifted)p2OC).setTruncationRadius(rc);
+                /*((P2SoftSphericalSumTruncatedForceShifted)p2HN).setTruncationRadius(rc);
+                ((P2SoftSphericalSumTruncatedForceShifted)p2HCu).setTruncationRadius(rc);
+                ((P2SoftSphericalSumTruncatedForceShifted)p2CCu).setTruncationRadius(rc);
+                ((P2SoftSphericalSumTruncatedForceShifted)p2CN).setTruncationRadius(rc);
+                ((P2SoftSphericalSumTruncatedForceShifted)p2NN).setTruncationRadius(rc);*/
                 u0 = potentialMaster.computeAll(false);
                 //System.out.println("Inside looop");
             }
@@ -288,9 +375,13 @@ public class simulationUniversal extends Simulation {
                     p2LJCC.setSigma(x * sigmaC);
                     p2LJCH.setSigma(x * sigmaCH);
                     p2LJHH.setSigma(x * sigmaH);
+                  //  p2LJOH.setSigma(x * sigmaOH);
+                   // p2LJOC.setSigma(x * sigmaOC);
                     ((P2SoftSphericalSumTruncatedForceShifted) p2HH).setTruncationRadius(rc);
                     ((P2SoftSphericalSumTruncatedForceShifted) p2HC).setTruncationRadius(rc);
                     ((P2SoftSphericalSumTruncatedForceShifted) p2CC).setTruncationRadius(rc);
+                   // ((P2SoftSphericalSumTruncatedForceShifted) p2OH).setTruncationRadius(rc);
+                  //  ((P2SoftSphericalSumTruncatedForceShifted) p2OC).setTruncationRadius(rc);
                     u0 = potentialMaster.computeAll(false);
                 }
                 integratorMC.reset();
@@ -387,13 +478,16 @@ public class simulationUniversal extends Simulation {
             });
             sim.getController().addActivity(new ActivityIntegrate(sim.integratorMC));
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Universal MC", 3);
-            //System.out.println("Reached after simulation graphic");
+            System.out.println("Reached after simulation graphic");
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
           /*  dhbt.setDiameter(sim.species.getAtomType(0), 3.75);
             dhbt.setDiameter(sim.species.getAtomType(1), 3.95);*/
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("C"), Color.WHITE);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("C_2"), Color.BLUE);
 
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.BLUE);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.WHITE);
+            //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("O"), Color.RED);
+            //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("N"), Color.BLUE);
+            //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("Cu"), Color.YELLOW);
             //System.out.println("Simulation starts before Datasource");
             DataSourceCountSteps timeSource = new DataSourceCountSteps(sim.integratorMC);
 
@@ -607,8 +701,8 @@ public class simulationUniversal extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperatureK = 300;
-        public int numMolecules = 100;
-        public double density = 0.00005;
+        public int numMolecules = 1;
+        public double density = 0.5;
         public boolean graphics = false;
         public long numSteps = 200000;
         public String configFilename = null;
