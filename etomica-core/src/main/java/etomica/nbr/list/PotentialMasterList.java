@@ -63,7 +63,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
-            IPotential2[] iPotentials = pairPotentials[iType];
+            IPotential2[] ip1 = pairPotentials[iType];
             int iNumNbrs = nbrManager.numAtomNbrsUp[i];
             int[] iNbrs = nbrManager.nbrs[i];
             Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[i];
@@ -71,10 +71,10 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
                 int jj = iNbrs[j];
                 IAtom jAtom = atoms.get(jj);
                 int jType = jAtom.getType().getIndex();
-                IPotential2 pij = iPotentials[jType];
+                IPotential2 ip2 = ip1[jType];
                 Vector rj = jAtom.getPosition();
                 Vector jbo = iNbrBoxOffsets[j];
-                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij, pc, false);
+                uTot += handleComputeAll(doForces,iAtom, jAtom, i, j, ri, rj, jbo, ip2, pc);
             }
         }
 
@@ -118,6 +118,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
         Vector ri = atom.getPosition();
 
         IAtomList atoms = box.getLeafList();
+        IAtom iAtom = atoms.get(i);
         int iNumNbrs = nbrManager.numAtomNbrsUp[i];
         int[] iNbrs = nbrManager.nbrs[i];
         Vector[] iNbrBoxOffsets = nbrManager.nbrBoxOffsets[i];
@@ -130,7 +131,8 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
             Vector rj = jAtom.getPosition();
             Vector jbo = iNbrBoxOffsets[j];
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom);
-            u += handleComputeOne(pij, ri, rj, jbo, i, jj, skipIntra);
+            u += handleComputeOne(iAtom, jAtom, ri, rj, jbo, pij);
+            //u += handleComputeOne(pij, ri, rj, jbo, i, jj, skipIntra);
         }
 
         iNumNbrs = nbrManager.numAtomNbrsDn[i];
@@ -143,7 +145,7 @@ public class PotentialMasterList extends PotentialMaster implements IntegratorLi
             Vector rj = jAtom.getPosition();
             Vector jbo = iNbrBoxOffsets[iNbrs.length - 1 - j];
             boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom);
-            u += handleComputeOne(pij, rj, ri, jbo, i, jj, skipIntra);
+            u += handleComputeOne(iAtom, jAtom, ri, rj, jbo, pij);
         }
 
         tMC += System.nanoTime() - t1;

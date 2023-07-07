@@ -68,5 +68,11 @@ public interface IAtom extends Statefull {
      */
     Vector getPosition();
 
+
+
+
     void copyCoordinatesFrom(IAtom atom);
+
+
+
 }

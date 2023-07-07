@@ -1,114 +1,136 @@
 package etomica.potential.UFF;
 
-import etomica.UFF.PDBBuilder;
 import etomica.potential.P2Electrostatic;
-import etomica.potential.P2Harmonic;
-import etomica.potential.P2LennardJones;
 import etomica.species.ISpecies;
-import etomica.units.Degree;
-import etomica.units.Unit;
-
-import java.util.*;
+import etomica.units.*;
+import g3dsys.images.Box;
 
 public class UFF {
     static ISpecies species;
-    public static double getbondUFF(double ri, double rj, double n, double lambda, double zi, double zj, double chiI, double chiJ){
-        double sqrt = Math.pow((Math.sqrt(chiI)-Math.sqrt(chiJ)),2);
-        double ren = ri*rj*sqrt/(chiI*ri+chiJ*rj);
-        double rbo = - lambda * (ri+rj) * Math.log(n);
-
-        double rjk = ri + rj + rbo + ren;
+    static double[] bondConstantArray;
+    public static double getbondUFF(double ri, double rj, double chiI, double chiJ, double bo){
+        double part = (Math.sqrt(chiI)-Math.sqrt(chiJ));
+        double sqSqrt = part * part;
+        double ren = (ri*rj*sqSqrt)/((chiI*ri)+(chiJ*rj));
+        double lambda = 0.1332;
+        double rbo = - lambda * (ri+rj) * Math.log(bo);
+        double rjk = ri + rj +rbo - ren;
         return rjk;
     }
 
-    public static P2Harmonic bondUFF(double ri, double rj, double n, double lambda, double zi, double zj, double chiI, double chiJ){
-        double rjk = getbondUFF( ri, rj, n,  lambda, zi,   zj,  chiI,  chiJ);
-        double kjk = 664.32*zi*zj/Math.pow(rjk,3);
-        return new P2Harmonic(kjk, rjk);
+    public static double[] bondUFF(double ri, double rj, double zi, double zj, double chiI, double chiJ, int valueOne, int valueTwo, int i){
+        double bo = valueIdentifier(valueOne, valueTwo);
+        double rjk = getbondUFF( ri, rj,  chiI,  chiJ, bo);
+        double kjk = (0.5*664.12*zi*zj/((Math.pow(rjk,3)))); //UFF error. Difference of factor of 2.
+        Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Angstrom.UNIT};
+        double[] newExpo ={1.0, -1.0, -2.0};
+        CompoundUnit molA2 = new CompoundUnit(newOnw,newExpo);
+        double newkijk = molA2.toSim(kjk);
+        double newkijkkJ = kjk * 4.182;
+        return new double[]{newkijk, rjk};
+    }
+    public static double[] BondConstantArray (double kijk, double rjk){
+        Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT, Angstrom.UNIT};
+        double[] newExpo ={1.0, -1.0, -2.0};
+        CompoundUnit molA2 = new CompoundUnit(newOnw,newExpo);
+        double newkijk = molA2.fromSim(kijk);
+        return new double[]{newkijk, rjk};
     }
 
-    public static P3BondAngleUFF angleUFF(double ri, double rj, double rk, double n, double lambda, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0){
-        double rij, rjk, rik, beta, kijk, eTheta, c0, c1, c2, costheta0, cos2theta0;
-        costheta0 = Math.cos(theta0);
-        cos2theta0 = 2*costheta0*costheta0-1;
-        c2=1/Math.pow(4*Math.sin(theta0),2);
-        c1=-4*c2*costheta0;
-        c0=c2*((2*costheta0*costheta0)+1);
-        rij = getbondUFF(ri, rj, n, lambda, zi, zj, chiI, chiJ);
-        rjk = getbondUFF(rj, rk, n, lambda, zj, zk, chiJ, chiK);
-        rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
-        beta= 664.12*(zi*zk)/Math.pow(rik,5);
-        kijk= beta*((3*rij*rjk*(1-costheta0*costheta0))+(rik*rik*costheta0));
-        return new P3BondAngleUFF(c0, c1, c2, kijk);
-    }
 
-
-    public static P4BondTorsionUFF torsionUFF(double V, int type){
-        double phi = 0;
-        Unit degree = Degree.UNIT;
-
-        if(type == 2){
-            phi =0;
-            double thetha0Rad = degree.toSim(phi);
-            return new P4BondTorsionUFF(V,6, thetha0Rad);
-        } else if (type ==3) {
-            phi =0;
-            double thetha0Rad = degree.toSim(phi);
-            double bondOrder = 0.7;
-            double Vsp2 = 5 * V * ( 1 + 4.18 * Math.log( bondOrder));
-            return new P4BondTorsionUFF(Vsp2, 6, thetha0Rad);
+    public static double valueIdentifier(int atomNumOne, int atomNumTwo){
+        double bo =0;
+        //added from openbabel not available in paper. bondorder values are missing. so bo value is calculated from energy of doublebond
+        if( atomNumOne > 1 && atomNumTwo > 1){
+            bo = 2;
         } else {
-            phi =0;
+            //bo value for single bond is mentioned as 1
+            bo = 1;
+        }
+        return bo;
+    }
+    public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, int valueOne, int valueTwo, int valueThree ){
+        double rij, rjk, rik, beta, kijk, c0, c1, c2, costheta0, sintheta0, kb;
+        double thetanormal = theta0;
+        theta0 = Degree.UNIT.toSim(theta0);
+        costheta0 = Math.cos(theta0);
+        sintheta0 = Math.sin(theta0);
+        c2=1/(4*sintheta0*sintheta0);
+        c1=-4*c2*costheta0;
+        c0=c2*(2*costheta0*costheta0+1);
+        double bo1 = valueIdentifier(valueOne, valueTwo);
+        double bo2 = valueIdentifier(valueTwo, valueThree);
+        rij = getbondUFF(ri, rj, chiI, chiJ, bo1);
+        rjk = getbondUFF(rj, rk, chiJ, chiK, bo2);
+        rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
+        beta = 664.12 / (rij * rjk);
+        kijk = beta * (zi*zk/Math.pow(rik,5)) * ((3*rij*rjk*(1-costheta0*costheta0))-(rik*rik*costheta0))* rij*rjk;
+        Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Radian.UNIT};
+        double[] newExpo ={1.0, -1.0, -2.0};
+        CompoundUnit molrad2 = new CompoundUnit(newOnw,newExpo);
+        double newkijkkJ = kijk * 4.182;
+        double newkijk = molrad2.toSim(kijk);
+        return new double[]{(float) c0, (float) c1, (float) c2, (float) newkijk};
+    }
+
+   /* public static P3BondAngleUFF angleUFFNew(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0 ){
+        double rij, rjk, rik, beta, kijk, c0, c1, c2, costheta0, sintheta0, kb;
+        theta0 = Degree.UNIT.toSim(theta0);
+        costheta0 = Math.cos(theta0);
+        sintheta0 = Math.sin(theta0);
+        c2=1/(4*sintheta0*sintheta0);
+        c1=-4*c2*costheta0;
+        c0=c2*(2*costheta0*costheta0+1);
+        rij = getbondUFF(ri, rj, chiI, chiJ);
+        rjk = getbondUFF(rj, rk, chiJ, chiK);
+        rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
+        beta = 664.12 / (rij * rjk);
+        kijk = beta * (zi*zk/Math.pow(rik,5)) * ((3*rij*rjk*(1-costheta0*costheta0))-(rik*rik*costheta0))* rij*rjk;
+        Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Radian.UNIT};
+        double[] newExpo ={1.0, -1.0, -2.0};
+        CompoundUnit molrad2 = new CompoundUnit(newOnw,newExpo);
+        //double newkijkkJ = kijk * 4.182;
+        double newkijk = molrad2.toSim(kijk);
+        return new P3BondAngleUFF((float) c0, (float) c1, (float) c2, (float) newkijk);
+    }*/
+
+    public static double[] torsionUFF(double V, int type,double rbo){
+        double phi = 0;
+        double n;
+        Unit degree = Degree.UNIT;
+        if(type == 2){
+            phi = 60;
+            n = 3;
             double thetha0Rad = degree.toSim(phi);
-            double bondOrder = 0.7;
-            double Vsp2 = 5 * V* ( 1 + 4.18 * Math.log( bondOrder));
-            return new P4BondTorsionUFF(Vsp2, 6, thetha0Rad);
+            return new double[]{V, n, thetha0Rad};
+        } else if (type == 3) {
+            phi = 0;
+            n = 6;
+            double thetha0Rad = degree.toSim(phi);
+            return new double[]{V, n, thetha0Rad};
+        } else {
+            phi =180;
+            n = 2;
+            rbo = 1.5;
+            double thetha0Rad = degree.toSim(phi);
+            double Vsp3 = 5 * V * ( 1 + 4.18 * Math.log(rbo));
+            return new double[]{Vsp3, n, thetha0Rad};
         }
     }
-
-/*
-    public static void torsionTypeIdentifier(int type, double V){
-        if(type==2){
-            torsionValuesp3(V);
-        } else if (type ==3) {
-            torsionValueOnesp2(V);
-        } else{
-            torsionValueTwosp2(V);
-        }
-    }
-
-*//*
-    public static double torsiontype (int i, String atomName){
-        double V = 0, Vi = 0, Vj= 0;
-        if(i == 1){
-            Vi=switchCaseTorsion(atomName);
-            System.out.println( Vi + atomName);
-        } else if (i == 2) {
-            Vj=switchCaseTorsion(atomName);
-            System.out.println( Vj + atomName);
-        }
-        if( Vi > 0 && Vj > 0){
-            V = Vi * Vj;
-            System.out.println(" V" + V);
-        }
-        return V;
-    }
-
-*/
 
     public static double switchCaseTorsion (String atomName){
         double V;
         //System.out.println(atomName + "AtomName");
-        if(atomName.equals("C")){
+        if(atomName.equals("C_3")){
             V = 2.119;
             //System.out.println("C " + 2.119 );
-        } else if (atomName.equals("O")) {
+        } else if (atomName.equals("O_3")) {
             V = 0.018;
             //System.out.println("O " + V);
-        } else if (atomName.equals("N")){
+        } else if (atomName.equals("N_3")){
             V = 0.450;
             //System.out.println("N " + V );
-        }else if (atomName.equals("P")){
+        }else if (atomName.equals("P_3")){
             V = 1.225;
             //System.out.println("P " + V );
         }else if (atomName.equals("Si")){
@@ -118,94 +140,23 @@ public class UFF {
             V = 2.400;
             //System.out.println("none " + V );
         }
-        /*
-        switch (atomName){
-            case "C":
-                System.out.println("C" + 2.119);
-                V = 2.119;
-            case "N":
-                System.out.println("N" + 0.450);
-                V = 2.119;
-            case "O":
-                System.out.println("O" + 0.018);
-                V = 2.119;
-            case "P":
-                System.out.println("P" + 1.225);
-                V = 2.119;
-            case "Si":
-                System.out.println("Si" + 2.400);
-                V = 2.119;
-            default:
-                System.out.println("None" + 2.400);
-                V = 0;
-        }*/
         return V;
     }
-/*species= PDBBuilder.buildSpecies(confName);
-        IMolecule molecule = species.makeMolecule();
-        ArrayList<ArrayList<Integer>>connectivity=  PDBBuilder.getConnectivity(confName);
-        Map<Integer, String> atomMap = PDBBuilder.getAtomMap(connectivity);
-        PDBBuilder.bonding(connectivity, atomMap);
-        /*for(int i=0; i<torsionArray.length; i++){
-            if(i ==2 || i==3 ){
 
-            }
-        }*/
-/*
-
-    public P4BondInversionUFF inversionUFF (){
-        switch (str){
-            case invIdenMeth :
-                return new P4BondInversionUFF();
-            case carbonaromaticChecker:
-                return new P4BondInversionUFF(1, -1, 0, 6 );
-            case invIdenCarboxyl:
-                return new P4BondInversionUFF(1, -1, 0, 50);
-            default:
-                return new P4BondInversionUFF(0,0,0,0);
-        }
-    }
-
-
-
-
- */
-
-
-    public static void electrostaticUFF(){
-        ArrayList<Integer> bondList = new ArrayList<>();
-        String confName = "F:/ethene";
-        bondList = PDBBuilder.getBonding(confName);
-        ArrayList<ArrayList<Integer>> connectivity = PDBBuilder.getConnectivity(confName);
-        ArrayList<ArrayList<Integer>> connectivityModified = PDBBuilder.getconnectivityModified(connectivity);
-        Map<Integer,String> atomMap = PDBBuilder.getAtomMap(connectivity);
-        HashMap<Integer, String> atomMapModified = PDBBuilder.getatomMapModified(atomMap);
-        List<int[]> listOfTorsions = PDBBuilder.getTorsionList(connectivity);
-        System.out.println(bondList);
-        System.out.println(connectivity);
-        System.out.println(connectivityModified);
-        System.out.println(atomMap);
-        System.out.println(atomMapModified);
-
-    }
 
     public P2Electrostatic electroUFF(double q1, double q2){
         P2Electrostatic p2electro = new P2Electrostatic(q1, q2);
-        p2electro.setCharge1(332.0637*q1);
+        p2electro.setCharge1(q1);
         p2electro.setCharge2(q2);
         return new P2Electrostatic(q1, q2);
     }
-    public LJUFF vanderWaals(double xa, double xb, double da, double db, double sciA, double sciB){
-        double xab = (xa + xb)/2;
-        double dab = da * db;
-        double sciAB = (sciA + sciB)/2;
-        return new LJUFF(xab, dab, sciAB);
+
+    public LJUFF vdw(double xa, double xb, double da, double db){
+        //double xab = (xa + xb)/2;
+        double xab = Math.sqrt(xa * xb);
+        double dab = Math.sqrt(da * db);
+        return new LJUFF(xab, dab);
     }
 
-    public P2LennardJones vdw(double xa, double xb, double da, double db){
-        double xab = (xa + xb)/2;
-        double dab = da * db;
 
-        return new P2LennardJones( xab/Math.pow(2, 1.0/6.0),dab);
-    }
 }

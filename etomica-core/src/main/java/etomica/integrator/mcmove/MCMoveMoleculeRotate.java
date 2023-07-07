@@ -64,6 +64,7 @@ public class MCMoveMoleculeRotate extends MCMoveBoxStep {
         if (molecule == null) return false;
         uOld = potentialCompute.computeOneOldMolecule(molecule);
         if (uOld > 1e10) {
+            //System.out.println(uOld + " uold");
             throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap ("+uOld+")");
         }
         while (oldPositions.size() < molecule.getChildList().size()) {

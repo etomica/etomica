@@ -9,6 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.species.ISpecies;
 import etomica.util.Statefull;
 
+import java.util.ArrayList;
+
 /**
  * Interface for an IMolecule
  */
@@ -36,4 +38,5 @@ public interface IMolecule extends Statefull {
     ISpecies getType();
 
     void copyCoordinatesFrom(IMolecule molecule);
+
 }
