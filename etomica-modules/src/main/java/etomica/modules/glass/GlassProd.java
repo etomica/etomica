@@ -382,6 +382,13 @@ public class GlassProd {
         dpxyAutocor.setPushInterval(16384);
 
 
+        ConfigurationStorage configStorageLinearMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 100, 1);
+        configStorageLinearMSD.setEnabled(true);
+        sim.integrator.getEventManager().addListener(configStorageLinearMSD);
+        DataSourceLinearMSD meterLinearMSD = new DataSourceLinearMSD(configStorageLinearMSD);
+        configStorageLinearMSD.addListener(meterLinearMSD);
+
+
         //MSD
         ConfigurationStorage configStorageMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
         configStorageMSD.setEnabled(true);
@@ -411,6 +418,11 @@ public class GlassProd {
         configStorageMSD.setDoVelocity(true);
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
         configStorageMSD.addListener(meterVAC);
+
+        //Linear-VAC
+        configStorageLinearMSD.setDoVelocity(true);
+        DataSourceLinearVAC meterLinearVAC = new DataSourceLinearVAC(configStorageLinearMSD);
+        configStorageLinearMSD.addListener(meterLinearVAC);
 
         //Fs
         DataSourceFs[][] meterFs = new DataSourceFs[params.qx.length][2];
@@ -764,8 +776,8 @@ public class GlassProd {
         double pErr = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc,
-                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
+        String filenameVisc, filenameMSD, filenameLinearMSD,  filenameMSDA, filenameMSDB, filenamePerc, filenameVAC, filenameLinearVAC,
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB;
         String[][] filenameFs = new String[meterFs.length][2];
         String[] filenameF = new String[meterFs.length];
 
@@ -776,9 +788,11 @@ public class GlassProd {
             fileTag = String.format("Rho%1.3f", rho);
             filenameVisc = String.format("viscRho%1.3f.dat", rho);
             filenameMSD = String.format("msdRho%1.3f.dat", rho);
+            filenameLinearMSD = String.format("msdLinearRho%1.3f.dat", rho);
             filenameMSDA = String.format("msdARho%1.3f.dat", rho);
             filenameMSDB = String.format("msdBRho%1.3f.dat", rho);
             filenameVAC = String.format("vacRho%1.3f.dat", rho);
+            filenameLinearVAC = String.format("vacLinearRho%1.3f.dat", rho);
             for (int i=0; i<meterFs.length; i++) {
                 filenameFs[i][0] = String.format("FsARho%1.3fQ%1.2f.dat", rho, params.qx[i]);
                 filenameFs[i][1] = String.format("FsBRho%1.3fQ%1.2f.dat", rho, params.qx[i]);
@@ -831,8 +845,10 @@ public class GlassProd {
             fileTag = String.format("Rho%1.3fT%1.3f", rho, params.temperature);
             filenameVisc = String.format("viscRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.dat", rho, params.temperature);
+            filenameLinearMSD = String.format("msdLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameMSDA = String.format("msdARho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameMSDB = String.format("msdBRho%1.3fT%1.3f.dat", rho, params.temperature);
+            filenameLinearVAC = String.format("vacLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameVAC = String.format("vacRho%1.3fT%1.3f.dat", rho, params.temperature);
             for (int i=0; i<meterFs.length; i++) {
                 filenameFs[i][0] = String.format("FsARho%1.3fT%1.3fQ%1.2f.dat", rho, params.temperature, params.qx[i]);
@@ -950,10 +966,12 @@ public class GlassProd {
             GlassProd.writeDataToFile(accSFac, filenameSq);
             GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 
+            GlassProd.writeDataToFile(meterLinearMSD, meterLinearMSD.errData, filenameLinearMSD);
             GlassProd.writeDataToFile(meterMSD, meterMSD.errData, filenameMSD);
             GlassProd.writeDataToFile(meterMSDA, meterMSDA.errData, filenameMSDA);
             if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.errData, filenameMSDB);
             GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
+            GlassProd.writeDataToFile(meterLinearVAC, meterLinearVAC.errData, filenameLinearVAC);
             GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
