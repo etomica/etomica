@@ -33,7 +33,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected final AtomType type;
-    protected List<MSDSink> msdSinks;
+    protected List<IDataSourceCorBlock> msdSinks;
     protected int minInterval = 3;
 
     public DataSourceMSD(ConfigurationStorage configStorage) {
@@ -78,7 +78,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         }
     }
 
-    public void addMSDSink(MSDSink sink) {
+    public void addMSDSink(IDataSourceCorBlock sink) {
         msdSinks.add(sink);
     }
 
@@ -93,6 +93,10 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
             yErr[i] = Math.sqrt((msd2Sum[i]/M - y[i]*y[i]) / (M - 1));
         }
         return data;
+    }
+
+    public DataDoubleArray getError() {
+        return errData;
     }
 
     @Override
@@ -132,8 +136,8 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                     nSamples[i]++;
                     msdSumBlock[i] = 0;
                 }
-                for (MSDSink s : msdSinks) {
-                    s.putMSD(i, step, iAvg);
+                for (IDataSourceCorBlock s : msdSinks) {
+                    s.putBlock(i, step, iAvg);
                 }
             }
         }
@@ -184,7 +188,4 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         }
     }
 
-    public interface MSDSink {
-        void putMSD(int log2interval, long step, double msd);
-    }
 }

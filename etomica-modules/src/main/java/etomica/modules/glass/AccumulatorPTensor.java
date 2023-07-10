@@ -14,6 +14,8 @@ import etomica.util.Statefull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceIndependent, Statefull {
 
@@ -29,6 +31,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected double[] sumP2, sumP4;
     protected int nP, dim;
     protected double volume, temperature, dt;
+    protected List<IDataSourceCorBlock> viscositySinks;
 
     public AccumulatorPTensor(Box box, double dt) {
         this.dt = dt;
@@ -43,7 +46,12 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         volume = box.getBoundary().volume();
         temperature = 1;
         dim = box.getSpace().D();
+        viscositySinks = new ArrayList<>();
         reset();
+    }
+
+    public void addViscositySink(IDataSourceCorBlock sink) {
+        viscositySinks.add(sink);
     }
 
     public void reset() {
@@ -105,12 +113,23 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
                 blockSumX[i][k] += x[k];
             }
             if (nSample % (1L << i) == 0) {
+                double sumk = 0;
                 for(int k=0; k<nP; k++){
                     double p2 = blockSumX[i][k]*blockSumX[i][k];
                     sumP2[i] += p2;
                     sumP4[i] += p2*p2;
                     blockSumX[i][k] = 0;
+                    sumk += p2;
                 }
+                // sumP2 from each dimension is independent, so we can you the average
+                // across dimensions.  using p2 instead of sumk above does not change the
+                // resulting average or uncertainty, but does make the uncertainty more
+                // precise
+                sumk /= nP;
+                for (IDataSourceCorBlock s : viscositySinks) {
+                    s.putBlock(i, nSample, sumk);
+                }
+
                 nBlockSamplesX[i]+=nP;
             }
         }
@@ -211,5 +230,9 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         public void putData(IData data) {
             temperature = data.getValue(0);
         }
+    }
+
+    public interface ViscositySink {
+        void putViscosity(int log2interval, long step, double viscosity);
     }
 }
