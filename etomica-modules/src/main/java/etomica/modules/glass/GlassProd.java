@@ -80,16 +80,16 @@ public class GlassProd {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.doSwap = true;
+            params.doSwap = !true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
-            params.nB = 100;
-            params.density = 1.0; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.nA = 50;
+            params.nB = 50;
+            params.density = 0.5; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEqIsothermal = 10000;
+            params.numStepsEqIsothermal = 1000000;
             params.numStepsIsothermal = 0;
-            params.numSteps = 100000;
+            params.numSteps = 1000000;
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
         }
@@ -298,12 +298,15 @@ public class GlassProd {
         sim.integrator.setIsothermal(false);
 
         //P
-        IDataSource pTensorMeter;
+        IDataSource pTensorMeter, pTensorLinearMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
             pTensorMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
+            pTensorLinearMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
         } else {
             pTensorMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
             ((MeterPressureHardTensor)pTensorMeter).setDoNonEquilibrium(true);
+            pTensorLinearMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
+            ((MeterPressureHardTensor)pTensorLinearMeter).setDoNonEquilibrium(true);
         }
 
         //Viscosity
@@ -312,15 +315,14 @@ public class GlassProd {
         AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.box, dn * sim.integrator.getTimeStep());
         pTensorAccumVisc.setEnabled(true);
         pTensorFork.addDataSink(pTensorAccumVisc);
-        DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
         //Linear Viscosity
         int maxStored = 100;
-        DataFork pTensorLinearFork = new DataFork();
         AccumulatorLinearPTensor pTensorLinearAccumVisc = new AccumulatorLinearPTensor(sim.box, dn * sim.integrator.getTimeStep(), maxStored);
         pTensorLinearAccumVisc.setEnabled(true);
-        pTensorLinearFork.addDataSink(pTensorLinearAccumVisc);
-        DataPumpListener pTensorLinearAccumViscPump = new DataPumpListener(pTensorMeter, pTensorLinearFork, dn);
+        pTensorFork.addDataSink(pTensorLinearAccumVisc);
+
+        DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
 
         AccumulatorAverageFixed gTensorAccumulator = null;
@@ -355,7 +357,6 @@ public class GlassProd {
         }
 
         sim.integrator.getEventManager().addListener(pTensorAccumViscPump);
-        sim.integrator.getEventManager().addListener(pTensorLinearAccumViscPump);
 
         GlassGraphic.DataProcessorTensorTrace tracer = new GlassGraphic.DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
