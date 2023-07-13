@@ -264,7 +264,7 @@ public class SimGlass extends Simulation {
         public double temperature = 1.0;
         public boolean doSwap = true;
         public PotentialChoice potential = PotentialChoice.LJ;
-        public double tStep = 0.005;
+        public double tStep = 0.01;
     }
 
 }
