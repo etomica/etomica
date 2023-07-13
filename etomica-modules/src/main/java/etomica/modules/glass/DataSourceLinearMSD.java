@@ -34,7 +34,7 @@ public class DataSourceLinearMSD implements IDataSource, ConfigurationStorage.Co
     protected long[] nSamples;
     protected final AtomType type;
     protected List<MSDSink> msdSinks;
-    protected int minInterval = 1;
+    protected int minInterval = 8;
 
     public DataSourceLinearMSD(ConfigurationStorage configStorage) {
         this(configStorage, null);

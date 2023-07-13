@@ -263,6 +263,7 @@ public class SimGlass extends Simulation {
         public double density = 1000 / (29.34 * 29.34);
         public double temperature = 1.0;
         public boolean doSwap = true;
+        public boolean doLinear = false;
         public PotentialChoice potential = PotentialChoice.LJ;
         public double tStep = 0.01;
     }

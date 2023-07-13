@@ -80,16 +80,17 @@ public class GlassProd {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.doSwap = !true;
+            params.doSwap = true;
+            params.doLinear = !true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 50;
-            params.nB = 50;
-            params.density = 0.5; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.nA = 100;
+            params.nB = 100;
+            params.density =  1.0; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEqIsothermal = 1000000;
+            params.numStepsEqIsothermal = 10000;
             params.numStepsIsothermal = 0;
-            params.numSteps = 1000000;
+            params.numSteps = 100000;
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
         }
@@ -298,15 +299,12 @@ public class GlassProd {
         sim.integrator.setIsothermal(false);
 
         //P
-        IDataSource pTensorMeter, pTensorLinearMeter;
+        IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
             pTensorMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
-            pTensorLinearMeter = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
         } else {
             pTensorMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
             ((MeterPressureHardTensor)pTensorMeter).setDoNonEquilibrium(true);
-            pTensorLinearMeter = new MeterPressureHardTensor((IntegratorHard) sim.integrator);
-            ((MeterPressureHardTensor)pTensorLinearMeter).setDoNonEquilibrium(true);
         }
 
         //Viscosity
@@ -317,10 +315,12 @@ public class GlassProd {
         pTensorFork.addDataSink(pTensorAccumVisc);
 
         //Linear Viscosity
-        int maxStored = 100;
-        AccumulatorLinearPTensor pTensorLinearAccumVisc = new AccumulatorLinearPTensor(sim.box, dn * sim.integrator.getTimeStep(), maxStored);
-        pTensorLinearAccumVisc.setEnabled(true);
-        pTensorFork.addDataSink(pTensorLinearAccumVisc);
+        AccumulatorLinearPTensor pTensorLinearAccumVisc = null;
+        if (params.doLinear) {
+            pTensorLinearAccumVisc = new AccumulatorLinearPTensor(sim.box, dn * sim.integrator.getTimeStep(), 10000);
+            pTensorLinearAccumVisc.setEnabled(true);
+            pTensorFork.addDataSink(pTensorLinearAccumVisc);
+        }
 
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
@@ -393,11 +393,15 @@ public class GlassProd {
         dpxyAutocor.setPushInterval(16384);
 
         //linear MSD
-        ConfigurationStorage configStorageLinearMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, maxStored, 10);
-        configStorageLinearMSD.setEnabled(true);
-        sim.integrator.getEventManager().addListener(configStorageLinearMSD);
-        DataSourceLinearMSD meterLinearMSD = new DataSourceLinearMSD(configStorageLinearMSD);
-        configStorageLinearMSD.addListener(meterLinearMSD);
+        ConfigurationStorage configStorageLinearMSD = null;
+        DataSourceLinearMSD meterLinearMSD = null;
+        if (params.doLinear){
+            configStorageLinearMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1000, 10);
+            configStorageLinearMSD.setEnabled(true);
+            sim.integrator.getEventManager().addListener(configStorageLinearMSD);
+            meterLinearMSD = new DataSourceLinearMSD(configStorageLinearMSD);
+            configStorageLinearMSD.addListener(meterLinearMSD);
+        }
 
 
         //MSD
@@ -430,9 +434,12 @@ public class GlassProd {
         dsCorVisc.setEnabled(true);
 
         //Linear-VAC
-        configStorageLinearMSD.setDoVelocity(true);
-        DataSourceLinearVAC meterLinearVAC = new DataSourceLinearVAC(configStorageLinearMSD);
-        configStorageLinearMSD.addListener(meterLinearVAC);
+        DataSourceLinearVAC meterLinearVAC = null;
+        if (params.doLinear){
+            configStorageLinearMSD.setDoVelocity(true);
+            meterLinearVAC = new DataSourceLinearVAC(configStorageLinearMSD);
+            configStorageLinearMSD.addListener(meterLinearVAC);
+        }
 
         //VAC
         configStorageMSD.setDoVelocity(true);
@@ -706,7 +713,6 @@ public class GlassProd {
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
         objects.add(pTensorAccumVisc);
-        objects.add(pTensorLinearAccumVisc);
         if (gTensorAccumulator != null) {
             objects.add(gTensorAccumulator);
         }
@@ -715,10 +721,8 @@ public class GlassProd {
             objects.add(tAccumulator);
             objects.add(accPE);
         }
-        objects.add(configStorageLinearMSD);
         objects.add(configStorageMSD);
         objects.add(configStorageMSD3);
-        objects.add(meterLinearMSD);
         objects.add(meterMSD);
         objects.add(meterMSDA);
         if (params.nB>0) objects.add(meterMSDB);
@@ -726,8 +730,13 @@ public class GlassProd {
         objects.add(dsCorVisc);
         objects.add(dsCorP);
         objects.add(dsMSDcorP);
-        objects.add(meterLinearVAC);
         objects.add(meterVAC);
+        if (params.doLinear){
+            objects.add(configStorageLinearMSD);
+            objects.add(meterLinearMSD);
+            objects.add(meterLinearVAC);
+            objects.add(pTensorLinearAccumVisc);
+        }
         for (int i=0; i<meterFs.length; i++) {
             for (int j=0; j<2; j++) objects.add(meterFs[i][j]);
             objects.add(meterF[i]);
@@ -796,8 +805,9 @@ public class GlassProd {
         double pErr = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        String filenameVisc, filenameLinearVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc, filenameLinearMSD, filenameLinearVAC,
-                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
+        String filenameLinearVisc=null, filenameLinearMSD=null, filenameLinearVAC=null;
+        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc, filenamePerc0, filenameImmFrac, filenameImmFracA,
+                filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
         String[][] filenameFs = new String[meterFs.length][2];
         String[] filenameF = new String[meterFs.length];
 
@@ -807,13 +817,15 @@ public class GlassProd {
             System.out.println("Z: " + pAvg / params.density / params.temperature + "  " + pErr / params.density / params.temperature + "  cor: " + pCorr);
             fileTag = String.format("Rho%1.3f", rho);
             filenameVisc = String.format("viscRho%1.3f.dat", rho);
-            filenameLinearVisc = String.format("viscLinearRho%1.3f.dat", rho);
-            filenameLinearMSD = String.format("msdLinearRho%1.3f.dat", rho);
+            if (params.doLinear){
+                filenameLinearVisc = String.format("viscLinearRho%1.3f.dat", rho);
+                filenameLinearMSD = String.format("msdLinearRho%1.3f.dat", rho);
+                filenameLinearVAC = String.format("vacLinearRho%1.3f.dat", rho);
+            }
             filenameMSD = String.format("msdRho%1.3f.dat", rho);
             filenameMSDA = String.format("msdARho%1.3f.dat", rho);
             filenameMSDB = String.format("msdBRho%1.3f.dat", rho);
             filenameVAC = String.format("vacRho%1.3f.dat", rho);
-            filenameLinearVAC = String.format("vacLinearRho%1.3f.dat", rho);
 
             for (int i=0; i<meterFs.length; i++) {
                 filenameFs[i][0] = String.format("FsARho%1.3fQ%1.2f.dat", rho, params.qx[i]);
@@ -866,13 +878,16 @@ public class GlassProd {
             System.out.println("E: " + eAvg / numAtoms + "  " + eStdev / numAtoms + "  cor: " + eCor);
             fileTag = String.format("Rho%1.3fT%1.3f", rho, params.temperature);
             filenameVisc = String.format("viscRho%1.3fT%1.3f.dat", rho, params.temperature);
-            filenameLinearVisc = String.format("viscLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
-            filenameLinearMSD = String.format("msdLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
+            if (params.doLinear) {
+                filenameLinearVisc = String.format("viscLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
+                filenameLinearMSD = String.format("msdLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
+                filenameLinearVAC = String.format("vacLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
+            }
+
             filenameMSD = String.format("msdRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameMSDA = String.format("msdARho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameMSDB = String.format("msdBRho%1.3fT%1.3f.dat", rho, params.temperature);
             filenameVAC = String.format("vacRho%1.3fT%1.3f.dat", rho, params.temperature);
-            filenameLinearVAC = String.format("vacLinearRho%1.3fT%1.3f.dat", rho, params.temperature);
             for (int i=0; i<meterFs.length; i++) {
                 filenameFs[i][0] = String.format("FsARho%1.3fT%1.3fQ%1.2f.dat", rho, params.temperature, params.qx[i]);
                 filenameFs[i][1] = String.format("FsBRho%1.3fT%1.3fQ%1.2f.dat", rho, params.temperature, params.qx[i]);
@@ -990,16 +1005,18 @@ public class GlassProd {
             GlassProd.writeDataToFile(accSFac, filenameSq);
             GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 
-            GlassProd.writeDataToFile(meterLinearMSD, meterLinearMSD.errData, filenameLinearMSD);
             GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), filenameMSD);
             GlassProd.writeDataToFile(dsCorMSD.getFullCorrelation(), "msdFullCor.dat");
             GlassProd.writeDataToFile(dsCorVisc.getFullCorrelation(), "viscFullCor.dat");
             GlassProd.writeDataToFile(meterMSDA, meterMSDA.getError(), filenameMSDA);
             if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.getError(), filenameMSDB);
             GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
-            GlassProd.writeDataToFile(meterLinearVAC, meterLinearVAC.errData, filenameLinearVAC);
             GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
-            GlassProd.writeDataToFile(pTensorLinearAccumVisc, pTensorLinearAccumVisc.errData, filenameLinearVisc);
+            if (params.doLinear){
+                GlassProd.writeDataToFile(meterLinearMSD, meterLinearMSD.errData, filenameLinearMSD);
+                GlassProd.writeDataToFile(meterLinearVAC, meterLinearVAC.errData, filenameLinearVAC);
+                GlassProd.writeDataToFile(pTensorLinearAccumVisc, pTensorLinearAccumVisc.errData, filenameLinearVisc);
+            }
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }

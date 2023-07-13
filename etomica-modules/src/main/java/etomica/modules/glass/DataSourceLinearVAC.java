@@ -34,7 +34,7 @@ public class DataSourceLinearVAC implements IDataSource, ConfigurationStorage.Co
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected AtomType type;
-    protected int minInterval = 1;
+    protected int minInterval = 8;
 
     public DataSourceLinearVAC(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
