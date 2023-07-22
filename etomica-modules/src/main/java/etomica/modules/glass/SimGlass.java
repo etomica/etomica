@@ -49,11 +49,11 @@ public class SimGlass extends Simulation {
 
     protected int chs;
 
-    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep) {
-        this(D, nA, nB, density, temperature, doSwap, pc, tStep, null);
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, double rcLJ) {
+        this(D, nA, nB, density, temperature, doSwap, pc, tStep, null, rcLJ);
     }
 
-    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, int[] randSeeds) {
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, int[] randSeeds, double rcLJ) {
         super(Space.getInstance(D));
         if (randSeeds != null) {
             setRandom(new RandomMersenneTwister(randSeeds));
@@ -69,20 +69,21 @@ public class SimGlass extends Simulation {
 
         NeighborListManager neighborManager = pc == PotentialChoice.HS
                 ? new NeighborListManagerHard(getSpeciesManager(), box, 2, 2.99, BondingInfo.noBonding())
-                : new NeighborListManager(getSpeciesManager(), box, 2, 2.99, BondingInfo.noBonding());
+                : new NeighborListManager(getSpeciesManager(), box, 2, 1.2*rcLJ, BondingInfo.noBonding());
         NeighborCellManager neighborManagerMC = new NeighborCellManager(getSpeciesManager(), box, 2, BondingInfo.noBonding());
         PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
+            System.out.println(" rcLJ: " + rcLJ);
             sigmaB = 0.88;
             P2LennardJones potentialAA = new P2LennardJones();
-            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, 2.5);
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, rcLJ);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2TruncatedAA);
             P2LennardJones potentialAB = new P2LennardJones(0.8, 1.5);
-            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(potentialAB, 2.5);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(potentialAB, rcLJ);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2TruncatedAB);
             P2LennardJones potentialBB = new P2LennardJones(sigmaB, 0.5);
-            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, 2.5);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, rcLJ);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
         } else if (potentialChoice == PotentialChoice.WCA) {
             neighborManager.setNeighborRange(2);
@@ -243,7 +244,7 @@ public class SimGlass extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ);
         sim.initConfig();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
 
@@ -265,7 +266,8 @@ public class SimGlass extends Simulation {
         public boolean doSwap = true;
         public boolean doLinear = false;
         public PotentialChoice potential = PotentialChoice.LJ;
-        public double tStep = 0.01;
+        public double tStep = 0.005;
+        public double rcLJ = 2.5;
     }
 
 }

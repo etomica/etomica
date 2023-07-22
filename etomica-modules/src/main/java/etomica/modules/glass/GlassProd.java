@@ -93,9 +93,10 @@ public class GlassProd {
             params.numSteps = 100000;
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
+            params.rcLJ = 2.5;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds, params.rcLJ);
         if (params.randomSeeds == null) System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
         else System.out.println("set random seeds: " + Arrays.toString(params.randomSeeds));
         System.out.println(params.D + "D " + sim.potentialChoice);
