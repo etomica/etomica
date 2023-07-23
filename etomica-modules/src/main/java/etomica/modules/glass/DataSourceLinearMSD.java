@@ -74,7 +74,6 @@ public class DataSourceLinearMSD implements IDataSource, ConfigurationStorage.Co
             double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (i+1);
-//                t[i] = dt * (1L << i);
             }
         }
     }
@@ -115,7 +114,6 @@ public class DataSourceLinearMSD implements IDataSource, ConfigurationStorage.Co
         for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i+1, minInterval);
             if (step % x == 0) {
-//            if (step % (1L << x) == 0) {
                 if (i >= msdSum.length) reallocate(i + 1);
                 Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 double iSum = 0;
@@ -128,7 +126,6 @@ public class DataSourceLinearMSD implements IDataSource, ConfigurationStorage.Co
                 double iAvg = iSum / iSamples;
                 msdSumBlock[i] += iAvg;
                 if (step % (blockSize * (i+1)) == 0) {
-//                if (step % (blockSize * (1L << i)) == 0) {
                     double xb = msdSumBlock[i] / blockSize;
                     msdSum[i] += xb;
                     msd2Sum[i] += xb * xb;

@@ -34,7 +34,7 @@ public class DataSourceLinearVAC implements IDataSource, ConfigurationStorage.Co
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected AtomType type;
-    protected int minInterval = 8;
+    protected int minInterval = 1; //min is 1
 
     public DataSourceLinearVAC(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
@@ -66,7 +66,6 @@ public class DataSourceLinearVAC implements IDataSource, ConfigurationStorage.Co
             double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * i;
-//                t[i] = dt * (1L << i);
             }
         }
     }
@@ -110,10 +109,9 @@ public class DataSourceLinearVAC implements IDataSource, ConfigurationStorage.Co
         Vector[] velocities = configStorage.getSavedVel(0);
         Box box = configStorage.getBox();
         IAtomList atoms = box.getLeafList();
-        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
-            int x = Math.max(i+1, minInterval);
+        for (int i = 0; i <= configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
             if (step % x == 0) {
-//            if (step % (1L << x) == 0) {
                 if (i >= vacSum.length) reallocate(i + 1);
                 Vector[] iVelocities = configStorage.getSavedVel(i);
                 for (int j = 0; j < velocities.length; j++) {

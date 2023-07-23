@@ -318,7 +318,7 @@ public class GlassProd {
         //Linear Viscosity
         AccumulatorLinearPTensor pTensorLinearAccumVisc = null;
         if (params.doLinear) {
-            pTensorLinearAccumVisc = new AccumulatorLinearPTensor(sim.box, dn * sim.integrator.getTimeStep(), 10000);
+            pTensorLinearAccumVisc = new AccumulatorLinearPTensor(sim.box, dn * sim.integrator.getTimeStep(), 1000);
             pTensorLinearAccumVisc.setEnabled(true);
             pTensorFork.addDataSink(pTensorLinearAccumVisc);
         }
@@ -397,7 +397,7 @@ public class GlassProd {
         ConfigurationStorage configStorageLinearMSD = null;
         DataSourceLinearMSD meterLinearMSD = null;
         if (params.doLinear){
-            configStorageLinearMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1000, 10);
+            configStorageLinearMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1000, 1);
             configStorageLinearMSD.setEnabled(true);
             sim.integrator.getEventManager().addListener(configStorageLinearMSD);
             meterLinearMSD = new DataSourceLinearMSD(configStorageLinearMSD);
