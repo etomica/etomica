@@ -381,6 +381,7 @@ public class GlassProd {
             tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
             DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
             tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
+            tAccumulator.addDataSink(pTensorLinearAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
             sim.integrator.getEventManager().addListener(tPump);
         }
 

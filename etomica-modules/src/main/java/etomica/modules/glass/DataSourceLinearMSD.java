@@ -125,7 +125,7 @@ public class DataSourceLinearMSD implements IDataSource, ConfigurationStorage.Co
                 }
                 double iAvg = iSum / iSamples;
                 msdSumBlock[i] += iAvg;
-                if (step % (blockSize * (i+1)) == 0) {
+                if (step % (blockSize * x) == 0) {
                     double xb = msdSumBlock[i] / blockSize;
                     msdSum[i] += xb;
                     msd2Sum[i] += xb * xb;
