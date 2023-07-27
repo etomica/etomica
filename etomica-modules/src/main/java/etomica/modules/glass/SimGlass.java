@@ -41,7 +41,7 @@ public class SimGlass extends Simulation {
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
-    protected P2HardGeneric p2AA;
+    protected P2HardGeneric p2AA, p2AB;
 
     public enum PotentialChoice {LJ, WCA, SS, HS, WS}
 
@@ -120,8 +120,8 @@ public class SimGlass extends Simulation {
             sigmaB = 1.0 / 1.4;
             p2AA = P2SquareWell.makePotential(coreHS, 1 / coreHS, -100);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
-            P2HardGeneric potentialAB = P2HardSphere.makePotential(0.5 + 0.5 * sigmaB);
-            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), potentialAB);
+            p2AB = P2SquareWell.makePotential(0.5*(coreHS + sigmaB), (1+sigmaB)/(coreHS+sigmaB), -100);
+            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
             P2HardGeneric potentialBB = P2HardSphere.makePotential(sigmaB);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), potentialBB);
         } else if (potentialChoice == PotentialChoice.WS) {
@@ -183,41 +183,58 @@ public class SimGlass extends Simulation {
                 PotentialComputePair potentialMasterMC = (PotentialComputePair) integratorMC.getPotentialCompute();
                 double tStepOld = integrator.getTimeStep();
                 integrator.setTimeStep(0.001);
+                // first, increase sigma without running any sim
                 for (; chs <= 100; chs++) {
-                    p2AA.setCollisionDiameter(0, chs * 0.01);
+                    double coreHS = 0.01 * chs;
+                    p2AA.setCollisionDiameter(0, coreHS);
+                    p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
                     double u = potentialMaster.computeAll(false);
 //                    System.out.println("chs "+chs*0.01+" "+u);
                     if (u == Double.POSITIVE_INFINITY) {
                         chs--;
-                        p2AA.setCollisionDiameter(0, chs * 0.01);
+                        coreHS = 0.01 * chs;
+                        p2AA.setCollisionDiameter(0, coreHS);
+                        p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
                         break;
                     }
                     if (chs == 100) {
                         success = true;
-                        P2HardGeneric p = P2HardSphere.makePotential(1);
-                        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p);
-                        potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p);
+                        P2HardGeneric pAA = P2HardSphere.makePotential(1);
+                        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+                        potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+
+                        P2HardGeneric pAB = P2HardSphere.makePotential(0.5*(1 + sigmaB));
+                        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
+                        potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
                     }
                 }
                 if (!success) {
-
+                    // if sigma still too small, run MD and continue increasing sigma
                     while (chs < 100) {
                         integrator.reset();
                         for (int i = 0; i < 1000; i++) {
                             handle.yield(integrator::doStep);
                         }
                         chs++;
-                        p2AA.setCollisionDiameter(0, chs * 0.01);
+                        double coreHS = 0.01 * chs;
+                        p2AA.setCollisionDiameter(0, coreHS);
+                        p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
                         double u = potentialMaster.computeAll(false);
 //                        System.out.println("chs "+chs*0.01+" "+u);
                         if (u == Double.POSITIVE_INFINITY) {
                             chs--;
-                            p2AA.setCollisionDiameter(0, chs * 0.01);
+                            coreHS = 0.01 * chs;
+                            p2AA.setCollisionDiameter(0, coreHS);
+                            p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
                             continue;
                         } else if (chs == 100) {
-                            P2HardGeneric p = P2HardSphere.makePotential(1);
-                            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p);
-                            potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p);
+                            P2HardGeneric pAA = P2HardSphere.makePotential(1);
+                            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+                            potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+
+                            P2HardGeneric pAB = P2HardSphere.makePotential(0.5*(1 + sigmaB));
+                            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
+                            potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
                         }
                     }
                 }
