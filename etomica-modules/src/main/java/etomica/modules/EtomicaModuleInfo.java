@@ -54,6 +54,7 @@ public final class EtomicaModuleInfo {
             mod("Reverse Osmosis", "No description yet", etomica.modules.rosmosis.ReverseOsmosisGraphic.class),
             mod("Reverse Osmosis (water)", "No description yet", etomica.modules.rosmosis.ReverseOsmosisWaterGraphic.class),
             mod("Self-Assembled Monolayer", "No description yet", etomica.modules.sam.SamGraphic.class),
+            mod("Self-Assembly", "No description yet", etomica.modules.selfassembly.SelfAssemblyGraphic.class),
             mod("Statistics", "No description yet", etomica.modules.statistics.StatisticsMCGraphic.class, "-moduleNum 1"),
             mod("Statistics Part 2", "No description yet", etomica.modules.statistics.StatisticsMCGraphic.class, "-moduleNum 2"),
             mod("VLE", "No description yet", etomica.modules.vle.VLE.class),
