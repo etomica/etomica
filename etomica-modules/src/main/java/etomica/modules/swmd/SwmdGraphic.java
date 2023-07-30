@@ -20,10 +20,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.math.DoubleRange;
-import etomica.modifier.Modifier;
-import etomica.modifier.ModifierGeneral;
-import etomica.modifier.ModifierSQWEpsilon;
-import etomica.modifier.ModifierSQWLambda;
+import etomica.modifier.*;
 import etomica.potential.IPotential2;
 import etomica.potential.P2HardGeneric;
 import etomica.space.Space;
@@ -47,6 +44,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Square-Well Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 1;
+    private final ColorScheme defaultColorScheme;
     protected DeviceThermoSlider tempSlider;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
@@ -57,6 +55,7 @@ public class SwmdGraphic extends SimulationGraphic {
     protected Swmd sim;
 
     private boolean showConfig = true;
+    private boolean showColliders;
 
     public SwmdGraphic(final Swmd simulation) {
 
@@ -99,6 +98,8 @@ public class SwmdGraphic extends SimulationGraphic {
 
         sim.getController().setSleepPeriod(0);
         sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+        sim.integrator.setTimeStep(0.03);
+
 
         //combo box to select potentials
         final String idealGas = "Ideal gas";
@@ -195,7 +196,8 @@ public class SwmdGraphic extends SimulationGraphic {
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(), Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
+        getDisplayBox(sim.box).setColorScheme(colorScheme);
+        defaultColorScheme = colorScheme;
 
         //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
@@ -388,6 +390,11 @@ public class SwmdGraphic extends SimulationGraphic {
         gbc2.gridy = 1;
         statePanel.add(nSliderPanel, gbc2);
 
+        ColorSchemeColliders colliderScheme = new ColorSchemeColliders(sim.integrator);
+        colliderScheme.partnerColor = Color.BLACK;
+        colliderScheme.colliderColor = Color.BLUE;
+
+
         //************* Lay out components ****************//
 
         getDisplayBox(sim.box).setScale(0.7);
@@ -412,7 +419,18 @@ public class SwmdGraphic extends SimulationGraphic {
         velocityButton.setLabel("Show Velocities");
         velocityButton.setAction(new ActionVelocityWindow(sim.box));
 
-        final IAction resetAction = new IAction() {
+        DeviceCheckBox colliderCheckbox = new DeviceCheckBox(sim.getController(), "Show next colliders", new ModifierBoolean() {
+            public void setBoolean(boolean b) {
+                showColliders = b;
+                if (b) {
+                    getDisplayBox(sim.box).setColorScheme(colliderScheme);
+                } else {
+                    getDisplayBox(sim.box).setColorScheme(defaultColorScheme);
+                }
+            }
+            public boolean getBoolean() {return showColliders;}
+        });
+            final IAction resetAction = new IAction() {
             public void actionPerformed() {
                 sim.integrator.reset();
 
@@ -448,9 +466,13 @@ public class SwmdGraphic extends SimulationGraphic {
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
+        delaySlider.setDelayExponent(3);
+        delaySlider.setMaxSleep(200);
+
 
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
+        getPanel().controlPanel.add(colliderCheckbox.graphic(),vertGBC);
         if (showConfig == true) {
             add(configButton);
             add(velocityButton);

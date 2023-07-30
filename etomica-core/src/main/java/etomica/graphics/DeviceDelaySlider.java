@@ -24,6 +24,8 @@ public class DeviceDelaySlider {
     protected double  delayExponent;
     protected int maxSleep;
 
+	//TODO develop means to optionally reduce integrator time step when delay is added, for smoother or more complete animation (e.g., advance spheres closer to collision point)
+
     public DeviceDelaySlider(Controller cont) {
 		this.controller = cont;
         delayExponent = 2.0;
