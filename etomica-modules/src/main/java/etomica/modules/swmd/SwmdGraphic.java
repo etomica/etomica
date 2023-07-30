@@ -391,7 +391,7 @@ public class SwmdGraphic extends SimulationGraphic {
         statePanel.add(nSliderPanel, gbc2);
 
         ColorSchemeColliders colliderScheme = new ColorSchemeColliders(sim.integrator);
-        colliderScheme.partnerColor = Color.BLACK;
+        colliderScheme.partnerColor = Color.GREEN;
         colliderScheme.colliderColor = Color.BLUE;
 
 
