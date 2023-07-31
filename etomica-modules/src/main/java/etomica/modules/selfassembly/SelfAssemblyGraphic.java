@@ -161,7 +161,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
 
             public void setValue(double newValue) {
-                sim.setNB1((int) newValue);
+                try {
+                    sim.setNB1((int) newValue);
+                } catch(RuntimeException exception) {};
+                getDisplayBox(sim.box).repaint();
             }
         });
         nB1.setPostAction(reconfig);
@@ -183,7 +186,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
 
             public void setValue(double newValue) {
-                sim.setNB2((int) newValue);
+                try {
+                    sim.setNB2((int) newValue);
+                } catch(RuntimeException exception) {} ;
+                getDisplayBox(sim.box).repaint();
             }
         });
         nB2.setPostAction(reconfig);
@@ -397,7 +403,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             epsSlider = slider(0.0, 500.0, "epsilon", 0, p);
             epsSlider.setUnit(Kelvin.UNIT);
 
-            double mySig = (p == sim.p2AA) ? 20.0 : 2.0;
+            double mySig = (p == sim.p2AA) ? 3.0 : 2.0;
             sigSlider = slider(0.0, mySig, "coreDiameter", 2, p);
 
             lamSlider = slider(1.0, 2.0, "lambda", 2, p);
