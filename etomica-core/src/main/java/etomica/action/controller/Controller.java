@@ -157,7 +157,11 @@ public class Controller {
     }
 
     public void restartCurrentActivity() {
-        this.currentTask.activity.restart();
+        // silently ignore trying to "restart" when there is nothing to restart
+        // this happens if we mess with a graphical sim before it's started
+        if (this.currentTask != null) {
+            this.currentTask.activity.restart();
+        }
     }
 
     public void completeActivities() {
