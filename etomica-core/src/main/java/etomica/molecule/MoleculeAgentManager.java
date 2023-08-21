@@ -141,7 +141,7 @@ public final class MoleculeAgentManager<E> implements BoxEventListener {
     public void boxMoleculeIndexChanged(BoxMoleculeIndexEvent e) {
         IMolecule mole = e.getMolecule();
         // the atom's index changed.  assume it would get the same agent
-        int oldIndex = e.getIndex();
+        int oldIndex = e.getOldIndex();
         IndexMap<E> speciesAgents = this.agents.get(mole.getType());
         E agent = speciesAgents.remove(oldIndex);
         speciesAgents.put(mole.getIndex(), agent);
