@@ -1,18 +1,12 @@
 package etomica.potential.UFF;
 
 import etomica.potential.IPotential2;
+import etomica.units.*;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
-/**
-        * Harmonic Well interatomic potential.
-        * Spherically symmetric potential of the form u(r) = springConstant*(r-r0)^2
-        * where springConstant describes the strength of the pair interaction.
-        *
-        * @author Jhumpa Adhikari
-        * @author David Kofke
-        */
+
 public class P2HarmonicUFF implements IPotential2 {
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
     private final boolean r0Zero;
@@ -39,11 +33,14 @@ public class P2HarmonicUFF implements IPotential2 {
             return;
         }
         double r = Math.sqrt(r2);
+        Unit kjoulepmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
+        double wnew = kjoulepmole.fromSim(w);
         double dx = r - r0;
+        double denergy = wnew*dx*dx;
+        System.out.println(dx + " " + r +" " + r0 + " " + wnew + " Energy : " + denergy );
         u012[0] = w*dx*dx;
         u012[1] = 2*w*r*dx;
         u012[2] = 2*w*r2;
-
     }
 
     public double u(double r2) {

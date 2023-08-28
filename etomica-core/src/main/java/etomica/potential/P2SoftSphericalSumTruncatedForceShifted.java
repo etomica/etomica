@@ -16,7 +16,7 @@ import etomica.space.Space;
  */
 public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumTruncated {
 
-    protected double uShift, ufShift;
+    protected double uShift, ufShift, uShiftNew;
 
     public P2SoftSphericalSumTruncatedForceShifted(double truncationRadius, IPotential2... potential) {
         super(truncationRadius, potential);
@@ -25,6 +25,11 @@ public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumT
     @Override
     public double u(double r2) {
         if (r2 > r2Cutoff) return 0;
+       //System.out.println(uShift+ " uShift");
+        //Next statement is required for Virial
+       if(Double.isInfinite(uShift)){
+           uShift = getuShiftNew();
+       }
         return uShift + Math.sqrt(r2) * ufShift + uWrapped(r2);
     }
 
@@ -49,8 +54,16 @@ public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumT
     public void setTruncationRadius(double rCut) {
         super.setTruncationRadius(rCut);
         uShift = -uWrapped(r2Cutoff);
+       // setuShiftNew(uShift);
         ufShift = -duWrapped(r2Cutoff) / rCutoff;
         uShift -= rCutoff * ufShift;
+    }
+
+    public void setuShiftNew(double uShift){
+        uShiftNew = uShift;
+    }
+    public double getuShiftNew(){
+        return uShiftNew;
     }
 
     @Override

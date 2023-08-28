@@ -25,17 +25,23 @@ public class PDBReader {
     static double molecularWeight =0;
     protected static Map<Integer,Vector> positions = new HashMap<>();
     protected static ISpecies sm;
-    protected static Map<Integer, String> atomMap = new HashMap<>();
+    public static Map<Integer, String> atomMap = new HashMap<>();
     public static ArrayList<ArrayList<Integer>> connectivity = new ArrayList<>();
     //static List<List> locationList = new ArrayList<>();
     public static HashMap<Integer, String> atomMapModified = new HashMap<>();
+    public static Map<Integer, Integer> coordinationMapOutput  = new HashMap<>();
     public static Map<String, AtomType> typeMapNew = new HashMap<>();
-   public static HashMap<Integer, String> atomMapNew = new HashMap<>();
+    public static HashMap<Integer, String> atomMapNew = new HashMap<>();
     public static ArrayList<ArrayList<Integer>> connectivityModified = new ArrayList<>();
+    static Map<Integer, String> modifiedAtomIdentifierMap = new HashMap<>();
     public static ArrayList<ArrayList<Integer>> listOfBonds = new ArrayList<>();
     public static List<List<Integer>> listOfTorsions = new ArrayList<>();
+    static ArrayList<int[]> listOfInversions = new ArrayList<>();
     public static ArrayList<Integer> bondList = new ArrayList<>();
     public static Map<Integer, AtomType> atomIdentifierMap = new HashMap<>();
+    public static Map<Integer, String> atomIdentifierTypeMap = new HashMap<>();
+    public static ArrayList<Integer> bondsNum = new ArrayList<>();
+    public static List<List<Integer>> listOfTorsion = new ArrayList<>();
     static ISpecies species, speciesNew;
 
     public static void buildSpecies(String confName) {
@@ -91,7 +97,9 @@ public class PDBReader {
         if (line.length() < 6) {
             return;
         }
-        if (line.substring(0, 6).equals("HETATM")) {
+        String arr = "HETATM";
+       // System.out.println(arr.length() + " length");
+        if (line.substring(0, 6).equals("HETATM") || line.substring(0,4).equals("ATOM")) {
             //coordinates of atom and create atom
             double x = Double.parseDouble(line.substring(30, 38));
             double y = Double.parseDouble(line.substring(38, 46));
@@ -123,17 +131,10 @@ public class PDBReader {
         }
     }
 
-    public static <IAtomType> ISpecies getSpeciesNew (String confName){
+    public static ISpecies getSpeciesAnotherFF(String confName){
         SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
         AtomType typeNew;
         buildSpecies(confName);
-       ArrayList<Integer> bondList = PDBReader.setBondList(connectivity, atomMap);
-        System.out.println(bondList + " bondList");
-        System.out.println(atomMap+ "  " + atomMap.size());
-        Set<String> uniqueElements = PDBReader.uniqueElementIdentifierWithInputs(connectivity, atomMap);
-        System.out.println(uniqueElements + "uniqueElements");
-        Map<Integer, String> atomIdentifierMapModified = PDBReader.atomIdentifierMapModified(connectivity, atomMap);
-        System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
         ArrayList<ArrayList<Integer>> connectedAtoms = PDBReader.getConnectivity();
         System.out.println(connectedAtoms+ ": connectedAtom");
         ArrayList<ArrayList<Integer>> connectivityModified = PDBReader.getconnectivityModified(connectedAtoms);
@@ -142,35 +143,80 @@ public class PDBReader {
         System.out.println(atomMap + ": atomMap");
         HashMap<Integer, String> atomMapModified = PDBReader.getatomMapModified(atomMap);
         System.out.println(atomMapModified + ": atomMapModified");
-        getUniqueAtoms(connectivityModified, atomMapModified);
-        System.out.println(uniqueElements + "Set of Unique Elements");
-        System.out.println(atomIdentifierMap +" atomIdentifierMap");
-        System.out.println(atomIdentifierMapModified + " atomIdentifierMapModified");
+        return speciesBuilderNew.build();
+    }
+    public static Map<Integer, String> getAtomMap(){
+        return atomMap;
+    }
+    public static Map<Integer,String>getAtomModifiedMap(){
+        return atomMapModified;
+    }
 
+    public static  ISpecies getSpeciesNew (String confName){
+        SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
+        AtomType typeNew;
+        buildSpecies(confName);
+        ArrayList<Integer> bondList =setBondList(connectivity, atomMap);
+        System.out.println(bondList + " bondList");
+        System.out.println(atomMap+ "  " + atomMap.size());
+        Set<String> uniqueElements = uniqueElementIdentifierWithInputs(connectivity, atomMap);
+       // System.out.println(uniqueElements + "uniqueElements");
+       // Map<Integer, String> atomIdentifierMapModified = PDBReader.atomIdentifierMapModified(connectivity, atomMap);
+        //System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
+        ArrayList<ArrayList<Integer>> connectedAtoms = PDBReader.getConnectivity();
+        System.out.println(connectedAtoms+ ": connectedAtom");
+        ArrayList<ArrayList<Integer>> connectivityModified = PDBReader.getconnectivityModified(connectedAtoms);
+        System.out.println(connectivityModified+ ": connectedAtomModified" );
+        Map<Integer,String> atomMap = PDBReader.getAtomMap(connectedAtoms);
+        System.out.println(atomMap + ": atomMap");
+        HashMap<Integer, String> atomMapModified = PDBReader.getatomMapModified(atomMap);
+        System.out.println(atomMapModified + ": atomMapModified");
+        //makeBondArray(connectivityModified, atomIdentifierMapModified, bondList);
+        //getUniqueAtoms(connectivityModified, atomMapModified);
+        //System.out.println(uniqueElements + "Set of Unique Elements");
+       // idenInversion(connectivityModified, atomIdentifierMapModified);
+        //Map<String[], List<int[]>>inversionSorted =
+        //idenInversionTypes(listOfInversions, atomIdentifierMapModified);
+        System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
+        System.out.println(atomIdentifierMap +" atomIdentifierMap");
+        //System.out.println(atomIdentifierMapModified + " atomIdentifierMapModified");
+        System.out.println("Entered coordination Part");
+       // coordinationNumberDeterminer(connectivityModified, atomIdentifierMapModified);
+        //List<int[]> listOfBonds = getBondedAtomList(connectivityModified);
+        bondsNum = bondsAmongAtoms();
+        System.out.println(bondsNum + " bond Amongatoms");
+        ArrayList<Integer> bonds = bondsAmongAtoms();
+        //System.out.println(Arrays.deepToString(listOfBonds.toArray()) + " listofBondedAtoms");
+        //aromaticIdentifier(atomIdentifierMap, atomMapModified, atomIdentifierMapModified);
         //List<int[]>valuePairs = firstLocationOfAtomPrinter(atomIdentifierMap);
         //System.out.println(Arrays.deepToString(valuePairs.toArray()) + "valuePairs");
-        //List<int[]> listOfBonds = getBondList(connectivityModified);
-        //List<int[]> listOfAngleModified = getAngleList(connectivityModified);
-        //List<int[]> listOfTorsionModified = getTorsionList(connectivity);
-        //System.out.println(Arrays.deepToString(listOfBonds.toArray())+ ": listOfBond");
-        //Map<Integer, String> atomIdentifierMapMod = PDBReader.atomIdentifierMapModified(connectivityModified, atomMapModified);
-        //List<int[]>dupletsSorted= bondSorter(listOfBonds, atomIdentifierMapMod);
+      //  List<int[]> listOfBondsNum = getBondList(connectivityModified, atomMap);
+        //List<int[]> duplets = PDBReader.getBondedAtomList(connectivityModified);
+       // List<int[]> listOfAngleModified = getAngleList(connectivityModified);
+
+       // System.out.println(Arrays.deepToString(listOfBonds.toArray())+ ": listOfBond");
+      //Map<Integer, String> atomIdentifierMapMod = PDBReader.atomIdentifierMapModified(connectivityModified, atomMapModified);
+      // List<int[]>dupletsSorted= bondSorter(duplets, atomIdentifierMapMod);
+        //System.out.println(Arrays.deepToString(dupletsSorted.toArray()) + " duplets Sorted");
+      // System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
+       // ArrayList<Integer> bondsNum = PDBReader.getBonds();
+       // getangleMap(dupletsSorted, bondsNum);
        // List<int[]>tripletsSorted=angleSorter(listOfAngleModified, atomIdentifierMapMod);
-      //  List<int[]>quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapMod);
-       // System.out.println(Arrays.deepToString(quadrupletsSorted.toArray()) + "quadrupletsSorted");
+       // List<int[]> listOfTorsionModified = getTorsionList(connectivity);
         //System.out.println( Arrays.deepToString(listOfTorsionModified.toArray()) + "torsionModified");
-        //List<int[]>quadrupletsSorted=torsionSorter(listOfAngleModified, atomIdentifierMapMod);
-       // Map<String[],List<int[]>> bondTypesMap= idenBondTypes(dupletsSorted, atomIdentifierMapMod);
-        //Map<String[],List<int[]>> angleTypesMap= idenAngleTypes(tripletsSorted, atomIdentifierMapMod);
-       // Map<String[],List<int[]>> torsionTypesMap= idenTorsionTypes(quadrupletsSorted, atomIdentifierMapMod);
-        //System.out.println(atomIdentifierMapMod);
+        //List<int[]>quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapMod);
+       // System.out.println(Arrays.deepToString(quadrupletsSorted.toArray()) + "quadrupletsSorted");
+       //Map<String[],List<int[]>> bondTypesMap= idenBondTypes(dupletsSorted, atomIdentifierMapMod);
+       // Map<String[],List<int[]>> angleTypesMap= idenAngleTypes(tripletsSorted, atomIdentifierMapMod);
+      // Map<String[],List<int[]>> torsionTypesMap= idenTorsionTypes(quadrupletsSorted, atomIdentifierMapMod);
+      // aromaticIdentifier(torsionTypesMap);
+      //  System.out.println(atomIdentifierMapMod);
         //idenBondTypes(listOfBonds, atomIdentifierMapMod);
        // uniqueBondTypes(listOfBonds, atomIdentifierMap);
 
        // System.out.println(Arrays.deepToString(listOfAngleModified.toArray())+ ": listOfAngleModified");
         //idenAngleTypes(listOfAngleModified, atomIdentifierMapMod);
-       // List<int[]> listOfTorsionModified = getTorsionList(connectivity);
-        //System.out.println(Arrays.deepToString(listOfTorsionModified.toArray())+ " listOfTorsionModified");
+
         //Set<String> uniqueAtoms = uniqueElementAtomTypeConverter(connectivity, atomMap);
         //System.out.println(uniqueAtoms + " uniqueAtoms");
         //System.out.println(atomIdentifierMap.size());
@@ -254,6 +300,256 @@ public class PDBReader {
 
     }*/
 
+  /*  public static void aromaticIdentifier( Map<Integer, AtomType> atomIdentifierMap,HashMap<Integer, String> atomMapModified, Map<Integer, String>  atomIdentifierMapModified  ){
+        System.out.println("Start");
+        System.out.println(atomIdentifierMap);
+        int numCarb =0;
+        System.out.println(atomIdentifierMap + " atomIdentifierMap");
+        for(int i =0; i<atomMapModified.size(); i++){
+            String atomName = atomMapModified.get(i);
+            if(atomName.equals("C")){
+                numCarb++;
+            }
+        }
+        List<int[]> listOfTorsionModified = getTorsionList(connectivity);
+        List<int[]>quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapModified);
+        System.out.println(Arrays.deepToString(quadrupletsSorted.toArray()) + " quads");
+
+        if(numCarb >= 6  && quadrupletsSorted.size() > 0){
+            System.out.println("Benzene is possible");
+            ArrayList<ArrayList<Integer>> arrElementFive = new ArrayList<>();
+            for(int i =0; i<quadrupletsSorted.size(); i++){
+                int[] arr = quadrupletsSorted.get(i);
+                String atomOne = String.valueOf(atomMapModified.get(arr[1]));
+                String atomTwo = String.valueOf(atomMapModified.get(arr[2]));
+                if(atomOne.equals("C") && atomTwo.equals("C") ){
+                    ArrayList<Integer> arrFiveElementIntermediate = new ArrayList<>();
+                    String atomZero = String.valueOf(atomMapModified.get(arr[0]));
+                    String atomThree = String.valueOf(atomMapModified.get(arr[3]));
+                    if(atomZero.equals("C") && atomThree.equals("C")){
+                        ArrayList<Integer> arrConnectFirst = connectivityModified.get(arr[0]);
+                        System.out.println(arrConnectFirst + " arrconnect");
+                        int numArrConnectZero = connectivityModified.get(arr[0]).get(0);
+                        for(int j =1; j<arrConnectFirst.size(); j++){
+                            String atomZeroElementAdded = atomMapModified.get(connectivityModified.get(arr[0]).get(j));
+                            if(atomZeroElementAdded.equals("C")){
+                                System.out.println(j + " " + connectivityModified.get(arr[0]).get(j));
+                            }
+                        }
+
+                        //ArrayList<Integer> arrConnectLast =  connectivityModified.get(arr[3]);
+                       // System.out.println("Entereed loop" +Arrays.toString(quadrupletsSorted.get(i)) + " " +atomZero +" "+  atomOne + " " + atomTwo+ " " + atomThree);
+                    }
+                }
+            }
+        }else {
+            System.out.println("It is impossible");
+        }
+    }*/
+
+    public static void aromaticIdentifier( Map<String[],List<int[]>> torsionTypesMap){
+        System.out.println(atomIdentifierMap);
+        System.out.println(connectivityModified);
+
+
+        for (Map.Entry<String[], List<int[]>> entry : torsionTypesMap.entrySet()) {
+            String[] torsionType = entry.getKey();
+            List<int[]> torsions = entry.getValue();
+            System.out.println(Arrays.toString(torsionType) +" torsion");
+            if(torsionType[0].equals("C_2") && torsionType[3].equals("C_2")){
+                System.out.println("entered loop " + Arrays.deepToString(torsions.toArray()) );
+               for(int i=0; i<torsions.size();i++){
+                   int[] torsionIndividual = torsions.get(0);
+                   int torsionIndiidualOne = torsionIndividual[1];
+                   int torsionIndiidualTwo = torsionIndividual[2];
+                   int[] hexAromaticNew = new int[6];
+                   System.out.println(torsionIndiidualOne + " " +torsionIndiidualTwo);
+                   ArrayList<Integer> connectivityFirst = connectivityModified.get(torsionIndividual[0]);
+                   ArrayList<Integer> connectivityLast = connectivityModified.get(torsionIndividual[3]);
+                   ArrayList<Integer> start = new ArrayList<>();
+                   for(int j=1; j<connectivityFirst.size(); j++){
+                       int atomNum = connectivityFirst.get(j);
+                       String atomName = modifiedAtomIdentifierMap.get(atomNum);
+                       if(atomName.equals("C_2") && atomNum != torsionIndiidualOne && atomNum != torsionIndiidualTwo){
+                           start.add(atomNum);
+                       }
+                       System.out.println(start);
+                      // System.out.println(modifiedAtomIdentifierMap.get(connectivityFirst.get(j)) + " " +connectivityFirst.get(j));
+                   }
+
+
+                   ArrayList<Integer> end = new ArrayList<>();
+                   for(int j=1; j<connectivityLast.size(); j++) {
+                       int atomNum = connectivityLast.get(j);
+                       String atomName = modifiedAtomIdentifierMap.get(atomNum);
+                       if (atomName.equals("C_2") && atomNum != torsionIndiidualOne && atomNum != torsionIndiidualTwo) {
+                           end.add(atomNum);
+                       }
+                       System.out.println(end);
+
+                       // System.out.println(modifiedAtomIdentifierMap.get(connectivityFirst.get(j)) + " " +connectivityFirst.get(j));
+                   }
+                System.out.println(start + " start");
+                int startOne = start.get(0);
+                ArrayList<Integer> startOneConnect = connectivityModified.get(startOne);
+                int endOne = start.get(0);
+                ArrayList<Integer> endOneConnect = connectivityModified.get(startOne);
+                for(int k =0; k<startOneConnect.size(); k++){
+                    if(endOne == startOneConnect.get(k)){
+                        System.out.println(" Aromatic");
+                        //hexAromaticNew = new int[]{}
+                    }
+
+                    else {
+                        System.out.println("Non Aromatic");
+                    }
+                }
+                System.out.println( Arrays.toString(torsionIndividual) + " " + connectivityLast + " "  );
+               }
+            }else {
+                System.out.println("Non Aromatic");
+            }
+            //System.out.println(torsionType[0] + " "+ torsionType[1] +" " + torsionType[2] + " " + torsionType[3]);
+            //System.out.println(Arrays.toString(torsionType) + ": " + Arrays.deepToString(torsions.toArray()));
+        }
+    }
+
+
+    public static ArrayList<Integer> bondsAmongAtoms(){
+        ArrayList<Integer> bondListSatisfied = new ArrayList<>();
+        bondListSatisfied.addAll(bondList);
+        //System.out.println(bondListSatisfied + " bondlist satisfied");
+        //System.out.println(bondList + " bondlist");
+        ArrayList<int[]> bondsAmongAtoms = new ArrayList<>();
+
+        System.out.println("bonds Among Atoms");
+
+        System.out.println(connectivityModified);
+        System.out.println(atomIdentifierMap);
+        for(int i =0; i<connectivityModified.size(); i++){
+            int num = connectivityModified.get(i).get(0);
+            System.out.println(connectivityModified.get(i) +" "+ atomIdentifierMap.get(i));
+            for(int j=1; j<connectivityModified.get(i).size(); j++){
+                int val = connectivityModified.get(i).get(j);
+                if(num<val){
+                    //System.out.println(atomIdentifierMap.get(i) + " " + bondListSatisfied.get(i) + " " +val + " " +  bondListSatisfied.get(val) );
+                    if(bondListSatisfied.get(i) == 2 && bondListSatisfied.get(val) ==2){
+                        //System.out.println("2");
+                        bondListSatisfied.set(i, 1);
+                        bondListSatisfied.set(val,1);
+                        bondsNum.add(2);
+                    } else {
+                        System.out.println("1");
+                        bondsNum.add(1);
+                    }
+                }
+                //System.out.println(bondsNum);
+            }
+        }
+        //System.out.println(bondsNum + " bondsNum");
+        //System.out.println(connectivityModified);
+       /*for(int i =0; i<coordinationMapOutput.size(); i++ ){
+            System.out.println("\n New");
+            System.out.println(coordinationMapOutput.get(i) + " " + connectivityModified.get(i));
+            int[] individualArray = new int[connectivityModified.get(i).size()];
+            for(int j =1; j<connectivityModified.get(i).size(); j++){
+                System.out.println(coordinationMapOutput);
+                System.out.println(connectivityModified);
+                System.out.println(coordinationMapOutput.get(i) + " " + connectivityModified.get(i).get(j) + " " + bondListSatisfied.get(coordinationMapOutput.get(i)) + " " +  bondListSatisfied.get(connectivityModified.get(i).get(j)));
+                int a = bondListSatisfied.get(coordinationMapOutput.get(i));
+                int b = bondListSatisfied.get(connectivityModified.get(i).get(j));
+                /*if(a < b){
+                  individualArray[j-1] = 2;
+                    System.out.println(bondListSatisfied.get(coordinationMapOutput.get(i)) + " get");
+                  bondListSatisfied.set(coordinationMapOutput.get(i), 1);
+                } else {
+                    individualArray[j-1] = 1;
+                }
+                System.out.println( " updated bondListSatisfied " + bondListSatisfied );
+            }
+        }*/
+       /* for(int i =0; i<connectivityModified.size(); i++){
+            int connectivityNum = connectivityModified.get(i).get(0);
+            System.out.println(connectivityModified.get(i)+ " " + connectivityNum + " "+ atomIdentifierMap.get(connectivityNum) );
+            for(int j =0; j<connectivityModified.get(i).size(); j++){
+                System.out.println(connectivityModified.get(i).get(j) + " " + connectivityNum + " " + bondList.get(j));
+            }
+        }*/
+        return bondsNum;
+    }
+    public static ArrayList<Integer> getBonds(){
+        return bondsNum;
+    }
+
+    public static  ArrayList<int[]> idenInversion(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> modifiedAtomIdentifierMap){
+        ArrayList<ArrayList<Integer>> inversionList = new ArrayList<>();
+
+        for(int i=0; i<connectivityModified.size(); i++){
+            String valAtom = modifiedAtomIdentifierMap.get(i);
+            int valSize = connectivityModified.get(i).size();
+            if(connectivityModified.get(i).size() == 4){
+                int zerothDigit = connectivityModified.get(i).get(0);
+                int firstDigit = connectivityModified.get(i).get(1);
+                int secondDigit = connectivityModified.get(i).get(2);
+                int thirdDigit = connectivityModified.get(i).get(3);
+                int[] first = new int[]{zerothDigit, firstDigit, secondDigit, thirdDigit};
+                int[] second = new  int[]{zerothDigit, secondDigit, thirdDigit, firstDigit };
+                int[] third = new  int[]{zerothDigit, thirdDigit, firstDigit, secondDigit };
+                listOfInversions.add(first);
+                listOfInversions.add(second);
+                listOfInversions.add(third);
+
+            }
+            //System.out.println(valAtom +" " +  valSize + " inversionIdentifier " + connectivityModified.get(i)) ;
+        }
+        System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " final");
+        return listOfInversions;
+    }
+
+    public static ArrayList<int[]> getListofInversions(){
+        ArrayList<int[]> list = new ArrayList<>();
+        int[] arr = {2,0,1,5};
+        list.add(arr);
+        return list;
+    }
+    public static void makeBondArray(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> modifiedAtomIdentifierMap, ArrayList<Integer> bondList){
+        System.out.println("MakeBondArray");
+        System.out.println(connectivityModified);
+        System.out.println(modifiedAtomIdentifierMap);
+        int[][] bondArray = new int[modifiedAtomIdentifierMap.size()][modifiedAtomIdentifierMap.size()];
+        for(int i =0; i<modifiedAtomIdentifierMap.size(); i++){
+         ArrayList<Integer> connectivity_array = connectivityModified.get(i);
+            System.out.println(connectivity_array);
+            int firstElement = connectivity_array.get(0);
+            int bondListA = bondList.get(firstElement);
+            int enter = 0;
+         for(int j=1; j<connectivity_array.size(); j++){
+             int particularElement = connectivity_array.get(j);
+             //System.out.println(connectivity_array.get(j) + " " + firstElement);
+             int bondListB = bondList.get(particularElement);
+             if(bondListA == 2 && bondListB == 2 && enter < 1){
+                 bondArray[firstElement][particularElement] = 2;
+                 enter ++;
+             } else {
+                 bondArray[firstElement][particularElement] = 1;
+             }
+
+             /*if(connectivity_array.get(j) > firstElement){
+                 bondArray[connectivity_array.get(j)][firstElement] = 1;
+             }*/
+            // bondArray[firstElement][j] = 1;
+            // System.out.println(Arrays.deepToString(bondArray));
+            // bondArray[j][firstElement] = 1;
+         }
+        }
+       /* for(int i =0; i< connectivityModified.size(); i++){
+            for (int j=0; j< connectivityModified.size(); j++){
+
+            }
+        }*/
+        System.out.println(Arrays.deepToString(bondArray) + " bondArray");
+    }
+
     public static Set<String> uniqueElementIdentifierWithInputs(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
     atomIdentifier(connectivityModified, atomMapModified);
     Set<String> uniqueAtoms = new HashSet<>();
@@ -264,21 +560,28 @@ public class PDBReader {
     }
         return uniqueAtoms;
     }
+    public static Map<Integer,AtomType> getAtomIdentifierMapModified(){
+        return atomIdentifierMap;
+    }
+
     public static Map<Integer,String> atomIdentifierMapModified (ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified) {
         Map<Integer, AtomType> atomIdentifierMap = atomIdentifier(connectivityModified, atomMapModified);
-        Map<Integer, String> modifiedAtomIdentifierMap = new HashMap<>();
+
         for (Map.Entry<Integer, AtomType> entry : atomIdentifierMap.entrySet()) {
             String value = entry.getValue().toString();
+
             value = value.replace("AtomType[", "").replace("]", "");
             modifiedAtomIdentifierMap.put(entry.getKey(), value);
         }
-        //System.out.println(modifiedAtomIdentifierMap);
+        System.out.println(modifiedAtomIdentifierMap + " modified Identifier");
         return modifiedAtomIdentifierMap;
     }
     public static ArrayList<Integer> getBondList (ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> atomMap){
         return bondList;
     }
-
+    public static Map<Integer,String> getatomIdentifierMapModified(){
+        return modifiedAtomIdentifierMap;
+    }
     public static ArrayList<Integer> setBondList(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
         ArrayList<Integer> bondList = singleDoubleBondIdentifier(connectivityModified, atomMapModified);
         return bondList;
@@ -292,15 +595,15 @@ public class PDBReader {
         System.out.println(atomMap);
         for (int i = 0; i < connectivity.size(); i++) {
             int atomArraySize = connectivity.get(i).size();
-            //System.out.println(atomArraySize + " start atomarraysize" +  connectivity.get(i));
+           // System.out.println(atomArraySize + " start atomarraysize" +  connectivity.get(i));
             String atomName = atomMap.get(connectivity.get(i).get(0));
             if (atomName.equals("H")) {
                 if (valenceHydrogen == atomArraySize - 1) {
-                    // System.out.println("The hydrogen atom " + i + " is satisfied with one bond");
+                     //System.out.println("The hydrogen atom " + i + " is satisfied with one bond");
                     bondList.add(1);
                 } else {
                     bondRequired = valenceHydrogen - (atomArraySize - 1);
-                    //System.out.println("The hydrogen atom " + i + " is UNSATISFIED with " + bondRequired + " bond required");
+                   // System.out.println("The hydrogen atom " + i + " is UNSATISFIED with " + bondRequired + " bond required");
                     bondList.add(0);
                 }
             }
@@ -317,11 +620,13 @@ public class PDBReader {
 
             if (atomName.equals("O")) {
                 if (valenceOxygen == atomArraySize - 1) {
-                    // System.out.println("The oxygen atom " + i + " is satisfied with one bond");
+                  //   System.out.println("The oxygen atom " + i + " is satisfied with one bond");
                     bondList.add(1);
+                } else if (valenceOxygen == atomArraySize ) {
+                    bondList.add(2);
                 } else {
                     bondRequired = valenceOxygen - (atomArraySize - 1);
-                    // System.out.println("The oxygen atom " + i + "is UNSATISFIED with " + bondRequired + " bond required");
+                   // System.out.println("The oxygen atom " + i + "is UNSATISFIED with " + bondRequired + " bond required");
                     int numNitro=0;
                     for(int j =1; j<connectivity.get(i).size();j++){
                         String atomConnectedtoOxygen = atomMap.get(connectivity.get(i).get(j));
@@ -333,13 +638,16 @@ public class PDBReader {
             }
 
             if (atomName.equals("C")) {
-                // System.out.println(atomArraySize);
+                 System.out.println(atomArraySize);
+                 if(atomArraySize == 3){
+                     bondList.add(4);
+                 }
                 if (valenceCarbon == atomArraySize - 1) {
-                    //System.out.println("The carbon atom " + i + " is satisfied with one bond");
+                   // System.out.println("The carbon atom " + i + " is satisfied with one bond");
                     bondList.add(1);
                 } else {
                     bondRequired = valenceCarbon - (atomArraySize - 1);
-                    // System.out.println("The carbon atom " + i + " is UNSATISFIED with " + bondRequired + " bond required");
+                  //   System.out.println("The carbon atom " + i + " is UNSATISFIED with " + bondRequired + " bond required");
                     bondList.add(0);
                 }
             }
@@ -407,6 +715,7 @@ public class PDBReader {
                 }
                 // System.out.println(valenceSulfur + "valencesulfur");
             }
+
         }
         System.out.println("Bonds are satisfied or not: "+ bondList);
         System.out.println(atomMap);
@@ -417,20 +726,19 @@ public class PDBReader {
         while (e<=5){
             // System.out.println("Reached after while loop");
             for(int i =0; i<bondList.size(); i++){
-                System.out.println(bondList.get(i) + " bondlist element " + i   );
+              //  System.out.println(bondList.get(i) + " bondlist element " + i   );
                 if (bondList.get(i) ==0){
                     System.out.println((i+1) + " " + bondList.get(i) + "i ");
-                    System.out.println(connectivity.get(i) + " i" + i + "connectivity here");
-                    System.out.println(connectivity.get(i) + " i" + i + "connectivity here");
+                    //System.out.println(connectivity.get(i) + " i" + i + "connectivity here");
                     connectivityArraylist = connectivity.get(i);
                     //System.out.println(connectivityArraylist + " connectivityarraylist");
                     for(int j =0; j<connectivityArraylist.size(); j++){
                         connectivityArrayElementBondList =connectivity.get(connectivityArraylist.get(j)-1);
                         index = connectivity.indexOf(connectivityArrayElementBondList);
                         if(bondList.get(index) == 0) {
-                            //System.out.println(connectivityArrayElementBondList + " connectivityArrayElementBondList " + " " + bondList.get(index) + " bondlist element " + j + 1);
-                            //System.out.println(connectivityArraylist + "Arraylist");
-                            //System.out.println(connectivityArrayElementBondList + " arrayelmentlist");
+                           // System.out.println(connectivityArrayElementBondList + " connectivityArrayElementBondList " + " " + bondList.get(index) + " bondlist element " + j + 1);
+                           // System.out.println(connectivityArraylist + "Arraylist");
+                           // System.out.println(connectivityArrayElementBondList + " arrayelmentlist");
                             if(connectivityArraylist != connectivityArrayElementBondList){
                                 bondList.set(i,1);
                                 bondList.set(index, 1);
@@ -442,18 +750,41 @@ public class PDBReader {
                         }
 
                     }
-                    // System.out.println(bondList + "bondlist");
+                     //System.out.println(bondList + "bondlist");
 
                 }
             }
             e++;
         }
+        if(bondList.size() < atomMap.size()){
+            bondList.add(0);
+        }
         return bondList;
     }
 
     protected static  Map<Integer, AtomType> atomIdentifier(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
+        //System.out.println(atomMapModified + " atommapModified here");
         int counter =0;
         ArrayList <Integer> atomNumbers = new ArrayList<>();
+        if(connectivity.size() == 0){
+            String element = atomMap.get(1);
+            if(element.equals("Ar")){
+                IElement Argon = null;
+                AtomType Ar = new AtomType(Argon, "Ar");
+                //System.out.println("The atom " + (i) +" is C_3" );
+                atomIdentifierMap.put(1, Ar);
+            } else if (element.equals("Ne")) {
+                IElement Neon = null;
+                AtomType Ne = new AtomType(Neon, "Ar");
+                //System.out.println("The atom " + (i) +" is C_3" );
+                atomIdentifierMap.put(1, Ne);
+            } else {
+                IElement Helium = null;
+                AtomType He = new AtomType(Helium, "Ar");
+                //System.out.println("The atom " + (i) +" is C_3" );
+                atomIdentifierMap.put(1, He);
+            }
+        }
         //System.out.println(connectivityModified + "connectivityModified");
         for (int i = 0; i < connectivityModified.size(); i++) {
             Integer retriveArrayFirstElementNumber = connectivityModified.get(i).get(0);
@@ -479,7 +810,7 @@ public class PDBReader {
                     //System.out.println("The atom " + (i) +" is C_2 " );
                     atomIdentifierMap.put(i, C_2);
                 }
-                if (arrayListSize == 3) {
+                if (arrayListSize == 3 || arrayListSize ==2) {
                     IElement Carbon_1 = null;
                     AtomType C_1 = new AtomType(Carbon_1, "C_1");
                     //System.out.println("The atom " + (i)+" is C_1 "  );
@@ -505,12 +836,12 @@ public class PDBReader {
                 int arrayListSize = connectivityModified.get(i).size();
                 if(arrayListSize == 2){
                     IElement Oxygen_2 = null;
-                    AtomType O_2 = new AtomType(Oxygen_2, "H");
+                    AtomType O_2 = new AtomType(Oxygen_2, "O_2");
                     //System.out.println("The atom " + (i)+" is O_2 " );
                     atomIdentifierMap.put(i, O_2);
                 } else if (arrayListSize == 3) {
                     IElement Oxygen_3 = null;
-                    AtomType O_3 = new AtomType(Oxygen_3, "H");
+                    AtomType O_3 = new AtomType(Oxygen_3, "O_3");
                     //System.out.println("The atom " + (i ) + " is O_3 ");
                     atomIdentifierMap.put(i, O_3);
                 } else {
@@ -763,9 +1094,9 @@ public class PDBReader {
             int[] newBond = {numOne, numTwo};
             //priorityList.add(newBond);
         }
-        System.out.println(Arrays.deepToString(duplets.toArray()));
-        System.out.println(Arrays.deepToString(dupletsActual.toArray()));
-        System.out.println(atomIdentifierMapModified);
+        //System.out.println(Arrays.deepToString(duplets.toArray()));
+        //System.out.println(Arrays.deepToString(dupletsActual.toArray()));
+        //System.out.println(atomIdentifierMapModified);
         //System.out.println(Arrays.deepToString(priorityList.toArray()));
         return dupletsActual;
     }
@@ -832,6 +1163,7 @@ public class PDBReader {
         Map<String,Integer> priorityMap = new HashMap<>();
         priorityMap.put("Zr",1);
         priorityMap.put("C_3",2);
+        priorityMap.put("C_3",2);
         priorityMap.put("C_2",3);
         priorityMap.put("C_1",4);
         priorityMap.put("H",5);
@@ -844,21 +1176,28 @@ public class PDBReader {
         priorityMap.put("O_1",12);
         priorityMap.put("I",13);
         priorityMap.put("Br",14);
+        priorityMap.put("S_3", 6);
+        priorityMap.put("S_2", 6);
+        priorityMap.put("S_1", 6);
         priorityMap.put("Cl",15);
         priorityMap.put("F",16);
         return priorityMap.get(atomType);
     }
     public static Map<String[],List<int[]>> idenBondTypes(List<int[]> duplets, Map<Integer, String> atomIdentifierMapModified){
-        System.out.println(Arrays.deepToString(duplets.toArray()));
+       // System.out.println(Arrays.deepToString(duplets.toArray()));
         Map<String[],List<int[]>> bondTypesMap = new HashMap<>();
-        System.out.println(atomIdentifierMapModified);
+       // System.out.println(atomIdentifierMapModified);
         ArrayList<String[]> bondTypes = new ArrayList<>();
+        ArrayList<Integer> bondValues = new ArrayList<>();
+        //System.out.println(bondValues);
         System.out.println("\nThe printing of the bond types");
         //System.out.println("The printing of the bond types");
         //form bonded pairs of atoms
         for(int i =0; i< duplets.size(); i++){
             int firstElement = duplets.get(i)[0];
             int secondElement = duplets.get(i)[1];
+            int bondValue = bondsNum.get(i);
+           // System.out.println(bondValue);
             String atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
             String atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
             String[] newBond = {atomOne, atomTwo};
@@ -870,38 +1209,45 @@ public class PDBReader {
                     for (int j = 0; j < array.length; j++) {
                         if (!array[j].equals(newBond[j])) {
                             isEqual = false;
-                            // System.out.println("not equal " + newBond[j]);
+                            //System.out.println("not equal " + newBond[j]);
                             break;
+
                         }
                     }
                     if (isEqual) {
                         isPresent = true;
-                        //System.out.println("is equal");
+                       // System.out.println("is equal");
                         break;
                     }
                 }
             }
             // If target array is not present, add it to the ArrayList
             if (!isPresent) {
+                bondValues.add(bondValue);
                 bondTypes.add(newBond);
             }
+
         }
-        System.out.println(Arrays.deepToString(bondTypes.toArray()) + " bondTypes");
+
+
+       // System.out.println(Arrays.deepToString(bondTypes.toArray()) + " bondTypes");
+       // System.out.println(bondValues + " bonds");
+        //System.exit(1);
         //identify the pairs of individual types
         for(int i=0; i<bondTypes.size();i++){
-            //System.out.println(bondTypes.get(i)[0] + " " + bondTypes.get(i)[1]);
+            System.out.println(bondTypes.get(i)[0] + " " + bondTypes.get(i)[1]);
             List<int[]> dupletsNew = new ArrayList<>();
             for(int k =0; k< duplets.size();k++){
                 int firstElement = duplets.get(k)[0];
                 int secondElement = duplets.get(k)[1];
                 String atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
                 String atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
-                // System.out.println(firstElement + " " + atomOneActual +" "+ secondElement + " " + atomTwoActual);
+                //System.out.println(firstElement + " " + atomOne +" "+ secondElement + " " + atomTwo);
                 if((bondTypes.get(i)[0].equals(atomOne) && bondTypes.get(i)[1].equals(atomTwo))||(bondTypes.get(i)[0].equals(atomTwo) && bondTypes.get(i)[1].equals(atomOne)) ){
                     int[] sameBond = {firstElement, secondElement};
                     dupletsNew.add(sameBond);
                 }
-                //System.out.println(Arrays.deepToString(dupletsNew.toArray()) + " dupletsNew After");
+               // System.out.println(Arrays.deepToString(dupletsNew.toArray()) + " dupletsNew After");
             }
             if(bondTypesMap.containsKey(bondTypes.get(i))){
                 break;
@@ -914,8 +1260,42 @@ public class PDBReader {
             List<int[]> bonds = entry.getValue();
             System.out.println(Arrays.toString(bondType) + ": " + Arrays.deepToString(bonds.toArray()));
         }
+        System.out.println(bondValues);
         System.out.println("\n");
+        //System.exit(1);
         return bondTypesMap;
+    }
+
+    public static  Map<String, Integer> getangleMap(List<int[]>dupletsSorted, ArrayList<Integer> bondsNum){
+        Map<String, Integer> anglemap = new HashMap<>();
+        Map<String, Integer> map = new HashMap<>();
+
+        // Iterate through the List<int[]> and ArrayList<Integer>
+        // to create the mapping
+        for (int i = 0; i < dupletsSorted.size(); i++) {
+            String key = Arrays.toString(dupletsSorted.get(i));
+            Integer value = bondsNum.get(i);
+            map.put(key, value);
+        }
+       /* for (String key : map.keySet()) {
+            int[] arrayKey = parseArrayKey(key);
+            System.out.print("Key: [");
+            for (int num : arrayKey) {
+                System.out.print(num + " ");
+            }
+            System.out.println("] Value: " + map.get(key));
+        }*/
+        int[] arr = {0, 1};
+        System.out.println(anglemap.get(arr));
+        /*for (String key : map.keySet()) {
+            int[] arrayKey = parseArrayKey(key);
+            System.out.print("Key: [");
+            for (int num : arrayKey) {
+                System.out.print(num + " ");
+            }
+            System.out.println("] Value: " + map.get(key));
+        }*/
+        return anglemap;
     }
 
     public static Map<String[],List<int[]>> idenAngleTypes( List<int[]> triplets,  Map<Integer, String> atomIdentifierMapModified){
@@ -991,6 +1371,7 @@ public class PDBReader {
         System.out.println("\n");
         return angleTypesMap;
     }
+
     public static Map<String[],List<int[]>> idenTorsionTypes( List<int[]> quadruplets,  Map<Integer, String> atomIdentifierMapModified){
          //System.out.println(Arrays.deepToString(quadruplets.toArray()) + "quadruplets");
         Map<String[],List<int[]>> torsionTypesMap = new HashMap<>();
@@ -1067,7 +1448,17 @@ public class PDBReader {
         System.out.println("\n");
         return torsionTypesMap;
     }
+    public static void idenInversionTypes (List<int[]> quadruplets,  Map<Integer, String> atomIdentifierMapModified){
+        Map<String[],List<int[]>> inversionTypesMap = new HashMap<>();
+        ArrayList<String[]> torsionTypes = new ArrayList<>();
+        System.out.println("Printing Inversion Types");
+        for (int i =0; i<quadruplets.size(); i++){
+            int individualType = quadruplets.get(i)[0];
+            System.out.println(individualType +" "+ atomIdentifierMapModified.get(individualType)+ " "+ Arrays.toString(quadruplets.get(i)) + " in inversion");
 
+        }
+        //return inversionTypesMap;
+    }
 
     public static List<int[]> getBondedAtomList (ArrayList<ArrayList<Integer>> connectivityModified){
         for (ArrayList<Integer> list : connectivityModified) {
@@ -1180,7 +1571,7 @@ public class PDBReader {
     }
 
     public static List<int[]> getTorsionList(ArrayList<ArrayList<Integer>> connectivity) {
-        List<List<Integer>> listOfTorsion = setTorsionPairs(connectivity);
+       listOfTorsion = setTorsionPairs(connectivity);
         List<int[]> listOfTorsionModified = listOfTorsion.stream()
                 .map(sublist -> new int[]{sublist.get(0) - 1, sublist.get(1) - 1, sublist.get(2) - 1, sublist.get(3) - 1})
                 .collect(Collectors.toList());
@@ -1209,7 +1600,7 @@ public class PDBReader {
         return uniqueAtoms;
     }
 
-    public static Set<String> getUniqueAtoms(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
+  /*  public static Set<String> getUniqueAtoms(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
         Set<String> uniqueAtomsWithInputs= uniqueElementIdentifier();
         //System.out.println(uniqueAtomsWithInputs + "uniqueAtom WithInputs");
         Set<String> result = new HashSet<>();
@@ -1220,7 +1611,7 @@ public class PDBReader {
         }
         System.out.println(result + "results");
         return result;
-    }
+    }*/
 
     public static double getMolecularWeight(){
         //String  molecularWeightString = String.format("%.4f", molecularWeight);
@@ -1251,7 +1642,7 @@ public class PDBReader {
             //System.out.println(str + " " + Arrays.toString(atomicPotValues));
             //atomicPotMap.put(str, atomicPotValues);
             atomicPot.put(elementName, atomicPotValues);
-            System.out.println(elementName + " " + atomicPotValues);
+            System.out.println(elementName + " " + Arrays.toString(atomicPotValues));
         }
         return atomicPot;
     }
@@ -1273,6 +1664,25 @@ public class PDBReader {
             y=0;
         }
         return y;
+    }
+    public static Map<Integer, Integer> coordinationNumberDeterminer(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomIdentifierMapModified){
+
+        Map<Integer, Integer> coordinationMap = new HashMap<>();
+        System.out.println(connectivityModified);
+        System.out.println(atomIdentifierMapModified);
+        for(int i =0; i<connectivityModified.size();i++){
+            int size = connectivityModified.get(i).size() -1;
+            System.out.println(i+" "+ connectivityModified.get(i)+" "+ size+" "+atomIdentifierMapModified.get(i));
+            if(atomIdentifierMapModified.get(i).equals("C_2") || atomIdentifierMapModified.get(i).equals("C_1")){
+                coordinationMapOutput.put(i,3);
+            } else {
+                coordinationMapOutput.put(i,0);
+            }
+            coordinationMap.put(i, size);
+        }
+        System.out.println(coordinationMap+ " coordinationMap");
+        System.out.println(coordinationMapOutput+ " coordinationMap");
+        return coordinationMapOutput;
     }
 
     public static double [] atomicPot (String atomtype){
@@ -1297,6 +1707,7 @@ public class PDBReader {
         atomicConstant.put("C_Ar", new double[]{0.729, 120.0, 3.851, 0.105, 12.73, 1.912, 5.343, 2.0}); //C_Ar
         atomicConstant.put("C_3", new double[]{0.757, 109.47, 3.851, 0.105, 12.73, 1.912, 5.343,2.0});
         atomicConstant.put("C_2", new double[]{0.732, 120.0, 3.851, 0.105, 12.73, 1.912, 5.343,2.0});
+        atomicConstant.put("C_1", new double[]{0.706, 180, 3.851,0.105,12.73, 1.912, 5.343,2.0});
         atomicConstant.put("N_2", new double[]{0.699, 120.0, 3.66, 0.069, 13.407, 2.544,6.899,2.0});
         atomicConstant.put("N_3", new double[]{0.7, 106.7, 3.66, 0.069, 13.407, 2.544, 6.899,0.45});
         atomicConstant.put("N_1", new double[]{0.685, 111.2, 3.66, 0.069, 13.407, 2.544,6.899,2.0});
@@ -1321,6 +1732,9 @@ public class PDBReader {
         atomicConstant.put("Ti6", new double[]{1.412,90,3.175,0.017,12.0,2.659,0});
         atomicConstant.put("I", new double[]{1.382,180,4.5,0.339,15,2.65,6.822,0.2});
         atomicConstant.put("F", new double[]{0.668,180,3.364,0.050,14.762,1.735,10.874,2.0});
+        atomicConstant.put("He", new double[]{0.849, 90.0, 2.362,0.056,15.24,0.098});
+        atomicConstant.put("Ne", new double[]{0.920, 90.0, 3.243, 0.042, 15.440, 0.194});
+        atomicConstant.put("Ar", new double[]{1.032, 90.0, 3.868,0.185,15.763, 0.300});
         double [] sample = atomicConstant.get(atomtype);
         return sample;
     }
@@ -1473,12 +1887,12 @@ public class PDBReader {
 
     public static void main(String[] args) {
         //structureCompare("F:/benzene", "F:/ethane");
-        /*String confName = "F:/ethane";
+        String confName = "F://Avagadro//aromatic//cyclohex";
         speciesNew =getSpeciesNew(confName);
         System.out.println(speciesNew + "species NEW");
-        String confNameNew = "F:/benzene";
-        species =getSpeciesNew(confNameNew);
-        System.out.println(species + "species NEW");*/
+       // String confNameNew = "F:/benzene";
+        //species =getSpeciesNew(confNameNew);
+        //System.out.println(species + "species NEW");
 
     }
 }

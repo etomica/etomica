@@ -1,8 +1,10 @@
 package etomica.potential.UFF;
 
 import etomica.potential.IPotentialBondAngle;
+import etomica.potential.IPotentialBondInversion;
+import etomica.potential.IPotentialBondTorsion;
 
-public class P4BondInversionUFF implements IPotentialBondAngle {
+public class P4BondInversionUFF implements IPotentialBondInversion {
     protected double c0, c1, c2, kijkl, gamma;
     public P4BondInversionUFF(double c0, double c1, double c2, double kijkl ) {
         this.c0 = c0;
@@ -24,5 +26,4 @@ public class P4BondInversionUFF implements IPotentialBondAngle {
         u[0] =  kijkl * (c0 + c1 * cosgamma + c2 * cos2gamma);
         du[0] = 4 * c2 * kijkl * cosgamma - c1 *kijkl;
     }
-
 }

@@ -3,6 +3,7 @@ package etomica.potential.UFF;
 import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.TruncationFactory;
+import etomica.units.*;
 
 public class LJUFF implements IPotential2 {
 
@@ -23,8 +24,12 @@ public class LJUFF implements IPotential2 {
     public double u(double r2) {
         sigmaSquared = sigma*sigma;
         double s2 = sigmaSquared/r2;
+        if( s2 > 100){
+            return Double.POSITIVE_INFINITY;
+        }
         double s6 = s2*s2*s2;
         double u = epsilon*(s6*s6 - (2*s6));
+        //System.out.println("u : " + u);
         return u;
         //System.out.println(" sigma : " + sigma + " epsilon: " +epsilon + " sci " + scale);
         //System.out.println( r + " " + r6 + " " + sigma6 + " " + scale_6 + " " + expo + " " + epsilon +  " " + scale + " ");
@@ -53,18 +58,21 @@ public class LJUFF implements IPotential2 {
     public void u012add(double r2, double[] u012) {
         sigmaSquared = sigma*sigma;
         double s2 = sigmaSquared/r2;
+        if(s2<0.1){
+            u012[0] = Double.POSITIVE_INFINITY;
+        }
         double s6 = s2*s2*s2;
         u012[0] += epsilon * (s6*s6 - 2*s6);
         u012[1] += -12*epsilon*((s6*s6)-s6);
         u012[2] += -84*epsilon*s6 -156*epsilon*s6*s6;
+        //Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
+        //System.out.println(kjmol.fromSim(u012[0]));
         /*u012[0] += epsilon * (6 / (scale - 6)) * expo - epsilon * ( scale / ( scale - 6)) * sigma6 / r6;
         u012[1] += 6 * epsilon * scale * sigma6 / (scale_6 * r7) - ( 6 * epsilon * sigma * expo / (scale_6 * sigma) );
         u012[2] += 6 * epsilon * scale2 * expo / ( scale_6 * sigma2) - 42 * epsilon * scale * sigma6 / ( scale_6 * r8);*/
         /*u012[0] +=  epsilon*((sigma6*sigma6/(r6*r6)) - (2*sigma6/r6));
         u012[0] += epsilon * ((12*sigma6/r7)  - (12*sigma6*sigma6/(r6*r7)));
         u012[0] += epsilon * (12*sigma6/r7) - (12*sigma6*sigma6/(r6*r7));*/
-
-
     }
 
     public double getSigma(){ return sigma;}

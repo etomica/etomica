@@ -18,9 +18,8 @@ public class UFF {
         return rjk;
     }
 
-    public static double[] bondUFF(double ri, double rj, double zi, double zj, double chiI, double chiJ, int valueOne, int valueTwo, int i){
-        double bo = valueIdentifier(valueOne, valueTwo);
-        double rjk = getbondUFF( ri, rj,  chiI,  chiJ, bo);
+    public static double[] bondUFF(double ri, double rj, double zi, double zj, double chiI, double chiJ, int bondOrder){
+        double rjk = getbondUFF( ri, rj,  chiI,  chiJ, bondOrder);
         double kjk = (0.5*664.12*zi*zj/((Math.pow(rjk,3)))); //UFF error. Difference of factor of 2.
         Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Angstrom.UNIT};
         double[] newExpo ={1.0, -1.0, -2.0};
@@ -40,8 +39,11 @@ public class UFF {
 
     public static double valueIdentifier(int atomNumOne, int atomNumTwo){
         double bo =0;
-        //added from openbabel not available in paper. bondorder values are missing. so bo value is calculated from energy of doublebond
-        if( atomNumOne > 1 && atomNumTwo > 1){
+        if( atomNumOne == 1 && atomNumTwo == 1){
+            bo = 1;
+        } else if (atomNumOne >1 && atomNumTwo ==1 || atomNumOne ==1 && atomNumTwo >1 ) {
+            bo = 1;
+        } else if (atomNumOne ==2 && atomNumTwo ==2) {
             bo = 2;
         } else {
             //bo value for single bond is mentioned as 1
@@ -49,7 +51,7 @@ public class UFF {
         }
         return bo;
     }
-    public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, int valueOne, int valueTwo, int valueThree ){
+    public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, int valueOne, int valueTwo, int valueThree, int num ){
         double rij, rjk, rik, beta, kijk, c0, c1, c2, costheta0, sintheta0, kb;
         double thetanormal = theta0;
         theta0 = Degree.UNIT.toSim(theta0);
@@ -65,34 +67,17 @@ public class UFF {
         rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
         beta = 664.12 / (rij * rjk);
         kijk = beta * (zi*zk/Math.pow(rik,5)) * ((3*rij*rjk*(1-costheta0*costheta0))-(rik*rik*costheta0))* rij*rjk;
+        if( num != 0){
+            kijk = kijk / 9;
+        }
         Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Radian.UNIT};
         double[] newExpo ={1.0, -1.0, -2.0};
         CompoundUnit molrad2 = new CompoundUnit(newOnw,newExpo);
         double newkijkkJ = kijk * 4.182;
         double newkijk = molrad2.toSim(kijk);
-        return new double[]{(float) c0, (float) c1, (float) c2, (float) newkijk};
+        System.out.println(newkijkkJ + " kij");
+        return new double[]{(float) c0, (float) c1, (float) c2, (float) newkijk, num};
     }
-
-   /* public static P3BondAngleUFF angleUFFNew(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0 ){
-        double rij, rjk, rik, beta, kijk, c0, c1, c2, costheta0, sintheta0, kb;
-        theta0 = Degree.UNIT.toSim(theta0);
-        costheta0 = Math.cos(theta0);
-        sintheta0 = Math.sin(theta0);
-        c2=1/(4*sintheta0*sintheta0);
-        c1=-4*c2*costheta0;
-        c0=c2*(2*costheta0*costheta0+1);
-        rij = getbondUFF(ri, rj, chiI, chiJ);
-        rjk = getbondUFF(rj, rk, chiJ, chiK);
-        rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
-        beta = 664.12 / (rij * rjk);
-        kijk = beta * (zi*zk/Math.pow(rik,5)) * ((3*rij*rjk*(1-costheta0*costheta0))-(rik*rik*costheta0))* rij*rjk;
-        Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Radian.UNIT};
-        double[] newExpo ={1.0, -1.0, -2.0};
-        CompoundUnit molrad2 = new CompoundUnit(newOnw,newExpo);
-        //double newkijkkJ = kijk * 4.182;
-        double newkijk = molrad2.toSim(kijk);
-        return new P3BondAngleUFF((float) c0, (float) c1, (float) c2, (float) newkijk);
-    }*/
 
     public static double[] torsionUFF(double V, int type,double rbo){
         double phi = 0;
