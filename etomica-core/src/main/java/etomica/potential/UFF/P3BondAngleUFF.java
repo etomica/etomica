@@ -34,16 +34,6 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
         return u;
     }
 
-  /*  public void udu(double costheta, double[] u, double[] du) {
-        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
-        //System.out.println(kcalpmole.fromSim(kijk));
-
-            double cos2theta = 2 * costheta * costheta - 1;
-            u[0] =  kijk * ( c0 + c1 * costheta + c2 * cos2theta);
-            du[0] =  -kijk*(c1 + 4*costheta*c2);
-        //}
-
-    }*/
     public void udu(double costheta, double[] u, double[] du) {
         Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT);
         double theta = Math.acos(costheta);
@@ -56,15 +46,15 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
         if(caseNum == 0){
             u[0] =  kijk*  ( c0 + c1 * costheta + c2 * Math.cos(2 * theta));
             du[0] =  -kijk*(c1 + 4*costheta*c2);
-           // System.out.println(u[0] + " case 0 "  + kjmol.fromSim(u[0]));
+            System.out.println(u[0] + " case 0 "  + kjmol.fromSim(u[0]));
        } else {
+            double funct = Math.exp(-20.0*(theta - theta0Act + 0.25));
             //System.out.println(kjmol.fromSim(kijk) + " " + num + " " + theta + " " + theta0Act);
-            double part1 = kjmol.fromSim(kijk * (1 - Math.cos(num * theta)));
-            double part2 = (Math.exp(-20.0*(theta - theta0Act + 0.25)));
-            double expo =  -20.0*(theta - theta0Act + 0.25);
-            u[0] = kijk * (1 - Math.cos(num * theta)) + kjmol.toSim(Math.exp(-20.0*(theta - theta0Act + 0.25)));
+            //double part1 = kjmol.fromSim(kijk * (1 - Math.cos(num * theta)));// double part2 = (Math.exp(-20.0*(theta - theta0Act + 0.25)));
+//            double expo =  -20.0*(theta - theta0Act + 0.25);
+            u[0] = kijk * (1 - Math.cos(num * theta)) + kjmol.toSim(funct);
             //System.out.println(part1 + " " + part2 + " "+ expo +" "+ kjmol.fromSim(u[0]));
-            du[0] = kijk * Math.sin(num * theta) - 20.0 * Math.exp(-20.0*(theta - theta0Act + 0.25));
+            du[0] = kijk * Math.sin(num * theta) - 20.0 * funct;
             //System.out.println(  kjmol.fromSim(u[0]));
         }
         /*double cosntheta = Math.cos(num*theta);

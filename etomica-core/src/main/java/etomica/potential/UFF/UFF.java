@@ -18,7 +18,7 @@ public class UFF {
         return rjk;
     }
 
-    public static double[] bondUFF(double ri, double rj, double zi, double zj, double chiI, double chiJ, int bondOrder){
+    public static double[] bondUFF(double ri, double rj, double zi, double zj, double chiI, double chiJ, double bondOrder){
         double rjk = getbondUFF( ri, rj,  chiI,  chiJ, bondOrder);
         double kjk = (0.5*664.12*zi*zj/((Math.pow(rjk,3)))); //UFF error. Difference of factor of 2.
         Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Angstrom.UNIT};
@@ -37,7 +37,7 @@ public class UFF {
     }
 
 
-    public static double valueIdentifier(int atomNumOne, int atomNumTwo){
+    public static double valueIdentifier(double atomNumOne, double atomNumTwo){
         double bo =0;
         if( atomNumOne == 1 && atomNumTwo == 1){
             bo = 1;
@@ -45,13 +45,16 @@ public class UFF {
             bo = 1;
         } else if (atomNumOne ==2 && atomNumTwo ==2) {
             bo = 2;
-        } else {
+        } else if (atomNumOne == 1.5 && atomNumTwo == 1.5) {
+            bo = 1.5;
+        }  else {
             //bo value for single bond is mentioned as 1
             bo = 1;
         }
+        System.out.println(bo + " bo");
         return bo;
     }
-    public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, int valueOne, int valueTwo, int valueThree, int num ){
+    public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, double valueOne, double valueTwo, double valueThree, int num ){
         double rij, rjk, rik, beta, kijk, c0, c1, c2, costheta0, sintheta0, kb;
         double thetanormal = theta0;
         theta0 = Degree.UNIT.toSim(theta0);
