@@ -51,7 +51,7 @@ public class UFF {
             //bo value for single bond is mentioned as 1
             bo = 1;
         }
-        System.out.println(bo + " bo");
+      //  System.out.println(bo + " bo");
         return bo;
     }
     public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, double valueOne, double valueTwo, double valueThree, int num ){
@@ -67,6 +67,7 @@ public class UFF {
         double bo2 = valueIdentifier(valueTwo, valueThree);
         rij = getbondUFF(ri, rj, chiI, chiJ, bo1);
         rjk = getbondUFF(rj, rk, chiJ, chiK, bo2);
+        //System.out.println(rij + " " + rjk);
         rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
         beta = 664.12 / (rij * rjk);
         kijk = beta * (zi*zk/Math.pow(rik,5)) * ((3*rij*rjk*(1-costheta0*costheta0))-(rik*rik*costheta0))* rij*rjk;
@@ -78,7 +79,7 @@ public class UFF {
         CompoundUnit molrad2 = new CompoundUnit(newOnw,newExpo);
         double newkijkkJ = kijk * 4.182;
         double newkijk = molrad2.toSim(kijk);
-        System.out.println(newkijkkJ + " kij");
+       // System.out.println(newkijkkJ + " kij");
         return new double[]{(float) c0, (float) c1, (float) c2, (float) newkijk, num};
     }
 

@@ -16,7 +16,7 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
         this.num = num;
         this.caseNum = caseNum;
         this.theta0 = theta0;
-        System.out.println(num + " " + caseNum + " " + kijk);
+        //System.out.println(num + " " + caseNum + " " + kijk);
     }
 
     public double u(double costheta) {
@@ -46,7 +46,7 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
         if(caseNum == 0){
             u[0] =  kijk*  ( c0 + c1 * costheta + c2 * Math.cos(2 * theta));
             du[0] =  -kijk*(c1 + 4*costheta*c2);
-            System.out.println(u[0] + " case 0 "  + kjmol.fromSim(u[0]));
+           // System.out.println(u[0] + " case 0 "  + kjmol.fromSim(u[0]));
        } else {
             double funct = Math.exp(-20.0*(theta - theta0Act + 0.25));
             //System.out.println(kjmol.fromSim(kijk) + " " + num + " " + theta + " " + theta0Act);
@@ -57,6 +57,7 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
             du[0] = kijk * Math.sin(num * theta) - 20.0 * funct;
             //System.out.println(  kjmol.fromSim(u[0]));
         }
+       // System.out.println( " Energy Angle : " + u[0] );
         /*double cosntheta = Math.cos(num*theta);
         u[0] = (kijk / (num *  num))*(1-cosntheta);
         du[0] = -(kijk/num)*(Math.sin(num*theta));*/

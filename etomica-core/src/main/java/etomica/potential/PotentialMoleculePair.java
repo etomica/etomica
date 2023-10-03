@@ -16,16 +16,23 @@ import etomica.species.SpeciesManager;
 public class PotentialMoleculePair implements IPotentialMolecular {
     protected final Space space;
     protected final IPotential2[][] atomPotentials;
+    protected double[][][] pScale;
 
     public PotentialMoleculePair(Space space, SpeciesManager sm) {
         this(space, makeAtomPotentials(sm));
+        pScale = new double[sm.getAtomTypeCount()][sm.getAtomTypeCount()][];
+       // this(space, makeAtomPotentials(sm), pScale);
     }
 
     public PotentialMoleculePair(Space space, IPotential2[][] atomPotentials) {
         this.space = space;
         this.atomPotentials = atomPotentials;
     }
-
+    public PotentialMoleculePair(Space space, IPotential2[][] atomPotentials, double[][][] pScale) {
+        this.space = space;
+        this.atomPotentials = atomPotentials;
+        this.pScale = pScale;
+    }
     private static IPotential2[][] makeAtomPotentials(SpeciesManager sm) {
         // we could try to store the potentials more compactly, but it doesn't really matter
         ISpecies species = sm.getSpecies(sm.getSpeciesCount() - 1);
@@ -36,6 +43,12 @@ public class PotentialMoleculePair implements IPotentialMolecular {
     public void setAtomPotential(AtomType atomType1, AtomType atomType2, IPotential2 p2) {
         atomPotentials[atomType1.getIndex()][atomType2.getIndex()] = p2;
         atomPotentials[atomType2.getIndex()][atomType1.getIndex()] = p2;
+    }
+    public void setAtomPotentials(AtomType atomType1, AtomType atomType2, IPotential2 p12, double[] ijScale){
+        atomPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
+        atomPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
+        pScale[atomType2.getIndex()][atomType1.getIndex()]= ijScale;
+        pScale[atomType1.getIndex()][atomType2.getIndex()]= ijScale;
     }
 
     public IPotential2[][] getAtomPotentials() {
@@ -59,6 +72,10 @@ public class PotentialMoleculePair implements IPotentialMolecular {
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
                 u += p2.u(dr.squared());
+                if(u>8E7){
+                  //  System.out.println("Next One");
+                }
+                //System.out.println(" sum : "+ u + " " + a0 +" "+a1);
             }
         }
         return u;

@@ -14,6 +14,7 @@ import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
+import etomica.units.*;
 
 public class PotentialMasterCell extends PotentialMaster {
 
@@ -25,6 +26,10 @@ public class PotentialMasterCell extends PotentialMaster {
         super(sm, box, bondingInfo);
         cellManager = new NeighborCellManager(sm, box, cellRange, bondingInfo);
         this.cellRange = cellRange;
+    }
+    public PotentialMasterCell(SpeciesManager sm, Box box, BondingInfo bondingInfo, NeighborCellManager cellManager){
+        super(sm, box, bondingInfo);
+        this.cellManager = cellManager;
     }
 
     public NeighborCellManager getCellManager() {
@@ -102,7 +107,7 @@ public class PotentialMasterCell extends PotentialMaster {
                 if (ip2 == null) continue;
                 uTot += handleComputeAll(doForces,iAtom, jAtom, i, j, ri,rj , jbo, ip2, pc);
             }
-            //System.out.println(uTot + " inPotenriaLMasterCell Pairwise");
+         // System.out.println(uTot + " inPotenriaLMasterCell Pairwise");
             int iCell = atomCell[i];
             for (int k=0; k<numCellOffsets; k++) {
                 int cellOffset = cellOffsets[k];
@@ -116,9 +121,11 @@ public class PotentialMasterCell extends PotentialMaster {
                     if (ip2 == null) continue;
                     Vector rj = jAtom.getPosition();
                     uTot += handleComputeAll(doForces,iAtom, jAtom, i, j, ri, rj, jbo, ip2, pc);
-                   // System.out.println(uTot + " "+ j);
+                    Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
+                   // System.out.println(uTot + " "+ j + " after pairwise");
                 }
             }
+
         }
         tAll += System.nanoTime() - t1;
         double[] uCorrection = new double[1];
@@ -142,7 +149,7 @@ public class PotentialMasterCell extends PotentialMaster {
             System.out.println("success!");
         }
         energyTot = uTot;
-       // System.out.println(uTot + " utot fromPotentialMasterCell");
+      //  System.out.println(uTot + " utot fromPotentialMasterCell");
         return uTot;
     }
 
@@ -176,7 +183,7 @@ public class PotentialMasterCell extends PotentialMaster {
                 boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 Vector rj = jAtom.getPosition();
                 u1 += handleComputeOne(iAtom, jAtom, ri, rj, jbo, pij);
-               // u1 += handleComputeOne(pij, ri, rj, jbo, i, j, skipIntra);
+                //u1 += handleComputeOne(pij, ri, rj, jbo, i, j, skipIntra);
             }
         }
         for (int cellOffset : cellOffsets) {

@@ -6,8 +6,6 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
@@ -67,9 +65,9 @@ public class UniversalSimulation extends Simulation {
 
         super(space);
         int atom1 = 0, atom2 = 0, atom3=0;
-        String confName = "F://Avagadro//aromatic//benzene" ;
+        String confName = "F://Avagadro//molecule//ch4" ;
         int num = 1;
-        species =PDBReader.getSpeciesNew(confName);
+        species = PDBReaderReplica.getSpecies(confName);
         System.out.println("Species");
         System.out.println(species.getMass());
         List<AtomType> atomTypes = species.getUniqueAtomTypes();
@@ -102,51 +100,54 @@ public class UniversalSimulation extends Simulation {
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
         System.out.println("In simulation Universal");
-        ArrayList<ArrayList<Integer>> connectedAtoms =PDBReader.getConnectivityWithoutRunning();
+        ArrayList<ArrayList<Integer>> connectedAtoms = PDBReaderReplica.getConnectivityWithoutRunning();
         System.out.println(connectedAtoms+ ": connectedAtom");
-        ArrayList<ArrayList<Integer>> connectivityModified = PDBReader.getConnectivityModifiedWithoutRunning();
+        ArrayList<ArrayList<Integer>> connectivityModified = PDBReaderReplica.getConnectivityModifiedWithoutRunning();
         System.out.println(connectivityModified+ ": connectedAtomModified" );
-        Map<Integer,String> atomMap = PDBReader.getAtomMapWithoutRunning();
+        Map<Integer,String> atomMap = PDBReaderReplica.getAtomMapWithoutRunning();
         System.out.println(atomMap + ": atomMap");
-        HashMap<Integer, String> atomMapModified = PDBReader.getAtomMapModifiedWithoutRunning();
+        HashMap<Integer, String> atomMapModified = PDBReaderReplica.getAtomMapModifiedWithoutRunning();
         System.out.println(atomMapModified + ": atomMapModified");
-        List<int[]> duplets = PDBReader.getduplets();
+        List<int[]> duplets = PDBReaderReplica.getduplets();
         System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
-        List<int[]> triplets = PDBReader.getAngleList(connectivityModified);
+        List<int[]> triplets = PDBReaderReplica.gettriplets();
         System.out.println(Arrays.deepToString(triplets.toArray())+ ": listOfAngleModified");
-        List<int[]> quadruplets = PDBReader.getquadruplets();
+        List<int[]> quadruplets = PDBReaderReplica.getquadruplets();
         System.out.println(Arrays.deepToString(quadruplets.toArray())+ " listOfTorsionModified");
-        ArrayList<Integer> bondList = PDBReader.getBondList(connectedAtoms, atomMap);
+        ArrayList<Integer> bondList = PDBReaderReplica.getBondList(connectedAtoms, atomMap);
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        Map<Integer, String> atomIdentifierMapModified = PDBReader.getModifiedAtomIdentifierMap();
-        Map<String, double[]> atomicPotMap = PDBReader.atomicPotMap();
+        Map<Integer, String> atomIdentifierMapModified = PDBReaderReplica.getModifiedAtomIdentifierMap();
+        Map<String, double[]> atomicPotMap = PDBReaderReplica.atomicPotMap();
         System.out.println(atomicPotMap +" atomic Pot");
         makeAtomPotentials(sm);
         System.out.println(atomicPotMap + "atomicPotMap");
         System.out.println(atomIdentifierMapModified);
        // System.exit(1);
-        ArrayList<Integer> bondsNum = PDBReader.getBonds();
+        ArrayList<Integer> bondsNum = PDBReaderReplica.getBonds();
         System.out.println(bondsNum + " bondNums");
-        List<int[]> dupletsSorted= PDBReader.bondSorter(duplets, atomIdentifierMapModified);
-        Map<String, Integer> anglemap = PDBReader.getangleMap(dupletsSorted, bondsNum);
+        List<int[]> dupletsSorted= PDBReaderReplica.getDupletesSorted();
+        Map<String, Integer> anglemap = PDBReaderReplica.getangleMap(dupletsSorted, bondsNum);
         System.out.println(Arrays.deepToString(dupletsSorted.toArray()) + " duplets Sorted");
         System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
-        List<int[]>tripletsSorted=PDBReader.angleSorter(triplets, atomIdentifierMapModified);
+        List<int[]>tripletsSorted= PDBReaderReplica.getAnglesSorted();
         System.out.println(Arrays.deepToString(tripletsSorted.toArray()) + "triplets");
-        List<int[]>quadrupletsSorted=PDBReader.torsionSorter(quadruplets, atomIdentifierMapModified);
-       List<int[]>inversionSorted=PDBReader.getListofInversions();
+        List<int[]>quadrupletsSorted= PDBReaderReplica.getTorsionSorted();
+        List<int[]> inversionsSorted = PDBReaderReplica.getListofInversions();
+        System.out.println(Arrays.deepToString(inversionsSorted.toArray()));
+        //System.exit(1);
+      // List<int[]>inversionSorted=PDBReader.getListofInversions();
        // System.out.println(Arrays.deepToString(inversionSorted.toArray()));
 
         //List<int[]>valuePairs = PDBReader.firstLocationOfAtomPrinter(atomIdentifierMapModified);
         //System.out.println(Arrays.deepToString(valuePairs.toArray()) + "valuePairs");
-        Map<String[],List<int[]>> angleTypesMap= PDBReader.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
-        Map<String[],List<int[]>> torsionTypesMap= PDBReader.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
-        Map<Integer, Integer> angleTypeSorter = PDBReader.coordinationNumberDeterminer(connectivityModified, atomIdentifierMapModified);
+        Map<String[],List<int[]>> angleTypesMap= PDBReaderReplica.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> torsionTypesMap= PDBReaderReplica.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
+        Map<Integer, Integer> angleTypeSorter = PDBReaderReplica.coordinationNumberDeterminer(connectivityModified, atomIdentifierMapModified);
        // System.out.println(angleTypeSorter);
         //Set<String> uniqueAtoms = PDBReader.uniqueElementIdentifier();
         //System.out.println(uniqueAtoms + "uniqueAtoms");
         //Map<String, AtomType> typeMapNew = PDBReader.getTypeMapNew();
-        molecularWeight = PDBReader.getMolecularWeight();
+       // molecularWeight = PDBReader.getMolecularWeight();
         //System.exit(1);
         int i =0 ;
         UFF uff = new UFF();
@@ -174,7 +175,7 @@ public class UniversalSimulation extends Simulation {
             bondParamsArray= UFF.bondUFF (atomOnePot[0],  atomTwoPot[0], atomOnePot[5],  atomTwoPot[5], atomOnePot[6], atomTwoPot[6], bondOrder);
             //System.out.println(Arrays.toString(bondParamsArray) + " ArrayToString");
             bondConstant = UFF.BondConstantArray(bondParamsArray[0], bondParamsArray[1]);
-            //System.out.println(Arrays.toString(bondConstant) + " arrayConstant");
+            System.out.println(Arrays.toString(bondConstant) + " arrayConstant");
             P2HarmonicUFF p2Bond = new P2HarmonicUFF(bondParamsArray[0],  bondParamsArray[1]);
             bondParams.add(bondConstant);
             pmBonding.setBondingPotentialPair(species, p2Bond, bonds );
@@ -240,7 +241,7 @@ public class UniversalSimulation extends Simulation {
                 if(atomName3.equals("C_2") && atomName2.equals("C_3") || atomName3.equals("C_3") && atomName2.equals("C_2")){
                     bondListValueTwo = 1;
                 }
-                int bondListValueThree = bondList.get(atom3);
+                double bondListValueThree = bondList.get(atom3);
                 double[] atomOnePot = atomicPotMap.get(atomName1);
                 double[] atomTwoPot = atomicPotMap.get(atomName2);
                 double[] atomThreePot = atomicPotMap.get(atomName3);
@@ -262,21 +263,32 @@ public class UniversalSimulation extends Simulation {
                 if(atomName1.equals("C_Ar") && atomName2.equals("C_Ar")){
                     bondListValueOne = 1.5;
                     bondListValueTwo = 1.5;
-                }
-                if(atomName2.equals("C_Ar") && atomName3.equals("C_Ar")){
-                    bondListValueOne = 1.5;
+                    num=1;
+                } else if (atomName1.equals("H") && atomName2.equals("C_Ar")) {
+                    bondListValueOne = 1;
+                    bondListValueTwo = 1.5;
+                    num=1;
+                } else if (atomName1.equals("C_3") && atomName2.equals("C_Ar") ||atomName2.equals("C_3") && atomName1.equals("C_Ar") ) {
+                    bondListValueOne = 1;
                     bondListValueTwo = 1.5;
                 }
-                if(atomName1.equals("C_Ar") && atomName2.equals("H")  ){
+
+
+                if (atomName2.equals("C_Ar") && atomName3.equals("C_Ar")) {
+                    bondListValueTwo = 1.5;
+                    bondListValueThree = 1.5;
+                    num=1;
+                } else if(atomName2.equals("C_Ar") && atomName3.equals("H")  ){
+                    bondListValueTwo = 1.5;
+                    bondListValueThree = 1;
+                    num=1;
+                } else if (atomName1.equals("C_3") && atomName2.equals("C_Ar")) {
                     bondListValueTwo = 1.5;
                     bondListValueThree = 1;
                 }
-                if(atomName2.equals("C_Ar") && atomName3.equals("H")  ){
-                    bondListValueTwo = 1.5;
-                    bondListValueThree = 1;
-                }
+                System.out.println(bondListValueOne +" " +bondListValueTwo +" " +bondListValueThree);
                 angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree, num);
-                //System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
+                System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
                 P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3], atomTwoPot[1] ,num, caseNum);
                 pmBonding.setBondingPotentialTriplet(species, p3Angle, angle);
                 break;
@@ -299,14 +311,14 @@ public class UniversalSimulation extends Simulation {
            // System.out.println(quadNum + " quad "+ quadruplets.size() + " quad");
         }
 
-        if(inversionSorted.size() ==0){
+       if(inversionsSorted.size() ==0){
             invertNum= false;
         }  else {
             invertNum = true;
 
         }
 
-        System.out.println(invertNum + " quad "+ inversionSorted.size() + " quad");
+       // System.out.println(invertNum + " quad "+ inversionSorted.size() + " quad");
         if(quadNum){
             for (Map.Entry<String[], List<int[]>> entry : torsionTypesMap.entrySet()) {
                 String[] torsionType = entry.getKey();
@@ -344,7 +356,7 @@ public class UniversalSimulation extends Simulation {
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
 
         if(invertNum){
-            int[] individualInversion = inversionSorted.get(0);
+            int[] individualInversion = inversionsSorted.get(0);
             String atomOne = atomIdentifierMapModified.get(individualInversion[0]);
             if(atomOne.equals("C_2") || atomOne.equals("C_R")){
                 int c0 = 1;
@@ -352,14 +364,14 @@ public class UniversalSimulation extends Simulation {
                 int c2 = 0;
                 double kijkl = kcals.toSim(6.0);
                 P4BondInversionUFF p4Inversion = new P4BondInversionUFF(c0, c1, c2, kijkl);
-                pmBonding.setBondingPotentialInvert(species, p4Inversion, inversionSorted);
+                pmBonding.setBondingPotentialInvert(species, p4Inversion, inversionsSorted);
             } else{
                 int c0 = 1;
                 int c1 =-1;
                 int c2 = 0;
                 double kijkl = kcals.toSim(6.0);
                 P4BondInversionUFF p4Inversion = new P4BondInversionUFF(c0, c1, c2, kijkl);
-                pmBonding.setBondingPotentialInvert(species, p4Inversion, inversionSorted);
+                pmBonding.setBondingPotentialInvert(species, p4Inversion, inversionsSorted);
             }
         }
 
@@ -380,8 +392,8 @@ public class UniversalSimulation extends Simulation {
             String atomTypeStringTwo = String.valueOf(atomPairs.get(1));
             String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
             String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
-            double[] iKey = PDBReader.atomicPot(atomTypeOne);
-            double[] jKey = PDBReader.atomicPot(atomTypeTwo);
+            double[] iKey = PDBReaderReplica.atomicPot(atomTypeOne);
+            double[] jKey = PDBReaderReplica.atomicPot(atomTypeTwo);
             //System.out.println(atomNameOne + " " + Arrays.toString(iKey) + " " + atomNameTwo + " " + Arrays.toString(jKey));
             double epsilonIKey = kcals.toSim(iKey[3]);
             double epsilonJKey = kcals.toSim(jKey[3]);

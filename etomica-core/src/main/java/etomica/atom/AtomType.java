@@ -105,7 +105,12 @@ public class AtomType implements Comparable<AtomType> {
      * @return the value of the mass.
      */
     public final double getMass() {
-        return element.getMass();
+        if(element != null){
+            return element.getMass();
+        }
+        else {
+            return 0;
+        }
     }
 
     /**

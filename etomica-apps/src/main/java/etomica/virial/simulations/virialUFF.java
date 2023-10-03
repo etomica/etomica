@@ -3,7 +3,6 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -12,8 +11,8 @@ import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.math.SpecialFunctions;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
 import etomica.potential.UFF.*;
@@ -30,7 +29,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.BoxCluster;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.cluster.ClusterChainHS;
@@ -85,8 +83,10 @@ public class virialUFF {
         double sigmaHSRef = params.sigmaHSRef;
         Space space = Space3D.getInstance();
         String confName = "F://Avagadro//molecule//butane";
-        species = PDBReader.getSpeciesNew(confName);
+        species = PDBReaderReplica.getSpecies(confName);
         System.out.println("Species");
+       // box.addNewMolecule(species);
+
         java.util.List<AtomType> atomTypes = species.getUniqueAtomTypes();
         java.util.List<java.util.List<AtomType>> pairsAtoms = new ArrayList<>();
         System.out.println(species);
@@ -114,28 +114,30 @@ public class virialUFF {
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
         System.out.println(nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
-        ArrayList<ArrayList<Integer>> connectedAtoms =PDBReader.getConnectivityWithoutRunning();
-        ArrayList<ArrayList<Integer>> connectivityModified = PDBReader.getConnectivityModifiedWithoutRunning();
-        Map<Integer,String> atomMap = PDBReader.getAtomMapWithoutRunning();
-        HashMap<Integer, String> atomMapModified = PDBReader.getAtomMapModifiedWithoutRunning();
-        List<int[]> duplets = PDBReader.getBondedAtomList(connectivityModified);
-        List<int[]> triplets = PDBReader.getAngleList(connectivityModified);
-        List<int[]> quadruplets = PDBReader.getTorsionList(connectedAtoms);
-        ArrayList<Integer> bondList = PDBReader.getBondList(connectedAtoms, atomMap);
+        ArrayList<ArrayList<Integer>> connectedAtoms = PDBReaderReplica.getConnectivityWithoutRunning();
+        ArrayList<ArrayList<Integer>> connectivityModified = PDBReaderReplica.getConnectivityModifiedWithoutRunning();
+        Map<Integer,String> atomMap = PDBReaderReplica.getAtomMapWithoutRunning();
+        HashMap<Integer, String> atomMapModified = PDBReaderReplica.getAtomMapModifiedWithoutRunning();
+        List<int[]> duplets = PDBReaderReplica.getBondedAtomList(connectivityModified);
+        List<int[]> triplets = PDBReaderReplica.getAngleList(connectivityModified);
+        List<int[]> quadruplets = PDBReaderReplica.getTorsionList(connectedAtoms);
+        ArrayList<Integer> bondList = PDBReaderReplica.getBondList(connectedAtoms, atomMap);
         System.out.println(bondList +" bondList");
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        Map<String, double[]> atomicPotMap = PDBReader.atomicPotMap();
+        Map<String, double[]> atomicPotMap = PDBReaderReplica.atomicPotMap();
         UniversalSimulation.makeAtomPotentials(sm);
-        Map<Integer, String> atomIdentifierMapModified = PDBReader.atomIdentifierMapModified(connectivityModified, atomMapModified);
+        Map<Integer, String> atomIdentifierMapModified = PDBReaderReplica.atomIdentifierMapModified(connectivityModified, atomMapModified);
         System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
-        List<int[]>dupletsSorted= PDBReader.bondSorter(duplets, atomIdentifierMapModified);
-        List<int[]>tripletsSorted=PDBReader.angleSorter(triplets, atomIdentifierMapModified);
-        List<int[]>quadrupletsSorted=PDBReader.torsionSorter(quadruplets, atomIdentifierMapModified);
+        List<int[]>dupletsSorted= PDBReaderReplica.getDupletesSorted();
+        List<int[]>tripletsSorted= PDBReaderReplica.getAnglesSorted();
+        List<int[]>quadrupletsSorted= PDBReaderReplica.getTorsionSorted();
         //ArrayList<Integer> bondsNum = PDBReader.getBonds();
-        Map<String[],List<int[]>> bondTypesMap= PDBReader.idenBondTypes(dupletsSorted, atomIdentifierMapModified);
-        Map<String[],List<int[]>> angleTypesMap= PDBReader.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
-        Map<String[],List<int[]>> torsionTypesMap= PDBReader.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> bondTypesMap= PDBReaderReplica.idenBondTypes(dupletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> angleTypesMap= PDBReaderReplica.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> torsionTypesMap= PDBReaderReplica.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
         System.out.println(connectivityModified);
+       // PDBReaderReplica.centreOfMass(species, atomIdentifierMapModified);
+        System.exit(21);
         ArrayList<ArrayList<Integer>> modifiedOutput = new ArrayList<>();
         for (ArrayList<Integer> innerList : connectivityModified) {
             ArrayList<Integer> modifiedInnerList = new ArrayList<>(innerList.subList(1, innerList.size()));
@@ -162,7 +164,7 @@ public class virialUFF {
             System.out.println();
         }
 
-        Set<String> uniqueAtoms = PDBReader.uniqueElementIdentifier();
+        Set<String> uniqueAtoms = PDBReaderReplica.uniqueElementIdentifier();
         System.out.println(uniqueAtoms + "uniqueAtoms");
         //System.exit(0);
         box = new Box(space);
@@ -188,41 +190,41 @@ public class virialUFF {
         ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
         int[] targetDiagramNumbers = new int[0];
         boolean[] diagramFlexCorrection = null;
+        targetDiagrams = alkaneDiagrams.makeSingleVirialClusters(targetCluster, null, fTarget);
+        targetDiagramNumbers = new int[targetDiagrams.length];
+        System.out.println("individual clusters:");
+        Set<Graph> singleGraphs = alkaneDiagrams.getMSMCGraphs(true, false);
+        Map<Graph,Graph> cancelMap = alkaneDiagrams.getCancelMap();
+        int iGraph = 0;
+        diagramFlexCorrection = new boolean[targetDiagrams.length];
+        for (Graph g : singleGraphs) {
+            System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
+            targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
 
+            Graph cancelGraph = cancelMap.get(g);
+            if (cancelGraph != null) {
+                diagramFlexCorrection[iGraph] = true;
+                Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
 
-            targetDiagrams = alkaneDiagrams.makeSingleVirialClusters(targetCluster, null, fTarget);
-            targetDiagramNumbers = new int[targetDiagrams.length];
-            System.out.println("individual clusters:");
-            Set<Graph> singleGraphs = alkaneDiagrams.getMSMCGraphs(true, false);
-            Map<Graph,Graph> cancelMap = alkaneDiagrams.getCancelMap();
-            int iGraph = 0;
-            diagramFlexCorrection = new boolean[targetDiagrams.length];
-            for (Graph g : singleGraphs) {
-                System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
-                targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+                System.out.print(" - "+getSplitGraphString(gSplit, alkaneDiagrams, false));
 
-                Graph cancelGraph = cancelMap.get(g);
-                if (cancelGraph != null) {
-                    diagramFlexCorrection[iGraph] = true;
-                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
-
-                    System.out.print(" - "+getSplitGraphString(gSplit, alkaneDiagrams, false));
-
-                }
-                System.out.println();
-                iGraph++;
             }
             System.out.println();
-            Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
-            if (disconnectedGraphs.size() > 0) {
-                System.out.println("extra clusters:");
+            iGraph++;
+        }
 
-                for (Graph g : disconnectedGraphs) {
-                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
-                    System.out.println(g.coefficient()+" "+getSplitGraphString(gSplit, alkaneDiagrams, true));
-                }
-                System.out.println();
+
+        System.out.println();
+        Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
+        if (disconnectedGraphs.size() > 0) {
+            System.out.println("extra clusters:");
+
+            for (Graph g : disconnectedGraphs) {
+                Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
+                System.out.println(g.coefficient()+" "+getSplitGraphString(gSplit, alkaneDiagrams, true));
             }
+            System.out.println();
+        }
 
 
         targetCluster.setTemperature(temperature);
@@ -383,13 +385,13 @@ public class virialUFF {
             //String nameKey ="key";
             AtomType atomNameOne = atomPairs.get(0);
             AtomType atomNameTwo = atomPairs.get(1);
-            // System.out.println( atomNameOne + " " + atomNameTwo);
+           // System.out.println( atomNameOne + " " + atomNameTwo);
             String atomTypeStringOne = String.valueOf(atomPairs.get(0));
             String atomTypeStringTwo = String.valueOf(atomPairs.get(1));
             String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
             String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
-            double[] iKey = PDBReader.atomicPot(atomTypeOne);
-            double[] jKey = PDBReader.atomicPot(atomTypeTwo);
+            double[] iKey = PDBReaderReplica.atomicPot(atomTypeOne);
+            double[] jKey = PDBReaderReplica.atomicPot(atomTypeTwo);
             //System.out.println(atomNameOne + " " + Arrays.toString(iKey) + " " + atomNameTwo + " " + Arrays.toString(jKey));
             double epsilonIKey = kcals.toSim(iKey[3]);
             double epsilonJKey = kcals.toSim(jKey[3]);

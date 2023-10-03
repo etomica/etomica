@@ -36,6 +36,7 @@ import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.units.dimensions.Null;
+import etomica.util.collections.IntArrayList;
 import etomica.virial.BoxCluster;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.CoordinatePairSet;
@@ -73,12 +74,16 @@ public class SimulationVirialOverlap2 extends Simulation {
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveTranslate;
     public MCMoveBoxStep[] mcMoveWiggle;
+    public MCMoveBoxStep[] mcMoveStetch;
+    public MCMoveBoxStep[] mcMoveBend;
+    protected IntArrayList[] intListBonds;
     public int numExtraTargetClusters;
 
     public IntegratorOverlap integratorOS;
     public double refPref;
     protected boolean initialized;
     protected boolean doWiggle;
+    protected boolean doBend;
     protected ClusterAbstract[] extraTargetClusters;
     public DataPumpListener[] accumulatorPumps;
     protected long blockSize;
@@ -142,6 +147,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         extraTargetClusters = new ClusterAbstract[0];
     }
 
+
     public void setPotentialComputeFactory(PotentialComputeFactory potentialComputeFactory) {
         this.potentialComputeFactory = potentialComputeFactory;
     }
@@ -199,7 +205,8 @@ public class SimulationVirialOverlap2 extends Simulation {
         boolean doRotate = false;
         boolean multiAtomic = false;
         for (int i = 0; i < species.length; i++) {
-            addSpecies(species[i]);
+            //addSpecies(species[i]);
+            addSpeciesNew(species[i]);
         }
         for (ISpecies sp : getSpeciesList()) {
             if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
@@ -216,6 +223,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         }
         if (doWiggle) {
             mcMoveWiggle = new MCMoveBoxStep[2];
+        }
+        if(doBend){
+            mcMoveStetch = new MCMoveBoxStep[2];
+            mcMoveBend = new MCMoveBoxStep[2];
         }
 
         blockSize = 1000;
@@ -272,6 +283,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     }
                     if (doBend) {
                         mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(pc, random, 0.5, space);
+
                     } else {
                         mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(random, pc, box[iBox]);
                     }
@@ -566,6 +578,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void initRefPref(String fileName, long initSteps) {
+       // System.out.println(" initRef");
         initRefPref(fileName, initSteps, true);
     }
 
@@ -586,7 +599,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                         refPref = Double.parseDouble(refPrefString);
                         bufReader.close();
                         fileReader.close();
-                        System.out.println("setting ref pref (from file) to "+refPref);
+                       // System.out.println("setting ref pref (from file) to "+refPref);
                         dpVirialOverlap[0].setNumAlpha(numAlpha);
                         dpVirialOverlap[1].setNumAlpha(numAlpha);
                         setRefPref(refPref, 1);

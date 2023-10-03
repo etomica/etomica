@@ -22,7 +22,7 @@ public class LJUFF implements IPotential2 {
     }
 
     public double u(double r2) {
-        sigmaSquared = sigma*sigma;
+        double sigmaSquared = sigma*sigma;
         double s2 = sigmaSquared/r2;
         if( s2 > 100){
             return Double.POSITIVE_INFINITY;
@@ -43,7 +43,7 @@ public class LJUFF implements IPotential2 {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-        sigmaSquared = sigma*sigma;
+        double sigmaSquared = sigma*sigma;
         double s2 = sigmaSquared/r2;
         double s6 = s2*s2*s2;
         double rdudr = -12*epsilon*((s6*s6)-s6);
@@ -56,7 +56,7 @@ public class LJUFF implements IPotential2 {
     }
 
     public void u012add(double r2, double[] u012) {
-        sigmaSquared = sigma*sigma;
+        double sigmaSquared = sigma*sigma;
         double s2 = sigmaSquared/r2;
         if(s2<0.1){
             u012[0] = Double.POSITIVE_INFINITY;
@@ -94,7 +94,7 @@ public class LJUFF implements IPotential2 {
         scale = sci;
     }*/
 
-    private double sigmaSquared;
+
     private double sigma, epsilon;
 
 }

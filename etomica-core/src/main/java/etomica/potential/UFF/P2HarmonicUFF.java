@@ -37,7 +37,8 @@ public class P2HarmonicUFF implements IPotential2 {
         double wnew = kjoulepmole.fromSim(w);
         double dx = r - r0;
         double denergy = wnew*dx*dx;
-        System.out.println(dx + " " + r +" " + r0 + " " + wnew + " Energy : " + denergy );
+       // System.out.println( " Energy Bonding : " + denergy  +" " +  dx );
+
         u012[0] = w*dx*dx;
         u012[1] = 2*w*r*dx;
         u012[2] = 2*w*r2;

@@ -113,9 +113,9 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         if (doCaching) {
             CoordinatePairSet cPairs = box.getCPairSet();
             long thisCPairID = cPairs.getID();
-//            System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
+         //  System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass() +" here");
             if (thisCPairID == cPairID) {
-//                System.out.println("clusterSum "+cPairID+" returning recent "+value);
+            // System.out.println("clusterSum "+cPairID+" returning recent "+value);
                 return value;
             }
             if (thisCPairID == lastCPairID) {
@@ -123,7 +123,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                 // cluster was a trial that was rejected.  so drop the most recent value/ID
                 cPairID = lastCPairID;
                 value = lastValue;
-//                System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
+             // System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
                 return value;
             }
 
@@ -149,12 +149,20 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         value = 0.0;
         for(int i=0; i<clusters.length; i++) {
             double v = clusters[i].value(fValues);
+           // System.out.println(v + " v");
+          //  if(v < 0){
+                //System.out.println(" less than zero");
+            //}
             value += clusterWeights[i] * v;
+            System.out.println(v +" "+ clusterWeights[i] +" why v value " +  value +" value Product" );
+          //  if(Double.isNaN(value)){
+            //    System.out.println(debug + " requirement");
+           // }
             // enable this to debug bogus values
-            if (debug && (Double.isNaN(value) || Double.isInfinite(value))) {
+            if (debug && (Double.isNaN(value) || Double.isInfinite(value)) || Double.isNaN(value)) {
                 for (int j=0; j<fValues.length; j++) {
                     for (int k=0; k<fValues.length; k++) {
-                        System.out.println(j+" "+k+" "+Arrays.toString(fValues[j][k]));
+                      // System.out.println(j+" "+k+" "+Arrays.toString(fValues[j][k]));
                     }
                 }
                 throw new RuntimeException(value+" "+v);
@@ -179,20 +187,26 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                     int fk = fij[k];
                     if (fk < f.length) {
                         // we want the real fBond
+
                         fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                       // System.out.println(" ClusterSum Loop " +" " + fValues[i][j][fk]);
                     }
                     else {
+                       // System.out.println("Entered else");
                         // we want an eBond
                         fValues[i][j][fk] = fValues[i][j][fk-f.length]+1;
                     }
                     if (debug && (Double.isNaN(fValues[i][j][fk]) || Double.isInfinite(fValues[i][j][fk]))) {
+                       // System.out.println("entered f NAN");
                         f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                         throw new RuntimeException("oops f["+i+"]["+j+"]["+fk+"]="+fValues[i][j][fk]);
                     }
+                    //System.out.println(fValues[i][j][fk] +" fvalues");
                     fValues[j][i][fk] = fValues[i][j][fk];
                 }
             }
         }
+       // System.out.println("out of the loop");
     }
     
     public ClusterBonds[] getClusters() {return clusters;}

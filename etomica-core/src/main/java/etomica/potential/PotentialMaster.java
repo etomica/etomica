@@ -203,7 +203,7 @@ public class PotentialMaster implements PotentialCompute {
             forces[iAtomNum].PE(dr);
             forces[jAtomNum].ME(dr);
         }
-        Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
+       // Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
         //System.out.println(iAtom.getType() + " " +iAtom+" "+ jAtom.getType() + " " +jAtom+" "+ kjmol.fromSim(u));
         return u;
     }
@@ -327,7 +327,7 @@ public class PotentialMaster implements PotentialCompute {
                 uIntra += uij;
             }
         }
-        System.out.println(uIntra + " uintra");
+       // System.out.println(uIntra + " uintra");
         return uIntra;
     }
     protected double getpScaleMultiplier(IAtom iAtom, IAtom jAtom){
