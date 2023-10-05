@@ -56,6 +56,10 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
         position = new Vector[p.getMoleculeList().size()][p.getMoleculeList().get(0).getChildList().size()];
     }
 
+    public void setSpecies(ISpecies s) {
+        species = s;
+    }
+
     @Override
     public double energyChange() {
         return 0;
