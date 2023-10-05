@@ -145,7 +145,7 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
     }
 
     protected void realloc() {
-        int boxNumAtoms = box.getLeafList().size();
+        int boxNumAtoms = Math.max(box.getLeafList().size(), nbrs.length);
         nbrs = new int[boxNumAtoms][maxNab];
         nbrBoxOffsets = new Vector[boxNumAtoms][maxNab];
     }
