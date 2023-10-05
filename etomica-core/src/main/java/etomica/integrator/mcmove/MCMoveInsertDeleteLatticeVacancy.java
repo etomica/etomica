@@ -159,7 +159,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (integrator.getStepCount() != lastStepCount) {
             forced = 0;
         }
-        int numAtoms = box.getLeafList().size();
+        int numAtoms = box.getNMolecules(species);
         if (forced==1) {
             insert = !insert;
             System.out.println("forcing "+(insert ? "insertion" : "deletion"));
@@ -168,8 +168,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         else {
             insert = (random.nextInt(2) == 0);
         }
-        if (insert && numAtoms == maxN) return false;
-        if (!insert && numAtoms == minN) return false;
+        if (insert && numAtoms >= maxN) return false;
+        if (!insert && numAtoms <= minN) return false;
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount != integrator.getStepCount()) findCandidates();
         if (insert) {
@@ -425,11 +425,11 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         return A * Math.exp(b / temperature);
     }
 
-    public void myAcceptNotify() {
+    public void acceptNotify() {
         if (!insert) {
             oldPosition.E(testMolecule.getChildList().get(0).getPosition());
         }
-        super.myAcceptNotify();
+        super.acceptNotify();
         dirty = true;
     }
 

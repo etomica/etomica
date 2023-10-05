@@ -69,12 +69,36 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
         }
     }
 
+    public boolean doTrial() {
+        boolean rv = super.doTrial();
+        int n = box.getNMolecules(species);
+        if ((insert &&  n > maxN) || (!insert && n <= minN)) {
+            rejectNotify();
+            return false;
+        }
+        return rv;
+    }
+
     public double getChi(double temperature) {
-        return Math.exp(getLnBiasDiff()) * super.getChi(temperature);
+        double lbd = getLnBiasDiff();
+        // we have to compute N and V here instead of letting super do it
+        // because super will include mu
+        int numMolecules = box.getNMolecules(species);
+        double a = box.getBoundary().volume() / numMolecules;
+
+        if (insert) {
+            uNew = potentialMaster.computeOneMolecule(testMolecule);
+        } else {
+            uNew = 0;
+        }
+        double b = uOld - uNew;
+
+        return (insert ? a : 1.0 / a) * Math.exp((b + lbd) / temperature);
+
     }
     
     public double getLnBiasDiff() {
-        int numAtoms = box.getLeafList().size();
+        int numAtoms = box.getNMolecules(species);
         if (lnbias != null && lnbias.length < numAtoms+1) {
             int oldSize = lnbias.length;
             lnbias = Arrays.copyOf(lnbias, numAtoms+1);
@@ -88,25 +112,4 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
         return (insert ? bias : -bias);
     }
 
-    public void myAcceptNotify() {
-        super.acceptNotify();
-    }
-    
-    public void myRejectNotify() {
-        super.rejectNotify();
-    }
-    
-    public final void rejectNotify() {
-        myRejectNotify();
-    }
-    
-    public void acceptNotify() {
-        int numAtoms = box.getLeafList().size();
-        if ((numAtoms <= minN && !insert) || (numAtoms > maxN && insert)) {
-            myRejectNotify();
-        }
-        else {
-            myAcceptNotify();
-        }
-    }
 }
