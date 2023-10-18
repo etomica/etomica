@@ -2227,7 +2227,12 @@ public class GlassGraphic extends SimulationGraphic {
             params.D = 3;
             params.rcLJ = 2.5;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ);
+        double rho = params.density;
+        if (params.eta>0 && params.potential == SimGlass.PotentialChoice.HS) {
+            rho = SimGlass.densityForEta(params.eta, params.nA/(double)(params.nA+params.nB), params.sigmaB);
+            params.density = rho;
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ, params.sigmaB);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame

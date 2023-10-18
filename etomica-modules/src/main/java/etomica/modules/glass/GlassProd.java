@@ -96,22 +96,27 @@ public class GlassProd {
             params.rcLJ = 2.5;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds, params.rcLJ);
+        double rho = params.density;
+        if (params.eta>0 && params.potential == SimGlass.PotentialChoice.HS) {
+            rho = SimGlass.densityForEta(params.eta, params.nA/(double)(params.nA+params.nB), params.sigmaB);
+            params.density = rho;
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds, params.rcLJ, params.sigmaB);
         if (params.randomSeeds == null) System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
         else System.out.println("set random seeds: " + Arrays.toString(params.randomSeeds));
         System.out.println(params.D + "D " + sim.potentialChoice);
         System.out.println("nA:nB = " + params.nA + ":" + params.nB);
         int numAtoms = params.nA + params.nB;
-        double rho = params.density;
         System.out.println("T = " + params.temperature);
         System.out.println(params.numSteps + " production MD steps after " + params.numStepsEqIsothermal + " NVT equilibration steps, "+params.numStepsIsothermal+" NVT E check using dt = " + sim.integrator.getTimeStep());
         double volume = sim.box.getBoundary().volume();
         if (params.potential == SimGlass.PotentialChoice.HS) {
             double phi;
+            double sb = params.sigmaB == 0 ? 1.0/1.4 : params.sigmaB;
             if (params.D == 2) {
-                phi = Math.PI / 4 * (params.nA + params.nB / (1.4 * 1.4)) / volume;
+                phi = Math.PI / 4 * (params.nA + params.nB * sb * sb) / volume;
             } else {
-                phi = Math.PI / 6 * (params.nA + params.nB / (1.4 * 1.4 * 1.4)) / volume;
+                phi = Math.PI / 6 * (params.nA + params.nB * sb * sb * sb) / volume;
             }
             System.out.println("rho: " + params.density + "  phi: " + phi + "\n");
         } else {
