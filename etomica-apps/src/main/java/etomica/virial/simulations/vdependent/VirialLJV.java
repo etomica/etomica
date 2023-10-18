@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial.simulations.hardsphere;
+package etomica.virial.simulations.vdependent;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.DiameterHash;
-import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.IData;
@@ -17,6 +16,8 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.P2LennardJones;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -25,13 +26,14 @@ import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.MayerHSMixture;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MeterVirialBD;
 import etomica.virial.cluster.*;
-import etomica.virial.mcmove.MCMoveClusterAtomHSChainMix;
-import etomica.virial.mcmove.MCMoveClusterAtomHSTreeMix;
+import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
+import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
 import etomica.virial.mcmove.MCMoveClusterAtomInBox;
-import etomica.virial.mcmove.RandomPositionSphere;
+import etomica.virial.mcmove.RandomPositionCoreTail;
 import etomica.virial.simulations.SimulationVirial;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 
@@ -43,7 +45,7 @@ import java.awt.*;
  *
  * @author Arpit, Pavan and Andrew
  */
-public class VirialHSMixture {
+public class VirialLJV {
 
     public static void main(String[] args) {
 
@@ -55,56 +57,38 @@ public class VirialHSMixture {
             params.numSteps = 10000000L;
             params.ref = VirialHSParam.CHAIN_TREE;
             params.chainFrac = 0.5;
-            params.q = 0.2;
-            params.nonAdd = 0.0;
-            params.cff = 3;
             params.D = 3;
             params.L = 6;
         }
-        final int nSmall = params.cff;
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
-        final double q = params.q;
         final int ref = params.ref;
-        System.out.println("   q: " + q);
-        final double sigmaB = 1;
-        final double sigmaS = q * sigmaB;
-        final double[][] nonAdd = new double[2][2];
-        nonAdd[0][1] = nonAdd[1][0] = params.nonAdd;
         final double chainFrac = params.chainFrac;
         final int D = params.D;
         final double L = params.L;
         System.out.println("Number of points: " + nPoints);
         System.out.println("Dimensions: " + D);
-        System.out.println("nonAdd: " + params.nonAdd);
         System.out.println("Box Length: " + L);
         Space space = Space.getInstance(D);
         long t1 = System.currentTimeMillis();
 
-        int nBig = nPoints - nSmall;
-        System.out.println("B" + nBig + nSmall);
-        int[] nTypes = new int[]{nBig, nSmall};
-        double[] sigma = new double[]{sigmaB, sigmaS};
-        double[][] pairSigma = new double[nPoints][nPoints];
+        System.out.println("B" + nPoints);
 
-        int iii = 0;
-        for (int i = 0; i < nTypes.length; i++) {
-            for (int ii = 0; ii < nTypes[i]; ii++) {
-                int jjj = 0;
-                for (int j = 0; j <= i; j++) {
-                    for (int jj = 0; jj <= ((i == j) ? ii : (nTypes[j] - 1)); jj++) {
-                        double x = nonAdd[i][j];
-                        pairSigma[jjj][iii] = pairSigma[iii][jjj] = (1 + x) * (sigma[i] + sigma[j]) / 2;
-                        jjj++;
-                    }
-                }
-                iii++;
+        Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : null;
+
+        MayerVDependent fTarget = new MayerVDependent(new MayerGeneralSpherical(new P2LennardJones()), b);
+        MayerVDependent fRefPos = new MayerVDependent(new MayerFunction() {
+            @Override
+            public double f(IMoleculeList pair, double r2, double beta) {
+                if (r2 < 1) return 1;
+                return 1.0/(r2*r2*r2);
             }
-        }
 
-        Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L * sigmaB) : null;
-        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, b);
-        MayerHSMixture fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma, b);
+            @Override
+            public void setBox(Box box) {
+
+            }
+        }, b);
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
@@ -151,22 +135,22 @@ public class VirialHSMixture {
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         boolean doL = L < Double.POSITIVE_INFINITY && L > 0;
-        RandomPositionSphere positionSource = doL ? new RandomPositionSphere(space, sim.getRandom(), sim.box().getBoundary())
-                                                  : new RandomPositionSphere(space, sim.getRandom());
+        RandomPositionCoreTail positionSource = doL ? new RandomPositionCoreTail(space, sim.getRandom(), 6, sim.box().getBoundary())
+                : new RandomPositionCoreTail(space, sim.getRandom(), 6);
         if (ref == VirialHSParam.TREE) {
-            MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
+            MCMoveClusterAtomHSTree mcMoveHS = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
             mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAINS) {
-            MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
+            MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, 1);
             mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAIN_TREE) {
-            MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
+            MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
             mcMoveHST.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHST);
             sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
-            MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
+            MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, 1);
             mcMoveHSC.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
@@ -180,27 +164,12 @@ public class VirialHSMixture {
                 sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box);
-            displayBox0.setDiameterHash(new DiameterHash() {
-                @Override
-                public double getDiameter(IAtom atom) {
-                    return atom.getLeafIndex() < nBig ? 1 : q;
-                }
-            });
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
             if (L == Double.POSITIVE_INFINITY || L == 0) {
                 displayBox0.setShowBoundary(false);
                 ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
             }
 
-            ColorScheme colorScheme = new ColorScheme() {
-
-                public Color getAtomColor(IAtom a) {
-                    float b = a.getLeafIndex() / ((float) nPoints);
-                    float r = 1.0f - b;
-                    return new Color(r, 0f, b);
-                }
-            };
-            displayBox0.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 
             accumulator.setBlockSize(1000);
@@ -285,9 +254,6 @@ public class VirialHSMixture {
         public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9, RANDOM = 10;
         public int ref = CHAIN_TREE;
         public double chainFrac = 0.5;
-        public double q = 0.1;
-        public int cff = 0;
-        public double nonAdd = 0;
         public int D = 3;
         // set L to 0 or infinity to get a coefficient without PBC
         public double L = 0;

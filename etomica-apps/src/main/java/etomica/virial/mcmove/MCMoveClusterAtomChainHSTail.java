@@ -14,6 +14,8 @@ import etomica.virial.BoxCluster;
 /**
  * Grows configurations of chains with the pair probability distribution that
  * is flat for some distance and then has a power-law decay tail.
+ *
+ *  XXX use MCMoveClusterHSChainHS with a core-tail position source
  */
 public class MCMoveClusterAtomChainHSTail extends MCMoveBoxStep {
 
