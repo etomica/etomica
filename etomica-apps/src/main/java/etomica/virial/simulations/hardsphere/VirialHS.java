@@ -268,7 +268,7 @@ public class VirialHS {
         }
 
         // (nPoints-1)! is simply not included by ClusterWheatley, so do that here.
-        final double refIntegral = ri/SpecialFunctions.factorial(nPoints);
+        final double refIntegral = ri;
         System.out.println("reference integral: "+refIntegral);
         refCluster.setTemperature(1.0);
 

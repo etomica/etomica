@@ -813,8 +813,8 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
         String filenameLinearVisc=null, filenameLinearMSD=null, filenameLinearVAC=null;
-        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc, filenamePerc0, filenameImmFrac, filenameImmFracA,
-                filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
+        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc,
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
         String[][] filenameFs = new String[meterFs.length][2];
         String[] filenameF = new String[meterFs.length];
 

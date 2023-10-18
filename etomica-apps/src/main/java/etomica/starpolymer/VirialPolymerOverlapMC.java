@@ -103,8 +103,7 @@ public class VirialPolymerOverlapMC {
             ri = numDiagrams * Math.pow(vhs, nPoints - 1);
         }
 
-        // (nPoints-1)! is simply not included by ClusterWheatley, so do that here.
-        final double refIntegral = ri / SpecialFunctions.factorial(nPoints);
+        final double refIntegral = ri;
         System.out.println("reference integral: " + refIntegral);
 //        refCluster.setTemperature(temperature);
         System.out.println(steps + " steps (" + 1000 + " blocks of " + (steps / 1000) + ")");

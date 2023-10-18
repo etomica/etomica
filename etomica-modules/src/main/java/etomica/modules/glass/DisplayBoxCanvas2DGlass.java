@@ -8,8 +8,8 @@ import etomica.atom.IAtom;
 import etomica.data.ConfigurationStorage;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
-import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space2d.Space2D;
 
 import java.awt.*;
 
@@ -20,9 +20,9 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
     protected final Vector dr;
     protected boolean drawDisplacement, flipDisplacement;
 
-    public DisplayBoxCanvas2DGlass(DisplayBox _box, Space _space, Controller controller, ConfigurationStorage configStorage) {
-        super(_box, _space, controller);
-        dr = _space.makeVector();
+    public DisplayBoxCanvas2DGlass(DisplayBox _box, Controller controller, ConfigurationStorage configStorage) {
+        super(_box, controller);
+        dr = Space2D.getInstance().makeVector();
         this.configStorage = configStorage;
         configIndex = 100;
     }

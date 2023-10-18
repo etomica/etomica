@@ -88,9 +88,9 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayCanvas c;
         dbox = new DisplayBox(sim.getController(), sim.box);
         if (sim.getSpace().D() == 2) {
-            c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            c = new DisplayBoxCanvas2DGlass(dbox, sim.getController(), configStorage);
         } else {
-            c = new DisplayBoxCanvas3DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            c = new DisplayBoxCanvas3DGlass(dbox, sim.getController(), configStorage);
             ((DisplayBoxCanvas3DGlass)c).setVoronoiRadii(new double[]{0.5,sim.sigmaB*0.5});
         }
         canvas = (DisplayBoxCanvasGlass) c;

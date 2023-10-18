@@ -9,8 +9,8 @@ import etomica.atom.*;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space2d.Space2D;
 import etomica.units.Pixel;
 
 import javax.imageio.ImageIO;
@@ -23,12 +23,10 @@ import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayBoxCanvas2D extends DisplayCanvas {
 
-    protected final Space space;
     private final int[] atomOrigin;
     private final Vector boundingBox;
     private Font font = new Font("sansserif", Font.PLAIN, 10);
@@ -38,13 +36,12 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     protected Color orientationColor = Color.RED;
     protected double orientationLength = 1.0;
 
-    public DisplayBoxCanvas2D(DisplayBox _box, Space _space, Controller controller) {
+    public DisplayBoxCanvas2D(DisplayBox _box, Controller controller) {
         super(controller);
-    	this.space = _space;
 
         displayBox = _box;
-        atomOrigin = new int[space.D()];
-        boundingBox = space.makeVector();
+        atomOrigin = new int[2];
+        boundingBox = Space2D.getInstance().makeVector();
 
         addComponentListener(new ComponentListener() {
             public void componentHidden(ComponentEvent e) {}
@@ -217,8 +214,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
 //        if(displayBox.getDrawBoundary()) {displayBox.getBox().boundary().draw(g, displayBox.getOrigin(), displayBox.getScale());}
 
         //do drawing of all drawing objects that have been added to the display
-        for(Iterator iter=displayBox.getDrawables().iterator(); iter.hasNext(); ) {
-            Drawable obj = (Drawable)iter.next();
+        for (Drawable obj : displayBox.getDrawables()) {
             obj.draw(g, origin, toPixels);
         }
 
@@ -256,7 +252,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             Boundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.get(iLeaf);
-                OverflowShift overflow = new OverflowShift(space);
+                OverflowShift overflow = new OverflowShift(displayBox.getBox().getSpace());
                 double sigma = displayBox.getDiameterHash().getDiameter(a);
                 if (sigma == -1) sigma = 1;
                 float[][] shifts = overflow.getShifts(boundary, a.getPosition(),0.5*sigma);

@@ -41,7 +41,7 @@ public class DisplayBox extends Display {
     protected DiameterHash diameterHash;
     protected AtomTest atomTestDoDisplay = null;
     protected boolean displayBoundary = true;
-    LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
+    LinkedList<Drawable> drawables = new LinkedList<>();  //was ArrayList before Java2 conversion
     private Box box;
     private boolean graphicResizable = true;
     private final Space space;
@@ -244,18 +244,7 @@ public class DisplayBox extends Display {
     public void removeDrawable(Drawable obj) {
         drawables.remove(obj);
     }
-    /**
-     *  
-     */
-    public void addDrawable(Object obj) {
-        if(space.D() == 3) drawables.add(obj);
-    }
-    /**
-     *  
-     */
-    public void removeDrawable(Object obj) {
-        drawables.remove(obj);
-    }
+
     
     /**
      * @return Box : the box associated with this display
@@ -312,7 +301,7 @@ public class DisplayBox extends Display {
                 boxX *=1.4;
                 boxY *=1.4;
                 if(canvas == null) {
-                    canvas = new DisplayBoxCanvasG3DSys(this, space, controller);
+                    canvas = new DisplayBoxCanvasG3DSys(this, controller);
                     setSize(boxX, boxY);
                 }
                 else {
@@ -323,13 +312,13 @@ public class DisplayBox extends Display {
                 break;
             case 2:
                 boxY = (int)(box.getBoundary().getBoxSize().getX(1) * toPixels + 1);
-                canvas = new DisplayBoxCanvas2D(this, space, controller);
+                canvas = new DisplayBoxCanvas2D(this, controller);
                 setSize(boxX, boxY);
                 break;
             case 1:
             default:
                 boxY = drawingHeight;
-                canvas = new DisplayBoxCanvas1D(space, this, controller);
+                canvas = new DisplayBoxCanvas1D( this, controller);
                 setSize(boxX, boxY);
                 break;
         }
@@ -464,7 +453,7 @@ public class DisplayBox extends Display {
      *
      * @return LinkedList
      */
-    public LinkedList getDrawables() {return(drawables);}
+    public LinkedList<Drawable> getDrawables() {return(drawables);}
     
 
     /**

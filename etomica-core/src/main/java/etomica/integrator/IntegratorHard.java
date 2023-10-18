@@ -43,6 +43,8 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
     private int lastBin = 0;
     private Int2IntHash[] bondState;
     private int[] fieldState;
+    private final IAtom[] nextCollidingPair = new IAtom[2];
+    private int nextColliderIndex;
 
     private long tDelete, tAdd, tNext, tSteps, tUpdate, tUp, tDown, tBump, tData, tCollect, tCollision, tAdvance, tNotStep;
     private final boolean writeTiming = false, verbose = false;
@@ -678,6 +680,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         IAtomList atoms = box.getLeafList();
         while (true) {
             int c = nextCollider();
+            nextColliderIndex = c;
             if (c < 0) {
                 // we have no record of the next collision
                 break;
@@ -856,6 +859,18 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         for (IAtom iAtom : leafList) {
             iAtom.getPosition().PEa1Tv1(tStep, ((IAtomKinetic) iAtom).getVelocity());
         }
+    }
+
+    public IAtom[] getNextCollidingPair() {
+        if(nextColliderIndex < 0) {
+            nextCollidingPair[0] = null;
+            nextCollidingPair[1] = null;
+        } else {
+            nextCollidingPair[0] = box.getLeafList().get(nextColliderIndex);
+            int partner = collisionPartners[nextColliderIndex];
+            nextCollidingPair[1] = (partner >= 0) ? box.getLeafList().get(partner) : null;
+        }
+        return nextCollidingPair;
     }
 
     @Override
