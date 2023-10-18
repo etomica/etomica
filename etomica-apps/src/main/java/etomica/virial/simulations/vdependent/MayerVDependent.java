@@ -7,6 +7,7 @@ package etomica.virial.simulations.vdependent;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.virial.MayerFunction;
 
@@ -23,7 +24,7 @@ public class MayerVDependent implements MayerFunction {
     protected MayerVDependent(MayerFunction f, Boundary b) {
         this.f = f;
         boundary = b;
-        dr = boundary.getBox().getSpace().makeVector();
+        dr = Space.makeVector(boundary.getBoxSize().getD());
     }
 
     public double f(IMoleculeList pair, double r2, double beta) {

@@ -19,6 +19,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P2LennardJones;
 import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -53,12 +54,12 @@ public class VirialLJV {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 6;
+            params.nPoints = 2;
             params.numSteps = 10000000L;
             params.ref = VirialHSParam.CHAIN_TREE;
             params.chainFrac = 0.5;
             params.D = 3;
-            params.L = 6;
+            params.L = 3;
         }
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
@@ -74,7 +75,7 @@ public class VirialLJV {
 
         System.out.println("B" + nPoints);
 
-        Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : null;
+        Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : new BoundaryRectangularNonperiodic(space);
 
         MayerVDependent fTarget = new MayerVDependent(new MayerGeneralSpherical(new P2LennardJones()), b);
         MayerVDependent fRefPos = new MayerVDependent(new MayerFunction() {
