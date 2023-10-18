@@ -51,15 +51,15 @@ public class VirialHSMixture {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 6;
+            params.nPoints = 4;
             params.numSteps = 10000000L;
             params.ref = VirialHSParam.CHAIN_TREE;
             params.chainFrac = 0.5;
-            params.q = 0.2;
+            params.q = 1;
             params.nonAdd = 0.0;
-            params.cff = 3;
+            params.cff = 0;
             params.D = 3;
-            params.L = 6;
+            params.L = 2;
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
