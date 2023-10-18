@@ -23,7 +23,7 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
     }
 
     protected DisplayBoxCanvas2D makeCopy(DisplayBox db) {
-        DisplayBoxSpin2D canvas = new DisplayBoxSpin2D(db, db.getBox().getSpace(), controller);
+        DisplayBoxSpin2D canvas = new DisplayBoxSpin2D(db, controller);
         canvas.setPixelUnit(pixel);
         return canvas;
     }

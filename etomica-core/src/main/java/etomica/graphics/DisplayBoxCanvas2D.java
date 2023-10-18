@@ -86,7 +86,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     }
 
     protected DisplayBoxCanvas2D makeCopy(DisplayBox db) {
-        DisplayBoxCanvas2D canvas = new DisplayBoxCanvas2D(db, db.getBox().getSpace(), controller);
+        DisplayBoxCanvas2D canvas = new DisplayBoxCanvas2D(db, controller);
         canvas.setPixelUnit(pixel);
         return canvas;
     }

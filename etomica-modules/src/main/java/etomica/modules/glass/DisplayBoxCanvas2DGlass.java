@@ -28,7 +28,7 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
     }
 
     protected DisplayBoxCanvas2DGlass makeCopy(DisplayBox db) {
-        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(db, db.getBox().getSpace(), controller, configStorage);
+        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(db, controller, configStorage);
         db.canvas = canvas;
         canvas.setPixelUnit(pixel);
         canvas.setDrawDisplacement(drawDisplacement);
