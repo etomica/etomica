@@ -29,14 +29,14 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MeterVirialBD;
+import etomica.virial.MeterVirial;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
 import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
 import etomica.virial.mcmove.MCMoveClusterAtomInBox;
 import etomica.virial.mcmove.RandomPositionCoreTail;
 import etomica.virial.simulations.SimulationVirial;
-import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleySoft;
 
 import javax.swing.*;
 import java.awt.*;
@@ -67,6 +67,7 @@ public class VirialLJV {
         final double chainFrac = params.chainFrac;
         final int D = params.D;
         final double L = params.L;
+        final double temperature = params.T;
         System.out.println("Number of points: " + nPoints);
         System.out.println("Dimensions: " + D);
         System.out.println("Box Length: " + L);
@@ -91,8 +92,8 @@ public class VirialLJV {
             }
         }, b);
 
-        final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
-        targetCluster.setTemperature(1.0);
+        final ClusterAbstract targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
+        targetCluster.setTemperature(temperature);
         final ClusterWeightUmbrella refCluster;
         if (ref == VirialHSParam.TREE) {
             System.out.println("using a tree reference");
@@ -127,7 +128,7 @@ public class VirialLJV {
         final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
         if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
         sim.init();
-        MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
+        MeterVirial meter = new MeterVirial(sim.allValueClusters);
         meter.setBox(sim.box);
         sim.setMeter(meter);
         AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(1000);
@@ -236,8 +237,8 @@ public class VirialLJV {
 
         System.out.println();
 
-        double avg = averageData.getValue(0);
-        double err = errorData.getValue(0);
+        double avg = averageData.getValue(1);
+        double err = errorData.getValue(1);
 
         System.out.printf("target average: %20.15e error: %9.4e\n", avg, err);
 
@@ -258,6 +259,7 @@ public class VirialLJV {
         public int D = 3;
         // set L to 0 or infinity to get a coefficient without PBC
         public double L = 0;
+        public double T = 1;
     }
 
 }
