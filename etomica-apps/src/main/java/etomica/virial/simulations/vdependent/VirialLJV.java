@@ -56,14 +56,14 @@ public class VirialLJV {
         } else {
             params.nPoints = 2;
             params.numSteps = 10000000L;
-            params.ref = VirialHSParam.CHAIN_TREE;
+            params.ref = ReferenceChoice.CHAIN_TREE;
             params.chainFrac = 0.5;
             params.D = 3;
             params.L = 3;
         }
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
-        final int ref = params.ref;
+        final ReferenceChoice ref = params.ref;
         final double chainFrac = params.chainFrac;
         final int D = params.D;
         final double L = params.L;
@@ -95,23 +95,23 @@ public class VirialLJV {
         final ClusterAbstract targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
         targetCluster.setTemperature(temperature);
         final ClusterWeightUmbrella refCluster;
-        if (ref == VirialHSParam.TREE) {
+        if (ref == ReferenceChoice.TREE) {
             System.out.println("using a tree reference");
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{ct});
             refCluster.setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
-        } else if (ref == VirialHSParam.CHAINS) {
+        } else if (ref == ReferenceChoice.CHAINS) {
             System.out.println("using a chain reference");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
             refCluster.setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
-        } else if (ref == VirialHSParam.CHAIN_TREE) {
+        } else if (ref == ReferenceChoice.CHAIN_TREE) {
             System.out.println("using a chain/tree reference (" + chainFrac + " chains)");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
             refCluster.setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
-        } else if (ref == VirialHSParam.RANDOM) {
+        } else if (ref == ReferenceChoice.RANDOM) {
             System.out.println("using random particles in box reference");
             ClusterConstant cc = new ClusterConstant(nPoints, Math.pow(1.0/L, 3.0*(nPoints-1)));
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
@@ -139,15 +139,15 @@ public class VirialLJV {
         boolean doL = L < Double.POSITIVE_INFINITY && L > 0;
         RandomPositionCoreTail positionSource = doL ? new RandomPositionCoreTail(space, sim.getRandom(), 6, sim.box().getBoundary())
                 : new RandomPositionCoreTail(space, sim.getRandom(), 6);
-        if (ref == VirialHSParam.TREE) {
+        if (ref == ReferenceChoice.TREE) {
             MCMoveClusterAtomHSTree mcMoveHS = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
             mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
-        } else if (ref == VirialHSParam.CHAINS) {
+        } else if (ref == ReferenceChoice.CHAINS) {
             MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, 1);
             mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
-        } else if (ref == VirialHSParam.CHAIN_TREE) {
+        } else if (ref == ReferenceChoice.CHAIN_TREE) {
             MCMoveClusterAtomHSTree mcMoveHST = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
             mcMoveHST.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHST);
@@ -156,9 +156,12 @@ public class VirialLJV {
             mcMoveHSC.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
-        } else if (ref == VirialHSParam.RANDOM) {
+        } else if (ref == ReferenceChoice.RANDOM) {
             MCMoveClusterAtomInBox mcMoveHS = new MCMoveClusterAtomInBox(sim.getRandom(), sim.box);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
+        }
+        else {
+            throw new RuntimeException("Unknown reference");
         }
 
         if (false) {
@@ -246,6 +249,9 @@ public class VirialLJV {
         System.out.println("time: " + (t2 - t1) / 1000.0);
     }
 
+    public enum ReferenceChoice {
+        TREE, CHAINS, CHAIN_TREE, RANDOM
+    }
 
     /**
      * Inner class for parameters
@@ -253,8 +259,7 @@ public class VirialLJV {
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
         public long numSteps = 100000000;
-        public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9, RANDOM = 10;
-        public int ref = CHAIN_TREE;
+        public ReferenceChoice ref = ReferenceChoice.CHAIN_TREE;
         public double chainFrac = 0.5;
         public int D = 3;
         // set L to 0 or infinity to get a coefficient without PBC
