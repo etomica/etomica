@@ -22,14 +22,16 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
     public double u(double costheta) {
         double u = 0;
 
-        //System.out.println(c0 + " " +c1+ " " + c2 + " " + num + " "+ theta0 + " " + theta + " values" + costheta + " costheta") ;
+//        System.out.println(c0 + " " +c1+ " " + c2 + " " + num + " "+ theta0  + " values" + costheta + " costheta") ;
         if(caseNum == 0){
             double cos2theta = 2 * costheta * costheta - 1;
             u = kijk * ( c0 + c1 * costheta + c2 * cos2theta);
         } else {
             double theta= Math.acos(costheta);
             u = kijk * (1 - Math.cos(num*theta)) + Math.exp(-20.0*(theta - theta0 + 0.25));
+           // System.out.println(kijk + " " + (1 - Math.cos(num*theta)) + " "+ Math.exp(-20.0*(theta - theta0 + 0.25)));
         }
+        //System.out.println(u + " Inside" );
 
         return u;
     }

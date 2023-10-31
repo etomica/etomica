@@ -82,7 +82,7 @@ public class virialUFF {
         double rc = params.rc;
         double sigmaHSRef = params.sigmaHSRef;
         Space space = Space3D.getInstance();
-        String confName = "F://Avagadro//molecule//butane";
+        String confName = params.confName;
         species = PDBReaderReplica.getSpecies(confName);
         System.out.println("Species");
        // box.addNewMolecule(species);
@@ -137,7 +137,7 @@ public class virialUFF {
         Map<String[],List<int[]>> torsionTypesMap= PDBReaderReplica.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
         System.out.println(connectivityModified);
        // PDBReaderReplica.centreOfMass(species, atomIdentifierMapModified);
-        System.exit(21);
+
         ArrayList<ArrayList<Integer>> modifiedOutput = new ArrayList<>();
         for (ArrayList<Integer> innerList : connectivityModified) {
             ArrayList<Integer> modifiedInnerList = new ArrayList<>(innerList.subList(1, innerList.size()));
@@ -344,15 +344,21 @@ public class virialUFF {
         sim.setRandom(new RandomMersenneTwister(2));
         sim.init();
         PotentialCompute pc0 = sim.integrators[0].getPotentialCompute();
-        MCMoveClusterStretch mcMoveStretchRef = new MCMoveClusterStretch(pc0, space, dupletsIntArrayList, sim.getRandom(), 0.05);
-        MCMoveClusterAngleBend mcMoveBendRef = new MCMoveClusterAngleBend(pc0, sim.getRandom(), 0.05, space);
-        sim.integrators[0].getMoveManager().addMCMove(mcMoveStretchRef);
-        sim.integrators[0].getMoveManager().addMCMove(mcMoveBendRef);
-        PotentialCompute pc1 = sim.integrators[1].getPotentialCompute();
-        MCMoveClusterStretch mcMoveStretchTarget = new MCMoveClusterStretch(pc1, space, dupletsIntArrayList, sim.getRandom(), 0.05);
-        MCMoveClusterAngleBend mcMoveBendTarget = new MCMoveClusterAngleBend(pc1, sim.getRandom(), 0.05, space);
-        sim.integrators[1].getMoveManager().addMCMove(mcMoveStretchTarget);
-        sim.integrators[1].getMoveManager().addMCMove(mcMoveBendTarget);
+        //MCMoveClusterMoleculeMulti mcMoveMulti = new MCMoveClusterMoleculeMulti(pc0, space, sim.getRandom(), 0.05);
+        if(bondTypesMap.size()> 0){
+            MCMoveClusterStretch mcMoveStretchRef = new MCMoveClusterStretch(pc0, space, dupletsIntArrayList, sim.getRandom(), 0.05);
+            MCMoveClusterAngleBend mcMoveBendRef = new MCMoveClusterAngleBend(pc0, sim.getRandom(), 0.05, space);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveStretchRef);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveBendRef);
+            PotentialCompute pc1 = sim.integrators[1].getPotentialCompute();
+            MCMoveClusterStretch mcMoveStretchTarget = new MCMoveClusterStretch(pc1, space, dupletsIntArrayList, sim.getRandom(), 0.05);
+            MCMoveClusterAngleBend mcMoveBendTarget = new MCMoveClusterAngleBend(pc1, sim.getRandom(), 0.05, space);
+            sim.integrators[1].getMoveManager().addMCMove(mcMoveStretchTarget);
+            sim.integrators[1].getMoveManager().addMCMove(mcMoveBendTarget);
+        } //else {
+           // MCMoveClusterMoleculeMulti mcMoveClusterMoleculeRef = new MCMoveClusterMoleculeMulti(sim.getRandom(), box);
+      //  }
+
        if (alkaneFlex) {
             int[] constraintMap = new int[nPoints+1];
             for (i=0; i<nPoints; i++) {
@@ -531,9 +537,10 @@ public class virialUFF {
         System.out.println("time: "+(t2-t1)/1e9);
     }
     public static class VirialUniversalParam extends ParameterBase {
-        public int nPoints =2;
-        public double temperature = 298.15;// Kelvin
-        public long numSteps = 3000000;
+        public String confName ="F://Avagadro//molecule//h2";
+        public int nPoints =5;
+        public double temperature = 300;// Kelvin
+        public long numSteps = 5000000;
         public double refFreq = -1;
         public double sigmaHSRef = 5.23;
         public double rc = 10;

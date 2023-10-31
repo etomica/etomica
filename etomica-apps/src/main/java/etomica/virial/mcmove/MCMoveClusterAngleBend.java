@@ -140,14 +140,15 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     }
     
     public void acceptNotify() {
-//        System.out.println("accepted wiggle");
         ((BoxCluster)box).acceptNotify();
     }
 
     public void rejectNotify() {
-//        System.out.println("rejected wiggle");
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<box.getMoleculeList().size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
+                continue;
+            }
             if (dTheta[i] == 0) continue;
             transform(moleculeList.get(i), -dTheta[i]);
         }
@@ -157,7 +158,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     public double getChi(double temperature) {
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
-	
+
     public double energyChange() {return uNew - uOld;}
 
     /**

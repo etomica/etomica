@@ -230,17 +230,6 @@ public class Simulation {
         }
         this.smBuilder.addSpecies(species);
     }
-    public final void addSpeciesNew(ISpecies species) {
-        if (boxes.size() > 0) {
-            throw new IllegalStateException("Cannot add species after adding a box");
-        }
-        if (speciesManager != null) {
-            throw new IllegalStateException("Cannot add species after SpeciesManager is built");
-        }
-        this.smBuilder.addSpeciesNew(species);
-    }
-
-
     public final SpeciesManager getSpeciesManager() {
         if (speciesManager == null) {
             speciesManager = smBuilder.build();

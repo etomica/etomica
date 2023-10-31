@@ -88,7 +88,7 @@ public class PotentialMasterCell extends PotentialMaster {
         long t1 = System.nanoTime();
         double u = 0;
         Vector[] r = new Vector[atoms.size()];
-        for (IAtom a : atoms) {
+       for (IAtom a : atoms) {
             r[a.getIndex()] = a.getPosition();
         }
         for (int i = 0; i < atoms.size(); i++) {
@@ -96,7 +96,7 @@ public class PotentialMasterCell extends PotentialMaster {
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
             IPotential2[] ip1 = pairPotentials[iType];
-           // double[] pScale1 = pScale[iAtom.getType().getIndex()];
+         //  double[][] pScale1 = pScale[iAtom.getType().getIndex()];
             int j = i;
             Vector jbo = boxOffsets[atomCell[i]];
             while ((j = cellNextAtom[j]) > -1) {
@@ -107,7 +107,6 @@ public class PotentialMasterCell extends PotentialMaster {
                 if (ip2 == null) continue;
                 uTot += handleComputeAll(doForces,iAtom, jAtom, i, j, ri,rj , jbo, ip2, pc);
             }
-         // System.out.println(uTot + " inPotenriaLMasterCell Pairwise");
             int iCell = atomCell[i];
             for (int k=0; k<numCellOffsets; k++) {
                 int cellOffset = cellOffsets[k];
@@ -121,8 +120,7 @@ public class PotentialMasterCell extends PotentialMaster {
                     if (ip2 == null) continue;
                     Vector rj = jAtom.getPosition();
                     uTot += handleComputeAll(doForces,iAtom, jAtom, i, j, ri, rj, jbo, ip2, pc);
-                    Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
-                   // System.out.println(uTot + " "+ j + " after pairwise");
+                   // Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
                 }
             }
 

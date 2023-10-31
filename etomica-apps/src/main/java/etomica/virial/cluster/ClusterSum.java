@@ -154,7 +154,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                 //System.out.println(" less than zero");
             //}
             value += clusterWeights[i] * v;
-            System.out.println(v +" "+ clusterWeights[i] +" why v value " +  value +" value Product" );
+           // System.out.println(v +" "+ clusterWeights[i] +" why v value " +  value +" value Product" );
           //  if(Double.isNaN(value)){
             //    System.out.println(debug + " requirement");
            // }
