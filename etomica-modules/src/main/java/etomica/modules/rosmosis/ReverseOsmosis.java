@@ -110,7 +110,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
         potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolute.getLeafType(), tf.make(potential12));
 
         potentialMM = new P2LennardJones(sigMembrane, epsMembrane);
-        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesMembrane.getLeafType(), potentialMM);
+        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesMembrane.getLeafType(), tf.make(potentialMM));
 
         potentialM1 = new P2LennardJones(0.5 * (sigMembrane + sigSolute), Math.sqrt(epsMembrane * epsSolute));
         potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesSolute.getLeafType(), tf.make(potentialM1));
