@@ -77,6 +77,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
                 return u;
             }
         };
+        PotentialComputeAggregate.localStorageDefault = true;
         PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         //controller and integrator
