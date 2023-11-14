@@ -29,7 +29,7 @@ public class P2SoftSphericalSumTruncatedShifted extends P2SoftSphericalSumTrunca
     public void u012add(double r2, double[] u012) {
         if (r2 > r2Cutoff) return;
         super.uduWrapped(r2, u012);
-        u012[0] -= shift;
+        u012[0] += shift;
     }
 
     /**
