@@ -146,7 +146,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
     }
 
     public double getWallForce() {
-        return wallForce;
+        return 0.5*wallForce;
     }
 
     public static void main(String[] args) {
