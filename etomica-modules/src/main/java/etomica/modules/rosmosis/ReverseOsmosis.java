@@ -60,6 +60,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
         box = this.makeBox();
 
         PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
         PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box) {
             @Override
             public double computeAll(boolean doForces, PotentialCallback pc) {
