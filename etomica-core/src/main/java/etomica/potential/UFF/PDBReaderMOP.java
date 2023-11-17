@@ -235,14 +235,16 @@ public class PDBReaderMOP {
         // System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
         ArrayList<ArrayList<Integer>> connectedAtoms =getConnectivity();
         //System.out.println(connectedAtoms+ ": connectedAtom");
-        ArrayList<ArrayList<Integer>> connectivityModified = getconnectivityModified(connectedAtoms);
+        ArrayList<ArrayList<Integer>> connectivityTemp = getConnectivityTemp(connectedAtoms);
+
+        ArrayList<ArrayList<Integer>> connectivityModified = getconnectivityModified(connectivityTemp);
         // System.out.println(connectivityModified+ ": connectedAtomModified" );
-        Map<Integer,String> atomMap = getAtomMap(connectedAtoms);
+        Map<Integer,String> atomMap = getAtomMap(connectivityTemp);
         // System.out.println(atomMap + ": atomMap");
         HashMap<Integer, String> atomMapModified =getatomMapModified(atomMap);
         // System.out.println(atomMapModified + ": atomMapModified");
 
-        System.out.println(connectedAtoms +" O");
+        System.out.println(connectivityTemp +" O");
         System.out.println(connectivityModified+" O");
         System.out.println(atomMapModified+" O");
         System.out.println(atomIdentifierMapMod+" O");
@@ -1089,6 +1091,19 @@ public class PDBReaderMOP {
         //remove buildSpecies when running single file. When working along with
         // species= buildSpecies(confName);
         return connectivity;
+    }
+    public static ArrayList<ArrayList<Integer>> getConnectivityTemp(ArrayList<ArrayList<Integer>>connectivity){
+        ArrayList<ArrayList<Integer>> connectivityTemp = new ArrayList<>();
+        for(int i =0; i<connectivity.size(); i++){
+            ArrayList<Integer> uniqueList = new ArrayList<>();
+            for (Integer number : connectivity.get(i)) {
+                if (!uniqueList.contains(number)) {
+                    uniqueList.add(number);
+                }
+            }
+            connectivityTemp.add(i, uniqueList);
+        }
+       return connectivityTemp;
     }
 
     public static ArrayList<ArrayList<Integer>> getConnectivityWithSpecies(String confName){

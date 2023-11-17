@@ -102,6 +102,7 @@ public class PotentialComputeAggregate implements PotentialCompute {
                 }
             }
         }
+        //System.out.println("Sum " + sum);
         return sum;
     }
 

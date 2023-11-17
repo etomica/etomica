@@ -537,10 +537,10 @@ public class virialUFF {
         System.out.println("time: "+(t2-t1)/1e9);
     }
     public static class VirialUniversalParam extends ParameterBase {
-        public String confName ="F://Avagadro//molecule//h2";
-        public int nPoints =5;
-        public double temperature = 300;// Kelvin
-        public long numSteps = 5000000;
+        public String confName ="F://Avagadro//molecule//butane";
+        public int nPoints =4;
+        public double temperature = 100;// Kelvin
+        public long numSteps = 500000;
         public double refFreq = -1;
         public double sigmaHSRef = 5.23;
         public double rc = 10;

@@ -205,8 +205,8 @@ public class SimulationVirialOverlap2 extends Simulation {
         boolean doRotate = false;
         boolean multiAtomic = false;
         for (int i = 0; i < species.length; i++) {
-            //addSpecies(species[i]);
-            addSpeciesNew(species[i]);
+            addSpecies(species[i]);
+            //addSpeciesNew(species[i]);
         }
         for (ISpecies sp : getSpeciesList()) {
             if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
@@ -877,8 +877,8 @@ public class SimulationVirialOverlap2 extends Simulation {
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: " + ratio + " error: " + error);
-        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral));
-
+        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral) );
+        System.out.println("percent error in abs average:  " +Math.abs((error*Math.abs(refIntegral))*100/(ratio*refIntegral)) +" added");
         double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(dvo.getAlphaSource().getAlpha(0));
         System.out.println(String.format("overlap ratio: % 20.15e error: %10.15e", alphaData[0], alphaData[1]));
 

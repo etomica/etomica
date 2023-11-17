@@ -33,10 +33,10 @@ public class P2HarmonicUFF implements IPotential2 {
             return;
         }
         double r = Math.sqrt(r2);
-        Unit kjoulepmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
-        double wnew = kjoulepmole.fromSim(w);
+       // Unit kjoulepmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
+       // double wnew = kjoulepmole.fromSim(w);
         double dx = r - r0;
-        double denergy = wnew*dx*dx;
+        //double denergy = wnew*dx*dx;
        // System.out.println( " Energy Bonding : " + denergy  +" " +  dx );
 
         u012[0] = w*dx*dx;

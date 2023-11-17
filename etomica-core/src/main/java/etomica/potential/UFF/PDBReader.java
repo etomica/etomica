@@ -40,15 +40,14 @@ public class PDBReader {
     public static List<int[]> dupletsSorted = new ArrayList<>();
     public static List<int[]> tripletsSorted = new ArrayList<>();
     public static List<int[]> quadrupletsSorted = new ArrayList<>();
-    public static Map<String, Element> elementReaderMap = new HashMap<>();
     public static Map<String, AtomType> elementReceiverMap = new HashMap<>();
-    public static Map<AtomType, AtomType> elementReceiverMapNew= new HashMap<>();
+
     static ISpecies species;
 
     public static void readPDBFile(String confName) {
         String fileName = confName+".pdb";
         FileReader fileReader;
-        Map<String, AtomType> typeMap = new HashMap<>();
+
         ArrayList<Integer> currentAtomList = null;
         try {
             fileReader = new FileReader(fileName);
@@ -61,7 +60,7 @@ public class PDBReader {
 
             while ((line = bufReader.readLine()) != null) {
 
-                parseLineReader(line, typeMap, atomMap, positions);
+                parseLineReader(line, atomMap, positions);
 
                 if (line.startsWith("CONECT")) {
                     String[] parts = line.trim().split("\\s+");
@@ -91,12 +90,13 @@ public class PDBReader {
         System.out.println(atomMap+" atomMap");
         System.out.println("Building done");
         //COM(positions);
+        setPosition(positions);
         System.out.println("After");
         System.out.println(positions);
         //System.exit(1);
     }
 
-    protected static void parseLineReader(String line, Map<String, AtomType > typeMap, Map<Integer, String> atomMap, Map<Integer, Vector> positions) {
+    protected static void parseLineReader(String line, Map<Integer, String> atomMap, Map<Integer, Vector> positions) {
         line = line.trim();
         if (line.length() < 6) {
             return;
@@ -111,19 +111,6 @@ public class PDBReader {
             int atomNumber = Integer.parseInt(line.substring(8,11).trim());
             System.out.println(atomNumber + " " + positn);
             positions.put(atomNumber, positn);
-           /* if (typeMap.containsKey(symbol)) {
-                //type = typeMap.get(symbol);
-                typeElement = putElements(line.substring(76, 78).trim());
-                type = AtomType.element(typeElement);
-               // getCOM(typeElement,positn);
-                //System.out.println(type + "contains");
-            } else {
-                typeElement = putElements(line.substring(76, 78).trim());
-                type = AtomType.element(typeElement);
-                //getCOM(typeElement,positn);
-                //System.out.println(type + " newtype");
-                typeMap.put(symbol, type);
-            }*/
             if (atomMap.containsKey(atomNumber)){
                 System.out.println("Error");
             } else {
@@ -132,86 +119,24 @@ public class PDBReader {
             }
         }
     }
-
+    public static Map<Integer,Vector> getPositions(){
+        return positions;
+    }
     public static Map<Integer, String> getAtomMap(){
         return atomMap;
     }
-    public static Map<Integer,String>getAtomModifiedMap(){
-        return atomMapModified;
+    public static void setConnectivityModified( ArrayList<ArrayList<Integer>> connectivityModified1){
+        connectivityModified = connectivityModified1;
+    }
+    public static void setAtomMapModified(HashMap<Integer, String> getatomMapModified){
+        atomMapModified = getatomMapModified;
+    }
+    public static void setPosition(Map<Integer,Vector> p){
+        positions = p;
     }
 
-  /*  public static  ISpecies getSpecies (String confName){
-       /* for (int i=0; i<3; i++){
-            posnCOM.add(i, 0.0);
-        }
-        SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
-        AtomType typeNew;
-        readPDBFile(confName);
-        ArrayList<Integer> bondList =setBondList(connectivity, atomMap);
-        //System.out.println(bondList + " bondList");
-        System.out.println(atomMap+ "  " + atomMap.size());
-        Map<Integer, String> atomIdentifierMapMod = atomIdentifierMapModified(connectivity, atomMap);
-        // System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
-        ArrayList<ArrayList<Integer>> connectedAtoms =getConnectivity();
-        //System.out.println(connectedAtoms+ ": connectedAtom");
-        ArrayList<ArrayList<Integer>> connectivityModified = getconnectivityModified(connectedAtoms);
-        // System.out.println(connectivityModified+ ": connectedAtomModified" );
-        Map<Integer,String> atomMap = getAtomMap(connectedAtoms);
-        // System.out.println(atomMap + ": atomMap");
-        HashMap<Integer, String> atomMapModified =getatomMapModified(atomMap);
-        // System.out.println(atomMapModified + ": atomMapModified");
 
-        System.out.println(connectedAtoms +" O");
-        System.out.println(connectivityModified+" O");
-        System.out.println(atomMapModified+" O");
-        System.out.println(atomIdentifierMapMod+" O");
-        bondsNum = bondsAmongAtoms();
-        System.out.println(bondsNum + " bond Amongatoms");
-        List<int[]> duplets = getBondedAtomList(connectivityModified);
-        List<int[]> listOfAngleModified = getAngleList(connectivityModified);
-        dupletsSorted= bondSorter(duplets, atomIdentifierMapMod);
-        //System.out.println(Arrays.deepToString(dupletsSorted.toArray()) + " duplets Sorted");
-        //System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
-        tripletsSorted=angleSorter(listOfAngleModified, atomIdentifierMapMod);
-        List<int[]> listOfTorsionModified = getTorsionList(connectivity);
-        //System.out.println( Arrays.deepToString(listOfTorsionModified.toArray()) + "torsionModified");
-        quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapMod);
-        // System.out.println(Arrays.deepToString(quadrupletsSorted.toArray()) + "quadrupletsSorted");
-        Map<String[],List<int[]>> torsionTypesMap= idenTorsionTypes(quadrupletsSorted, atomIdentifierMapMod);
-        aromaticIdentifier(torsionTypesMap);
-        aromaticOtherElementFormer(connectivityModified, modifiedAtomIdentifierMap);
-        listOfInversions = idenInversions(tripletsSorted);
-        //System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
-        System.out.println(positions + " Here positions");
-        for(int i = 0; i < atomIdentifierMap.size(); i++) {
-            String symbol = String.valueOf(atomIdentifierMap.get(i));
-            int startIndex = symbol.indexOf("[") + 1;
-            int endIndex = symbol.indexOf("]");
-            String nameNew = symbol.substring(startIndex, endIndex);
-            // System.out.println(atomIdentifierMap.get(i));
-            AtomType newName = AtomType.simple(nameNew);
-            System.out.println(nameNew+ " :name " +  " " + newName + " :atomtype "+ newName.getMass());
-            if (typeMapNew.containsKey(nameNew)) {
-                typeNew = typeMapNew.get(nameNew);
-                // System.out.println(typeNew + "typenew");
-            } else {
-                typeNew = newName;
-                typeMapNew.put(nameNew, typeNew);
-                //System.out.println(typeMapNew + " typemapnew");
-            }
-            //System.out.println(positionsNew.get(i) + " positions");
-            //System.out.println(positions.get(i) + " positionSOld ");
-            //  System.out.println(positions.get(i+1) + " positions" + typeNew.getMass() + " ");
-            Vector position = positions.get(i+1);
-            speciesBuilderNew.addAtom(typeNew, position,  "");
-           // speciesBuilderNew.addAtom(typeNew., positions);
-        }
-        // System.out.println(typeMapNew + " typeMapNew");
-        // System.exit(1);
-        return speciesBuilderNew.build();
-    }*/
-
-    public static  ISpecies getSpecies (String confName){
+    public static ISpecies getSpecies (String confName){
         double massSum = 0;
         SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
         SpeciesBuilder speciesBuilderNewMod =  new SpeciesBuilder(Space3D.getInstance());
@@ -264,7 +189,7 @@ public class PDBReader {
             String nameNew = symbol.substring(startIndex, endIndex);
             // System.out.println(atomIdentifierMap.get(i));
             AtomType newName = returnElement(nameNew);
-           // AtomType newNameNew = returnElement(nameNew);
+            // AtomType newNameNew = returnElement(nameNew);
             if (typeMapNew.containsKey(nameNew)) {
                 typeNew = typeMapNew.get(nameNew);
             } else {
@@ -282,7 +207,7 @@ public class PDBReader {
         int nAtoms = children.size();
         for (int i = 0; i < nAtoms; i++) {
             IAtom a = children.get(i);
-           // System.out.println(a.getPosition() + " "+ i);
+            // System.out.println(a.getPosition() + " "+ i);
             double mass = a.getType().getMass();
             if (massSum == 0) {
                 center.PEa1Tv1(mass, a.getPosition());
@@ -294,8 +219,8 @@ public class PDBReader {
             massSum += mass;
         }
         center.TE(1.0 / massSum);
-       // System.out.println(center + " 1 ");
-       // System.out.println("Part 1");
+        // System.out.println(center + " 1 ");
+        // System.out.println("Part 1");
         for(int i=0; i<atomIdentifierMap.size(); i++){
             IAtom a = children.get(i);
             String symbol = String.valueOf(atomIdentifierMap.get(i));
@@ -305,7 +230,7 @@ public class PDBReader {
             typeNew = typeMapNew.get(nameNew);
             Vector v = a.getPosition();
             v.ME(center);
-           // System.out.println(v);
+            // System.out.println(v);
             speciesBuilderNewMod.addAtom(typeNew,v, "" );
         }
         species = speciesBuilderNewMod.build();
@@ -321,8 +246,6 @@ public class PDBReader {
     public static List<int[]> getTorsionSorted(){
         return quadrupletsSorted;
     }
-
-
     public static void clearEverything(){
         positions.clear();
         atomMap.clear();
@@ -358,12 +281,6 @@ public class PDBReader {
                     System.out.println(Arrays.toString(torsionIndividual));
                     int torsionIndividualOne = torsionIndividual[1];
                     int torsionIndividualTwo = torsionIndividual[2];
-                    //  String torsionIndividualElementOne = modifiedAtomIdentifierMap.get(torsionIndividualOne);
-                    // String torsionIndividualElementTwo = modifiedAtomIdentifierMap.get(torsionIndividualTwo);
-                    // if(torsionIndividualElementOne.equals("C_Ar") && torsionIndividualElementTwo.equals("C_Ar")){
-                    //    i++;
-                    //} else {
-                    int[] hexAromaticNew = new int[6];
                     System.out.println(torsionIndividualOne + " " +torsionIndividualTwo);
                     ArrayList<Integer> connectivityFirst = connectivityModified.get(torsionIndividual[0]);
                     ArrayList<Integer> connectivityLast = connectivityModified.get(torsionIndividual[3]);
@@ -634,7 +551,7 @@ public class PDBReader {
                 } else if (valenceOxygen == atomArraySize ) {
                     bondList.add(2);
                 } else {
-                   // bondRequired = valenceOxygen - (atomArraySize - 1);
+                    // bondRequired = valenceOxygen - (atomArraySize - 1);
                     // System.out.println("The oxygen atom " + i + "is UNSATISFIED with " + bondRequired + " bond required");
                     int numNitro=0;
                     for(int j =1; j<connectivity.get(i).size();j++){
@@ -681,21 +598,21 @@ public class PDBReader {
                 }
                 //System.out.println(numCarb + ":numCarb " + numHydro +":numHydro " +  numOxy +":numOxy " +  numNitro + ":numNitro " + numMetal+":numMetal" );
                 if (numMetal >1){
-                   // valenceNitrogen =4;
+                    // valenceNitrogen =4;
                     if( atomArraySize < 5){
                         bondList.add(0);
                     } else {
                         bondList.add(1);
                     }
                 } else if (numOxy ==2) {
-                   // valenceNitrogen=4;
+                    // valenceNitrogen=4;
                     if( atomArraySize < 5){
                         bondList.add(0);
                     } else {
                         bondList.add(1);
                     }
                 } else {
-                   // valenceNitrogen =3;
+                    // valenceNitrogen =3;
                     if(atomArraySize < 4){
                         bondList.add(0);
                     } else {
@@ -768,29 +685,66 @@ public class PDBReader {
         }
         return bondList;
     }
+    public static int priorityMapGenerator(String atomType){
+        Map<String,Integer> priorityMap = new HashMap<>();
+        priorityMap.put("Zr",1);
+        priorityMap.put("C_3",2);
+        priorityMap.put("C_Ar",2);
+        priorityMap.put("C_2",3);
+        priorityMap.put("C_1",4);
+        priorityMap.put("H",5);
+        priorityMap.put("Ph",6);
+        priorityMap.put("N_3",7);
+        priorityMap.put("N_2",8);
+        priorityMap.put("N_1",9);
+        priorityMap.put("O_3",10);
+        priorityMap.put("O_2",11);
+        priorityMap.put("O_1",12);
+        priorityMap.put("I",13);
+        priorityMap.put("Br",14);
+        priorityMap.put("S_3", 6);
+        priorityMap.put("S_2", 6);
+        priorityMap.put("S_1", 6);
+        priorityMap.put("Cl",15);
+        priorityMap.put("F",16);
+        return priorityMap.get(atomType);
+    }
 
+    public static AtomType returnElement(String elementName){
+        elementReceiverMap.put("C_3", new AtomType(Carbon.INSTANCE, "C_3"));
+        elementReceiverMap.put("H", new AtomType(Carbon.INSTANCE, "H"));
+        elementReceiverMap.put("C_2", new AtomType(Carbon.INSTANCE, "C_2"));
+        elementReceiverMap.put("C_Ar", new AtomType(Carbon.INSTANCE, "C_Ar"));
+        elementReceiverMap.put("C_1", new AtomType(Carbon.INSTANCE, "C_1"));
+        elementReceiverMap.put("O_3", new AtomType(Oxygen.INSTANCE, "O_3"));
+        elementReceiverMap.put("O_Ar", new AtomType(Oxygen.INSTANCE, "O_Ar"));
+        elementReceiverMap.put("O_2", new AtomType(Oxygen.INSTANCE, "O_2"));
+        elementReceiverMap.put("N_Ar", new AtomType(Nitrogen.INSTANCE, "N_Ar"));
+        elementReceiverMap.put("N_3", new AtomType(Nitrogen.INSTANCE, "N_3"));
+        elementReceiverMap.put("N_2", new AtomType(Nitrogen.INSTANCE, "N_2"));
+        elementReceiverMap.put("N_1", new AtomType(Nitrogen.INSTANCE, "N_1"));
+        elementReceiverMap.put("S_3", new AtomType(Sulfur.INSTANCE, "S_3"));
+        elementReceiverMap.put("S_2", new AtomType(Sulfur.INSTANCE, "S_2"));
+        elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
+        elementReceiverMap.put("Zr", new AtomType(Zirconium.INSTANCE, "Zr"));
+        return elementReceiverMap.get(elementName);
+    }
 
     protected static  Map<Integer, AtomType> atomIdentifier(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
         //System.out.println(atomMapModified + " atommapModified here");
         //int counter =0;
-       // ArrayList <Integer> atomNumbers = new ArrayList<>();
+        // ArrayList <Integer> atomNumbers = new ArrayList<>();
         if(connectivity.size() == 0){
             String element = atomMap.get(1);
-            if(element.equals("Ar")){
-                IElement Argon = null;
-                AtomType Ar = new AtomType(Argon, "Ar");
-                //System.out.println("The atom " + (i) +" is C_3" );
-                atomIdentifierMap.put(1, Ar);
-            } else if (element.equals("Ne")) {
-                IElement Neon = null;
-                AtomType Ne = new AtomType(Neon, "Ne");
-                //System.out.println("The atom " + (i) +" is C_3" );
-                atomIdentifierMap.put(1, Ne);
+            if(element.equals("AR")){
+                AtomType Ar = new AtomType(Argon.INSTANCE, "Ar");
+                atomIdentifierMap.put(0, Ar);
+            } else if (element.equals("NE")) {
+                AtomType Ne = new AtomType(Neon.INSTANCE, "Ne");
+                atomIdentifierMap.put(0, Ne);
             } else {
-                IElement Helium = null;
-                AtomType He = new AtomType(Helium, "He");
-                //System.out.println("The atom " + (i) +" is C_3" );
-                atomIdentifierMap.put(1, He);
+                AtomType He = new AtomType(Helium.INSTANCE, "He");
+                atomIdentifierMap.put(0, He);
             }
         }
         //System.out.println(connectivityModified + "connectivityModified");
@@ -806,58 +760,52 @@ public class PDBReader {
                 int arrayListSize = connectivityModified.get(i).size();
                 //Alkane checker
                 if (arrayListSize == 5) {
-                    AtomType C_3 = AtomType.element(Carbon.INSTANCE, "C_3");
+                    AtomType C_3 = new AtomType(Carbon.INSTANCE, "C_3");
                     //System.out.println("The atom " + (i) +" is C_3" );
                     atomIdentifierMap.put(i, C_3);
                 }
 
                 if (arrayListSize == 4) {
-                    AtomType C_2 = AtomType.element(Carbon.INSTANCE, "C_2");
+                    AtomType C_2 = new AtomType(Carbon.INSTANCE, "C_2");
                     //System.out.println("The atom " + (i) +" is C_2 " );
                     atomIdentifierMap.put(i, C_2);
                 }
                 if (arrayListSize == 3 || arrayListSize ==2) {
-                    AtomType C_1 = AtomType.element(Carbon.INSTANCE, "C_1");
+                    AtomType C_1 = new AtomType(Carbon.INSTANCE, "C_1");
                     //System.out.println("The atom " + (i)+" is C_1 "  );
                     atomIdentifierMap.put(i, C_1);
                 }
             } else if (retriveArrayFirstElementName.equals("CL")) {
-                IElement Chlorine = null;
-                AtomType Cl = new AtomType(Chlorine, "Cl");
+                AtomType Cl = new AtomType(Chlorine.INSTANCE, "Cl");
                 //System.out.println("The atom " + (i)+" is H " );
                 atomIdentifierMap.put(i, Cl);
             } else if (retriveArrayFirstElementName.equals("I")) {
-                IElement Iodine = null;
-                AtomType I = new AtomType(Iodine, "I");
+                AtomType I = new AtomType(Iodine.INSTANCE, "I");
                 //System.out.println("The atom " + (i)+" is H " );
                 atomIdentifierMap.put(i, I);
             }else if (retriveArrayFirstElementName.equals("H")) {
-                AtomType H = AtomType.element(Hydrogen.INSTANCE, "H");
+                AtomType H = new AtomType(Hydrogen.INSTANCE, "H");
                 //System.out.println("The atom " + (i)+" is H " );
                 atomIdentifierMap.put(i, H);
             }
             else if (retriveArrayFirstElementName.equals("O")) {
                 int arrayListSize = connectivityModified.get(i).size();
                 if(arrayListSize == 2){
-                    IElement Oxygen_2 = null;
-                    AtomType O_2 = new AtomType(Oxygen_2, "O_2");
+                    AtomType O_2 = new AtomType(Oxygen.INSTANCE, "O_2");
                     //System.out.println("The atom " + (i)+" is O_2 " );
                     atomIdentifierMap.put(i, O_2);
                 } else if (arrayListSize == 3) {
-                    IElement Oxygen_3 = null;
-                    AtomType O_3 =AtomType.element(Oxygen.INSTANCE, "O_2");
+
+                    AtomType O_3 =AtomType.element(Oxygen.INSTANCE, "O_3");
                     //System.out.println("The atom " + (i ) + " is O_3 ");
                     atomIdentifierMap.put(i, O_3);
                 } else {
-                    IElement Oxygen_Ar = null;
-                    AtomType O_Ar = new AtomType(Oxygen_Ar, "O_Ar");
+                    AtomType O_Ar = new AtomType(Oxygen.INSTANCE, "O_Ar");
                     //System.out.println("The atom " + (i ) + " is O_Ar ");
                     atomIdentifierMap.put(i, O_Ar);
                 }
             } else if (retriveArrayFirstElementName.equals("N")){
                 int arrayListSize = connectivityModified.get(i).size();
-
-
                 int  oxygenCounter =0;
                 //Types are:
                 //-NH2, =N-, =N- -(+), -N=N-, O-(-)N(+)=O
@@ -869,19 +817,16 @@ public class PDBReader {
                     }
                 }
                 if(arrayListSize ==3){
-                    IElement Nitrogen_1 = null;
-                    AtomType N_1 = new AtomType(Nitrogen_1, "N_1");
+                    AtomType N_1 = new AtomType(Nitrogen.INSTANCE, "N_1");
                     //System.out.println("The atom " + (i) +" is N_1 " );
                     atomIdentifierMap.put(i, N_1);
 
                 } else if (arrayListSize ==4 && oxygenCounter>1) {
-                    IElement Nitrogen_2 = null;
-                    AtomType N_2 = new AtomType(Nitrogen_2, "N_2");
+                    AtomType N_2 = new AtomType(Nitrogen.INSTANCE, "N_2");
                     //System.out.println("The atom " + (i) +" is N_2 " );
                     atomIdentifierMap.put(i, N_2);
                 } else {
-                    IElement Nitrogen_3 = null;
-                    AtomType N_3 = new AtomType(Nitrogen_3, "N_3");
+                    AtomType N_3 = new AtomType(Nitrogen.INSTANCE, "N_3");
                     //System.out.println("The atom " + (i) +" is N_3 " );
                     atomIdentifierMap.put(i, N_3);
                 }
@@ -890,169 +835,128 @@ public class PDBReader {
                 //types are -S-, - -S=O =O, -S=O =O, -S=O =O -OH(-)
                 int arrayListSize = connectivityModified.get(i).size();
                 if(arrayListSize ==2){
-                    IElement Sulfur_2= null;
-                    AtomType S_2 = new AtomType(Sulfur_2, "S_2");
-                    //System.out.println("The atom " + (i) +" is S_2 " );
+                    AtomType S_2 = new AtomType(Sulfur.INSTANCE, "S_2");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
                     atomIdentifierMap.put(i, S_2);
                 }else {
-                    IElement Sulfur_3 = null;
-                    AtomType S_3 = new AtomType(Sulfur_3, "S_3");
-                    //System.out.println("The atom " + (i) +" is S_3 " );
+                    AtomType S_3 = new AtomType(Sulfur.INSTANCE, "S_3");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
                     atomIdentifierMap.put(i, S_3);
                 }
 
             } else if (retriveArrayFirstElementName.equals("P")){
-                IElement Phosphorus_3 = null;
-                AtomType P_3 = new AtomType(Phosphorus_3, "P_3");
-                //System.out.println("The atom " + (i+1) +" is P_3 " );
-                atomIdentifierMap.put(i, P_3);
+                AtomType P = new AtomType(Phosphorus.INSTANCE, "P");
+                //System.out.println("The atom " + (i) +" is N_2 " );
+                atomIdentifierMap.put(i, P);
 
             } else if (retriveArrayFirstElementName.equals("SI")) {
-                IElement Silica = null;
-                AtomType Si = new AtomType(Silica, "Si");
-                // System.out.println("The atom " + (i+1) +" is Si " );
-                atomIdentifierMap.put(i, Si);
-                int arrayListSize = connectivityModified.get(i).size();
-                 /*if(arrayListSize == 5){
-                     for (int j = 1; j<5; j++){
-                         String connectedElement = atomMap.get(connectivity.get(i).get(j));
-                         System.out.println(connectedElement + "Send values");
-                         atomIdentifierMap.put(i+1, AtomType.simple(connectedElement));
-                     }
-                 }*/
+                AtomType SI = new AtomType(Silicon.INSTANCE, "SI");
+                //System.out.println("The atom " + (i) +" is N_2 " );
+                atomIdentifierMap.put(i, SI);
 
             }  else if (retriveArrayFirstElementName.equals("BR")) {
-                IElement Bromine = null;
-                AtomType Br = new AtomType(Bromine, "Br");
-                //System.out.println("The atom " + (i) +" is Br " );
-                atomIdentifierMap.put(i, Br);
+                AtomType BR = new AtomType(Bromine.INSTANCE, "BR");
+                //System.out.println("The atom " + (i) +" is N_2 " );
+                atomIdentifierMap.put(i, BR);
 
             } else if (retriveArrayFirstElementName.equals("F")) {
-                IElement Fluorine = null;
-                AtomType F = new AtomType(Fluorine, "F");
-                // System.out.println("The atom " + (i+1) +" is F " );
+                AtomType F = new AtomType(Fluorine.INSTANCE, "F");
+                //System.out.println("The atom " + (i) +" is N_2 " );
                 atomIdentifierMap.put(i, F);
 
             } else {//Metal ions
                 if (retriveArrayFirstElementName.equals("RH")) {
-                    IElement Rhodium = null;
-                    AtomType Rh = new AtomType(Rhodium, "Rh");
-                    // System.out.println("The atom " + (i+1) +" is Rh " );
-                    atomIdentifierMap.put(i, Rh);
+                    AtomType RH = new AtomType(Rhodium.INSTANCE, "RH");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, RH);
 
                 } else if (retriveArrayFirstElementName.equals("RU")) {
-                    IElement Ruthenium = null;
-                    AtomType Ru = new AtomType(Ruthenium, "Ru");
-                    // System.out.println("The atom " + (i+1) +" is Ru " );
-                    atomIdentifierMap.put(i, Ru);
+                    AtomType RU = new AtomType(Ruthenium.INSTANCE, "RU");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, RU);
 
                 } else if (retriveArrayFirstElementName.equals("NI")) {
-                    IElement Nickel = null;
-                    AtomType Ni = new AtomType(Nickel, "Ni");
-                    // System.out.println("The atom " + (i+1) +" is Ni " );
-                    atomIdentifierMap.put(i, Ni);
+                    AtomType NI = new AtomType(Nickel.INSTANCE, "NI");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, NI);
 
                 } else if (retriveArrayFirstElementName.equals("CU")) {
-                    IElement Copper = null;
-                    AtomType Cu = new AtomType(Copper, "Cu");
-                    //System.out.println("The atom " + (i+1) +" is Cu " );
-                    atomIdentifierMap.put(i, Cu);
+                    AtomType CU = new AtomType(Copper.INSTANCE, "CU");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, CU);
 
                 } else if (retriveArrayFirstElementName.equals("FE")) { // Not this
                     int arrayListSize = connectivityModified.get(i).size();
                     if (arrayListSize == 3) {
+                        AtomType FE_2 = new AtomType(Iron.INSTANCE, "FE_2");
+                        //System.out.println("The atom " + (i) +" is N_2 " );
+                        atomIdentifierMap.put(i, FE_2);
                         // connected to two elements
-                        IElement Iron_2 = null;
-                        AtomType Fe_2 = new AtomType(Iron_2, "Fe_2");
-                        // System.out.println("The atom " + (i+1) +" is Fe_2 " );
-                        atomIdentifierMap.put(i, Fe_2);
-
                     } else {
-                        IElement Iron_3 = null;
-                        AtomType Fe_3 = new AtomType(Iron_3, "Fe_3");
-                        // System.out.println("The atom " + (i+1) +" is N_2 " );
-                        atomIdentifierMap.put(i, Fe_3);
-
+                        AtomType FE_3 = new AtomType(Iron.INSTANCE, "FE_3");
+                        //System.out.println("The atom " + (i) +" is N_2 " );
+                        atomIdentifierMap.put(i, FE_3);
+                        // connected to two elements
                     }
                     //System.out.println(atomValues);
 
                 } else if (retriveArrayFirstElementName.equals("CO")) {
-                    IElement Cobalt = null;
-                    AtomType Co = new AtomType(Cobalt, "Co");
-                    //System.out.println("The atom " + (i+1) +" is Co " );
-                    atomIdentifierMap.put(i, Co);
+                    AtomType CO = new AtomType(Cobalt.INSTANCE, "CO");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, CO);
 
                 } else if (retriveArrayFirstElementName.equals("CR")) {
-                    IElement Chromium = null;
-                    AtomType Cr = new AtomType(Chromium, "Cr");
-                    //System.out.println("The atom " + (i+1) +" is Cr " );
-                    atomIdentifierMap.put(i, Cr);
+                    AtomType CR = new AtomType(Chromium.INSTANCE, "CR");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, CR);
 
                 } else if (retriveArrayFirstElementName.equals("PD")) {
-                    IElement Palladium = null;
-                    AtomType Pd = new AtomType(Palladium, "Pd");
-                    //System.out.println("The atom " + (i+1) +" is Pd " );
-                    atomIdentifierMap.put(i, Pd);
+                    AtomType PD = new AtomType(Palladium.INSTANCE, "PD");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, PD);
 
                 } else if (retriveArrayFirstElementName.equals("MO")) {
-                    IElement Molybdenum = null;
-                    AtomType Mo = new AtomType(Molybdenum, "Mo");
-                    // System.out.println("The atom " + (i+1) +" is Mo " );
-                    atomIdentifierMap.put(i, Mo);
+                    AtomType MO = new AtomType(Molybdenum.INSTANCE, "MO");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, MO);
 
                 } else if (retriveArrayFirstElementName.equals("ZR")) {
-                    IElement Zirconium = null;
-                    AtomType Zr = new AtomType(Zirconium, "Zr");
-                    // System.out.println("The atom " + (i+1) +" is Zr " );
+                    AtomType Zr = new AtomType(Zirconium.INSTANCE, "Zr");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
                     atomIdentifierMap.put(i, Zr);
 
                 } else if (retriveArrayFirstElementName.equals("V")) {
-                    IElement Vanadium = null;
-                    AtomType V = new AtomType(Vanadium, "V");
-                    // System.out.println("The atom " + (i+1) +" is V " );
+                    AtomType V = new AtomType(Vanadium.INSTANCE, "V");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
                     atomIdentifierMap.put(i, V);
 
                 } else if (retriveArrayFirstElementName.equals("W")) {// Not this
-                    IElement Tungsten = null;
-                    AtomType W = new AtomType(Tungsten, "W");
-                    //System.out.println("The atom " + (i+1) +" is W " );
-                    atomIdentifierMap.put(i, W);
+                    AtomType W = new AtomType(Tungsten.INSTANCE, "W");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i,W);
 
                 } else if (retriveArrayFirstElementName.equals("MG")) {
-                    IElement Magnesium = null;
-                    AtomType Mg = new AtomType(Magnesium, "Mg");
-                    // System.out.println("The atom " + (i+1) +" is Mg " );
-                    atomIdentifierMap.put(i, Mg);
+                    AtomType MG = new AtomType(Magnesium.INSTANCE, "MG");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i,MG);
 
                 } else if (retriveArrayFirstElementName.equals("ZN")) {
-                    IElement Zinc = null;
-                    AtomType Zn = new AtomType(Zinc, "Zn");
-                    // System.out.println("The atom " + (i+1) +" is Zn " );
-                    atomIdentifierMap.put(i, Zn);
+                    AtomType ZN = new AtomType(Zinc.INSTANCE, "ZN");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i,ZN);
                 } else if (retriveArrayFirstElementName.equals("IR")) {
-                    IElement Iridium = null;
-                    AtomType Ir = new AtomType(Iridium, "Ir");
-                    // System.out.println("The atom " + (i+1) +" is Zn " );
-                    atomIdentifierMap.put(i, Ir);
-                } else {
-                    //System.out.println(retriveArrayFirstElementName);
+                    AtomType IR = new AtomType(Iridium.INSTANCE, "IR");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i,IR);
                 }
             }
         }
         //System.out.println(atomIdentifierMap + "atomIdentifier");
         return atomIdentifierMap;
     }
-    public static Map<String, AtomType> getTypeMapNew(){
-        return typeMapNew;
-    }
     public static ArrayList<ArrayList<Integer>> getConnectivity(){
         //remove buildSpecies when running single file. When working along with
         // species= buildSpecies(confName);
-        return connectivity;
-    }
-
-    public static ArrayList<ArrayList<Integer>> getConnectivityWithSpecies(String confName){
-        readPDBFile(confName);
         return connectivity;
     }
     public static ArrayList<ArrayList<Integer>> getconnectivityModified (ArrayList<ArrayList<Integer>>connectivity){
@@ -1163,30 +1067,7 @@ public class PDBReader {
         System.out.println(atomIdentifierMapModified);
         return quadrupletsActual;
     }
-    public static int priorityMapGenerator(String atomType){
-        Map<String,Integer> priorityMap = new HashMap<>();
-        priorityMap.put("Zr",1);
-        priorityMap.put("C_3",2);
-        priorityMap.put("C_Ar",2);
-        priorityMap.put("C_2",3);
-        priorityMap.put("C_1",4);
-        priorityMap.put("H",5);
-        priorityMap.put("Ph",6);
-        priorityMap.put("N_3",7);
-        priorityMap.put("N_2",8);
-        priorityMap.put("N_1",9);
-        priorityMap.put("O_3",10);
-        priorityMap.put("O_2",11);
-        priorityMap.put("O_1",12);
-        priorityMap.put("I",13);
-        priorityMap.put("Br",14);
-        priorityMap.put("S_3", 6);
-        priorityMap.put("S_2", 6);
-        priorityMap.put("S_1", 6);
-        priorityMap.put("Cl",15);
-        priorityMap.put("F",16);
-        return priorityMap.get(atomType);
-    }
+
     public static Map<String[],List<int[]>> idenBondTypes(List<int[]> duplets, Map<Integer, String> atomIdentifierMapModified){
         System.out.println(Arrays.deepToString(duplets.toArray()) + " idenBond");
         Map<String[],List<int[]>> bondTypesMap = new HashMap<>();
@@ -1603,36 +1484,6 @@ public class PDBReader {
         // System.out.println(coordinationMap+ " coordinationMap");
         // System.out.println(coordinationMapOutput+ " coordinationMap");
         return coordinationMapOutput;
-    }
-
-    public static AtomType returnElement(String elementName){
-        elementReceiverMap.put("C_3", AtomType.element(Carbon_3.INSTANCE));
-        elementReceiverMap.put("C_2", AtomType.element(Carbon_2.INSTANCE));
-        elementReceiverMap.put("C_Ar", AtomType.element(Carbon_Ar.INSTANCE));
-        elementReceiverMap.put("C_1", AtomType.element(Carbon_1p.INSTANCE));
-        elementReceiverMap.put("H", AtomType.element(Hydrogen.INSTANCE));
-        elementReceiverMap.put("O_3", AtomType.element(Oxygen_3.INSTANCE));
-        elementReceiverMap.put("O_2", AtomType.element(Oxygen_2.INSTANCE));
-        elementReceiverMap.put("N_3", AtomType.element(Nitrogen_3.INSTANCE));
-        elementReceiverMap.put("N_2", AtomType.element(Nitrogen_2.INSTANCE));
-        elementReceiverMap.put("N_1", AtomType.element(Nitrogen_2.INSTANCE));
-        elementReceiverMap.put("S_3", AtomType.element(Oxygen_3.INSTANCE));
-        elementReceiverMap.put("S_2", AtomType.element(Oxygen_2.INSTANCE));
-        elementReceiverMap.put("AR", AtomType.element(Argon.INSTANCE));
-        elementReceiverMap.put("HE", AtomType.element(Argon.INSTANCE));
-        return elementReceiverMap.get(elementName);
-    }
-    public static AtomType returnElementNew(String elementName){
-        elementReceiverMapNew.put(AtomType.simple("C_3"), AtomType.element(Carbon.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("C_2"), AtomType.element(Carbon.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("C_1"), AtomType.element(Carbon.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("H"), AtomType.element(Hydrogen.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("O_3"), AtomType.element(Oxygen.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("O_2"), AtomType.element(Oxygen.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("O_1"), AtomType.element(Oxygen.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("N_3"), AtomType.element(Nitrogen.INSTANCE));
-        elementReceiverMapNew.put(AtomType.simple("N_2"), AtomType.element(Nitrogen.INSTANCE));
-        return elementReceiverMapNew.get(elementName);
     }
 
     public static double [] atomicPot (String atomtype){

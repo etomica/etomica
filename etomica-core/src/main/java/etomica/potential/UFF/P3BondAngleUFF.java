@@ -29,7 +29,7 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
         } else {
             double theta= Math.acos(costheta);
             u = kijk * (1 - Math.cos(num*theta)) + Math.exp(-20.0*(theta - theta0 + 0.25));
-           // System.out.println(kijk + " " + (1 - Math.cos(num*theta)) + " "+ Math.exp(-20.0*(theta - theta0 + 0.25)));
+          // System.out.println(kijk + " " + (1 - Math.cos(num*theta)) + " "+ Math.exp(-20.0*(theta - theta0 + 0.25)));
         }
         //System.out.println(u + " Inside" );
 
