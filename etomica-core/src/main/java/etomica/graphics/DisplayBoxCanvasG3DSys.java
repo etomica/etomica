@@ -375,86 +375,82 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 		// Do not draw bounding box around figure if the boundary
 		// is not an etomica.space.Boundary
-		if(boundary instanceof Boundary) {
 
-			Polytope polytope = ((Boundary)boundary).getShape();
-			if (polytope != oldPolytope) {
+		Polytope polytope = boundary.getShape();
+		if (polytope != oldPolytope) {
 
-				// send iterator to g3dsys
-				gsys.setBoundaryVectorsIterator(wrapIndexIterator((((Boundary)boundary)
-						.getIndexIterator())));
+			// send iterator to g3dsys
+			gsys.setBoundaryVectorsIterator(wrapIndexIterator(boundary
+					.getIndexIterator()));
 
-				if (polytopeLines != null) {
-					for (int i = 0; i < polytopeLines.length; i++) {
-						gsys.removeFig(polytopeLines[i]);
-					}
+			if (polytopeLines != null) {
+				for (int i = 0; i < polytopeLines.length; i++) {
+					gsys.removeFig(polytopeLines[i]);
 				}
-				LineSegment[] boundaryLines = polytope.getEdges();
-				polytopeLines = new Line[boundaryLines.length];
-				for (int i = 0; i < boundaryLines.length; i++) {
-					Vector[] vertices = boundaryLines[i].getVertices();
-                    float v0x = (float)rBound(vertices[0].getX(0), 0);
-                    float v0y = (float)rBound(vertices[0].getX(1), 1);
-                    float v0z = (float)rBound(vertices[0].getX(2), 2);
-                    float v1x = (float)rBound(vertices[1].getX(0), 0);
-                    float v1y = (float)rBound(vertices[1].getX(1), 1);
-					float v1z = (float)rBound(vertices[1].getX(2), 2);
-					polytopeLines[i] = new Line(gsys, G3DSys.getColix(boundaryFrameColor),
-					      Point3f.new3(v0x, v0y, v0z), Point3f.new3(v1x, v1y, v1z));
-					if (displayBox.getShowBoundary() == true) {
-						gsys.addFig(polytopeLines[i]);
-					}
+			}
+			LineSegment[] boundaryLines = polytope.getEdges();
+			polytopeLines = new Line[boundaryLines.length];
+			for (int i = 0; i < boundaryLines.length; i++) {
+				Vector[] vertices = boundaryLines[i].getVertices();
+				float v0x = (float)rBound(vertices[0].getX(0), 0);
+				float v0y = (float)rBound(vertices[0].getX(1), 1);
+				float v0z = (float)rBound(vertices[0].getX(2), 2);
+				float v1x = (float)rBound(vertices[1].getX(0), 0);
+				float v1y = (float)rBound(vertices[1].getX(1), 1);
+				float v1z = (float)rBound(vertices[1].getX(2), 2);
+				polytopeLines[i] = new Line(gsys, G3DSys.getColix(boundaryFrameColor),
+					  Point3f.new3(v0x, v0y, v0z), Point3f.new3(v1x, v1y, v1z));
+				if (displayBox.getShowBoundary() && drawBoundary > DRAW_BOUNDARY_NONE) {
+					gsys.addFig(polytopeLines[i]);
 				}
-				oldPolytope = polytope;
-			} else {
-				LineSegment[] boundaryLines = polytope.getEdges();
-				for (int i = 0; i < boundaryLines.length; i++) {
-					Vector[] vertices = boundaryLines[i].getVertices();
-
-                    float v0x = (float)rBound(vertices[0].getX(0), 0);
-                    float v0y = (float)rBound(vertices[0].getX(1), 1);
-                    float v0z = (float)rBound(vertices[0].getX(2), 2);
-                    float v1x = (float)rBound(vertices[1].getX(0), 0);
-                    float v1y = (float)rBound(vertices[1].getX(1), 1);
-                    float v1z = (float)rBound(vertices[1].getX(2), 2);
-                    polytopeLines[i].setStart(v0x, v0y, v0z);
-                    polytopeLines[i].setEnd(v1x, v1y, v1z);
-
-					if (displayBox.getShowBoundary() == false
-							&& boundaryDisplayed == true) {
-						gsys.removeFig(polytopeLines[i]);
-					} else if (displayBox.getShowBoundary() == true
-							&& boundaryDisplayed == false) {
-						gsys.addFig(polytopeLines[i]);
-                    }
-                }
-            }
-
-            boundaryDisplayed = displayBox.getShowBoundary() != false;
-
-
-			// set boundary vectors for image shell
-			int n=0;
-			for (int i=0; i<3; i++) {
-			    if (boundary.getPeriodicity(i)) {
-			        n++;
-			    }
 			}
-			double[] dvecs = new double[n * 3]; // assuming
-															// 3-dimensional vectors
-			int j = 0;
-			for (int i = 0; i < 3; i++) {
-			    Vector v = boundary.getEdgeVector(i);
-			    if (!boundary.getPeriodicity(i)) {
-			        continue;
-			    }
-				dvecs[j * 3] = v.getX(0);
-				dvecs[j * 3 + 1] = v.getX(1);
-				dvecs[j * 3 + 2] = v.getX(2);
-				j++;
+			oldPolytope = polytope;
+		} else {
+			LineSegment[] boundaryLines = polytope.getEdges();
+			for (int i = 0; i < boundaryLines.length; i++) {
+				Vector[] vertices = boundaryLines[i].getVertices();
+
+				float v0x = (float)rBound(vertices[0].getX(0), 0);
+				float v0y = (float)rBound(vertices[0].getX(1), 1);
+				float v0z = (float)rBound(vertices[0].getX(2), 2);
+				float v1x = (float)rBound(vertices[1].getX(0), 0);
+				float v1y = (float)rBound(vertices[1].getX(1), 1);
+				float v1z = (float)rBound(vertices[1].getX(2), 2);
+				polytopeLines[i].setStart(v0x, v0y, v0z);
+				polytopeLines[i].setEnd(v1x, v1y, v1z);
+
+				if ((!displayBox.getShowBoundary() || drawBoundary == DRAW_BOUNDARY_NONE) && boundaryDisplayed) {
+					gsys.removeFig(polytopeLines[i]);
+				} else if ((displayBox.getShowBoundary() && drawBoundary > DRAW_BOUNDARY_NONE) && !boundaryDisplayed) {
+					gsys.addFig(polytopeLines[i]);
+				}
 			}
-			gsys.setBoundaryVectors(dvecs);
 		}
+
+		boundaryDisplayed = displayBox.getShowBoundary() && drawBoundary > DRAW_BOUNDARY_NONE;
+
+
+		// set boundary vectors for image shell
+		int n=0;
+		for (int i=0; i<3; i++) {
+			if (boundary.getPeriodicity(i)) {
+				n++;
+			}
+		}
+		double[] dvecs = new double[n * 3]; // assuming
+														// 3-dimensional vectors
+		int j = 0;
+		for (int i = 0; i < 3; i++) {
+			Vector v = boundary.getEdgeVector(i);
+			if (!boundary.getPeriodicity(i)) {
+				continue;
+			}
+			dvecs[j * 3] = v.getX(0);
+			dvecs[j * 3 + 1] = v.getX(1);
+			dvecs[j * 3 + 2] = v.getX(2);
+			j++;
+		}
+		gsys.setBoundaryVectors(dvecs);
 
 		Vector bounds = boundary.getBoxSize();
 		gsys.setBoundingBox((float) (-bounds.getX(0) * 0.5),
