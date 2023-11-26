@@ -77,10 +77,12 @@ public class IntegratorLangevin extends IntegratorMD {
         int nLeaf = atoms.size();
         double expX = Math.exp(-x);
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            for (int i=0; i<rand.getD(); i++) {
-                rand.setX(i, c*sqrtT * random.nextGaussian());
-            }
             IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
+            double m = a.getType().getMass();
+            double sqrtM = Math.sqrt(m);
+            for (int i=0; i<rand.getD(); i++) {
+                rand.setX(i, c * sqrtT / sqrtM * random.nextGaussian());
+            }
             Vector v = a.getVelocity();
             v.TE(expX);
             v.PE(rand);
