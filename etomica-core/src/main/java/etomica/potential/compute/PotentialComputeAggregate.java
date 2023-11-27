@@ -106,7 +106,7 @@ public class PotentialComputeAggregate implements PotentialCompute {
                     if (t == null) continue;
                     if (torques == null || torques.length != n) {
                         int D = potentialComputes.get(0).getForces()[0].getD();
-                        forces = Space.getInstance(D).makeVectorArray(n);
+                        torques = Space.getInstance(D).makeVectorArray(n);
                     }
                     else if (firstTorque) {
                         for (Vector torq : torques) {
