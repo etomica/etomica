@@ -73,8 +73,8 @@ public class LJPIMD extends Simulation {
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         double beta = 1 / temperature;
-        double omegaN = nBeads / (hbar * beta);
-        double k2_kin = nBeads == 1 ? 0 : mass * omegaN * omegaN / nBeads;
+        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
+        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < nBeads; i++) {
@@ -118,11 +118,11 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.nBeads = 4;
-            params.steps = 200000;
+            params.steps = 10000;
             params.isGraphic = false;
             params.isStaging = true;
             params.timeStep = 0.005;
-            params.hbar = 0.1;
+            params.hbar = 1.0;
         }
 
         Space space = Space.getInstance(params.D);
@@ -162,11 +162,11 @@ public class LJPIMD extends Simulation {
 
         double betaN = 1 / (temperature * nBeads);
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, betaN, sim.box);
-        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, betaN, nBeads, sim.box);
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1.0 / temperature, nBeads, sim.box);
-        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, betaN, nBeads, sim.box);
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, 1 / temperature, sim.ringMoveHMA2);
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
+        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
+        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.ringMoveHMA2);
 
         MeterPIHMA meterHMA = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, betaN, nBeads, omega2, sim.box, hbar);
 
@@ -537,7 +537,7 @@ public class LJPIMD extends Simulation {
         public double gammaLangevin = 2.0 * Math.sqrt(218.395155);
         public long steps = 100000;
         public double density = 1.0;
-        public double temperature = 0.5;
+        public double temperature = 1.0;
         public int numAtoms = 32;
         public double mass = 1.0;
         public double hbar = 0.1;

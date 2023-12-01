@@ -75,9 +75,10 @@ public class SimQuantumAO extends Simulation {
 
         double beta = 1.0/temperature;
         betaN = beta/nBeads;
-        double omegaN = 1.0/(hbar*betaN);
+        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
 
-        k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
+
+        k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -155,12 +156,12 @@ public class SimQuantumAO extends Simulation {
         boolean zerok0 = params.zerok0;
         boolean onlyCentroid = params.onlyCentroid;
 
-        double omegaN = nBeads*temperature/hbar; // 1/hbar*betan
+        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
 
         double massssss = 1.0;
         double omega2 = k2/massssss;
         if (isTIA){
-            omega2 = omega2*(1.0 + omega2/12.0/omegaN/omegaN);
+            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
         }
         double actualOmega2 = omega2;
         if (zerok0) omega2 = 0;
@@ -192,12 +193,12 @@ public class SimQuantumAO extends Simulation {
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
-            if (!onlyCentroid) meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, sim.betaN, sim.box);
-            if (!onlyCentroid) meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
-            meterCentVir = new MeterPICentVir(sim.pcP1, 1/temperature, nBeads, sim.box);
-            if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
+            if (!onlyCentroid) meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
+            if (!onlyCentroid) meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
+            meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
+            if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
             if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
-            meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, 1/temperature, sim.atomMoveReal2);
+            meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.atomMoveReal2);
         }
 
         MeterPIVirMidPt meterCentVirBar = new MeterPIVirMidPt(sim.pcP1, sim.betaN, nBeads, sim.box); //Bad!!
@@ -429,6 +430,7 @@ public class SimQuantumAO extends Simulation {
 
         }
 
+        System.out.println(" x = beta*hbar*omega = " + hbar*Math.sqrt(k2/sim.mass)/temperature);
         System.out.println("\n Quantum Harmonic Oscillator Theory");
         double omega = Math.sqrt(actualOmega2);
         System.out.println(" ====================================");
@@ -436,7 +438,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" MSDc: " + temperature/ sim.mass/omega2);
         System.out.println(" MSDq: " + hbar/sim.mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
-        double EnQ = hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
+        double EnQ = hbar*omega*(0.5 + 1/(Math.exp(hbar*omega/temperature)-1.0));
         double EnC = temperature;
         System.out.println("\n EnC: " + EnC);
         System.out.println(" EnQ: " + EnQ);

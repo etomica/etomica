@@ -54,7 +54,7 @@ public class SimQuantumAOPIMD extends Simulation {
     public double betaN;
     public int nBeads;
     public double k2_kin;
-    public SimQuantumAOPIMD(Space space, MoveChoice coorType, boolean isStagingSimple, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, double hbar) {
+    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, double hbar) {
         super(space);
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -72,9 +72,8 @@ public class SimQuantumAOPIMD extends Simulation {
 
         double beta = 1.0/temperature;
         betaN = beta/nBeads;
-        double omegaN = 1.0/(hbar*betaN);
-
-        k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
+        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
+        k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -103,24 +102,27 @@ public class SimQuantumAOPIMD extends Simulation {
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
 
-        if (coorType == MoveChoice.Real) {
+        if (coordType == MoveChoice.Real) {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         }
-        else if (coorType == MoveChoice.NM){
-            MCMoveHO atomMove = new MCMoveHO(space, pmAgg, random, temperature, omega2, box, hbar);
-            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, atomMove, hbar);
+        else if (coordType == MoveChoice.NM) {
+            MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, 0, box, hbar);
+            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar);
         }
-        else {
-            MCMoveHOReal2 ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
-            if (isStagingSimple){
-                ringMove = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
-            }
-            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, ringMove, hbar);
+        else if (coordType == MoveChoice.NMEC) {
+            MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, omega2, box, hbar);
+            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar);
+        }
+        else if (coordType == MoveChoice.Stage) {
+            MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
+            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar);
+        } else { //StageEC
+            MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
+            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar);
         }
 
         integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
-
     }
 
     public Integrator getIntegrator() {
@@ -135,60 +137,77 @@ public class SimQuantumAOPIMD extends Simulation {
         }
         else {
             // custom parameters
-            params.steps = 1_000_000;
+            params.steps = 10_000_000;
             params.temperature = 1.0;
             params.nBeads = 10;
-            params.k2 = 1.0;
+            params.k2 = 1;
             params.k4 = 0;
             params.hbar = 1.0;
             params.timeStep = 0.001;
-            params.isStagingSimple = false;
-            params.coordType = MoveChoice.NM;
+//            params.coordType = MoveChoice.Real;
+//            params.coordType = MoveChoice.NM;
+//            params.coordType = MoveChoice.NMEC;
+//            params.coordType = MoveChoice.Stage;
+            params.coordType = MoveChoice.StageEC;
         }
 
         double mass = params.mass;
-        double gammaLangevin = params.gammaLangevin;
         double timeStep = params.timeStep;
         double temperature = params.temperature;
         double hbar = params.hbar;
         double k2 = params.k2;
         double k4 = params.k4;
+        double gammaLangevin = 2*Math.sqrt(k2);
         int nBeads = params.nBeads;
         boolean isGraphic = params.isGraphic;
         long steps = params.steps;
+        long stepsEq = steps/10;
         boolean isTIA = params.isTIA;
         boolean zerok0 = params.zerok0;
         boolean onlyCentroid = params.onlyCentroid;
-        boolean isStagingSimple = params.isStagingSimple;
         MoveChoice coordType = params.coordType;
 
-        long stepsEq = steps/10;
-        double omegaN = nBeads*temperature/hbar; // 1/hbar*betan
+        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+
         double omega2 = k2/mass;
         if (isTIA){
-            omega2 = omega2*(1.0 + omega2/12.0/omegaN/omegaN);
+            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
         }
         double actualOmega2 = omega2;
         if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, isStagingSimple, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
         sim.integrator.reset();
 
-        System.out.println(" coorType: " + coordType);
-        System.out.println(" isStagingSimple: " + isStagingSimple);
+        System.out.println(" coordType: " + coordType);
         System.out.println(" mass: " + mass);
         System.out.println(" hbar: " + hbar);
         System.out.println(" nBeads: " + nBeads);
-        System.out.println(" steps: " +  steps + " numStepsEqu: " + stepsEq);
+        System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" temperature: " + temperature);
-        System.out.println(" k2: " + k2 + " k4: " + k4);
-        System.out.println(" k2_kin: " + sim.k2_kin);
+        System.out.println(" k2: " + k2 + " ,  k4: " + k4);
+        System.out.println(" k2PI: " + mass*omegaN*omegaN);
         System.out.println(" isTIA: " + isTIA);
         System.out.println(" timeStep: " + timeStep);
         System.out.println(" gammaLangevin: " + gammaLangevin);
+        System.out.println(" x = beta*hbar*omega = " + hbar*Math.sqrt(k2/mass)/temperature);
+
+
+        System.out.println("\n Quantum Harmonic Oscillator Theory");
+        double omega = Math.sqrt(actualOmega2);
+        System.out.println(" ====================================");
+
+        double alpha = 1 + 0.5*Math.pow(hbar*sim.betaN*omega,2)+0.5*hbar* sim.betaN*omega*Math.sqrt(4+Math.pow(hbar* sim.betaN*omega,2));
+        double EnQ = sim.space.D()*(hbar*hbar*omega*omega)*sim.betaN*alpha/(alpha*alpha-1)*(Math.pow(alpha,nBeads)+1)/(Math.pow(alpha,nBeads)-1);
+
+        double EnQinf = sim.space.D()*hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
+        double EnC = sim.space.D()*temperature;
+        System.out.println(" EnC: " + EnC);
+        System.out.println(" EnQ: " + EnQ);
+        System.out.println(" EnQinf: " + EnQinf);
+
 
         MeterMSDHO meterMSDHO = new MeterMSDHO(sim.box);
-
         MeterPIPrim meterPrim = null;
         MeterPIVir meterVir = null;
         MeterPICentVir meterCentVir = null;
@@ -204,10 +223,10 @@ public class SimQuantumAOPIMD extends Simulation {
 //            meterHMAcent = null;
         } else {
 //            if (!onlyCentroid) meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, sim.betaN, sim.box);
-            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, sim.betaN, sim.box);
-            if (!onlyCentroid) meterVir = new MeterPIVir(sim.pcP1, sim.betaN, nBeads, sim.box);
-            meterCentVir = new MeterPICentVir(sim.pcP1, 1/temperature, nBeads, sim.box);
-            if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, sim.betaN, nBeads, sim.box);
+            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
+            if (!onlyCentroid) meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
+            meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
+            if (!onlyCentroid) meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
             if (!onlyCentroid) meterHMA = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
 //            meterReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, 1/temperature, sim.atomMoveReal2);
         }
@@ -256,7 +275,7 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.flush();
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
-        System.out.println("equilibration finished");
+        System.out.println(" equilibration finished");
 
 
 
@@ -371,6 +390,7 @@ public class SimQuantumAOPIMD extends Simulation {
             double errEnCentVir = dataErrCentVir.getValue(0);
             double corEnCentVir = dataCorCentVir.getValue(0);
             System.out.println(" En_cvir: " + avgEnCentVir + " +/- " + errEnCentVir + " cor: " + corEnCentVir);
+            System.out.println(" En_cvir-EnQ: " + (avgEnCentVir-EnQ) + " +/- " + errEnCentVir);
 //            double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) + dataCovCentVir.getValue(0));
 //            System.out.println(" Cvn_cvir: " + CvnCentVir);
         }
@@ -425,27 +445,16 @@ public class SimQuantumAOPIMD extends Simulation {
 
         }
 
-        System.out.println("\n Quantum Harmonic Oscillator Theory");
-        double omega = Math.sqrt(actualOmega2);
-        System.out.println(" ====================================");
-        System.out.println(" MSD_sim: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
+        System.out.println(" \n MSD_sim: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
         System.out.println(" MSDc: " + temperature/ mass/omega2);
         System.out.println(" MSDq: " + hbar/mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
-        double alpha = 1 + 0.5*Math.pow(hbar*sim.betaN*omega,2)+0.5*hbar* sim.betaN*omega*Math.sqrt(4+Math.pow(hbar* sim.betaN*omega,2));
-        double EnQ = sim.space.D()*(hbar*hbar*omega*omega)*sim.betaN*alpha/(alpha*alpha-1)*(Math.pow(alpha,nBeads)+1)/(Math.pow(alpha,nBeads)-1);
-
-        double EnQinf = sim.space.D()*hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
-        double EnC = sim.space.D()*temperature;
-        System.out.println("\n EnC: " + EnC);
-        System.out.println(" EnQ: " + EnQ);
-        System.out.println(" EnQinf: " + EnQinf);
 
         long endTime = System.currentTimeMillis();
         System.out.println("\n time (min): " + (endTime - startTime)/60.0/1000.0);
     }
 
-    public enum MoveChoice {Real, Stage, NM};
+    public enum MoveChoice {Real, NM, NMEC, Stage, StageEC};
 
     public static class OctaneParams extends ParameterBase {
         public double timeStep = 0.001;
@@ -455,14 +464,11 @@ public class SimQuantumAOPIMD extends Simulation {
         public boolean isGraphic = false;
         public double k2 = 1.0;
         public double k4 = 24.0;
-        public long steps = 10__000_000;
+        public long steps = 10_000_000;
         public boolean isTIA = false;
         public boolean zerok0 = false;
         public boolean onlyCentroid = true;
-        public double gammaLangevin = 2.0 * Math.sqrt(k2);
         public double mass = 1.0;
-        public boolean isStaging = true;
-        public boolean isStagingSimple = true;
         public MoveChoice coordType = MoveChoice.Real;
     }
 }

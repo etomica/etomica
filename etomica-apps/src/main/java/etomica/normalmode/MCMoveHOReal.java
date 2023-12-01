@@ -58,7 +58,7 @@ public class MCMoveHOReal extends MCMoveBox {
         R1N = new double[nBeads];
         dR11 = new double[nBeads];
         dR1N = new double[nBeads];
-        omegaN = 1.0/(hbar*betaN);
+        omegaN = Math.sqrt(nBeads)/(hbar*beta);
 
         init();
     }
@@ -66,7 +66,7 @@ public class MCMoveHOReal extends MCMoveBox {
     protected void init() {
 
         betaN = beta/nBeads;
-        double kSpring = beta * mass * omegaN*omegaN/nBeads/2;
+        double kSpring = beta * mass * omegaN*omegaN/2;
         double dks = -kSpring/beta;
         double k0 = beta * mass * omega2/nBeads/2;
         double dk0 = k0/beta;
@@ -168,7 +168,7 @@ public class MCMoveHOReal extends MCMoveBox {
             int jj = j+1;
             if (jj==nBeads) jj=0;
             Vector rjj = atoms.get(jj).getPosition();
-            uh += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * rjj.Mv1Squared(rj));
+            uh += 0.5*mass*(omegaN*omegaN*rjj.Mv1Squared(rj));
         }
         return uh;
     }

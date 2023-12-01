@@ -9,7 +9,6 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
@@ -58,34 +57,41 @@ public class IntegratorLangevinPINM extends IntegratorMD {
         mScale = new double[nBeads];
 
         for (int k = 0; k < nBeads; k++) {
-            mScale[k] = this.move.lambdaN[k] / mass; // divide my mass !!!!!
+            mScale[k] = this.move.lambda[k]/mass;
         }
 
+        if (omega2 == 0 || nBeads == 1) mScale[nBeads/2] = 1.0;
 
-//        // F = M a;  M = F / a = (sum fi) / (sum ai); fi=1 => sum fi = n
-//        double[] fq = new double[nBeads];
-//        for (int k = 0; k < nBeads; k++) {
-//            for (int i = 0; i < nBeads; i++) {
-//                fq[k] += this.move.eigenvectors[i][k];
-//            }
-//        }
-//
-//        double[] a = new double[nBeads];
-//        double mm = box.getLeafList().get(0).getType().getMass();
-//        double aSum = 0;
-//        for (int i = 0; i < nBeads; i++) {
-//            for (int k = 0; k < nBeads; k++) {
-//                double aq = fq[k] / (mm * mScale[k]);
-//                a[i] += this.move.eigenvectors[i][k] * aq;
-//            }
-//            aSum += a[i];
-//        }
-//        // M is the effective mass we have now; we want ring mass = n * atomType mass
-//        double M = nBeads / (aSum / nBeads);
-//        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
-//        for (int i = 0; i < mScale.length; i++) {
-//            mScale[i] *= s;
-//        }
+//        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
+        double[] fq = new double[nBeads];
+        for (int k = 0; k < nBeads; k++) {
+            for (int i = 0; i < nBeads; i++) {
+                fq[k] += this.move.eigenvectors[i][k];
+            }
+        }
+
+        double[] a = new double[nBeads];
+        double mm = box.getLeafList().get(0).getType().getMass();
+        double aSum = 0;
+        for (int i = 0; i < nBeads; i++) {
+            for (int k = 0; k < nBeads; k++) {
+                double aq = fq[k] / (mm * mScale[k]);
+                a[i] += this.move.eigenvectors[i][k] * aq;
+            }
+            aSum += a[i];
+        }
+        // M is the effective mass we have now; we want ring mass = n * atomType mass
+        double M = nBeads/(aSum/nBeads);
+        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
+
+        double wn = Math.sqrt(nBeads)*temperature/hbar; // 1/hbar*betan
+        System.out.println(" dt-nor-mod = " + Math.sqrt(s));
+        System.out.println(" dt-real = " + 1/wn);
+        System.out.println();
+
+        for (int i = 0; i < mScale.length; i++) {
+            mScale[i] *= s;
+        }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
 

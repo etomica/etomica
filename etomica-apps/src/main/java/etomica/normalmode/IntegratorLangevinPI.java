@@ -54,38 +54,38 @@ public class IntegratorLangevinPI extends IntegratorMD {
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
-        int n = box.getMoleculeList().get(0).getChildList().size();
-        double omegaN = temperature*n/hbar;
-        double D = 2 + omega2 / (omegaN*omegaN);
+        int nBeads = box.getMoleculeList().get(0).getChildList().size();
+        double omegaN = Math.sqrt(nBeads)/(hbar* move.beta);
+        double D = 2 + omega2 / (nBeads*omegaN*omegaN);
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
-        mScale = new double[n];
-        fScale = new double[n];
-        fScale0 = new double[n];
-        mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(n*alpha/2.0);
-        if (alpha == 0 || n == 1) mScale[0] = 1.0;
+        mScale = new double[nBeads];
+        fScale = new double[nBeads];
+        fScale0 = new double[nBeads];
+        mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(nBeads*alpha/2.0);
+        if (alpha == 0 || nBeads == 1) mScale[0] = 1.0;
         fScale0[0] = 1;
-        for (int i=1; i<n; i++) {
-            fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((n / 2.0 - i)*alpha) / Math.cosh(n/2.0*alpha);
-            fScale[i]  = alpha == 0 ? (n - i - 1.0)/(n - i) : (Math.sinh((n - i - 1) * alpha) / Math.sinh((n - i)*alpha));
-            mScale[i]  = alpha == 0 ? (n - i + 1.0)/(n - i) : (Math.sinh((n - i + 1) * alpha) / Math.sinh((n - i)*alpha));
+        for (int i=1; i<nBeads; i++) {
+            fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
+            fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
+            mScale[i]  = alpha == 0 ? (nBeads - i + 1.0)/(nBeads - i) : Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
 
-        // F = M a;  M = F / a = (sum fi) / (sum ai); fi=1 => sum fi = n
-        double[] fu = new double[n];
-        for (int i=n-1; i>=0; i--) {
+        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = nBeads
+        double[] fu = new double[nBeads];
+        for (int i=nBeads-1; i>=0; i--) {
             fu[0] += fScale0[i];
             if (i>0) {
                 fu[i] = 1;
-                if (i < n - 1) {
+                if (i < nBeads - 1) {
                     fu[i] += fScale[i] * fu[i + 1];
                 }
             }
         }
 
-        double[] ai = new double[n];
+        double[] ai = new double[nBeads];
         double mm = box.getLeafList().get(0).getType().getMass();
         double aSum = 0;
-        for (int i=0; i<n; i++) {
+        for (int i=0; i<nBeads; i++) {
             ai[i] = fu[i] / (mm*mScale[i]);
             if (i>0) {
                 ai[i] += f11[i] * ai[i-1];
@@ -93,9 +93,14 @@ public class IntegratorLangevinPI extends IntegratorMD {
             }
             aSum += ai[i];
         }
-        // M is the effective mass we have now; we want ring mass = n * atomType mass
-        double M = n / (aSum/n);
-        double s = (n * box.getLeafList().get(0).getType().getMass()) / M;
+        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
+        double M = nBeads/(aSum/nBeads);
+        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
+        double wn = Math.sqrt(nBeads)*temperature/hbar; // 1/hbar*betan
+        System.out.println(" dt-staging = " + Math.sqrt(s)/omegaN);
+        System.out.println(" dt-real = " + 1/wn);
+        System.out.println();
+
         for (int i=0; i<mScale.length; i++) {
             mScale[i] *= s;
         }

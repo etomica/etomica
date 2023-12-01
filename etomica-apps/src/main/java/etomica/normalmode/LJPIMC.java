@@ -79,9 +79,9 @@ public class LJPIMC extends Simulation {
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
         double beta = 1/temperature;
-        double omegaN = nBeads/(hbar*beta);
+        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : (mass*omegaN*omegaN/nBeads);
+        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -289,27 +289,27 @@ public class LJPIMC extends Simulation {
 
 //            public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialComputeField pcP1, int nBeads, double betaN, Box box) {
 
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, sim.ringMove.betaN, sim.box);
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
 
-        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, sim.ringMove.betaN, nBeads, sim.box);
+        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
         AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpVir);
 
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, 1/temperature, nBeads, sim.box);
+        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);
 
-        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, sim.ringMove.betaN, nBeads, sim.box);
+        MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorHMAc = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
 
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, 1/temperature, sim.ringMove);
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.ringMove);
         AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);

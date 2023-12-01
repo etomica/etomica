@@ -39,9 +39,9 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected Vector[] latticePositions;
     protected int numAtoms, nBeads;
 
-    public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double beta, MCMoveHOReal2 move) {
+    public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, MCMoveHOReal2 move) {
         this.move = move;
-        this.beta = beta;
+        this.beta = 1/temperature;
         int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});

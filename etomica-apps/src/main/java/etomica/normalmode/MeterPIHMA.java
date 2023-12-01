@@ -21,7 +21,7 @@ import etomica.units.dimensions.Null;
 public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialCompute pcP1;
-    protected double betaN, beta, omegan;
+    protected double betaN, beta, omegaN;
     protected int nBeads;
     protected double[] gk, gk2;
     protected double[][] M, M2;
@@ -45,7 +45,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         this.betaN = betaN;
         this.nBeads = nBeads;
         this.box = box;
-        omegan = 1.0/hbar/betaN;
+        omegaN = Math.sqrt(nBeads)/(beta*hbar);
         int nAtoms = box.getLeafList().size();
         rdot = box.getSpace().makeVectorArray(nAtoms);
         rddot = box.getSpace().makeVectorArray(nAtoms);
@@ -159,7 +159,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
             Vector tmpV = box.getSpace().makeVector();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            Cvn -= betaN*omegan*omegan*(tmpV.squared());
+            Cvn -= beta* omegaN * omegaN *(tmpV.squared());
         }
         Cvn -= beta*drdotHdrdot;
 //        System.out.println("hma: " + En);

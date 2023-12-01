@@ -38,12 +38,12 @@ public class PathIntegralHOGraphic {
         int nBeads = params.nBeads;
         boolean isTIA = params.isTIA;
 
-        double omegaN = nBeads*temperature/hbar;
+        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
 
         double massssss = 1.0;
         double omega2 = k2/massssss;
         if (isTIA){
-            omega2 = omega2*(1.0 + omega2/12.0/omegaN/omegaN);
+            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
         }
 
         final SimQuantumAO sim = new SimQuantumAO(Space2D.getInstance(), nBeads, temperature, k2, k4, omega2, isTIA, SimQuantumAO.MoveChoice.Real, hbar);
@@ -239,7 +239,7 @@ public class PathIntegralHOGraphic {
             this.hbar = hbar;
             int nBeads = box.getLeafList().size();
             double mass = 1;
-            double omegaN = nBeads*temperature/hbar; // 1/hbar*betan
+            double omegaN = Math.sqrt(nBeads)*temperature/hbar;
 
             double omega2 = k2/mass;
 
@@ -250,7 +250,7 @@ public class PathIntegralHOGraphic {
             q = new double[box.getSpace().D()*nBeads];  // initial q should all be 0
             for (int k=0; k<nBeads; k++) {
                 double s = Math.sin(Math.PI*k/nBeads);
-                lambda[k] = betaN * mass * (4.0*omegaN*omegaN*s*s + omega2);
+                lambda[k] = beta * mass * (4.0*omegaN*omegaN*s*s + omega2/nBeads);
                 for (int i = 0; i < nBeads; i++) {
                     double arg = 2.0*Math.PI/nBeads*i*k;
                     double cs = k > nBeads / 2 ? Math.sin(arg) : Math.cos(arg);
@@ -294,11 +294,11 @@ public class PathIntegralHOGraphic {
             int n = lambda.length;
             double beta = 1.0/(temperature);
             double betaN = beta/n;
-            double omegaN = 1.0/(hbar*betaN);
-            double omega2 = k2/1;
+            double omegaN = Math.sqrt(n)/(beta*hbar);
+            double omega2 = k2;
             for (int k=0; k<n; k++) {
                 double s = Math.sin(Math.PI * k / n);
-                double newLambda = betaN * 1 * (4.0 * omegaN * omegaN * s * s + omega2);
+                double newLambda = beta * (4.0 * omegaN * omegaN * s * s + omega2/n);
                 for (int d=0; d<q.length/n; d++) {
                     q[d*n+k] *= Math.sqrt(lambda[k]/newLambda);
                 }
@@ -311,11 +311,11 @@ public class PathIntegralHOGraphic {
             int n = lambda.length;
             double beta = 1.0/(temperature);
             double betaN = beta/n;
-            double omegaN = 1.0/(hbar*betaN);
-            double omega2 = k2/1;
+            double omegaN = Math.sqrt(n)/(beta*hbar);
+            double omega2 = k2;
             for (int k=0; k<n; k++) {
                 double s = Math.sin(Math.PI * k / n);
-                double newLambda = betaN * 1 * (4.0 * omegaN * omegaN * s * s + omega2);
+                double newLambda = beta * 1 * (4.0 * omegaN * omegaN * s * s + omega2/n);
                 for (int d=0; d<q.length/n; d++) {
                     q[d*n+k] *= Math.sqrt(lambda[k]/newLambda);
                 }
@@ -329,11 +329,11 @@ public class PathIntegralHOGraphic {
             int n = lambda.length;
             double beta = 1.0/(temperature);
             double betaN = beta/n;
-            double omegaN = 1.0/(hbar*betaN);
-            double omega2 = k2/1;
+            double omegaN = Math.sqrt(n)/(beta*hbar);
+            double omega2 = k2;
             for (int k=0; k<n; k++) {
                 double s = Math.sin(Math.PI * k / n);
-                lambda[k] = betaN * 1 * (4.0 * omegaN * omegaN * s * s + omega2);
+                lambda[k] = beta * 1 * (4.0 * omegaN * omegaN * s * s + omega2/n);
             }
             updateQ();
         }
@@ -375,9 +375,9 @@ public class PathIntegralHOGraphic {
             double newT = Math.exp(newValue);
             double beta = 1.0/(newT);
             double betaN = beta/ nBeads;
-            double omegaN = 1.0/(hbar*betaN);
+            double omegaN = Math.sqrt(nBeads)/(beta*hbar);
 
-            sim.k2_kin = nBeads == 1 ? 0 : (1*omegaN*omegaN/ nBeads);
+            sim.k2_kin = nBeads == 1 ? 0 : omegaN*omegaN;
             // p2Bond.setk2
             ((MCMoveHOReal) sim.atomMove).setTemperature(newT);
             // doesn't really matter, but we just use this to hold T
@@ -418,7 +418,7 @@ public class PathIntegralHOGraphic {
             double k2new = Math.exp(newValue);
             double omega2 = k2new/ massssss;
             if (isTIA){
-                omega2 = omega2*(1.0 + omega2/12.0/ omegaN / omegaN);
+                omega2 = omega2*(1.0 + omega2/12.0/ (sim.nBeads*omegaN*omegaN));
             }
             ((MCMoveHOReal) sim.atomMove).setOmega2(omega2);
 

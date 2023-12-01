@@ -10,17 +10,17 @@ import etomica.units.dimensions.Null;
 public class MeterPIPrim implements IDataSource {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialCompute pcP1;
-    protected double beta, betaN;
     protected int nBeads;
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected double EnShift;
     protected double dim;
+    protected double beta;
     protected int numAtoms;
     protected Box box;
 
-    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double betaN, Box box) {
+    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, Box box) {
         int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
@@ -28,9 +28,8 @@ public class MeterPIPrim implements IDataSource {
         dataInfo.addTag(tag);
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
-        this.betaN = betaN;
         this.nBeads = nBeads;
-        this.beta = this.betaN*nBeads;
+        this.beta = 1/temperature;
         this.EnShift = 0;
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
