@@ -82,27 +82,31 @@ public class IntegratorLangevinPI extends IntegratorMD {
             }
         }
 
-        double[] ai = new double[nBeads];
+        double[] a = new double[nBeads];
         double mm = box.getLeafList().get(0).getType().getMass();
         double aSum = 0;
         for (int i=0; i<nBeads; i++) {
-            ai[i] = fu[i] / (mm*mScale[i]);
+            a[i] = fu[i] / (mm*mScale[i]);
             if (i>0) {
-                ai[i] += f11[i] * ai[i-1];
-                ai[i] += f1N[i] * ai[0];
+                a[i] += f11[i] * a[i-1];
+                a[i] += f1N[i] * a[0];
             }
-            aSum += ai[i];
+            aSum += a[i];
+//            System.out.println("ai="+a[i]/(omegaN*omegaN));
         }
+
         // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
         double M = nBeads/(aSum/nBeads);
         double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
-        double wn = Math.sqrt(nBeads)*temperature/hbar; // 1/hbar*betan
         System.out.println(" dt-staging = " + Math.sqrt(s)/omegaN);
-        System.out.println(" dt-real = " + 1/wn);
+        System.out.println(" dt-real = " + 1/omegaN);
         System.out.println();
 
+        double sum = 0;
         for (int i=0; i<mScale.length; i++) {
             mScale[i] *= s;
+            sum += mScale[i];
+            System.out.println(mScale[i]);
         }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);

@@ -30,7 +30,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space1d.Space1D;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Length;
@@ -138,17 +138,17 @@ public class SimQuantumAOPIMD extends Simulation {
         else {
             // custom parameters
             params.steps = 10_000_000;
-            params.temperature = 1.0;
-            params.nBeads = 10;
-            params.k2 = 1;
+            params.temperature = 2.0;
+            params.nBeads = 30;
+            params.k2 = 10;
             params.k4 = 0;
-            params.hbar = 1.0;
-            params.timeStep = 0.001;
+            params.hbar = 0.01;
+            params.timeStep = 0.00001;
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
-//            params.coordType = MoveChoice.NMEC;
+            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
-            params.coordType = MoveChoice.StageEC;
+//            params.coordType = MoveChoice.StageEC;
         }
 
         double mass = params.mass;
@@ -176,7 +176,7 @@ public class SimQuantumAOPIMD extends Simulation {
         double actualOmega2 = omega2;
         if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space3D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
         sim.integrator.reset();
 
         System.out.println(" coordType: " + coordType);
@@ -461,7 +461,7 @@ public class SimQuantumAOPIMD extends Simulation {
         public double temperature = 0.5;
         public double hbar = 1.0;
         public int nBeads = 55;
-        public boolean isGraphic = false;
+        public boolean isGraphic = !false;
         public double k2 = 1.0;
         public double k4 = 24.0;
         public long steps = 10_000_000;
