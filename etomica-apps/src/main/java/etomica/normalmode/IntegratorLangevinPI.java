@@ -42,74 +42,71 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
     public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
                                 double timeStep, double temperature, Box box, double gamma,
-                                MCMoveHOReal2 move, double hbar) {
+                                MCMoveHOReal2 move, double hbar, double omega2) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
 
         sigma = move.chainSigmas;
         f11 = move.f11;
         f1N = move.f1N;
-        omega2 = move.omega2;
+        this.omega2 = omega2;
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
         int nBeads = box.getMoleculeList().get(0).getChildList().size();
         double omegaN = Math.sqrt(nBeads)/(hbar* move.beta);
-        double D = 2 + omega2 / (nBeads*omegaN*omegaN);
+        double omegaN2 = omegaN*omegaN;
+        double D = 2 + move.omega2 / (nBeads*omegaN2);
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
         mScale = new double[nBeads];
         fScale = new double[nBeads];
         fScale0 = new double[nBeads];
-        mScale[0] = 2.0*Math.sinh(alpha) * Math.tanh(nBeads*alpha/2.0);
-        if (alpha == 0 || nBeads == 1) mScale[0] = 1.0;
+
+        mScale[0] = (alpha == 0 || nBeads == 1) ? nBeads : 2.0*nBeads*omegaN2/omega2*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
         fScale0[0] = 1;
         for (int i=1; i<nBeads; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
-            mScale[i]  = alpha == 0 ? (nBeads - i + 1.0)/(nBeads - i) : Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
+            mScale[i]  = alpha == 0 ? nBeads*omegaN2/omega2*(nBeads - i + 1.0)/(nBeads - i) : nBeads*omegaN2/omega2*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
 
+      // The "s" rescaling is no longer needed as s=1 always!
         // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = nBeads
-        double[] fu = new double[nBeads];
-        for (int i=nBeads-1; i>=0; i--) {
-            fu[0] += fScale0[i];
-            if (i>0) {
-                fu[i] = 1;
-                if (i < nBeads - 1) {
-                    fu[i] += fScale[i] * fu[i + 1];
-                }
-            }
-        }
-
-        double[] a = new double[nBeads];
-        double mm = box.getLeafList().get(0).getType().getMass();
-        double aSum = 0;
-        for (int i=0; i<nBeads; i++) {
-            a[i] = fu[i] / (mm*mScale[i]);
-            if (i>0) {
-                a[i] += f11[i] * a[i-1];
-                a[i] += f1N[i] * a[0];
-            }
-            aSum += a[i];
-//            System.out.println("ai="+a[i]/(omegaN*omegaN));
-        }
-
-        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
-        double M = nBeads/(aSum/nBeads);
-        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
-        System.out.println(" dt-staging = " + Math.sqrt(s)/omegaN);
-        System.out.println(" dt-real = " + 1/omegaN);
-        System.out.println();
-
-        double sum = 0;
-        for (int i=0; i<mScale.length; i++) {
-            mScale[i] *= s;
-            sum += mScale[i];
-            System.out.println(mScale[i]);
-        }
+//        double[] fu = new double[nBeads];
+//        for (int i=nBeads-1; i>=0; i--) {
+//            fu[0] += fScale0[i];
+//            if (i>0) {
+//                fu[i] = 1;
+//                if (i < nBeads - 1) {
+//                    fu[i] += fScale[i] * fu[i + 1];
+//                }
+//            }
+//        }
+//
+//        double[] a = new double[nBeads];
+//        double mm = box.getLeafList().get(0).getType().getMass();
+//        double aSum = 0;
+//        for (int i=0; i<nBeads; i++) {
+//            a[i] = fu[i] / (mm*mScale[i]);
+//            if (i>0) {
+//                a[i] += f11[i] * a[i-1];
+//                a[i] += f1N[i] * a[0];
+//            }
+//            aSum += a[i];
+//        }
+//
+//        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
+//        double M = nBeads/(aSum/nBeads);
+//        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
+//        for (int i=0; i<mScale.length; i++) {
+//            mScale[i] *= s;
+//        }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
+
+        System.out.println(" dt-staging ~ " + 1/Math.sqrt(omega2));
+        System.out.println(" dt-real ~ " + 1/omegaN);
     }
 
     public void setGamma(double newGamma) {

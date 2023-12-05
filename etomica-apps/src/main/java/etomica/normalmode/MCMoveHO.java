@@ -46,16 +46,15 @@ public class MCMoveHO extends MCMoveBox {
         beta = 1.0/temperature;
         omegaN = Math.sqrt(nBeads)/(hbar*beta);
         mass = box.getLeafList().get(0).getType().getMass();
-        // exp(- beta * 1/2*lambda_k q_k^2)
         int nK = nBeads/2;
         lambda[nK] = mass*omega2; //k=0
         double lambda_k;
-        for(int k = 1; k <= (nBeads-1)/2; k++){ //-2...2
+        for(int k = 1; k <= (nBeads-1)/2; k++){
             lambda_k = 4.0*mass*nBeads*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mass*omega2;
             lambda[nK-k] = lambda_k;
             lambda[nK+k] = lambda_k;
         }
-        if (nBeads % 2 == 0){ //even
+        if (nBeads % 2 == 0){
             int k = nK;
             lambda_k = 4.0*mass*nBeads*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mass*omega2;
             lambda[0] = lambda_k;
@@ -80,8 +79,21 @@ public class MCMoveHO extends MCMoveBox {
                 eigenvectors[i][0] =  Math.cos(arg)/Math.sqrt(nBeads);
                 eigenvectorsInv[0][i] =  Math.cos(arg)/Math.sqrt(nBeads);
             }
-
         }
+//        for (int i=0;i<nBeads;i++){
+//            for (int j=0;j<nBeads;j++){
+//                double s=0;
+//                for (int k=0;k<nBeads;k++){
+//                    s+=eigenvectors[i][k]*eigenvectorsInv[k][j];
+//                }
+//                if(Math.abs(s)<1e-15) {
+//                    System.out.print(0 + " ");
+//                }else {
+//                    System.out.print(s + " ");
+//                }
+//            }
+//            System.out.println();
+//        }
     }
 
 

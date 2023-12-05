@@ -42,11 +42,11 @@ public class IntegratorLangevinPINM extends IntegratorMD {
 
     public IntegratorLangevinPINM(PotentialCompute potentialCompute, IRandom random,
                                   double timeStep, double temperature, Box box, double gamma,
-                                  MCMoveHO move, double hbar) {
+                                  MCMoveHO move, double hbar, double omega2) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
         this.move = move;
-        omega2 = this.move.omega2;
+        this.omega2 = omega2;
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
@@ -55,46 +55,39 @@ public class IntegratorLangevinPINM extends IntegratorMD {
         double mass = box.getLeafList().get(0).getType().getMass();
 
         mScale = new double[nBeads];
-        double omegaN = Math.sqrt(nBeads)/(hbar* move.beta);
+        double omegaN = Math.sqrt(nBeads)/(hbar*move.beta);
 
         for (int k = 0; k < nBeads; k++) {
-            mScale[k] = this.move.lambda[k]/(mass*nBeads*omegaN*omegaN);
+            mScale[k] = this.move.lambda[k]/(mass*omega2);
         }
 
-        if (omega2 == 0 || nBeads == 1) mScale[nBeads/2] = 1.0;
+        if (move.omega2 == 0 || nBeads == 1) mScale[nBeads/2] = 1;
 
-//        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
-        double[] fq = new double[nBeads];
-        for (int k = 0; k < nBeads; k++) {
-            for (int i = 0; i < nBeads; i++) {
-                fq[k] += this.move.eigenvectors[i][k];
-            }
-        }
-
-        double[] a = new double[nBeads];
-        double mm = box.getLeafList().get(0).getType().getMass();
-        double aSum = 0;
-        for (int i = 0; i < nBeads; i++) {
-            for (int k = 0; k < nBeads; k++) {
-                double aq = fq[k] / (mm * mScale[k]);
-                a[i] += this.move.eigenvectors[i][k] * aq;
-            }
-            aSum += a[i];
-        }
-
-        // M is the effective mass we have now; we want ring mass = n * atomType mass
-        double M = nBeads/(aSum/nBeads);
-        double s = (nBeads * box.getLeafList().get(0).getType().getMass())/M ;
-
-        System.out.println(" dt-staging = " + Math.sqrt(s)/omegaN);
-        System.out.println(" dt-real = " + 1/omegaN);
-        System.out.println();
-
-        double sum = 0;
-        for (int i = 0; i < mScale.length; i++) {
-            mScale[i] *= s;
-            sum += mScale[i];
-        }
+//        // The "s" rescaling is no longer needed as s=1 always!
+////        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
+//        double[] fq = new double[nBeads];
+//        for (int k = 0; k < nBeads; k++) {
+//            for (int i = 0; i < nBeads; i++) {
+//                fq[k] += this.move.eigenvectors[i][k];
+//            }
+//        }
+//
+//        double mm = box.getLeafList().get(0).getType().getMass();
+//        double aSum = 0;
+//        for (int i = 0; i < nBeads; i++) {
+//            for (int k = 0; k < nBeads; k++) {
+//                double aq = fq[k] / (mm * mScale[k]);
+//                aSum += this.move.eigenvectors[i][k] * aq;
+//            }
+//        }
+//
+//        // M is the effective mass we have now; we want ring mass = n * atomType mass
+//        double M = nBeads/(aSum/nBeads);
+//        double s = (nBeads * box.getLeafList().get(0).getType().getMass())/M ;
+//
+//        for (int i = 0; i < mScale.length; i++) {
+//            mScale[i] *= s;
+//        }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
     }

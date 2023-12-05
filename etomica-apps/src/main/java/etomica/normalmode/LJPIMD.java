@@ -102,7 +102,7 @@ public class LJPIMD extends Simulation {
         ringMoveHMA2 = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2HMA2, box, hbar);
 
         if (isStaging) {
-            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, ringMove, hbar);
+            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, ringMove, hbar, omega2);
         } else {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         }
