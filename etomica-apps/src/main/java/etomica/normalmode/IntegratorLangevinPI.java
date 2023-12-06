@@ -104,9 +104,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
 //        }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
-
-        System.out.println(" dt-staging ~ " + 1/Math.sqrt(omega2));
-        System.out.println(" dt-real ~ " + 1/omegaN);
     }
 
     public void setGamma(double newGamma) {

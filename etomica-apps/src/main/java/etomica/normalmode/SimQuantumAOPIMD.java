@@ -31,7 +31,7 @@ import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
-import etomica.space3d.Space3D;
+import etomica.space1d.Space1D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
@@ -52,8 +52,9 @@ public class SimQuantumAOPIMD extends Simulation {
     public P1Anharmonic p1ah;
     public P1AnharmonicTIA p1ahUeff;
     public double betaN;
-    public int nBeads;
     public double k2_kin;
+    public int nBeads;
+
     public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, double hbar) {
         super(space);
 
@@ -63,7 +64,7 @@ public class SimQuantumAOPIMD extends Simulation {
                 .withConformation(new ConformationLinear(space, 0))
                 .build();
         addSpecies(species);
-
+        this.nBeads = nBeads;
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, 1);
         //pm2 that uses the full PI potential, for data collection
@@ -73,8 +74,8 @@ public class SimQuantumAOPIMD extends Simulation {
         double beta = 1.0/temperature;
         betaN = beta/nBeads;
         double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-
         k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
+
         // integrate analytically to get infinite-n
 //        if (false){
 //            double w = Math.sqrt(omega2);
@@ -142,21 +143,18 @@ public class SimQuantumAOPIMD extends Simulation {
         OctaneParams params = new OctaneParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
-        }
-        else {
+        } else {
             // custom parameters
-            params.steps = 1_000_000;
+            params.steps = 1000000;
             params.temperature = 1;
             params.hbar = 1;
-            params.k2 = 10;
+            params.k2 = 0.1;
             params.k4 = 0;
-
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
-
         }
 
         double mass = params.mass;
@@ -175,15 +173,20 @@ public class SimQuantumAOPIMD extends Simulation {
 
         double w0 = Math.sqrt(params.k2/params.mass);
         double x = 1/params.temperature* params.hbar*w0;
-        int nBeads = (int) (20*x);
-        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+        int nBeads = params.nBeads;
+        if (nBeads == -1){
+            nBeads = (int) (20*x);
+        }
 
-        double timeStep;;
-        double c = 0.01;
-        if (params.coordType == MoveChoice.Real) {
-            timeStep = c/omegaN;
-        } else {
-            timeStep = c/w0;
+        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+        double timeStep = params.timeStep;
+        if (timeStep == -1) {
+            double c = 0.1;
+            if (params.coordType == MoveChoice.Real) {
+                timeStep = c/omegaN/Math.sqrt(nBeads);
+            } else {
+                timeStep = c/w0;
+            }
         }
 
         double omega2 = k2/mass;
@@ -194,20 +197,20 @@ public class SimQuantumAOPIMD extends Simulation {
         if (zerok0) omega2 = 0;
 
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space3D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
         sim.integrator.reset();
 
         System.out.println(" coordType: " + coordType);
         System.out.println(" mass: " + mass);
         System.out.println(" T: " + temperature);
         System.out.println(" hbar: " + hbar);
-        System.out.println(" w: " + Math.sqrt(omega2));
+        System.out.println(" w: " + Math.sqrt(omega2) + " , w/n: " + Math.sqrt(omega2)/nBeads);
         System.out.println(" wn: " + omegaN);
         System.out.println(" x=beta*hbar*w0: " + hbar*Math.sqrt(k2/mass)/temperature);
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" timeStep: " + timeStep);
-        System.out.println(" dt-nm~1/sqrt(omega2): " + 1/Math.sqrt(omega2));
-        System.out.println(" dt-real~1/omegaN: " + 1/omegaN);
+        System.out.println(" dt-non-real ~ 1/sqrt(omega2): " + 1/Math.sqrt(omega2));
+        System.out.println(" dt-real ~ 1/omegaN: " + 1/omegaN/Math.sqrt(nBeads));
 
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" k2: " + k2);
@@ -261,6 +264,7 @@ public class SimQuantumAOPIMD extends Simulation {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1);
+            int finalNBeads = nBeads;
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
 
@@ -277,7 +281,7 @@ public class SimQuantumAOPIMD extends Simulation {
                             allColors[i + 512] = new Color(i, 0, 255 - i);
                         }
                     }
-                    return allColors[(768 * a.getIndex() / (nBeads))];
+                    return allColors[(768 * a.getIndex() / (finalNBeads))];
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
@@ -491,6 +495,7 @@ public class SimQuantumAOPIMD extends Simulation {
         public boolean onlyCentroid = true;
         public double mass = 1.0;
         public MoveChoice coordType = MoveChoice.Real;
-        public double timeStep = 0.001;
+        public double timeStep = -1;
+        public int nBeads = -1;
     }
 }
