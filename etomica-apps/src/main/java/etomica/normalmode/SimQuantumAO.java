@@ -6,14 +6,15 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
@@ -21,6 +22,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.potential.P1Anharmonic;
 import etomica.potential.P1AnharmonicTIA;
 import etomica.potential.P2Harmonic;
@@ -47,6 +49,7 @@ public class SimQuantumAO extends Simulation {
     public MCMoveBox move;
     public MCMoveHOReal2 moveStageEC;
     public MCMoveMolecule translateMove;
+    public MCMoveMoleculeRotate rotateMove;
     public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pmAgg;
@@ -101,7 +104,7 @@ public class SimQuantumAO extends Simulation {
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
 
         integrator = new IntegratorMC(pmAgg, random, temperature, box);
-        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
+//        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
 
         if (coordType == MoveChoice.Real) {
             move = new MCMoveAtom(random, pmAgg, box);
@@ -116,9 +119,13 @@ public class SimQuantumAO extends Simulation {
         }
         integrator.getMoveManager().addMCMove(move);
 
-        if (coordType == MoveChoice.NM || coordType == MoveChoice.Stage) {
+        if (coordType == MoveChoice.Real || coordType == MoveChoice.NM || coordType == MoveChoice.Stage) {
             translateMove = new MCMoveMolecule(random, pmAgg, box);
             integrator.getMoveManager().addMCMove(translateMove);
+            if (coordType == MoveChoice.Real) {
+                rotateMove = new MCMoveMoleculeRotate(random, pmAgg, box);
+                integrator.getMoveManager().addMCMove(rotateMove);
+            }
         }
     }
 
@@ -135,12 +142,13 @@ public class SimQuantumAO extends Simulation {
         else {
             // custom parameters
             params.steps = 1000000;
-            params.temperature = 0.1;
+            params.hbar = 1;
+            params.temperature = 1;
             params.k2 = 1;
-            params.k4 = 24;
+            params.k4 = 0;
 //            params.coordType = MoveChoice.Real;
-            params.coordType = MoveChoice.NM;
-//            params.coordType = MoveChoice.NMEC;
+//            params.coordType = MoveChoice.NM;
+            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.StageEC;
         }
@@ -161,7 +169,10 @@ public class SimQuantumAO extends Simulation {
         double x = 1/temperature*hbar*w0;
         int nBeads = params.nBeads;
         if (nBeads == -1){
+
             nBeads = (int) (10*x);
+
+
         }
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;

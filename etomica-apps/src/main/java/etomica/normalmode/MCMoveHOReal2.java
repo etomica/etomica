@@ -82,8 +82,9 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         nGrow = 1;
         if (nBeads > 1) {
-            nGrow = nBeads/2;
+            nGrow = nBeads;
         }
+        System.out.println("nGrow: " + nGrow);
     }
 
     public void setNumGrow(int nGrow) {

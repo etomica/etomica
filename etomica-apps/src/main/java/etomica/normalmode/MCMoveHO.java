@@ -71,7 +71,6 @@ public class MCMoveHO extends MCMoveBox {
                 eigenvectors[i][nK+k] = 2.0*Math.cos(arg)/Math.sqrt(nBeads);
                 eigenvectorsInv[nK-k][i] = Math.sin(-arg)/Math.sqrt(nBeads); //sin then cos .. it's a must!
                 eigenvectorsInv[nK+k][i] = Math.cos(arg)/Math.sqrt(nBeads);
-
             }
             if (nBeads % 2 == 0){ //even
                 int k = nK;
@@ -116,32 +115,51 @@ public class MCMoveHO extends MCMoveBox {
         uaOld = uOld - uhOld;
 
         double uhNew = 0;
-        double[] q = new double[nBeads];
+        Vector[] q = box.getSpace().makeVectorArray(nBeads);
+
         int nK = nBeads/2;
-        double fack = 1.0/Math.sqrt(beta* lambda[nK]);
-        q[nK] = fack*random.nextGaussian();//1.816590212458495
-        uhNew += 1.0/2.0/beta*beta* lambda[nK]*q[nK]*q[nK];
-        for (int k = 1; k <= (nBeads-1)/2; k++) {
-            fack = 1.0/Math.sqrt(2.0*beta* lambda[nK-k]);
-            q[nK-k] = fack*random.nextGaussian();
-            uhNew += 1.0/beta*beta* lambda[nK-k]*q[nK-k]*q[nK-k];
-            fack = 1.0/Math.sqrt(2.0*beta* lambda[nK+k]);
-            q[nK+k] = fack*random.nextGaussian();
-            uhNew += 1.0/beta*beta* lambda[nK+k]*q[nK+k]*q[nK+k];
-        }
-        if (nBeads % 2 == 0){ //even
-            fack = 1.0/Math.sqrt(beta* lambda[0]);
-            q[0] = fack*random.nextGaussian();
-            uhNew += 1.0/2.0/beta*beta* lambda[0]*q[0]*q[0];
+        double fack = 1.0/Math.sqrt(beta*lambda[nK]);
+
+        for (int l=0; l<q[0].getD(); l++) {
+            q[nK].setX(l, fack * random.nextGaussian());
         }
 
+        if (omega2 == 0){
+            q[nK].E(0);
+            for (int i = 0; i < nBeads; i++) {
+                atomi = atomList.get(i);
+                ri = atomi.getPosition();
+                q[nK].PEa1Tv1(1/Math.sqrt(nBeads), ri);
+            }
+        }
+
+        uhNew += 1.0/2.0*lambda[nK]*q[nK].dot(q[nK]);
+        for (int k = 1; k <= (nBeads-1)/2; k++) {
+            fack = 1.0/Math.sqrt(2.0*beta*lambda[nK-k]);
+            for (int l=0; l<q[0].getD(); l++) {
+                q[nK-k].setX(l, fack * random.nextGaussian());
+            }
+            uhNew += lambda[nK-k]*q[nK-k].dot(q[nK-k]);
+            fack = 1.0/Math.sqrt(2.0*beta*lambda[nK+k]);
+            for (int l=0; l<q[0].getD(); l++) {
+                q[nK+k].setX(l, fack * random.nextGaussian());
+            }
+            uhNew += lambda[nK+k]*q[nK+k].dot(q[nK+k]);
+        }
+        if (nBeads % 2 == 0){ //even
+            fack = 1.0/Math.sqrt(beta*lambda[0]);
+            for (int l=0; l<q[0].getD(); l++) {
+                q[0].setX(l, fack * random.nextGaussian());
+            }
+            uhNew += 1.0/2.0*lambda[0]*q[0].dot(q[0]);
+        }
 
         for (int i = 0; i < nBeads; i++) {
             atomi = atomList.get(i);
             ri = atomi.getPosition();
             ri.E(0);
             for (int k = 0; k < nBeads; k++) {
-                ri.PE(eigenvectors[i][k]*q[k]);
+                ri.PEa1Tv1(eigenvectors[i][k], q[k]);
             }
         }
 
@@ -164,7 +182,10 @@ public class MCMoveHO extends MCMoveBox {
             System.out.println();
         }
 
-        pm.init();
+        for (int k = 0; k < nBeads; k++) {
+            pm.updateAtom(atomList.get(k));
+        }
+
         double uNew = pm.computeAll(false);
         uaNew = uNew - uhNew;
 
