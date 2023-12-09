@@ -23,13 +23,12 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected double EnShift;
     protected double dim;
     protected int numAtoms;
     protected Vector[] rc;
 
     public MeterPIVir(PotentialCompute pcP1, double temperature, Box box) {
-        int nData = 1;
+        int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -37,7 +36,6 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         this.pcP1 = pcP1;
         this.beta = 1/temperature;
         this.box = box;
-        this.EnShift = 0;
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
@@ -61,8 +59,8 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
             }
         }
 
-        x[0] =   dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;//En
-//        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        x[0] =   dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;//En
+        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
         return data;
     }
 
@@ -85,10 +83,6 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
 
     public boolean wantsHessian() {
         return true;
-    }
-
-    public void setShift(double EnShift){
-        this.EnShift = EnShift;
     }
 
 }

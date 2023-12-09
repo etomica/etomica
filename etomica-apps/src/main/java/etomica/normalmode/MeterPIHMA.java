@@ -31,11 +31,10 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector[] rdot, rddot;
-    protected double EnShift;
     protected final Vector[] latticePositions;
 
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
-        int nData = 1;
+        int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -45,6 +44,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         this.betaN = betaN;
         this.nBeads = nBeads;
         this.box = box;
+        this.beta = betaN*nBeads;
         omegaN = Math.sqrt(nBeads)/(beta*hbar);
         int nAtoms = box.getLeafList().size();
         rdot = box.getSpace().makeVectorArray(nAtoms);
@@ -54,8 +54,13 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         int nK = nBeads/2;
         beta = betaN*nBeads;
         double a2 = (betaN*hbar/2.0)*(betaN*hbar/2.0)*omega2;
-        gk[nK] = -1.0/2.0/beta;
-        gk2[nK] = 1.0/2.0/beta/beta;
+        if (omega2 == 0){
+            gk[nK] = 0;
+            gk2[nK] = 0;
+        } else {
+            gk[nK] = -1.0/2.0/beta;
+            gk2[nK] = 1.0/2.0/beta/beta;
+        }
         for(int k = 1; k <= nK; k++){
             double sin = Math.sin(Math.PI*k/nBeads);
             double num = sin*sin - a2;
@@ -101,7 +106,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
 
-        this.EnShift = 0;
     }
 
     @Override
@@ -136,7 +140,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
         int dim = box.getSpace().D();
         int numAtoms = molecules.size();
-        double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift;
+        double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
         if (box.getMoleculeList().size() > 1) {
             En -= dim/2.0/beta;
         }
@@ -159,12 +163,12 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
             Vector tmpV = box.getSpace().makeVector();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            Cvn -= beta* omegaN * omegaN *(tmpV.squared());
+            Cvn -= beta*omegaN * omegaN *(tmpV.squared());
         }
         Cvn -= beta*drdotHdrdot;
 //        System.out.println("hma: " + En);
         x[0] = En;
-//        x[1] = Cvn;
+        x[1] = Cvn;
 
         return data;
     }
@@ -223,10 +227,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
     public boolean wantsHessian() {
         return true;
-    }
-
-    public void setShift(double EnShift){
-        this.EnShift = EnShift;
     }
 
 }

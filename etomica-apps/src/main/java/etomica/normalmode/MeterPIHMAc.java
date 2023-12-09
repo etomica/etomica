@@ -25,13 +25,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector[] rc;
-    protected double EnShift;
     protected double dim;
     protected int numAtoms;
     protected Vector[] latticePositions;
 
     public MeterPIHMAc(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
-        int nData = 1;
+        int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -41,7 +40,6 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         this.nBeads = nBeads;
         this.beta = 1/temperature;
         this.box = box;
-        this.EnShift = 0;
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
@@ -61,7 +59,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         double virc = 0;
         Vector drc = box.getSpace().makeVector();
         Vector dri = box.getSpace().makeVector();
-        Vector dr0Ref = box.getSpace().makeVector();
+//        Vector dr0Ref = box.getSpace().makeVector();
 
         pcP1.computeAll(true);
         Vector[] forces = pcP1.getForces();
@@ -70,12 +68,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
                 dri.Ev1Mv2(ri, latticePositions[molecule.getIndex()]);
-                if (atom.getLeafIndex() == 0) {
-                    dr0Ref.E(dri);
-                }
-                dri.ME(dr0Ref);
+//                if (atom.getLeafIndex() == 0) {
+//                    dr0Ref.E(ri);
+//                }
+//                dri.ME(dr0Ref);
                 drc.Ev1Mv2(rc[molecule.getIndex()], latticePositions[molecule.getIndex()]);
-                drc.ME(dr0Ref);
+//                drc.ME(dr0Ref);
                 box.getBoundary().nearestImage(dri);
                 box.getBoundary().nearestImage(drc);
 
@@ -85,8 +83,9 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             }
         }
 
-        x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift; //En
-//        x[1] = 1.0/beta/beta + 1.0/4.0/beta*(3.0*vir - 2.0*virc - rHr); //Cvn/kb^2, without Var
+        x[0] = dim/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 1D
+//        x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 3D
+        x[1] = 1.0/beta/beta + 1.0/4.0/beta/nBeads*(3.0*vir - 2.0*virc - rHr); //Cvn/kb^2, without Var
         return data;
     }
 
@@ -111,10 +110,6 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
 
     public boolean wantsHessian() {
         return true;
-    }
-
-    public void setShift(double EnShift){
-        this.EnShift = EnShift;
     }
 
 }
