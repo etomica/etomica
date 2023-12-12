@@ -101,6 +101,9 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
         Cvn_harm *= beta*beta;
 
+        System.out.println(" En_harm: " + En_harm);
+        System.out.println(" Cvn_harm: " + Cvn_harm);
+
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
@@ -136,7 +139,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-        pcP1.computeAll(true, this);
+//        pcP1.computeAll(true, null); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); //with Cv
 
         int dim = box.getSpace().D();
         int numAtoms = molecules.size();
@@ -163,12 +167,12 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
             Vector tmpV = box.getSpace().makeVector();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            Cvn -= beta*omegaN * omegaN *(tmpV.squared());
+            Cvn -= beta*omegaN*omegaN*box.getLeafList().get(0).getType().getMass()*nBeads*(tmpV.squared());
         }
         Cvn -= beta*drdotHdrdot;
 //        System.out.println("hma: " + En);
         x[0] = En;
-        x[1] = Cvn;
+        x[1] = Cvn + x[0]*x[0];
 
         return data;
     }

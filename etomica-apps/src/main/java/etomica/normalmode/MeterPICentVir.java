@@ -50,8 +50,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector rirc = box.getSpace().makeVector();
         rHr = 0;
         double vir = 0;
-//        pcP1.computeAll(true, this);//it needs rc
-        pcP1.computeAll(true);//it needs rc
+//        pcP1.computeAll(true, null); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
@@ -64,19 +64,23 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         }
 
         x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En
-        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
         return data;
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector rj = box.getLeafList().get(j).getPosition();
-        Vector tmpV = box.getSpace().makeVector();
-        int moleculeIndex = box.getLeafList().get(i).getParentGroup().getIndex();
-        tmpV.Ev1Mv2(rj, rc[moleculeIndex]);
-        Hij.transform(tmpV);
-        rHr += ri.dot(tmpV);
-        rHr -= rc[moleculeIndex].dot(tmpV);
+        Vector tmpVecI = box.getSpace().makeVector();
+        Vector tmpVecJ = box.getSpace().makeVector();
+        int moleculeIndexI = box.getLeafList().get(i).getParentGroup().getIndex();
+        int moleculeIndexJ = box.getLeafList().get(j).getParentGroup().getIndex();
+        tmpVecI.Ev1Mv2(ri, rc[moleculeIndexI]);
+        tmpVecJ.Ev1Mv2(rj, rc[moleculeIndexJ]);
+        box.getBoundary().nearestImage(tmpVecI);
+        box.getBoundary().nearestImage(tmpVecJ);
+        Hij.transform(tmpVecI);
+        rHr += tmpVecI.dot(tmpVecJ);
     }
 
     public IDataInfo getDataInfo() {

@@ -38,6 +38,9 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected double drdotHdrdot;
     protected Vector[] latticePositions;
     protected int numAtoms, nBeads;
+    protected double[] gamma, dGamma, f11, f1N, df11, df1N, d2f11, d2f1N;
+    protected double[][] centerCoefficients, dCenterCoefficients, d2CenterCoefficients;
+
 
     public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, MCMoveHOReal2 move) {
         this.move = move;
@@ -61,6 +64,18 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         }
         numAtoms = box.getMoleculeList().size();
         dim = box.getSpace().D();
+
+        gamma = move.getGamma();
+        dGamma = move.getdGamma();
+        centerCoefficients = move.getCenterCoefficients();
+        f11 = centerCoefficients[0];
+        f1N = centerCoefficients[1];
+        dCenterCoefficients = move.getDCenterCoefficients();
+        df11 = dCenterCoefficients[0];
+        df1N = dCenterCoefficients[1];
+        d2CenterCoefficients = move.getD2CenterCoefficients();
+        d2f11 = d2CenterCoefficients[0];
+        d2f1N = d2CenterCoefficients[1];
     }
 
     public void setNumShifts(int nShifts) {
@@ -73,7 +88,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         drdotHdrdot = 0 ;
         Box box = move.getBox();
         double[] x = data.getData();
-//        System.out.println("******** HMA *************");
 
         pmBonding.computeAll(true);
         pcP1.computeAll(true);
@@ -88,18 +102,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         Vector[] forcesK = pmBonding.getForces();
 
         IMoleculeList molecules = box.getMoleculeList();
-
-        double[] gamma = move.getGamma();
-        double[] dGamma = move.getdGamma();
-        double[][] centerCoefficients = move.getCenterCoefficients();
-        double[] f11 = centerCoefficients[0];
-        double[] f1N = centerCoefficients[1];
-        double[][] dCenterCoefficients = move.getDCenterCoefficients();
-        double[] df11 = dCenterCoefficients[0];
-        double[] df1N = dCenterCoefficients[1];
-        double[][] d2CenterCoefficients = move.getD2CenterCoefficients();
-        double[] d2f11 = d2CenterCoefficients[0];
-        double[] d2f1N = d2CenterCoefficients[1];
 
         Vector tmp_r = box.getSpace().makeVector();
         Vector drj = box.getSpace().makeVector();
@@ -161,10 +163,10 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
                         Vector tmpV = box.getSpace().makeVector();
                         tmpV.Ev1Mv2(v, vPrev);
-                        Cvn -= beta/nBeads*move.mass*move.omegaN*move.omegaN*(tmpV.squared());
+                        Cvn -= beta*move.mass*move.omegaN*move.omegaN*(tmpV.squared());
                         if (j == nBeads-1){
                             tmpV.Ev1Mv2(v0, v);
-                            Cvn -= beta/nBeads*move.mass*move.omegaN*move.omegaN*(tmpV.squared());
+                            Cvn -= beta*move.mass*move.omegaN*move.omegaN*(tmpV.squared());
                         }
                     }
                     int jj = atomj.getLeafIndex();
@@ -187,10 +189,12 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             }
         }
 
-        pcP1.computeAll(true, this);
+        //        pcP1.computeAll(true, null); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); //with Cv
+
         Cvn -= beta*drdotHdrdot;
         x[0] = En0 + En/ns;
-        x[1] = Cvn0 + Cvn/ns;
+        x[1] = Cvn0 + Cvn/ns + x[0]*x[0];
         return data;
     }
 

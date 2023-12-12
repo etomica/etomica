@@ -61,7 +61,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         Vector dri = box.getSpace().makeVector();
 //        Vector dr0Ref = box.getSpace().makeVector();
 
-        pcP1.computeAll(true);
+//        pcP1.computeAll(true, null); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
@@ -85,19 +86,35 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
 
         x[0] = dim/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 1D
 //        x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 3D
-        x[1] = 1.0/beta/beta + 1.0/4.0/beta/nBeads*(3.0*vir - 2.0*virc - rHr); //Cvn/kb^2, without Var
+        x[1] = dim/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         return data;
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        int moleculeIndexI = box.getLeafList().get(i).getParentGroup().getIndex();
+        int moleculeIndexJ = box.getLeafList().get(j).getParentGroup().getIndex();
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector rj = box.getLeafList().get(j).getPosition();
-        Vector tmpV = box.getSpace().makeVector();
-        int moleculeIndex = box.getLeafList().get(i).getParentGroup().getIndex();
-        tmpV.Ev1Mv2(rj, rc[moleculeIndex]);
-        tmpV.ME(rc[moleculeIndex]);
-        Hij.transform(tmpV);
-        rHr += ri.dot(tmpV) - 2.0*rc[moleculeIndex].dot(tmpV);
+        Vector dri = box.getSpace().makeVector();
+        Vector drj = box.getSpace().makeVector();
+        dri.Ev1Mv2(ri, latticePositions[moleculeIndexI]);
+        drj.Ev1Mv2(rj, latticePositions[moleculeIndexJ]);
+        box.getBoundary().nearestImage(dri);
+        box.getBoundary().nearestImage(drj);
+        Vector drcI = box.getSpace().makeVector();
+        Vector drcJ = box.getSpace().makeVector();
+        drcI.Ev1Mv2(rc[moleculeIndexI], latticePositions[moleculeIndexI]);
+        drcJ.Ev1Mv2(rc[moleculeIndexJ], latticePositions[moleculeIndexJ]);
+        box.getBoundary().nearestImage(drcI);
+        box.getBoundary().nearestImage(drcJ);
+        Vector tmpVecI = box.getSpace().makeVector();
+        Vector tmpVecJ = box.getSpace().makeVector();
+        tmpVecI.Ev1Mv2(dri, drcI);
+        tmpVecJ.Ev1Mv2(drj, drcJ);
+        tmpVecI.ME(drcI);
+        tmpVecJ.ME(drcJ);
+        Hij.transform(tmpVecJ);
+        rHr += tmpVecI.dot(tmpVecJ);
     }
 
     public IDataInfo getDataInfo() {

@@ -46,8 +46,8 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         Vector rirc = box.getSpace().makeVector();
         rHr = 0;
-        pcP1.computeAll(true);
-//        pcP1.computeAll(true, this);
+//        pcP1.computeAll(true, null); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); // with Cv
         Vector[] forces = pcP1.getForces();
         double vir = 0;
 
@@ -59,8 +59,8 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
             }
         }
 
-        x[0] =   dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;//En
-        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr); //Cvn/kb^2, without Var
+        x[0] =   pcP1.getLastEnergy() + 1.0/2.0*vir;//En
+        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
         return data;
     }
 

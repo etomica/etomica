@@ -57,7 +57,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         beta = 1.0/temperature;
         // mass here is the mass of the whole ring
-        mass = box.getLeafList().get(0).getType().getMass()*nBeads;
+        mass = nBeads * box.getLeafList().get(0).getType().getMass();  // ring mass, m
 
         chainSigmas = new double[nBeads];
         f11 = new double[nBeads];
@@ -108,7 +108,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
         sigma0 = k0 == 0 ? 0 : 1/Math.sqrt(beta*k0);
         chainSigmas[0] = sigma0;
         gamma[0] = alpha == 0 ? 0 : 0.5/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
-        dGamma[0] = -0.5/beta/beta - 0.5*d2Alpha*(coshA/sinhA+nBeads/sinhNA)
+        dGamma[0] = alpha == 0 ? -0.5/beta/beta : -0.5/beta/beta - 0.5*d2Alpha*(coshA/sinhA+nBeads/sinhNA)
                 + 0.5*dAlpha2*(1/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
 
 
@@ -122,7 +122,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
             double ki = mass*omegaN*omegaN*sinhRatio;
             chainSigmas[i] = 1.0/Math.sqrt(beta*ki);
             gamma[i] = alpha == 0 ? 0.5/beta : 0.5/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
-            dGamma[i] = -0.5/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
+            dGamma[i] = alpha == 0 ? -0.5/beta/beta : -0.5/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
                       + dAlpha2/2.0*(nBeads-i+1)/sinhNmip1A/sinhNmip1A
                       + dAlpha2/2.0*(nBeads-i)*coshA/sinhNmip1A/sinhNmiA
                       - dAlpha2/2.0*(nBeads-i)*(nBeads-i+1)*sinhA/sinhNmip1A*coshNmip1A/sinhNmip1A/sinhNmiA

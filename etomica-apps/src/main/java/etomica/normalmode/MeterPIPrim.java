@@ -50,7 +50,7 @@ public class MeterPIPrim implements IDataSource {
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
         x[0] = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
-        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta;  //Cvn/kb^2, without Var
+        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta + x[0]*x[0];
         return data;
     }
 }
