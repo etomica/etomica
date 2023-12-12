@@ -46,8 +46,8 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         Vector rirc = box.getSpace().makeVector();
         rHr = 0;
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); // with Cv
+//        pcP1.computeAll(true);
+        pcP1.computeAll(true, this);
         Vector[] forces = pcP1.getForces();
         double vir = 0;
 

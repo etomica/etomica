@@ -75,8 +75,9 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector tmpVecJ = box.getSpace().makeVector();
         int moleculeIndexI = box.getLeafList().get(i).getParentGroup().getIndex();
         int moleculeIndexJ = box.getLeafList().get(j).getParentGroup().getIndex();
-        tmpVecI.Ev1Mv2(ri, rc[moleculeIndexI]);
-        tmpVecJ.Ev1Mv2(rj, rc[moleculeIndexJ]);
+        tmpVecI.Ev1Mv2(ri, CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()));
+        tmpVecJ.Ev1Mv2(rj, CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()));
+//        tmpVecJ.Ev1Mv2(rj, rc[moleculeIndexJ]);
         box.getBoundary().nearestImage(tmpVecI);
         box.getBoundary().nearestImage(tmpVecJ);
         Hij.transform(tmpVecI);

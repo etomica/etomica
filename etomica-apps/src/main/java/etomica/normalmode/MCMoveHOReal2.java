@@ -107,10 +107,13 @@ public class MCMoveHOReal2 extends MCMoveBox {
         double k0 = 2*mass*omegaN*omegaN*sinhA*Math.tanh(nBeads*alpha/2.0);
         sigma0 = k0 == 0 ? 0 : 1/Math.sqrt(beta*k0);
         chainSigmas[0] = sigma0;
-        gamma[0] = alpha == 0 ? 0 : 0.5/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
+        gamma[0] = alpha == 0 ? 0.5/beta : 0.5/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
         dGamma[0] = alpha == 0 ? -0.5/beta/beta : -0.5/beta/beta - 0.5*d2Alpha*(coshA/sinhA+nBeads/sinhNA)
                 + 0.5*dAlpha2*(1/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
-
+        if (nBeads == 1 && alpha == 0) {
+            gamma[0] = 0;
+            dGamma[0] = 0;
+        }
 
         for (int i=1; i<nBeads; i++) {
             double sinhNmiA = Math.sinh((nBeads-i)*alpha);

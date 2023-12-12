@@ -62,7 +62,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
 //        Vector dr0Ref = box.getSpace().makeVector();
 
 //        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //with Cv
+        pcP1.computeAll(true, this); //Hessian
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
@@ -103,8 +103,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         box.getBoundary().nearestImage(drj);
         Vector drcI = box.getSpace().makeVector();
         Vector drcJ = box.getSpace().makeVector();
-        drcI.Ev1Mv2(rc[moleculeIndexI], latticePositions[moleculeIndexI]);
-        drcJ.Ev1Mv2(rc[moleculeIndexJ], latticePositions[moleculeIndexJ]);
+        drcI.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()), latticePositions[moleculeIndexI]);
+        drcJ.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()), latticePositions[moleculeIndexJ]);
         box.getBoundary().nearestImage(drcI);
         box.getBoundary().nearestImage(drcJ);
         Vector tmpVecI = box.getSpace().makeVector();
