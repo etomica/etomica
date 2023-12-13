@@ -403,7 +403,7 @@ public class SimQuantumAOPIMD extends Simulation {
         double corEnPrim = dataCorPrim.getValue(0);
         System.out.println("\n En_prim:         " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
         double CvnPrim = kB_beta2*(dataAvgPrim.getValue(1) - avgEnPrim*avgEnPrim);
-        double varX0 = dataErrPrim.getValue(0)*dataErrPrim.getValue(0);
+        double varX0 = errEnPrim*errEnPrim;
         double varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
         double corX0X1 = dataCovPrim.getValue(1)/Math.sqrt(dataCovPrim.getValue(0))/Math.sqrt(dataCovPrim.getValue(3));
         double errCvnPrim = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1));
@@ -421,7 +421,7 @@ public class SimQuantumAOPIMD extends Simulation {
         double corEnVir = dataCorVir.getValue(0);
         System.out.println(" En_vir:          " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
         double CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
-        varX0 = dataErrVir.getValue(0)*dataErrVir.getValue(0);
+        varX0 = errEnVir*errEnVir;
         varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
         corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
         double errCvnVir = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnVir*avgEnVir*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1));
@@ -437,7 +437,7 @@ public class SimQuantumAOPIMD extends Simulation {
         double corEnCentVir = dataCorCentVir.getValue(0);
         System.out.println(" En_cvir:         " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
         double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
-        varX0 = dataErrCentVir.getValue(0)*dataErrCentVir.getValue(0);
+        varX0 = errEnCentVir*errEnCentVir;
         varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
         corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
         double errCvnCentVir = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1));
@@ -454,10 +454,13 @@ public class SimQuantumAOPIMD extends Simulation {
         double corEnHMAc = dataCorHMAc.getValue(0);
         System.out.println(" En_hmac:         " + avgEnHMAc + "   err: " + errEnHMAc + " cor: " + corEnHMAc);
         double CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) - avgEnHMAc*avgEnHMAc);
-        varX0 = dataErrHMAc.getValue(0)*dataErrHMAc.getValue(0);
+        varX0 = errEnHMAc*errEnHMAc;
         varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
         corX0X1 = dataCovHMAc.getValue(1)/Math.sqrt(dataCovHMAc.getValue(0))/Math.sqrt(dataCovHMAc.getValue(3));
         double errCvnHMAc = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - 4*avgEnHMAc*dataErrHMAc.getValue(0)*dataErrHMAc.getValue(1)*corX0X1));
+        if (errEnHMAc < 1e-10){
+            errCvnHMAc = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0));
+        }
 
 
         //5 HMA simple NM
@@ -473,7 +476,7 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" En_nm_simple:    " + avgEnNMSimple + "   err: " + errEnNMSimple + " cor: " + corEnNMSimple);
 
         double Cvn_nm_simple  = kB_beta2*(dataAvgNMsimple.getValue(1) - avgEnNMSimple*avgEnNMSimple);
-        varX0 = dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(0);
+        varX0 = errEnNMSimple*errEnNMSimple;
         varX1 = dataErrNMsimple.getValue(1)*dataErrNMsimple.getValue(1);
         corX0X1 = dataCovNMsimple.getValue(1)/Math.sqrt(dataCovNMsimple.getValue(0))/Math.sqrt(dataCovNMsimple.getValue(3));
         double errCvnNMsimple = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1));
@@ -511,7 +514,7 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" En_stage_simple: " + avgEnStageSimple + "   err: " + errEnStageSimple + " cor: " + corEnStageSimple);
 
         double Cvn_stage_simple  = kB_beta2*(dataAvgStageSimple.getValue(1) - avgEnStageSimple*avgEnStageSimple);
-        varX0 = dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(0);
+        varX0 = errEnStageSimple*errEnStageSimple;
         varX1 = dataErrStageSimple.getValue(1)*dataErrStageSimple.getValue(1);
         corX0X1 = dataCovStageSimple.getValue(1)/Math.sqrt(dataCovStageSimple.getValue(0))/Math.sqrt(dataCovStageSimple.getValue(3));
         double errCvnStageSimple = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageSimple*avgEnStageSimple*varX0 - 4*avgEnStageSimple*dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(1)*corX0X1));

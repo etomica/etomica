@@ -33,7 +33,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected final MCMoveHOReal2 move;
 
     protected int nShifts = 0;
-    protected double rHr, dim;
+    protected double dim;
     protected Vector[] rdot;
     protected double drdotHdrdot;
     protected Vector[] latticePositions;
@@ -96,8 +96,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         double Cvn0 = nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
         if (box.getMoleculeList().size() > 1) { En0 -= dim/2.0/beta; }
         for (int i=0; i<nBeads; i++) {
-            En0 -= dim * molecules.size() * gamma[i];
-            Cvn0 += dim *molecules.size() * dGamma[i];
+            En0 -= dim*molecules.size()*gamma[i];
+            Cvn0 += dim*molecules.size()*dGamma[i];
         }
 
         Vector[] forcesU = pcP1.getForces();
@@ -110,13 +110,13 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         Vector a0 = box.getSpace().makeVector();
         Vector vPrev = box.getSpace().makeVector();
         Vector aPrev = box.getSpace().makeVector();
-        double En = 0;
-        double Cvn = 0;
-        rHr = 0;
 
 //        Vector drShift = computeShift();
         int ns = nShifts+1;
 
+        for (int i=0; i < x.length; i++){
+            x[i] = 0;
+        }
         for (int i = 0; i < molecules.size(); i++) {
             IAtomList beads = molecules.get(i).getChildList();
             if (ns > beads.size() || (beads.size() / ns) * ns != beads.size()) {
@@ -124,6 +124,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             }
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
                 drdotHdrdot = 0;
+                double En = 0;
+                double Cvn = 0;
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
 //                dr0.PE(drShift);
@@ -184,12 +186,28 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 }
                 pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
+                x[0] += En0 + En;
+                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
             }
         }
 
-        x[0] = En0 + En/ns;
-        x[1] = Cvn0 + Cvn/ns + x[0]*x[0];
+        x[0] /= ns;
+        x[1] /= ns;
+//        if (move.omega2 != 0) {
+//            System.out.println(rdot[0] + "  " + rdot[1]);
+//        }
         return data;
+    }
+
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        Vector tmpV = move.getBox().getSpace().makeVector();
+        tmpV.E(rdot[j]);
+        Hij.transform(tmpV);
+        drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
+    }
+
+    public boolean wantsHessian() {
+        return true;
     }
 
     protected Vector computeShift() {
@@ -223,17 +241,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         return totalShift;
     }
 
-
-    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
-        Vector tmpV = move.getBox().getSpace().makeVector();
-        tmpV.E(rdot[j]);
-        Hij.transform(tmpV);
-        drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
-    }
-
-    public boolean wantsHessian() {
-        return true;
-    }
 
 
     public IDataInfo getDataInfo() {
