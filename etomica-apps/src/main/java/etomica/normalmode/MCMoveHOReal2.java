@@ -107,13 +107,10 @@ public class MCMoveHOReal2 extends MCMoveBox {
         double k0 = 2*mass*omegaN*omegaN*sinhA*Math.tanh(nBeads*alpha/2.0);
         sigma0 = k0 == 0 ? 0 : 1/Math.sqrt(beta*k0);
         chainSigmas[0] = sigma0;
-        gamma[0] = alpha == 0 ? 0.5/beta : 0.5/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
-        dGamma[0] = alpha == 0 ? -0.5/beta/beta : -0.5/beta/beta - 0.5*d2Alpha*(coshA/sinhA+nBeads/sinhNA)
+
+        gamma[0] = alpha == 0 ? 0 : 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
+        dGamma[0] = alpha == 0 ? 0 : -1.0/2.0/beta/beta - 1.0/2.0*d2Alpha*(coshA/sinhA+nBeads/sinhNA)
                 + 0.5*dAlpha2*(1/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
-        if (nBeads == 1 && alpha == 0) {
-            gamma[0] = 0;
-            dGamma[0] = 0;
-        }
 
         for (int i=1; i<nBeads; i++) {
             double sinhNmiA = Math.sinh((nBeads-i)*alpha);
@@ -124,24 +121,24 @@ public class MCMoveHOReal2 extends MCMoveBox {
             double sinhRatio = alpha == 0 ? (nBeads-i+1.0)/(nBeads-i) : (sinhNmip1A/sinhNmiA);
             double ki = mass*omegaN*omegaN*sinhRatio;
             chainSigmas[i] = 1.0/Math.sqrt(beta*ki);
-            gamma[i] = alpha == 0 ? 0.5/beta : 0.5/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
-            dGamma[i] = alpha == 0 ? -0.5/beta/beta : -0.5/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
+            gamma[i] = alpha == 0 ? 1.0/2.0/beta : 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
+            dGamma[i] = alpha == 0 ? -1.0/2.0/beta/beta : -1.0/2.0/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
                       + dAlpha2/2.0*(nBeads-i+1)/sinhNmip1A/sinhNmip1A
                       + dAlpha2/2.0*(nBeads-i)*coshA/sinhNmip1A/sinhNmiA
                       - dAlpha2/2.0*(nBeads-i)*(nBeads-i+1)*sinhA/sinhNmip1A*coshNmip1A/sinhNmip1A/sinhNmiA
                       - dAlpha2/2.0*(nBeads-i)*(nBeads-i)*sinhA/sinhNmip1A/sinhNmiA*coshNmiA/sinhNmiA;
-            f11[i] = alpha == 0 ? ((nBeads-i)/(nBeads-i+1.0)) : (sinhNmiA/sinhNmip1A);
-            f1N[i] = alpha == 0 ? (1.0/(nBeads-i+1)) : (sinhA/sinhNmip1A);
+            f11[i] = alpha == 0 ? (nBeads-i)/(nBeads-i+1.0) : sinhNmiA/sinhNmip1A;
+            f1N[i] = alpha == 0 ? 1.0/(nBeads-i+1) : sinhA/sinhNmip1A;
 
             df11[i] = alpha == 0 ? 0 : dAlpha/sinhNmip1A*((nBeads-i)*coshNmiA-(nBeads-i+1)*sinhNmiA*coshNmip1A/sinhNmip1A);
             df1N[i] = alpha == 0 ? 0 : dAlpha/sinhNmip1A*(coshA - (nBeads-i+1)*sinhA*coshNmip1A/sinhNmip1A);
 
-            d2f11[i] = alpha == 0 ? 0 : (d2Alpha/dAlpha*df11[i] + dAlpha2/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
+            d2f11[i] = alpha == 0 ? 0 : d2Alpha/dAlpha*df11[i] + dAlpha2/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
                      - 2*(nBeads-i+1)*(nBeads-i)*coshNmiA*coshNmip1A/sinhNmip1A
-                     + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*alpha))));
-            d2f1N[i] = alpha == 0 ? 0 : (d2Alpha/dAlpha*df1N[i] + dAlpha2/sinhNmip1A*(sinhA
+                     + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*alpha)));
+            d2f1N[i] = alpha == 0 ? 0 : d2Alpha/dAlpha*df1N[i] + dAlpha2/sinhNmip1A*(sinhA
                      -2*(nBeads-i+1)*coshA*coshNmip1A/sinhNmip1A
-                     + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhA/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*alpha))));
+                     + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhA/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*alpha)));
         }
     }
 

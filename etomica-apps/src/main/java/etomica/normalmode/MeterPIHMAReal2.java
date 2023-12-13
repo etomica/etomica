@@ -85,7 +85,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
     @Override
     public IData getData() {
-        drdotHdrdot = 0 ;
         Box box = move.getBox();
         double[] x = data.getData();
 

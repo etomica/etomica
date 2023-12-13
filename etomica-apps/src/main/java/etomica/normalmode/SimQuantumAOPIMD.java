@@ -155,6 +155,11 @@ public class SimQuantumAOPIMD extends Simulation {
 //            params.coordType = MoveChoice.StageEC;
         }
         int nShifts = params.nShifts;
+
+
+        params.nBeads = 2;
+        nShifts = 1;
+
         double mass = params.mass;
         double temperature = params.temperature;
         double hbar = params.hbar;
@@ -197,7 +202,6 @@ public class SimQuantumAOPIMD extends Simulation {
             omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
         }
 //        if (zerok0) omega2 = 0;
-
 
         final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
         sim.integrator.reset();
