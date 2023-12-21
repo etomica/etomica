@@ -4,6 +4,7 @@
 package etomica.modules.glass;
 
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
@@ -27,10 +28,10 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data, errData;
-    protected DataFunction.DataInfoFunction dataInfo;
+    protected DataFunction data, errData, stdevData;
+    protected DataFunction.DataInfoFunction dataInfo, dataInfoStdev;
     protected double[] msdSum, msd2Sum, msdSumBlock;
-    protected final DataTag tTag, tag;
+    protected final DataTag tTag, tag, tagStdev;
     protected long[] nSamples;
     protected final AtomType type;
     protected List<IDataSourceCorBlock> msdSinks;
@@ -49,6 +50,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
+        tagStdev = new DataTag();
         msdSinks = new ArrayList<>();
         reallocate(0);
     }
@@ -64,11 +66,14 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
         errData = new DataFunction(new int[]{n});
+        stdevData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         tDataInfo.addTag(tTag);
         dataInfo = new DataFunction.DataInfoFunction("MSD", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
         dataInfo.addTag(tag);
+        dataInfoStdev = new DataFunction.DataInfoFunction("MSD stdev", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
+        dataInfoStdev.addTag(tagStdev);
         double[] t = tData.getData();
         if (t.length > 0) {
             double dt = configStorage.getDeltaT();
@@ -87,16 +92,27 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
         double[] yErr = errData.getData();
+        double[] yStdev = stdevData.getData();
+        int nAtoms = 0;
+        for (IAtom a : configStorage.getBox().getLeafList()) {
+            if (type == null || a.getType() == type) nAtoms++;
+        }
         for (int i = 0; i < msdSum.length; i++) {
             long M = nSamples[i];
             y[i] = msdSum[i] / M;
-            yErr[i] = Math.sqrt((msd2Sum[i]/M - y[i]*y[i]) / (M - 1));
+            double var = msd2Sum[i]/M - y[i]*y[i];
+            yStdev[i] = Math.sqrt(var * nAtoms) / y[i];
+            yErr[i] = Math.sqrt(var / (M - 1));
         }
         return data;
     }
 
     public DataDoubleArray getError() {
         return errData;
+    }
+
+    public DataDoubleArray getStdev() {
+        return stdevData;
     }
 
     @Override
@@ -161,6 +177,27 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    public IDataSource makeStdevDataSource() {
+        DataSourceMSD meme = this;
+        return new IDataSource() {
+            @Override
+            public IData getData() {
+                meme.getData();
+                return stdevData;
+            }
+
+            @Override
+            public DataTag getTag() {
+                return tagStdev;
+            }
+
+            @Override
+            public IDataInfo getDataInfo() {
+                return dataInfoStdev;
+            }
+        };
     }
 
     @Override

@@ -90,7 +90,7 @@ public class GlassProd {
             params.temperature = 1.0;
             params.numStepsEqIsothermal = 10000;
             params.numStepsIsothermal = 0;
-            params.numSteps = 100000;
+            params.numSteps = 1000000;
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
             params.rcLJ = 2.5;
@@ -1012,11 +1012,11 @@ public class GlassProd {
             GlassProd.writeDataToFile(accSFac, filenameSq);
             GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 
-            GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), filenameMSD);
+            GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), meterMSD.getStdev(), filenameMSD);
             GlassProd.writeDataToFile(dsCorMSD.getFullCorrelation(), "msdFullCor.dat");
             GlassProd.writeDataToFile(dsCorVisc.getFullCorrelation(), "viscFullCor.dat");
-            GlassProd.writeDataToFile(meterMSDA, meterMSDA.getError(), filenameMSDA);
-            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.getError(), filenameMSDB);
+            GlassProd.writeDataToFile(meterMSDA, meterMSDA.getError(), meterMSDA.getStdev(), filenameMSDA);
+            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.getError(), meterMSDB.getStdev(), filenameMSDB);
             GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
             GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
             if (params.doLinear){
@@ -1071,7 +1071,11 @@ public class GlassProd {
         writeDataToFile(meter, null, filename);
     }
 
-    public static void writeDataToFile(IDataSource meter, IData errData, String filename) throws IOException {
+    public static void writeDataToFile(IDataSource meter, IData data2, String filename) throws IOException {
+        writeDataToFile(meter, data2, null, filename);
+    }
+
+    public static void writeDataToFile(IDataSource meter, IData data2, IData data3, String filename) throws IOException {
         IData data;
         IData xData;
         if (meter instanceof AccumulatorAverage) {
@@ -1091,10 +1095,14 @@ public class GlassProd {
         for (int i = 0; i < xData.getLength(); i++) {
             double y = data.getValue(i);
             if (Double.isNaN(y)) continue;
-            if (errData == null) {
+            if (data2 == null) {
                 fw.write(xData.getValue(i) + " " + y + "\n");
-            } else {
-                fw.write(xData.getValue(i) + " " + y + " " + errData.getValue(i) + "\n");
+            }
+            else if (data3 == null) {
+                fw.write(xData.getValue(i) + " " + y + " " + data2.getValue(i) + "\n");
+            }
+            else {
+                fw.write(xData.getValue(i) + " " + y + " " + data2.getValue(i) + " " +data3.getValue(i) + "\n");
             }
         }
         fw.close();
