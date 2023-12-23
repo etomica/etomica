@@ -9,10 +9,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
@@ -116,7 +113,6 @@ public class SimQuantumAO extends Simulation {
         } else if (coordType == MoveChoice.Stage) {
             move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
             integrator.getMoveManager().addMCMove(move);
-//            integrator.getMoveManager().setFrequency(move, 2);
         } else {
             move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
             integrator.getMoveManager().addMCMove(move);
@@ -125,17 +121,14 @@ public class SimQuantumAO extends Simulation {
         if (coordType == MoveChoice.Real || coordType == MoveChoice.NM || coordType == MoveChoice.Stage) {
             translateMove = new MCMoveMolecule(random, pcP1, box);
             integrator.getMoveManager().addMCMove(translateMove);
-//            integrator.getMoveManager().setFrequency(translateMove,0.1);
             if (space.D() == 3 && coordType == MoveChoice.Real) {
                 rotateMove = new MCMoveMoleculeRotate(random, pcP1, box);
                 integrator.getMoveManager().addMCMove(rotateMove);
             }
         }
 
-
         moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
-
     }
 
     public Integrator getIntegrator() {
@@ -151,15 +144,16 @@ public class SimQuantumAO extends Simulation {
         else {
             // custom parameters
             params.steps = 1000000;
-            params.hbar = 1.0;
+            params.hbar = 1;
             params.temperature = 1;
             params.k2 = 1;
-            params.k4 = 0;
+            params.k4 = 24;
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
+            params.nShifts = 0;
         }
 
         int nShifts = params.nShifts;
@@ -179,14 +173,8 @@ public class SimQuantumAO extends Simulation {
         double x = 1/temperature*hbar*w0;
         int nBeads = params.nBeads;
         if (nBeads == -1){
-            nBeads = (int) (20*x);
+            nBeads = (int) (20*x); //20*x and 30*x are good for HO and AO, resp.
         }
-
-
-
-//        nBeads = 2;
-//        nShifts = 1;
-
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
         double omega2 = k2/mass;
@@ -204,7 +192,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" hbar: " + hbar);
         System.out.println(" w: " + Math.sqrt(omega2));
         System.out.println(" wn: " + omegaN  + " , w/sqrt(n): " + Math.sqrt(omega2)/Math.sqrt(nBeads));
-        System.out.println(" x=beta*hbar*w0: " + hbar*Math.sqrt(k2/mass)/temperature);
+        System.out.println(" x = beta*hbar*w = " + hbar*Math.sqrt(k2/mass)/temperature);
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
@@ -216,13 +204,24 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" ====================================");
         double omega = Math.sqrt(omega2);
         double alpha = 1 + 0.5*Math.pow(hbar*sim.betaN*omega,2)+0.5*hbar* sim.betaN*omega*Math.sqrt(4+Math.pow(hbar* sim.betaN*omega,2));
-        double EnQ = sim.space.D()*(hbar*hbar*omega*omega)*sim.betaN*alpha/(alpha*alpha-1)*(Math.pow(alpha,nBeads)+1)/(Math.pow(alpha,nBeads)-1);
-
+        double alpha2 = alpha*alpha;
+        double hbar2 = hbar*hbar;
+        double dAlphaDBeta = 2.0/temperature*hbar2*omega2/nBeads/nBeads*alpha2/(alpha2-1);
+        double dAlphadT = -1.0/temperature/temperature*dAlphaDBeta;
+        double EnQ = sim.space.D()*(hbar2*omega2)*sim.betaN*alpha/(alpha*alpha-1)*(Math.pow(alpha,nBeads)+1)/(Math.pow(alpha,nBeads)-1);
+        double numerator = 1 + alpha2 - Math.pow(alpha,2*nBeads)*(alpha2+1)-2*nBeads*(alpha2-1)*Math.pow(alpha,nBeads);
+        double denominator = (alpha2-1)*(alpha2-1)*(Math.pow(alpha,nBeads)-1)*(Math.pow(alpha,nBeads)-1);
+        double CvnQ = sim.space.D()*hbar2*omega2*sim.betaN*dAlphadT*numerator/denominator-1/temperature/temperature*EnQ*temperature;
         double EnQinf = sim.space.D()*hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
+        double CvnQinf = sim.space.D()*Math.pow(1.0/temperature*hbar*omega/2/Math.sinh(1.0/temperature*hbar*omega/2), 2);
         double EnC = sim.space.D()*temperature;
-        System.out.println(" EnC: " + EnC);
-        System.out.println(" EnQ: " + EnQ);
-        System.out.println(" EnQinf: " + EnQinf);
+        double CvnC = sim.space.D();
+        System.out.println(" En_ho_c: " + EnC);
+        System.out.println(" En_ho_q: " + EnQ);
+        System.out.println(" E_ho_q: " + EnQinf);
+        System.out.println(" Cvn_ho_c: " + CvnC);
+        System.out.println(" Cvn_ho_q: " + CvnQ);
+        System.out.println(" Cv_ho_c: " + CvnQinf + "\n");
 
 //        MeterMSDHO meterMSDHO = new MeterMSDHO(sim.box);
         MeterPIPrim meterPrim = null;
@@ -291,6 +290,107 @@ public class SimQuantumAO extends Simulation {
         }
 
         System.out.flush();
+
+
+        //Write En
+        DataLogger dlPrim = new DataLogger();
+        DataLogger dlV = new DataLogger();
+        DataLogger dlCV = new DataLogger();
+        DataLogger dlHMAc = new DataLogger();
+        DataLogger dlNMSimple = new DataLogger();
+        DataLogger dlNMEC = new DataLogger();
+        DataLogger dlStageSimple = new DataLogger();
+        DataLogger dlStageEC = new DataLogger();
+        boolean writeEn = false;
+        if (writeEn) {
+            int intervalDL = 1;
+            int stepsDL = 10000;
+            //Prim
+            DataPumpListener dlPumpPrim = new DataPumpListener(meterPrim, dlPrim, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpPrim);
+            dlPrim.setFileName("En_prim_T" + temperature + ".dat");
+            dlPrim.setAppending(false);
+            DataArrayWriter writerPrim = new DataArrayWriter();
+            writerPrim.setIncludeHeader(false);
+            dlPrim.setDataSink(writerPrim);
+
+            //Vir
+            DataPumpListener dlPumpV = new DataPumpListener(meterVir, dlV, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpV);
+            dlV.setFileName("En_vir_T"+temperature+".dat");
+            dlV.setAppending(false);
+            DataArrayWriter writerV = new DataArrayWriter();
+            writerV.setIncludeHeader(false);
+            dlV.setDataSink(writerV);
+
+            //CVir
+            DataPumpListener dlPumpCV = new DataPumpListener(meterCentVir, dlCV, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpCV);
+            dlCV.setFileName("En_cvir_T" + temperature + ".dat");
+            dlCV.setAppending(false);
+            DataArrayWriter writerCV = new DataArrayWriter();
+            writerCV.setIncludeHeader(false);
+            dlCV.setDataSink(writerCV);
+
+            //HMAc
+            DataPumpListener dlPumpHMAc = new DataPumpListener(meterHMAc, dlHMAc, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpHMAc);
+            dlHMAc.setFileName("En_hmac_T" + temperature + ".dat");
+            dlHMAc.setAppending(false);
+            DataArrayWriter writerHMAc = new DataArrayWriter();
+            writerHMAc.setIncludeHeader(false);
+            dlHMAc.setDataSink(writerHMAc);
+
+            //Simple NM
+            DataPumpListener dlPumpNMSimple = new DataPumpListener(meterNMSimple, dlNMSimple, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpNMSimple);
+            dlNMSimple.setFileName("En_nm_simple_T" + temperature + ".dat");
+            dlNMSimple.setAppending(false);
+            DataArrayWriter writerNMSimple = new DataArrayWriter();
+            writerNMSimple.setIncludeHeader(false);
+            dlNMSimple.setDataSink(writerNMSimple);
+
+            // EC NM
+            DataPumpListener dlPumpNMEC = new DataPumpListener(meterNMEC, dlNMEC, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpNMEC);
+            dlNMEC.setFileName("En_nm_ec_T" + temperature + ".dat");
+            dlNMEC.setAppending(false);
+            DataArrayWriter writerNMEC = new DataArrayWriter();
+            writerNMEC.setIncludeHeader(false);
+            dlNMEC.setDataSink(writerNMEC);
+
+            //Simple Stage
+            DataPumpListener dlPumpStageSimple = new DataPumpListener(meterStageSimple, dlStageSimple, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpStageSimple);
+            dlStageSimple.setFileName("En_stage_simple_T" + temperature + ".dat");
+            dlStageSimple.setAppending(false);
+            DataArrayWriter writerStageSimple = new DataArrayWriter();
+            writerStageSimple.setIncludeHeader(false);
+            dlStageSimple.setDataSink(writerStageSimple);
+
+            // EC Stage
+            DataPumpListener dlPumpStageEC = new DataPumpListener(meterStageEC, dlStageEC, intervalDL);
+            sim.integrator.getEventManager().addListener(dlPumpStageEC);
+            dlStageEC.setFileName("En_stage_ec_T" + temperature + ".dat");
+            dlStageEC.setAppending(false);
+            DataArrayWriter writerStageEC = new DataArrayWriter();
+            writerStageEC.setIncludeHeader(false);
+            dlStageEC.setDataSink(writerStageEC);
+
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsDL));
+
+            dlPrim.cleanUp();
+            dlV.cleanUp();
+            dlCV.cleanUp();
+            dlHMAc.cleanUp();
+            dlNMSimple.cleanUp();
+            dlNMEC.cleanUp();
+            dlStageSimple.cleanUp();
+            dlStageEC.cleanUp();
+            System.exit(0);
+        }
+
+
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
         System.out.println(" equilibration finished");
@@ -548,6 +648,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println("\n acceptance %: " + 100*sim.move.getTracker().acceptanceProbability());
         if (sim.translateMove!= null) {
             System.out.println(" translate step size: " + sim.translateMove.getStepSize());
+            System.out.println(" acceptance % (translate):" + 100*sim.translateMove.getTracker().acceptanceProbability());
         }
 
         long endTime = System.currentTimeMillis();
@@ -558,7 +659,7 @@ public class SimQuantumAO extends Simulation {
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1.0;
-        public double hbar = 1;
+        public double hbar = 0.1;
         public double mass = 1;
         public double k2 = 1;
         public double k4 = 0;

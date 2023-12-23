@@ -76,6 +76,19 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         d2CenterCoefficients = move.getD2CenterCoefficients();
         d2f11 = d2CenterCoefficients[0];
         d2f1N = d2CenterCoefficients[1];
+
+        if (move.omega2 != 0) {
+            double En_ho_stage = dim*nBeads/2.0*temperature;
+            double Cvn_ho_stage = dim * nBeads / 2.0 * temperature * temperature;
+            for (int k = 0; k < nBeads; k++) {
+                En_ho_stage -= dim * gamma[k];
+                Cvn_ho_stage += dim * dGamma[k];
+            }
+            Cvn_ho_stage *= beta * beta;
+            System.out.println(" En_ho_stage:  " + En_ho_stage);
+            System.out.println(" Cvn_ho_stage: " + Cvn_ho_stage);
+        }
+
     }
 
     public void setNumShifts(int nShifts) {
@@ -123,9 +136,9 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
             }
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
-                drdotHdrdot = 0;
                 double En = 0;
                 double Cvn = 0;
+                drdotHdrdot = 0;
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
 //                dr0.PE(drShift);
@@ -180,22 +193,19 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                         v0.E(v);
                         a0.E(a);
                     }
-                    rdot[j].E(v);
                     vPrev.E(v);
                     aPrev.E(a);
-                }
+                    rdot[jj].E(v);
+                } // j
                 pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
                 x[0] += En0 + En;
                 x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
-            }
+            }//shifts
         }
 
         x[0] /= ns;
         x[1] /= ns;
-//        if (move.omega2 != 0) {
-//            System.out.println(rdot[0] + "  " + rdot[1]);
-//        }
         return data;
     }
 

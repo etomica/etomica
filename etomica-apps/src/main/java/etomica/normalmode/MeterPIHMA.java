@@ -93,16 +93,18 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             }
         }
 
-        double En_harm = 1.0/2.0/this.betaN;
-        double Cvn_harm = nBeads/2.0/beta/beta;
-        for (int k = 0; k < nBeads; k++){
-            En_harm -= gk[k];
-            Cvn_harm += gk2[k];
+        if (omega2 != 0) {
+            double En_ho_nm = 1.0 / 2.0 / this.betaN;
+            double Cvn_ho_nm = nBeads / 2.0 / beta / beta;
+            for (int k = 0; k < nBeads; k++) {
+                En_ho_nm -= gk[k];
+                Cvn_ho_nm += gk2[k];
+            }
+            Cvn_ho_nm *= beta * beta;
+            System.out.println(" En_ho_nm:  " + En_ho_nm);
+            System.out.println(" Cvn_ho_nm: " + Cvn_ho_nm);
         }
-        Cvn_harm *= beta*beta;
 
-        System.out.println(" En_harm: " + En_harm);
-        System.out.println(" Cvn_harm: " + Cvn_harm);
 
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (IMolecule m : box.getMoleculeList()) {
@@ -116,7 +118,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         drdotHdrdot = 0 ;
         double[] x = data.getData();
         Vector shift = computeShift();
-//        System.out.println("******** HMA *************");
         IMoleculeList molecules = box.getMoleculeList();
         Vector drj = box.getSpace().makeVector();
         for (IMolecule m : molecules) {
@@ -177,6 +178,13 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         return data;
     }
 
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        Vector tmpV = box.getSpace().makeVector();
+        tmpV.E(rdot[j]);
+        Hij.transform(tmpV);
+        drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
+    }
+
     protected Vector computeShift() {
         if (box.getMoleculeList().size() == 1) {
             return box.getSpace().makeVector();
@@ -211,14 +219,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         dr.Ev1Mv2(r, latticeSite);
         dr.PE(shift);
         box.getBoundary().nearestImage(dr);
-    }
-
-
-    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
-        Vector tmpV = box.getSpace().makeVector();
-        tmpV.E(rdot[j]);
-        Hij.transform(tmpV);
-        drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
     }
 
     public IDataInfo getDataInfo() {

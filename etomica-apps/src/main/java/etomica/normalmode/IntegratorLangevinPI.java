@@ -36,20 +36,20 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
     protected double gamma;
     protected final double[] sigma, f11, f1N;
-    protected double omega2;
+    protected double omega2HO;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
 
     public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
                                 double timeStep, double temperature, Box box, double gamma,
-                                MCMoveHOReal2 move, double hbar, double omega2) {
+                                MCMoveHOReal2 move, double hbar, double omega2HO) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
 
         sigma = move.chainSigmas;
         f11 = move.f11;
         f1N = move.f1N;
-        this.omega2 = omega2;
+        this.omega2HO = omega2HO;
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
@@ -63,12 +63,27 @@ public class IntegratorLangevinPI extends IntegratorMD {
         fScale = new double[nBeads];
         fScale0 = new double[nBeads];
 
-        mScale[0] = (alpha == 0 || nBeads == 1) ? nBeads : 2.0*nBeads*omegaN2/omega2*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
+        mScale[0] = (alpha == 0 || nBeads == 1) ? nBeads : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
+
+// Check how m0 varies with x for the EC-stage
+//        System.out.println(mScale[0]/nBeads);
+//        if (alpha != 0) {
+//            for (int i=1;i<=100;i++) {
+//                double x = 1.0*i;
+//                double n = 20 * x;
+//                double d = 1 + 0.5 * (x / n) * (x / n);
+//                double a = Math.log(d + Math.sqrt(d * d - 1));
+//                double m0 = 1 * (2 / n) * (n / x) * (n / x) * Math.sinh(a) * Math.tanh(n * a / 2);
+//                System.out.println(x + "  " + m0);
+//            }
+//            System.exit(0);
+//        }
+
         fScale0[0] = 1;
         for (int i=1; i<nBeads; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
-            mScale[i]  = alpha == 0 ? nBeads*omegaN2/omega2*(nBeads - i + 1.0)/(nBeads - i) : nBeads*omegaN2/omega2*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
+            mScale[i]  = alpha == 0 ? nBeads*omegaN2/omega2HO*(nBeads - i + 1.0)/(nBeads - i) : nBeads*omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
 
       // The "s" rescaling is no longer needed as s=1 always!
@@ -95,13 +110,17 @@ public class IntegratorLangevinPI extends IntegratorMD {
 //            }
 //            aSum += a[i];
 //        }
-//
 //        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
 //        double M = nBeads/(aSum/nBeads);
 //        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
-//        for (int i=0; i<mScale.length; i++) {
-//            mScale[i] *= s;
-//        }
+
+        // mi need to be larger to match the real COM oscillations
+        if (alpha == 0) {
+            double s = 1 + 1.0/12.0*omega2HO/omegaN/omegaN/nBeads*(nBeads*nBeads-1);
+            for (int i = 0; i < mScale.length; i++) {
+                mScale[i] *= s;
+            }
+        }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
     }
