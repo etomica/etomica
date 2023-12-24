@@ -1353,8 +1353,8 @@ public class GlassGraphic extends SimulationGraphic {
         DataSourceMSD meterMSDA = new DataSourceMSD(configStorage, sim.speciesA.getLeafType());
         configStorage.addListener(meterMSDA);
         DataPumpListener pumpMSDA = new DataPumpListener(meterMSDA, plotMSD.getDataSet().makeDataSink(), 1000);
-        sim.integrator.getEventManager().addListener(pumpMSDA);
         plotMSD.setLegend(new DataTag[]{meterMSDA.getTag()}, "A");
+        sim.integrator.getEventManager().addListener(pumpMSDA);
         DataSourceMSD meterMSDB = new DataSourceMSD(configStorage, sim.speciesB.getLeafType());
         configStorage.addListener(meterMSDB);
         DataPumpListener pumpMSDB = new DataPumpListener(meterMSDB, plotMSD.getDataSet().makeDataSink(), 1000);
@@ -1560,6 +1560,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         DisplayPlotXChart plotSFac = new DisplayPlotXChart();
         accSFac.addDataSink(plotSFac.makeSink("sfac"), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+        plotSFac.setLegend(new DataTag[]{accSFac.getTag()}, "density");
         plotSFac.setLabel("SFac");
         plotSFac.getSeries("sfac")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
@@ -1614,6 +1615,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         MeterFromDumps sfacFromDumps = new MeterFromDumps(dumpSFacMobility);
         DataPumpListener pumpSfacMobility = new DataPumpListener(sfacFromDumps, plotSFac.makeSink("mobility"), 500);
+        plotSFac.setLegend(new DataTag[]{sfacFromDumps.getTag()}, "mobility");
         sim.integrator.getEventManager().addListener(pumpSfacMobility);
         plotSFac.getSeries("mobility")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
@@ -1621,6 +1623,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         MeterFromDumps sfacFromDumpsMotion = new MeterFromDumps(dumpSFacMotion);
         DataPumpListener pumpSfacMotion = new DataPumpListener(sfacFromDumpsMotion, plotSFac.makeSink("xmotion"), 500);
+        plotSFac.setLegend(new DataTag[]{sfacFromDumpsMotion.getTag()}, "xmotion");
         sim.integrator.getEventManager().addListener(pumpSfacMotion);
         plotSFac.getSeries("xmotion")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
@@ -1640,6 +1643,8 @@ public class GlassGraphic extends SimulationGraphic {
         Vector[] wv = meterSFac.getWaveVectors();
         List<Vector> myWV = new ArrayList<>();
         double wvMax2 = 2.01 * Math.PI / L;
+        // find all wv pointing in x, y OR z with mag < wvMax
+        // because wvMax is the smallest wv size, we get 3 wv
         for (Vector vector : wv) {
             int nd = 0;
             for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
@@ -1807,72 +1812,86 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(pumpSFacMobilityCor);
             plotSFacCor.getSeries("mobility" + label)
                     .setLabel("mobility " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "mobility");
 
             m = sfcDensityCor.makeMeter(mobilityMap[j]);
             DataPumpListener pumpSFacDensityCor = new DataPumpListener(m, plotSFacCor.makeSink("density" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacDensityCor);
             plotSFacCor.getSeries("density" + label)
                     .setLabel("density " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density");
 
             m = sfcKECor.makeMeter(mobilityMap[j]);
             DataPumpListener pumpSFacKEsfcCor = new DataPumpListener(m, plotSFacCor.makeSink("KE" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacKEsfcCor);
 
             plotSFacCor.getSeries("KE" + label).setLabel("KE " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "KE");
 
             m = sfcStress2Cor.makeMeter(mobilityMap[j]);
             DataPumpListener pumpSFacStress2sfcCor = new DataPumpListener(m, plotSFacCor.makeSink("stress" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacStress2sfcCor);
             plotSFacCor.getSeries("stress" + label).setLabel("stress " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "stress");
 
             if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
                 m = sfcPackingCor.makeMeter(mobilityMap[j]);
                 DataPumpListener pumpSFacPackingCor = new DataPumpListener(m, plotSFacCor.makeSink("packing" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpSFacPackingCor);
                 plotSFacCor.getSeries("packing" + label).setLabel("packing " + label);
+                plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "packing");
             } else {
                 m = sfcDensityACor.makeMeter(mobilityMap[j]);
                 DataPumpListener pumpSFacDensityACor = new DataPumpListener(m, plotSFacCor.makeSink("densityA" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpSFacDensityACor);
                 plotSFacCor.getSeries("densityA" + label).setLabel("densityA " + label);
+                plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density4");
             }
             DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
             DataPumpListener pumpCorSFacDensityMobility = new DataPumpListener(mm, plotSFacCor.makeSink("d-m" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacDensityMobility);
             plotSFacCor.getSeries("d-m" + label).setLabel("d-m " + label);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "den-mob");
 
             if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
                 mm = dsCorSFacPackingMobility.makeMeter(j);
                 DataPumpListener pumpCorSFacPackingMobility = new DataPumpListener(mm, plotSFacCor.makeSink("p-m" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacPackingMobility);
                 plotSFacCor.getSeries("p-m" + label).setLabel("p-m " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "pack-mob");
 
                 mm = dsCorSFacPackingDensity.makeMeter(j);
                 DataPumpListener pumpCorSFacPackingDensity = new DataPumpListener(mm, plotSFacCor.makeSink("p-d" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacPackingDensity);
                 plotSFacCor.getSeries("p-d" + label).setLabel("p-d " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "pack-den");
             } else {
                 mm = dsCorSFacDensityAMobility.makeMeter(j);
                 DataPumpListener pumpCorSFacDensityAMobility = new DataPumpListener(mm, plotSFacCor.makeSink("da-m" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacDensityAMobility);
                 plotSFacCor.getSeries("da-m" + label).setLabel("da-m " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "dena-mob");
 
                 mm = dsCorSFacDensityADensity.makeMeter(j);
                 DataPumpListener pumpCorSFacDensityADensity = new DataPumpListener(mm, plotSFacCor.makeSink("da-d" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacDensityADensity);
                 plotSFacCor.getSeries("da-d" + label).setLabel("da-d " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "dena-den");
             }
             mm = dsCorSFacKEMobility.makeMeter(j);
             DataPumpListener pumpCorSFacKEMobility = new DataPumpListener(mm, plotSFacCor.makeSink("KE-m" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacKEMobility);
             plotSFacCor.getSeries("KE-m" + label).setLabel("KE-m " + label);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "KE-mob");
 
             mm = dsCorSFacStress2Mobility.makeMeter(j);
             DataPumpListener pumpCorSFacStress2Mobility = new DataPumpListener(mm, plotSFacCor.makeSink("s-m" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacStress2Mobility);
             plotSFacCor.getSeries("s-m" + label).setLabel("s-m " + label);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "stress-mob");
         }
 
+        // only pay attention to the first wave vector of each category
         foo = new int[motionMap.length];
         for (int j = 0; j < motionMap.length; j++) {
             if (foo[motionMap[j]] != 0) continue;
@@ -1885,6 +1904,7 @@ public class GlassGraphic extends SimulationGraphic {
             DataPumpListener pumpSFacMotionCor = new DataPumpListener(m, plotSFacCor.makeSink("motion" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacMotionCor);
             plotSFacCor.getSeries("motion" + label).setLabel("motion " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "motion "+label);
         }
 
         DeviceSlider sfacPrevConfig = new DeviceSlider(sim.getController(), new Modifier() {
@@ -1927,6 +1947,7 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(pumpSFacNormal);
 
         accSFacNormalStress.addDataSink(plotSFac.makeSink("normalstress"), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+        plotSFac.setLegend(new DataTag[]{accSFacNormalStress.getTag()}, "normal stress");
         plotSFac.getSeries("normalstress")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("normal stress");
