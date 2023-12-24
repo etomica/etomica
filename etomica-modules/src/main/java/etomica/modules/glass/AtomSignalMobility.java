@@ -44,10 +44,10 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         Vector[] prevPositions = configStorage.getSavedConfig(idx);
         int atomIndex = atom.getLeafIndex();
         dr.Ev1Mv2(positions[atomIndex], prevPositions[atomIndex]);
-        double r = Math.sqrt(dr.squared());
+        double r2 = dr.squared();
         if (msd != null) {
-            r -= msd[atom.getType().getIndex()][idx];
+            r2 -= msd[atom.getType().getIndex()][idx];
         }
-        return s * r;
+        return s * r2;
     }
 }
