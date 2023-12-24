@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This data sink expects structure factor as input and computes block
+ * averages for the real and imaginary components.  The block averages
+ * are sent on to a Sink along with the size of the block.
+ */
 public class DataSinkBlockAveragerSFac implements IDataSink, Statefull {
 
     protected final ConfigurationStorage configStorage;
