@@ -507,14 +507,15 @@ public class GlassProd {
         meterSFac.setNormalizeByN(true);
         DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 5000);
         sim.integrator.getEventManager().addListener(pumpSFac);
-        double vB = sim.getSpace().powerD(sim.sigmaB);
-        ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
+        double vA = sim.getSpace().sphereVolume(0.5);
+        double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
 
         AccumulatorAverageFixed accSFacAB = new AccumulatorAverageFixed(1);  // just average, no uncertainty
         MeterStructureFactor meterSFacAB = new MeterStructureFactor(sim.box, cut10);
         meterSFacAB.setNormalizeByN(true);
         DataPumpListener pumpSFacAB = new DataPumpListener(meterSFacAB, accSFacAB, 5000);
         sim.integrator.getEventManager().addListener(pumpSFacAB);
+        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacAB.getSignalSource()).setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFacAB.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
 
         double[][] sfacMSD = null;
@@ -617,7 +618,13 @@ public class GlassProd {
         dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
 
         MeterStructureFactor.AtomSignalSourceByType atomSignalPacking = new MeterStructureFactor.AtomSignalSourceByType();
-        atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.HS ? vB : 0);
+        if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+            atomSignalPacking.setAtomTypeFactor(sim.speciesA.getLeafType(), vB);
+            atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), vA);
+        }
+        else {
+            atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
+        }
         MeterStructureFactor meterSFacPacking2 = new MeterStructureFactor(sim.box, 3, atomSignalPacking);
         meterSFacPacking2.setNormalizeByN(true);
         meterSFacPacking2.setWaveVec(wv);
