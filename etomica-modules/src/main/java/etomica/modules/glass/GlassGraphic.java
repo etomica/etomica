@@ -1570,13 +1570,16 @@ public class GlassGraphic extends SimulationGraphic {
 
         double L = sim.box.getBoundary().getBoxSize().getX(0);
 
+        // straight structure factors
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
-            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorage);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility, positionMobility);
             meterSFacMobility[i].setNormalizeByN(true);
             DataFork forkSFacMobility = new DataFork();
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
@@ -1591,13 +1594,17 @@ public class GlassGraphic extends SimulationGraphic {
             accSFacMobility[i].addDataSink(dumpSFacMobility[i], new AccumulatorAverage.StatType[]{accSFacMobility[i].AVERAGE});
         }
 
+        // and now structure factor correlations; either self correlation in time or cross correlation at a given time
         MeterStructureFactor[] meterSFacMotion = new MeterStructureFactor[30];
         DataDump[] dumpSFacMotion = new DataDump[30];
         AccumulatorAverageFixed[] accSFacMotion = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
-            meterSFacMotion[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            // for the purpose of position, mobility and motion can work the same way
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorage);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMotion[i] = new MeterStructureFactor(sim.box, 3, signalMotion, positionMobility);
             meterSFacMotion[i].setNormalizeByN(true);
             DataFork forkSFacMotion = new DataFork();
             accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
@@ -1763,7 +1770,9 @@ public class GlassGraphic extends SimulationGraphic {
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
-            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorage);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion, positionMobility);
             meterSFacMotion2[i].setNormalizeByN(true);
             meterSFacMotion2[i].setWaveVec(wv);
             DataPump pumpSFacMotion2 = new DataPump(meterSFacMotion2[i], sfcMotionCor.makeSink(i, meterSFacMotion2[i]));
@@ -1774,7 +1783,7 @@ public class GlassGraphic extends SimulationGraphic {
 
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
-            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility, positionMobility);
             meterSFacMobility2[i].setNormalizeByN(true);
             meterSFacMobility2[i].setWaveVec(wv);
             DataFork sfacMobility2Fork = new DataFork();

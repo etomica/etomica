@@ -529,7 +529,9 @@ public class GlassProd {
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
             signalMobility.setPrevConfig(i + 1);
-            MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, cut3, signalMobility);
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorageMSD);
+            positionMobility.setPrevConfig(i + 1);
+            MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, cut3, signalMobility, positionMobility);
             meterSFacMobility.setNormalizeByN(true);
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility, accSFacMobility[i]);
@@ -543,7 +545,10 @@ public class GlassProd {
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
             signalMotion.setPrevConfig(i + 1);
-            MeterStructureFactor meterSFacMotion = new MeterStructureFactor(sim.box, cut3, signalMotion);
+            // position for mobility is the same as for motion
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorageMSD);
+            positionMobility.setPrevConfig(i + 1);
+            MeterStructureFactor meterSFacMotion = new MeterStructureFactor(sim.box, cut3, signalMotion, positionMobility);
             meterSFacMotion.setNormalizeByN(true);
             accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
             DataPump pumpSFacMotion = new DataPump(meterSFacMotion, accSFacMotion[i]);
@@ -661,7 +666,9 @@ public class GlassProd {
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
             signalMotion.setPrevConfig(i + 1);
-            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorageMSD);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion, positionMobility);
             meterSFacMotion2[i].setNormalizeByN(true);
             meterSFacMotion2[i].setWaveVec(wv);
             DataPump pumpSFacMotion2 = new DataPump(meterSFacMotion2[i], sfcMotionCor.makeSink(i, meterSFacMotion2[i]));
@@ -672,7 +679,7 @@ public class GlassProd {
 
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
             signalMobility.setPrevConfig(i + 1);
-            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility, positionMobility);
             meterSFacMobility2[i].setNormalizeByN(true);
             meterSFacMobility2[i].setWaveVec(wv);
             DataFork sfacMobility2Fork = new DataFork();

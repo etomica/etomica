@@ -41,6 +41,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     protected final AtomSignalSource signalSource;
+    protected final AtomPositionSource positionSource;
     protected double cutoff;
     protected double[] phaseAngles;
     protected boolean normalizeByN;
@@ -55,8 +56,13 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     }
 
     public MeterStructureFactor(Box aBox, double cutoff, AtomSignalSource signalSource) {
+        this(aBox, cutoff, signalSource, new AtomPositionSource());
+    }
+
+    public MeterStructureFactor(Box aBox, double cutoff, AtomSignalSource signalSource, AtomPositionSource positionSource) {
         this.signalSource = signalSource;
         this.box = aBox;
+        this.positionSource = positionSource;
         space = aBox.getSpace();
         atomList = box.getLeafList();
         tag = new DataTag();
@@ -199,7 +205,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
             for (IAtom atom : atomList) {
                 double signal = signalSource == null ? 1.0 : signalSource.signal(atom);
                 if (signal == 0) continue;
-                double dotprod = waveVec[k].dot(atom.getPosition());
+                double dotprod = waveVec[k].dot(positionSource.position(atom));
                 term1 += signal * Math.cos(dotprod);
                 term2 += signal * Math.sin(dotprod);
             }
@@ -244,6 +250,13 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     public interface AtomSignalSource {
         default boolean ready() {return true;};
         double signal(IAtom atom);
+    }
+
+    public static class AtomPositionSource {
+        public boolean ready() {return true;};
+        public Vector position(IAtom atom) {
+            return atom.getPosition();
+        }
     }
 
     public static class AtomSignalSourceByType implements AtomSignalSource {
