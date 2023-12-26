@@ -11,11 +11,11 @@ import etomica.data.meter.MeterStructureFactor;
  */
 public class StructorFactorComponentExtractor implements IDataSink {
     private double[][] xyData;
-    private final MeterStructureFactor[] meterSFacMobility2;
+    private final MeterStructureFactor meterSFacMobility2;
     private final int interval;
-    private final DataSourceCorrelation dsCorSFacDensityMobility;
+    private final StructureFactorComponentSink dsCorSFacDensityMobility;
 
-    public StructorFactorComponentExtractor(MeterStructureFactor[] meterSFacMobility2, int interval, DataSourceCorrelation dsCorSFacDensityMobility) {
+    public StructorFactorComponentExtractor(MeterStructureFactor meterSFacMobility2, int interval, StructureFactorComponentSink dsCorSFacDensityMobility) {
         this.meterSFacMobility2 = meterSFacMobility2;
         this.interval = interval;
         this.dsCorSFacDensityMobility = dsCorSFacDensityMobility;
@@ -23,7 +23,7 @@ public class StructorFactorComponentExtractor implements IDataSink {
 
     @Override
     public void putData(IData data) {
-        double[] phaseAngles = meterSFacMobility2[interval].getPhaseAngles();
+        double[] phaseAngles = meterSFacMobility2.getPhaseAngles();
         for (int i = 0; i < xyData.length; i++) {
             double sfac = data.getValue(i);
             double tanphi = Math.tan(phaseAngles[i]);
@@ -35,11 +35,17 @@ public class StructorFactorComponentExtractor implements IDataSink {
             xyData[i][0] = x;
             xyData[i][1] = y;
         }
+        // DataSourceCorrelation expects 1
         dsCorSFacDensityMobility.putData(1, interval, xyData);
     }
 
     @Override
     public void putDataInfo(IDataInfo dataInfo) {
         xyData = new double[dataInfo.getLength()][2];
+    }
+
+    public interface StructureFactorComponentSink {
+        // so ugly.  we take idx here because DataSourceCorrelation wants it
+        void putData(int idx, int interval, double[][] xyData);
     }
 }

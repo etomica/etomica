@@ -22,7 +22,7 @@ import java.util.Arrays;
  * over configs from steps 1, 2, 3 and 4.  The mobility will use the displacement from
  * steps 0 to 4.
  */
-public class DataSourceCorrelation implements DataSourceIndependent {
+public class DataSourceCorrelation implements DataSourceIndependent, StructorFactorComponentExtractor.StructureFactorComponentSink {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;

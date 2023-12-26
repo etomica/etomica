@@ -1810,14 +1810,14 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacDensityMobility));
             if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
-                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
+                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacPackingMobility));
             } else {
-                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityAMobility));
+                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacDensityAMobility));
             }
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacKEMobility));
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacStress2Mobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacKEMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacStress2Mobility));
         }
 
         DisplayPlotXChart plotSFacCor = new DisplayPlotXChart();

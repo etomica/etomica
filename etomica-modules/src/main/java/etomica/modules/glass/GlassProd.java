@@ -694,10 +694,10 @@ public class GlassProd {
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorageMSD.addListener(cspMobility2);
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacStress2Mobility));
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacKEMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacDensityMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacPackingMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacStress2Mobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacKEMobility));
         }
 
 
