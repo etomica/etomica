@@ -25,6 +25,8 @@ import java.util.Set;
  * will save all configurations that will be needed to compute MSD from.
  * With LOG2 storage, it will store configurations that are (more or less)
  * 1, 2, 4, 8, 16... steps ago.
+ *
+ * Configs are saved as part of the integrator's stepStarted event.
  */
 public class ConfigurationStorage implements IntegratorListener, Statefull {
 
