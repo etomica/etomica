@@ -80,7 +80,7 @@ public class GlassGraphic extends SimulationGraphic {
         configStorageLinear.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorageLinear);
 
-        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
+        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
         DisplayBox dbox;
