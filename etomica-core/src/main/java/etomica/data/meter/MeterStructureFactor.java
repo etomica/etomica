@@ -204,7 +204,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
                 term2 += signal * Math.sin(dotprod);
             }
             struct[k] = ((term1 * term1) + (term2 * term2)) / (normalizeByN ? numAtoms : n2);
-            phaseAngles[k] = Math.atan2(term1, term2);
+            phaseAngles[k] = Math.atan2(term2, term1);
         }
         return data;
     }
