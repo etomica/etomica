@@ -282,6 +282,9 @@ public class ConfigurationStorage implements IntegratorListener, Statefull {
         return configVelList[idx];
     }
 
+    /**
+     * @returns the time interval between consective configs.
+     */
     public double getDeltaT() {
         return dt;
     }

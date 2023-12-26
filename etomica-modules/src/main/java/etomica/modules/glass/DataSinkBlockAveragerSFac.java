@@ -56,6 +56,7 @@ public class DataSinkBlockAveragerSFac implements IDataSink, Statefull {
         long step = configStorage.getSavedSteps()[0];
         double[][] xy = blockAvg[minInterval];
         double[] phaseAngles = meterSFac.getPhaseAngles();
+        // loop over wave vectors
         for (int j = 0; j < xy.length; j++) {
             double sfac = inputData.getValue(j);
             double tanphi = Math.tan(phaseAngles[j]);
