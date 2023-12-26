@@ -14,6 +14,13 @@ import java.util.Arrays;
 /**
  * Computes correlation of two input data streams, expected to each be 2 values.
  * Correlation is computed as though the two input data are vectors.
+ *
+ * When used to compute correlation between a dynamic (mobility) structure factor
+ * and a static (density) structure factor from a DataSinkBlockAveragerSFac, the
+ * effect is that the dynamic sfac is computed between slightly different configs than
+ * those for the static sfac.  For an interval of 4, the static sfac will be averaged
+ * over configs from steps 1, 2, 3 and 4.  The mobility will use the displacement from
+ * steps 0 to 4.
  */
 public class DataSourceCorrelation implements DataSourceIndependent {
 
