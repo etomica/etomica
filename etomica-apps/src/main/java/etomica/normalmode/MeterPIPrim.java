@@ -14,13 +14,13 @@ public class MeterPIPrim implements IDataSource {
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected double dim;
+    protected int dim;
     protected double beta;
     protected int numAtoms;
     protected Box box;
 
     public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, Box box) {
-        int nData = 2;
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -49,8 +49,12 @@ public class MeterPIPrim implements IDataSource {
 
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
-        x[0] = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
-        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta + x[0]*x[0];
+        if (numAtoms==1){
+            x[0] = dim*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
+        } else {
+            x[0] = dim*(numAtoms*nBeads-1)/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
+        }
+//        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta + x[0]*x[0];
         return data;
     }
 }

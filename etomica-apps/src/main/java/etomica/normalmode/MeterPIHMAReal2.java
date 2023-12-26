@@ -33,7 +33,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected final MCMoveHOReal2 move;
 
     protected int nShifts = 0;
-    protected double dim;
+    protected int dim;
     protected Vector[] rdot;
     protected double drdotHdrdot;
     protected Vector[] latticePositions;
@@ -43,9 +43,10 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
 
     public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, MCMoveHOReal2 move) {
+        int nData = 1;
         this.move = move;
         this.beta = 1/temperature;
-        int nData = 2;
+        this.nBeads = nBeads;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -53,17 +54,16 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
         Box box = move.getBox();
-        this.nBeads = nBeads;
-        rdot = new Vector[this.nBeads];
-        for (int i=0; i<this.nBeads; i++) {
+        numAtoms = box.getMoleculeList().size();
+        dim = box.getSpace().D();
+        rdot = new Vector[dim*nBeads*numAtoms];
+        for (int i = 0; i < dim*nBeads*numAtoms; i++) {
             rdot[i] = box.getSpace().makeVector();
         }
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (int i=0; i<latticePositions.length; i++) {
             latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
-        numAtoms = box.getMoleculeList().size();
-        dim = box.getSpace().D();
 
         gamma = move.getGamma();
         dGamma = move.getdGamma();
@@ -124,24 +124,27 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         Vector vPrev = box.getSpace().makeVector();
         Vector aPrev = box.getSpace().makeVector();
 
-//        Vector drShift = computeShift();
+        Vector drShift = box.getSpace().makeVector();
+        if (box.getMoleculeList().size() > 1) {
+            drShift = computeShift();
+        }
         int ns = nShifts+1;
 
         for (int i=0; i < x.length; i++){
             x[i] = 0;
         }
+        double En = 0;
         for (int i = 0; i < molecules.size(); i++) {
             IAtomList beads = molecules.get(i).getChildList();
             if (ns > beads.size() || (beads.size() / ns) * ns != beads.size()) {
                 throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
             }
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
-                double En = 0;
                 double Cvn = 0;
                 drdotHdrdot = 0;
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
-//                dr0.PE(drShift);
+                dr0.PE(drShift);
                 box.getBoundary().nearestImage(dr0);
 
                 Vector drPrev = box.getSpace().makeVector();
@@ -150,7 +153,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                     int aj = (j + indexShift) % beads.size();
                     IAtom atomj = beads.get(aj);
                     drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
-//                    drj.PE(drShift);
+                    drj.PE(drShift);
                     box.getBoundary().nearestImage(drj);
                     tmp_r.E(drj);
                     if (j > 0) {
@@ -196,16 +199,14 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                     vPrev.E(v);
                     aPrev.E(a);
                     rdot[jj].E(v);
-                } // j
+                } // beads
                 pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
-                x[0] += En0 + En;
-                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
+//                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
             }//shifts
-        }
-
-        x[0] /= ns;
-        x[1] /= ns;
+        }//atoms
+        x[0] = En0 + En/ns;
+//        x[1] /= ns;
         return data;
     }
 

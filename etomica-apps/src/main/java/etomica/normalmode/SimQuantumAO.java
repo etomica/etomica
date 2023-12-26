@@ -85,7 +85,7 @@ public class SimQuantumAO extends Simulation {
             p1ahUeff = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facUeff);
             pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
-            p1ah = new P1Anharmonic(space, k2, k4, nBeads);
+            p1ah = new P1Anharmonic(space, k2/nBeads, k4/nBeads);
             pcP1.setFieldPotential(species.getLeafType(), p1ah);
         }
 
@@ -145,7 +145,7 @@ public class SimQuantumAO extends Simulation {
             // custom parameters
             params.steps = 1000000;
             params.hbar = 1;
-            params.temperature = 1;
+            params.temperature = 0.5;
             params.k2 = 1;
             params.k4 = 24;
 //            params.coordType = MoveChoice.Real;
@@ -173,7 +173,7 @@ public class SimQuantumAO extends Simulation {
         double x = 1/temperature*hbar*w0;
         int nBeads = params.nBeads;
         if (nBeads == -1){
-            nBeads = (int) (20*x); //20*x and 30*x are good for HO and AO, resp.
+            nBeads = (int) (30*x); //20*x and 30*x are good for HO and AO, resp.
         }
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;

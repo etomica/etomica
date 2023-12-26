@@ -25,11 +25,11 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector[] rc;
-    protected double dim;
+    protected int dim;
     protected int numAtoms;
 
     public MeterPICentVir(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
-        int nData = 2;
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -62,9 +62,13 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
-
-        x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En
-        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
+        if(numAtoms==1){
+            x[0] = dim/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
+        } else {
+//            x[0] = -dim*(nBeads-1)/(2.0*nBeads)/beta - dim / 2.0 / beta + dim * (nBeads - 1.0) / 2.0 / nBeads / beta + dim * numAtoms / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
+            x[0] = dim * (numAtoms-1) / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
+        }
+//        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
         return data;
     }
 

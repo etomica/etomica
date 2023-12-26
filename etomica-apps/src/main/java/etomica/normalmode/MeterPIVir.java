@@ -23,12 +23,12 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
-    protected double dim;
+    protected int dim;
     protected int numAtoms;
     protected Vector[] rc;
 
     public MeterPIVir(PotentialCompute pcP1, double temperature, Box box) {
-        int nData = 2;
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -60,7 +60,7 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         }
 
         x[0] =   pcP1.getLastEnergy() + 1.0/2.0*vir;//En
-        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
+//        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
         return data;
     }
 

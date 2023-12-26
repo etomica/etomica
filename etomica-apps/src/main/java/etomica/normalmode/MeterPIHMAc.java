@@ -25,12 +25,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector[] rc;
-    protected double dim;
+    protected int dim;
     protected int numAtoms;
     protected Vector[] latticePositions;
 
     public MeterPIHMAc(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
-        int nData = 2;
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -83,10 +83,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
                 virc -= forces[atom.getLeafIndex()].dot(drc);
             }
         }
-
-        x[0] = dim/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 1D
-//        x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 3D
-        x[1] = dim/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
+        if(numAtoms == 1) {
+            x[0] = dim/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En in 1D
+        } else {
+            x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir; //En in 3D
+        }
+//        x[1] = dim/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         return data;
     }
 

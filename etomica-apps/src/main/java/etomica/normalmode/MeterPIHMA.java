@@ -32,13 +32,14 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected DataDoubleArray data;
     protected Vector[] rdot, rddot;
     protected final Vector[] latticePositions;
-
+    protected int dim;
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
-        int nData = 2;
+        int nData = 1;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
         dataInfo.addTag(tag);
+        this.dim = box.getSpace().D();
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
         this.betaN = betaN;
@@ -128,7 +129,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
                 rddot[ia].E(0);
             }
 
-//            System.out.println(box.getLeafList().get(i).getPosition());
             for (int j = 0; j < nBeads; j++) {
                 computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], shift, drj);
                 for (int i=0; i<nBeads; i++) {
@@ -140,10 +140,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //with Cv
+        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
-        int dim = box.getSpace().D();
         int numAtoms = molecules.size();
         double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
         if (box.getMoleculeList().size() > 1) {
@@ -171,9 +169,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             Cvn -= beta*omegaN*omegaN*box.getLeafList().get(0).getType().getMass()*nBeads*(tmpV.squared());
         }
         Cvn -= beta*drdotHdrdot;
-//        System.out.println("hma: " + En);
         x[0] = En;
-        x[1] = Cvn + x[0]*x[0];
+//        x[1] = Cvn + x[0]*x[0];
 
         return data;
     }
