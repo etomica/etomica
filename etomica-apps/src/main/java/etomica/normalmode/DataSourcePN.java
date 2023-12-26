@@ -46,7 +46,7 @@ public class DataSourcePN implements IDataSource, DataSourceIndependent {
         }
         double[] y = data.getData();
         for (int j=0; j<pSplitter.getNumDataSinks(); j++) {
-            AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(j);
+            AccumulatorAverageCollapsing acc = (AccumulatorAverageCollapsing)pSplitter.getDataSink(j);
             if (acc == null || acc.getSampleCount() == 0) {
                 y[j] = Double.NaN;
                 continue;

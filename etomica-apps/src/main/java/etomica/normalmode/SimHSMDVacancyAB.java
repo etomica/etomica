@@ -19,9 +19,7 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.graphics.*;
 import etomica.integrator.*;
-import etomica.integrator.mcmove.MCMoveIDBiasAction;
-import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
-import etomica.integrator.mcmove.MCMoveOverlapListener;
+import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -51,29 +49,33 @@ import java.util.Arrays;
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
  
-public class SimHSMDVacancy extends Simulation {
+public class SimHSMDVacancyAB extends Simulation {
 
     public final PotentialComputePair potentialMasterList;
     public final NeighborListManagerHard neighborManager;
     public IntegratorHardMDMC integrator;
-    public SpeciesGeneral species;
+    public SpeciesGeneral speciesA, speciesB;
     public Box box;
-    public P2HardGeneric potential;
+    public P2HardGeneric potential, potentialAB;
     public IntegratorMC integratorMC;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
+    public MCMoveInsertDeleteBiased mcMoveIDB;
 
 
-    public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu, int[] seeds) {
+    public SimHSMDVacancyAB(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu, int[] seeds) {
         super(Space3D.getInstance());
         if (seeds != null) setRandom(new RandomMersenneTwister(seeds));
-        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
-        addSpecies(species);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        addSpecies(speciesA);
+
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        addSpecies(speciesB);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         box = this.makeBox(boundary);
-        box.setNMolecules(species, numAtoms);
+        box.setNMolecules(speciesA, numAtoms);
 
         PrimitiveCubic primitive = new PrimitiveCubic(space, n * L);
         int[] nCells = new int[]{n, n, n};
@@ -97,9 +99,13 @@ public class SimHSMDVacancy extends Simulation {
         double y = 1.25 * nbr1; //nbr1+(L-nbr1)*0.6+0.06;
 
         potential = P2HardSphere.makePotential(y);
-        AtomType leafType = species.getLeafType();
+        AtomType leafType = speciesA.getLeafType();
+
+        potentialAB = P2HardSphere.makePotential(0.5 + 0.5/1.4);
+        AtomType leafTypeB = speciesB.getLeafType();
 
         potentialMasterList.setPairPotential(leafType, leafType, potential);
+        potentialMasterList.setPairPotential(leafType, leafTypeB, potentialAB);
         integrator = new IntegratorHardMDMC(potentialMasterList.getPairPotentials(), neighborManager, random, tStep, 1.0, box, getSpeciesManager());
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
@@ -116,20 +122,52 @@ public class SimHSMDVacancy extends Simulation {
         PotentialComputePair potentialComputeMC = new PotentialComputePair(getSpeciesManager(), box, neighborCellManager, potentialMasterList.getPairPotentials());
         neighborCellManager.setPotentialRange(nbrRange);
         integratorMC = new IntegratorMC(potentialComputeMC, random, 1, box);
-        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialComputeMC, neighborCellManager, random, space, integrator, y, numAtoms, numV);
+        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialComputeMC, neighborCellManager, random, space, integrator, y, numAtoms, numV) {
+            public boolean doTrial() {
+                // will only try to insert if we have an unfilled vacancy.
+                // will only try to delete if we have perfect lattice of A.
+                if (box.getNMolecules(speciesB) > 0) return false;
+                return super.doTrial();
+            }
+        };
         double x = (nbr1 - 1) / 4.0;
         mcMoveID.setMaxInsertDistance(x);
         mcMoveID.makeFccVectors(nbr1);
         mcMoveID.setMu(mu);
-        mcMoveID.setSpecies(species);
+        mcMoveID.setSpecies(speciesA);
         integratorMC.getMoveManager().addMCMove(mcMoveID);
         integratorMC.getMoveEventManager().addListener(mcMoveID);
         integrator.setIntegratorMC(integratorMC, numAtoms);
+//        box.setNMolecules(speciesB, 1);
         potentialMasterList.init();
+//        integrator.reset();
+//        box.setNMolecules(speciesB, 0);
 
         // we set the potential range high so that the MC move could find its neighbors.
         // now set potential range back to its appropriate value.
         potential.setCollisionDiameter(0, sigma);
+
+        mcMoveIDB = new MCMoveInsertDeleteBiased(potentialComputeMC, random, space, 0, 1) {
+            public boolean doTrial() {
+                // will only try to insert if we have an unfilled vacancy.
+                if (box.getNMolecules(speciesA) == numAtoms) return false;
+                return super.doTrial();
+            }
+//            public double getLnBiasDiff() {
+//                double lbd = super.getLnBiasDiff();
+//                return 0;
+//            }
+
+            public double getChi(double t) {
+                double c = super.getChi(t);
+//                System.out.println("chi "+insert+" "+c);
+                return c;
+            }
+        };
+        mcMoveIDB.setBox(box);
+        mcMoveIDB.setSpecies(speciesB);
+        mcMoveIDB.setMu(5);
+        integratorMC.getMoveManager().addMCMove(mcMoveIDB);
     }
 
     public static void main(String[] args) {
@@ -137,11 +175,11 @@ public class SimHSMDVacancy extends Simulation {
         HSMDVParams params = new HSMDVParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = true;
-            params.numAtoms = 4000;
+            params.graphics = false;
+            params.numAtoms = 256;
             params.steps = 1000000;
-            params.density = 1.0;
-            params.numV = 10;
+            params.density = 1.05;
+            params.numV = 1;
         }
 
         final int numAtoms = params.numAtoms;
@@ -225,7 +263,7 @@ public class SimHSMDVacancy extends Simulation {
             System.out.println(" => "+steps+" x "+tStep);
         }
 
-        final SimHSMDVacancy sim = new SimHSMDVacancy(numAtoms, density, tStep, hybridInterval, numV, mu, params.seeds);
+        final SimHSMDVacancyAB sim = new SimHSMDVacancyAB(numAtoms, density, tStep, hybridInterval, numV, mu, params.seeds);
 
         System.out.println("seeds: "+ Arrays.toString(((RandomMersenneTwister) sim.getRandom()).getSeedArray()));
         final int biasInterval = 1000;
@@ -234,10 +272,22 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveOverlapMeter.setTemperature(1);
         sim.integratorMC.getMoveEventManager().addListener(mcMoveOverlapMeter);
 
+        final MCMoveOverlapListener mcMoveOverlapMeterB = new MCMoveOverlapListenerB(sim.mcMoveIDB, 11, -3, 3);
+        mcMoveOverlapMeterB.setTemperature(1);
+        sim.integratorMC.getMoveEventManager().addListener(mcMoveOverlapMeterB);
+
         final MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
         DataDistributer.Indexer indexer = new DataDistributer.Indexer() {
             public int getIndex() {
-                return numAtoms-sim.box.getNMolecules(sim.species);
+                int nv = numAtoms-sim.box.getNMolecules(sim.speciesA);
+                int nb = sim.box.getNMolecules(sim.speciesB);
+                // numV=1
+                // i    nv   nb
+                // 0    0    0
+                // 1    1    0
+                // 2    0    1  --- illegal
+                // 3    1    1
+                return nb*(numV+1) + nv;
             }
         };
         final DataDistributer pSplitter = new DataDistributer(indexer, new IDataSinkFactory() {
@@ -254,8 +304,8 @@ public class SimHSMDVacancy extends Simulation {
             }
         });
 
-        final MCMoveIDBiasAction mcMoveBiasAction;
-        final IntegratorListenerAction mcMoveBiasListener;
+        final MCMoveIDBiasAction mcMoveBiasAction, mcMoveBiasActionB;
+        final IntegratorListenerAction mcMoveBiasListener, mcMoveBiasListenerB;
 
         if (params.doReweight) {
             mcMoveBiasAction = new MCMoveIDBiasAction(sim.integratorMC, sim.mcMoveID, numV,
@@ -264,10 +314,20 @@ public class SimHSMDVacancy extends Simulation {
             mcMoveBiasAction.setDefaultDaDef(daDef);
             mcMoveBiasListener = new IntegratorListenerAction(mcMoveBiasAction, biasInterval);
             sim.integratorMC.getEventManager().addListener(mcMoveBiasListener);
+
+            mcMoveBiasActionB = new MCMoveIDBiasAction(sim.integratorMC, sim.mcMoveIDB, 1,
+                    sim.mcMoveIDB.getMu(), mcMoveOverlapMeterB, 1);
+            mcMoveBiasActionB.setPlayDumb(true);
+            mcMoveBiasActionB.setNMaxReweight(numAtoms);
+            mcMoveBiasActionB.setDefaultDaDef(daDef);
+            mcMoveBiasListenerB = new IntegratorListenerAction(mcMoveBiasActionB, biasInterval);
+            sim.integratorMC.getEventManager().addListener(mcMoveBiasListenerB);
         }
         else {
             mcMoveBiasAction = null;
             mcMoveBiasListener = null;
+            mcMoveBiasActionB = null;
+            mcMoveBiasListenerB = null;
         }
 
         if (graphics) {
@@ -548,8 +608,10 @@ public class SimHSMDVacancy extends Simulation {
         if (params.doReweight) {
             // update weights
             mcMoveBiasAction.actionPerformed();
+            mcMoveBiasActionB.actionPerformed();
             // and stop adjusting them
             sim.integratorMC.getEventManager().removeListener(mcMoveBiasListener);
+            sim.integratorMC.getEventManager().removeListener(mcMoveBiasListenerB);
         }
 
         final long finalSteps = steps;
@@ -560,6 +622,7 @@ public class SimHSMDVacancy extends Simulation {
             public void integratorStepFinished(IntegratorEvent e) {
                 if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
                     sim.integratorMC.getEventManager().addListener(mcMoveBiasListener);
+                    sim.integratorMC.getEventManager().addListener(mcMoveBiasListenerB);
                     reenabled = true;
                 }
             }
@@ -575,8 +638,10 @@ public class SimHSMDVacancy extends Simulation {
             System.out.println("using daDef = "+daDefAvg);
             // update weights
             mcMoveBiasAction.actionPerformed();
+            mcMoveBiasActionB.actionPerformed();
             // and stop adjusting them (permanently this time)
             sim.integratorMC.getEventManager().removeListener(mcMoveBiasListener);
+            sim.integratorMC.getEventManager().removeListener(mcMoveBiasListenerB);
         }
 
         // and throw away data again
@@ -605,36 +670,32 @@ public class SimHSMDVacancy extends Simulation {
         final DataSourceFE dsfe2 = new DataSourceFE(mcMoveOverlapMeter);
         // subtract off combinatorial entropy
         dsfe2.setSubtractComb(true);
-        IData nData = feHistogram.getIndependentData(0);
-        IData fenData = feHistogram.getData();
         IData dsfeData = dsfe.getData();
         IData dsfe2Data = dsfe2.getData();
         dsfe3Data = dsfe3.getData();
         double[] nHistogram = mcMoveOverlapMeter.getHistogram();
-        for (int i=0; i<nData.getLength(); i++) {
-            int n = (int)Math.round(nData.getValue(i));
-            double pAvg = Double.NaN;
-            if (numAtoms-n < pSplitter.getNumDataSinks()) {
-                AccumulatorAverageCollapsing pAcc = (AccumulatorAverageCollapsing) pSplitter.getDataSink(numAtoms-n);
-                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
-            }
-            if (Math.round(nData.getValue(i)) < numAtoms) {
-                System.out.printf("%6d %20.15e %20.15e %20.15e %20.15e %20.15e\n", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i));
-            }
-            else {
-                System.out.printf("%6d %20.15e %20.15e %20.15e\n", n, nHistogram[i], fenData.getValue(i), pAvg);
-            }
-        }
-        System.out.println("\nfinal daDef: "+dsfe3Data.getValue(0));
+        AccumulatorAverageCollapsing pAcc = (AccumulatorAverageCollapsing) pSplitter.getDataSink(1);
+        double pAvg = pAcc.getData().getValue(pAcc.AVERAGE.index);
+        System.out.printf("%6d 0 %20.15e %20.15e %20.15e %20.15e\n", numAtoms-1, nHistogram[0], pAvg, dsfeData.getValue(0), dsfe2Data.getValue(0));
+        pAcc = (AccumulatorAverageCollapsing) pSplitter.getDataSink(0);
+        pAvg = pAcc.getData().getValue(pAcc.AVERAGE.index);
+        System.out.printf("%6d 0 %20.15e %20.15e\n", numAtoms, nHistogram[1], pAvg);
 
+        double[] nHistogramB = mcMoveOverlapMeterB.getHistogram();
+        final DataSourceFE dsfeB = new DataSourceFE(mcMoveOverlapMeterB);
+        IData dsfeDataB = dsfeB.getData();
+        pAcc = (AccumulatorAverageCollapsing) pSplitter.getDataSink(3);
+        pAvg = pAcc.getData().getValue(pAcc.AVERAGE.index);
+        System.out.printf("%6d 1 %20.15e %20.15e %20.15e\n", numAtoms-1, nHistogramB[1], pAvg, dsfeDataB.getValue(0));
+
+        System.out.println("\nfinal daDef: "+dsfe3Data.getValue(0));
         System.out.println("mu root: "+muRoot);
         double pRoot = dsmr.getLastPressure();
         double vRoot = dsmr.getLastVacancyConcentration();
         System.out.println("pressure root: "+pRoot);
         System.out.println("vacancy concentration root: "+vRoot);
 
-        
-        System.out.println("time: "+(t2-t1)/1000.0+" seconds");
+        System.out.println("\ntime: "+(t2-t1)/1000.0+" seconds");
     }
     
     public static class HSMDVParams extends ParameterBase {

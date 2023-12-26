@@ -90,28 +90,33 @@ public class GlassProd {
             params.temperature = 1.0;
             params.numStepsEqIsothermal = 10000;
             params.numStepsIsothermal = 0;
-            params.numSteps = 100000;
+            params.numSteps = 1000000;
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
             params.rcLJ = 2.5;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds, params.rcLJ);
+        double rho = params.density;
+        if (params.eta>0 && params.potential == SimGlass.PotentialChoice.HS) {
+            rho = SimGlass.densityForEta(params.eta, params.nA/(double)(params.nA+params.nB), params.sigmaB);
+            params.density = rho;
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds, params.rcLJ, params.sigmaB);
         if (params.randomSeeds == null) System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
         else System.out.println("set random seeds: " + Arrays.toString(params.randomSeeds));
         System.out.println(params.D + "D " + sim.potentialChoice);
         System.out.println("nA:nB = " + params.nA + ":" + params.nB);
         int numAtoms = params.nA + params.nB;
-        double rho = params.density;
         System.out.println("T = " + params.temperature);
         System.out.println(params.numSteps + " production MD steps after " + params.numStepsEqIsothermal + " NVT equilibration steps, "+params.numStepsIsothermal+" NVT E check using dt = " + sim.integrator.getTimeStep());
         double volume = sim.box.getBoundary().volume();
         if (params.potential == SimGlass.PotentialChoice.HS) {
             double phi;
+            double sb = params.sigmaB == 0 ? 1.0/1.4 : params.sigmaB;
             if (params.D == 2) {
-                phi = Math.PI / 4 * (params.nA + params.nB / (1.4 * 1.4)) / volume;
+                phi = Math.PI / 4 * (params.nA + params.nB * sb * sb) / volume;
             } else {
-                phi = Math.PI / 6 * (params.nA + params.nB / (1.4 * 1.4 * 1.4)) / volume;
+                phi = Math.PI / 6 * (params.nA + params.nB * sb * sb * sb) / volume;
             }
             System.out.println("rho: " + params.density + "  phi: " + phi + "\n");
         } else {
@@ -822,8 +827,8 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
         String filenameLinearVisc=null, filenameLinearMSD=null, filenameLinearVAC=null;
-        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc, filenamePerc0, filenameImmFrac, filenameImmFracA,
-                filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
+        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenamePerc,
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2A, filenameAlpha2B, filenameSq, filenameSqAB, filenameVAC;
         String[][] filenameFs = new String[meterFs.length][2];
         String[] filenameF = new String[meterFs.length];
 
@@ -1021,11 +1026,11 @@ public class GlassProd {
             GlassProd.writeDataToFile(accSFac, filenameSq);
             GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
 
-            GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), filenameMSD);
+            GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), meterMSD.getStdev(), filenameMSD);
             GlassProd.writeDataToFile(dsCorMSD.getFullCorrelation(), "msdFullCor.dat");
             GlassProd.writeDataToFile(dsCorVisc.getFullCorrelation(), "viscFullCor.dat");
-            GlassProd.writeDataToFile(meterMSDA, meterMSDA.getError(), filenameMSDA);
-            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.getError(), filenameMSDB);
+            GlassProd.writeDataToFile(meterMSDA, meterMSDA.getError(), meterMSDA.getStdev(), filenameMSDA);
+            if (params.nB>0) GlassProd.writeDataToFile(meterMSDB, meterMSDB.getError(), meterMSDB.getStdev(), filenameMSDB);
             GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
             GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
             if (params.doLinear){
@@ -1080,7 +1085,11 @@ public class GlassProd {
         writeDataToFile(meter, null, filename);
     }
 
-    public static void writeDataToFile(IDataSource meter, IData errData, String filename) throws IOException {
+    public static void writeDataToFile(IDataSource meter, IData data2, String filename) throws IOException {
+        writeDataToFile(meter, data2, null, filename);
+    }
+
+    public static void writeDataToFile(IDataSource meter, IData data2, IData data3, String filename) throws IOException {
         IData data;
         IData xData;
         if (meter instanceof AccumulatorAverage) {
@@ -1100,10 +1109,14 @@ public class GlassProd {
         for (int i = 0; i < xData.getLength(); i++) {
             double y = data.getValue(i);
             if (Double.isNaN(y)) continue;
-            if (errData == null) {
+            if (data2 == null) {
                 fw.write(xData.getValue(i) + " " + y + "\n");
-            } else {
-                fw.write(xData.getValue(i) + " " + y + " " + errData.getValue(i) + "\n");
+            }
+            else if (data3 == null) {
+                fw.write(xData.getValue(i) + " " + y + " " + data2.getValue(i) + "\n");
+            }
+            else {
+                fw.write(xData.getValue(i) + " " + y + " " + data2.getValue(i) + " " +data3.getValue(i) + "\n");
             }
         }
         fw.close();

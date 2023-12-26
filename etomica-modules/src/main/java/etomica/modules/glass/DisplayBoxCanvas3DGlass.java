@@ -9,8 +9,8 @@ import etomica.atom.IAtomList;
 import etomica.data.ConfigurationStorage;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.Space3D;
 import etomica.util.voro.*;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
@@ -34,9 +34,9 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
     protected final ArrayList<Line> voronoiEdges;
     protected double[] radii;
 
-    public DisplayBoxCanvas3DGlass(DisplayBox _box, Space _space, Controller controller, ConfigurationStorage configStorage) {
-        super(_box, _space, controller);
-        dr = _space.makeVector();
+    public DisplayBoxCanvas3DGlass(DisplayBox _box, Controller controller, ConfigurationStorage configStorage) {
+        super(_box, controller);
+        dr = Space3D.getInstance().makeVector();
         this.configStorage = configStorage;
         configIndex = 100;
         oldBalls = new Ball[_box.getBox().getLeafList().size()];

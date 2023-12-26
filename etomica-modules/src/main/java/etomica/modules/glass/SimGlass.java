@@ -9,6 +9,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Activity;
 import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -27,6 +28,7 @@ import etomica.potential.compute.PotentialComputePair;
 import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -49,11 +51,11 @@ public class SimGlass extends Simulation {
 
     protected int chs;
 
-    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, double rcLJ) {
-        this(D, nA, nB, density, temperature, doSwap, pc, tStep, null, rcLJ);
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, double rcLJ, double sigmaB) {
+        this(D, nA, nB, density, temperature, doSwap, pc, tStep, null, rcLJ, sigmaB);
     }
 
-    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, int[] randSeeds, double rcLJ) {
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, int[] randSeeds, double rcLJ, double sb) {
         super(Space.getInstance(D));
         if (randSeeds != null) {
             setRandom(new RandomMersenneTwister(randSeeds));
@@ -64,6 +66,7 @@ public class SimGlass extends Simulation {
         addSpecies(speciesA);
         speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesB);
+        sigmaB = sb;
 
         box = this.makeBox();
 
@@ -72,6 +75,13 @@ public class SimGlass extends Simulation {
                 : new NeighborListManager(getSpeciesManager(), box, 2, 1.2*rcLJ, BondingInfo.noBonding());
         NeighborCellManager neighborManagerMC = new NeighborCellManager(getSpeciesManager(), box, 2, BondingInfo.noBonding());
         PotentialComputePair potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+
+        //construct box
+        box.setNMolecules(speciesA, nA);
+        box.setNMolecules(speciesB, nB);
+        BoxInflate boxInflate = new BoxInflate(box, box.getSpace(), density);
+        boxInflate.actionPerformed();
+        new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
             System.out.println(" rcLJ: " + rcLJ);
@@ -88,7 +98,7 @@ public class SimGlass extends Simulation {
         } else if (potentialChoice == PotentialChoice.WCA) {
             neighborManager.setNeighborRange(2);
             // https://doi.org/10.1103/PhysRevX.1.021013
-            sigmaB = D == 2 ? 1.4 : 1.0 / 1.2; // changes 1/1.4 to 1.4
+            if (sigmaB==0) sigmaB = D == 2 ? 1.4 : 1.0 / 1.2; // changes 1/1.4 to 1.4
             double mA = D == 2 ? 1 : 2;
             P2WCA potentialAA = new P2WCA(1, 1);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), potentialAA);
@@ -99,7 +109,7 @@ public class SimGlass extends Simulation {
             ((ElementSimple) speciesA.getLeafType().getElement()).setMass(mA);
         } else if (potentialChoice == PotentialChoice.SS) {
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
-            sigmaB = 1.0 / 1.4;
+            if (sigmaB==0) sigmaB = 1.0 / 1.4;
             P2SoftSphere potentialAA = new P2SoftSphere(1, 1, 12);
             P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2TruncatedAA);
@@ -110,17 +120,17 @@ public class SimGlass extends Simulation {
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, 2.5);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
         } else if (potentialChoice == PotentialChoice.HS) {
-            chs = 50;
-            double coreHS = 0.01 * chs;
+            chs = getMaxCHS();
+            double sigmaA = 0.01 * chs;
             double L = Math.pow((nA + nB) / density, 1.0 / 3.0);
             if (L < 2.01) throw new RuntimeException("too small!");
             double nbrCut = 1.7;
             if (L < nbrCut * 2) nbrCut = L / 2.001;
             neighborManager.setNeighborRange(nbrCut);
-            sigmaB = 1.0 / 1.4;
-            p2AA = P2SquareWell.makePotential(coreHS, 1 / coreHS, -100);
+            if (sigmaB==0) sigmaB = 1.0 / 1.4;
+            p2AA = P2SquareWell.makePotential(sigmaA, 1 / sigmaA, -100);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
-            p2AB = P2SquareWell.makePotential(0.5*(coreHS + sigmaB), (1+sigmaB)/(coreHS+sigmaB), -100);
+            p2AB = P2SquareWell.makePotential(0.5*(sigmaA + sigmaB), (1+sigmaB)/(sigmaA+sigmaB), -100);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), p2AB);
             P2HardGeneric potentialBB = P2HardSphere.makePotential(sigmaB);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), potentialBB);
@@ -128,7 +138,7 @@ public class SimGlass extends Simulation {
             // G. Wahnström, Phys. Rev. A 44, 3752 1991.
             // T. B. Schrøder, cond-mat/0005127.
             // https://doi.org/10.1063/1.1605094
-            sigmaB = 5.0 / 6.0;
+            if (sigmaB==0) sigmaB = 5.0 / 6.0;
             P2LennardJones potentialAA = new P2LennardJones();
             P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(potentialAA, 2.5);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2TruncatedAA);
@@ -140,13 +150,6 @@ public class SimGlass extends Simulation {
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
             ((ElementSimple) speciesA.getLeafType().getElement()).setMass(2);
         }
-
-        //construct box
-        box.setNMolecules(speciesA, nA);
-        box.setNMolecules(speciesB, nB);
-        BoxInflate boxInflate = new BoxInflate(box, box.getSpace(), density);
-        boxInflate.actionPerformed();
-        new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
 
         integrator = potentialChoice == PotentialChoice.HS ?
                 new IntegratorHard(potentialMaster.getPairPotentials(), (NeighborManagerHard) neighborManager, random, tStep, temperature, box, getSpeciesManager()) :
@@ -173,32 +176,58 @@ public class SimGlass extends Simulation {
         integrator.doThermostat();
     }
 
+    protected int getMaxCHS() {
+        double minAA = Double.POSITIVE_INFINITY, minAB = Double.POSITIVE_INFINITY;
+        Vector dr = getSpace().makeVector();
+        for (IAtom a1 : box.getLeafList()) {
+            if (a1.getType() != speciesA.getLeafType()) continue;
+            for (IAtom a2 : box.getLeafList()) {
+                if (a2 == a1) continue;
+                dr.Ev1Mv2(a2.getPosition(), a1.getPosition());
+                box.getBoundary().nearestImage(dr);
+                if (a2.getType() == speciesA.getLeafType()) minAA = Math.min(minAA, dr.squared());
+                else minAB = Math.min(minAB, dr.squared());
+            }
+        }
+        minAB = Math.sqrt(minAB);
+        minAA = Math.sqrt(minAA);
+
+        // 0.01 chs fSigma sigmaB < minAA
+        // chs < 100 minAA / (fSigma sigmaB)
+        double maxACHS = 100.0 * minAA / 1.0;
+
+        // 0.5 (0.01 chs fSigma sigmaB + sigmaB) < minAB
+        // chs < 100 (2 minAB / sigmaB - 1) / fSigma
+        double maxABCHS = 100.0 * (2 * minAB / sigmaB - 1) / 1.4;
+        return Math.min((int) Math.min(maxACHS, maxABCHS), 100);
+    }
+
     public Activity makeInitConfigActivity() {
         return new Activity() {
             @Override
             public void runActivity(Controller.ControllerHandle handle) {
-                if (potentialChoice != PotentialChoice.HS) return;
-                boolean success = false;
+                if (potentialChoice != PotentialChoice.HS || chs == 100) return;
                 PotentialComputePairGeneral potentialMaster = (PotentialComputePairGeneral) integrator.getPotentialCompute();
                 PotentialComputePair potentialMasterMC = (PotentialComputePair) integratorMC.getPotentialCompute();
                 double tStepOld = integrator.getTimeStep();
                 integrator.setTimeStep(0.001);
-                // first, increase sigma without running any sim
-                for (; chs <= 100; chs++) {
-                    double coreHS = 0.01 * chs;
-                    p2AA.setCollisionDiameter(0, coreHS);
-                    p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
-                    double u = potentialMaster.computeAll(false);
-//                    System.out.println("chs "+chs*0.01+" "+u);
-                    if (u == Double.POSITIVE_INFINITY) {
-                        chs--;
-                        coreHS = 0.01 * chs;
-                        p2AA.setCollisionDiameter(0, coreHS);
-                        p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
-                        break;
+                // run MD and increase sigma
+                while (chs < 100) {
+                    integrator.reset();
+                    for (int i = 0; i < 1000; i++) {
+                        handle.yield(integrator::doStep);
                     }
-                    if (chs == 100) {
-                        success = true;
+                    int newCHS = getMaxCHS();
+                    if (newCHS == chs) continue;
+                    chs = newCHS;
+                    if (chs < 100) {
+                        double sigmaA = 0.01 * chs;
+                        p2AA.setCollisionDiameter(0, sigmaA);
+                        p2AB.setCollisionDiameter(0, 0.5*(sigmaA + sigmaB));
+                    }
+                    else {
+                        // potentialMaster makes a copy of integrator's potentials, so set both
+                        // ironically, potentialMasterMC potentials are the same as integrator
                         P2HardGeneric pAA = P2HardSphere.makePotential(1);
                         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
                         potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
@@ -207,36 +236,8 @@ public class SimGlass extends Simulation {
                         potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
                         potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
                     }
-                }
-                if (!success) {
-                    // if sigma still too small, run MD and continue increasing sigma
-                    while (chs < 100) {
-                        integrator.reset();
-                        for (int i = 0; i < 1000; i++) {
-                            handle.yield(integrator::doStep);
-                        }
-                        chs++;
-                        double coreHS = 0.01 * chs;
-                        p2AA.setCollisionDiameter(0, coreHS);
-                        p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
-                        double u = potentialMaster.computeAll(false);
-//                        System.out.println("chs "+chs*0.01+" "+u);
-                        if (u == Double.POSITIVE_INFINITY) {
-                            chs--;
-                            coreHS = 0.01 * chs;
-                            p2AA.setCollisionDiameter(0, coreHS);
-                            p2AB.setCollisionDiameter(0, 0.5*(coreHS + sigmaB));
-                            continue;
-                        } else if (chs == 100) {
-                            P2HardGeneric pAA = P2HardSphere.makePotential(1);
-                            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
-                            potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+                    potentialMaster.computeAll(false);
 
-                            P2HardGeneric pAB = P2HardSphere.makePotential(0.5*(1 + sigmaB));
-                            potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
-                            potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
-                        }
-                    }
                 }
                 integrator.reset();
                 integrator.resetStepCount();
@@ -254,6 +255,11 @@ public class SimGlass extends Simulation {
         return integrator;
     }
 
+    public static double densityForEta(double eta, double xA, double sigmaB) {
+        if (sigmaB == 0) sigmaB = 1.0/1.4;
+        return eta*6/Math.PI / (xA + (1-xA) * sigmaB*sigmaB*sigmaB);
+    }
+
     public static void main(String[] args) {
 
         GlassParams params = new GlassParams();
@@ -261,7 +267,11 @@ public class SimGlass extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ);
+        double rho = params.density;
+        if (params.eta>0 && params.potential == PotentialChoice.HS) {
+            rho = densityForEta(params.eta, params.nA/(double)(params.nA+params.nB), params.sigmaB);
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, rho, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ, params.sigmaB);
         sim.initConfig();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
 
@@ -285,6 +295,8 @@ public class SimGlass extends Simulation {
         public PotentialChoice potential = PotentialChoice.LJ;
         public double tStep = 0.005;
         public double rcLJ = 2.5;
+        public double sigmaB = 0;
+        public double eta = 0;
     }
 
 }

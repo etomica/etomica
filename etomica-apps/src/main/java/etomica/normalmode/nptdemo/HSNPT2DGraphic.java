@@ -37,7 +37,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
         displayBoxScaled.setScale(0.9);
         System.out.println("displayBoxScaled created");
         DisplayCanvas oldCanvas = displayBoxScaled.canvas;
-        displayBoxScaled.setBoxCanvas(new DisplayBoxCanvas2DNpTScaling(displayBoxScaled, sim.getSpace(), sim.getController(), sim.coordinateDefinition));
+        displayBoxScaled.setBoxCanvas(new DisplayBoxCanvas2DNpTScaling(displayBoxScaled, sim.getController(), sim.coordinateDefinition));
         oldCanvas.dispose();
         System.out.println("displayBoxScaled has a new canvas");
         addAsTab(displayBoxScaled.graphic(), "scaled", true);

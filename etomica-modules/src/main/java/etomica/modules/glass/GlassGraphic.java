@@ -88,9 +88,9 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayCanvas c;
         dbox = new DisplayBox(sim.getController(), sim.box);
         if (sim.getSpace().D() == 2) {
-            c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            c = new DisplayBoxCanvas2DGlass(dbox, sim.getController(), configStorage);
         } else {
-            c = new DisplayBoxCanvas3DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            c = new DisplayBoxCanvas3DGlass(dbox, sim.getController(), configStorage);
             ((DisplayBoxCanvas3DGlass)c).setVoronoiRadii(new double[]{0.5,sim.sigmaB*0.5});
         }
         canvas = (DisplayBoxCanvasGlass) c;
@@ -1361,6 +1361,23 @@ public class GlassGraphic extends SimulationGraphic {
         plotMSD.setLegend(new DataTag[]{meterMSDB.getTag()}, "B");
         sim.integrator.getEventManager().addListener(pumpMSDB);
 
+        DisplayPlotXChart plotMSDstdev = new DisplayPlotXChart();
+        IDataSource dsMSDstdev = meterMSD.makeStdevDataSource();
+        DataPumpListener pumpMSDstdev = new DataPumpListener(dsMSDstdev, plotMSDstdev.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpMSDstdev);
+        IDataSource dsMSDAstdev = meterMSDA.makeStdevDataSource();
+        DataPumpListener pumpMSDAstdev = new DataPumpListener(dsMSDAstdev, plotMSDstdev.getDataSet().makeDataSink(), 1000);
+        plotMSDstdev.setLegend(new DataTag[]{dsMSDAstdev.getTag()}, "A");
+        sim.integrator.getEventManager().addListener(pumpMSDAstdev);
+        IDataSource dsMSDBstdev = meterMSDB.makeStdevDataSource();
+        DataPumpListener pumpMSDBstdev = new DataPumpListener(dsMSDBstdev, plotMSDstdev.getDataSet().makeDataSink(), 1000);
+        plotMSDstdev.setLegend(new DataTag[]{dsMSDBstdev.getTag()}, "B");
+        sim.integrator.getEventManager().addListener(pumpMSDBstdev);
+        plotMSDstdev.setLabel("MSD stdev");
+        plotMSDstdev.getPlot().setYLog(true);
+        plotMSDstdev.getPlot().setXLog(true);
+        add(plotMSDstdev);
+
         //VAC
         configStorage.setDoVelocity(true);
         DataSourceVAC meterVAC = new DataSourceVAC(configStorage);
@@ -2251,13 +2268,16 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
-            params.nB = 100;
-            params.density = 1.6;
+            params.nA = 200;
+            params.nB = 200;
+            params.density = 1.;
             params.D = 3;
             params.rcLJ = 2.5;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ);
+        if (params.eta>0 && params.potential == SimGlass.PotentialChoice.HS) {
+            params.density = SimGlass.densityForEta(params.eta, params.nA/(double)(params.nA+params.nB), params.sigmaB);
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ, params.sigmaB);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame

@@ -7,7 +7,6 @@ package etomica.graphics;
 import etomica.action.controller.Controller;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomOriented;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 import java.awt.*;
@@ -18,13 +17,13 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
     /**
      * @param _box
      */
-    public DisplayBoxSpin2D(DisplayBox _box, Space space, Controller controller) {
-        super(_box, space, controller);
+    public DisplayBoxSpin2D(DisplayBox _box, Controller controller) {
+        super(_box, controller);
         spinWidth = 5;
     }
 
     protected DisplayBoxCanvas2D makeCopy(DisplayBox db) {
-        DisplayBoxSpin2D canvas = new DisplayBoxSpin2D(db, db.getBox().getSpace(), controller);
+        DisplayBoxSpin2D canvas = new DisplayBoxSpin2D(db, controller);
         canvas.setPixelUnit(pixel);
         return canvas;
     }

@@ -43,6 +43,8 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
     private int lastBin = 0;
     private Int2IntHash[] bondState;
     private int[] fieldState;
+    private final IAtom[] nextCollidingPair = new IAtom[2];
+    private int nextColliderIndex;
 
     private long tDelete, tAdd, tNext, tSteps, tUpdate, tUp, tDown, tBump, tData, tCollect, tCollision, tAdvance, tNotStep;
     private final boolean writeTiming = false, verbose = false;
@@ -133,18 +135,19 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
 
     public void setPairPotential(AtomType type1, AtomType type2, IPotential2 p2) {
         pairPotentials[type1.getIndex()][type2.getIndex()] = p2;
+        pairPotentials[type2.getIndex()][type1.getIndex()] = p2;
         if (potentialCompute instanceof PotentialComputeAggregate) {
             for (PotentialCompute pc : ((PotentialComputeAggregate) potentialCompute).getPotentialComputes()) {
                 if (pc instanceof PotentialComputePair) {
-                    ((PotentialComputePair) pc).setPairPotential(type1, type2, (IPotential2) p2);
+                    ((PotentialComputePair) pc).setPairPotential(type1, type2, p2);
                 } else if (pc instanceof PotentialComputePairGeneral) {
-                    ((PotentialComputePairGeneral) pc).setPairPotential(type1, type2, (IPotential2) p2);
+                    ((PotentialComputePairGeneral) pc).setPairPotential(type1, type2, p2);
                 }
             }
         } else if (potentialCompute instanceof PotentialComputePair) {
-            ((PotentialComputePair) potentialCompute).setPairPotential(type1, type2, (IPotential2) p2);
+            ((PotentialComputePair) potentialCompute).setPairPotential(type1, type2, p2);
         } else if (potentialCompute instanceof PotentialComputePairGeneral) {
-            ((PotentialComputePairGeneral) potentialCompute).setPairPotential(type1, type2, (IPotential2) p2);
+            ((PotentialComputePairGeneral) potentialCompute).setPairPotential(type1, type2, p2);
         }
     }
 
@@ -510,7 +513,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
                 r1.E(jAtom.getPosition());
                 r1.PEa1Tv1(falseTime, jjAtom.getVelocity());
                 System.out.println(jAtom + " " + jAtom.getPosition() + " " + r1);
-                System.out.println("dr " + rij + " " + Math.sqrt(rij.squared()) + " dv " + dv + " bij " + rij.dot(dv) + " state " + state);
+                System.out.println("dr " + rij + "  |r| " + Math.sqrt(rij.squared()));
+                System.out.println("dv " + dv + "  bij " + rij.dot(dv));
+                System.out.println("state " + state);
                 potential.collisionTime(iAtom, jjAtom, rij, dv, state, falseTime);
                 throw new RuntimeException("Negative up collision time between " + i + " and " + j + " at " + time);
             }
@@ -675,6 +680,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         IAtomList atoms = box.getLeafList();
         while (true) {
             int c = nextCollider();
+            nextColliderIndex = c;
             if (c < 0) {
                 // we have no record of the next collision
                 break;
@@ -853,6 +859,18 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
         for (IAtom iAtom : leafList) {
             iAtom.getPosition().PEa1Tv1(tStep, ((IAtomKinetic) iAtom).getVelocity());
         }
+    }
+
+    public IAtom[] getNextCollidingPair() {
+        if(nextColliderIndex < 0) {
+            nextCollidingPair[0] = null;
+            nextCollidingPair[1] = null;
+        } else {
+            nextCollidingPair[0] = box.getLeafList().get(nextColliderIndex);
+            int partner = collisionPartners[nextColliderIndex];
+            nextCollidingPair[1] = (partner >= 0) ? box.getLeafList().get(partner) : null;
+        }
+        return nextCollidingPair;
     }
 
     @Override
