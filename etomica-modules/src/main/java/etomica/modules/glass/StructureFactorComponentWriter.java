@@ -27,19 +27,22 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         this.configStorage = configStorage;
         this.minInterval = minInterval;
         try {
-            fw.write("{WV: {");
+            fw.write("{\"WV\": [");
             Vector[] wv = meterSFac.getWaveVectors();
             for (int j=0; j<wv.length; j++) {
                 Vector v = wv[j];
                 if (j>0) fw.write(",");
                 fw.write(" [");
+                boolean firstD = true;
                 for (int i=0; i<v.getD(); i++) {
+                    if (!firstD) fw.write(", ");
                     fw.write(" "+v.getX(i));
+                    firstD = false;
                 }
                 fw.write(" ]");
             }
-            fw.write(" },\n");
-            fw.write("data: [");
+            fw.write(" ],\n");
+            fw.write("\"data\": [");
         }
         catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -52,7 +55,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         try {
             if (!firstData) fw.write(",");
             firstData = false;
-            fw.write("{step: " + step + ", interval: " + interval + ", sfac: [");
+            fw.write("{\"step\": " + step + ", \"interval\": " + interval + ", \"sfac\": [");
             for (int i=0; i<xy.length; i++) {
                 if (i>0) fw.write(",");
                 fw.write(String.format("[ %8.3e, %8.3e ]", xy[i][0], xy[i][1]));
