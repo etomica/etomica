@@ -36,8 +36,8 @@ public class ConfigurationStoragePumper implements ConfigurationStorage.Configur
     @Override
     public void newConfigruation() {
         long step = configStorage.getSavedSteps()[0];
-        if ((step % (1L << Math.max(bigStep, prevStep)) == 0) ||
-                (bigStep > prevStep && ((step + (1L << prevStep)) % (1L << bigStep) == 0))) {
+        if (step>0 && ((step % (1L << Math.max(bigStep, prevStep)) == 0) ||
+                (bigStep > prevStep && ((step + (1L << prevStep)) % (1L << bigStep) == 0)))) {
             pump.actionPerformed();
         }
     }
