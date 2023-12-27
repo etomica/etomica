@@ -131,16 +131,17 @@ public class LJPIMD extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.steps = 10000;
-            params.hbar = 1.0;
-            params.temperature = 0.5;
+            params.hbar = 0.1;
+            params.temperature = 0.8;
             params.numAtoms = 32;
             params.rc = 2.5;
-            params.isGraphic = false;
-            params.coordType = MoveChoice.Real;
-//            params.coordType = MoveChoice.NM;
+            params.isGraphic = !false;
+//            params.coordType = MoveChoice.Real;
+            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
-            params.nBeads = 2;
             params.nShifts = 0;
+//            params.timeStep = 0.001;
+            params.nBeads = 10;
         }
 
         Space space = Space.getInstance(params.D);
@@ -164,7 +165,7 @@ public class LJPIMD extends Simulation {
         double omega = Math.sqrt(omega2);
         double x = 1/temperature*hbar*omega;
         if (nBeads == -1){
-            nBeads = (int) (10*x);
+            nBeads = (int) (20*x);
         }
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
@@ -172,7 +173,8 @@ public class LJPIMD extends Simulation {
         if (timeStep == -1) {
             double c = 0.01;
             if (coordType == MoveChoice.Real) {
-                timeStep = c/omegaN/Math.sqrt(nBeads);
+//                timeStep = c/omegaN/Math.sqrt(nBeads); // WHY sqrt(n)??
+                timeStep = c/omegaN;
             } else if (coordType == MoveChoice.Stage) {
                 double s = 1.0 + 1.0/12.0*omega2/omegaN/omegaN/nBeads*(nBeads*nBeads-1);
                 timeStep = c*Math.sqrt(s)/omega;
@@ -375,7 +377,7 @@ public class LJPIMD extends Simulation {
             plotCOM.setDoLegend(false);
             simGraphic.add(plotCOM);
 
-            simGraphic.makeAndDisplayFrame("PIMD");
+            simGraphic.makeAndDisplayFrame("PIMD-"+coordType);
 
             return;
         }
@@ -737,7 +739,6 @@ public class LJPIMD extends Simulation {
     public static class SimParams extends ParameterBase {
         public int D = 3;
         public double k2 = 219.949835;
-        public double k2HMA2 = 219.949835;
         public double gammaLangevin = 2.0 * Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;

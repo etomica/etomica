@@ -142,19 +142,16 @@ public class SimQuantumAOPIMD extends Simulation {
             params.hbar = 1;
             params.steps = 1000000;
             params.temperature = 1;
-            params.k2 = 1;
-            params.k4 = 24;
+            params.k2 = 100;
+            params.k4 = 0;
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
-            params.coordType = MoveChoice.Stage;
-            params.nBeads = 10;
-            params.nShifts = 0;
-
-
+//            params.coordType = MoveChoice.NMEC;
+//            params.coordType = MoveChoice.Stage;
+            params.coordType = MoveChoice.StageEC;
+            params.nBeads = 20;
+            params.nShifts = 19;
             params.timeStep = 0.001;
-
-
-
         }
 
         int nShifts = params.nShifts;
@@ -177,19 +174,22 @@ public class SimQuantumAOPIMD extends Simulation {
         double x = 1/temperature*hbar*omega;
         int nBeads = params.nBeads;
         if (nBeads == -1){
-            nBeads = (int) (30*x); //20*x and 30*x are good for HO and AO, resp.
+            nBeads = (int) (20*x); //20*x and 30*x are good for HO and AO, resp.
         }
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
         double timeStep = params.timeStep;
         if (timeStep == -1) {
-            double c = 0.1;
+            double c = 0.001;
             if (params.coordType == MoveChoice.Real) {
-                timeStep = c/omegaN/Math.sqrt(nBeads);//c/(20*w)
+                timeStep = c/omegaN/Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
             } else if (params.coordType == MoveChoice.Stage) {
-                double s = 1.0 + 1.0/12.0*omega2/omegaN/omegaN/nBeads*(nBeads*nBeads-1);
-                timeStep = c*Math.sqrt(s)/omega;
-            } else {
+                double s = omega2/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1.0)/nBeads);
+                timeStep = c*Math.sqrt(s)/omega; // for large n, timeStep ~ hbar/T
+            } else if (params.coordType == MoveChoice.NM) {
+                double s = omega2;
+                timeStep = c*Math.sqrt(s)/omega; // which is fixed to timeStep=c
+            }else {
                 timeStep = c/omega;
             }
         }

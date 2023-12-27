@@ -50,8 +50,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector rirc = box.getSpace().makeVector();
         rHr = 0;
         double vir = 0;
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //with Cv
+        pcP1.computeAll(true, null); // no Cv (rHr=0)
+//        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);

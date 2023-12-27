@@ -63,7 +63,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
         fScale = new double[nBeads];
         fScale0 = new double[nBeads];
 
-        mScale[0] = (alpha == 0 || nBeads == 1) ? nBeads : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
+        mScale[0] = (alpha == 0 || nBeads == 1) ? nBeads*omegaN2/omega2HO : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
 
 // Check how m0 varies with x for the EC-stage
 //        System.out.println(mScale[0]/nBeads);
@@ -114,9 +114,10 @@ public class IntegratorLangevinPI extends IntegratorMD {
 //        double M = nBeads/(aSum/nBeads);
 //        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
 
+
         // mi need to be larger to match the real COM oscillations
         if (alpha == 0) {
-            double s = 1 + 1.0/12.0*omega2HO/omegaN/omegaN/nBeads*(nBeads*nBeads-1);
+            double s = omega2HO/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1)/nBeads);
             for (int i = 0; i < mScale.length; i++) {
                 mScale[i] *= s;
             }
@@ -142,7 +143,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
             // first compute collective coordinates
             for (IAtom a : atoms) {
                 int i = a.getIndex();
-
                 Vector r = a.getPosition();
                 u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(u[i]);

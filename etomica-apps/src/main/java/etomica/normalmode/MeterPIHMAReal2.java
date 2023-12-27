@@ -200,7 +200,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                     aPrev.E(a);
                     rdot[jj].E(v);
                 } // beads
-                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
+//                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
 //                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
             }//shifts

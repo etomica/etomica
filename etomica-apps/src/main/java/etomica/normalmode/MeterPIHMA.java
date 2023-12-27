@@ -140,7 +140,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
+        pcP1.computeAll(true, null); //no Cv
+//        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
         int numAtoms = molecules.size();
         double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();

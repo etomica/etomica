@@ -61,8 +61,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         Vector dri = box.getSpace().makeVector();
 //        Vector dr0Ref = box.getSpace().makeVector();
 
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //Hessian
+        pcP1.computeAll(true, null); // no Cv (rHr=0)
+//        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
