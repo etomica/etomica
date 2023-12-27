@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.box.Box;
 import etomica.data.ConfigurationStorage;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.space.Vector;
@@ -28,15 +29,20 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         this.minInterval = minInterval;
         try {
             fw.write("{\"WV\": [");
+            Vector L = configStorage.getBox().getBoundary().getBoxSize();
             Vector[] wv = meterSFac.getWaveVectors();
+            Vector wvL = configStorage.getBox().getSpace().makeVector();
             for (int j=0; j<wv.length; j++) {
-                Vector v = wv[j];
+                wvL.E(wv[j]);
+                wvL.TE(L);
+                wvL.TE(1/(2*Math.PI));
                 if (j>0) fw.write(",");
                 fw.write(" [");
                 boolean firstD = true;
-                for (int i=0; i<v.getD(); i++) {
+                for (int i=0; i<wvL.getD(); i++) {
                     if (!firstD) fw.write(", ");
-                    fw.write(" "+v.getX(i));
+                    int iwv = (int)Math.round(wvL.getX(i));
+                    fw.write(" "+iwv);
                     firstD = false;
                 }
                 fw.write(" ]");
@@ -55,10 +61,14 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         try {
             if (!firstData) fw.write(",");
             firstData = false;
+            Box box = configStorage.getBox();
+            int N = box.getLeafList().size();
             fw.write("{\"step\": " + step + ", \"interval\": " + interval + ", \"sfac\": [");
             for (int i=0; i<xy.length; i++) {
                 if (i>0) fw.write(",");
-                fw.write(String.format("[ %8.3e, %8.3e ]", xy[i][0], xy[i][1]));
+                double sfac = (xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N;
+                double theta = Math.atan2(xy[i][0], xy[i][1]);
+                fw.write(String.format("[ %8.3e, %5.3f ]", sfac, theta));
             }
             fw.write("]}\n");
         }
