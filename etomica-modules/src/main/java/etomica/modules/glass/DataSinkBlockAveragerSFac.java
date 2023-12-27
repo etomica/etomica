@@ -60,11 +60,11 @@ public class DataSinkBlockAveragerSFac implements IDataSink, Statefull {
         for (int j = 0; j < xy.length; j++) {
             double sfac = inputData.getValue(j);
             double tanphi = Math.tan(phaseAngles[j]);
-            double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
+            double y = Math.sqrt(sfac / (1 + tanphi * tanphi));
             if (phaseAngles[j] > Math.PI / 2 || phaseAngles[j] < -Math.PI / 2) {
-                x = -x;
+                y = -y;
             }
-            double y = x * tanphi;
+            double x = y * tanphi;
             blockAvg[minInterval][j][0] = x;
             blockAvg[minInterval][j][1] = y;
         }

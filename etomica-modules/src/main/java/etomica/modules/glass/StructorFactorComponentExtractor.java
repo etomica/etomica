@@ -27,11 +27,11 @@ public class StructorFactorComponentExtractor implements IDataSink {
         for (int i = 0; i < xyData.length; i++) {
             double sfac = data.getValue(i);
             double tanphi = Math.tan(phaseAngles[i]);
-            double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
+            double y = Math.sqrt(sfac / (1 + tanphi * tanphi));
             if (phaseAngles[i] > Math.PI / 2 || phaseAngles[i] < -Math.PI / 2) {
-                x = -x;
+                y = -y;
             }
-            double y = x * tanphi;
+            double x = y * tanphi;
             xyData[i][0] = x;
             xyData[i][1] = y;
         }
