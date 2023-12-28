@@ -66,7 +66,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
             fw.write("{\"step\": " + step + ", \"interval\": " + interval + ", \"sfac\": [");
             for (int i=0; i<xy.length; i++) {
                 if (i>0) fw.write(",");
-                double sfac = (xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N;
+                double sfac = 2*Math.sqrt((xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N);
                 double theta = Math.atan2(xy[i][0], xy[i][1]);
                 fw.write(String.format("[ %8.3e, %5.3f ]", sfac, theta));
             }
