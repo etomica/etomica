@@ -5,20 +5,25 @@ import etomica.data.ConfigurationStorage;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.space.Vector;
 
-public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByType {
+public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByType implements DataSinkBlockAveragerSFac.Sink {
     protected final ConfigurationStorage configStorage;
     protected final Vector dr;
     protected int prevConfigIndex;
-    protected double[][] msd;
+    protected final MeterStructureFactor meterDensity;
+    protected final int N;
+    protected double[][] savedXY;
+    protected long savedStep;
 
     public AtomSignalMobility(ConfigurationStorage configStorage) {
-        this(configStorage, null);
+        this(configStorage, null, 0);
     }
 
-    public AtomSignalMobility(ConfigurationStorage configStorage, double[][] msd) {
+    public AtomSignalMobility(ConfigurationStorage configStorage, MeterStructureFactor meterDensity, int N) {
         this.configStorage = configStorage;
-        this.msd = msd;
+        this.meterDensity = meterDensity;
         dr = configStorage.getBox().getSpace().makeVector();
+        this.N = N;
+        savedXY = new double[0][0];
     }
 
     public boolean ready() {
@@ -34,7 +39,7 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         return prevConfigIndex;
     }
 
-    public double signal(IAtom atom) {
+    public double signal(IAtom atom, int iq) {
         double s = super.signal(atom);
         if (s == 0) return 0;
         int idx = prevConfigIndex;
@@ -45,9 +50,29 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         int atomIndex = atom.getLeafIndex();
         dr.Ev1Mv2(positions[atomIndex], prevPositions[atomIndex]);
         double r2 = dr.squared();
-        if (msd != null) {
-            r2 -= msd[atom.getType().getIndex()][idx];
+        s *= r2;
+
+        if (meterDensity==null) return s;
+        if (savedStep != configStorage.getSavedSteps()[0]) throw new RuntimeException("oops wrong step "+savedStep+" "+configStorage.getSavedSteps()[0]);
+        double sfac = 2*Math.sqrt((savedXY[iq][0]*savedXY[iq][0] + savedXY[iq][1]*savedXY[iq][1])*N);
+        double theta = Math.atan2(savedXY[iq][0], savedXY[iq][1]);
+        Vector wv = meterDensity.getWaveVectors()[iq];
+        dr.Ev1Pv2(prevPositions[atomIndex], positions[atomIndex]);
+        double V = configStorage.getBox().getBoundary().volume();
+        double den = N/V + 2*Math.sqrt(sfac/N)/V*Math.sin(wv.dot(dr) + theta);
+        return s/den;
+    }
+
+    @Override
+    public void putData(int interval, double[][] xy) {
+        if (interval != prevConfigIndex) return;
+        if (savedXY.length != xy.length) {
+            savedXY = new double[xy.length][2];
         }
-        return s * r2;
+        for (int i=0; i<xy.length; i++) {
+            savedXY[i][0] = xy[i][0];
+            savedXY[i][1] = xy[i][1];
+        }
+        savedStep = configStorage.getSavedSteps()[0];
     }
 }

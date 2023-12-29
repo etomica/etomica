@@ -4,12 +4,14 @@
 package etomica.modules.glass;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.space.Vector;
@@ -74,6 +76,37 @@ public class GlassProd {
         }
     }
 
+    public static class StructureFactorStuff {
+        public final MeterStructureFactor meter;
+        public final AccumulatorAverageFixed acc;
+        public final StructureFactorComponentWriter writer;
+        public StructureFactorStuff(MeterStructureFactor meter, AccumulatorAverageFixed acc, StructureFactorComponentWriter writer) {
+            this.meter = meter;
+            this.acc = acc;
+            this.writer = writer;
+        }
+    }
+    public static StructureFactorStuff setupStructureFactor(Box box, double cut, MeterStructureFactor.AtomSignalSource atomSignal,
+                                            String name, Integrator integrator, int interval, ConfigurationStorage configStorage) {
+
+        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);
+        MeterStructureFactor meterSFac = new MeterStructureFactor(box, cut, atomSignal);
+        meterSFac.setNormalizeByN(true);
+        DataFork forkSFac = new DataFork();
+        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, forkSFac, interval);
+        forkSFac.addDataSink(accSFac);
+        pumpSFac.setIntervalCount(-1);
+        integrator.getEventManager().addListener(pumpSFac);
+        StructureFactorComponentWriter sfacWriter = null;
+        if (name != null) {
+            DataSinkBlockAveragerSFac dsSfac = new DataSinkBlockAveragerSFac(configStorage, interval, meterSFac);
+            forkSFac.addDataSink(dsSfac);
+            sfacWriter = new StructureFactorComponentWriter("sfac"+name+"Traj.dat", meterSFac, configStorage, interval);
+            dsSfac.addSink(sfacWriter);
+        }
+        return new StructureFactorStuff(meterSFac, accSFac, sfacWriter);
+    }
+
     public static void main(String[] args) {
         double startTime = System.nanoTime()/1e9;
         SimParams params = new SimParams();
@@ -85,7 +118,7 @@ public class GlassProd {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 100;
             params.nB = 100;
-            params.density =  1.0; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.density =  1.5; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
             params.numStepsEqIsothermal = 100000;
@@ -94,6 +127,7 @@ public class GlassProd {
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
             params.rcLJ = 2.5;
+            params.writeSfacComps = true;
         }
 
         double rho = params.density;
@@ -505,95 +539,48 @@ public class GlassProd {
         configStorageMSD.addListener(meterAlpha2B);
 
         //S(q)
-        double cut10 = 8;
-        int sfacInterval = 5000;
-        int minSfacWriteInterval = 8;
+        double cut10 = 3;
         if (numAtoms > 500) cut10 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
-        if (params.writeSfacComps) {
-            cut10 = 3;
-            sfacInterval = 1<<params.sfacMinInterval;
-        }
         AtomPositionConfig atomPositionConfig = new AtomPositionConfig(configStorageMSD);
         MeterStructureFactor.AtomSignalSource atomSignalSimple = new MeterStructureFactor.AtomSignalSourceByType();
-        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut10, atomSignalSimple, atomPositionConfig);
-        meterSFac.setNormalizeByN(true);
-        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, sfacInterval);
-        pumpSFac.setIntervalCount(-1);
-        sim.integrator.getEventManager().addListener(pumpSFac);
+
+        StructureFactorStuff sfacDensity = setupStructureFactor(sim.box, cut10, atomSignalSimple, params.writeSfacComps ? "Den":null, sim.integrator, params.sfacMinInterval, configStorageMSD);
+
+        MeterStructureFactor.AtomSignalSourceByType atomSignalA = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
+        StructureFactorStuff sfacA = setupStructureFactor(sim.box, cut10, atomSignalA, params.writeSfacComps ? "A":null, sim.integrator, params.sfacMinInterval, configStorageMSD);
+
+        MeterStructureFactor.AtomSignalSourceByType atomSignalB = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalA.setAtomTypeFactor(sim.speciesA.getLeafType(), 0);
+        StructureFactorStuff sfacB = setupStructureFactor(sim.box, cut10, atomSignalB, params.writeSfacComps ? "B":null, sim.integrator, params.sfacMinInterval, configStorageMSD);
+
         double vA = sim.getSpace().sphereVolume(0.5);
         double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
+        MeterStructureFactor.AtomSignalSourceByType atomSignalAB = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalAB.setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
+        atomSignalAB.setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
 
-        AccumulatorAverageFixed accSFacAB = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        MeterStructureFactor meterSFacAB = new MeterStructureFactor(sim.box, cut10, new MeterStructureFactor.AtomSignalSourceByType(), atomPositionConfig);
-        meterSFacAB.setNormalizeByN(true);
-        DataFork forkSFacAB = new DataFork();
-        DataPumpListener pumpSFacAB = new DataPumpListener(meterSFacAB, forkSFacAB, sfacInterval);
-        pumpSFacAB.setIntervalCount(-1);
-        forkSFacAB.addDataSink(accSFacAB);
-        sim.integrator.getEventManager().addListener(pumpSFacAB);
-        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacAB.getSignalSource()).setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
-        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacAB.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
-        StructureFactorComponentWriter sfacABWriter = null;
-        if (params.writeSfacComps) {
-            DataSinkBlockAveragerSFac dsSfacAB = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacAB);
-            forkSFacAB.addDataSink(dsSfacAB);
-            sfacABWriter = new StructureFactorComponentWriter("sfacCompAB.dat", meterSFacAB, configStorageMSD, minSfacWriteInterval);
-            dsSfacAB.addSink(sfacABWriter);
-        }
+        StructureFactorStuff sfacAB = setupStructureFactor(sim.box, cut10, atomSignalAB, params.writeSfacComps?"AB":null, sim.integrator, params.sfacMinInterval, configStorageMSD);
 
-        AccumulatorAverageFixed accSFacPack = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        MeterStructureFactor meterSFacPack = new MeterStructureFactor(sim.box, cut10, new MeterStructureFactor.AtomSignalSourceByType(), atomPositionConfig);
-        meterSFacPack.setNormalizeByN(true);
-        DataFork forkSFacPack = new DataFork();
-        DataPumpListener pumpSFacPack = new DataPumpListener(meterSFacPack, forkSFacPack, sfacInterval);
-        pumpSFacPack.setIntervalCount(-1);
-        forkSFacAB.addDataSink(accSFacPack);
-        sim.integrator.getEventManager().addListener(pumpSFacPack);
-        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacPack.getSignalSource()).setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
-        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacPack.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), +vB);
-        StructureFactorComponentWriter sfacPackWriter = null;
-        if (params.writeSfacComps) {
-            DataSinkBlockAveragerSFac dsSfacPack = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacPack);
-            forkSFacPack.addDataSink(dsSfacPack);
-            sfacPackWriter = new StructureFactorComponentWriter("sfacCompPack.dat", meterSFacPack, configStorageMSD, minSfacWriteInterval);
-            dsSfacPack.addSink(sfacPackWriter);
-        }
+        MeterStructureFactor.AtomSignalSourceByType atomSignalPack = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalAB.setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
+        atomSignalAB.setAtomTypeFactor(sim.speciesB.getAtomType(0), +vB);
+        StructureFactorStuff sfacPack = setupStructureFactor(sim.box, cut10, atomSignalPack, params.writeSfacComps?"Pack":null, sim.integrator, params.sfacMinInterval, configStorageMSD);
 
         AtomSignalKineticEnergy atomSignalKE = new AtomSignalKineticEnergy();
-        atomSignalKE.setDoSubtractAvg(1.5 * sim.integrator.getTemperature());
-        AccumulatorAverageFixed accSFacKE = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        MeterStructureFactor meterSFacKE = new MeterStructureFactor(sim.box, cut10, atomSignalKE, atomPositionConfig);
-        meterSFacKE.setNormalizeByN(true);
-        DataFork forkSFacKE = new DataFork();
-        DataPumpListener pumpSFacKE = new DataPumpListener(meterSFacKE, forkSFacKE, sfacInterval);
-        pumpSFacKE.setIntervalCount(-1);
-        forkSFacKE.addDataSink(accSFacKE);
-        sim.integrator.getEventManager().addListener(pumpSFacKE);
-        StructureFactorComponentWriter sfacKEWriter = null;
-        if (params.writeSfacComps) {
-            DataSinkBlockAveragerSFac dsSfacKE = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacKE);
-            forkSFacKE.addDataSink(dsSfacKE);
-            sfacKEWriter = new StructureFactorComponentWriter("sfacCompKE.dat", meterSFacKE, configStorageMSD, minSfacWriteInterval);
-            dsSfacKE.addSink(sfacKEWriter);
-        }
-
-        double[][] sfacMSD = null;
-        if (params.sfacMSDAfile != null) {
-            sfacMSD = new double[][]{readMSD(params.sfacMSDAfile), readMSD(params.sfacMSDBfile)};
-        }
+        StructureFactorStuff sfacKE = setupStructureFactor(sim.box, cut10, atomSignalKE, "KE", sim.integrator, params.sfacMinInterval, configStorageMSD);
 
         double cut3 = 3;
         if (numAtoms > 500) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
-            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
             signalMobility.setPrevConfig(i + 1);
             AtomPositionMobility positionMobility = new AtomPositionMobility(configStorageMSD);
             positionMobility.setPrevConfig(i + 1);
             MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, cut3, signalMobility, positionMobility);
             meterSFacMobility.setNormalizeByN(true);
-            accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            accSFacMobility[i] = new AccumulatorAverageFixed(1);
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility, accSFacMobility[i]);
             // ensures pump fires when config with delta t is available
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
@@ -602,20 +589,18 @@ public class GlassProd {
         }
         StructureFactorComponentWriter sfacMobilityWriter = null;
         if (params.writeSfacComps) {
-            for (int i = minSfacWriteInterval; i < 30; i++) {
-                AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
+            for (int i = params.sfacMinInterval; i < 30; i++) {
+                AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
                 signalMobility.setPrevConfig(i+1);
                 AtomPositionMobility positionMobility = new AtomPositionMobility(configStorageMSD);
                 positionMobility.setPrevConfig(i+1);
                 MeterStructureFactor meterSfacMobility = new MeterStructureFactor(sim.box, cut3, signalMobility, positionMobility);
                 meterSfacMobility.setNormalizeByN(true);
-                if (i==minSfacWriteInterval) sfacMobilityWriter = new StructureFactorComponentWriter("sfacCompMobility.dat", meterSfacMobility, configStorageMSD, minSfacWriteInterval);
+                if (i==params.sfacMinInterval) sfacMobilityWriter = new StructureFactorComponentWriter("sfacMobilityTraj.dat", meterSfacMobility, configStorageMSD, params.sfacMinInterval);
                 DataPump pumpSFacMobility = new DataPump(meterSfacMobility, new StructorFactorComponentExtractor(meterSfacMobility, i, sfacMobilityWriter));
                 ConfigurationStoragePumper csp = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
                 csp.setPrevStep(i);
                 configStorageMSD.addListener(csp);
-//                pumpSFacMobility.setIntervalCount(-1);
-//                sim.integrator.getEventManager().addListener(pumpSFacMobility);
             }
         }
 
@@ -650,7 +635,7 @@ public class GlassProd {
         }
         AtomSignalStress signalStressNormal = new AtomSignalStress(stressSource, normalComps);
 
-        Vector[] wv = meterSFac.getWaveVectors();
+        Vector[] wv = sfacDensity.meter.getWaveVectors();
         List<Vector> myWV = new ArrayList<>();
         double L = sim.box.getBoundary().getBoxSize().getX(0);
         double wvMax2 = 4.01 * Math.PI / L;
@@ -753,7 +738,7 @@ public class GlassProd {
             cspMotion2.setBigStep(minIntervalSfac2);
             configStorageMSD.addListener(cspMotion2);
 
-            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD, sfacMSD);
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility, positionMobility);
             meterSFacMobility2[i].setNormalizeByN(true);
@@ -840,8 +825,8 @@ public class GlassProd {
         objects.add(meterL);
         objects.add(meterAlpha2A);
         objects.add(meterAlpha2B);
-        objects.add(accSFac);
-        objects.add(accSFacAB);
+        objects.add(sfacDensity.acc);
+        objects.add(sfacAB.acc);
         for (int i = 0; i < 30; i++) {
             objects.add(accSFacMobility[i]);
             objects.add(accSFacMotion[i]);
@@ -889,9 +874,9 @@ public class GlassProd {
         saveObjects(stepsState, objects);
 
         if (params.writeSfacComps) {
-            sfacABWriter.closeFile();
-            sfacPackWriter.closeFile();
-            sfacKEWriter.closeFile();
+            sfacAB.writer.closeFile();
+            sfacPack.writer.closeFile();
+            sfacKE.writer.closeFile();
             sfacMobilityWriter.closeFile();
         }
 
@@ -1101,8 +1086,8 @@ public class GlassProd {
             GlassProd.writeDataToFile(meterQ4.makeChi4Meter(), "chi4" + fileTag + ".dat");
             GlassProd.writeDataToFile(meterAlpha2A, filenameAlpha2A);
             GlassProd.writeDataToFile(meterAlpha2B, filenameAlpha2B);
-            GlassProd.writeDataToFile(accSFac, filenameSq);
-            GlassProd.writeDataToFile(accSFacAB, filenameSqAB);
+            GlassProd.writeDataToFile(sfacDensity.acc, filenameSq);
+            GlassProd.writeDataToFile(sfacAB.acc, filenameSqAB);
 
             GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), meterMSD.getStdev(), filenameMSD);
             GlassProd.writeDataToFile(dsCorMSD.getFullCorrelation(), "msdFullCor.dat");

@@ -203,7 +203,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
             double term1 = 0;
             double term2 = 0;
             for (IAtom atom : atomList) {
-                double signal = signalSource == null ? 1.0 : signalSource.signal(atom);
+                double signal = signalSource == null ? 1.0 : signalSource.signal(atom, k);
                 if (signal == 0) continue;
                 double dotprod = waveVec[k].dot(positionSource.position(atom));
                 term1 += signal * Math.cos(dotprod);
@@ -249,6 +249,9 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 
     public interface AtomSignalSource {
         default boolean ready() {return true;};
+        default double signal(IAtom atom, int iq) {
+            return signal(atom);
+        }
         double signal(IAtom atom);
     }
 
