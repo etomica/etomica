@@ -53,19 +53,19 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         s *= r2;
 
         if (meterDensity==null) return s;
-        if (savedStep != configStorage.getSavedSteps()[0]) throw new RuntimeException("oops wrong step "+savedStep+" "+configStorage.getSavedSteps()[0]);
-        double sfac = 2*Math.sqrt((savedXY[iq][0]*savedXY[iq][0] + savedXY[iq][1]*savedXY[iq][1])*N);
+        if (savedStep != configStorage.getSavedSteps()[0]) throw new RuntimeException("oops "+prevConfigIndex+" wrong step "+savedStep+" "+configStorage.getSavedSteps()[0]);
+        double beta = 2*Math.sqrt((savedXY[iq][0]*savedXY[iq][0] + savedXY[iq][1]*savedXY[iq][1])*configStorage.getBox().getLeafList().size());
         double theta = Math.atan2(savedXY[iq][0], savedXY[iq][1]);
-        Vector wv = meterDensity.getWaveVectors()[iq];
         dr.Ev1Pv2(prevPositions[atomIndex], positions[atomIndex]);
         double V = configStorage.getBox().getBoundary().volume();
-        double den = N/V + 2*Math.sqrt(sfac/N)/V*Math.sin(wv.dot(dr) + theta);
+        Vector wv = meterDensity.getWaveVectors()[iq];
+        double den = N/V + beta/V*Math.sin(wv.dot(dr) + theta);
         return s/den;
     }
 
     @Override
     public void putData(int interval, double[][] xy) {
-        if (interval != prevConfigIndex) return;
+        if (interval != prevConfigIndex-1) return;
         if (savedXY.length != xy.length) {
             savedXY = new double[xy.length][2];
         }
