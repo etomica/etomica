@@ -8,7 +8,11 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**
@@ -22,7 +26,7 @@ import java.util.Arrays;
  * over configs from steps 1, 2, 3 and 4.  The mobility will use the displacement from
  * steps 0 to 4.
  */
-public class DataSourceCorrelation implements DataSourceIndependent, StructorFactorComponentExtractor.StructureFactorComponentSink {
+public class DataSourceCorrelation implements DataSourceIndependent, StructorFactorComponentExtractor.StructureFactorComponentSink, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -157,6 +161,45 @@ public class DataSourceCorrelation implements DataSourceIndependent, StructorFac
     public Meter makeMeter(int idx) {
         return new Meter(idx);
     }
+
+    public void saveState(Writer fw) throws IOException {
+        fw.write(lastSampleX[0].length+"\n");
+        for (int i=0; i<nData; i++) {
+            for (int j=0; j<lastSampleX[i].length; j++) {
+                fw.write(lastSampleX[i][j][0]+" "+lastSampleX[i][j][1]+" ");
+                fw.write(lastSampleY[i][j][0]+" "+lastSampleY[i][j][1]+" ");
+                fw.write(xySum[i][j]+" "+x2Sum[i][j]+" "+y2Sum[i][j]+"\n");
+            }
+            fw.write("\n");
+        }
+        for (int i=0; i<nSamples.length; i++) {
+            fw.write(nSamples[i]+" "+lastStepX[i]+" "+lastStepY[i]+"\n");
+        }
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<nData; i++) {
+            for (int j=0; j<n; j++) {
+                String[] bits = br.readLine().split(" ");
+                lastSampleX[i][j][0] = Double.parseDouble(bits[0]);
+                lastSampleX[i][j][1] = Double.parseDouble(bits[1]);
+                lastSampleY[i][j][0] = Double.parseDouble(bits[2]);
+                lastSampleY[i][j][1] = Double.parseDouble(bits[3]);
+                xySum[i][j] = Double.parseDouble(bits[4]);
+                x2Sum[i][j] = Double.parseDouble(bits[5]);
+                y2Sum[i][j] = Double.parseDouble(bits[6]);
+            }
+        }
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            nSamples[i] = Long.parseLong(bits[0]);
+            lastStepX[i] = Long.parseLong(bits[1]);
+            lastStepY[i] = Long.parseLong(bits[2]);
+        }
+    }
+
 
     public class Receiver implements DataSinkBlockAveragerSFac.Sink {
         protected final int idx;
