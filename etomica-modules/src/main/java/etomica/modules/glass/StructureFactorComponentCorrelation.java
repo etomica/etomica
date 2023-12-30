@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Computes autocorrelation of structure factor components.
+ */
 public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAveragerSFac.Sink, Statefull {
 
     protected double[][][] lastXY;
