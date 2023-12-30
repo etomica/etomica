@@ -14,11 +14,17 @@ public class StructorFactorComponentExtractor implements IDataSink {
     private final MeterStructureFactor meterSFacMobility2;
     private final int interval;
     private final StructureFactorComponentSink dsCorSFacDensityMobility;
+    private final int idx;
 
     public StructorFactorComponentExtractor(MeterStructureFactor meterSFacMobility2, int interval, StructureFactorComponentSink dsCorSFacDensityMobility) {
+        this(meterSFacMobility2, interval, dsCorSFacDensityMobility, 1);
+    }
+
+    public StructorFactorComponentExtractor(MeterStructureFactor meterSFacMobility2, int interval, StructureFactorComponentSink dsCorSFacDensityMobility, int idx) {
         this.meterSFacMobility2 = meterSFacMobility2;
         this.interval = interval;
         this.dsCorSFacDensityMobility = dsCorSFacDensityMobility;
+        this.idx = idx;
     }
 
     @Override
@@ -36,7 +42,7 @@ public class StructorFactorComponentExtractor implements IDataSink {
             xyData[i][1] = y;
         }
         // DataSourceCorrelation expects 1
-        dsCorSFacDensityMobility.putData(1, interval, xyData);
+        dsCorSFacDensityMobility.putData(idx, interval, xyData);
     }
 
     @Override
