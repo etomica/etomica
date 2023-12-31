@@ -138,7 +138,7 @@ public class GlassProd {
         configStorage.addListener(csp);
         csp.setPrevStep(interval);
         StructureFactorComponentCorrelation sfacCor = new StructureFactorComponentCorrelation(2, configStorage);
-
+        averager.addSink(sfacCor);
         return new StructureFactorStuff2(meterSFac, averager, sfacCor);
     }
 
@@ -455,10 +455,10 @@ public class GlassProd {
             // only for this sim, swapMove not saved/restored (has no state, only tracker has state)
             System.out.println("swap acceptance: "+sim.swapMove.getTracker().acceptanceProbability());
         }
+        System.out.printf("\nequilibration time: %3.2f s\n", (time2eq-time0eq)/1e9);
         if (params.numSteps == 0) {
             saveObjects(stepsState, objects);
 
-            System.out.printf("\nequilibration time: %3.2f s\n", (time2eq-time0eq)/1e9);
             return;
         }
 
