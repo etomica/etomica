@@ -57,6 +57,7 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         double beta = 2*Math.sqrt((savedXY[iq][0]*savedXY[iq][0] + savedXY[iq][1]*savedXY[iq][1])*configStorage.getBox().getLeafList().size());
         double theta = Math.atan2(savedXY[iq][0], savedXY[iq][1]);
         dr.Ev1Pv2(prevPositions[atomIndex], positions[atomIndex]);
+        dr.TE(0.5);
         double V = configStorage.getBox().getBoundary().volume();
         Vector wv = meterDensity.getWaveVectors()[iq];
         double den = N/V + beta/V*Math.sin(wv.dot(dr) + theta);
