@@ -278,8 +278,8 @@ public class GlassProd {
             params.doSwap = true;
             params.doLinear = !true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
-            params.nB = 100;
+            params.nA = 200;
+            params.nB = 200;
             params.density =  1.5; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
@@ -1157,23 +1157,23 @@ public class GlassProd {
             }
             double fac = sim.box.getBoundary().getBoxSize().getX(0) / (2 * Math.PI);
             for (int j=0; j<2; j++) {
-                GlassProd.writeDataToFile(sfcMobilityACor.makeMeter(j), "sfacMobilityACor" + (j+1));
-                GlassProd.writeDataToFile(sfcMobilityBCor.makeMeter(j), "sfacMobilityBCor" + (j+1));
-                GlassProd.writeDataToFile(sfcMotionXXCor.makeMeter(j), "sfacMotionXXCor" + (j+1));
-                GlassProd.writeDataToFile(sfcMotionXYCor.makeMeter(j), "sfacMotionXYCor" + (j+1));
-                GlassProd.writeDataToFile(sfacDensityX.cor.makeMeter(j), "sfacDensityCor" + (j+1));
-                GlassProd.writeDataToFile(sfacPackX.cor.makeMeter(j), "sfacPackCor" + (j+1));
-                GlassProd.writeDataToFile(sfacABX.cor.makeMeter(j), "sfacABCor" + (j+1));
-                GlassProd.writeDataToFile(sfacKEX.cor.makeMeter(j), "sfacKineticCor" + (j+1));
+                GlassProd.writeDataToFile(sfcMobilityACor.makeMeter(j), "sfacMobilityACor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfcMobilityBCor.makeMeter(j), "sfacMobilityBCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfcMotionXXCor.makeMeter(j), "sfacMotionXXCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfcMotionXYCor.makeMeter(j), "sfacMotionXYCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfacDensityX.cor.makeMeter(j), "sfacDensityCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfacPackX.cor.makeMeter(j), "sfacPackCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfacABX.cor.makeMeter(j), "sfacABCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(sfacKEX.cor.makeMeter(j), "sfacKineticCor" + (j+1)+".dat");
 
-                GlassProd.writeDataToFile(dsCorSFacPackMobilityA.makeMeter(j), "sfacPackMobilityACor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacPackMobilityB.makeMeter(j), "sfacPackMobilityBCor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacABMobilityA.makeMeter(j), "sfacABDMobilityCor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacABMobilityB.makeMeter(j), "sfacABMobilityCor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacMobilityAB.makeMeter(j), "sfacMobilityABCor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacKEMobilityA.makeMeter(j), "sfacKEMobilityACor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacKEMobilityB.makeMeter(j), "sfacKEMobilityBCor" + (j+1));
-                GlassProd.writeDataToFile(dsCorSFacPackPackAB.makeMeter(j), "sfacPackPackBCor" + (j+1));
+                GlassProd.writeDataToFile(dsCorSFacPackMobilityA.makeMeter(j), "sfacPackMobilityACor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacPackMobilityB.makeMeter(j), "sfacPackMobilityBCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacABMobilityA.makeMeter(j), "sfacABDMobilityACor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacABMobilityB.makeMeter(j), "sfacABMobilityBCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacMobilityAB.makeMeter(j), "sfacMobilityABCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacKEMobilityA.makeMeter(j), "sfacKEMobilityACor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacKEMobilityB.makeMeter(j), "sfacKEMobilityBCor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacPackPackAB.makeMeter(j), "sfacPackPackABCor" + (j+1)+".dat");
             }
 
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
