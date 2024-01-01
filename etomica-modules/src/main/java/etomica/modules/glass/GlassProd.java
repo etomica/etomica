@@ -766,10 +766,10 @@ public class GlassProd {
 
         // only need this for motion, this is a shear mode
         Vector[] wvy = new Vector[2];
-        wvx[0] = sim.getSpace().makeVector();
-        wvx[1] = sim.getSpace().makeVector();
-        wvx[0].setX(1, wv1);
-        wvx[1].setX(1, 2*wv1);
+        wvy[0] = sim.getSpace().makeVector();
+        wvy[1] = sim.getSpace().makeVector();
+        wvy[0].setX(1, wv1);
+        wvy[1].setX(1, 2*wv1);
 
         StructureFactorStuff2 sfacDensityX = setupStructureFactor(sim.box, wvx, atomSignalSimple, 1, configStorageMSD);
 
