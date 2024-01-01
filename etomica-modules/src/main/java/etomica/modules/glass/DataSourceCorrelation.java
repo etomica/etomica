@@ -170,7 +170,6 @@ public class DataSourceCorrelation implements DataSourceIndependent, StructorFac
                 fw.write(lastSampleY[i][j][0]+" "+lastSampleY[i][j][1]+" ");
                 fw.write(xySum[i][j]+" "+x2Sum[i][j]+" "+y2Sum[i][j]+"\n");
             }
-            fw.write("\n");
         }
         for (int i=0; i<nSamples.length; i++) {
             fw.write(nSamples[i]+" "+lastStepX[i]+" "+lastStepY[i]+"\n");
