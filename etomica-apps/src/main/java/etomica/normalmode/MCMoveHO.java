@@ -45,7 +45,7 @@ public class MCMoveHO extends MCMoveBox {
         lambda = new double[nBeads];
         beta = 1.0/temperature;
         omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        mass = box.getLeafList().get(0).getType().getMass();
+        mass = box.getLeafList().get(0).getType().getMass();// m/n
         int nK = nBeads/2;
         lambda[nK] = mass*omega2; //k=0
         double lambda_k;

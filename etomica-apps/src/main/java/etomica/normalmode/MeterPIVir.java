@@ -28,7 +28,7 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
     protected Vector[] rc;
 
     public MeterPIVir(PotentialCompute pcP1, double temperature, Box box) {
-        int nData = 1;
+        int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -46,8 +46,8 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         Vector rirc = box.getSpace().makeVector();
         rHr = 0;
-//        pcP1.computeAll(true);
-        pcP1.computeAll(true, this);
+//        pcP1.computeAll(true); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         double vir = 0;
 
@@ -60,7 +60,7 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         }
 
         x[0] =   pcP1.getLastEnergy() + 1.0/2.0*vir;//En
-//        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
+        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
         return data;
     }
 

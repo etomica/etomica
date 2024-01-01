@@ -52,8 +52,7 @@ public class IntegratorLangevinPINM extends IntegratorMD {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
         int nBeads = box.getMoleculeList().get(0).getChildList().size();
-        double mass = box.getLeafList().get(0).getType().getMass();
-
+        double mass = box.getLeafList().get(0).getType().getMass();//m/n
         mScale = new double[nBeads];
         double omegaN = Math.sqrt(nBeads)/(hbar*move.beta);
 
@@ -61,7 +60,7 @@ public class IntegratorLangevinPINM extends IntegratorMD {
             mScale[k] = this.move.lambda[k]/(mass*omega2);
         }
 
-        if (move.omega2 == 0 || nBeads == 1) mScale[nBeads/2] = 1/omega2;
+        if (move.omega2 == 0 || nBeads == 1) mScale[nBeads/2] = nBeads/omega2;
 
 //        // The "s" rescaling is no longer needed as s=1 always!
 ////        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
@@ -83,16 +82,16 @@ public class IntegratorLangevinPINM extends IntegratorMD {
 //
 //        // M is the effective mass we have now; we want ring mass = n * atomType mass
 //        double M = nBeads/(aSum/nBeads);
-//        double s = (nBeads * box.getLeafList().get(0).getType().getMass())/M ;
+//        double ss = (nBeads * box.getLeafList().get(0).getType().getMass())/M ;
 //        for (int i = 0; i < mScale.length; i++) {
 //            mScale[i] *= ss;
 //        }
 
         // analytical scaling s (same as code above!)
         if (move.omega2 == 0) {
-            double ss = omega2;
+            double s = omega2/nBeads;
             for (int i = 0; i < mScale.length; i++) {
-                mScale[i] *= ss;
+                mScale[i] *= s;
             }
 
         }

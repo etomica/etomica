@@ -34,7 +34,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected final Vector[] latticePositions;
     protected int dim;
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
-        int nData = 1;
+        int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -140,8 +140,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-        pcP1.computeAll(true, null); //no Cv
-//        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
+//        pcP1.computeAll(true, null); //no Cv
+        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
         int numAtoms = molecules.size();
         double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
@@ -167,11 +167,12 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
             Vector tmpV = box.getSpace().makeVector();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            Cvn -= beta*omegaN*omegaN*box.getLeafList().get(0).getType().getMass()*nBeads*(tmpV.squared());
+            double massRing = box.getLeafList().get(0).getType().getMass()*nBeads;
+            Cvn -= beta*omegaN*omegaN*massRing*(tmpV.squared());
         }
         Cvn -= beta*drdotHdrdot;
         x[0] = En;
-//        x[1] = Cvn + x[0]*x[0];
+        x[1] = Cvn + En*En;
 
         return data;
     }

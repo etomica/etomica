@@ -70,7 +70,7 @@ public class LJPIMD extends Simulation {
         this.dim = space.D();
         box = new Box(space);
         addBox(box);
-        NeighborListManagerPI neighborManager = new NeighborListManagerPI(getSpeciesManager(), box, 2, 1.2*rc, BondingInfo.noBonding());
+        NeighborListManagerPI neighborManager = new NeighborListManagerPI(getSpeciesManager(), box, 2, 1.3*rc, BondingInfo.noBonding());
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         double beta = 1 / temperature;
@@ -702,7 +702,7 @@ public class LJPIMD extends Simulation {
 //            throw new RuntimeException(e);
 //        }
 
-        System.out.println(" time: " + (t2 - t1) * 0.001 / 60.0 + " mins");
+        System.out.println(" time: (min) " + (t2 - t1) * 0.001 / 60.0);
     }
 
     public static void writeDataToFile(IDataSource meter, IData errData, String filename) throws IOException {

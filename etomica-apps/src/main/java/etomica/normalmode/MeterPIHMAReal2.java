@@ -43,7 +43,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
 
     public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, MCMoveHOReal2 move) {
-        int nData = 1;
+        int nData = 2;
         this.move = move;
         this.beta = 1/temperature;
         this.nBeads = nBeads;
@@ -78,7 +78,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         d2f1N = d2CenterCoefficients[1];
 
         if (move.omega2 != 0) {
-            double En_ho_stage = dim*nBeads/2.0*temperature;
+            double En_ho_stage = dim*nBeads/2.0/beta;
             double Cvn_ho_stage = dim * nBeads / 2.0 * temperature * temperature;
             for (int k = 0; k < nBeads; k++) {
                 En_ho_stage -= dim * gamma[k];
@@ -133,15 +133,15 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         for (int i=0; i < x.length; i++){
             x[i] = 0;
         }
-        double En = 0;
+
         for (int i = 0; i < molecules.size(); i++) {
             IAtomList beads = molecules.get(i).getChildList();
             if (ns > beads.size() || (beads.size() / ns) * ns != beads.size()) {
                 throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
             }
             for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
+                double En = 0;
                 double Cvn = 0;
-                drdotHdrdot = 0;
                 Vector dr0 = box.getSpace().makeVector();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
                 dr0.PE(drShift);
@@ -200,13 +200,15 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                     aPrev.E(a);
                     rdot[jj].E(v);
                 } // beads
-//                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
+                drdotHdrdot = 0;
+                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
-//                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
+                x[0] += En0 + En;
+                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
             }//shifts
         }//atoms
-        x[0] = En0 + En/ns;
-//        x[1] /= ns;
+        x[0] /= ns;
+        x[1] /= ns;
         return data;
     }
 

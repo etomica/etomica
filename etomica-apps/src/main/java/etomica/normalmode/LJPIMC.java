@@ -370,7 +370,7 @@ public class LJPIMC extends Simulation {
         double corEnHMAReal2 = dataHMAReal2.getValue(accumulatorHMAReal2.BLOCK_CORRELATION.index);
         System.out.println(" En_hma2: " + avgEnHMAReal2 + " +/- " + errEnHMAReal2 + " cor: " + corEnHMAReal2);
 
-        System.out.println("time: " + (t2 - t1) * 0.001);
+        System.out.println(" time: (min) " + (t2 - t1) * 0.001 / 60.0);
     }
 
 
