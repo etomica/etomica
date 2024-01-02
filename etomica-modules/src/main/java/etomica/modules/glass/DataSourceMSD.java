@@ -34,7 +34,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected final DataTag tTag, tag, tagStdev;
     protected long[] nSamples;
     protected final AtomType type;
-    protected List<IDataSourceCorBlock> msdSinks;
+    protected List<IDataSinkBlockAvg> msdSinks;
     protected int minInterval = 3;
 
     public DataSourceMSD(ConfigurationStorage configStorage) {
@@ -83,7 +83,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         }
     }
 
-    public void addMSDSink(IDataSourceCorBlock sink) {
+    public void addMSDSink(IDataSinkBlockAvg sink) {
         msdSinks.add(sink);
     }
 
@@ -152,7 +152,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                     nSamples[i]++;
                     msdSumBlock[i] = 0;
                 }
-                for (IDataSourceCorBlock s : msdSinks) {
+                for (IDataSinkBlockAvg s : msdSinks) {
                     s.putBlock(i, step, iAvg);
                 }
             }

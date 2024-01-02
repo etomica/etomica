@@ -3,6 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
-public interface IDataSourceCorBlock {
+public interface IDataSinkBlockAvg {
     void putBlock(int interval, long step, double block);
 }

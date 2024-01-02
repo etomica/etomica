@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 
-public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceIndependent, IDataSourceCorBlock, Statefull {
+public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceIndependent, IDataSinkBlockAvg, Statefull {
 
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;

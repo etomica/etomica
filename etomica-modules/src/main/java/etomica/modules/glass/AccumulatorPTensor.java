@@ -31,7 +31,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected double[] sumP2, sumP4;
     protected int nP, dim;
     protected double volume, temperature, dt;
-    protected List<IDataSourceCorBlock> viscositySinks;
+    protected List<IDataSinkBlockAvg> viscositySinks;
 
     public AccumulatorPTensor(Box box, double dt) {
         this.dt = dt;
@@ -50,7 +50,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         reset();
     }
 
-    public void addViscositySink(IDataSourceCorBlock sink) {
+    public void addViscositySink(IDataSinkBlockAvg sink) {
         viscositySinks.add(sink);
     }
 
@@ -126,7 +126,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
                 // resulting average or uncertainty, but does make the uncertainty more
                 // precise
                 sumk /= nP;
-                for (IDataSourceCorBlock s : viscositySinks) {
+                for (IDataSinkBlockAvg s : viscositySinks) {
                     s.putBlock(i, nSample, sumk);
                 }
 

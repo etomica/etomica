@@ -12,7 +12,7 @@ import etomica.units.dimensions.Null;
 
 import java.util.Arrays;
 
-public class DataSourcePMSDHistory implements IDataSink, IDataSource, DataSourceIndependent, IDataSourceCorBlock {
+public class DataSourcePMSDHistory implements IDataSink, IDataSource, DataSourceIndependent, IDataSinkBlockAvg {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;

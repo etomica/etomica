@@ -5,7 +5,7 @@ package etomica.modules.glass;
 
 import etomica.integrator.IntegratorMD;
 
-public class DataSourceCorBlock extends DataSourceBlockAvgCor implements IDataSourceCorBlock {
+public class DataSourceCorBlock extends DataSourceBlockAvgCor implements IDataSinkBlockAvg {
 
     protected final double[][] blockSum, corSum, corSelfSum, blockSumIJ;
     protected final long[] nSamples;

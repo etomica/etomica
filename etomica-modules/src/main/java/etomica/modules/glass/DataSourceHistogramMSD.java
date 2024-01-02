@@ -11,7 +11,7 @@ import etomica.data.types.DataFunction;
 import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 
-public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependent, IDataSourceCorBlock {
+public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependent, IDataSinkBlockAvg {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
