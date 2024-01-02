@@ -15,26 +15,26 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPIVirInf implements IDataSource, PotentialCallback {
+public class MeterPIVirHarmStagingInf implements IDataSource, PotentialCallback {
     protected Box box;
-    protected final PotentialCompute pcP1harm, pcP1ah;
+    protected final PotentialCompute pcP1ah;
     protected double beta;
     protected double rHr;
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected int dim;
-    protected int numAtoms;
+    protected int numAtoms, nBeads;
     protected Vector[] rc;
-    protected double omega, hbar, R, cothR, tanhR2;
+    protected double omega, R, cothR, hbar;
+    double[] D;
 
-    public MeterPIVirInf(PotentialCompute pcP1harm, PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
+    public MeterPIVirHarmStagingInf(PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
         dataInfo.addTag(tag);
-        this.pcP1harm = pcP1harm;
         this.pcP1ah = pcP1ah;
         this.omega = omega;
         this.hbar = hbar;
@@ -42,31 +42,48 @@ public class MeterPIVirInf implements IDataSource, PotentialCallback {
         this.box = box;
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
+        this.nBeads = nBeads;
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         this.R = beta*hbar*omega/nBeads;
-        this.tanhR2 = Math.tanh(R/2);
-        this.cothR = Math.cosh(R)/Math.sinh(R);
+        this.cothR = 1.0/Math.tanh(R);
+        D = new double[nBeads];
+        double Ai = 0;
+        for (int i = nBeads - 1; i > 0; i--){
+            Ai = Ai*Math.sinh(i*R)/Math.sinh((i+1)*R) + Math.sinh(R)/Math.sinh((i+1)*R);
+            D[i] = Ai + Math.sinh(i*R)/Math.sinh(beta*hbar*omega);
+        }
+        D[0] = 1;
     }
 
     @Override
     public IData getData() {
         double[] x = data.getData();
         rHr = 0;
-        pcP1harm.computeAll(false);
         pcP1ah.computeAll(true); //no Cv
 //        pcP1ah.computeAll(true, this); //with Cv
         Vector[] forces = pcP1ah.getForces();
         double vir = 0;
+        double vir2 = 0;
 
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
-            for (IAtom atom : molecule.getChildList()) {
-                Vector ri = atom.getPosition();
-                vir -= forces[atom.getLeafIndex()].dot(ri);
+            for (IAtom atomi : molecule.getChildList()) {
+                Vector ri = atomi.getPosition();
+                vir -= forces[atomi.getLeafIndex()].dot(ri);
+                for (IAtom atomj : molecule.getChildList()) {
+                    Vector rj = atomj.getPosition();
+                    int ij = atomi.getIndex() - atomj.getIndex();
+                    double DD;
+                    if (ij >= 0) {
+                        DD = D[ij];
+                    } else {
+                        DD = D[nBeads+ij];
+                    }
+                    vir2 -= DD * forces[atomi.getLeafIndex()].dot(rj);
+                }
             }
         }
-
-        x[0] =   pcP1ah.getLastEnergy() + R/tanhR2*pcP1harm.getLastEnergy() + R*cothR/2.0*vir;//En
+        x[0] =  1.0/2.0*hbar*omega/Math.tanh(beta*hbar*omega/2) + 1.0/2.0*R*cothR*vir - 1.0/2.0*R/Math.tanh(beta*hbar*omega/2)*vir2 + pcP1ah.getLastEnergy();
         x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
         return data;
     }

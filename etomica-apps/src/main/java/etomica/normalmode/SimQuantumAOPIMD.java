@@ -50,7 +50,7 @@ public class SimQuantumAOPIMD extends Simulation {
     public MCMoveHOReal2 moveStageSimple, moveStageEC;
     public int dim;
 
-    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, double hbar) {
+    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k4, double omega, boolean isTIA, double hbar) {
         super(space);
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -69,15 +69,10 @@ public class SimQuantumAOPIMD extends Simulation {
         double beta = 1.0/temperature;
         betaN = beta/nBeads;
         double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
+        double omegaN2 = omegaN*omegaN;
+        double omega2 = omega*omega;
 
-        // integrate analytically to get infinite-n
-//        if (false){
-//            double w = Math.sqrt(omega2);
-//            double R = betaN*hbar*w;
-//            k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN*R/Math.tanh(R);
-//            k2 = 2*nBeads*mass*omegaN*omegaN*R*Math.tanh(R/2);
-//        }
+        k2_kin = nBeads == 1 ? 0 : mass*omegaN2;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -92,10 +87,10 @@ public class SimQuantumAOPIMD extends Simulation {
 
         if (isTIA){
             double facUeff = 1.0;
-            p1ahUeff = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facUeff);
+            p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facUeff);
             pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
-            p1ah = new P1Anharmonic(space, k2/nBeads, k4/nBeads);
+            p1ah = new P1Anharmonic(space, mass*omega2/nBeads, k4/nBeads);
             pcP1.setFieldPotential(species.getLeafType(), p1ah);
             p2ah = new P1Anharmonic(space, 0, k4/nBeads);
             pcP2.setFieldPotential(species.getLeafType(), p2ah);
@@ -105,7 +100,7 @@ public class SimQuantumAOPIMD extends Simulation {
         pmAgg = new PotentialComputeAggregate(pmBonding, pcP1);
 
         double facEn = 3.0;
-        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
+        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
 
@@ -143,9 +138,9 @@ public class SimQuantumAOPIMD extends Simulation {
         } else {
             // custom parameters
             params.hbar = 1;
-            params.steps = 1000000;
+            params.steps = 10000000;
             params.temperature = 1;
-            params.k2 = 1;
+            params.omega = 1;
             params.k4 = 1;
             params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
@@ -160,9 +155,9 @@ public class SimQuantumAOPIMD extends Simulation {
         double mass = params.mass;
         double temperature = params.temperature;
         double hbar = params.hbar;
-        double k2 = params.k2;
+        double omega = params.omega;
         double k4 = params.k4;
-        double gammaLangevin = 2*Math.sqrt(k2);
+        double gammaLangevin = 2*omega;
         boolean isGraphic = params.isGraphic;
         long steps = params.steps;
         long stepsEq = steps/10;
@@ -170,8 +165,7 @@ public class SimQuantumAOPIMD extends Simulation {
         boolean zerok0 = params.zerok0;
         boolean onlyCentroid = params.onlyCentroid;
         MoveChoice coordType = params.coordType;
-        double omega2 = k2/mass;
-        double omega = Math.sqrt(omega2);
+        double omega2 = omega*omega;
 
         double x = 1/temperature*hbar*omega;
         int nBeads = params.nBeads;
@@ -201,7 +195,7 @@ public class SimQuantumAOPIMD extends Simulation {
         }
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
         sim.integrator.reset();
 
         System.out.println(" PIMD-" + coordType);
@@ -215,7 +209,6 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" timestep: " + timeStep);
-        System.out.println(" k2: " + k2);
         System.out.println(" k4: " + k4);
         System.out.println(" isTIA: " + isTIA);
         System.out.println(" gammaLangevin: " + gammaLangevin);
@@ -603,7 +596,7 @@ public class SimQuantumAOPIMD extends Simulation {
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1;
         public double hbar = 1;
-        public double k2 = 1;
+        public double omega = 1;
         public double k4 = 0;
         public long steps = 10_000_000;
         public boolean isGraphic = false;

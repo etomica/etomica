@@ -201,7 +201,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         final SimQuantumAOPIMDInf sim = new SimQuantumAOPIMDInf(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
         sim.integrator.reset();
 
-        System.out.println(" PIMD-" + coordType);
+        System.out.println(" PIMDinf-" + coordType);
         System.out.println(" mass: " + mass);
         System.out.println(" T: " + temperature);
         System.out.println(" hbar: " + hbar);
@@ -254,6 +254,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         MeterPIPrimInf meterPrimInf = null;
         MeterPIVirInf meterVirInf = null;
         MeterPICentVirInf meterCentVirInf = null;
+        MeterPIVirHarmStagingInf meterVirHarmStagingInf = null;
         MeterPIHMAc meterHMAc = null;
         MeterPIHMA meterNMEC = null;
         MeterPIHMA meterNMSimple = null;
@@ -270,6 +271,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
             meterPrimInf = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, nBeads, temperature, sim.box, omega, hbar);
             meterVirInf = new MeterPIVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box,  nBeads, omega, hbar);
             meterCentVirInf = new MeterPICentVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box, nBeads, omega, hbar);
+            meterVirHarmStagingInf = new MeterPIVirHarmStagingInf(sim.pcP1ah, temperature, sim.box,  nBeads, omega, hbar);
             meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
             meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, 0, sim.box, hbar);
             meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
@@ -348,6 +350,12 @@ public class SimQuantumAOPIMDInf extends Simulation {
         if (meterVirInf != null) {
             DataPumpListener accumulatorPumpVirInf = new DataPumpListener(meterVirInf, accumulatorVirInf, interval);
             sim.integrator.getEventManager().addListener(accumulatorPumpVirInf);
+        }
+
+        AccumulatorAverageCovariance accumulatorVirHarmStagingInf = new AccumulatorAverageCovariance(blockSize);
+        if (meterVirHarmStagingInf != null) {
+            DataPumpListener accumulatorPumpVirHarmStagingInf = new DataPumpListener(meterVirHarmStagingInf, accumulatorVirHarmStagingInf, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpVirHarmStagingInf);
         }
 
         //3 Centroid Virial
@@ -455,12 +463,23 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double errEnCentVirInf = dataErrCentVirInf.getValue(0);
         double corEnCentVirInf = dataCorCentVirInf.getValue(0);
         System.out.println(" En_cvir:          " + avgEnCentVirInf + "   err: " + errEnCentVirInf + " cor: " + corEnCentVirInf);
-
         double CvnCentVirInf = kB_beta2*(dataAvgCentVirInf.getValue(1) - avgEnCentVirInf*avgEnCentVirInf);
         varX0 = errEnCentVirInf*errEnCentVirInf;
         varX1 = dataErrCentVirInf.getValue(1)*dataErrCentVirInf.getValue(1);
         corX0X1 = dataCovCentVirInf.getValue(1)/Math.sqrt(dataCovCentVirInf.getValue(0))/Math.sqrt(dataCovCentVirInf.getValue(3));
         double errCvnCentVirInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnCentVirInf*avgEnCentVirInf*varX0 - 4*avgEnCentVirInf*dataErrCentVirInf.getValue(0)*dataErrCentVirInf.getValue(1)*corX0X1));
+
+        //2' HO Staging Vir
+        DataGroup dataVirHarmStagingInf = (DataGroup) accumulatorVirHarmStagingInf.getData();
+        IData dataAvgVirHarmStagingInf = dataVirHarmStagingInf.getData(accumulatorVirHarmStagingInf.AVERAGE.index);
+        IData dataErrVirHarmStagingInf = dataVirHarmStagingInf.getData(accumulatorVirHarmStagingInf.ERROR.index);
+        IData dataCorVirHarmStagingInf = dataVirHarmStagingInf.getData(accumulatorVirHarmStagingInf.BLOCK_CORRELATION.index);
+        IData dataCovVirHarmStagingInf = dataVirHarmStagingInf.getData(accumulatorVirHarmStagingInf.COVARIANCE.index);
+
+        double avgEnVirHarmStagingInf = dataAvgVirHarmStagingInf.getValue(0);
+        double errEnVirHarmStagingInf = dataErrVirHarmStagingInf.getValue(0);
+        double corEnVirHarmStagingInf = dataCorVirHarmStagingInf.getValue(0);
+        System.out.println(" En_ho_stage_vir:  " + avgEnVirHarmStagingInf + "   err: " + errEnVirHarmStagingInf + " cor: " + corEnVirHarmStagingInf);
 
         //4 HMAc
         DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();

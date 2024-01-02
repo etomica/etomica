@@ -44,7 +44,6 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
     @Override
     public IData getData() {
         double[] x = data.getData();
-        Vector rirc = box.getSpace().makeVector();
         rHr = 0;
 //        pcP1.computeAll(true); // no Cv (rHr=0)
         pcP1.computeAll(true, this); //with Cv
