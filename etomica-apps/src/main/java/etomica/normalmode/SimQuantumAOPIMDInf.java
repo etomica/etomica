@@ -37,12 +37,11 @@ import java.util.List;
 
 public class SimQuantumAOPIMDInf extends Simulation {
 
-    public PotentialComputeField pcP1, pcP2, pcP1EnTIA;
+    public PotentialComputeField pcP1, pcP1harm, pcP1ah, pcP1EnTIA;
     public final IntegratorMD integrator;
     public final PotentialMasterBonding pmBonding;
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
-    public IPotential1 p1ah, p2ah;
     public P1AnharmonicTIA p1ahUeff;
     public double betaN;
     public double k2_kin;
@@ -50,7 +49,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
     public MCMoveHOReal2 moveStageSimple, moveStageEC;
     public int dim;
 
-    public SimQuantumAOPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k2, double k4, double omega2, boolean isTIA, double hbar) {
+    public SimQuantumAOPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k4, double omega, boolean isTIA, double hbar) {
         super(space);
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -69,16 +68,12 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double beta = 1.0/temperature;
         betaN = beta/nBeads;
         double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
-
+        double omegaN2 = omegaN*omegaN;
+        double omega2 = omega*omega;
         // integrate analytically to get infinite-n
         double R;
-        if (true){
-            double w = Math.sqrt(omega2);
-            R = beta*hbar*w/nBeads;
-            k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN*R/Math.sinh(R);
-            k2 = mass*omega2*2*Math.tanh(R/2)/R;
-        }
+        R = beta*hbar*omega/nBeads;
+        k2_kin = nBeads == 1 ? 0 : mass*omegaN2*R/Math.sinh(R);
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -87,27 +82,28 @@ public class SimQuantumAOPIMDInf extends Simulation {
             pairs.add(p);
         }
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
-
         pcP1 = new PotentialComputeField(getSpeciesManager(), box);
-        pcP2 = new PotentialComputeField(getSpeciesManager(), box);
+        pcP1harm = new PotentialComputeField(getSpeciesManager(), box);
+        pcP1ah = new PotentialComputeField(getSpeciesManager(), box);
+
+        IPotential1 p1, p1harm, p1ah;
 
         if (isTIA){
             double facUeff = 1.0;
-            p1ahUeff = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facUeff);
+            p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facUeff);
             pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
-            p1ah = new P1Anharmonic(space, k2/nBeads, k4/nBeads);
-            pcP1.setFieldPotential(species.getLeafType(), p1ah);
-            p2ah = new P1Anharmonic(space, k2/nBeads*R/Math.sinh(R), k4/nBeads);
-            pcP2.setFieldPotential(species.getLeafType(), p2ah);
-
+            p1harm = new P1Anharmonic(space, 2*mass*omega2*Math.tanh(R/2)/R/nBeads, 0);
+            pcP1harm.setFieldPotential(species.getLeafType(), p1harm);
+            p1ah = new P1Anharmonic(space, 0, k4/nBeads);
+            pcP1ah.setFieldPotential(species.getLeafType(), p1ah);
         }
 
         PotentialComputeAggregate.localStorageDefault = true;
-        pmAgg = new PotentialComputeAggregate(pmBonding, pcP1);
+        pmAgg = new PotentialComputeAggregate(pmBonding, pcP1harm, pcP1ah);
 
         double facEn = 3.0;
-        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, k2, k4, nBeads, mass*omegaN*omegaN, facEn);
+        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
 
@@ -147,14 +143,14 @@ public class SimQuantumAOPIMDInf extends Simulation {
             params.hbar = 1;
             params.steps = 1000000;
             params.temperature = 1;
-            params.k2 = 1;
+            params.omega = 1;
             params.k4 = 1;
             params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.StageEC;
-            params.nBeads = 16;
+            params.nBeads = 10;
             params.timeStep = 0.01;
         }
 
@@ -162,9 +158,9 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double mass = params.mass;
         double temperature = params.temperature;
         double hbar = params.hbar;
-        double k2 = params.k2;
+        double omega = params.omega;
         double k4 = params.k4;
-        double gammaLangevin = 2*Math.sqrt(k2);
+        double gammaLangevin = 2*omega;
         boolean isGraphic = params.isGraphic;
         long steps = params.steps;
         long stepsEq = steps/10;
@@ -172,8 +168,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         boolean zerok0 = params.zerok0;
         boolean onlyCentroid = params.onlyCentroid;
         MoveChoice coordType = params.coordType;
-        double omega2 = k2/mass;
-        double omega = Math.sqrt(omega2);
+        double omega2 = omega*omega;
 
         double x = 1/temperature*hbar*omega;
         int nBeads = params.nBeads;
@@ -198,12 +193,12 @@ public class SimQuantumAOPIMDInf extends Simulation {
             }
         }
 
-        if (isTIA){
-            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
-        }
+//        if (isTIA){
+//            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN2));
+//        }
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMDInf sim = new SimQuantumAOPIMDInf(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
+        final SimQuantumAOPIMDInf sim = new SimQuantumAOPIMDInf(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
         sim.integrator.reset();
 
         System.out.println(" PIMD-" + coordType);
@@ -217,7 +212,6 @@ public class SimQuantumAOPIMDInf extends Simulation {
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" timestep: " + timeStep);
-        System.out.println(" k2: " + k2);
         System.out.println(" k4: " + k4);
         System.out.println(" isTIA: " + isTIA);
         System.out.println(" gammaLangevin: " + gammaLangevin);
@@ -257,10 +251,9 @@ public class SimQuantumAOPIMDInf extends Simulation {
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
 
 //        MeterMSDHO meterMSDHO = new MeterMSDHO(sim.box);
-        MeterPIPrim meterPrim = null;
         MeterPIPrimInf meterPrimInf = null;
-        MeterPIVir meterVir = null;
-        MeterPICentVir meterCentVir = null;
+        MeterPIVirInf meterVirInf = null;
+        MeterPICentVirInf meterCentVirInf = null;
         MeterPIHMAc meterHMAc = null;
         MeterPIHMA meterNMEC = null;
         MeterPIHMA meterNMSimple = null;
@@ -274,9 +267,9 @@ public class SimQuantumAOPIMDInf extends Simulation {
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
-            meterPrimInf = new MeterPIPrimInf(sim.pmBonding, sim.pcP2, nBeads, temperature, sim.box, omega, hbar);
-            meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
-            meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
+            meterPrimInf = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, nBeads, temperature, sim.box, omega, hbar);
+            meterVirInf = new MeterPIVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box,  nBeads, omega, hbar);
+            meterCentVirInf = new MeterPICentVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box, nBeads, omega, hbar);
             meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
             meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, 0, sim.box, hbar);
             meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
@@ -351,17 +344,17 @@ public class SimQuantumAOPIMDInf extends Simulation {
         sim.integrator.getEventManager().addListener(accumulatorPumpPrimInf);
 
         //2 Virial
-        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
-        if (meterVir != null) {
-            DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpVir);
+        AccumulatorAverageCovariance accumulatorVirInf = new AccumulatorAverageCovariance(blockSize);
+        if (meterVirInf != null) {
+            DataPumpListener accumulatorPumpVirInf = new DataPumpListener(meterVirInf, accumulatorVirInf, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpVirInf);
         }
 
         //3 Centroid Virial
-        AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
-        if (meterCentVir != null) {
-            DataPumpListener accumulatorPumpCentVir = new DataPumpListener(meterCentVir, accumulatorCentVir, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpCentVir);
+        AccumulatorAverageCovariance accumulatorCentVirInf = new AccumulatorAverageCovariance(blockSize);
+        if (meterCentVirInf != null) {
+            DataPumpListener accumulatorPumpCentVirInf = new DataPumpListener(meterCentVirInf, accumulatorCentVirInf, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpCentVirInf);
         }
 
          //4 HMAc (CLassical EC)
@@ -431,43 +424,43 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double avgEnPrimInf = dataAvgPrimInf.getValue(0);
         double errEnPrimInf = dataErrPrimInf.getValue(0);
         double corEnPrimInf = dataCorPrimInf.getValue(0);
-        System.out.println("\n En_primInf:          " + avgEnPrimInf + "   err: " + errEnPrimInf + " cor: " + corEnPrimInf);
+        System.out.println("\n En_prim:          " + avgEnPrimInf + "   err: " + errEnPrimInf + " cor: " + corEnPrimInf);
 
 
         //2 Vir
-        DataGroup dataVir = (DataGroup) accumulatorVir.getData();
-        IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
-        IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
-        IData dataCorVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
-        IData dataCovVir = dataVir.getData(accumulatorVir.COVARIANCE.index);
+        DataGroup dataVirInf = (DataGroup) accumulatorVirInf.getData();
+        IData dataAvgVirInf = dataVirInf.getData(accumulatorVirInf.AVERAGE.index);
+        IData dataErrVirInf = dataVirInf.getData(accumulatorVirInf.ERROR.index);
+        IData dataCorVirInf = dataVirInf.getData(accumulatorVirInf.BLOCK_CORRELATION.index);
+        IData dataCovVirInf = dataVirInf.getData(accumulatorVirInf.COVARIANCE.index);
 
-        double avgEnVir = dataAvgVir.getValue(0);
-        double errEnVir = dataErrVir.getValue(0);
-        double corEnVir = dataCorVir.getValue(0);
-        System.out.println(" En_vir:           " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
+        double avgEnVirInf = dataAvgVirInf.getValue(0);
+        double errEnVirInf = dataErrVirInf.getValue(0);
+        double corEnVirInf = dataCorVirInf.getValue(0);
+        System.out.println(" En_vir:           " + avgEnVirInf + "   err: " + errEnVirInf + " cor: " + corEnVirInf);
 
-        double CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
-        varX0 = errEnVir*errEnVir;
-        varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
-        corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
-        double errCvnVir = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnVir*avgEnVir*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1));
+        double CvnVirInf = kB_beta2*(dataAvgVirInf.getValue(1) - avgEnVirInf*avgEnVirInf);
+        varX0 = errEnVirInf*errEnVirInf;
+        varX1 = dataErrVirInf.getValue(1)*dataErrVirInf.getValue(1);
+        corX0X1 = dataCovVirInf.getValue(1)/Math.sqrt(dataCovVirInf.getValue(0))/Math.sqrt(dataCovVirInf.getValue(3));
+        double errCvnVirInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnVirInf*avgEnVirInf*varX0 - 4*avgEnVirInf*dataErrVirInf.getValue(0)*dataErrVirInf.getValue(1)*corX0X1));
 
         //3 Cent-Vir
-        DataGroup dataCentVir = (DataGroup) accumulatorCentVir.getData();
-        IData dataAvgCentVir = dataCentVir.getData(accumulatorCentVir.AVERAGE.index);
-        IData dataErrCentVir = dataCentVir.getData(accumulatorCentVir.ERROR.index);
-        IData dataCorCentVir = dataCentVir.getData(accumulatorCentVir.BLOCK_CORRELATION.index);
-        IData dataCovCentVir = dataCentVir.getData(accumulatorCentVir.COVARIANCE.index);
-        double avgEnCentVir = dataAvgCentVir.getValue(0);
-        double errEnCentVir = dataErrCentVir.getValue(0);
-        double corEnCentVir = dataCorCentVir.getValue(0);
-        System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
+        DataGroup dataCentVirInf = (DataGroup) accumulatorCentVirInf.getData();
+        IData dataAvgCentVirInf = dataCentVirInf.getData(accumulatorCentVirInf.AVERAGE.index);
+        IData dataErrCentVirInf = dataCentVirInf.getData(accumulatorCentVirInf.ERROR.index);
+        IData dataCorCentVirInf = dataCentVirInf.getData(accumulatorCentVirInf.BLOCK_CORRELATION.index);
+        IData dataCovCentVirInf = dataCentVirInf.getData(accumulatorCentVirInf.COVARIANCE.index);
+        double avgEnCentVirInf = dataAvgCentVirInf.getValue(0);
+        double errEnCentVirInf = dataErrCentVirInf.getValue(0);
+        double corEnCentVirInf = dataCorCentVirInf.getValue(0);
+        System.out.println(" En_cvir:          " + avgEnCentVirInf + "   err: " + errEnCentVirInf + " cor: " + corEnCentVirInf);
 
-        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
-        varX0 = errEnCentVir*errEnCentVir;
-        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
-        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
-        double errCvnCentVir = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1));
+        double CvnCentVirInf = kB_beta2*(dataAvgCentVirInf.getValue(1) - avgEnCentVirInf*avgEnCentVirInf);
+        varX0 = errEnCentVirInf*errEnCentVirInf;
+        varX1 = dataErrCentVirInf.getValue(1)*dataErrCentVirInf.getValue(1);
+        corX0X1 = dataCovCentVirInf.getValue(1)/Math.sqrt(dataCovCentVirInf.getValue(0))/Math.sqrt(dataCovCentVirInf.getValue(3));
+        double errCvnCentVirInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnCentVirInf*avgEnCentVirInf*varX0 - 4*avgEnCentVirInf*dataErrCentVirInf.getValue(0)*dataErrCentVirInf.getValue(1)*corX0X1));
 
         //4 HMAc
         DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
@@ -566,14 +559,14 @@ public class SimQuantumAOPIMDInf extends Simulation {
             errCvnStageEC = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageEC*avgEnStageEC*varX0));
         }
 
-        System.out.println();
-        System.out.println(" Cvn_vir:          " + CvnVir +           "   err: " + errCvnVir);
-        System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
-        System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
-        System.out.println(" Cvn_nm_simple:    " + Cvn_nm_simple +    "   err: " + errCvnNMsimple);
-        System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);
-        System.out.println(" Cvn_stage_simple: " + Cvn_stage_simple + "   err: " + errCvnStageSimple);
-        System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
+//        System.out.println();
+//        System.out.println(" Cvn_vir:          " + CvnVirInf +           "   err: " + errCvnVir);
+//        System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+//        System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
+//        System.out.println(" Cvn_nm_simple:    " + Cvn_nm_simple +    "   err: " + errCvnNMsimple);
+//        System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);
+//        System.out.println(" Cvn_stage_simple: " + Cvn_stage_simple + "   err: " + errCvnStageSimple);
+//        System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
 
 
 
@@ -592,7 +585,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1;
         public double hbar = 1;
-        public double k2 = 1;
+        public double omega = 1;
         public double k4 = 0;
         public long steps = 10_000_000;
         public boolean isGraphic = false;

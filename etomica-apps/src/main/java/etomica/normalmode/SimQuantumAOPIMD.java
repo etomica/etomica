@@ -152,7 +152,7 @@ public class SimQuantumAOPIMD extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.StageEC;
-            params.nBeads = 16;
+            params.nBeads = 10;
             params.timeStep = 0.01;
         }
 
