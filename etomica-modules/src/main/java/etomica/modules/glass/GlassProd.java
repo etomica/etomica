@@ -830,7 +830,7 @@ public class GlassProd {
             }
 
             sfacMotionXX[i] = setupMotionStructureFactor(configStorageMSD, 0, i, wvx, sim.box, sfcMotionXXCor);
-            sfacMotionXY[i] = setupMotionStructureFactor(configStorageMSD, 0, i, wvx, sim.box, sfcMotionXYCor);
+            sfacMotionXY[i] = setupMotionStructureFactor(configStorageMSD, 0, i, wvy, sim.box, sfcMotionXYCor);
         }
 
 
