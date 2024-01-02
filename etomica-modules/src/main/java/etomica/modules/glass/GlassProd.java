@@ -160,7 +160,7 @@ public class GlassProd {
         DataSinkBlockAveragerSFac averager = null;
         averager = new DataSinkBlockAveragerSFac(configStorage, interval, meterSFac);
         forkSFac.addDataSink(averager);
-        sfacWriter = new StructureFactorComponentWriter(meterSFac, configStorage, interval, 1000);
+        sfacWriter = new StructureFactorComponentWriter(meterSFac, configStorage, interval, 500);
         averager.addSink(sfacWriter);
         return new StructureFactorStuff(meterSFac, accSFac, averager, sfacWriter);
     }
@@ -217,7 +217,7 @@ public class GlassProd {
         cspMobility.setPrevStep(interval);
         configStorage.addListener(cspMobility);
 
-        if (writer == null) writer = new StructureFactorComponentWriter(meter, configStorage, interval, 1000);
+        if (writer == null) writer = new StructureFactorComponentWriter(meter, configStorage, interval, 500);
         fork.addDataSink(new StructorFactorComponentExtractor(meter, interval, writer));
 
         return new StructureFactorMobilityStuff(meter, acc, writer);
@@ -280,7 +280,6 @@ public class GlassProd {
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
             params.rcLJ = 2.5;
-            params.writeSfacComps = true;
             params.randomSeeds = new int[]{-1329042323, 760258263, 1926332026, -524926192};
             params.tStep = 0.01;
         }
@@ -695,7 +694,7 @@ public class GlassProd {
 
         //structure factors for all low-wavelength WV.  we just collect simple averages here
         double cut3 = 3;
-        if (numAtoms > 500) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
+        if (numAtoms > 800) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
         AtomPositionConfig atomPositionConfig = new AtomPositionConfig(configStorageMSD);
         MeterStructureFactor.AtomSignalSource atomSignalSimple = new MeterStructureFactor.AtomSignalSourceByType();
 
@@ -862,6 +861,7 @@ public class GlassProd {
         else {
             // pack and density are equivalent
             sfacDensityX.averager.addSink(dsCorSFacPackMobilityA.makeReceiver(0));
+            sfacStressX.averager.addSink(dsCorSFacPackMobilityA.makeReceiver(0));
         }
 
 
@@ -1032,16 +1032,14 @@ public class GlassProd {
         if (params.numSteps>0) stepsState.numSteps = sim.integrator.getStepCount();
         saveObjects(stepsState, objects);
 
-        if (params.writeSfacComps) {
-            sfacDensity.writer.writeFile("sfacDensityTraj.dat");
-            sfacAB.writer.writeFile("sfacABTraj.dat");
-            sfacPack.writer.writeFile("sfacPackTraj.dat");
-            sfacKE.writer.writeFile("sfacKETraj.dat");
-            sfacStress.writer.writeFile("sfacStressTraj.dat");
-            sfacMobilityWriterA.writeFile("sfacMobilityATraj.dat");
-            sfacMobilityWriterB.writeFile("sfacMobilityBTraj.dat");
-            sfacMotionXWriter.writeFile("sfacMotionTraj.dat");
-        }
+//        sfacDensity.writer.writeFile("sfacDensityTraj.dat");
+        sfacAB.writer.writeFile("sfacABTraj.dat");
+        sfacPack.writer.writeFile("sfacPackTraj.dat");
+//        sfacKE.writer.writeFile("sfacKETraj.dat");
+        sfacStress.writer.writeFile("sfacStressTraj.dat");
+        sfacMobilityWriterA.writeFile("sfacMobilityATraj.dat");
+        sfacMobilityWriterB.writeFile("sfacMobilityBTraj.dat");
+        sfacMotionXWriter.writeFile("sfacMotionTraj.dat");
 
         //Pressure
         DataGroup dataP = (DataGroup) pAccumulator.getData();
@@ -1263,9 +1261,6 @@ public class GlassProd {
         public int sfacMinInterval = 6;
         public int[] randomSeeds = null;
         public double maxWalltime = Double.POSITIVE_INFINITY;
-        public String sfacMSDAfile = null;
-        public String sfacMSDBfile = null;
-        public boolean writeSfacComps = false;
     }
 
     public static double[] readMSD(String filename) {
