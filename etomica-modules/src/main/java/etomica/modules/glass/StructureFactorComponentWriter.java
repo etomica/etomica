@@ -119,7 +119,6 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
     @Override
     public void saveState(Writer fw) throws IOException {
         if (saved) throw new RuntimeException("already saved");
-        System.out.println("saving "+(numSavedSteps.length-1)+" "+Arrays.toString(numSavedSteps)+"\n");
         fw.write((numSavedSteps.length-1)+"\n");
         for (int i=0; i<numSavedSteps.length; i++) {
             if  (i>0) fw.write(" ");
@@ -143,10 +142,8 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
     @Override
     public void restoreState(BufferedReader br) throws IOException {
         int maxInterval = Integer.parseInt(br.readLine());
-        System.out.println("I read "+maxInterval);
         numSavedSteps = new int[maxInterval+1];
         String s = br.readLine();
-        System.out.println("and "+s);
         String[] bits = s.split(" ");
         for (int i=0; i<=maxInterval; i++) {
             numSavedSteps[i] = Integer.parseInt(bits[i]);
