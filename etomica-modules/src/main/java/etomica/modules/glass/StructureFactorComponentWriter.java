@@ -4,7 +4,6 @@
 package etomica.modules.glass;
 
 import etomica.box.Box;
-import etomica.data.ConfigurationStorage;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.space.Vector;
 import etomica.util.Statefull;
@@ -15,26 +14,27 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 
-public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac.Sink, StructorFactorComponentExtractor.StructureFactorComponentSink, Statefull {
+public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac.Sink, StructorFactorComponentExtractor.StructureFactorComponentSink, IDataSinkBlockAvg, Statefull {
 
-    protected final ConfigurationStorage configStorage;
+    protected final Box box;
     protected final int minInterval;
     protected final int maxSteps;
     // we need to keep this separately (instead of using savedSteps[i].length) because we allocate savedAta[i][maxSteps]
     protected int[] numSavedSteps;
     protected float[][][][] savedData;
+    protected int[] numSavedAvg;
+    protected float[][] savedAvg;
     protected int[][] waveVectors;
-    protected boolean saved;
 
-    public StructureFactorComponentWriter(MeterStructureFactor meterSFac, ConfigurationStorage configStorage, int minInterval, int maxSteps) {
-        this.configStorage = configStorage;
+    public StructureFactorComponentWriter(MeterStructureFactor meterSFac, Box box, int minInterval, int maxSteps) {
+        this.box = box;
         this.minInterval = minInterval;
         this.maxSteps = maxSteps;
         numSavedSteps = new int[0];
         savedData = new float[0][0][0][0];
-        Vector L = configStorage.getBox().getBoundary().getBoxSize();
+        Vector L = box.getBoundary().getBoxSize();
         Vector[] wv = meterSFac.getWaveVectors();
-        Vector wvL = configStorage.getBox().getSpace().makeVector();
+        Vector wvL = box.getSpace().makeVector();
         waveVectors = new int[wv.length][wv[0].getD()];
         for (int j=0; j<wv.length; j++) {
             wvL.E(wv[j]);
@@ -44,6 +44,8 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                 waveVectors[j][i] = (int)Math.round(wvL.getX(i));
             }
         }
+        savedAvg = new float[0][];
+        numSavedAvg = new int[0];
     }
 
     @Override
@@ -56,7 +58,6 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         }
         if (maxSteps>0 && numSavedSteps[interval] >= maxSteps) return;
         savedData[interval][numSavedSteps[interval]] = new float[waveVectors.length][];
-        Box box = configStorage.getBox();
         int N = box.getLeafList().size();
         for (int i=0; i<xy.length; i++) {
             float sfac = (float)(2*Math.sqrt((xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N));
@@ -82,7 +83,25 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                 fw.write("]");
             }
             fw.write(" ],\n");
-            fw.write("\"data\": [");
+            if (savedAvg.length>0) {
+                fw.write("\"avg\": [\n");
+                for (int k=0; k< numSavedAvg.length; k++) {
+                    if (numSavedAvg[k]*numSavedSteps[k] > 0 && numSavedAvg[k] != numSavedSteps[k]) throw new RuntimeException("Ooops, "+numSavedAvg[k]+" "+numSavedSteps[k]);
+                    if (k>0) fw.write(",");
+                    if (numSavedAvg[k]*numSavedSteps[k] == 0) {
+                        fw.write("null");
+                        continue;
+                    }
+                    fw.write("[");
+                    for (int j=0; j<numSavedAvg[k]; j++) {
+                        if (j>0) fw.write(",");
+                        fw.write(String.format("%8.3e", savedAvg[k][j]));
+                    }
+                    fw.write("]\n");
+                }
+                fw.write("],\n");
+            }
+            fw.write("\"sfac\": [");
 
             for (int k=0; k<minInterval; k++) {
                 if (k>0) fw.write(",");
@@ -110,6 +129,17 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         }
     }
 
+    public void putBlock(int interval, long step, double avg) {
+        if (savedAvg.length <= interval) {
+            savedAvg = Arrays.copyOf(savedAvg, interval+1);
+            savedAvg[interval] = new float[maxSteps];
+            numSavedAvg = Arrays.copyOf(numSavedAvg, interval+1);
+        }
+        if (numSavedAvg[interval] >= maxSteps) return;
+        savedAvg[interval][numSavedAvg[interval]] = (float)avg;
+        numSavedAvg[interval]++;
+    }
+
     @Override
     public void putData(int idx, int interval, double[][] xyData) {
         // so ugly.  we take idx here because DataSourceCorrelation wants it
@@ -118,7 +148,6 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
 
     @Override
     public void saveState(Writer fw) throws IOException {
-        if (saved) throw new RuntimeException("already saved");
         fw.write((numSavedSteps.length-1)+"\n");
         for (int i=0; i<numSavedSteps.length; i++) {
             if  (i>0) fw.write(" ");
@@ -136,7 +165,6 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                 fw.write("\n");
             }
         }
-        saved = true;
     }
 
     @Override

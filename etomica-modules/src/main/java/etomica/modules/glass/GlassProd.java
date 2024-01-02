@@ -159,7 +159,7 @@ public class GlassProd {
         StructureFactorComponentWriter sfacWriter = null;
         DataSinkBlockAveragerSFac averager = new DataSinkBlockAveragerSFac(configStorage, interval, meterSFac);
         forkSFac.addDataSink(averager);
-        sfacWriter = new StructureFactorComponentWriter(meterSFac, configStorage, interval, 500);
+        sfacWriter = new StructureFactorComponentWriter(meterSFac, configStorage.getBox(), interval, 500);
         averager.addSink(sfacWriter);
         return new StructureFactorStuff(meterSFac, accSFac, averager, sfacWriter);
     }
@@ -216,7 +216,7 @@ public class GlassProd {
         cspMobility.setPrevStep(interval);
         configStorage.addListener(cspMobility);
 
-        if (writer == null) writer = new StructureFactorComponentWriter(meter, configStorage, interval, 500);
+        if (writer == null) writer = new StructureFactorComponentWriter(meter, configStorage.getBox(), interval, 500);
         fork.addDataSink(new StructorFactorComponentExtractor(meter, interval, writer));
 
         return new StructureFactorMobilityStuff(meter, acc, writer);
@@ -760,6 +760,8 @@ public class GlassProd {
             sfacMotionX[i] = setupMotionStructureFactor(configStorageMSD, 0, i, cut3, sim.box, sfacMotionXWriter);
             sfacMotionXWriter = sfacMotionX[i].writer;
         }
+        meterMSDA.addMSDSink(sfacMobilityWriterA);
+        if (params.nB>0) meterMSDB.addMSDSink(sfacMobilityWriterB);
 
         // now rinse and repeat with only 2 wave vectors.  we will use these to compute correlations
         // for motion, this is a compression mode
