@@ -157,8 +157,7 @@ public class GlassProd {
         csp.setPrevStep(interval);
         forkSFac.addDataSink(accSFac);
         StructureFactorComponentWriter sfacWriter = null;
-        DataSinkBlockAveragerSFac averager = null;
-        averager = new DataSinkBlockAveragerSFac(configStorage, interval, meterSFac);
+        DataSinkBlockAveragerSFac averager = new DataSinkBlockAveragerSFac(configStorage, interval, meterSFac);
         forkSFac.addDataSink(averager);
         sfacWriter = new StructureFactorComponentWriter(meterSFac, configStorage, interval, 500);
         averager.addSink(sfacWriter);
@@ -695,7 +694,6 @@ public class GlassProd {
         //structure factors for all low-wavelength WV.  we just collect simple averages here
         double cut3 = 3;
         if (numAtoms > 800) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
-        AtomPositionConfig atomPositionConfig = new AtomPositionConfig(configStorageMSD);
         MeterStructureFactor.AtomSignalSource atomSignalSimple = new MeterStructureFactor.AtomSignalSourceByType();
 
         StructureFactorStuff sfacDensity = setupStructureFactor(sim.box, cut3, atomSignalSimple, params.sfacMinInterval, configStorageMSD);
@@ -852,6 +850,7 @@ public class GlassProd {
             sfacABX.averager.addSink(dsCorSFacABMobilityB.makeReceiver(0));
             dsCorSFacPackPackAB = new DataSourceCorrelation(configStorageMSD, 2);
             dsCorSFacStressMobilityB = new DataSourceCorrelation(configStorageMSD, 2);
+            sfacStressX.averager.addSink(dsCorSFacStressMobilityA.makeReceiver(0));
             sfacStressX.averager.addSink(dsCorSFacStressMobilityB.makeReceiver(0));
             sfacPackX.averager.addSink(dsCorSFacPackPackAB.makeReceiver(0));
             sfacABX.averager.addSink(dsCorSFacPackPackAB.makeReceiver(1));
@@ -1187,7 +1186,7 @@ public class GlassProd {
 
                 GlassProd.writeDataToFile(dsCorSFacPackMobilityA.makeMeter(j), "sfacPackMobilityACor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(dsCorSFacPackMobilityB.makeMeter(j), "sfacPackMobilityBCor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacABMobilityA.makeMeter(j), "sfacABDMobilityACor" + (j+1)+".dat");
+                GlassProd.writeDataToFile(dsCorSFacABMobilityA.makeMeter(j), "sfacABMobilityACor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(dsCorSFacABMobilityB.makeMeter(j), "sfacABMobilityBCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(dsCorSFacMobilityAB.makeMeter(j), "sfacMobilityABCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(dsCorSFacKEMobilityA.makeMeter(j), "sfacKEMobilityACor" + (j+1)+".dat");
