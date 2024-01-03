@@ -26,6 +26,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
     protected float[][] savedAvg;
     protected int[][] waveVectors;
     protected float constantAvg = Float.NaN;
+    protected int grid = 10;
 
     public StructureFactorComponentWriter(MeterStructureFactor meterSFac, Box box, int minInterval, int maxSteps) {
         this.box = box;
@@ -65,15 +66,16 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         savedData[interval][numSavedSteps[interval]] = new float[waveVectors.length][];
         int N = box.getLeafList().size();
         for (int i=0; i<xy.length; i++) {
-            float sfac = (float)(2*Math.sqrt((xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N));
+            float beta = (float)(2*Math.sqrt((xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N));
             float theta = (float)Math.atan2(xy[i][0], xy[i][1]);
-            savedData[interval][numSavedSteps[interval]][i] = new float[]{sfac,theta};
+            savedData[interval][numSavedSteps[interval]][i] = new float[]{beta,theta};
         }
         numSavedSteps[interval]++;
     }
 
     public void writeFile(String filename) {
         try {
+            float V = (float)box.getBoundary().volume();
             FileWriter fw = new FileWriter(filename);
             fw.write("{\"WV\": [");
             for (int j=0; j<waveVectors.length; j++) {
@@ -106,11 +108,43 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                 }
                 fw.write("],\n");
             }
-            else if (constantAvg != Double.NaN) {
+            else if (!Double.isNaN(constantAvg)) {
                 fw.write("\"avg\": "+constantAvg+",\n");
             }
-            fw.write("\"sfac\": [");
 
+            fw.write("\"minmax\": [");
+            for (int k=0; k<minInterval; k++) {
+                if (k>0) fw.write(",");
+                fw.write("null");
+            }
+            for (int k=minInterval; k<numSavedSteps.length; k++) {
+                float vmin = Float.MAX_VALUE, vmax = -Float.MAX_VALUE;
+                for (int j = 0; j < numSavedSteps[k]; j++) {
+                    for (int ix = 0; ix<grid; ix++) {
+                        float xx = ix/(float)grid;
+                        for (int iy = 0; iy<grid; iy++) {
+                            float yy = iy / (float) grid;
+                            for (int iz = 0; iz<grid; iz++) {
+                                float zz = iz / (float) grid;
+                                float val = V*(savedAvg.length>0 ? savedAvg[k][j] : (Double.isNaN(constantAvg) ? 0 : constantAvg));
+                                for (int i=0; i<waveVectors.length; i++) {
+                                    int[] iwv = waveVectors[i];
+                                    float beta = savedData[k][j][i][0];
+                                    float theta = savedData[k][j][i][1];
+                                    val += beta * Math.sin(2*Math.PI*(iwv[0]*xx + iwv[1]*yy + iwv[2]*zz) + theta);
+                                }
+                                if (val > vmax) vmax = val;
+                                else if (val < vmin) vmin = val;
+                            }
+                        }
+                    }
+                }
+                if (k>0) fw.write(",");
+                fw.write(String.format("[ %8.3e, %8.3e ]", vmin/V, vmax/V));
+            }
+            fw.write("],\n");
+
+            fw.write("\"sfac\": [");
             for (int k=0; k<minInterval; k++) {
                 if (k>0) fw.write(",");
                 fw.write("null");
