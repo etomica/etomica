@@ -145,7 +145,7 @@ public class GlassProd {
     }
 
     public static StructureFactorStuff setupStructureFactor(Box box, double cut, MeterStructureFactor.AtomSignalSource atomSignal,
-                                            int interval, ConfigurationStorage configStorage) {
+                                            int interval, ConfigurationStorage configStorage, double constAvg) {
 
         AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);
         MeterStructureFactor meterSFac = new MeterStructureFactor(box, cut, atomSignal);
@@ -160,6 +160,7 @@ public class GlassProd {
         DataSinkBlockAveragerSFac averager = new DataSinkBlockAveragerSFac(configStorage, interval, meterSFac);
         forkSFac.addDataSink(averager);
         sfacWriter = new StructureFactorComponentWriter(meterSFac, configStorage.getBox(), interval, 500);
+        if (constAvg!=Double.NaN) sfacWriter.setConstantAverage(constAvg);
         averager.addSink(sfacWriter);
         return new StructureFactorStuff(meterSFac, accSFac, averager, sfacWriter);
     }
@@ -279,7 +280,6 @@ public class GlassProd {
             params.minDrFilter = 0.4;
             params.qx = new double[]{7.0};
             params.rcLJ = 2.5;
-            params.randomSeeds = new int[]{-1329042323, 760258263, 1926332026, -524926192};
             params.tStep = 0.01;
         }
 
@@ -696,7 +696,7 @@ public class GlassProd {
         if (numAtoms > 800) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
         MeterStructureFactor.AtomSignalSource atomSignalSimple = new MeterStructureFactor.AtomSignalSourceByType();
 
-        StructureFactorStuff sfacDensity = setupStructureFactor(sim.box, cut3, atomSignalSimple, params.sfacMinInterval, configStorageMSD);
+        StructureFactorStuff sfacDensity = setupStructureFactor(sim.box, cut3, atomSignalSimple, params.sfacMinInterval, configStorageMSD, params.density);
 
         StructureFactorStuff sfacA = sfacDensity, sfacB = null;
         StructureFactorStuff sfacPack = null, sfacAB = null;
@@ -719,30 +719,32 @@ public class GlassProd {
         if (params.nB>0) {
             MeterStructureFactor.AtomSignalSourceByType atomSignalA = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
-            sfacA = setupStructureFactor(sim.box, cut3, atomSignalA, params.sfacMinInterval, configStorageMSD);
+            sfacA = setupStructureFactor(sim.box, cut3, atomSignalA, params.sfacMinInterval, configStorageMSD, params.nA*params.density/(params.nA+params.nB));
 
             MeterStructureFactor.AtomSignalSourceByType atomSignalB = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalB.setAtomTypeFactor(sim.speciesA.getLeafType(), 0);
-            sfacB = setupStructureFactor(sim.box, cut3, atomSignalB, params.sfacMinInterval, configStorageMSD);
+            sfacB = setupStructureFactor(sim.box, cut3, atomSignalB, params.sfacMinInterval, configStorageMSD, params.nB*params.density/(params.nA+params.nB));
 
             double vA = sim.getSpace().sphereVolume(0.5);
             double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
 
+            double phiA = params.nA*vA/volume, phiB = params.nB*vB/volume;
+
             MeterStructureFactor.AtomSignalSourceByType atomSignalPack = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalPack.setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
             atomSignalPack.setAtomTypeFactor(sim.speciesB.getAtomType(0), +vB);
-            sfacPack = setupStructureFactor(sim.box, cut3, atomSignalPack, params.sfacMinInterval, configStorageMSD);
+            sfacPack = setupStructureFactor(sim.box, cut3, atomSignalPack, params.sfacMinInterval, configStorageMSD, phiA+phiB);
 
             MeterStructureFactor.AtomSignalSourceByType atomSignalAB = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalAB.setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
             atomSignalAB.setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
-            sfacAB = setupStructureFactor(sim.box, cut3, atomSignalAB, params.sfacMinInterval, configStorageMSD);
+            sfacAB = setupStructureFactor(sim.box, cut3, atomSignalAB, params.sfacMinInterval, configStorageMSD, phiA-phiB);
 
-            sfacStress = setupStructureFactor(sim.box, cut3, signalStressNormal, params.sfacMinInterval, configStorageMSD);
+            sfacStress = setupStructureFactor(sim.box, cut3, signalStressNormal, params.sfacMinInterval, configStorageMSD, Double.NaN);
         }
 
         AtomSignalKineticEnergy atomSignalKE = new AtomSignalKineticEnergy();
-        StructureFactorStuff sfacKE = setupStructureFactor(sim.box, cut3, atomSignalKE, params.sfacMinInterval, configStorageMSD);
+        StructureFactorStuff sfacKE = setupStructureFactor(sim.box, cut3, atomSignalKE, params.sfacMinInterval, configStorageMSD, 0.5*sim.getSpace().D()*params.temperature*params.density);
 
         StructureFactorMobilityStuff[] sfacMobilityA = new StructureFactorMobilityStuff[30];
         StructureFactorMobilityStuff[] sfacMobilityB = new StructureFactorMobilityStuff[30];

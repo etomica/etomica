@@ -25,6 +25,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
     protected int[] numSavedAvg;
     protected float[][] savedAvg;
     protected int[][] waveVectors;
+    protected float constantAvg = Float.NaN;
 
     public StructureFactorComponentWriter(MeterStructureFactor meterSFac, Box box, int minInterval, int maxSteps) {
         this.box = box;
@@ -46,6 +47,10 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         }
         savedAvg = new float[0][];
         numSavedAvg = new int[0];
+    }
+
+    public void setConstantAverage(double avg) {
+        this.constantAvg = (float)avg;
     }
 
     @Override
@@ -100,6 +105,9 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                     fw.write("]\n");
                 }
                 fw.write("],\n");
+            }
+            else if (constantAvg != Double.NaN) {
+                fw.write("\"avg\": "+constantAvg+",\n");
             }
             fw.write("\"sfac\": [");
 
