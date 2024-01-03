@@ -1035,10 +1035,9 @@ public class GlassProd {
         if (params.numSteps>0) stepsState.numSteps = sim.integrator.getStepCount();
         saveObjects(stepsState, objects);
 
-//        sfacDensity.writer.writeFile("sfacDensityTraj.dat");
-        sfacAB.writer.writeFile("sfacABTraj.dat");
-        sfacPack.writer.writeFile("sfacPackTraj.dat");
-//        sfacKE.writer.writeFile("sfacKETraj.dat");
+        // we can reconstruct total density (A+B), eta (vA*A + vB*B) and composition A/(A+B)
+        sfacA.writer.writeFile("sfacATraj.dat");
+        sfacB.writer.writeFile("sfacBTraj.dat");
         sfacStress.writer.writeFile("sfacStressTraj.dat");
         sfacMobilityWriterA.writeFile("sfacMobilityATraj.dat");
         sfacMobilityWriterB.writeFile("sfacMobilityBTraj.dat");
