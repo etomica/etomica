@@ -21,7 +21,7 @@ import etomica.units.dimensions.Null;
 public class MeterPIHMAInf implements IDataSource, PotentialCallback {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialCompute pcP1harm, pcP1ah;
-    protected double betaN, beta, omegaN, R, sinhR, cothR;
+    protected double temperature, beta, omegaN, R, sinhR, cothR;
     protected int nBeads;
     protected double[] gk, gk2;
     protected double[][] M, M2;
@@ -33,7 +33,8 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
     protected Vector[] rdot, rddot;
     protected final Vector[] latticePositions;
     protected int dim;
-    public MeterPIHMAInf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, double betaN, int nBeads, double omega2,double omega2Sample, Box box, double hbar) {
+
+    public MeterPIHMAInf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, double temperature, int nBeads, double omega,double omegaSample, Box box, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
@@ -43,24 +44,24 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
         this.pmBonding = pmBonding;
         this.pcP1harm = pcP1harm;
         this.pcP1ah = pcP1ah;
-        this.betaN = betaN;
+        this.temperature = temperature;
         this.nBeads = nBeads;
         this.box = box;
-        this.beta = betaN*nBeads;
+        this.beta = 1/temperature;
+
         omegaN = Math.sqrt(nBeads)/(beta*hbar);
 
 
         double mass = box.getLeafList().get(0).getType().getMass()*nBeads;
 
-        double RSample = beta*hbar*Math.sqrt(omega2Sample)/nBeads;
+        double RSample = beta*hbar*Math.sqrt(omegaSample)/nBeads;
         int nAtoms = box.getLeafList().size();
         rdot = box.getSpace().makeVectorArray(nAtoms);
         rddot = box.getSpace().makeVectorArray(nAtoms);
         gk = new double[nBeads];
         gk2 = new double[nBeads];
         int nK = nBeads/2;
-        beta = betaN*nBeads;
-        if (omega2Sample == 0){
+        if (omegaSample == 0){
             gk[nK] = 0;
             gk2[nK] = 0;
         } else {
@@ -78,7 +79,7 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
             double den = sin*sin + a2;
             double dden = 2.0*a2/beta;
             double den2 = den*den;
-            if (omega2Sample == 0) {
+            if (omegaSample == 0) {
                 gk[nK-k] = 1.0/2.0/beta*num/den;
             } else {
                 gk[nK-k] = 1.0/2.0/beta*RSample/Math.sinh(RSample)*num/den;
@@ -108,12 +109,12 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
             }
         }
 
-        this.R = beta*hbar*Math.sqrt(omega2)/nBeads;
+        this.R = beta*hbar*omega/nBeads;
         sinhR = Math.sinh(R);
         cothR = 1/Math.tanh(R);
 
-        if (omega2Sample != 0) {
-            double En_ho_nm = hbar*Math.sqrt(omega2) / 2.0/Math.tanh(R);
+        if (omegaSample != 0) {
+            double En_ho_nm = hbar*omega/2.0*cothR;
             double Cvn_ho_nm = nBeads / 2.0 / beta / beta;
             for (int k = 0; k < nBeads; k++) {
                 En_ho_nm -= gk[k];
