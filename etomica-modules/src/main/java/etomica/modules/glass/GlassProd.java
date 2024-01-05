@@ -282,6 +282,7 @@ public class GlassProd {
             params.rcLJ = 2.5;
             params.tStep = 0.01;
         }
+        if (params.nB==0) params.doSwap = false;
 
         double rho = params.density;
         if (params.eta>0 && params.potential == SimGlass.PotentialChoice.HS) {
@@ -700,7 +701,6 @@ public class GlassProd {
 
         StructureFactorStuff sfacA = sfacDensity, sfacB = null;
         StructureFactorStuff sfacPack = null, sfacAB = null;
-        StructureFactorStuff sfacStress = null;
 
         AtomStressSource stressSource;
         if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
@@ -739,9 +739,8 @@ public class GlassProd {
             atomSignalAB.setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
             atomSignalAB.setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
             sfacAB = setupStructureFactor(sim.box, cut3, atomSignalAB, params.sfacMinInterval, configStorageMSD, phiA-phiB);
-
-            sfacStress = setupStructureFactor(sim.box, cut3, signalStressNormal, params.sfacMinInterval, configStorageMSD, Double.NaN);
         }
+        StructureFactorStuff sfacStress = setupStructureFactor(sim.box, cut3, signalStressNormal, params.sfacMinInterval, configStorageMSD, Double.NaN);
 
         AtomSignalKineticEnergy atomSignalKE = new AtomSignalKineticEnergy();
         StructureFactorStuff sfacKE = setupStructureFactor(sim.box, cut3, atomSignalKE, params.sfacMinInterval, configStorageMSD, 0.5*sim.getSpace().D()*params.temperature*params.density);
@@ -809,8 +808,8 @@ public class GlassProd {
             atomSignalAB.setAtomTypeFactor(sim.speciesB.getAtomType(0), -vB);
             sfacABX = setupStructureFactor(sim.box, wvx, atomSignalAB, params.sfacMinInterval, configStorageMSD);
 
-            sfacStressX = setupStructureFactor(sim.box, wvx, signalStressNormal, params.sfacMinInterval, configStorageMSD);
         }
+        sfacStressX = setupStructureFactor(sim.box, wvx, signalStressNormal, params.sfacMinInterval, configStorageMSD);
 
         StructureFactorStuff2 sfacKEX = setupStructureFactor(sim.box, wvx, atomSignalKE, params.sfacMinInterval, configStorageMSD);
 
@@ -875,11 +874,11 @@ public class GlassProd {
 
         for (int i = params.sfacMinInterval; i < 30; i++) {
             sfacMobilityAX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityAX[i].meter, i, dsCorSFacPackMobilityA));
-            sfacMobilityAX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityAX[i].meter, i, dsCorSFacABMobilityA));
             sfacMobilityAX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityAX[i].meter, i, dsCorSFacKEMobilityA));
             sfacMobilityAX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityAX[i].meter, i, dsCorSFacStressMobilityA));
 
             if (params.nB>0) {
+                sfacMobilityAX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityAX[i].meter, i, dsCorSFacABMobilityA));
                 sfacMobilityBX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityBX[i].meter, i, dsCorSFacPackMobilityB));
                 sfacMobilityBX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityBX[i].meter, i, dsCorSFacABMobilityB));
                 sfacMobilityBX[i].fork.addDataSink(new StructorFactorComponentExtractor(sfacMobilityBX[i].meter, i, dsCorSFacKEMobilityB));
@@ -1037,10 +1036,12 @@ public class GlassProd {
 
         // we can reconstruct total density (A+B), eta (vA*A + vB*B) and composition A/(A+B)
         sfacA.writer.writeFile("sfacATraj.dat");
-        sfacB.writer.writeFile("sfacBTraj.dat");
         sfacStress.writer.writeFile("sfacStressTraj.dat");
         sfacMobilityWriterA.writeFile("sfacMobilityATraj.dat");
-        sfacMobilityWriterB.writeFile("sfacMobilityBTraj.dat");
+        if (params.nB>0) {
+            sfacB.writer.writeFile("sfacBTraj.dat");
+            sfacMobilityWriterB.writeFile("sfacMobilityBTraj.dat");
+        }
         sfacMotionXWriter.writeFile("sfacMotionTraj.dat");
 
         //Pressure
@@ -1172,31 +1173,33 @@ public class GlassProd {
             for (int i = params.sfacMinInterval; i < sfacMobilityA.length; i++) {
                 if (sfacMobilityA[i].acc.getSampleCount() < 2) continue;
                 GlassProd.writeDataToFile(sfacMobilityA[i].acc, "sfacMobilityA" + i + ".dat");
-                GlassProd.writeDataToFile(sfacMobilityB[i].acc, "sfacMobilityB" + i + ".dat");
+                if (params.nB>0) GlassProd.writeDataToFile(sfacMobilityB[i].acc, "sfacMobilityB" + i + ".dat");
                 GlassProd.writeDataToFile(sfacMotionX[i].acc, "sfacMotionx" + i + ".dat");
             }
             double fac = sim.box.getBoundary().getBoxSize().getX(0) / (2 * Math.PI);
             for (int j=0; j<2; j++) {
                 GlassProd.writeDataToFile(sfcMobilityACor.makeMeter(j), "sfacMobilityACor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(sfcMobilityBCor.makeMeter(j), "sfacMobilityBCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(sfcMotionXXCor.makeMeter(j), "sfacMotionXXCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(sfcMotionXYCor.makeMeter(j), "sfacMotionXYCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(sfacDensityX.cor.makeMeter(j), "sfacDensityCor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(sfacPackX.cor.makeMeter(j), "sfacPackCor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(sfacABX.cor.makeMeter(j), "sfacABCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(sfacKEX.cor.makeMeter(j), "sfacKineticCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(sfacStressX.cor.makeMeter(j), "sfacStressCor" + (j+1)+".dat");
-
                 GlassProd.writeDataToFile(dsCorSFacPackMobilityA.makeMeter(j), "sfacPackMobilityACor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacPackMobilityB.makeMeter(j), "sfacPackMobilityBCor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacABMobilityA.makeMeter(j), "sfacABMobilityACor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacABMobilityB.makeMeter(j), "sfacABMobilityBCor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacMobilityAB.makeMeter(j), "sfacMobilityABCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(dsCorSFacKEMobilityA.makeMeter(j), "sfacKEMobilityACor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacKEMobilityB.makeMeter(j), "sfacKEMobilityBCor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacPackPackAB.makeMeter(j), "sfacPackPackABCor" + (j+1)+".dat");
                 GlassProd.writeDataToFile(dsCorSFacStressMobilityA.makeMeter(j), "sfacStressMobilityACor" + (j+1)+".dat");
-                GlassProd.writeDataToFile(dsCorSFacStressMobilityB.makeMeter(j), "sfacStressMobilityBCor" + (j+1)+".dat");
+                if (params.nB>0) {
+                    GlassProd.writeDataToFile(sfacPackX.cor.makeMeter(j), "sfacPackCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(sfcMobilityBCor.makeMeter(j), "sfacMobilityBCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(sfacABX.cor.makeMeter(j), "sfacABCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacPackMobilityB.makeMeter(j), "sfacPackMobilityBCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacABMobilityA.makeMeter(j), "sfacABMobilityACor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacABMobilityB.makeMeter(j), "sfacABMobilityBCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacMobilityAB.makeMeter(j), "sfacMobilityABCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacKEMobilityB.makeMeter(j), "sfacKEMobilityBCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacPackPackAB.makeMeter(j), "sfacPackPackABCor" + (j+1)+".dat");
+                    GlassProd.writeDataToFile(dsCorSFacStressMobilityB.makeMeter(j), "sfacStressMobilityBCor" + (j+1)+".dat");
+                }
+
             }
 
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
@@ -1228,9 +1231,11 @@ public class GlassProd {
             GlassProd.writeDataToFile(meterAlpha2B, filenameAlpha2B);
             GlassProd.writeDataToFile(sfacDensity.acc, "sfac.dat");
             GlassProd.writeDataToFile(sfacA.acc, "sfacA.dat");
-            GlassProd.writeDataToFile(sfacB.acc, "sfacB.dat");
-            GlassProd.writeDataToFile(sfacPack.acc, "sfacPack.dat");
-            GlassProd.writeDataToFile(sfacAB.acc, "sfacAB.dat");
+            if (params.nB>0) {
+                GlassProd.writeDataToFile(sfacPack.acc, "sfacPack.dat");
+                GlassProd.writeDataToFile(sfacB.acc, "sfacB.dat");
+                GlassProd.writeDataToFile(sfacAB.acc, "sfacAB.dat");
+            }
 
             GlassProd.writeDataToFile(meterMSD, meterMSD.getError(), meterMSD.getStdev(), filenameMSD);
             GlassProd.writeDataToFile(dsCorMSD.getFullCorrelation(), "msdFullCor.dat");
