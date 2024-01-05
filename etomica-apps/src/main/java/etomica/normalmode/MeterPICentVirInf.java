@@ -27,7 +27,8 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
     protected Vector[] rc;
     protected int dim;
     protected int numAtoms;
-    protected double omega, R, cothR, tanhR2, hbar;
+    protected double omega, R, cothR, tanhR_2, hbar;
+    protected double fac0, fac1, fac2, fac3, fac4;
 
     public MeterPICentVirInf(PotentialCompute pcP1harm, PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
         int nData = 2;
@@ -47,8 +48,16 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
         this.R = beta*hbar*omega/nBeads;
-        this.tanhR2 = Math.tanh(R/2);
+        this.tanhR_2 = Math.tanh(R/2);
         this.cothR = Math.cosh(R)/Math.sinh(R);
+        double coshR = Math.cosh(R);
+        double sinhR = Math.sinh(R);
+        double massRing=1;
+        this.fac0 = dim*numAtoms*R*R/2/beta/beta/sinhR/sinhR;
+        this.fac1 = R/beta*massRing*omega*omega*tanhR_2*(1+2*coshR/sinhR/sinhR);
+        this.fac2 = -R*R/2/beta*(2+1/Math.sinh(R/2)/Math.sinh(R/2));
+        this.fac3 = R*R/4/beta*(1-1/sinhR/sinhR) + R*cothR/2/beta;
+        this.fac4 = -R*R*cothR*cothR/4/beta;
     }
 
     @Override
@@ -58,8 +67,8 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
         rHr = 0;
         double vir = 0;
         pcP1harm.computeAll(false);
-        pcP1ah.computeAll(true); //no Cv
-//        pcP1ah.computeAll(true, this); //with Cv
+//        pcP1ah.computeAll(true); //no Cv
+        pcP1ah.computeAll(true, this); //with Cv
         Vector[] forces = pcP1ah.getForces();
         double sumRc2 = 0;
         for (IMolecule molecule : box.getMoleculeList()) {
@@ -72,15 +81,17 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
+        sumRc2 /=numAtoms;
         double mass = 1;
         if(numAtoms==1){
-            x[0] = dim/2.0/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR2*pcP1harm.getLastEnergy() + R*cothR/2.0*vir
-                    - mass*omega*omega*cothR*tanhR2*sumRc2;
+            x[0] = dim/2.0/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2.0*vir
+                    - mass*omega*omega*cothR* tanhR_2 *sumRc2;
         } else {
 //            x[0] = -dim*(nBeads-1)/(2.0*nBeads)/beta - dim / 2.0 / beta + dim * (nBeads - 1.0) / 2.0 / nBeads / beta + dim * numAtoms / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
 //            x[0] = dim * (numAtoms-1) / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
         }
-        x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
+        x[1] = fac0 + fac1*sumRc2 + fac2*pcP1harm.getLastEnergy()
+                - fac3*vir + fac4*rHr + x[0]*x[0];
         return data;
     }
 
@@ -89,11 +100,8 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
         Vector rj = box.getLeafList().get(j).getPosition();
         Vector tmpVecI = box.getSpace().makeVector();
         Vector tmpVecJ = box.getSpace().makeVector();
-        int moleculeIndexI = box.getLeafList().get(i).getParentGroup().getIndex();
-        int moleculeIndexJ = box.getLeafList().get(j).getParentGroup().getIndex();
         tmpVecI.Ev1Mv2(ri, CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()));
         tmpVecJ.Ev1Mv2(rj, CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()));
-//        tmpVecJ.Ev1Mv2(rj, rc[moleculeIndexJ]);
         box.getBoundary().nearestImage(tmpVecI);
         box.getBoundary().nearestImage(tmpVecJ);
         Hij.transform(tmpVecI);

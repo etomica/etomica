@@ -142,17 +142,17 @@ public class SimQuantumAOPIMDInf extends Simulation {
         } else {
             // custom parameters
             params.hbar = 1;
-            params.steps = 1000000;
+            params.steps = 10000000;
             params.temperature = 1;
             params.omega = 1;
-            params.k4 = 1;
+            params.k4 = 0;
             params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.StageEC;
             params.nBeads = 2;
-            params.nShifts = 1;
+            params.nShifts = 0;
             params.timeStep = 0.01;
         }
 
@@ -234,11 +234,11 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double EnC = sim.space.D()*temperature;
         double CvnC = sim.space.D();
         System.out.println(" En_ho_c: " + EnC);
+        System.out.println(" Cvn_ho_c: " + CvnC);
         System.out.println(" En_ho_q: " + EnQ);
         System.out.println(" E_ho_q: " + EnQinf);
-        System.out.println(" Cvn_ho_c: " + CvnC);
         System.out.println(" Cvn_ho_q: " + CvnQ);
-        System.out.println(" Cv_ho_c: " + CvnQinf + "\n");
+        System.out.println(" Cv_ho_q: " + CvnQinf + "\n");
 
 
 //        System.out.println("Real: " + 1/omegaN/Math.sqrt(nBeads));
@@ -424,7 +424,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double kB_beta2 = sim.betaN*sim.betaN*nBeads*nBeads;
         double varX0, varX1, corX0X1;
 
-        //1' PrimInf
+        //1 Prim
         DataGroup dataPrimInf = (DataGroup) accumulatorPrimInf.getData();
         IData dataAvgPrimInf = dataPrimInf.getData(accumulatorPrimInf.AVERAGE.index);
         IData dataErrPrimInf = dataPrimInf.getData(accumulatorPrimInf.ERROR.index);
@@ -434,6 +434,11 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double errEnPrimInf = dataErrPrimInf.getValue(0);
         double corEnPrimInf = dataCorPrimInf.getValue(0);
         System.out.println("\n En_prim:          " + avgEnPrimInf + "   err: " + errEnPrimInf + " cor: " + corEnPrimInf);
+        double CvnPrimInf = kB_beta2*(dataAvgPrimInf.getValue(1) - avgEnPrimInf*avgEnPrimInf);
+        varX0 = errEnPrimInf*errEnPrimInf;
+        varX1 = dataErrPrimInf.getValue(1)*dataErrPrimInf.getValue(1);
+        corX0X1 = dataCovPrimInf.getValue(1)/Math.sqrt(dataCovPrimInf.getValue(0))/Math.sqrt(dataCovPrimInf.getValue(3));
+        double errCvnPrimInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnPrimInf*avgEnPrimInf*varX0 - 4*avgEnPrimInf*dataErrPrimInf.getValue(0)*dataErrPrimInf.getValue(1)*corX0X1));
 
 
         //2 Vir
@@ -442,7 +447,6 @@ public class SimQuantumAOPIMDInf extends Simulation {
         IData dataErrVirInf = dataVirInf.getData(accumulatorVirInf.ERROR.index);
         IData dataCorVirInf = dataVirInf.getData(accumulatorVirInf.BLOCK_CORRELATION.index);
         IData dataCovVirInf = dataVirInf.getData(accumulatorVirInf.COVARIANCE.index);
-
         double avgEnVirInf = dataAvgVirInf.getValue(0);
         double errEnVirInf = dataErrVirInf.getValue(0);
         double corEnVirInf = dataCorVirInf.getValue(0);
@@ -570,9 +574,10 @@ public class SimQuantumAOPIMDInf extends Simulation {
             errCvnStageEC = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageECInf*avgEnStageECInf*varX0));
         }
 
-//        System.out.println();
-//        System.out.println(" Cvn_vir:          " + CvnVirInf +           "   err: " + errCvnVir);
-//        System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+        System.out.println();
+        System.out.println(" Cvn_prim:         " + CvnPrimInf +          "   err: " + errCvnPrimInf);
+        System.out.println(" Cvn_vir:          " + CvnVirInf +           "   err: " + errCvnVirInf);
+        System.out.println(" Cvn_cvir:         " + CvnCentVirInf +       "   err: " + errCvnCentVirInf);
 //        System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
 //        System.out.println(" Cvn_nm_simple:    " + Cvn_nm_simple +    "   err: " + errCvnNMsimple);
 //        System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);

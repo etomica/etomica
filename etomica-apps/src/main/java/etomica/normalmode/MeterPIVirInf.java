@@ -26,7 +26,7 @@ public class MeterPIVirInf implements IDataSource, PotentialCallback {
     protected int dim;
     protected int numAtoms;
     protected Vector[] rc;
-    protected double omega, hbar, R, cothR, tanhR2;
+    protected double omega, hbar, R, cothR, tanhR2, fac1, fac2, fac3;
 
     public MeterPIVirInf(PotentialCompute pcP1harm, PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
         int nData = 2;
@@ -45,7 +45,10 @@ public class MeterPIVirInf implements IDataSource, PotentialCallback {
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         this.R = beta*hbar*omega/nBeads;
         this.tanhR2 = Math.tanh(R/2);
-        this.cothR = Math.cosh(R)/Math.sinh(R);
+        this.cothR = 1/tanhR2;
+        this.fac1 = -R*R/2/beta*(2+1/Math.sinh(R/2)/Math.sinh(R/2));
+        this.fac2 = R*R/4/beta*(1-1/Math.sin(R)/Math.sin(R)) + R*cothR/beta;
+        this.fac3 = -R*R*cothR*cothR/4/beta;
     }
 
     @Override
@@ -53,8 +56,8 @@ public class MeterPIVirInf implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         rHr = 0;
         pcP1harm.computeAll(false);
-        pcP1ah.computeAll(true); //no Cv
-//        pcP1ah.computeAll(true, this); //with Cv
+//        pcP1ah.computeAll(true); //no Cv
+        pcP1ah.computeAll(true, this); //with Cv
         Vector[] forces = pcP1ah.getForces();
         double vir = 0;
 
@@ -67,7 +70,7 @@ public class MeterPIVirInf implements IDataSource, PotentialCallback {
         }
 
         x[0] =   pcP1ah.getLastEnergy() + R/tanhR2*pcP1harm.getLastEnergy() + R*cothR/2.0*vir;//En
-        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
+        x[1] =  fac1*pcP1harm.getLastEnergy() - fac2*vir + fac3*rHr + x[0]*x[0];
         return data;
     }
 

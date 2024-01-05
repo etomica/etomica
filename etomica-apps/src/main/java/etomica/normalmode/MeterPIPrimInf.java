@@ -7,6 +7,7 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Null;
 
@@ -21,8 +22,8 @@ public class MeterPIPrimInf implements IDataSource {
     protected double beta;
     protected int numAtoms;
     protected Box box;
-    protected double omega, R, sinhR, cothR, hbar;
-
+    protected double hbar, omega, R, sinhR, tanhR, cothR;
+    protected double fac1, fac2, fac3;
     public MeterPIPrimInf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, int nBeads, double temperature, Box box, double omega, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
@@ -40,7 +41,12 @@ public class MeterPIPrimInf implements IDataSource {
         this.hbar = hbar;
         this.R = beta*hbar*omega/nBeads;
         this.sinhR = Math.sinh(R);
-        this.cothR = Math.cosh(R)/Math.sinh(R);
+        this.tanhR = Math.tanh(R);
+        this.cothR = 1/tanhR;
+        this.fac1 = dim*numAtoms*nBeads/2.0/beta/beta*R*R/sinhR/sinhR;
+        this.fac2 = R*R/beta*(1-2*cothR*cothR);
+        this.fac3 = R*R/2/beta/Math.cosh(R/2)/Math.cosh(R/2);
+
     }
 
     public IDataInfo getDataInfo() {
@@ -66,8 +72,7 @@ public class MeterPIPrimInf implements IDataSource {
         } else {
             x[0] = dim*(numAtoms*nBeads-1)/2.0/beta + pcP1harm.getLastEnergy() - pmBonding.getLastEnergy(); //En
         }
-        x[1] = nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta + x[0]*x[0];
+        x[1] = fac1 + fac2*pmBonding.getLastEnergy() + fac3*pcP1harm.getLastEnergy() + x[0]*x[0];
         return data;
     }
 }
-
