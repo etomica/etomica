@@ -138,7 +138,7 @@ public class SimQuantumAOPIMD extends Simulation {
         } else {
             // custom parameters
             params.hbar = 1;
-            params.steps = 10000000;
+            params.steps = 1000000;
             params.temperature = 1;
             params.omega = 1;
             params.k4 = 0;
@@ -147,7 +147,8 @@ public class SimQuantumAOPIMD extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.StageEC;
-            params.nBeads = 2;
+            params.nBeads = 1;
+            params.nShifts = 0;
             params.timeStep = 0.01;
         }
 

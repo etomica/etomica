@@ -143,7 +143,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
             // custom parameters
             params.hbar = 1;
             params.steps = 1000000;
-            params.temperature = 1;
+            params.temperature = 2;
             params.omega = 1;
             params.k4 = 0;
             params.coordType = MoveChoice.Real;
@@ -207,7 +207,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         System.out.println(" mass: " + mass);
         System.out.println(" T: " + temperature);
         System.out.println(" hbar: " + hbar);
-        System.out.println(" w: " + Math.sqrt(omega2));
+        System.out.println(" w: " + omega);
         System.out.println(" wn: " + omegaN  + " , w/sqrt(n): " + Math.sqrt(omega2)/Math.sqrt(nBeads));
         System.out.println(" x = beta*hbar*w = " + hbar*omega/temperature);
         System.out.println(" nBeads: " + nBeads);
@@ -229,6 +229,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double numerator = 1 + alpha2 - Math.pow(alpha,2*nBeads)*(alpha2+1)-2*nBeads*(alpha2-1)*Math.pow(alpha,nBeads);
         double denominator = (alpha2-1)*(alpha2-1)*(Math.pow(alpha,nBeads)-1)*(Math.pow(alpha,nBeads)-1);
         double CvnQ = sim.space.D()*hbar2*omega2*sim.betaN*dAlphadT*numerator/denominator-1/temperature/temperature*EnQ*temperature;
+
         double EnQinf = sim.space.D()*hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
         double CvnQinf = sim.space.D()*Math.pow(1.0/temperature*hbar*omega/2/Math.sinh(1.0/temperature*hbar*omega/2), 2);
         double EnC = sim.space.D()*temperature;
@@ -236,8 +237,8 @@ public class SimQuantumAOPIMDInf extends Simulation {
         System.out.println(" En_ho_c: " + EnC);
         System.out.println(" Cvn_ho_c: " + CvnC);
         System.out.println(" En_ho_q: " + EnQ);
-        System.out.println(" E_ho_q: " + EnQinf);
         System.out.println(" Cvn_ho_q: " + CvnQ);
+        System.out.println(" E_ho_q: " + EnQinf);
         System.out.println(" Cv_ho_q: " + CvnQinf + "\n");
 
 
@@ -581,8 +582,8 @@ public class SimQuantumAOPIMDInf extends Simulation {
 //        System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
         System.out.println(" Cvn_nm_simple:    " + Cvn_nm_simpleInf +    "   err: " + errCvnNMsimpleInf);
         System.out.println(" Cvn_nm_ec:        " + CvnNMECInf +          "   err: " + errCvnNMECInf);
-//        System.out.println(" Cvn_stage_simple: " + Cvn_stage_simple + "   err: " + errCvnStageSimple);
-//        System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
+        System.out.println(" Cvn_stage_simple: " + Cvn_stage_simple + "   err: " + errCvnStageSimple);
+        System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
 
 
 

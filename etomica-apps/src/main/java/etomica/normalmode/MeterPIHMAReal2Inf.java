@@ -39,6 +39,7 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
     protected Box box;
     protected double hbar, omega, omegaSample, temperature, beta;
     protected double R, sinhR, cothR, massRing;
+    protected double fac1, fac2, fac3, fac4, mOmegaA2, mOmegaB2;
 
     public MeterPIHMAReal2Inf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, double temperature, int nBeads, double omega,double omegaSample, Box box, double hbar) {
         int nData = 2;
@@ -59,6 +60,7 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
         this.box = box;
         numAtoms = box.getMoleculeList().size();
         dim = box.getSpace().D();
+
         rdot = new Vector[dim*nBeads*numAtoms];
         for (int i = 0; i < dim*nBeads*numAtoms; i++) {
             rdot[i] = box.getSpace().makeVector();
@@ -70,19 +72,29 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
 
         getHOStagingParams();
 
-        if (omegaSample != 0) {
-            double En_ho_stage = hbar*omega/2.0*cothR;
-            double Cvn_ho_stage = dim * nBeads / 2.0 * temperature * temperature;
-            for (int k = 0; k < nBeads; k++) {
-                En_ho_stage -= dim * gamma[k];
-                Cvn_ho_stage += dim * dGamma[k];
-            }
-            Cvn_ho_stage *= beta*beta;
-            System.out.println(" En_ho_stage:  " + En_ho_stage);
-            System.out.println(" Cvn_ho_stage: " + Cvn_ho_stage);
-        }
-        massRing = nBeads*box.getLeafList().get(0).getType().getMass();
+        this.massRing = box.getLeafList().get(0).getType().getMass()*nBeads;
+        this.R = beta*hbar*omega/nBeads;
+        sinhR = Math.sinh(R);
+        cothR = 1/Math.tanh(R);
+        this.fac1 = R*R/beta*(1-2*cothR*cothR);
+        this.fac2 = R*R/2/beta/Math.cosh(R/2)/Math.cosh(R/2);
+        this.fac3 = -R*cothR;
+        this.fac4 = R/sinhR;
+        this.mOmegaA2 = massRing*omega*omega/nBeads/R/sinhR;
+        this.mOmegaB2 = 2*massRing*omega*omega*Math.tanh(R/2)/nBeads/R;
 
+        if (omegaSample != 0) {
+            double A_ho_stage = 1;
+            double E_ho_stage = hbar*omega/2.0*cothR;
+            double Cv_ho_stage = dim*nBeads*numAtoms/2.0/beta/beta*R*R/sinhR/sinhR;
+            for (int k = 0; k < nBeads; k++) {
+                E_ho_stage -= dim * gamma[k];
+                Cv_ho_stage += dim * dGamma[k];
+            }
+            Cv_ho_stage *= beta*beta;
+            System.out.println(" E_ho_stage:  " + E_ho_stage);
+            System.out.println(" Cv_ho_stage: " + Cv_ho_stage);
+        }
     }
 
     public void setNumShifts(int nShifts) {
@@ -98,23 +110,21 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
         pmBonding.computeAll(true);
         pcP1harm.computeAll(true); //no Cv
         pcP1ah.computeAll(true); //no Cv
-//        pcP1harm.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
-//        pcP1ah.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
         int numAtoms = molecules.size();
-        double En0 = dim*nBeads*numAtoms/2.0/beta*R*cothR + R/sinhR*pcP1harm.getLastEnergy() + pcP1ah.getLastEnergy() - R*cothR*pmBonding.getLastEnergy();
+        double En0 = dim*nBeads*numAtoms/2.0/beta*R*cothR + fac3*pmBonding.getLastEnergy() + fac4*pcP1harm.getLastEnergy() + pcP1ah.getLastEnergy();
         if (box.getMoleculeList().size() > 1) {
             En0 -= dim/2.0/beta;
         }
-        double Cvn0 = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
+        double Cvn0 = dim*nBeads*numAtoms/2.0/beta/beta*R*R/sinhR/sinhR + fac1*pmBonding.getLastEnergy() + fac2*pcP1harm.getLastEnergy();
         for (int i=0; i<nBeads; i++) {
             En0 -= dim*numAtoms*gamma[i];
             Cvn0 += dim*numAtoms*dGamma[i];
         }
 
+        Vector[] forcesK = pmBonding.getForces();
         Vector[] forcesUharm = pcP1harm.getForces();
         Vector[] forcesUah = pcP1ah.getForces();
-        Vector[] forcesK = pmBonding.getForces();
         Vector tmp_r = box.getSpace().makeVector();
         Vector drj = box.getSpace().makeVector();
         Vector v = box.getSpace().makeVector();
@@ -177,19 +187,17 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
 
                         Vector tmpV = box.getSpace().makeVector();
                         tmpV.Ev1Mv2(v, vPrev);
-//                        Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
-//                        if (j == nBeads-1){
-//                            tmpV.Ev1Mv2(v0, v);
-//                            Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
-//                        }
+                        Cvn -= beta*mOmegaA2*tmpV.squared() ;
+                        if (j == nBeads-1){
+                            tmpV.Ev1Mv2(v0, v);
+                            Cvn -= beta*mOmegaA2*(tmpV.squared());
+                        }
                     }
                     int jj = atomj.getLeafIndex();
-                    En -= beta*(forcesUharm[jj].dot(v) + forcesUah[jj].dot(v));
-                    Cvn += beta*(forcesUharm[jj].dot(a)+forcesUah[jj].dot(a)) + 2.0*(forcesUharm[jj].dot(v)+forcesUah[jj].dot(v));
-                    if (nBeads > 1) {
-                        En -= beta*forcesK[jj].dot(v);
-                        Cvn += beta*forcesK[jj].dot(a) - 2.0*forcesK[jj].dot(v);
-                    }
+                    En -= beta*(forcesK[jj].dot(v)  + forcesUharm[jj].dot(v) + forcesUah[jj].dot(v));
+                    Cvn -= beta*mOmegaB2*v.squared();
+                    Cvn += beta*(forcesK[jj].dot(a) + forcesUharm[jj].dot(a) + forcesUah[jj].dot(a));
+                    Cvn += 2.0*(fac3*forcesK[jj].dot(v) + fac4*forcesUharm[jj].dot(v) + forcesUah[jj].dot(v));
 
                     drPrev.E(drj);
                     if (j == 0) {
@@ -201,7 +209,7 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
                     rdot[jj].E(v);
                 } // beads
                 drdotHdrdot = 0;
-//                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
+                pcP1ah.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
                 x[0] += En0 + En;
                 x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
@@ -256,16 +264,12 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
 
 
     public  void getHOStagingParams(){
-        R = beta*hbar*omega/nBeads;
-        double dR = hbar*omega/nBeads;
-        double dR2 = dR*dR;
-        double d2R = 0;
-        sinhR = Math.sinh(R);
-        double coshR = Math.cosh(R);
-        cothR = coshR/sinhR;
-        double sinhNR = Math.sinh(nBeads*R);
-        double coshhNR = Math.cosh(nBeads*R);
-
+        double RSample = beta*hbar*omegaSample/nBeads;
+        double dRSample = hbar*omegaSample/nBeads;
+        double dRSample2 = dRSample*dRSample;
+        double d2RSample = 0;
+        double sinhRSample = Math.sinh(RSample);
+        double coshRSample = Math.cosh(RSample);
         f11 = new double[nBeads];
         f1N = new double[nBeads];
         df11 = new double[nBeads];
@@ -275,30 +279,33 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
         gamma = new double[nBeads];
         dGamma = new double[nBeads];
 
-        gamma[0] = omegaSample == 0 ? 0 : -hbar*omega/2/Math.sinh(beta*hbar*omega);
-        dGamma[0] = omegaSample == 0 ? 0 : 111111;
+        gamma[0] = omegaSample == 0 ? 0 : -hbar*omegaSample/2/Math.sinh(beta*hbar*omegaSample);
+        dGamma[0] = omegaSample == 0 ? 0 : hbar*hbar*omegaSample*omegaSample/2.0*Math.cosh(beta*hbar*omegaSample)/Math.sinh(beta*hbar*omegaSample)/Math.sinh(beta*hbar*omegaSample);
 
         for (int i=1; i<nBeads; i++) {
-            double sinhNmiA = Math.sinh((nBeads-i)*R);
-            double coshNmiA = Math.cosh((nBeads-i)*R);
-            double sinhNmip1A = Math.sinh((nBeads-i+1)*R);
-            double coshNmip1A = Math.cosh((nBeads-i+1)*R);
+            double sinhNmiA = Math.sinh((nBeads-i)*RSample);
+            double coshNmiA = Math.cosh((nBeads-i)*RSample);
+            double sinhNmip1A = Math.sinh((nBeads-i+1)*RSample);
+            double coshNmip1A = Math.cosh((nBeads-i+1)*RSample);
 
-            gamma[i] = omegaSample == 0 ? 1.0/2.0/beta : -hbar*omega/2.0/nBeads*((nBeads-i+1)/Math.tanh((nBeads-i+1)*R)
-                    -(nBeads-i)/Math.tanh((nBeads-i)*R) - 1.0/Math.tanh(R));
-            dGamma[i] = omegaSample == 0 ? -1.0/2.0/beta/beta : 111111;
+            gamma[i] = omegaSample == 0 ? 1.0/2.0/beta : -dRSample/2*((nBeads-i+1)/Math.tanh((nBeads-i+1)*RSample)
+                    -(nBeads-i)/Math.tanh((nBeads-i)*RSample) - 1.0/Math.tanh(RSample));
+            dGamma[i] = omegaSample == 0 ? -1.0/2.0/beta/beta : hbar*hbar*omegaSample*omegaSample/2.0/nBeads/nBeads*(
+                    Math.pow(nBeads-i+1, 2)/Math.sinh((nBeads-i+1)*RSample)/Math.sinh((nBeads-i+1)*RSample)
+                  - Math.pow(nBeads-i, 2)/Math.sinh((nBeads-i)*RSample)/Math.sinh((nBeads-i)*RSample)
+                  - 1/Math.sinh(RSample)/Math.sinh(RSample));
+            f1N[i] = omegaSample == 0 ? 1.0/(nBeads-i+1) : sinhRSample/sinhNmip1A;
             f11[i] = omegaSample == 0 ? (nBeads-i)/(nBeads-i+1.0) : sinhNmiA/sinhNmip1A;
-            f1N[i] = omegaSample == 0 ? 1.0/(nBeads-i+1) : sinhR/sinhNmip1A;
 
-            df11[i] = omegaSample == 0 ? 0 : dR/sinhNmip1A*((nBeads-i)*coshNmiA-(nBeads-i+1)*sinhNmiA*coshNmip1A/sinhNmip1A);
-            df1N[i] = omegaSample == 0 ? 0 : dR/sinhNmip1A*(coshR - (nBeads-i+1)*sinhR*coshNmip1A/sinhNmip1A);
+            df1N[i] = omegaSample == 0 ? 0 : dRSample/sinhNmip1A*(coshRSample - (nBeads-i+1)*sinhRSample*coshNmip1A/sinhNmip1A);
+            df11[i] = omegaSample == 0 ? 0 : dRSample/sinhNmip1A*((nBeads-i)*coshNmiA-(nBeads-i+1)*sinhNmiA*coshNmip1A/sinhNmip1A);
 
-            d2f11[i] = omegaSample == 0 ? 0 : d2R/dR*df11[i] + dR2/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
+            d2f1N[i] = omegaSample == 0 ? 0 : d2RSample/dRSample*df1N[i] + dRSample2/sinhNmip1A*(sinhRSample
+                    -2*(nBeads-i+1)*coshRSample*coshNmip1A/sinhNmip1A
+                    + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhRSample/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*RSample)));
+            d2f11[i] = omegaSample == 0 ? 0 : d2RSample/dRSample*df11[i] + dRSample2/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
                     - 2*(nBeads-i+1)*(nBeads-i)*coshNmiA*coshNmip1A/sinhNmip1A
-                    + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*R)));
-            d2f1N[i] = omegaSample == 0 ? 0 : d2R/dR*df1N[i] + dR2/sinhNmip1A*(sinhR
-                    -2*(nBeads-i+1)*coshR*coshNmip1A/sinhNmip1A
-                    + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhR/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*R)));
+                    + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*RSample)));
         }
 
     }
