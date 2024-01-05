@@ -150,7 +150,8 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                 fw.write("null");
             }
             for (int k=minInterval; k<numSavedSteps.length; k++) {
-                fw.write(",[");
+                if (k>0) fw.write(",");
+                fw.write("[");
                 for (int j=0; j<numSavedSteps[k]; j++) {
                     if (j>0) fw.write(",");
                     fw.write("[");
