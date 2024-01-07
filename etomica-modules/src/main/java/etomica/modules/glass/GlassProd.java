@@ -281,6 +281,7 @@ public class GlassProd {
             params.qx = new double[]{7.0};
             params.rcLJ = 2.5;
             params.tStep = 0.01;
+            params.randomSeeds = new int[]{1924216604, 1365773418, -29004756, 1462249579};
         }
         if (params.nB==0) params.doSwap = false;
 
@@ -716,6 +717,9 @@ public class GlassProd {
         }
         AtomSignalStress signalStressNormal = new AtomSignalStress(stressSource, normalComps);
 
+        double vA = sim.getSpace().sphereVolume(0.5);
+        double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
+
         if (params.nB>0) {
             MeterStructureFactor.AtomSignalSourceByType atomSignalA = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
@@ -724,9 +728,6 @@ public class GlassProd {
             MeterStructureFactor.AtomSignalSourceByType atomSignalB = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalB.setAtomTypeFactor(sim.speciesA.getLeafType(), 0);
             sfacB = setupStructureFactor(sim.box, sfacCut, atomSignalB, params.sfacMinInterval, configStorageMSD, params.nB*params.density/(params.nA+params.nB));
-
-            double vA = sim.getSpace().sphereVolume(0.5);
-            double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
 
             double phiA = params.nA*vA/volume, phiB = params.nB*vB/volume;
 
@@ -794,9 +795,6 @@ public class GlassProd {
             MeterStructureFactor.AtomSignalSourceByType atomSignalB = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalB.setAtomTypeFactor(sim.speciesA.getLeafType(), 0);
             sfacBX = setupStructureFactor(sim.box, wvx, atomSignalB, params.sfacMinInterval, configStorageMSD);
-
-            double vA = sim.getSpace().sphereVolume(0.5);
-            double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
 
             MeterStructureFactor.AtomSignalSourceByType atomSignalPack = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalPack.setAtomTypeFactor(sim.speciesA.getAtomType(0), +vA);
@@ -1034,13 +1032,19 @@ public class GlassProd {
         if (params.numSteps>0) stepsState.numSteps = sim.integrator.getStepCount();
         saveObjects(stepsState, objects);
 
-        // we can reconstruct total density (A+B), eta (vA*A + vB*B) and composition A/(A+B)
         sfacA.writer.writeFile("sfacATraj.dat");
         sfacStress.writer.writeFile("sfacStressTraj.dat");
         sfacMobilityWriterA.writeFile("sfacMobilityATraj.dat");
         if (params.nB>0) {
             sfacB.writer.writeFile("sfacBTraj.dat");
             sfacMobilityWriterB.writeFile("sfacMobilityBTraj.dat");
+
+            StructureFactorComponentWriter.CompositeFunction totalDensity = rawVals -> rawVals[0]+rawVals[1];
+            sfacA.writer.writeCompositeFile("sfacDensityTraj.dat", totalDensity, new StructureFactorComponentWriter[]{sfacB.writer});
+            StructureFactorComponentWriter.CompositeFunction packing = rawVals -> (float)(rawVals[0]*vA+rawVals[1]*vB);
+            sfacA.writer.writeCompositeFile("sfacPackTraj.dat", packing, new StructureFactorComponentWriter[]{sfacB.writer});
+            StructureFactorComponentWriter.CompositeFunction packingAB = rawVals -> (float)((rawVals[0]*vA)/(rawVals[0]*vA+rawVals[1]*vB));
+            sfacA.writer.writeCompositeFile("sfacPackABTraj.dat", packingAB, new StructureFactorComponentWriter[]{sfacB.writer});
         }
         sfacMotionXWriter.writeFile("sfacMotionTraj.dat");
 

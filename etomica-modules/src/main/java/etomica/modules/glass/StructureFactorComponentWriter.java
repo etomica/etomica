@@ -65,17 +65,110 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
         if (maxSteps>0 && numSavedSteps[interval] >= maxSteps) return;
         savedData[interval][numSavedSteps[interval]] = new float[waveVectors.length][];
         int N = box.getLeafList().size();
+        float V = (float)box.getBoundary().volume();
         for (int i=0; i<xy.length; i++) {
-            float beta = (float)(2*Math.sqrt((xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N));
+            float beta = (float)(2*Math.sqrt((xy[i][0]*xy[i][0] + xy[i][1]*xy[i][1])*N)/V);
             float theta = (float)Math.atan2(xy[i][0], xy[i][1]);
             savedData[interval][numSavedSteps[interval]][i] = new float[]{beta,theta};
         }
         numSavedSteps[interval]++;
     }
 
+    public float getAverage(int interval, int step) {
+        if (savedAvg.length>0) {
+            return savedAvg[interval][step];
+        }
+        return constantAvg;
+    }
+
+    public float getVal(int interval, int step, double xx, double yy, double zz) {
+        float val = (savedAvg.length>0 ? savedAvg[interval][step] : (Double.isNaN(constantAvg) ? 0 : constantAvg));
+        for (int i=0; i<waveVectors.length; i++) {
+            int[] iwv = waveVectors[i];
+            float beta = savedData[interval][step][i][0];
+            float theta = savedData[interval][step][i][1];
+            val += beta * Math.sin(2*Math.PI*(iwv[0]*xx + iwv[1]*yy + iwv[2]*zz) + theta);
+        }
+        return val;
+    }
+
+    public void writeCompositeFile(String filename, CompositeFunction f, StructureFactorComponentWriter[] writers) {
+        try {
+            FileWriter fw = new FileWriter(filename);
+            fw.write("{\"WV\": [");
+            for (int j=0; j<waveVectors.length; j++) {
+                if (j>0) fw.write(",");
+                fw.write(" [");
+                boolean firstD = true;
+                for (int i=0; i<waveVectors[j].length; i++) {
+                    if (!firstD) fw.write(",");
+                    fw.write(""+waveVectors[j][i]);
+                    firstD = false;
+                }
+                fw.write("]");
+            }
+            fw.write(" ],\n");
+            float[] allVals = new float[1+writers.length];
+            fw.write("\"avg\": [\n");
+            for (int k=0; k<numSavedSteps.length; k++) {
+                if (k>0) fw.write(",");
+                if (numSavedSteps[k] == 0) {
+                    fw.write("null");
+                    continue;
+                }
+                fw.write("[");
+                for (int j=0; j<numSavedSteps[k]; j++) {
+                    if (j>0) fw.write(",");
+                    allVals[0] = getAverage(k,j);
+                    for (int i=0; i<writers.length; i++) {
+                        allVals[i+1] = writers[i].getAverage(k,j);
+                    }
+                    fw.write(String.format("%8.3e", f.val(allVals)));
+                }
+                fw.write("]\n");
+            }
+            fw.write("],\n");
+
+            fw.write("\"minmax\": [");
+            for (int k=0; k<minInterval; k++) {
+                if (k>0) fw.write(",");
+                fw.write("null");
+            }
+            for (int k=minInterval; k<numSavedSteps.length; k++) {
+                float vmin = Float.MAX_VALUE, vmax = -Float.MAX_VALUE;
+                for (int j = 0; j < numSavedSteps[k]; j++) {
+                    for (int ix = 0; ix<grid; ix++) {
+                        double xx = ix/(double)grid;
+                        for (int iy = 0; iy<grid; iy++) {
+                            double yy = iy / (double) grid;
+                            for (int iz = 0; iz<grid; iz++) {
+                                double zz = iz / (double) grid;
+                                allVals[0] = getVal(k, j, xx, yy, zz);
+                                for (int i=0; i<writers.length; i++) {
+                                    allVals[i] = writers[i].getVal(k, j, xx, yy, zz);
+                                }
+                                float val = f.val(allVals);
+                                if (val > vmax) vmax = val;
+                                else if (val < vmin) vmin = val;
+                            }
+                        }
+                    }
+                }
+                if (k>0) fw.write(",");
+                fw.write(String.format("[ %8.3e, %8.3e ]", vmin, vmax));
+            }
+            fw.write("]}\n");
+
+            fw.close();
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+    }
+
     public void writeFile(String filename) {
         try {
-            float V = (float)box.getBoundary().volume();
             FileWriter fw = new FileWriter(filename);
             fw.write("{\"WV\": [");
             for (int j=0; j<waveVectors.length; j++) {
@@ -126,7 +219,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                             float yy = iy / (float) grid;
                             for (int iz = 0; iz<grid; iz++) {
                                 float zz = iz / (float) grid;
-                                float val = V*(savedAvg.length>0 ? savedAvg[k][j] : (Double.isNaN(constantAvg) ? 0 : constantAvg));
+                                float val = (savedAvg.length>0 ? savedAvg[k][j] : (Double.isNaN(constantAvg) ? 0 : constantAvg));
                                 for (int i=0; i<waveVectors.length; i++) {
                                     int[] iwv = waveVectors[i];
                                     float beta = savedData[k][j][i][0];
@@ -140,7 +233,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                     }
                 }
                 if (k>0) fw.write(",");
-                fw.write(String.format("[ %8.3e, %8.3e ]", vmin/V, vmax/V));
+                fw.write(String.format("[ %8.3e, %8.3e ]", vmin, vmax));
             }
             fw.write("],\n");
 
@@ -235,5 +328,9 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                 }
             }
         }
+    }
+
+    public interface CompositeFunction {
+        float val(float[] rawVals);
     }
 }
