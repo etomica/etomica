@@ -720,10 +720,11 @@ public class GlassProd {
         double vA = sim.getSpace().sphereVolume(0.5);
         double vB = sim.getSpace().sphereVolume(0.5*sim.sigmaB);
 
+        MeterStructureFactor.AtomSignalSourceByType atomSignalA = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
+        sfacA = setupStructureFactor(sim.box, sfacCut, atomSignalA, params.sfacMinInterval, configStorageMSD, params.nA*params.density/(params.nA+params.nB));
+
         if (params.nB>0) {
-            MeterStructureFactor.AtomSignalSourceByType atomSignalA = new MeterStructureFactor.AtomSignalSourceByType();
-            atomSignalA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
-            sfacA = setupStructureFactor(sim.box, sfacCut, atomSignalA, params.sfacMinInterval, configStorageMSD, params.nA*params.density/(params.nA+params.nB));
 
             MeterStructureFactor.AtomSignalSourceByType atomSignalB = new MeterStructureFactor.AtomSignalSourceByType();
             atomSignalB.setAtomTypeFactor(sim.speciesA.getLeafType(), 0);
@@ -788,8 +789,6 @@ public class GlassProd {
         StructureFactorStuff2 sfacStressX = null;
 
         if (params.nB>0) {
-            MeterStructureFactor.AtomSignalSourceByType atomSignalA = new MeterStructureFactor.AtomSignalSourceByType();
-            atomSignalA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
             sfacAX = setupStructureFactor(sim.box, wvx, atomSignalA, params.sfacMinInterval, configStorageMSD);
 
             MeterStructureFactor.AtomSignalSourceByType atomSignalB = new MeterStructureFactor.AtomSignalSourceByType();
