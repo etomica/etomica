@@ -145,7 +145,7 @@ public class StructureFactorComponentWriter implements DataSinkBlockAveragerSFac
                                 double zz = iz / (double) grid;
                                 allVals[0] = getVal(k, j, xx, yy, zz);
                                 for (int i=0; i<writers.length; i++) {
-                                    allVals[i] = writers[i].getVal(k, j, xx, yy, zz);
+                                    allVals[i+1] = writers[i].getVal(k, j, xx, yy, zz);
                                 }
                                 float val = f.val(allVals);
                                 if (val > vmax) vmax = val;
