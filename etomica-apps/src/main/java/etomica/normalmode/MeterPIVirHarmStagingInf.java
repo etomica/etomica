@@ -26,7 +26,7 @@ public class MeterPIVirHarmStagingInf implements IDataSource, PotentialCallback 
     protected int dim;
     protected int numAtoms, nBeads;
     protected Vector[] rc;
-    protected double omega, R, cothR, hbar;
+    protected double omega, R, cothR, hbar, tanhR_2, fac1, fac2, fac3, fac4;
     double[] D;
 
     public MeterPIVirHarmStagingInf(PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
@@ -45,7 +45,6 @@ public class MeterPIVirHarmStagingInf implements IDataSource, PotentialCallback 
         this.nBeads = nBeads;
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         this.R = beta*hbar*omega/nBeads;
-        this.cothR = 1.0/Math.tanh(R);
         D = new double[nBeads];
         double Ai = 0;
         for (int i = nBeads - 1; i > 0; i--){
@@ -53,14 +52,21 @@ public class MeterPIVirHarmStagingInf implements IDataSource, PotentialCallback 
             D[i] = Ai + Math.sinh(i*R)/Math.sinh(beta*hbar*omega);
         }
         D[0] = 1;
+
+        this.cothR = 1.0/Math.tanh(R);
+        this.tanhR_2 = Math.tanh(R/2);
+        this.fac1 = -R*R/2/beta*Math.cosh(R)/Math.sinh(R/2)/Math.sinh(R/2);
+        this.fac2 = R*R/4/beta*(1-1/Math.sinh(R)/Math.sinh(R)) + R*cothR/beta;
+        this.fac3 = -R*R*cothR*cothR/4/beta;
+        this.fac4 = fac1*tanhR_2/R;
     }
 
     @Override
     public IData getData() {
         double[] x = data.getData();
         rHr = 0;
-        pcP1ah.computeAll(true); //no Cv
-//        pcP1ah.computeAll(true, this); //with Cv
+//        pcP1ah.computeAll(true); //no Cv
+        pcP1ah.computeAll(true, this); //with Cv
         Vector[] forces = pcP1ah.getForces();
         double vir = 0;
         double vir2 = 0;
@@ -83,8 +89,10 @@ public class MeterPIVirHarmStagingInf implements IDataSource, PotentialCallback 
                 }
             }
         }
-        x[0] =  1.0/2.0*hbar*omega/Math.tanh(beta*hbar*omega/2) + 1.0/2.0*R*cothR*vir - 1.0/2.0*R/Math.tanh(beta*hbar*omega/2)*vir2 + pcP1ah.getLastEnergy();
-        x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
+        double Einf = hbar*omega/2/Math.tanh(beta*hbar*omega/2);
+        x[0] =  R/2*cothR*vir + Einf*(1 - beta/nBeads*vir2) + pcP1ah.getLastEnergy();
+        x[1] = -fac2*vir + fac4*Einf*(1 - beta/nBeads*vir2) + fac3*rHr + x[0]*x[0];
+
         return data;
     }
 

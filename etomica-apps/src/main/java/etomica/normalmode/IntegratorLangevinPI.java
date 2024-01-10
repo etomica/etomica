@@ -35,7 +35,7 @@ import etomica.util.random.IRandom;
 public class IntegratorLangevinPI extends IntegratorMD {
 
     protected double gamma;
-    protected final double[] sigma, f11, f1N;
+    protected final double[] f11, f1N;
     protected double omega2HO;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
@@ -46,7 +46,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
 
-        sigma = move.chainSigmas;
         f11 = move.f11;
         f1N = move.f1N;
         this.omega2HO = omega2HO;

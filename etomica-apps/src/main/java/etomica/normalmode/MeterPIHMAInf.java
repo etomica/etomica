@@ -33,7 +33,7 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
     protected Vector[] rdot, rddot;
     protected final Vector[] latticePositions;
     protected int dim;
-    protected double fac1, fac2, fac3, fac4, mOmegaA2, mOmegaB2;
+    protected double fac1, fac2, fac3, fac4, mOmegaF2, mOmegaH2;
 
     public MeterPIHMAInf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, double temperature, int nBeads, double omega,double omegaSample, Box box, double hbar) {
         int nData = 2;
@@ -111,23 +111,24 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
         this.fac2 = R*R/2/beta/Math.cosh(R/2)/Math.cosh(R/2);
         this.fac3 = -R*cothR;
         this.fac4 = R/sinhR;
-        this.mOmegaA2 = mass*omega*omega/nBeads/R/sinhR;
-        this.mOmegaB2 = 2*mass*omega*omega*Math.tanh(R/2)/nBeads/R;
+        this.mOmegaF2 = mass*omega*omega/nBeads/R/sinhR;
+        this.mOmegaH2 = 2*mass*omega*omega*Math.tanh(R/2)/nBeads/R;
 
         if (omegaSample != 0) {
             double bA_ho_nm = dim*nBeads*numAtoms/2.0*Math.log(2*Math.PI*hbar*sinhR/mass/omega);
             double E_ho_nm = hbar*omega/2.0*cothR;
             double Cv_ho_nm = dim*nBeads*numAtoms/2.0/beta/beta*R*R/sinhR/sinhR;
             for (int k = 0; k < nBeads; k++) {
-                double lambdak = 4.0*mOmegaA2*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mOmegaB2;
+                double lambdak = 4.0* mOmegaF2 *Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mOmegaH2;
                 bA_ho_nm += 0.5*Math.log(beta*lambdak/2/Math.PI);
                 E_ho_nm -= gk[k];
                 Cv_ho_nm += gk2[k];
             }
             Cv_ho_nm *= beta * beta;
-            System.out.println(" A_ho_nm:  " + bA_ho_nm/beta);
-            System.out.println(" E_ho_nm:  " + E_ho_nm);
-            System.out.println(" Cv_ho_nm: " + Cv_ho_nm);
+            System.out.println(" An_ho_nm:  " + bA_ho_nm/beta + "  A_ho_nm_inf: " + dim*numAtoms*Math.log(2*Math.sinh(beta*hbar*omega/2))/beta);
+            System.out.println(" En_ho_nm:  " + E_ho_nm + "  E_ho_nm_inf: " + dim*numAtoms*hbar*omega/2/Math.tanh(beta*hbar*omega/2));
+            System.out.println(" Cvn_ho_nm: " + Cv_ho_nm + "  Cv_ho_nm_inf: " + beta*beta*dim*numAtoms*hbar*hbar*omega*omega/4/Math.sinh(beta*hbar*omega/2)/Math.sinh(beta*hbar*omega/2));
+            System.out.println();
         }
 
 
@@ -193,7 +194,7 @@ public class MeterPIHMAInf implements IDataSource, PotentialCallback {
             int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
             Vector tmpV = box.getSpace().makeVector();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            Cvn -= (beta* mOmegaA2 *(tmpV.squared()) + beta* mOmegaB2 *rdot[j].squared());
+            Cvn -= (beta* mOmegaF2 *(tmpV.squared()) + beta* mOmegaH2 *rdot[j].squared());
         }
         Cvn -= beta*drdotHdrdot;
         x[0] = En;

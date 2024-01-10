@@ -16,7 +16,7 @@ import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
 /**
- * Implements Langevin dynamics using the BAOAB algorithm using path integral normal-mode coordinates.
+ * Implements Langevin dynamics using the BAOAB algorithm using path integral staging coordinates.
  * Algorithm originally developed by Leimkuhler and Matthews, Appl. Math. Res. eXpress 2013, 34-56 (2013)
  * and Leimkuhler and Matthews, J. Chem. Phys. 138, 174102 (2013)
  *
@@ -32,70 +32,90 @@ import etomica.util.random.IRandom;
  * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum of mode
  * 0 whenever the transformed coordinates are propagated.  As such, the kinetic energy should be the full 3/2 Nn kT.
  */
-public class IntegratorLangevinPINM extends IntegratorMD {
+public class IntegratorLangevinPIInf extends IntegratorMD {
 
-    protected double gamma;
-    protected double omega2;
-    protected final Vector[] latticePositions;
-    protected final double[] mScale;
-    protected final MCMoveHO move;
+    protected double gamma, beta, hbar, omega;
+    protected double[] ki, f11, f1N, mScale, fScale, fScale0;
+    protected Vector[] latticePositions;
+    protected int nBeads;
 
-    public IntegratorLangevinPINM(PotentialCompute potentialCompute, IRandom random,
-                                  double timeStep, double temperature, Box box, double gamma,
-                                  MCMoveHO move, double hbar, double omega2) {
+    public IntegratorLangevinPIInf(PotentialCompute potentialCompute, IRandom random,
+                                   double timeStep, double temperature, Box box, double gamma,
+                                   double hbar, double omega, double omegaSample) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
-        this.move = move;
-        this.omega2 = omega2;
+        this.omega = omega;
+        this.hbar = hbar;
+        this.temperature = temperature;
+        beta = 1.0/temperature;
+        nBeads = box.getMoleculeList().get(0).getChildList().size();
+        double massBead = box.getLeafList().get(0).getType().getMass();//m/n
+        double massRing = nBeads*massBead;
+        double alpha = beta*hbar*omega/nBeads;
+        double mOmegaH2 = 2*massRing*omega*omega*Math.tanh(alpha/2)/nBeads/alpha;
+
+        setupStagingParams(omegaSample);
+        mScale = new double[nBeads];
+        fScale = new double[nBeads];
+        fScale0 = new double[nBeads];
+        // omegaBead2=n*omegaH2
+        // mi=ki/omegaBead2
+        //mi=m/n * mScale
+        //mScale = mi*n/m = n*ki/(m*omegaBead2) = ki/omegaH2
+
+        mScale[0] = (omegaSample == 0 || nBeads == 1) ? 11111 : ki[0]/mOmegaH2;
+
+
+        fScale0[0] = 1;
+        for (int i=1; i<nBeads; i++) {
+            mScale[i]  = omegaSample == 0 ? 1111 : ki[i]/mOmegaH2;
+            fScale0[i] = omegaSample == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
+            fScale[i]  = omegaSample == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
+        }
+
+      // The "s" rescaling is no longer needed as s=1 always!
+        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = nBeads
+//        double[] fu = new double[nBeads];
+//        for (int i=nBeads-1; i>=0; i--) {
+//            fu[0] += fScale0[i];
+//            if (i>0) {
+//                fu[i] = 1;
+//                if (i < nBeads - 1) {
+//                    fu[i] += fScale[i] * fu[i + 1];
+//                }
+//            }
+//        }
+//
+//        double[] a = new double[nBeads];
+//        double mm = box.getLeafList().get(0).getType().getMass();
+//        double aSum = 0;
+//        for (int i=0; i<nBeads; i++) {
+//            a[i] = fu[i] / (mm*mScale[i]);
+//            if (i>0) {
+//                a[i] += f11[i] * a[i-1];
+//                a[i] += f1N[i] * a[0];
+//            }
+//            aSum += a[i];
+//        }
+//        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
+//        double M = nBeads/(aSum/nBeads);
+//        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
+
+        // mi need to be larger to match the real COM oscillations
+//        if (alpha == 0) {
+//            double s = omega2HO/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1)/nBeads);
+//            for (int i = 0; i < mScale.length; i++) {
+//                mScale[i] *= s;
+//            }
+//        }
+
+        meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
+
         latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
-        int nBeads = box.getMoleculeList().get(0).getChildList().size();
-        double mass = box.getLeafList().get(0).getType().getMass();//m/n
-        mScale = new double[nBeads];
 
-        for (int k = 0; k < nBeads; k++) {
-            mScale[k] = move.lambda[k]/(mass*omega2);
-        }
-
-        if (move.omega2 == 0 || nBeads == 1) mScale[nBeads/2] = nBeads/omega2;
-
-//        // The "s" rescaling is no longer needed as s=1 always!
-////        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
-//        double[] fq = new double[nBeads];
-//        for (int k = 0; k < nBeads; k++) {
-//            for (int i = 0; i < nBeads; i++) {
-//                fq[k] += this.move.eigenvectors[i][k];
-//            }
-//        }
-//
-//        double mm = box.getLeafList().get(0).getType().getMass();
-//        double aSum = 0;
-//        for (int i = 0; i < nBeads; i++) {
-//            for (int k = 0; k < nBeads; k++) {
-//                double aq = fq[k] / (mm * mScale[k]);
-//                aSum += this.move.eigenvectors[i][k] * aq;
-//            }
-//        }
-//
-//        // M is the effective mass we have now; we want ring mass = n * atomType mass
-//        double M = nBeads/(aSum/nBeads);
-//        double ss = (nBeads * box.getLeafList().get(0).getType().getMass())/M ;
-//        for (int i = 0; i < mScale.length; i++) {
-//            mScale[i] *= ss;
-//        }
-
-        // analytical scaling s (same as code above!)
-        if (move.omega2 == 0) {
-            double s = omega2/nBeads;
-            for (int i = 0; i < mScale.length; i++) {
-                mScale[i] *= s;
-            }
-
-        }
-
-        meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
     }
 
     public void setGamma(double newGamma) {
@@ -103,39 +123,42 @@ public class IntegratorLangevinPINM extends IntegratorMD {
     }
 
     protected void propagatorA(double dt) {
+        Vector drPrev0 = box.getSpace().makeVector();
+        Vector drPrev = box.getSpace().makeVector();
 
         for (IMolecule m : box.getMoleculeList()) {
             IAtomList atoms = m.getChildList();
-            Vector[] q = box.getSpace().makeVectorArray(atoms.size());
-            int nBeads = atoms.size();
+            Vector dr0 = box.getSpace().makeVector();
+            dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[m.getIndex()]);
+            box.getBoundary().nearestImage(dr0);
+            Vector[] u = box.getSpace().makeVectorArray(atoms.size());
             // first compute collective coordinates
             for (IAtom a : atoms) {
                 int i = a.getIndex();
                 Vector r = a.getPosition();
-                Vector dr = box.getSpace().makeVector();
-                dr.Ev1Mv2(r, latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(dr);
-                for (int k = 0; k < nBeads; k++) {
-                    q[k].PEa1Tv1(move.eigenvectorsInv[k][i], dr);
+                u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
+                box.getBoundary().nearestImage(u[i]);
+                Vector usave = box.getSpace().makeVector();
+                usave.E(u[i]);
+                if (i > 0) {
+                    u[i].PEa1Tv1(-f11[i], drPrev0);
+                    u[i].PEa1Tv1(-f1N[i], dr0);
                 }
-            }
-            // propagate NM coord
+                drPrev0.E(usave);
 
-            for (IAtom a : atoms) {
-                Vector v = ((IAtomKinetic) a).getVelocity();
-                int k = a.getIndex();
-                q[k].PEa1Tv1(dt, v);
-            }
-            // convert to real coord
-            for (IAtom a : atoms) {
-                int i = a.getIndex();
-                Vector r = a.getPosition();
+                Vector v = ((IAtomKinetic)a).getVelocity();
+                u[i].PEa1Tv1(dt, v);
+
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
                 r.E(latticePositions[m.getIndex()]);
-                for (int k = 0; k < nBeads; k++) {
-                    r.PEa1Tv1(move.eigenvectors[i][k], q[k]);
+                if (i>0) {
+                    r.PEa1Tv1(f11[i], drPrev);
+                    r.PEa1Tv1(f1N[i], u[0]);
                 }
+                r.PE(u[i]);
+                drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
+                // shift atom back to side of box where it started, even if outside
                 Vector drShift = box.getSpace().makeVector();
                 drShift.Ev1Mv2(r, rOrig);
                 box.getBoundary().nearestImage(drShift);
@@ -148,22 +171,28 @@ public class IntegratorLangevinPINM extends IntegratorMD {
         Vector[] forces = potentialCompute.getForces();
         for (IMolecule m : box.getMoleculeList()) {
             IAtomList atoms = m.getChildList();
-            int nBeads = atoms.size();
-            Vector[] fq = box.getSpace().makeVectorArray(nBeads);
+            int n = atoms.size();
+            Vector[] fu = box.getSpace().makeVectorArray(n);
+
             // first compute collective forces
-            for (IAtom a : atoms) {
-                int i = a.getIndex();
-                for (int k = 0; k < nBeads; k++) {
-                    fq[k].PEa1Tv1(move.eigenvectors[i][k], forces[a.getLeafIndex()]);
+            for (int i = n - 1; i >= 0; i--) {
+                IAtom a = atoms.get(i);
+                Vector foo = box.getSpace().makeVector();
+                foo.E(forces[a.getLeafIndex()]);
+                fu[0].PEa1Tv1(fScale0[i], foo);
+                if (i > 0) {
+                    fu[i].E(foo);
+                    if (i < n - 1) {
+                        fu[i].PEa1Tv1(fScale[i], fu[i + 1]);
+                    }
                 }
             }
-
             for (IAtom a : atoms) {
                 int i = a.getIndex();
                 Vector v = ((IAtomKinetic) a).getVelocity();
 
                 double meff = a.getType().getMass() * mScale[i];
-                v.PEa1Tv1(dt / meff, fq[i]);
+                v.PEa1Tv1(dt / meff, fu[i]);
             }
         }
     }
@@ -316,4 +345,22 @@ public class IntegratorLangevinPINM extends IntegratorMD {
         super.postRestore();
         computeForce();
     }
+
+    public  void setupStagingParams(double omegaSample) {
+        double alpha = beta*hbar*omega/nBeads;
+        double sinhAlpha = Math.sinh(alpha);
+        ki = new double[nBeads];
+        f11 = new double[nBeads];
+        f1N = new double[nBeads];
+        double massRing = nBeads * box.getLeafList().get(0).getType().getMass();
+        ki[0] = omegaSample == 0 ? 0 : 2 * massRing * omega / beta / hbar * Math.tanh(beta * hbar * omega / 2);
+        for (int i = 1; i < nBeads; i++) {
+            double sinhNmiA = Math.sinh((nBeads - i) * alpha);
+            double sinhNmip1A = Math.sinh((nBeads - i + 1) * alpha);
+            ki[i] = omegaSample == 0 ? 11111 : massRing * omega / beta / hbar * Math.sinh((nBeads - i + 1) * alpha) / Math.sinh(alpha) / Math.sinh((nBeads - i) * alpha);
+            f1N[i] = omegaSample == 0 ? 1.0 / (nBeads - i + 1) : sinhAlpha / sinhNmip1A;
+            f11[i] = omegaSample == 0 ? (nBeads - i) / (nBeads - i + 1.0) : sinhNmiA / sinhNmip1A;
+        }
+    }
+
 }

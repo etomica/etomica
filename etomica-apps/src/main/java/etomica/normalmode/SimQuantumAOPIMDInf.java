@@ -44,13 +44,12 @@ public class SimQuantumAOPIMDInf extends Simulation {
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
     public P1AnharmonicTIA p1ahUeff;
-    public double betaN;
-    public double k2_kin;
+    public double beta;
     public int nBeads;
     public MCMoveHOReal2 moveStageSimple, moveStageEC;
     public int dim;
 
-    public SimQuantumAOPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k4, double omega, boolean isTIA, double hbar) {
+    public SimQuantumAOPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k4, double omega, double mOmegaF2, double mOmegaH2, boolean isTIA, double hbar) {
         super(space);
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -66,17 +65,10 @@ public class SimQuantumAOPIMDInf extends Simulation {
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         this.dim = space.D();
-        double beta = 1.0/temperature;
-        betaN = beta/nBeads;
-        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        double omegaN2 = omegaN*omegaN;
+        this.beta = 1.0/temperature;
         double omega2 = omega*omega;
-        // integrate analytically to get infinite-n
-        double R;
-        R = beta*hbar*omega/nBeads;
-        k2_kin = nBeads == 1 ? 0 : mass*omegaN2*R/Math.sinh(R);
 
-        P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
+        P2Harmonic p2Bond = new P2Harmonic(mOmegaF2, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i=0; i<nBeads; i++) {
             int[] p = new int[]{i,(i+1)%nBeads};
@@ -90,11 +82,11 @@ public class SimQuantumAOPIMDInf extends Simulation {
         IPotential1 p1, p1harm, p1ah;
 
         if (isTIA){
-            double facUeff = 1.0;
-            p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facUeff);
-            pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
+//            double facUeff = 1.0;
+//            p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facUeff);
+//            pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
-            p1harm = new P1Anharmonic(space, 2*mass*omega2*Math.tanh(R/2)/R/nBeads, 0);
+            p1harm = new P1Anharmonic(space, mOmegaH2, 0);
             pcP1harm.setFieldPotential(species.getLeafType(), p1harm);
             p1ah = new P1Anharmonic(space, 0, k4/nBeads);
             pcP1ah.setFieldPotential(species.getLeafType(), p1ah);
@@ -103,25 +95,23 @@ public class SimQuantumAOPIMDInf extends Simulation {
         PotentialComputeAggregate.localStorageDefault = true;
         pmAgg = new PotentialComputeAggregate(pmBonding, pcP1harm, pcP1ah);
 
-        double facEn = 3.0;
-        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facEn);
-        pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
-        pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
+//        double facEn = 3.0;
+//        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facEn);
+//        pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
+//        pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
+
+        double omegaSample = omega;
 
         if (coordType == MoveChoice.Real) {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         } else if (coordType == MoveChoice.NM) {
-            MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, 0, box, hbar);
-            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            integrator = new IntegratorLangevinPINMInf(pmAgg, random, timeStep, temperature, box, gammaLangevin, hbar, 0, omegaSample);
         } else if (coordType == MoveChoice.NMEC) {
-            MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, omega2, box, hbar);
-            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            integrator = new IntegratorLangevinPINMInf(pmAgg, random, timeStep, temperature, box, gammaLangevin, hbar, omega, omegaSample);
         } else if (coordType == MoveChoice.Stage) {
-            MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
-            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin, hbar, omega, 0);
         } else { //StageEC -- default
-            MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
-            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin,  hbar, omega, omegaSample);
         }
 
         moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
@@ -142,27 +132,23 @@ public class SimQuantumAOPIMDInf extends Simulation {
         } else {
             // custom parameters
             params.hbar = 1;
-            params.steps = 1000000;
-            params.temperature = 2;
+            params.steps = 100000;
+            params.temperature = 1;
             params.omega = 1;
             params.k4 = 0;
-            params.coordType = MoveChoice.Real;
-//            params.coordType = MoveChoice.NM;
+//            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NMEC;
-//            params.coordType = MoveChoice.Stage;
-//            params.coordType = MoveChoice.StageEC;
-            params.nBeads = 2;
-            params.nShifts = 0;
-            params.timeStep = 0.01;
+            params.coordType = MoveChoice.StageEC;
         }
 
         int nShifts = params.nShifts;
         double mass = params.mass;
+        int nBeads = params.nBeads;
         double temperature = params.temperature;
+        double beta = 1/temperature;
         double hbar = params.hbar;
         double omega = params.omega;
         double k4 = params.k4;
-        double gammaLangevin = 2*omega;
         boolean isGraphic = params.isGraphic;
         long steps = params.steps;
         long stepsEq = steps/10;
@@ -172,18 +158,22 @@ public class SimQuantumAOPIMDInf extends Simulation {
         MoveChoice coordType = params.coordType;
         double omega2 = omega*omega;
 
-        double x = 1/temperature*hbar*omega;
-        int nBeads = params.nBeads;
+        double x = hbar*omega/temperature;
         if (nBeads == -1){
             nBeads = (int) (20*x); //20*x and 30*x are good for HO and AO, resp.
         }
+        double alpha = beta*hbar*omega/nBeads;
+        double mOmegaF2 = nBeads == 1 ? 0 : mass*omega2/nBeads/alpha/Math.sinh(alpha);
+        double mOmegaH2 = 2*mass*omega2*Math.tanh(alpha/2)/nBeads/alpha;
+        double omegaRing = Math.sqrt(mOmegaH2*nBeads/mass);
+        double omegaBead = Math.sqrt(mOmegaF2*nBeads/mass);
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
         double timeStep = params.timeStep;
         if (timeStep == -1) {
             double c = 0.1;
             if (params.coordType == MoveChoice.Real) {
-                timeStep = c / omegaN / Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
+                timeStep = c/omegaBead;// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
             } else if (params.coordType == MoveChoice.NM) {
                 double s = omega2/nBeads;
                 timeStep = c*Math.sqrt(s)/omega; // which is 1/sqrt(n)
@@ -191,7 +181,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
                 double s = omega2/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1.0)/nBeads);
                 timeStep = c*Math.sqrt(s)/omega; // for large n, timeStep ~ hbar/T
             } else {
-                timeStep = c/omega;
+                timeStep = c/omegaRing;
             }
         }
 
@@ -200,15 +190,15 @@ public class SimQuantumAOPIMDInf extends Simulation {
 //        }
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMDInf sim = new SimQuantumAOPIMDInf(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
+        double gammaLangevin = 2*omegaRing;
+        final SimQuantumAOPIMDInf sim = new SimQuantumAOPIMDInf(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, mOmegaF2, mOmegaH2, isTIA, hbar);
         sim.integrator.reset();
-
         System.out.println(" PIMDinf-" + coordType);
         System.out.println(" mass: " + mass);
         System.out.println(" T: " + temperature);
         System.out.println(" hbar: " + hbar);
         System.out.println(" w: " + omega);
-        System.out.println(" wn: " + omegaN  + " , w/sqrt(n): " + Math.sqrt(omega2)/Math.sqrt(nBeads));
+        System.out.println(" mOmegaF2: " + mOmegaF2  + " , mOmegaH2: " + mOmegaH2);
         System.out.println(" x = beta*hbar*w = " + hbar*omega/temperature);
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" nShifts: "+ nShifts);
@@ -219,37 +209,6 @@ public class SimQuantumAOPIMDInf extends Simulation {
         System.out.println(" gammaLangevin: " + gammaLangevin);
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
-        System.out.println(" ====================================");
-        double alpha = 1 + 0.5*Math.pow(hbar*sim.betaN*omega,2)+0.5*hbar* sim.betaN*omega*Math.sqrt(4+Math.pow(hbar* sim.betaN*omega,2));
-        double alpha2 = alpha*alpha;
-        double hbar2 = hbar*hbar;
-        double dAlphaDBeta = 2.0/temperature*hbar2*omega2/nBeads/nBeads*alpha2/(alpha2-1);
-        double dAlphadT = -1.0/temperature/temperature*dAlphaDBeta;
-        double EnQ = sim.space.D()*(hbar2*omega2)*sim.betaN*alpha/(alpha*alpha-1)*(Math.pow(alpha,nBeads)+1)/(Math.pow(alpha,nBeads)-1);
-        double numerator = 1 + alpha2 - Math.pow(alpha,2*nBeads)*(alpha2+1)-2*nBeads*(alpha2-1)*Math.pow(alpha,nBeads);
-        double denominator = (alpha2-1)*(alpha2-1)*(Math.pow(alpha,nBeads)-1)*(Math.pow(alpha,nBeads)-1);
-        double CvnQ = sim.space.D()*hbar2*omega2*sim.betaN*dAlphadT*numerator/denominator-1/temperature/temperature*EnQ*temperature;
-
-        double EnQinf = sim.space.D()*hbar*omega*(0.5 + 1/(Math.exp(nBeads*sim.betaN*hbar*omega)-1.0));
-        double CvnQinf = sim.space.D()*Math.pow(1.0/temperature*hbar*omega/2/Math.sinh(1.0/temperature*hbar*omega/2), 2);
-        double EnC = sim.space.D()*temperature;
-        double CvnC = sim.space.D();
-        System.out.println(" En_ho_c: " + EnC);
-        System.out.println(" Cvn_ho_c: " + CvnC);
-        System.out.println(" En_ho_q: " + EnQ);
-        System.out.println(" Cvn_ho_q: " + CvnQ);
-        System.out.println(" E_ho_q: " + EnQinf);
-        System.out.println(" Cv_ho_q: " + CvnQinf + "\n");
-
-
-//        System.out.println("Real: " + 1/omegaN/Math.sqrt(nBeads));
-//        double s2 = omega2/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1.0)/nBeads);
-//        System.out.println("SS: " + Math.sqrt(s2)/omega);
-//        s2 = omega2;
-//        System.out.println("SNM: " + Math.sqrt(s2)/omega);
-//        System.out.println("EC-bassed: " + 1/omega);
-//        System.exit(0);
-
 
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
 
@@ -258,7 +217,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         MeterPIVirInf meterVirInf = null;
         MeterPICentVirInf meterCentVirInf = null;
         MeterPIVirHarmStagingInf meterVirHarmStagingInf = null;
-        MeterPIHMAc meterHMAc = null;
+        MeterPIHMAcInf meterHMAcInf = null;
         MeterPIHMAInf meterNMECInf = null;
         MeterPIHMAInf meterNMSimpleInf = null;
         MeterPIHMAReal2Inf meterStageECInf = null;
@@ -267,7 +226,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
 //            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, nBeads, sim.betaN);
 //            meterVir = new MeterPIVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
 //            meterCentVir = new MeterPICentVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
-            meterHMAc = null;
+            meterHMAcInf = null;
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
@@ -275,7 +234,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
             meterVirInf = new MeterPIVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box,  nBeads, omega, hbar);
             meterCentVirInf = new MeterPICentVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box, nBeads, omega, hbar);
             meterVirHarmStagingInf = new MeterPIVirHarmStagingInf(sim.pcP1ah, temperature, sim.box,  nBeads, omega, hbar);
-            meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
+            meterHMAcInf = new MeterPIHMAcInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box, nBeads, omega, hbar);
             meterNMSimpleInf = new MeterPIHMAInf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, temperature, nBeads, omega, 0, sim.box, hbar);
             meterNMECInf = new MeterPIHMAInf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, temperature, nBeads, omega, omega, sim.box, hbar);
             meterStageSimpleInf = new MeterPIHMAReal2Inf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, temperature, nBeads, omega, 0, sim.box, hbar);
@@ -283,8 +242,6 @@ public class SimQuantumAOPIMDInf extends Simulation {
             meterStageECInf = new MeterPIHMAReal2Inf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, temperature, nBeads, omega, omega, sim.box, hbar);
             meterStageECInf.setNumShifts(nShifts);
         }
-
-        MeterPIHMAvir meterHMAvir = new MeterPIHMAvir(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);//Bad!!
 
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
@@ -369,10 +326,10 @@ public class SimQuantumAOPIMDInf extends Simulation {
         }
 
          //4 HMAc (CLassical EC)
-        AccumulatorAverageCovariance accumulatorHMAc = new AccumulatorAverageCovariance(blockSize);
-        if (meterHMAc != null) {
-            DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
+        AccumulatorAverageCovariance accumulatorHMAcInf = new AccumulatorAverageCovariance(blockSize);
+        if (meterHMAcInf != null) {
+            DataPumpListener accumulatorPumpHMAcInf = new DataPumpListener(meterHMAcInf, accumulatorHMAcInf, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpHMAcInf);
         }
 
         //5 HMAq (Quantum EC)
@@ -422,7 +379,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double corKE = dataKE.getValue(accumulatorKE.BLOCK_CORRELATION.index);
         System.out.println("\n T_measured: " + avgKE / (0.5*sim.dim* nBeads) + " +/- " + errKE / (0.5*sim.dim*nBeads) + " cor: " + corKE);
 
-        double kB_beta2 = sim.betaN*sim.betaN*nBeads*nBeads;
+        double kB_beta2 = sim.beta*sim.beta;
         double varX0, varX1, corX0X1;
 
         //1 Prim
@@ -439,7 +396,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnPrimInf*errEnPrimInf;
         varX1 = dataErrPrimInf.getValue(1)*dataErrPrimInf.getValue(1);
         corX0X1 = dataCovPrimInf.getValue(1)/Math.sqrt(dataCovPrimInf.getValue(0))/Math.sqrt(dataCovPrimInf.getValue(3));
-        double errCvnPrimInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnPrimInf*avgEnPrimInf*varX0 - 4*avgEnPrimInf*dataErrPrimInf.getValue(0)*dataErrPrimInf.getValue(1)*corX0X1));
+        double errCvnPrimInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrimInf*avgEnPrimInf*varX0 - 4*avgEnPrimInf*dataErrPrimInf.getValue(0)*dataErrPrimInf.getValue(1)*corX0X1);
 
 
         //2 Vir
@@ -456,7 +413,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnVirInf*errEnVirInf;
         varX1 = dataErrVirInf.getValue(1)*dataErrVirInf.getValue(1);
         corX0X1 = dataCovVirInf.getValue(1)/Math.sqrt(dataCovVirInf.getValue(0))/Math.sqrt(dataCovVirInf.getValue(3));
-        double errCvnVirInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnVirInf*avgEnVirInf*varX0 - 4*avgEnVirInf*dataErrVirInf.getValue(0)*dataErrVirInf.getValue(1)*corX0X1));
+        double errCvnVirInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVirInf*avgEnVirInf*varX0 - 4*avgEnVirInf*dataErrVirInf.getValue(0)*dataErrVirInf.getValue(1)*corX0X1);
 
         //3 Cent-Vir
         DataGroup dataCentVirInf = (DataGroup) accumulatorCentVirInf.getData();
@@ -472,7 +429,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnCentVirInf*errEnCentVirInf;
         varX1 = dataErrCentVirInf.getValue(1)*dataErrCentVirInf.getValue(1);
         corX0X1 = dataCovCentVirInf.getValue(1)/Math.sqrt(dataCovCentVirInf.getValue(0))/Math.sqrt(dataCovCentVirInf.getValue(3));
-        double errCvnCentVirInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnCentVirInf*avgEnCentVirInf*varX0 - 4*avgEnCentVirInf*dataErrCentVirInf.getValue(0)*dataErrCentVirInf.getValue(1)*corX0X1));
+        double errCvnCentVirInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVirInf*avgEnCentVirInf*varX0 - 4*avgEnCentVirInf*dataErrCentVirInf.getValue(0)*dataErrCentVirInf.getValue(1)*corX0X1);
 
         //2' HO Staging Vir
         DataGroup dataVirHarmStagingInf = (DataGroup) accumulatorVirHarmStagingInf.getData();
@@ -486,23 +443,23 @@ public class SimQuantumAOPIMDInf extends Simulation {
         System.out.println(" En_ho_stage_vir:  " + avgEnVirHarmStagingInf + "   err: " + errEnVirHarmStagingInf + " cor: " + corEnVirHarmStagingInf);
 
         //4 HMAc
-//        DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
-//        IData dataAvgHMAc = dataHMAc.getData(accumulatorHMAc.AVERAGE.index);
-//        IData dataErrHMAc = dataHMAc.getData(accumulatorHMAc.ERROR.index);
-//        IData dataCorHMAc = dataHMAc.getData(accumulatorHMAc.BLOCK_CORRELATION.index);
-//        IData dataCovHMAc = dataHMAc.getData(accumulatorHMAc.COVARIANCE.index);
-//        double avgEnHMAc = dataAvgHMAc.getValue(0) ;
-//        double errEnHMAc = dataErrHMAc.getValue(0);
-//        double corEnHMAc = dataCorHMAc.getValue(0);
-//        System.out.println(" En_hmac:          " + avgEnHMAc + "   err: " + errEnHMAc + " cor: " + corEnHMAc);
-//        double CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) - avgEnHMAc*avgEnHMAc);
-//        varX0 = errEnHMAc*errEnHMAc;
-//        varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
-//        corX0X1 = dataCovHMAc.getValue(1)/Math.sqrt(dataCovHMAc.getValue(0))/Math.sqrt(dataCovHMAc.getValue(3));
-//        double errCvnHMAc = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - 4*avgEnHMAc*dataErrHMAc.getValue(0)*dataErrHMAc.getValue(1)*corX0X1));
-//        if (errEnHMAc < 1e-10){
-//            errCvnHMAc = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0));
-//        }
+        DataGroup dataHMAcInf = (DataGroup) accumulatorHMAcInf.getData();
+        IData dataAvgHMAcInf = dataHMAcInf.getData(accumulatorHMAcInf.AVERAGE.index);
+        IData dataErrHMAcInf = dataHMAcInf.getData(accumulatorHMAcInf.ERROR.index);
+        IData dataCorHMAcInf = dataHMAcInf.getData(accumulatorHMAcInf.BLOCK_CORRELATION.index);
+        IData dataCovHMAcInf = dataHMAcInf.getData(accumulatorHMAcInf.COVARIANCE.index);
+        double avgEnHMAcInf = dataAvgHMAcInf.getValue(0) ;
+        double errEnHMAcInf = dataErrHMAcInf.getValue(0);
+        double corEnHMAcInf = dataCorHMAcInf.getValue(0);
+        System.out.println(" En_hmac:          " + avgEnHMAcInf + "   err: " + errEnHMAcInf + " cor: " + corEnHMAcInf);
+        double CvnHMAcInf = kB_beta2*(dataAvgHMAcInf.getValue(1) - avgEnHMAcInf*avgEnHMAcInf);
+        varX0 = errEnHMAcInf*errEnHMAcInf;
+        varX1 = dataErrHMAcInf.getValue(1)*dataErrHMAcInf.getValue(1);
+        corX0X1 = dataCovHMAcInf.getValue(1)/Math.sqrt(dataCovHMAcInf.getValue(0))/Math.sqrt(dataCovHMAcInf.getValue(3));
+        double errCvnHMAcInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAcInf*avgEnHMAcInf*varX0 - 4*avgEnHMAcInf*dataErrHMAcInf.getValue(0)*dataErrHMAcInf.getValue(1)*corX0X1);
+        if (errEnHMAcInf < 1e-10){
+            errCvnHMAcInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAcInf*avgEnHMAcInf*varX0);
+        }
 
 
         //5 HMA simple NM
@@ -519,7 +476,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnNMSimpleInf*errEnNMSimpleInf;
         varX1 = dataErrNMsimpleInf.getValue(1)*dataErrNMsimpleInf.getValue(1);
         corX0X1 = dataCovNMsimpleInf.getValue(1)/Math.sqrt(dataCovNMsimpleInf.getValue(0))/Math.sqrt(dataCovNMsimpleInf.getValue(3));
-        double errCvnNMsimpleInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnNMSimpleInf*avgEnNMSimpleInf*varX0 - 4*avgEnNMSimpleInf*dataErrNMsimpleInf.getValue(0)*dataErrNMsimpleInf.getValue(1)*corX0X1));
+        double errCvnNMsimpleInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMSimpleInf*avgEnNMSimpleInf*varX0 - 4*avgEnNMSimpleInf*dataErrNMsimpleInf.getValue(0)*dataErrNMsimpleInf.getValue(1)*corX0X1);
 
         //6 HMA EC NM
         DataGroup dataNMEC = (DataGroup) accumulatorNMECInf.getData();
@@ -535,9 +492,9 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnNMEC*errEnNMEC;
         varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
         corX0X1 = dataCovNMEC.getValue(1)/Math.sqrt(dataCovNMEC.getValue(0))/Math.sqrt(dataCovNMEC.getValue(3));
-        double errCvnNMECInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1));
+        double errCvnNMECInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
         if (errEnNMEC < 1e-10){
-            errCvnNMECInf = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0));
+            errCvnNMECInf = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
         }
 
         // 7 HMA simple stage
@@ -554,7 +511,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnStageSimpleInf*errEnStageSimpleInf;
         varX1 = dataErrStageSimpleInf.getValue(1)*dataErrStageSimpleInf.getValue(1);
         corX0X1 = dataCovStageSimpleInf.getValue(1)/Math.sqrt(dataCovStageSimpleInf.getValue(0))/Math.sqrt(dataCovStageSimpleInf.getValue(3));
-        double errCvnStageSimple = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageSimpleInf*avgEnStageSimpleInf*varX0 - 4*avgEnStageSimpleInf*dataErrStageSimpleInf.getValue(0)*dataErrStageSimpleInf.getValue(1)*corX0X1));
+        double errCvnStageSimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageSimpleInf*avgEnStageSimpleInf*varX0 - 4*avgEnStageSimpleInf*dataErrStageSimpleInf.getValue(0)*dataErrStageSimpleInf.getValue(1)*corX0X1);
 
         //8 HMA EC stage
         DataGroup dataStageECInf = (DataGroup) accumulatorStageECInf.getData();
@@ -570,27 +527,20 @@ public class SimQuantumAOPIMDInf extends Simulation {
         varX0 = errEnStageECInf*errEnStageECInf;
         varX1 = dataErrStageECInf.getValue(1)*dataErrStageECInf.getValue(1);
         corX0X1 = dataCovStageECInf.getValue(1)/Math.sqrt(dataCovStageECInf.getValue(0))/Math.sqrt(dataCovStageECInf.getValue(3));
-        double errCvnStageEC = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageECInf*avgEnStageECInf*varX0 - 4*avgEnStageECInf*errEnStageECInf*dataErrStageECInf.getValue(1)*corX0X1));
+        double errCvnStageEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageECInf*avgEnStageECInf*varX0 - 4*avgEnStageECInf*errEnStageECInf*dataErrStageECInf.getValue(1)*corX0X1);
         if (errEnStageECInf < 1e-10){
-            errCvnStageEC = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageECInf*avgEnStageECInf*varX0));
+            errCvnStageEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageECInf*avgEnStageECInf*varX0);
         }
 
         System.out.println();
         System.out.println(" Cvn_prim:         " + CvnPrimInf +          "   err: " + errCvnPrimInf);
         System.out.println(" Cvn_vir:          " + CvnVirInf +           "   err: " + errCvnVirInf);
         System.out.println(" Cvn_cvir:         " + CvnCentVirInf +       "   err: " + errCvnCentVirInf);
-//        System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
+        System.out.println(" Cvn_hmac:         " + CvnHMAcInf +          "   err: " + errCvnHMAcInf);
         System.out.println(" Cvn_nm_simple:    " + Cvn_nm_simpleInf +    "   err: " + errCvnNMsimpleInf);
         System.out.println(" Cvn_nm_ec:        " + CvnNMECInf +          "   err: " + errCvnNMECInf);
         System.out.println(" Cvn_stage_simple: " + Cvn_stage_simple + "   err: " + errCvnStageSimple);
         System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
-
-
-
-
-//        System.out.println(" \n MSD_sim: " + avgMSD + " +/- " + errMSD + " cor: " + corMSD);
-//        System.out.println(" MSDc: " + temperature/ mass/omega2);
-//        System.out.println(" MSDq: " + hbar/mass/omega*(0.5+1.0/(Math.exp(hbar*omega/temperature)-1.0)));
 
 
         long endTime = System.currentTimeMillis();
