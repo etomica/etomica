@@ -38,16 +38,14 @@ import java.util.List;
 
 public class SimQuantumAOPIMDInf extends Simulation {
 
-    public PotentialComputeField pcP1, pcP1harm, pcP1ah, pcP1EnTIA;
+    public PotentialComputeField pcP1harm, pcP1ah, pcP1EnTIA;
     public final IntegratorMD integrator;
     public final PotentialMasterBonding pmBonding;
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
     public P1AnharmonicTIA p1ahUeff;
-    public double beta;
-    public int nBeads;
+    public int dim, nBeads;
     public MCMoveHOReal2 moveStageSimple, moveStageEC;
-    public int dim;
 
     public SimQuantumAOPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k4, double omega, double mOmegaF2, double mOmegaH2, boolean isTIA, double hbar) {
         super(space);
@@ -65,8 +63,6 @@ public class SimQuantumAOPIMDInf extends Simulation {
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
         this.dim = space.D();
-        this.beta = 1.0/temperature;
-        double omega2 = omega*omega;
 
         P2Harmonic p2Bond = new P2Harmonic(mOmegaF2, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -75,11 +71,10 @@ public class SimQuantumAOPIMDInf extends Simulation {
             pairs.add(p);
         }
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
-        pcP1 = new PotentialComputeField(getSpeciesManager(), box);
         pcP1harm = new PotentialComputeField(getSpeciesManager(), box);
         pcP1ah = new PotentialComputeField(getSpeciesManager(), box);
 
-        IPotential1 p1, p1harm, p1ah;
+        IPotential1 p1harm, p1ah;
 
         if (isTIA){
 //            double facUeff = 1.0;
@@ -114,7 +109,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
             integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin,  hbar, omega, omegaSample);
         }
 
-        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
+        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega*omega, box, hbar);
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
         integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
@@ -379,7 +374,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double corKE = dataKE.getValue(accumulatorKE.BLOCK_CORRELATION.index);
         System.out.println("\n T_measured: " + avgKE / (0.5*sim.dim* nBeads) + " +/- " + errKE / (0.5*sim.dim*nBeads) + " cor: " + corKE);
 
-        double kB_beta2 = sim.beta*sim.beta;
+        double kB_beta2 = beta*beta;
         double varX0, varX1, corX0X1;
 
         //1 Prim

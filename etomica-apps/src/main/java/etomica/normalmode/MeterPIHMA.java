@@ -118,7 +118,10 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     public IData getData() {
         drdotHdrdot = 0 ;
         double[] x = data.getData();
-        Vector shift = computeShift();
+        Vector drShift = box.getSpace().makeVector();
+        if (box.getMoleculeList().size() > 1) {
+            drShift = computeShift();
+        }
         IMoleculeList molecules = box.getMoleculeList();
         Vector drj = box.getSpace().makeVector();
         for (IMolecule m : molecules) {
@@ -130,7 +133,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             }
 
             for (int j = 0; j < nBeads; j++) {
-                computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], shift, drj);
+                computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], drShift, drj);
                 for (int i=0; i<nBeads; i++) {
                     int ia = atoms.get(i).getLeafIndex();
                     rdot[ia].PEa1Tv1(M[i][j], drj);
@@ -140,19 +143,21 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-//        pcP1.computeAll(true, null); //no Cv
-        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
+        pcP1.computeAll(true, null); //no Cv
+//        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
         int numAtoms = molecules.size();
         double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
-        if (box.getMoleculeList().size() > 1) {
-            En -= dim/2.0/beta;
-        }
         double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
         for (int i=0; i<nBeads; i++) {
             En -= dim*numAtoms*gk[i];
             Cvn += dim*numAtoms*gk2[i];
         }
+        if (numAtoms > 1) {
+            int nK = nBeads/2;
+            En += dim*gk[nK]; //com
+        }
+
 
         Vector[] forcesU = pcP1.getForces();
         Vector[] forcesK = pmBonding.getForces();

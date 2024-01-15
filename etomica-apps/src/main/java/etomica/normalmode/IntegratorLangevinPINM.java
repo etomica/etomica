@@ -59,7 +59,7 @@ public class IntegratorLangevinPINM extends IntegratorMD {
             mScale[k] = move.lambda[k]/(mass*omega2);
         }
 
-        if (move.omega2 == 0 || nBeads == 1) mScale[nBeads/2] = nBeads/omega2;
+        if (move.omega2 == 0) mScale[nBeads/2] = nBeads/omega2;
 
 //        // The "s" rescaling is no longer needed as s=1 always!
 ////        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n

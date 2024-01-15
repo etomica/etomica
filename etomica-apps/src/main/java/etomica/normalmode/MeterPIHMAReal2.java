@@ -107,11 +107,14 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         IMoleculeList molecules = box.getMoleculeList();
         double En0 = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
         double Cvn0 = nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
-        if (box.getMoleculeList().size() > 1) { En0 -= dim/2.0/beta; }
         for (int i=0; i<nBeads; i++) {
-            En0 -= dim*molecules.size()*gamma[i];
-            Cvn0 += dim*molecules.size()*dGamma[i];
+            En0 -= dim*numAtoms*gamma[i];
+            Cvn0 += dim*numAtoms*dGamma[i];
         }
+        if (box.getMoleculeList().size() > 1) {
+            En0 += dim*gamma[0]; //com
+        }
+
 
         Vector[] forcesU = pcP1.getForces();
         Vector[] forcesK = pmBonding.getForces();
@@ -184,12 +187,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                         }
                     }
                     int jj = atomj.getLeafIndex();
-                    En -= beta*forcesU[jj].dot(v);
-                    Cvn += beta*forcesU[jj].dot(a) + 2.0*forcesU[jj].dot(v) ;
-                    if (nBeads > 1) {
-                        En -= beta*forcesK[jj].dot(v);
-                        Cvn += beta*forcesK[jj].dot(a) - 2.0*forcesK[jj].dot(v);
-                    }
+                    En -= beta*forcesU[jj].dot(v) + beta*forcesK[jj].dot(v);
+                    Cvn += beta*forcesU[jj].dot(a) + 2.0*forcesU[jj].dot(v) + beta*forcesK[jj].dot(a) - 2.0*forcesK[jj].dot(v);;
 
                     drPrev.E(drj);
                     if (j == 0) {
@@ -201,14 +200,14 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                     rdot[jj].E(v);
                 } // beads
                 drdotHdrdot = 0;
-                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
+//                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
                 Cvn -= beta*drdotHdrdot;
-                x[0] += En0 + En;
-                x[1] += Cvn0 + Cvn + (En0+En)*(En0+En);
+                x[0] += En;
+                x[1] += Cvn + (En0+En)*(En0+En);
             }//shifts
         }//atoms
-        x[0] /= ns;
-        x[1] /= ns;
+        x[0] = En0 + x[0]/ns;
+        x[1] = Cvn0 + x[1]/ns;
         return data;
     }
 

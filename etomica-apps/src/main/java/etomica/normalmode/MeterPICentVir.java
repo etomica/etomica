@@ -50,8 +50,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector rirc = box.getSpace().makeVector();
         rHr = 0;
         double vir = 0;
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //with Cv
+        pcP1.computeAll(true, null); // no Cv (rHr=0)
+//        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
@@ -62,12 +62,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
-        if(numAtoms==1){
-            x[0] = dim/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-        } else {
-//            x[0] = -dim*(nBeads-1)/(2.0*nBeads)/beta - dim / 2.0 / beta + dim * (nBeads - 1.0) / 2.0 / nBeads / beta + dim * numAtoms / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-            x[0] = dim * (numAtoms-1) / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-        }
+        x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; // same for both bound and unbound systems
         x[1] = 1.0/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
         return data;
     }

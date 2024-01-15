@@ -62,7 +62,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
         fScale = new double[nBeads];
         fScale0 = new double[nBeads];
 
-        mScale[0] = (alpha == 0 || nBeads == 1) ? nBeads*omegaN2/omega2HO : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
+        mScale[0] = (alpha == 0) ? nBeads*omegaN2/omega2HO : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
 
 // Check how m0 varies with x for the EC-stage
 //        System.out.println(mScale[0]/nBeads);
@@ -111,7 +111,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
 //        }
 //        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
 //        double M = nBeads/(aSum/nBeads);
-//        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
+//        double ss = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
 
 
         // mi need to be larger to match the real COM oscillations
