@@ -25,6 +25,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -50,16 +51,16 @@ import java.util.List;
 
 public class LJPIMDInf extends Simulation {
 
+    public PotentialComputeField pcP1harmPI, pcP1harmM;
+    public PotentialComputeAggregate pmAgg, pcP1ah;
     public final PotentialComputePair potentialMaster;
     public final IntegratorMD integrator;
     public final PotentialMasterBonding pmBonding;
     public final Box box;
-    public final PotentialComputeAggregate pmAgg;
     public final MCMoveHOReal2 moveStageSimple, moveStageEC;
-    public double betaN;
     public int dim;
 
-    public LJPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, int numAtoms, double temperature, double density, double rc, double omega, double hbar) {
+    public LJPIMDInf(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, int numAtoms, double temperature, double density, double rc, double omega, double mOmegaF2, double mOmegaH2, double hbar) {
         super(Space3D.getInstance());
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .setDynamic(true)
@@ -74,17 +75,9 @@ public class LJPIMDInf extends Simulation {
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
-        double beta = 1.0/temperature;
-        betaN = beta/nBeads;
-        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        double omegaN2 = omegaN*omegaN;
         double omega2 = omega*omega;
-        // integrate analytically to get infinite-n
-        double R;
-        R = beta*hbar*omega/nBeads;
-        double k2_kin = nBeads == 1 ? 0 : mass*omegaN2*R/Math.sinh(R);
 
-        P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
+        P2Harmonic p2Bond = new P2Harmonic(mOmegaF2, 0);
 
         List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < nBeads; i++) {
@@ -99,14 +92,25 @@ public class LJPIMDInf extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
-        P2LennardJones p2lj = new P2LennardJones(1.0, 1.0 / nBeads);
+        double sigma = 1.0, epsilon = 1.0;
+        P2LennardJones p2lj = new P2LennardJones(sigma, epsilon / nBeads);
         P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(p2lj, rc);
         AtomType atomType = species.getLeafType();
         potentialMaster.setPairPotential(atomType, atomType, p2);
         potentialMaster.doAllTruncationCorrection = false;
 
+        pcP1harmPI = new PotentialComputeField(getSpeciesManager(), box);
+        IPotential1 p1harmPI = new P1Anharmonic(space, mOmegaH2, 0);
+        pcP1harmPI.setFieldPotential(species.getLeafType(), p1harmPI);
+
+        pcP1harmM = new PotentialComputeField(getSpeciesManager(), box);
+        IPotential1 p1harmM = new P1Anharmonic(space, -mass*omega2/nBeads, 0); //negative harm
+        pcP1harmM.setFieldPotential(species.getLeafType(), p1harmM);
+
         PotentialComputeAggregate.localStorageDefault = true;
-        pmAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
+        pcP1ah = new PotentialComputeAggregate(potentialMaster, pcP1harmM);
+        PotentialComputeAggregate.localStorageDefault = true;
+        pmAgg = new PotentialComputeAggregate(pmBonding, pcP1harmPI, pcP1ah);
 
         if (coordType == MoveChoice.Real) {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
@@ -137,17 +141,17 @@ public class LJPIMDInf extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.steps = 10000;
-            params.hbar = 0.1;
-            params.temperature = 0.8;
+            params.hbar = 1;
+            params.temperature = 1;
             params.numAtoms = 32;
             params.rc = 2.5;
-            params.isGraphic = !false;
-//            params.coordType = MoveChoice.Real;
-            params.coordType = MoveChoice.NM;
+            params.isGraphic = false;
+            params.coordType = MoveChoice.Real;
+//            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
             params.nShifts = 0;
-//            params.timeStep = 0.001;
-            params.nBeads = 10;
+            params.timeStep = 0.0001;
+            params.nBeads = 1;
         }
 
         Space space = Space.getInstance(params.D);
@@ -157,12 +161,11 @@ public class LJPIMDInf extends Simulation {
         int numAtoms = params.numAtoms;
         int nBeads = params.nBeads;
         double temperature = params.temperature;
+        double beta = 1/temperature;
         double density = params.density;
         double rc = params.rc;
         double k2 = params.k2;
         double omega2 = params.k2 / mass;
-        double gammaLangevin = params.gammaLangevin;
-        double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
         MoveChoice coordType = params.coordType;
         long steps = params.steps;
@@ -174,23 +177,32 @@ public class LJPIMDInf extends Simulation {
             nBeads = (int) (20*x);
         }
 
+        double alpha = beta*hbar*omega/nBeads;
+        double mOmegaF2 = nBeads == 1 ? 0 : mass*omega2/nBeads/alpha/Math.sinh(alpha);
+        double mOmegaH2 = 2*mass*omega2*Math.tanh(alpha/2)/nBeads/alpha;
+        double omegaRing = Math.sqrt(mOmegaH2*nBeads/mass);
+        double omegaBead = Math.sqrt(mOmegaF2*nBeads/mass);
+
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
 
+        double timeStep = params.timeStep;
         if (timeStep == -1) {
-            double c = 0.01;
-            if (coordType == MoveChoice.Real) {
-//                timeStep = c/omegaN/Math.sqrt(nBeads); // WHY sqrt(n)??
-                timeStep = c/omegaN;
-            } else if (coordType == MoveChoice.Stage) {
-                double s = 1.0 + 1.0/12.0*omega2/omegaN/omegaN/nBeads*(nBeads*nBeads-1);
-                timeStep = c*Math.sqrt(s)/omega;
+            double c = 0.1;
+            if (params.coordType == MoveChoice.Real) {
+                timeStep = c/omegaBead;// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
+            } else if (params.coordType == MoveChoice.NM) {
+                double s = omega2/nBeads;
+                timeStep = c*Math.sqrt(s)/omega; // which is 1/sqrt(n)
+            } else if (params.coordType == MoveChoice.Stage) {
+                double s = omega2/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1.0)/nBeads);
+                timeStep = c*Math.sqrt(s)/omega; // for large n, timeStep ~ hbar/T
             } else {
-                timeStep = c/omega;
+                timeStep = c/omegaRing;
             }
         }
 
-
-        LJPIMDInf sim = new LJPIMDInf(space, coordType, mass, timeStep, gammaLangevin, nBeads, numAtoms, temperature, density, rc, omega, hbar);
+        double gammaLangevin = 2*omegaRing;
+        LJPIMDInf sim = new LJPIMDInf(space, coordType, mass, timeStep, gammaLangevin, nBeads, numAtoms, temperature, density, rc, omega, mOmegaF2, mOmegaH2, hbar);
 
 
         System.out.println(" LJ PIMD-"+coordType);
@@ -198,7 +210,7 @@ public class LJPIMDInf extends Simulation {
         System.out.println(" T: " + temperature);
         System.out.println(" hbar: " + hbar);
         System.out.println(" w: " + omega);
-        System.out.println(" wn: " + omegaN  + " , w/sqrt(n): " + omega/Math.sqrt(nBeads));
+        System.out.println(" mOmegaF2: " + mOmegaF2  + " , mOmegaH2: " + mOmegaH2);
         System.out.println(" x = beta*hbar*w = " + hbar*omega/temperature);
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" nShifts: "+ nShifts);
@@ -211,12 +223,12 @@ public class LJPIMDInf extends Simulation {
         System.out.println(" rc: " + rc);
 
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
+        MeterPIPrimInf meterPrim = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harmPI, sim.pcP1ah, nBeads, temperature, sim.box, omega, hbar);
         MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
         MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
         MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
-        MeterPIHMA meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, 0, sim.box, hbar);
-        MeterPIHMA meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, omega2, sim.box, hbar);
+        MeterPIHMA meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, beta/nBeads, nBeads, 0, sim.box, hbar);
+        MeterPIHMA meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, beta/nBeads, nBeads, omega2, sim.box, hbar);
         MeterPIHMAReal2 meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple);
         meterStageSimple.setNumShifts(nShifts);
         MeterPIHMAReal2 meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC);
@@ -254,137 +266,15 @@ public class LJPIMDInf extends Simulation {
                     return allColors[(768 * a.getIndex() / (finalNBeads))];
                 }
             };
+
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 0.2);
-
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 1.0);
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountTime counter = new DataSourceCountTime(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
-
-            MeterMSDHO meterMSD = new MeterMSDHO(sim.box);
-            AccumulatorHistory historyMSD = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyMSD.setTimeDataSource(counter);
-            DataPumpListener pumpMSD = new DataPumpListener(meterMSD, historyMSD, interval);
-            sim.integrator.getEventManager().addListener(pumpMSD);
-            DisplayPlotXChart plotMSD = new DisplayPlotXChart();
-            plotMSD.setLabel("MSD");
-            plotMSD.setDoLegend(false);
-            historyMSD.addDataSink(plotMSD.makeSink("MSD history"));
-            simGraphic.add(plotMSD);
-
-            MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-            AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyPE.setTimeDataSource(counter);
-            DataPumpListener pumpPE = new DataPumpListener(meterPE, historyPE, interval);
-            sim.integrator.getEventManager().addListener(pumpPE);
-
-            AccumulatorHistory historyCV = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyCV.setTimeDataSource(counter);
-            DataPumpListener pumpCV = new DataPumpListener(meterCentVir, historyCV, interval);
-            sim.integrator.getEventManager().addListener(pumpCV);
-
-            AccumulatorHistory historyPrim = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyPrim.setTimeDataSource(counter);
-            DataPumpListener pumpPrim = new DataPumpListener(meterPrim, historyPrim, interval);
-            sim.integrator.getEventManager().addListener(pumpPrim);
-
-            AccumulatorHistory historyHMAc = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyHMAc.setTimeDataSource(counter);
-            DataPumpListener pumpHMAc = new DataPumpListener(meterHMAc, historyHMAc, interval);
-            sim.integrator.getEventManager().addListener(pumpHMAc);
-
-            AccumulatorHistory historyHMA2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyHMA2.setTimeDataSource(counter);
-            DataPumpListener pumpHMA2 = new DataPumpListener(meterStageEC, historyHMA2, interval);
-            sim.integrator.getEventManager().addListener(pumpHMA2);
-
-            AccumulatorHistory historyHMA = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyHMA.setTimeDataSource(counter);
-            DataPumpListener pumpHMA = new DataPumpListener(meterNMEC, historyHMA, interval);
-            sim.integrator.getEventManager().addListener(pumpHMA);
-
-            MeterEnergyFromIntegrator meterE = new MeterEnergyFromIntegrator(sim.integrator);
-            AccumulatorHistory historyE = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyE.setTimeDataSource(counter);
-            DataPumpListener pumpE = new DataPumpListener(meterE, historyE, interval);
-            sim.integrator.getEventManager().addListener(pumpE);
-
-            MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
-            AccumulatorHistory historyPE2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyPE2.setTimeDataSource(counter);
-            DataPumpListener pumpPE2 = new DataPumpListener(meterPE2, historyPE2, interval);
-            sim.integrator.getEventManager().addListener(pumpPE2);
-            DisplayPlotXChart plotPE = new DisplayPlotXChart();
-            plotPE.setLabel("PE");
-            historyPE.addDataSink(plotPE.makeSink("PE history"));
-            plotPE.setLegend(new DataTag[]{meterPE.getTag()}, "Integrator PE");
-            historyPE2.addDataSink(plotPE.makeSink("PE2 history"));
-            plotPE.setLegend(new DataTag[]{meterPE2.getTag()}, "recompute PE");
-            historyCV.addDataSink(plotPE.makeSink("CV history"));
-            plotPE.setLegend(new DataTag[]{meterCentVir.getTag()}, "centroid virial");
-            historyPrim.addDataSink(plotPE.makeSink("Prim history"));
-            plotPE.setLegend(new DataTag[]{meterPrim.getTag()}, "primitive");
-            historyHMA.addDataSink(plotPE.makeSink("HMA history"));
-            plotPE.setLegend(new DataTag[]{meterNMEC.getTag()}, "HMA");
-            historyHMAc.addDataSink(plotPE.makeSink("HMAc history"));
-            plotPE.setLegend(new DataTag[]{meterHMAc.getTag()}, "HMAc");
-            historyHMA2.addDataSink(plotPE.makeSink("HMA2 history"));
-            plotPE.setLegend(new DataTag[]{meterStageEC.getTag()}, "HMA2");
-            simGraphic.add(plotPE);
-
-            DisplayPlotXChart plotE = new DisplayPlotXChart();
-            plotE.setLabel("E");
-            historyE.addDataSink(plotE.makeSink("E history"));
-            plotE.setLegend(new DataTag[]{meterE.getTag()}, "Integrator E");
-            simGraphic.add(plotE);
-
-            AccumulatorHistory historyEnergyKE = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyEnergyKE.setTimeDataSource(counter);
-            DataPumpListener pumpEnergyKE = new DataPumpListener(meterKE, historyEnergyKE, interval);
-            sim.integrator.getEventManager().addListener(pumpEnergyKE);
-            historyEnergyKE.addDataSink(plotE.makeSink("KE history"));
-            plotE.setLegend(new DataTag[]{meterKE.getTag()}, "KE");
-
-            Vector[] latticePositions = space.makeVectorArray(numAtoms);
-            Vector COM0 = space.makeVector();
-            for (IAtom atom : sim.box.getLeafList()) {
-                if (atom.getIndex() == 0) {
-                    latticePositions[atom.getParentGroup().getIndex()].E(atom.getPosition());
-                }
-                COM0.PE(atom.getPosition());
-            }
-            COM0.TE(1.0 / sim.box.getLeafList().size());
-
-            DataSourceScalar meterCOM = new DataSourceScalar("COM", Length.DIMENSION) {
-                @Override
-                public double getDataAsScalar() {
-                    Vector COM = sim.box.getSpace().makeVector();
-                    Vector dr = sim.box.getSpace().makeVector();
-                    for (IAtom atom : sim.box.getLeafList()) {
-                        Vector R = latticePositions[atom.getParentGroup().getIndex()];
-                        dr.Ev1Mv2(atom.getPosition(), R);
-                        sim.box.getBoundary().nearestImage(dr);
-                        COM.PE(dr);
-                    }
-                    COM.TE(1.0 / sim.box.getLeafList().size());
-                    return Math.sqrt(COM.squared());
-                }
-            };
-            AccumulatorHistory historyCOM = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyCOM.setTimeDataSource(counter);
-            DataPumpListener pumpCOM = new DataPumpListener(meterCOM, historyCOM, interval);
-            sim.integrator.getEventManager().addListener(pumpCOM);
-            DisplayPlotXChart plotCOM = new DisplayPlotXChart();
-            plotCOM.setLabel("COM drift");
-            historyCOM.addDataSink(plotCOM.makeSink("COM drift"));
-            plotCOM.setDoLegend(false);
-            simGraphic.add(plotCOM);
-
-            simGraphic.makeAndDisplayFrame("PIMD-"+coordType);
-
+            simGraphic.makeAndDisplayFrame("PIMD - "+coordType);
             return;
         }
 
@@ -539,7 +429,7 @@ public class LJPIMDInf extends Simulation {
         double corKE = dataKE.getValue(accumulatorKE.BLOCK_CORRELATION.index);
         System.out.println(" T_measured: " + avgKE / (1.5 * numAtoms * nBeads) + " +/- " + errKE / (1.5 * numAtoms * nBeads) + " cor: " + corKE);
 
-        double kB_beta2 = sim.betaN*sim.betaN*nBeads*nBeads;
+        double kB_beta2 = beta*beta;
 
         //1 Prim
         DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();
@@ -551,7 +441,7 @@ public class LJPIMDInf extends Simulation {
         double avgEnPrim = dataAvgPrim.getValue(0);
         double errEnPrim = dataErrPrim.getValue(0);
         double corEnPrim = dataCorPrim.getValue(0);
-        System.out.println("\n En_prim:         " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
+        System.out.println("\n En_prim:         " + avgEnPrim/numAtoms + "   err: " + errEnPrim/numAtoms + " cor: " + corEnPrim);
 //        double CvnPrim = kB_beta2*(dataAvgPrim.getValue(1) - avgEnPrim*avgEnPrim);
 //        double varX0 = errEnPrim*errEnPrim;
 //        double varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
@@ -745,15 +635,14 @@ public class LJPIMDInf extends Simulation {
     public static class SimParams extends ParameterBase {
         public int D = 3;
         public double k2 = 219.949835;
-        public double gammaLangevin = 2.0 * Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;
         public double temperature = 1.0;
-        public int numAtoms = 500;
+        public int numAtoms = 32;
         public double mass = 1.0;
-        public double hbar = 0.1;
+        public double hbar = 1;
         public double rc = 2.5;
-        public boolean isGraphic = !false;
+        public boolean isGraphic = false;
         public int nShifts = 0;
         public double timeStep = -1;
         public int nBeads = -1;

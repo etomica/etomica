@@ -68,8 +68,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         Vector dri = box.getSpace().makeVector();
         Vector dr0Ref = box.getSpace().makeVector();
 
-        pcP1.computeAll(true, null); // no Cv (rHr=0)
-//        pcP1.computeAll(true, this); //with Cv
+//        pcP1.computeAll(true, null); // no Cv (rHr=0)
+        pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
@@ -93,11 +93,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             }
         }
         if (numAtoms == 1) {
-            x[0] = dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+            x[0] = dim/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+            x[1] = dim/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         } else {
             x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+            x[1] = -dim/2.0/beta/beta + dim*numAtoms/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         }
-        x[1] = dim/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         return data;
     }
 

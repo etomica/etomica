@@ -21,7 +21,7 @@ import etomica.units.dimensions.Null;
 public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialCompute pcP1;
-    protected double betaN, beta, omegaN;
+    protected double betaN, beta, omega2, omegaN;
     protected int nBeads;
     protected double[] gk, gk2;
     protected double[][] M, M2;
@@ -46,6 +46,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         this.nBeads = nBeads;
         this.box = box;
         this.beta = betaN*nBeads;
+        this.omega2 = omega2;
         omegaN = Math.sqrt(nBeads)/(beta*hbar);
         int nAtoms = box.getLeafList().size();
         rdot = box.getSpace().makeVectorArray(nAtoms);
@@ -143,19 +144,19 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-        pcP1.computeAll(true, null); //no Cv
-//        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
+//        pcP1.computeAll(true, null); //no Cv
+        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
         int numAtoms = molecules.size();
-        double En = dim*nBeads*numAtoms/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
-        double Cvn = nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
+        double En = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
+        double Cvn = dim*numAtoms*nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
         for (int i=0; i<nBeads; i++) {
             En -= dim*numAtoms*gk[i];
             Cvn += dim*numAtoms*gk2[i];
         }
-        if (numAtoms > 1) {
-            int nK = nBeads/2;
-            En += dim*gk[nK]; //com
+        if (numAtoms > 1 && omega2 != 0) {
+            En -= dim/2.0/beta; //com: -dim*gk[nK]
+            Cvn -= dim/2.0/beta/beta;
         }
 
 

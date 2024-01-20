@@ -120,8 +120,8 @@ public class SimQuantumAOPIMD extends Simulation {
             integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
         }
 
-        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
+        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
     }
@@ -422,7 +422,6 @@ public class SimQuantumAOPIMD extends Simulation {
         IData dataErrPrim = dataPrim.getData(accumulatorPrim.ERROR.index);
         IData dataCorPrim = dataPrim.getData(accumulatorPrim.BLOCK_CORRELATION.index);
         IData dataCovPrim = dataPrim.getData(accumulatorPrim.COVARIANCE.index);
-
         double avgEnPrim = dataAvgPrim.getValue(0);
         double errEnPrim = dataErrPrim.getValue(0);
         double corEnPrim = dataCorPrim.getValue(0);
@@ -431,7 +430,7 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnPrim*errEnPrim;
         varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
         corX0X1 = dataCovPrim.getValue(1)/Math.sqrt(dataCovPrim.getValue(0))/Math.sqrt(dataCovPrim.getValue(3));
-        double errCvnPrim = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1);
+        double errCvnPrim = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - varX0*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1);
 
 
         //2 Vir
@@ -450,7 +449,7 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnVir*errEnVir;
         varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
         corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
-        double errCvnVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVir*avgEnVir*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1);
+        double errCvnVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVir*avgEnVir*varX0 - varX0*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1);
 
         //3 Cent-Vir
         DataGroup dataCentVir = (DataGroup) accumulatorCentVir.getData();
@@ -468,7 +467,7 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnCentVir*errEnCentVir;
         varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
         corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
-        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
+        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - varX0*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
 
         //4 HMAc
         DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
@@ -485,9 +484,9 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnHMAc*errEnHMAc;
         varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
         corX0X1 = dataCovHMAc.getValue(1)/Math.sqrt(dataCovHMAc.getValue(0))/Math.sqrt(dataCovHMAc.getValue(3));
-        double errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - 4*avgEnHMAc*dataErrHMAc.getValue(0)*dataErrHMAc.getValue(1)*corX0X1);
+        double errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - varX0*varX0 - 4*avgEnHMAc*dataErrHMAc.getValue(0)*dataErrHMAc.getValue(1)*corX0X1);
         if (errEnHMAc < 1e-10){
-            errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0);
+            errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - varX0*varX0);
         }
 
 
@@ -507,7 +506,7 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnNMSimple*errEnNMSimple;
         varX1 = dataErrNMsimple.getValue(1)*dataErrNMsimple.getValue(1);
         corX0X1 = dataCovNMsimple.getValue(1)/Math.sqrt(dataCovNMsimple.getValue(0))/Math.sqrt(dataCovNMsimple.getValue(3));
-        double errCvnNMsimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1);
+        double errCvnNMsimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - varX0*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1);
 
         //6 HMA EC NM
         DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
@@ -525,9 +524,9 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnNMEC*errEnNMEC;
         varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
         corX0X1 = dataCovNMEC.getValue(1)/Math.sqrt(dataCovNMEC.getValue(0))/Math.sqrt(dataCovNMEC.getValue(3));
-        double errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
+        double errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - varX0*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
         if (errEnNMEC < 1e-10){
-            errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
+            errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - varX0*varX0);
         }
 
         // 7 HMA simple stage
@@ -545,7 +544,7 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnStageSimple*errEnStageSimple;
         varX1 = dataErrStageSimple.getValue(1)*dataErrStageSimple.getValue(1);
         corX0X1 = dataCovStageSimple.getValue(1)/Math.sqrt(dataCovStageSimple.getValue(0))/Math.sqrt(dataCovStageSimple.getValue(3));
-        double errCvnStageSimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageSimple*avgEnStageSimple*varX0 - 4*avgEnStageSimple*dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(1)*corX0X1);
+        double errCvnStageSimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageSimple*avgEnStageSimple*varX0 - varX0*varX0 - 4*avgEnStageSimple*dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(1)*corX0X1);
 
         //8 HMA EC stage
         DataGroup dataStageEC = (DataGroup) accumulatorStageEC.getData();
@@ -562,9 +561,9 @@ public class SimQuantumAOPIMD extends Simulation {
         varX0 = errEnStageEC*errEnStageEC;
         varX1 = dataErrStageEC.getValue(1)*dataErrStageEC.getValue(1);
         corX0X1 = dataCovStageEC.getValue(1)/Math.sqrt(dataCovStageEC.getValue(0))/Math.sqrt(dataCovStageEC.getValue(3));
-        double errCvnStageEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageEC*avgEnStageEC*varX0 - 4*avgEnStageEC*errEnStageEC*dataErrStageEC.getValue(1)*corX0X1);
+        double errCvnStageEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageEC*avgEnStageEC*varX0 - varX0*varX0 - 4*avgEnStageEC*errEnStageEC*dataErrStageEC.getValue(1)*corX0X1);
         if (errEnStageEC < 1e-10){
-            errCvnStageEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageEC*avgEnStageEC*varX0);
+            errCvnStageEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageEC*avgEnStageEC*varX0 - varX0*varX0);
         }
 
         System.out.println();
