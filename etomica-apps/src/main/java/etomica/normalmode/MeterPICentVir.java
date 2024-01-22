@@ -69,6 +69,16 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         return data;
     }
 
+    public void fieldComputeHessian(int i, Tensor Hii) {
+        Vector ri = box.getLeafList().get(i).getPosition();
+        Vector tmpVecI = box.getSpace().makeVector();
+        tmpVecI.Ev1Mv2(ri, CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()));
+        box.getBoundary().nearestImage(tmpVecI);
+        Hii.transform(tmpVecI);
+        rHr += tmpVecI.dot(tmpVecI);
+    }
+
+
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector rj = box.getLeafList().get(j).getPosition();
@@ -78,8 +88,10 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         tmpVecJ.Ev1Mv2(rj, CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()));
         box.getBoundary().nearestImage(tmpVecI);
         box.getBoundary().nearestImage(tmpVecJ);
-        Hij.transform(tmpVecI);
-        rHr += tmpVecI.dot(tmpVecJ);
+        Vector tmpVecIJ = box.getSpace().makeVector();
+        tmpVecIJ.Ev1Mv2(tmpVecI, tmpVecJ);
+        Hij.transform(tmpVecIJ);
+        rHr += tmpVecIJ.dot(tmpVecI) - tmpVecIJ.dot(tmpVecJ);
     }
 
     public IDataInfo getDataInfo() {

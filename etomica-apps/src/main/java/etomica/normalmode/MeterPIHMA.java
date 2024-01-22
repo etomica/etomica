@@ -32,7 +32,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected DataDoubleArray data;
     protected Vector[] rdot, rddot;
     protected final Vector[] latticePositions;
-    protected int dim;
+    protected int dim, numAtoms;
+
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
@@ -48,9 +49,9 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         this.beta = betaN*nBeads;
         this.omega2 = omega2;
         omegaN = Math.sqrt(nBeads)/(beta*hbar);
-        int nAtoms = box.getLeafList().size();
-        rdot = box.getSpace().makeVectorArray(nAtoms);
-        rddot = box.getSpace().makeVectorArray(nAtoms);
+        numAtoms = box.getMoleculeList().size();
+        rdot = box.getSpace().makeVectorArray(numAtoms*nBeads);
+        rddot = box.getSpace().makeVectorArray(numAtoms*nBeads);
         gk = new double[nBeads];
         gk2 = new double[nBeads];
         int nK = nBeads/2;
@@ -147,9 +148,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 //        pcP1.computeAll(true, null); //no Cv
         pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
-        int numAtoms = molecules.size();
         double En = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
-        double Cvn = dim*numAtoms*nBeads/2.0/beta/beta - 2.0*pmBonding.getLastEnergy()/beta;
+        double Cvn = dim*numAtoms*nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
         for (int i=0; i<nBeads; i++) {
             En -= dim*numAtoms*gk[i];
             Cvn += dim*numAtoms*gk2[i];
@@ -163,6 +163,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         Vector[] forcesU = pcP1.getForces();
         Vector[] forcesK = pmBonding.getForces();
 
+        double massRing = box.getLeafList().get(0).getType().getMass()*nBeads;
+        Vector tmpV = box.getSpace().makeVector();
         for (IAtom a : box.getLeafList()) {
             int j = a.getLeafIndex();
 
@@ -170,11 +172,11 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));//rdot
             Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));//rddot
 
-            int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
-            Vector tmpV = box.getSpace().makeVector();
+            int jj = a.getIndex();
+            int jjp = jj == nBeads-1 ?  0 : jj+1;
+            int jp = a.getParentGroup().getChildList().get(jjp).getLeafIndex();
             tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            double massRing = box.getLeafList().get(0).getType().getMass()*nBeads;
-            Cvn -= beta*omegaN*omegaN*massRing*(tmpV.squared());
+            Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
         }
         Cvn -= beta*drdotHdrdot;
         x[0] = En;
@@ -183,11 +185,18 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         return data;
     }
 
-    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+    public void fieldComputeHessian(int i, Tensor Hii) {
         Vector tmpV = box.getSpace().makeVector();
-        tmpV.E(rdot[j]);
-        Hij.transform(tmpV);
-        drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
+        tmpV.E(rdot[i]);
+        Hii.transform(tmpV);
+        drdotHdrdot += rdot[i].dot(tmpV);
+    }
+
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        Vector rdotij = box.getSpace().makeVector();
+        rdotij.Ev1Mv2(rdot[i], rdot[j]);
+        Hij.transform(rdotij);
+        drdotHdrdot += rdotij.dot(rdot[i]) - rdotij.dot(rdot[j]);
     }
 
     protected Vector computeShift() {

@@ -36,7 +36,7 @@ public class PotentialComputePair implements PotentialCompute {
     protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
-    protected final Tensor Hii;
+    protected final Tensor Hij;
     protected final int[] atomCountByType;
     protected boolean duAtomMulti = false;
 
@@ -64,7 +64,7 @@ public class PotentialComputePair implements PotentialCompute {
         duAtom = new DoubleArrayList(16);
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
-        Hii = space.makeTensor();
+        Hij = space.makeTensor();
 
         this.atomCountByType = new int[numAtomTypes];
         box.getEventManager().addListener(new BoxEventListener() {
@@ -236,12 +236,12 @@ public class PotentialComputePair implements PotentialCompute {
                 uTot[0] += uij;
 
                 if(wantsHessian){
-                    Hii.Ev1v2(rij, rij);
-                    Hii.TE((u012[2] - u012[1])/r2/r2);
-                    for (int k = 0; k < Hii.D(); k++) {
-                        Hii.PE(k, k, u012[1]/r2);
+                    Hij.Ev1v2(rij, rij);
+                    Hij.TE((u012[2] - u012[1])/r2/r2);
+                    for (int k = 0; k < Hij.D(); k++) {
+                        Hij.PE(k, k, u012[1]/r2);
                     }
-                    pc.pairComputeHessian(finalI, j, Hii);
+                    pc.pairComputeHessian(finalI, j, Hij);
                 }
             });
         }

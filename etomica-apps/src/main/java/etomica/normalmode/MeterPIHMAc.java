@@ -132,6 +132,22 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         return totalShift;
     }
 
+    public void fieldComputeHessian(int i, Tensor Hii) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        int moleculeIndexI = box.getLeafList().get(i).getParentGroup().getIndex();
+        Vector ri = box.getLeafList().get(i).getPosition();
+        Vector dri = box.getSpace().makeVector();
+        dri.Ev1Mv2(ri, latticePositions[moleculeIndexI]);
+        box.getBoundary().nearestImage(dri);
+        Vector drcI = box.getSpace().makeVector();
+        drcI.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()), latticePositions[moleculeIndexI]);
+        box.getBoundary().nearestImage(drcI);
+        Vector tmpVecI = box.getSpace().makeVector();
+        tmpVecI.Ev1Mv2(dri, drcI);
+        tmpVecI.ME(drcI);
+        Hii.transform(tmpVecI);
+        rHr += tmpVecI.dot(dri) - 2*tmpVecI.dot(drcI);
+    }
+
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
         int moleculeIndexI = box.getLeafList().get(i).getParentGroup().getIndex();
         int moleculeIndexJ = box.getLeafList().get(j).getParentGroup().getIndex();
@@ -155,9 +171,13 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         tmpVecJ.Ev1Mv2(drj, drcJ);
         tmpVecI.ME(drcI);
         tmpVecJ.ME(drcJ);
-        Hij.transform(tmpVecJ);
-        rHr += tmpVecI.dot(tmpVecJ);
+
+        Vector tmpVecIJ = box.getSpace().makeVector();
+        tmpVecIJ.Ev1Mv2(tmpVecI, tmpVecJ);
+        Hij.transform(tmpVecIJ);
+        rHr += tmpVecIJ.dot(tmpVecI) - tmpVecIJ.dot(tmpVecJ);
     }
+
 
     public IDataInfo getDataInfo() {
         return dataInfo;

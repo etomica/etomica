@@ -139,13 +139,13 @@ public class SimQuantumAOPIMD extends Simulation {
             // custom parameters
             params.hbar = 1;
             params.steps = 1000000;
-            params.temperature = 0.1;
-            params.omega = 8;
-            params.k4 = 0;
+            params.temperature = 1.;
+            params.omega = 1;
+            params.k4 = 0.1;
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NMEC;
             params.coordType = MoveChoice.StageEC;
-            params.nBeads=1;
+            params.nBeads = 2;
 //            params.nShifts = 1;
         }
 

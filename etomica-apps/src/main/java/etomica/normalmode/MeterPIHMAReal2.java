@@ -56,11 +56,8 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         this.box = move.getBox();
         numAtoms = box.getMoleculeList().size();
         dim = box.getSpace().D();
-        rdot = new Vector[dim*nBeads*numAtoms];
-        for (int i = 0; i < dim*nBeads*numAtoms; i++) {
-            rdot[i] = box.getSpace().makeVector();
-        }
-        latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        rdot = box.getSpace().makeVectorArray(numAtoms*nBeads);
+        latticePositions = box.getSpace().makeVectorArray(numAtoms);
         for (int i=0; i<latticePositions.length; i++) {
             latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
@@ -246,18 +243,26 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 Cvn -= beta*drdotHdrdot;
                 x[0] += En;
                 x[1] += Cvn + (En0+En)*(En0+En);
+                System.out.println();
             }//shifts
-        }//atoms
+        }//molecules
         x[0] = En0 + x[0]/ns;
         x[1] = Cvn0 + x[1]/ns;
         return data;
     }
 
-    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+    public void fieldComputeHessian(int i, Tensor Hii) {
         Vector tmpV = move.getBox().getSpace().makeVector();
-        tmpV.E(rdot[j]);
-        Hij.transform(tmpV);
+        tmpV.E(rdot[i]);
+        Hii.transform(tmpV);
         drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
+    }
+
+    public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        Vector rdotij = box.getSpace().makeVector();
+        rdotij.Ev1Mv2(rdot[i], rdot[j]);
+        Hij.transform(rdotij);
+        drdotHdrdot += rdotij.dot(rdot[i]) - rdotij.dot(rdot[j]);
     }
 
     public boolean wantsHessian() {
