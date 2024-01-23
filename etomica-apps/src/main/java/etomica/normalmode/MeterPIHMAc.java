@@ -30,6 +30,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected int dim;
     protected int numAtoms;
     protected Vector[] latticePositions;
+    protected Vector drShift;
 
     public MeterPIHMAc(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
         int nData = 2;
@@ -50,13 +51,12 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         for (int i=0; i<latticePositions.length; i++) {
             latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
-
+        this.drShift = box.getSpace().makeVector();
     }
 
     @Override
     public IData getData() {
         double[] x = data.getData();
-        Vector drShift = box.getSpace().makeVector();
         if (numAtoms > 1) {
             drShift = computeShift();
         }
@@ -157,12 +157,17 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         Vector drj = box.getSpace().makeVector();
         dri.Ev1Mv2(ri, latticePositions[moleculeIndexI]);
         drj.Ev1Mv2(rj, latticePositions[moleculeIndexJ]);
+        dri.PE(drShift);
+        drj.PE(drShift);
         box.getBoundary().nearestImage(dri);
         box.getBoundary().nearestImage(drj);
+
         Vector drcI = box.getSpace().makeVector();
         Vector drcJ = box.getSpace().makeVector();
         drcI.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()), latticePositions[moleculeIndexI]);
         drcJ.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()), latticePositions[moleculeIndexJ]);
+        drcI.PE(drShift);
+        drcJ.PE(drShift);
         box.getBoundary().nearestImage(drcI);
         box.getBoundary().nearestImage(drcJ);
         Vector tmpVecI = box.getSpace().makeVector();

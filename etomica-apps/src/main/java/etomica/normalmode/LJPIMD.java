@@ -138,16 +138,11 @@ public class LJPIMD extends Simulation {
             params.numAtoms = 32;
             params.rc = 2.5;
             params.isGraphic = false;
-
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.NMEC;
             params.coordType = MoveChoice.StageEC;
-
-
-            params.nBeads = 2;
-
         }
 
         Space space = Space.getInstance(params.D);
@@ -226,7 +221,7 @@ public class LJPIMD extends Simulation {
 
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
         MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
-        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
+//        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
         MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
         MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
         MeterPIHMA meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, 0, sim.box, hbar);
@@ -393,11 +388,11 @@ public class LJPIMD extends Simulation {
         }
 
         //2 Virial
-        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
-        if (meterPrim != null) {
-            DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpVir);
-        }
+//        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
+//        if (meterPrim != null) {
+//            DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpVir);
+//        }
 
         //3 Centroid Virial
         AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
@@ -471,20 +466,20 @@ public class LJPIMD extends Simulation {
 
 
         //2 Vir
-        DataGroup dataVir = (DataGroup) accumulatorVir.getData();
-        IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
-        IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
-        IData dataCorVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
-        IData dataCovVir = dataVir.getData(accumulatorVir.COVARIANCE.index);
-        double avgEnVir = dataAvgVir.getValue(0);
-        double errEnVir = dataErrVir.getValue(0);
-        double corEnVir = dataCorVir.getValue(0);
-        System.out.println(" En_vir:          " + avgEnVir/numAtoms + "   err: " + errEnVir/numAtoms + " cor: " + corEnVir);
-        double CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
-        varX0 = errEnVir*errEnVir;
-        varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
-        corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
-        double errCvnVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVir*avgEnVir*varX0 + 2*varX0*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1);
+//        DataGroup dataVir = (DataGroup) accumulatorVir.getData();
+//        IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
+//        IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
+//        IData dataCorVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
+//        IData dataCovVir = dataVir.getData(accumulatorVir.COVARIANCE.index);
+//        double avgEnVir = dataAvgVir.getValue(0);
+//        double errEnVir = dataErrVir.getValue(0);
+//        double corEnVir = dataCorVir.getValue(0);
+//        System.out.println(" En_vir:          " + avgEnVir/numAtoms + "   err: " + errEnVir/numAtoms + " cor: " + corEnVir);
+//        double CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
+//        varX0 = errEnVir*errEnVir;
+//        varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
+//        corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
+//        double errCvnVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVir*avgEnVir*varX0 + 2*varX0*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1);
 
         //3 Cent-Vir
         DataGroup dataCentVir = (DataGroup) accumulatorCentVir.getData();
@@ -592,7 +587,7 @@ public class LJPIMD extends Simulation {
         }
 
         System.out.println("\n Cvn_prim: " + CvnPrim/numAtoms + " err: " + errCvnPrim/numAtoms);
-        System.out.println(" Cvn_vir: " + CvnVir/numAtoms + " err: " + errCvnVir/numAtoms);
+//        System.out.println(" Cvn_vir: " + CvnVir/numAtoms + " err: " + errCvnVir/numAtoms);
         System.out.println(" Cvn_cvir: " + CvnCentVir/numAtoms + " err: " + errCvnCentVir/numAtoms);
         System.out.println(" Cvn_hmac: " + CvnHMAc/numAtoms + " err: " + errCvnHMAc/numAtoms);
         System.out.println(" Cvn_nm_simple: " + Cvn_nm_simple/numAtoms + " err: " + errCvnNMsimple/numAtoms);

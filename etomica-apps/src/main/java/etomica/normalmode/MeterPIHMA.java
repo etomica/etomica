@@ -8,6 +8,7 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMasterBonding;
@@ -165,19 +166,21 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
         double massRing = box.getLeafList().get(0).getType().getMass()*nBeads;
         Vector tmpV = box.getSpace().makeVector();
-        for (IAtom a : box.getLeafList()) {
-            int j = a.getLeafIndex();
 
-            En -= beta*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
-            Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));//rdot
-            Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));//rddot
-
-            int jj = a.getIndex();
-            int jjp = jj == nBeads-1 ?  0 : jj+1;
-            int jp = a.getParentGroup().getChildList().get(jjp).getLeafIndex();
-            tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-            Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
+        for (IMolecule molecule : box.getMoleculeList()) {
+            IAtomList atoms = molecule.getChildList();
+            for (int jj=0; jj<atoms.size(); jj++) {
+                int j = atoms.get(jj).getLeafIndex();
+                En -= beta*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
+                Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));
+                Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));
+                int jjp = (jj+1)%nBeads;
+                int jp = atoms.get(jjp).getLeafIndex();
+                tmpV.Ev1Mv2(rdot[j], rdot[jp]);
+                Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
+            }
         }
+
         Cvn -= beta*drdotHdrdot;
         x[0] = En;
         x[1] = Cvn + En*En;
