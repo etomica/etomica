@@ -176,21 +176,21 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             x[i] = 0;
         }
 
-        for (int i = 0; i < molecules.size(); i++) {
-            IAtomList beads = molecules.get(i).getChildList();
-            if (ns > beads.size() || (beads.size() / ns) * ns != beads.size()) {
-                throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
-            }
-            for (int indexShift=0; indexShift<beads.size(); indexShift += beads.size()/ns) {
-                double En = 0;
-                double Cvn = 0;
-                Vector dr0 = box.getSpace().makeVector();
+        if (ns > nBeads || (nBeads / ns) * ns != nBeads) {
+            throw new RuntimeException("# of beads must be a multiple of (# of shifts + 1)");
+        }
+
+        Vector dr0 = box.getSpace().makeVector();
+
+        for (int indexShift = 0; indexShift < nBeads; indexShift += nBeads/ns) {
+            double En = 0;
+            double Cvn = 0;
+            for (int i = 0; i < molecules.size(); i++) {
+                IAtomList beads = molecules.get(i).getChildList();
                 dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
                 dr0.PE(drShift);
                 box.getBoundary().nearestImage(dr0);
-
                 Vector drPrev = box.getSpace().makeVector();
-
                 for (int j = 0; j < beads.size(); j++) {
                     int aj = (j + indexShift) % beads.size();
                     IAtom atomj = beads.get(aj);
@@ -238,14 +238,15 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                     aPrev.E(a);
                     rdot[jj].E(v);
                 } // beads
-                drdotHdrdot = 0;
-                pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
-                Cvn -= beta*drdotHdrdot;
-                x[0] += En;
-                x[1] += Cvn + (En0+En)*(En0+En);
-                System.out.println();
-            }//shifts
-        }//molecules
+            }//mol
+            drdotHdrdot = 0;
+            pcP1.computeAll(false, this); // compute Hessian, using just-computed rdot
+            Cvn -= beta*drdotHdrdot;
+
+            x[0] += En;
+            x[1] += Cvn + (En0+En)*(En0+En);
+//            System.out.println();
+        }//shifts
         x[0] = En0 + x[0]/ns;
         x[1] = Cvn0 + x[1]/ns;
         return data;

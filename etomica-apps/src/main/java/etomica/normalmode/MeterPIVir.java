@@ -62,19 +62,31 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
             x[0] =   pcP1.getLastEnergy() + 1.0/2.0*vir;
             x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
         } else {
-            x[0] =   dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+            x[0] = dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
             x[1] = dim/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
         }
         return data;
     }
 
+    public void fieldComputeHessian(int i, Tensor Hii) { // in general potential, Hij is the Hessian between same beads of atom i and j
+        Vector ri = box.getLeafList().get(i).getPosition();
+        Vector tmpV = box.getSpace().makeVector();
+        tmpV.E(ri);
+        Hii.transform(tmpV);
+        rHr += ri.dot(tmpV); //rHr
+    }
+
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector rj = box.getLeafList().get(j).getPosition();
-        Vector tmpV = box.getSpace().makeVector();
-        tmpV.E(rj);
-        Hij.transform(tmpV);
-        rHr += ri.dot(tmpV); //rHr
+        Vector rij = box.getSpace().makeVector();
+        rij.Ev1Mv2(ri, rj);
+        box.getBoundary().nearestImage(rij);
+        Hij.transform(rij);
+        Vector rij2 = box.getSpace().makeVector();
+        rij2.Ev1Mv2(ri, rj);
+        box.getBoundary().nearestImage(rij2);
+        rHr += rij.dot(rij2);
     }
 
     public IDataInfo getDataInfo() {
