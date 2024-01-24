@@ -53,8 +53,10 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
 
     public void setBox(Box p) {
         super.setBox(p);
-        int n = species == null ? p.getMoleculeList().get(0).getChildList().size() : species.getLeafAtomCount();
-        position = new Vector[p.getMoleculeList().size()][n];
+        position = new Vector[p.getMoleculeList().size()][];
+        for (int j=0; j<position.length; j++) {
+            position[j] = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
+        }
     }
 
     public void setSpecies(ISpecies s) {
@@ -78,7 +80,6 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
             IMolecule molecule = moleculeList.get(i);
             IAtomList atoms = molecule.getChildList();
             for(int j = 0; j < molecule.getChildList().size(); j++) {
-                position[i][j] = space.makeVector();
                 position[i][j].E(molecule.getChildList().get(j).getPosition());
             }
             modifiedIndex = 0;
@@ -115,7 +116,7 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
 
     protected double transformBondedAtoms(Vector dr, int index, IAtomList atoms, Vector shift){
         double m = 0;
-        for(int k = 0; k < bonding[index].size(); k++){
+        for(int k = 0; k < bonding[index].size(); k++) {
             boolean rotated = false;
             for (int l = 0; l < modifiedIndex; l++) {
                 if (bonding[index].getInt(k) == modified[l]) {
@@ -124,7 +125,6 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
                 }
             }
             if (!rotated) {
-                //System.out.println(bonding[index].getInt(k) + " " + shift + " " + atoms.get(bonding[index].getInt(k)) + " " + dr);
                 m += transform(dr, atoms.get(bonding[index].getInt(k)), shift);
                 modified[modifiedIndex] = bonding[index].getInt(k);
                 ++modifiedIndex;

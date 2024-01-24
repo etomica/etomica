@@ -161,7 +161,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
 
             public void setValue(double newValue) {
-                sim.setNB1((int) newValue);
+                try {
+                    sim.setNB1((int) newValue);
+                } catch(RuntimeException exception) {};
+                getDisplayBox(sim.box).repaint();
             }
         });
         nB1.setPostAction(reconfig);
@@ -183,7 +186,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
 
             public void setValue(double newValue) {
-                sim.setNB2((int) newValue);
+                try {
+                    sim.setNB2((int) newValue);
+                } catch(RuntimeException exception) {} ;
+                getDisplayBox(sim.box).repaint();
             }
         });
         nB2.setPostAction(reconfig);
@@ -308,6 +314,31 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         final DeviceButton printParamsButton = new DeviceButton(sim.getController());
         printParamsButton.setAction(new IAction() {
             public void actionPerformed() {
+                JFrame f = new JFrame();
+                TextArea textArea = new TextArea();
+                textArea.setEditable(false);
+                textArea.setBackground(Color.white);
+                textArea.setForeground(Color.black);
+                textArea.append("nA: " + sim.nA+ "\n");
+                textArea.append("nB: " + sim.nB+ "\n");
+                textArea.append("nB1: " + sim.nB1+ "\n");
+                textArea.append("nB2: " + sim.nB2+ "\n\n");
+                textArea.append("Set temperature: " + temperatureSelect.getTemperature());
+                if(temperatureSelect.isAdiabatic()) textArea.append((" (but now running adiabatically)"));
+                textArea.append("\n\n");
+                appendPotentialParameters(textArea,"A-A", sim.p2AA);
+                appendPotentialParameters(textArea,"A-B1", sim.p2AB1);
+                appendPotentialParameters(textArea,"A-B2", sim.p2AB2);
+                appendPotentialParameters(textArea,"B1-B1", sim.p2B1B1);
+                appendPotentialParameters(textArea,"B1-B2", sim.p2B1B2);
+                appendPotentialParameters(textArea,"B2-B2", sim.p2B2B2);
+
+                f.add(textArea);
+                f.pack();
+                f.setSize(400,600);
+                f.setVisible(true);
+
+                //Print to console
                 System.out.println("nA: " + sim.nA);
                 System.out.println("nB: " + sim.nB);
                 System.out.println("nB1: " + sim.nB1);
@@ -318,7 +349,9 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
                 printPotentialParameters("B1-B1", sim.p2B1B1);
                 printPotentialParameters("B1-B2", sim.p2B1B2);
                 printPotentialParameters("B2-B2", sim.p2B2B2);
-                System.out.println("Temperature: " + temperatureSelect.getTemperature());
+                System.out.println("Set temperature: " + temperatureSelect.getTemperature());
+                if(temperatureSelect.isAdiabatic()) System.out.println("(but running adiabatically)");
+
             }
         });
         printParamsButton.setLabel("Print parameters");
@@ -370,7 +403,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             epsSlider = slider(0.0, 500.0, "epsilon", 0, p);
             epsSlider.setUnit(Kelvin.UNIT);
 
-            double mySig = (p == sim.p2AA) ? 20.0 : 2.0;
+            double mySig = (p == sim.p2AA) ? 3.0 : 2.0;
             sigSlider = slider(0.0, mySig, "coreDiameter", 2, p);
 
             lamSlider = slider(1.0, 2.0, "lambda", 2, p);
@@ -420,9 +453,17 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
     private void printPotentialParameters(String label, P2HardGeneric p) {
         System.out.println(label + " parameters");
         System.out.println("  sigma: " + p.getCollisionDiameter(0));
-        System.out.println("epsilon: " + (-p.getEnergyForState(1)));
+        System.out.println("epsilon: " + (Kelvin.UNIT.fromSim(-p.getEnergyForState(1))));
         System.out.println(" lambda: " + (p.getCollisionDiameter(1) / p.getCollisionDiameter(0)) + "\n");
     }
+
+    private void appendPotentialParameters(TextArea textArea, String label, P2HardGeneric p) {
+        textArea.append(label + " parameters\n");
+        textArea.append("  sigma: " + p.getCollisionDiameter(0)+"\n");
+        textArea.append("epsilon: " + (Kelvin.UNIT.fromSim(-p.getEnergyForState(1)))+"\n");
+        textArea.append(" lambda: " + (p.getCollisionDiameter(1) / p.getCollisionDiameter(0)) + "\n\n");
+    }
+
 
     private void setNbrRange() {
         double range = Math.max(2.0 * sim.p2AA.getRange(), 2.0 * sim.p2AB1.getRange());

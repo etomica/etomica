@@ -7,6 +7,7 @@ package etomica.graphics;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListener;
 import etomica.space.Vector;
 
 import java.awt.*;
@@ -16,7 +17,7 @@ import java.awt.*;
  * Highlight colors are specified by the colliderColor and partnerColor fields; all other
  * atoms are colored with the baseColor.  Applies only to with a hard-potential MD integrator.
  */
-public class ColorSchemeColliders extends ColorScheme implements IntegratorHard.CollisionListener {
+public class ColorSchemeColliders extends ColorScheme {
     
     IAtom atom1, atom2;
 
@@ -28,20 +29,23 @@ public class ColorSchemeColliders extends ColorScheme implements IntegratorHard.
      * Color applied to the upList atom of the colliding pair
      */
     public java.awt.Color partnerColor = java.awt.Color.blue;
+
+    private IntegratorHard integrator;
+
+    public ColorSchemeColliders(IntegratorHard integrator) {
+        super();
+        this.integrator = integrator;
+    }
     /**
      * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
      */
     @Override
     public Color getAtomColor(IAtom a) {
-        if(a == atom1) return colliderColor;
-        if(a == atom2) return partnerColor;
+        IAtom[] colliders = integrator.getNextCollidingPair();
+        if(a == colliders[0]) return colliderColor;
+        if(a == colliders[1]) return partnerColor;
         else return defaultColor;
     }
 
-    @Override
-    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision) {
-        this.atom1 = atom1;
-        this.atom2 = atom2;
-    }
 }//end of HighlightColliders
 

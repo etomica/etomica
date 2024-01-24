@@ -31,6 +31,7 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
     protected final DataTag tag;
     protected final boolean justVirial;
     protected boolean doNonEquilibrium;
+    protected boolean returned;
 
     public MeterPressureHardTensor(IntegratorHard integrator) {
         this(integrator, false);
@@ -47,7 +48,8 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         tag = new DataTag();
         dataInfo.addTag(tag);
         virialSum = space.makeTensor();
-        doNonEquilibrium = false;
+        doNonEquilibrium = true;
+        returned = true;
     }
 
     public void setDoNonEquilibrium(boolean doNonEquilibrium) {
@@ -64,7 +66,10 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
 
     public IData getData() {
         double t = integratorHard.getCurrentTime();
-        data.x.E(0);
+        if (returned) {
+            // once we return a value, we need to zero out for new data
+            data.x.E(0);
+        }
         data.x.PEa1Tt1(-1 / ((t - t0)), virialSum);
         virialSum.E(0);
         t0 = t;
@@ -101,6 +106,7 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         }
 
         data.x.TE(1.0 / box.getBoundary().volume());
+        returned = true;
 
         return data;
     }
@@ -109,6 +115,12 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         v.Ev1v2(r12, r12);
         v.TE(virial / r12.squared());
         virialSum.PE(v);
+
+        if (returned) {
+            // we're starting fresh
+            data.x.E(0);
+            returned = false;
+        }
 
         if (doNonEquilibrium) {
             // In getData, we'll estimate the kinetic contributions based on the velocities at the

@@ -6,7 +6,9 @@ package etomica.modules.glass;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 import etomica.util.Statefull;
@@ -30,8 +32,14 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected int minInterval = 4;
+    protected final ISpecies species;
 
     public DataSourceAlpha2(ConfigurationStorage configStorage) {
+        this(configStorage, null);
+    }
+
+    public DataSourceAlpha2(ConfigurationStorage configStorage, ISpecies species) {
+        this.species = species;
         this.configStorage = configStorage;
         msdSum = new double[0];
         m4dSum = new double[0];
@@ -60,6 +68,10 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         }
     }
 
+    public void reset() {
+        reallocate(0);
+    }
+
     @Override
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
@@ -67,6 +79,11 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         int nAtoms = configStorage.getSavedConfig(0).length;
         // (3/5) for 3D; (1/2) for 2D
         double fac = configStorage.getBox().getSpace().D() == 2 ? 0.5 : 0.6;
+
+        if (species != null) {
+            nAtoms = configStorage.getBox().getNMolecules(species);
+        }
+
         for (int i = 0; i < msdSum.length; i++) {
             y[i] = fac * m4dSum[i] / (msdSum[i] * msdSum[i]) * (nAtoms * nSamples[i]) - 1;
         }
@@ -87,12 +104,14 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
     public void newConfigruation() {
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
+        IMoleculeList molecules = configStorage.getBox().getMoleculeList();
         for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, minInterval);
             if (step % (1L << x) == 0) {
                 if (i >= msdSum.length) reallocate(i + 1);
                 Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
+                    if (species != null && molecules.get(j).getType() != species) continue;
                     double d2 = positions[j].Mv1Squared(iPositions[j]);
                     msdSum[i] += d2;
                     m4dSum[i] += d2 * d2;

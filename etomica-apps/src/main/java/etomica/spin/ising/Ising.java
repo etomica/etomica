@@ -105,7 +105,7 @@ public class Ising extends Simulation {
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 
         simGraphic.remove(displayBox);
-        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox, sp, sim.getController()));
+        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox, sim.getController()));
         simGraphic.add(displayBox);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
         temperatureSlider.setMinimum(0.5);

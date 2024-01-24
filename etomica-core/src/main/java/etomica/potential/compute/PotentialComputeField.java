@@ -10,6 +10,7 @@ import etomica.box.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.IPotential1;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
@@ -144,6 +145,8 @@ public class PotentialComputeField implements PotentialCompute {
 
     @Override
     public double computeAll(boolean doForces, PotentialCallback pc) {
+        final boolean wantsHessian = pc != null && pc.wantsHessian();
+
         zeroArrays(doForces);
         IAtomList atoms = box.getLeafList();
         double uTot = 0;
@@ -160,6 +163,11 @@ public class PotentialComputeField implements PotentialCompute {
             }
             uAtom[i] = u;
             uTot += u;
+
+            if(wantsHessian){
+                Tensor Hii = ip.d2u(iAtom);
+                pc.pairComputeHessian(i, i, Hii);
+            }
         }
         energyTot = uTot;
         return uTot;

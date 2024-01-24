@@ -37,7 +37,7 @@ import java.util.List;
 
 public class GlassGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = " Molecular Dynamics";
+    private final static String APP_NAME = "Glass Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
     protected SimGlass sim;
 
@@ -88,9 +88,10 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayCanvas c;
         dbox = new DisplayBox(sim.getController(), sim.box);
         if (sim.getSpace().D() == 2) {
-            c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            c = new DisplayBoxCanvas2DGlass(dbox, sim.getController(), configStorage);
         } else {
-            c = new DisplayBoxCanvas3DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            c = new DisplayBoxCanvas3DGlass(dbox, sim.getController(), configStorage);
+            ((DisplayBoxCanvas3DGlass)c).setVoronoiRadii(new double[]{0.5,sim.sigmaB*0.5});
         }
         canvas = (DisplayBoxCanvasGlass) c;
         remove(getDisplayBox(sim.box));
@@ -402,6 +403,25 @@ public class GlassGraphic extends SimulationGraphic {
 
         flipDispCheckbox.setController(sim.getController());
         add(flipDispCheckbox);
+
+        if (sim.getSpace().D() == 3) {
+            DeviceCheckBox voronoiCheckbox = new DeviceCheckBox(sim.getController(), "voronoi cells", new ModifierBoolean() {
+                @Override
+                public void setBoolean(boolean b) {
+                    if (((DisplayBoxCanvas3DGlass) canvas).getShowVoronoiCells() == b) return;
+                    ((DisplayBoxCanvas3DGlass) canvas).setShowVoronoiCells(b);
+                    dbox.repaint();
+                }
+
+                @Override
+                public boolean getBoolean() {
+                    return ((DisplayBoxCanvas3DGlass)canvas).getShowVoronoiCells();
+                }
+            });
+
+            voronoiCheckbox.setController(sim.getController());
+            add(voronoiCheckbox);
+        }
 
         IAction repaintAction = new IAction() {
             public void actionPerformed() {
@@ -1350,17 +1370,23 @@ public class GlassGraphic extends SimulationGraphic {
         plotVAC.getPlot().setXLog(true);
         add(plotVAC);
 
-
-        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorage);
-        configStorage.addListener(meterAlpha2);
         DisplayPlotXChart plotAlpha2 = new DisplayPlotXChart();
-        DataPumpListener pumpAlpha2 = new DataPumpListener(meterAlpha2, plotAlpha2.getDataSet().makeDataSink(), 1000);
-        sim.integrator.getEventManager().addListener(pumpAlpha2);
         plotAlpha2.setLabel("alpha2");
         plotAlpha2.getPlot().setXLog(true);
-        plotAlpha2.setDoLegend(false);
-        add(plotAlpha2);
 
+        DataSourceAlpha2 meterAlpha2A = new DataSourceAlpha2(configStorage, sim.speciesA);
+        configStorage.addListener(meterAlpha2A);
+        DataPumpListener pumpAlpha2A = new DataPumpListener(meterAlpha2A, plotAlpha2.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpAlpha2A);
+        plotAlpha2.setLegend(new DataTag[]{meterAlpha2A.getTag()}, "A");
+
+        DataSourceAlpha2 meterAlpha2B = new DataSourceAlpha2(configStorage, sim.speciesB);
+        configStorage.addListener(meterAlpha2B);
+        DataPumpListener pumpAlpha2B = new DataPumpListener(meterAlpha2B, plotAlpha2.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpAlpha2B);
+        plotAlpha2.setLegend(new DataTag[]{meterAlpha2B.getTag()}, "B");
+
+        add(plotAlpha2);
 
         //F - new
         DataSourceF meterF = new DataSourceF(configStorage);
@@ -1899,6 +1925,24 @@ public class GlassGraphic extends SimulationGraphic {
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("normal stress");
 
+        VoronoiFaceOrders faceOrders = new VoronoiFaceOrders(sim.box, new double[]{1,sim.sigmaB});
+
+        DisplayTable voronoiFaceTableA = new DisplayTable();
+        DataPumpListener pumpFaceOrdersA = new DataPumpListener(new VoronoiFaceOrders.DataSourceVoronoiFaceOrders(faceOrders, sim.integrator, sim.speciesA.getLeafType()), voronoiFaceTableA.getDataTable().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(pumpFaceOrdersA);
+        voronoiFaceTableA.setLabel("Face Orders A");
+
+        DisplayTable voronoiFaceTableB = new DisplayTable();
+        DataPumpListener pumpFaceOrdersB = new DataPumpListener(new VoronoiFaceOrders.DataSourceVoronoiFaceOrders(faceOrders, sim.integrator, sim.speciesB.getLeafType()), voronoiFaceTableB.getDataTable().makeDataSink(), 100);
+        sim.integrator.getEventManager().addListener(pumpFaceOrdersB);
+        voronoiFaceTableB.setLabel("Face Orders B");
+
+        JPanel faceOrdersPanel = new JPanel(new MigLayout("fill"));
+        faceOrdersPanel.add(voronoiFaceTableA.graphic(), "grow");
+        faceOrdersPanel.add(voronoiFaceTableB.graphic(), "grow");
+        JScrollPane faceOrdersPane = new JScrollPane(faceOrdersPanel);
+        getPanel().tabbedPane.add("Face Orders", faceOrdersPane);
+
         //************* Lay out components ****************//
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox(sim.getController(), "isothermal", new ModifierBoolean() {
@@ -1916,6 +1960,11 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(false);
                     configStorage.reset();
                     configStorage.setEnabled(false);
+                    meterAlpha2A.reset();
+                    meterAlpha2B.reset();
+                    meterGs.reset();
+                    meterGsA.reset();
+                    meterGsB.reset();
                     meterMSD.reset();
                     meterMSDA.reset();
                     meterMSDB.reset();
@@ -1980,6 +2029,11 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(true);
                     configStorage.reset();
                     configStorage.setEnabled(true);
+                    meterAlpha2A.reset();
+                    meterAlpha2B.reset();
+                    meterGs.reset();
+                    meterGsA.reset();
+                    meterGsB.reset();
                     meterMSD.reset();
                     meterMSDA.reset();
                     meterMSDB.reset();
@@ -2168,7 +2222,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
-                (ljmdGraphic.getPanel(), sim.potentialChoice + APP_NAME);
+                (ljmdGraphic.getPanel(), sim.potentialChoice + " " + APP_NAME);
         if (params.potential == SimGlass.PotentialChoice.HS) {
             JFrame f = new JFrame();
             f.setSize(700, 500);

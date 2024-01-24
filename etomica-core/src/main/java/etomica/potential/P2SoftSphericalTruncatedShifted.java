@@ -28,13 +28,13 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
      * @param r2 the squared distance between the atoms
      */
     public double u(double r2) {
-        return (r2 < r2Cutoff) ? (potential.u(r2) - shift) : 0.0;
+        return (r2 < r2Cutoff) ? (potential.u(r2) + shift) : 0.0;
     }
 
     public void u012add(double r2, double[] u012) {
         if (r2 > r2Cutoff) return;
         potential.u012add(r2, u012);
-        u012[0] -= shift;
+        u012[0] += shift;
     }
 
     /**
@@ -42,7 +42,7 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
      */
     public void setTruncationRadius(double rCut) {
         super.setTruncationRadius(rCut);
-        shift = potential.u(r2Cutoff);
+        shift = -potential.u(r2Cutoff);
     }
 
     public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {

@@ -22,7 +22,6 @@ public final class IntArrayList {
 
     private void grow() {
         this.data = Arrays.copyOf(this.data, this.data.length * 2);
-//        System.out.println("grow " + data.length);
     }
 
     public IntArrayList() {
@@ -52,16 +51,15 @@ public final class IntArrayList {
         size++;
     }
 
+    public void set(int i, int x) {
+        if (Debug.ON && i >= size) throw new IndexOutOfBoundsException();
+        data[i] = x;
+    }
+
     public void clear() {
         this.size = 0;
     }
 
-//    @Override
-//    public Integer get(int i) {
-//        return getInt(i);
-//    }
-//
-//    @Override
     public int size() {
         return size;
     }

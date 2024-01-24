@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.data.ConfigurationStorage;
+
 public interface DisplayBoxCanvasGlass {
     void setConfigIndex(int idx);
 

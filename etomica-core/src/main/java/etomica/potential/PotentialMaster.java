@@ -198,7 +198,7 @@ public class PotentialMaster implements PotentialCompute {
         double duij;
         duij = multiplier * u012[1];
         virialTot += duij;
-        if (doForces) {
+        if (doForces && duij != 0) {
             dr.TE(duij / r2);
             forces[iAtomNum].PE(dr);
             forces[jAtomNum].ME(dr);
