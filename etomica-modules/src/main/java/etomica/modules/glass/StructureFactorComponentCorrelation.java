@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Computes autocorrelation of structure factor components.
+ */
 public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAveragerSFac.Sink, Statefull {
 
     protected double[][][] lastXY;
@@ -68,6 +71,13 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
         return map;
     }
 
+    /**
+     * constructs and returns a map that tells you which wave vectors are equivalent.
+     * if map[j]=i, then wv j is equivalent to i.  i<=j
+     *
+     * motionDim=-1 means only magnitude is relevant.  motionDim>=0 means that motionDim
+     * is special.
+     */
     public static int[] makeWaveVectorMap(Vector[] waveVectors, int motionDim) {
         int[] map = new int[waveVectors.length];
         List<Double> wv2List = new ArrayList<>();
@@ -75,9 +85,11 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
         for (int i = 0; i < waveVectors.length; i++) {
             map[i] = -1;
             if (motionDim < 0) {
+                // construct map for magnitudes.
                 double wv2 = waveVectors[i].squared();
                 for (int j = 0; j < wv2List.size(); j++) {
                     if (Math.abs(wv2List.get(j) - wv2) < 1e-6) {
+                        // wv i has the same magnitude as j
                         map[i] = j;
                         break;
                     }

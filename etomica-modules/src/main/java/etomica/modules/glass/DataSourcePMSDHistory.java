@@ -12,7 +12,7 @@ import etomica.units.dimensions.Null;
 
 import java.util.Arrays;
 
-public class DataSourcePMSDHistory implements IDataSink, IDataSource, DataSourceIndependent, DataSourceMSD.MSDSink {
+public class DataSourcePMSDHistory implements IDataSink, IDataSource, DataSourceIndependent, IDataSinkBlockAvg {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
@@ -164,7 +164,8 @@ public class DataSourcePMSDHistory implements IDataSink, IDataSource, DataSource
         return xTag;
     }
 
-    public void putMSD(int log2interval, long step, double msd) {
+    // MSD comes in through here
+    public void putBlock(int log2interval, long step, double msd) {
         if (log2interval < xlog2Interval) return;
         log2interval -= xlog2Interval;
         if (lastSampleMSD.length <= log2interval) reallocate(log2interval + 1);

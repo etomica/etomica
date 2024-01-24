@@ -17,7 +17,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceIndependent, Statefull {
+public class AccumulatorLinearPTensor implements IDataSink, IDataSource, DataSourceIndependent, Statefull {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
@@ -33,16 +33,16 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected double volume, temperature, dt;
     protected List<IDataSinkBlockAvg> viscositySinks;
 
-    public AccumulatorPTensor(Box box, double dt) {
+    public AccumulatorLinearPTensor(Box box, double dt, int maxStored) {
         this.dt = dt;
         this.nP = box.getSpace().D() == 2 ? 1 : 3;
         tag = new DataTag();
         errTag = new DataTag();
         xTag = new DataTag();
-        nBlockSamplesX = new long[60];
-        blockSumX = new double[60][nP];
-        sumP2 = new double[60];
-        sumP4 = new double[60];
+        nBlockSamplesX = new long[maxStored];
+        blockSumX = new double[maxStored][nP];
+        sumP2 = new double[maxStored];
+        sumP4 = new double[maxStored];
         volume = box.getBoundary().volume();
         temperature = 1;
         dim = box.getSpace().D();
@@ -69,7 +69,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         xData = new DataDoubleArray(new int[]{sumP2.length});
         double[] x = xData.getData();
         for(int i=0; i<xData.getLength(); i++){
-            x[i] = dt*(1L<<i);
+            x[i] = dt*(i+1);
         }
         xDataInfo = new DataDoubleArray.DataInfoDoubleArray("time", Time.DIMENSION, new int[]{sumP2.length});
         xDataInfo.addTag(xTag);
@@ -112,7 +112,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
             for(int k=0; k<nP; k++){
                 blockSumX[i][k] += x[k];
             }
-            if (nSample % (1L << i) == 0) {
+            if (nSample % (i+1) == 0) {
                 double sumk = 0;
                 for(int k=0; k<nP; k++){
                     double p2 = blockSumX[i][k]*blockSumX[i][k];
@@ -143,7 +143,7 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         double fac = dt*volume/(2*temperature);
 
         for(int i=0; i<sumP2.length; i++){
-            long n = 1L<<i;
+            long n = (i+1);
             long M = nBlockSamplesX[i];
             y[i] = fac/M/n*sumP2[i];
             if(M != 0){

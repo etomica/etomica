@@ -10,7 +10,6 @@ import etomica.species.ISpecies;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BoxEventManager {
 
@@ -69,8 +68,8 @@ public class BoxEventManager {
         }
     }
 
-    public void moleculeIndexChanged(IMolecule molecule, int index) {
-        BoxMoleculeIndexEvent event = new BoxMoleculeIndexEvent(box, molecule, index);
+    public void moleculeIndexChanged(IMolecule molecule, int oldIndex) {
+        BoxMoleculeIndexEvent event = new BoxMoleculeIndexEvent(box, molecule, oldIndex);
         for (BoxEventListener listener : listeners) {
             listener.boxMoleculeIndexChanged(event);
         }
