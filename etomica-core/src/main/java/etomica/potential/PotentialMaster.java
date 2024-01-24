@@ -16,14 +16,10 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
-import etomica.units.*;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PotentialMaster implements PotentialCompute {
     protected final BondingInfo bondingInfo;
@@ -158,8 +154,7 @@ public class PotentialMaster implements PotentialCompute {
     }
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
-        pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
-        pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
+        setPairPotential(atomType1, atomType2, p12, new double[]{1,0,0,0});
     }
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12, double[] ijScale){
