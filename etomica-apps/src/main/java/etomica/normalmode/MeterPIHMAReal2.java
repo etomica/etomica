@@ -41,6 +41,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected double[] gamma, dGamma, f11, f1N, df11, df1N, d2f11, d2f1N;
     protected double[][] centerCoefficients, dCenterCoefficients, d2CenterCoefficients;
     protected Box box;
+    protected double EnShift;
 
     public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, MCMoveHOReal2 move) {
         int nData = 2;
@@ -90,6 +91,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 //            getEcm();
 //        }
 
+        this.EnShift = 0;
     }
 
     private void getEcm() {
@@ -244,10 +246,10 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             Cvn -= beta*drdotHdrdot;
 
             x[0] += En;
-            x[1] += Cvn + (En0+En)*(En0+En);
+            x[1] += Cvn + (En0+En- EnShift)*(En0+En- EnShift);
 //            System.out.println();
         }//shifts
-        x[0] = En0 + x[0]/ns;
+        x[0] = En0 + x[0]/ns - EnShift;
         x[1] = Cvn0 + x[1]/ns;
         return data;
     }
@@ -310,4 +312,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     public DataTag getTag() {
         return tag;
     }
+
+    public void setEnShift(double E) { this.EnShift = E; }
 }

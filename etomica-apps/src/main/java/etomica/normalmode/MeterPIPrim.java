@@ -18,6 +18,7 @@ public class MeterPIPrim implements IDataSource {
     protected double beta;
     protected int numAtoms;
     protected Box box;
+    protected double EnShift;
 
     public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, Box box) {
         int nData = 2;
@@ -32,6 +33,7 @@ public class MeterPIPrim implements IDataSource {
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
         this.box = box;
+        this.EnShift = 0;
     }
 
     public IDataInfo getDataInfo() {
@@ -49,8 +51,10 @@ public class MeterPIPrim implements IDataSource {
 
         pmBonding.computeAll(false);
         pcP1.computeAll(false);
-        x[0] = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy(); //En
+        x[0] = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift; //En
         x[1] = dim*numAtoms*nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta + x[0]*x[0];
         return data;
     }
+
+    public void setEnShift(double E) { this.EnShift = E; }
 }

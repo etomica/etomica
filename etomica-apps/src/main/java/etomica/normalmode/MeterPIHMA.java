@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
@@ -8,7 +7,6 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMasterBonding;
@@ -34,6 +32,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected Vector[] rdot, rddot;
     protected final Vector[] latticePositions;
     protected int dim, numAtoms;
+    protected double EnShift;
 
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
         int nData = 2;
@@ -115,6 +114,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
 
+        this.EnShift = 0;
     }
 
     @Override
@@ -182,8 +182,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         Cvn -= beta*drdotHdrdot;
-        x[0] = En;
-        x[1] = Cvn + En*En;
+        x[0] = En - EnShift;
+        x[1] = Cvn + (En - EnShift)*(En - EnShift);
 
         return data;
     }
@@ -250,4 +250,5 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         return true;
     }
 
+    public void setEnShift(double E) { this.EnShift = E; }
 }

@@ -40,6 +40,7 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
     protected double hbar, omega, omegaSample, temperature, beta;
     protected double R, sinhR, cothR, massRing;
     protected double fac1, fac2, fac3, fac4, mOmegaF2, mOmegaH2;
+    protected double EnShift;
 
     public MeterPIHMAReal2Inf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, double temperature, int nBeads, double omega,double omegaSample, Box box, double hbar) {
         int nData = 2;
@@ -98,6 +99,8 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
             System.out.println(" En_ho_stage:  " + E_ho_stage + "   E_ho_stage_inf: " + dim*numAtoms*hbar*omega/2/Math.tanh(beta*hbar*omega/2));
             System.out.println(" Cvn_ho_stage: " + Cv_ho_stage  + "  Cv_ho_stage_inf: " + beta*beta*dim*numAtoms*hbar*hbar*omega*omega/4/Math.sinh(beta*hbar*omega/2)/Math.sinh(beta*hbar*omega/2));
         }
+
+        this.EnShift = 0;
     }
 
     public void setNumShifts(int nShifts) {
@@ -321,4 +324,6 @@ public class MeterPIHMAReal2Inf implements IDataSource, PotentialCallback {
     public DataTag getTag() {
         return tag;
     }
+
+    public void setEnShift(double E) { this.EnShift = E; }
 }

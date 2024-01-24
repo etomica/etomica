@@ -31,6 +31,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected int numAtoms;
     protected Vector[] latticePositions;
     protected Vector drShift;
+    protected double EnShift;
 
     public MeterPIHMAc(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
         int nData = 2;
@@ -52,6 +53,7 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
         }
         this.drShift = box.getSpace().makeVector();
+        this.EnShift = 0;
     }
 
     @Override
@@ -93,10 +95,10 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             }
         }
         if (numAtoms == 1) {
-            x[0] = dim/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+            x[0] = dim/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;
             x[1] = dim/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         } else {
-            x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir;
+            x[0] = -dim/2.0/beta + dim*numAtoms/beta + pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;
             x[1] = -dim/2.0/beta/beta + dim*numAtoms/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         }
         return data;
@@ -196,4 +198,5 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         return true;
     }
 
+    public void setEnShift(double E) { this.EnShift = E; }
 }

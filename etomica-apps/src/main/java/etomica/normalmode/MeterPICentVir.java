@@ -27,6 +27,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected Vector[] rc;
     protected int dim;
     protected int numAtoms;
+    protected double EnShift;
 
     public MeterPICentVir(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
         int nData = 2;
@@ -42,6 +43,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
+        this.EnShift = 0;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
             }
         }
         // same for both bound and unbound systems
-        x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir;
+        x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir - EnShift;
         x[1] = dim*numAtoms/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
 
         return data;
@@ -106,4 +108,5 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         return true;
     }
 
+    public void setEnShift(double E) { this.EnShift = E; }
 }

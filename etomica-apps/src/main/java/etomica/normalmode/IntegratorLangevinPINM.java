@@ -59,10 +59,11 @@ public class IntegratorLangevinPINM extends IntegratorMD {
             mScale[k] = move.lambda[k]/(mass*omega2);
         }
 
-        if (move.omega2 == 0) mScale[nBeads/2] = nBeads/omega2;
+        double omegan2 = nBeads*temperature*temperature/hbar/hbar;
+        if (move.omega2 == 0) mScale[nBeads/2] = nBeads*omegan2/omega2;
 
-//        // The "s" rescaling is no longer needed as s=1 always!
-////        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
+        // The "s" rescaling is no longer needed as s=1 always!
+//        // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = n
 //        double[] fq = new double[nBeads];
 //        for (int k = 0; k < nBeads; k++) {
 //            for (int i = 0; i < nBeads; i++) {
@@ -88,7 +89,8 @@ public class IntegratorLangevinPINM extends IntegratorMD {
 
         // analytical scaling s (same as code above!)
         if (move.omega2 == 0) {
-            double s = omega2/nBeads;
+            double s = omega2/omegan2/nBeads;
+            double ss = omega2/nBeads;
             for (int i = 0; i < mScale.length; i++) {
                 mScale[i] *= s;
             }
