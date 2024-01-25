@@ -16,7 +16,7 @@ import etomica.units.dimensions.Energy;
  */
 public class P3BondAngle implements IPotentialBondAngle {
 
-    public P3BondAngle(double epsilon, double angle) {
+    public P3BondAngle(double angle, double epsilon) {
         setAngle(angle);
         setEpsilon(epsilon);
     }
