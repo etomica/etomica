@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode;
-
+import etomica.atom.AtomLeafAgentManager;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -14,8 +14,6 @@ import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterEnergyFromIntegrator;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
@@ -33,7 +31,6 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.units.dimensions.Length;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -51,8 +48,8 @@ import java.util.List;
 
 public class LJPIMDInf extends Simulation {
 
-    public PotentialComputeField pcP1harmPI, pcP1harmM;
-    public PotentialComputeAggregate pmAgg, pcP1ah;
+    public PotentialComputeField pcP1harmPI, pcP1harmMinus;
+    public PotentialComputeAggregate pmAgg, pmAggAh;
     public final PotentialComputePair potentialMaster;
     public final IntegratorMD integrator;
     public final PotentialMasterBonding pmBonding;
@@ -77,8 +74,8 @@ public class LJPIMDInf extends Simulation {
 
         double omega2 = omega*omega;
 
+        if (nBeads == 1) mOmegaF2 = 0;
         P2Harmonic p2Bond = new P2Harmonic(mOmegaF2, 0);
-
         List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < nBeads; i++) {
             int[] p = new int[]{i, (i + 1) % nBeads};
@@ -99,18 +96,24 @@ public class LJPIMDInf extends Simulation {
         potentialMaster.setPairPotential(atomType, atomType, p2);
         potentialMaster.doAllTruncationCorrection = false;
 
+        AtomLeafAgentManager<Vector> siteManager = new AtomLeafAgentManager<>(iAtom -> {
+            Vector v = space.makeVector();
+            v.E(iAtom.getPosition());
+            return v;
+        }, box);
+        P1HarmonicSite p1Harmonic = new P1HarmonicSite(space, siteManager);
+        p1Harmonic.setSpringConstant(mOmegaH2/2.0); //the divide by 2 is because P1HarmonicSite used Uh=k x^2.
         pcP1harmPI = new PotentialComputeField(getSpeciesManager(), box);
-        IPotential1 p1harmPI = new P1Anharmonic(space, mOmegaH2, 0);
-        pcP1harmPI.setFieldPotential(species.getLeafType(), p1harmPI);
+        pcP1harmPI.setFieldPotential(species.getLeafType(), p1Harmonic);
 
-        pcP1harmM = new PotentialComputeField(getSpeciesManager(), box);
-        IPotential1 p1harmM = new P1Anharmonic(space, -mass*omega2/nBeads, 0); //negative harm
-        pcP1harmM.setFieldPotential(species.getLeafType(), p1harmM);
+        P1HarmonicSite p1HarmMinus = new P1HarmonicSite(space, siteManager);
+        p1HarmMinus.setSpringConstant(-mass*omega2/nBeads/2.0);
+        pcP1harmMinus = new PotentialComputeField(getSpeciesManager(), box);
+        pcP1harmMinus.setFieldPotential(species.getLeafType(), p1HarmMinus);
 
         PotentialComputeAggregate.localStorageDefault = true;
-        pcP1ah = new PotentialComputeAggregate(potentialMaster, pcP1harmM);
-        PotentialComputeAggregate.localStorageDefault = true;
-        pmAgg = new PotentialComputeAggregate(pmBonding, pcP1harmPI, pcP1ah);
+        pmAggAh = new PotentialComputeAggregate(potentialMaster, pcP1harmMinus);
+        pmAgg = new PotentialComputeAggregate(pmBonding, pcP1harmPI, pmAggAh);
 
         if (coordType == MoveChoice.Real) {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
@@ -141,17 +144,21 @@ public class LJPIMDInf extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.steps = 10000;
-            params.hbar = 1;
-            params.temperature = 1;
+            params.hbar = 0.1;
+            params.temperature = 0.1;
             params.numAtoms = 32;
             params.rc = 2.5;
-            params.isGraphic = false;
+            params.isGraphic = !false;
             params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
             params.nShifts = 0;
+
+            params.facTimestep = 0.1;
             params.timeStep = 0.0001;
-            params.nBeads = 1;
+
+            params.nBeads = 2;
+
         }
 
         Space space = Space.getInstance(params.D);
@@ -223,7 +230,7 @@ public class LJPIMDInf extends Simulation {
         System.out.println(" rc: " + rc);
 
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
-        MeterPIPrimInf meterPrim = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harmPI, sim.pcP1ah, nBeads, temperature, sim.box, omega, hbar);
+        MeterPIPrimInf meterPrim = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harmPI, sim.pmAggAh, nBeads, temperature, sim.box, omega, hbar);
         MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
         MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
         MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
@@ -266,15 +273,36 @@ public class LJPIMDInf extends Simulation {
                     return allColors[(768 * a.getIndex() / (finalNBeads))];
                 }
             };
-
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 1.0);
+
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 0.2);
+
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountTime counter = new DataSourceCountTime(sim.integrator);
             DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
-            simGraphic.makeAndDisplayFrame("PIMD - "+coordType);
+
+            MeterMSDHO meterMSD = new MeterMSDHO(sim.box);
+            AccumulatorHistory historyMSD = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyMSD.setTimeDataSource(counter);
+            DataPumpListener pumpMSD = new DataPumpListener(meterMSD, historyMSD, interval);
+            sim.integrator.getEventManager().addListener(pumpMSD);
+            DisplayPlotXChart plotMSD = new DisplayPlotXChart();
+            plotMSD.setLabel("MSD");
+            plotMSD.setDoLegend(false);
+            historyMSD.addDataSink(plotMSD.makeSink("MSD history"));
+            simGraphic.add(plotMSD);
+
+            MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+            AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyPE.setTimeDataSource(counter);
+            DataPumpListener pumpPE = new DataPumpListener(meterPE, historyPE, interval);
+            sim.integrator.getEventManager().addListener(pumpPE);
+
+
+            simGraphic.makeAndDisplayFrame("PIMD-"+coordType);
+
             return;
         }
 
@@ -634,18 +662,20 @@ public class LJPIMDInf extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public double k2 = 219.949835;
+        public double k2 = 1;//219.949835;
+        public double gammaLangevin = 2.0 * Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;
         public double temperature = 1.0;
         public int numAtoms = 32;
         public double mass = 1.0;
-        public double hbar = 1;
+        public double hbar = 0.1;
         public double rc = 2.5;
         public boolean isGraphic = false;
         public int nShifts = 0;
+        public double facTimestep = 0.01;
         public double timeStep = -1;
         public int nBeads = -1;
-        public MoveChoice coordType = MoveChoice.Real;
+        public MoveChoice coordType = MoveChoice.StageEC;
     }
 }

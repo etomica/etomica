@@ -80,7 +80,6 @@ public class LJPIMD extends Simulation {
         double omegaN = Math.sqrt(nBeads)/(hbar*beta);
         double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
-
         List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < nBeads; i++) {
             int[] p = new int[]{i, (i + 1) % nBeads};
@@ -132,20 +131,25 @@ public class LJPIMD extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.steps = 1000;
+            params.steps = 10000;
             params.hbar = 0.1;
-            params.temperature = 0.6;
+            params.temperature = 0.1;
             params.numAtoms = 32;
             params.rc = 2.5;
             params.isGraphic = false;
-//            params.coordType = MoveChoice.Real;
-            params.coordType = MoveChoice.NM;
+            params.coordType = MoveChoice.Real;
+//            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.StageEC;
+            params.nShifts = 0;
 
+            params.facTimestep = 0.1;
+            params.timeStep = 0.0001;
+
+            params.nBeads = 2;
         }
-
+        double facTimestep = params.facTimestep;
         Space space = Space.getInstance(params.D);
         int nShifts = params.nShifts;
         double mass = params.mass;
@@ -172,17 +176,16 @@ public class LJPIMD extends Simulation {
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
         if (timeStep == -1) {
-            double c = 0.1;
             if (coordType == MoveChoice.Real) {
-                timeStep = c/omegaN/Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
+                timeStep = facTimestep/omegaN/Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
             } else if (coordType == MoveChoice.NM) {
                 double s = omega2/omegaN/omegaN/nBeads;
-                timeStep = c*Math.sqrt(s)/omega; // which is 1/sqrt(n)
+                timeStep = facTimestep*Math.sqrt(s)/omega; // which is 1/sqrt(n)
             } else if (coordType == MoveChoice.Stage) {
                 double s = omega2/omegaN/omegaN * (1 + 1.0 / 12.0 * (nBeads * nBeads - 1.0) / nBeads);
-                timeStep = c*Math.sqrt(s)/omega; // for large n, timeStep ~ hbar/T
+                timeStep = facTimestep*Math.sqrt(s)/omega; // for large n, timeStep ~ hbar/T
             } else {
-                timeStep = c/omega;
+                timeStep = facTimestep/omega;
             }
         }
 
@@ -200,6 +203,7 @@ public class LJPIMD extends Simulation {
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" timestep: " + timeStep);
+        System.out.println(" facTimestep: " + facTimestep);
         System.out.println(" k2: " + k2);
         System.out.println(" gammaLangevin: " + gammaLangevin);
         System.out.println(" N: " + numAtoms);
@@ -467,7 +471,7 @@ public class LJPIMD extends Simulation {
         double avgEnPrim = dataAvgPrim.getValue(0);
         double errEnPrim = dataErrPrim.getValue(0);
         double corEnPrim = dataCorPrim.getValue(0);
-        System.out.println("\n En_prim:         " + (avgEnPrim-EnShift)/numAtoms + "   err: " + errEnPrim/numAtoms + " cor: " + corEnPrim);
+        System.out.println("\n En_prim:         " + (avgEnPrim+EnShift)/numAtoms + "   err: " + errEnPrim/numAtoms + " cor: " + corEnPrim);
         double CvnPrim = kB_beta2*(dataAvgPrim.getValue(1) - avgEnPrim*avgEnPrim);
         varX0 = errEnPrim*errEnPrim;
         varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
@@ -485,7 +489,7 @@ public class LJPIMD extends Simulation {
 //        double avgEnVir = dataAvgVir.getValue(0);
 //        double errEnVir = dataErrVir.getValue(0);
 //        double corEnVir = dataCorVir.getValue(0);
-//        System.out.println(" En_vir:          " + (avgEnVir-EnShift)/numAtoms + "   err: " + errEnVir/numAtoms + " cor: " + corEnVir);
+//        System.out.println(" En_vir:          " + (avgEnVir+EnShift)/numAtoms + "   err: " + errEnVir/numAtoms + " cor: " + corEnVir);
 //        double CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
 //        varX0 = errEnVir*errEnVir;
 //        varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
@@ -501,7 +505,7 @@ public class LJPIMD extends Simulation {
         double avgEnCentVir = dataAvgCentVir.getValue(0);
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorCentVir.getValue(0);
-        System.out.println(" En_cvir:         " + (avgEnCentVir-EnShift)/numAtoms + "   err: " + errEnCentVir/numAtoms + " cor: " + corEnCentVir);
+        System.out.println(" En_cvir:         " + (avgEnCentVir+EnShift)/numAtoms + "   err: " + errEnCentVir/numAtoms + " cor: " + corEnCentVir);
         double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
         varX0 = errEnCentVir*errEnCentVir;
         varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
@@ -517,7 +521,7 @@ public class LJPIMD extends Simulation {
         double avgEnHMAc = dataAvgHMAc.getValue(0);
         double errEnHMAc = dataErrHMAc.getValue(0);
         double corEnHMAc = dataCorHMAc.getValue(0);
-        System.out.println(" En_hmac:         " + (avgEnHMAc-EnShift)/numAtoms + "   err: " + errEnHMAc/numAtoms + " cor: " + corEnHMAc);
+        System.out.println(" En_hmac:         " + (avgEnHMAc+EnShift)/numAtoms + "   err: " + errEnHMAc/numAtoms + " cor: " + corEnHMAc);
         double CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) - avgEnHMAc*avgEnHMAc);
         varX0 = errEnHMAc*errEnHMAc;
         varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
@@ -536,7 +540,7 @@ public class LJPIMD extends Simulation {
         double avgEnNMSimple = dataAvgNMsimple.getValue(0);
         double errEnNMSimple = dataErrNMsimple.getValue(0);
         double corEnNMSimple = dataCorNMsimple.getValue(0);
-        System.out.println(" En_nm_simple:    " + (avgEnNMSimple-EnShift)/numAtoms + "   err: " + errEnNMSimple/numAtoms + " cor: " + corEnNMSimple);
+        System.out.println(" En_nm_simple:    " + (avgEnNMSimple+EnShift)/numAtoms + "   err: " + errEnNMSimple/numAtoms + " cor: " + corEnNMSimple);
         double Cvn_nm_simple  = kB_beta2*(dataAvgNMsimple.getValue(1) - avgEnNMSimple*avgEnNMSimple);
         varX0 = errEnNMSimple*errEnNMSimple;
         varX1 = dataErrNMsimple.getValue(1)*dataErrNMsimple.getValue(1);
@@ -552,7 +556,7 @@ public class LJPIMD extends Simulation {
         double avgEnNMEC = dataAvgNMEC.getValue(0);
         double errEnNMEC = dataErrNMEC.getValue(0);
         double corEnNMEC = dataCorNMEC.getValue(0);
-        System.out.println(" En_nm_ec:        " + (avgEnNMEC-EnShift)/numAtoms + "   err: " + errEnNMEC/numAtoms + " cor: " + corEnNMEC);
+        System.out.println(" En_nm_ec:        " + (avgEnNMEC+EnShift)/numAtoms + "   err: " + errEnNMEC/numAtoms + " cor: " + corEnNMEC);
         double CvnNMEC  = kB_beta2*(dataAvgNMEC.getValue(1) - avgEnNMEC*avgEnNMEC);
         varX0 = errEnNMEC*errEnNMEC;
         varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
@@ -571,7 +575,7 @@ public class LJPIMD extends Simulation {
         double avgEnStageSimple = dataAvgStageSimple.getValue(0);
         double errEnStageSimple = dataErrStageSimple.getValue(0);
         double corEnStageSimple = dataCorStageSimple.getValue(0);
-        System.out.println(" En_stage_simple: " + (avgEnStageSimple-EnShift)/numAtoms + "   err: " + errEnStageSimple/numAtoms + " cor: " + corEnStageSimple);
+        System.out.println(" En_stage_simple: " + (avgEnStageSimple+EnShift)/numAtoms + "   err: " + errEnStageSimple/numAtoms + " cor: " + corEnStageSimple);
         double Cvn_stage_simple  = kB_beta2*(dataAvgStageSimple.getValue(1) - avgEnStageSimple*avgEnStageSimple);
         varX0 = errEnStageSimple*errEnStageSimple;
         varX1 = dataErrStageSimple.getValue(1)*dataErrStageSimple.getValue(1);
@@ -587,7 +591,7 @@ public class LJPIMD extends Simulation {
         double avgEnStageEC = dataAvgStageEC.getValue(0);
         double errEnStageEC = dataErrStageEC.getValue(0);
         double corEnStageEC = dataCorStageEC.getValue(0);
-        System.out.println(" En_stage_ec:     " + (avgEnStageEC-EnShift)/numAtoms + "   err: " + errEnStageEC/numAtoms + " cor: " + corEnStageEC);
+        System.out.println(" En_stage_ec:     " + (avgEnStageEC+EnShift)/numAtoms + "   err: " + errEnStageEC/numAtoms + " cor: " + corEnStageEC);
         double CvnStageEC  = kB_beta2*(dataAvgStageEC.getValue(1) - avgEnStageEC*avgEnStageEC);
         varX0 = errEnStageEC*errEnStageEC;
         varX1 = dataErrStageEC.getValue(1)*dataErrStageEC.getValue(1);
@@ -652,7 +656,7 @@ public class LJPIMD extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public double k2 = 219.949835;
+        public double k2 = 1;//219.949835;
         public double gammaLangevin = 2.0 * Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;
@@ -666,5 +670,6 @@ public class LJPIMD extends Simulation {
         public double timeStep = -1;
         public int nBeads = -1;
         public MoveChoice coordType = MoveChoice.StageEC;
+        public double facTimestep = 0.01;
     }
 }
