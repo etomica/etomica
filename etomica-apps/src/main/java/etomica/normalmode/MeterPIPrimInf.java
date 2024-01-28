@@ -66,12 +66,9 @@ public class MeterPIPrimInf implements IDataSource {
         pcP1harm.computeAll(false);
         pcP1ah.computeAll(false);
 
-
-        if (numAtoms==1){
-            x[0] = dim*hbar*omega/2*cothR - R*cothR*pmBonding.getLastEnergy() + R/sinhR*pcP1harm.getLastEnergy()+pcP1ah.getLastEnergy();
-        } else {
-            x[0] = dim*(numAtoms*nBeads-1)/2.0/beta + pcP1harm.getLastEnergy() - pmBonding.getLastEnergy(); //En
-        }
+//        x[0] = dim*numAtoms*hbar*omega/2*cothR - R*cothR*pmBonding.getLastEnergy() + R/sinhR*pcP1harm.getLastEnergy()+pcP1ah.getLastEnergy()
+//        - dim*numAtoms*hbar*omega/2/Math.tanh(beta*hbar*omega/2);
+        x[0] = dim*numAtoms*hbar*omega/2*cothR - R*cothR*pmBonding.getLastEnergy() + R/sinhR*pcP1harm.getLastEnergy()+pcP1ah.getLastEnergy();
         x[1] = fac1 + fac2*pmBonding.getLastEnergy() + fac3*pcP1harm.getLastEnergy() + x[0]*x[0];
         return data;
     }
