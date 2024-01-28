@@ -90,7 +90,7 @@ public class IntegratorLangevin extends IntegratorMD {
             v.PE(rand);
             if (thermostatNoDrift) {
                 totalMass += m;
-                netMomentum.PEa1Tv1(m, rand);
+                netMomentum.PEa1Tv1(m, v);
             }
         }
         if (thermostatNoDrift) {
