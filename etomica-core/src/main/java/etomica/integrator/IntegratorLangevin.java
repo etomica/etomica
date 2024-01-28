@@ -25,15 +25,11 @@ import etomica.util.random.IRandom;
 public class IntegratorLangevin extends IntegratorMD {
 
     protected double gamma;
-    protected final Vector netMomentum;
-    protected double totalMass0;
-
 
     public IntegratorLangevin(PotentialCompute potentialCompute, IRandom random,
                               double timeStep, double temperature, Box box, double gamma) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
-        netMomentum = space.makeVector();
     }
 
     public void setGamma(double newGamma) {
@@ -47,9 +43,6 @@ public class IntegratorLangevin extends IntegratorMD {
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             r.PEa1Tv1(dt, v);
-
-            if (thermostatNoDrift) v.PEa1Tv1(-dt/totalMass0, netMomentum);
-
         }
     }
 
@@ -61,10 +54,6 @@ public class IntegratorLangevin extends IntegratorMD {
             Vector force = forces[iLeaf];
             Vector v = a.getVelocity();
             v.PEa1Tv1(dt * a.getType().rm(), force);  // p += f(old)*dt/2
-            if (thermostatNoDrift) {
-                netMomentum.PEa1Tv1(dt, force);
-            }
-
         }
     }
 
@@ -87,6 +76,8 @@ public class IntegratorLangevin extends IntegratorMD {
         Vector rand = space.makeVector();
         int nLeaf = atoms.size();
         double expX = Math.exp(-x);
+        Vector netMomentum = space.makeVector();
+        double totalMass = 0;
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
             double m = a.getType().getMass();
@@ -97,17 +88,19 @@ public class IntegratorLangevin extends IntegratorMD {
             Vector v = a.getVelocity();
             v.TE(expX);
             v.PE(rand);
-
-
-
             if (thermostatNoDrift) {
-                netMomentum.PEa1Tv1(-m, v);
+                totalMass += m;
+                netMomentum.PEa1Tv1(m, rand);
             }
-
+        }
+        if (thermostatNoDrift) {
+            netMomentum.TE(1.0/totalMass);
+            for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
+                IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
+                a.getVelocity().ME(netMomentum);
+            }
         }
     }
-
-
 
     protected void doStepInternal() {
         super.doStepInternal();
@@ -157,74 +150,14 @@ public class IntegratorLangevin extends IntegratorMD {
     }
 
     public void randomizeMomenta() {
-//        if (thermostatNoDrift) {
-//            throw new RuntimeException("Langevin for PI is currently unable to prevent drift");
-//        }
         atomActionRandomizeVelocity.setTemperature(temperature);
         IAtomList leafList = box.getLeafList();
         for (IAtom a : leafList) {
             atomActionRandomizeVelocity.actionPerformed(a);
-//            ((IAtomKinetic) a).getVelocity().TE(1 / Math.sqrt(mScale[a.getIndex()]));
             ((IAtomKinetic) a).getVelocity().TE(1 / Math.sqrt(1.0));
         }
         if (alwaysScaleMomenta) {
             scaleMomenta();
-        }
-    }
-
-    public void shiftMomenta() {
-        netMomentum.E(0);
-        totalMass0 = 0;
-        for (IAtom a : box.getLeafList()) {
-            int i = a.getIndex();
-            if (i != 0) continue;
-            double m = a.getType().getMass();
-            netMomentum.PEa1Tv1(m, ((IAtomKinetic) a).getVelocity());
-            totalMass0 += m;
-        }
-    }
-
-    protected void scaleMomenta(Vector t) {
-        IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.size();
-        currentKineticEnergy = 0;
-        if (nLeaf == 0) return;
-        // calculate current kinetic temperature.
-        for (int i = 0; i < space.D(); i++) {
-            // scale independently in each dimension
-            double sum = 0.0;
-            int nLeafNotFixed = 0;
-            for (IAtom value : leafList) {
-                IAtomKinetic atom = (IAtomKinetic) value;
-                double mass = atom.getType().getMass();
-                if (mass == Double.POSITIVE_INFINITY) continue;
-                double v = atom.getVelocity().getX(i);
-                sum += mass * v * v;
-                nLeafNotFixed++;
-            }
-            if (sum == 0) {
-                if (t.getX(i) == 0) {
-                    continue;
-                }
-                if (i > 0) {
-                    // wonky.  possible in theory.  but then, you called
-                    // scaleMomenta, so you're probably a bad person and
-                    // deserve this.
-                    throw new RuntimeException("atoms have no velocity component in " + i + " dimension");
-                }
-                randomizeMomenta();
-                i--;
-                // try again, we could infinite loop in theory
-                continue;
-            }
-            double s = Math.sqrt(t.getX(i) / (sum / nLeafNotFixed));
-            currentKineticEnergy += 0.5 * sum * s * s;
-            if (s == 1) continue;
-            for (IAtom value : leafList) {
-                IAtomKinetic atom = (IAtomKinetic) value;
-                Vector vel = atom.getVelocity();
-                vel.setX(i, vel.getX(i) * s); //scale momentum
-            }
         }
     }
 
