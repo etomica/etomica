@@ -123,6 +123,7 @@ public class LJPIMD extends Simulation {
         moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
+
     }
 
     public static void main(String[] args) {
@@ -133,21 +134,17 @@ public class LJPIMD extends Simulation {
         } else {
             params.steps = 10000;
             params.hbar = 0.1;
-            params.temperature = 0.1;
+            params.temperature = 0.5;
             params.numAtoms = 32;
             params.rc = 2.5;
             params.isGraphic = false;
-            params.coordType = MoveChoice.Real;
+//            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.NMEC;
-//            params.coordType = MoveChoice.StageEC;
-            params.nShifts = 0;
-
-            params.facTimestep = 0.1;
-            params.timeStep = 0.0001;
-
-            params.nBeads = 2;
+            params.coordType = MoveChoice.StageEC;
+            params.nBeads = 1;
+            params.timeStep = 0.01;
         }
         double facTimestep = params.facTimestep;
         Space space = Space.getInstance(params.D);
@@ -198,7 +195,7 @@ public class LJPIMD extends Simulation {
         System.out.println(" hbar: " + hbar);
         System.out.println(" w: " + omega);
         System.out.println(" wn: " + omegaN  + " , w/sqrt(n): " + omega/Math.sqrt(nBeads));
-        System.out.println(" x = beta*hbar*w = " + hbar*omega/temperature);
+        System.out.println(" x: beta*hbar*w = " + hbar*omega/temperature);
         System.out.println(" nBeads: " + nBeads);
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
@@ -354,6 +351,11 @@ public class LJPIMD extends Simulation {
             dlHMA2.cleanUp();
             System.exit(0);
         }
+
+        sim.potentialMaster.computeAll(false);
+        double uLat = sim.potentialMaster.getLastEnergy()/numAtoms;
+        System.out.println("uLat: " + uLat);
+
 
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
@@ -656,7 +658,7 @@ public class LJPIMD extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public int D = 3;
-        public double k2 = 1;//219.949835;
+        public double k2 = 219.949835;
         public double gammaLangevin = 2.0 * Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;

@@ -39,10 +39,20 @@ public class IntegratorLangevinPIInf extends IntegratorMD {
     protected Vector[] latticePositions;
     protected int nBeads;
 
+
+    protected double mOmegaH2, omegaSample;
+    protected final double[] sigma;
+
     public IntegratorLangevinPIInf(PotentialCompute potentialCompute, IRandom random,
                                    double timeStep, double temperature, Box box, double gamma,
-                                   double hbar, double omega, double omegaSample) {
+                                   double hbar, double omega, double omegaSample, MCMoveHOReal2 move) {
         super(potentialCompute, random, timeStep, temperature, box);
+
+
+
+        sigma = move.chainSigmas;
+
+        this.omegaSample = omegaSample;
         setGamma(gamma);
         this.omega = omega;
         this.hbar = hbar;
@@ -52,7 +62,7 @@ public class IntegratorLangevinPIInf extends IntegratorMD {
         double massBead = box.getLeafList().get(0).getType().getMass();//m/n
         double massRing = nBeads*massBead;
         double alpha = beta*hbar*omega/nBeads;
-        double mOmegaH2 = 2*massRing*omega*omega*Math.tanh(alpha/2)/nBeads/alpha;
+        mOmegaH2 = 2*massRing*omega*omega*Math.tanh(alpha/2)/nBeads/alpha;
 
         setupStagingParams(omegaSample);
         mScale = new double[nBeads];
@@ -164,6 +174,48 @@ public class IntegratorLangevinPIInf extends IntegratorMD {
                 box.getBoundary().nearestImage(drShift);
                 r.Ev1Pv2(rOrig, drShift);
             }
+
+
+
+
+
+
+
+
+            double uh = 0;
+            Vector dr = box.getSpace().makeVector();
+            double mass = 1.0;
+            double hbar = 1.0;
+            double omegaN = Math.sqrt(nBeads)/(hbar)*temperature;
+            for (int j = 0; omegaSample > 0 && j < nBeads; j++) {
+                Vector rj = atoms.get(j).getPosition();
+                dr.Ev1Mv2(rj, latticePositions[m.getIndex()]);
+                box.getBoundary().nearestImage(dr);
+                uh += 1.0 / 2.0 * mOmegaH2 * dr.squared();
+            }
+
+            double alpha = beta*hbar*omega/nBeads;
+            double mOmegaF2 = mass*omega*omega/nBeads/alpha/Math.sinh(alpha);
+
+            for (int j = 0; j < nBeads; j++) {
+                Vector rj = atoms.get(j).getPosition();
+                int jj = (j+1)%nBeads;
+                Vector rjj = atoms.get(jj).getPosition();
+                dr.Ev1Mv2(rjj, rj);
+                box.getBoundary().nearestImage(dr);
+                uh += 1.0 / 2.0  * mOmegaF2 * dr.squared();
+            }
+
+            double uh2 = 0;
+            for (int j = 0; omegaSample > 0 && j < nBeads; j++) {
+                uh2 += 1.0 / 2.0 * mass * ki[j] * u[j].squared();
+            }
+
+            if (alpha != 0) {
+//                System.out.println(uh + " " + uh2);
+                System.out.println(uh2-uh);
+            }
+
         }
     }
 

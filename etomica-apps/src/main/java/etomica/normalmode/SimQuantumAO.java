@@ -145,15 +145,23 @@ public class SimQuantumAO extends Simulation {
             // custom parameters
             params.steps = 1000000;
             params.hbar = 1;
-            params.temperature = 0.5;
+            params.temperature = 1.0;
+
+
+
             params.k2 = 1;
-            params.k4 = 24;
+
+
+
+
+//            params.k4 = 24;
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
             params.nShifts = 0;
+            params.nBeads= 4;
         }
 
         int nShifts = params.nShifts;

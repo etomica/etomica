@@ -96,6 +96,8 @@ public class SimQuantumAOPIMDInf extends Simulation {
 //        pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
 
         double omegaSample = omega;
+        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega*omega, box, hbar);
+        moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
 
         if (coordType == MoveChoice.Real) {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
@@ -104,13 +106,11 @@ public class SimQuantumAOPIMDInf extends Simulation {
         } else if (coordType == MoveChoice.NMEC) {
             integrator = new IntegratorLangevinPINMInf(pmAgg, random, timeStep, temperature, box, gammaLangevin, hbar, omega, omegaSample);
         } else if (coordType == MoveChoice.Stage) {
-            integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin, hbar, omega, 0);
+            integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin, hbar, omega, 0, moveStageEC);
         } else { //StageEC -- default
-            integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin,  hbar, omega, omegaSample);
+            integrator = new IntegratorLangevinPIInf(pmAgg, random, timeStep, temperature, box, gammaLangevin,  hbar, omega, omegaSample, moveStageEC);
         }
 
-        moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega*omega, box, hbar);
-        moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
         integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
     }
@@ -134,6 +134,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NMEC;
             params.coordType = MoveChoice.StageEC;
+            params.nBeads = 4;
         }
 
         int nShifts = params.nShifts;
@@ -158,7 +159,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
             nBeads = (int) (20*x); //20*x and 30*x are good for HO and AO, resp.
         }
         double alpha = beta*hbar*omega/nBeads;
-        double mOmegaF2 = nBeads == 1 ? 0 : mass*omega2/nBeads/alpha/Math.sinh(alpha);
+        double mOmegaF2 = nBeads == 1 ? 0 : mass * omega2 / nBeads / alpha / Math.sinh(alpha);
         double mOmegaH2 = 2*mass*omega2*Math.tanh(alpha/2)/nBeads/alpha;
         double omegaRing = Math.sqrt(mOmegaH2*nBeads/mass);
         double omegaBead = Math.sqrt(mOmegaF2*nBeads/mass);

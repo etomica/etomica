@@ -77,12 +77,15 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
         if (move.omega2 != 0) {
             double En_ho_stage = dim*nBeads/2.0/beta;
-            double Cvn_ho_stage = dim * nBeads / 2.0 * temperature * temperature;
+            double Cvn_ho_stage = dim*nBeads/2.0*temperature * temperature;
             for (int k = 0; k < nBeads; k++) {
                 En_ho_stage -= dim * gamma[k];
                 Cvn_ho_stage += dim * dGamma[k];
             }
             Cvn_ho_stage *= beta * beta;
+            //COM
+            En_ho_stage -= dim/2.0/beta;
+            Cvn_ho_stage -= dim/2.0/beta/beta;
             System.out.println(" En_ho_stage:  " + En_ho_stage);
             System.out.println(" Cvn_ho_stage: " + Cvn_ho_stage);
         }

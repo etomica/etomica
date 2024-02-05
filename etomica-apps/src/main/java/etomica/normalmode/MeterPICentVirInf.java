@@ -28,6 +28,7 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
     protected int numAtoms, nBeads;
     protected double omega, R, cothR, tanhR_2, hbar;
     protected double fac0, fac1, fac2, fac3, fac4;
+    protected Vector[] latticePositions;
 
     public MeterPICentVirInf(PotentialCompute pcP1harm, PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
         int nData = 2;
@@ -57,6 +58,11 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
         this.fac2 = -R*R/2/beta*coshR/Math.sinh(R/2)/Math.sinh(R/2);
         this.fac3 = R*R/4/beta*(1-1/sinhR/sinhR) + R*cothR/beta;
         this.fac4 = -R*R*cothR*cothR/4/beta;
+
+        latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        for (int i=0; i<latticePositions.length; i++) {
+            latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
+        }
     }
 
     @Override
@@ -67,8 +73,8 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
         rHr = 0;
         double vir = 0;
         pcP1harm.computeAll(false);
-//        pcP1ah.computeAll(true); //no Cv
-        pcP1ah.computeAll(true, this); //with Cv
+        pcP1ah.computeAll(true); //no Cv
+//        pcP1ah.computeAll(true, this); //with Cv
         Vector[] forces = pcP1ah.getForces();
         double sumRc2 = 0;
         for (IMolecule molecule : box.getMoleculeList()) {
@@ -80,22 +86,12 @@ public class MeterPICentVirInf implements IDataSource, PotentialCallback {
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
 
-
-            rcNI.E(rc[molecule.getIndex()]);
+            rcNI.Ev1Mv2(rc[molecule.getIndex()], latticePositions[molecule.getIndex()]);
             box.getBoundary().nearestImage(rcNI);
             sumRc2 += rcNI.squared();
-
-
         }
-        sumRc2 /=numAtoms;
         double mass = 1;
-        if(numAtoms==1){
-            x[0] = dim/2.0/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2.0*vir
-                    - mass*omega*omega*cothR*tanhR_2*sumRc2;
-        } else {
-//            x[0] = -dim*(nBeads-1)/(2.0*nBeads)/beta - dim / 2.0 / beta + dim * (nBeads - 1.0) / 2.0 / nBeads / beta + dim * numAtoms / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-//            x[0] = dim * (numAtoms-1) / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-        }
+        x[0] = dim*numAtoms/2.0/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2.0*vir - mass*omega*omega*cothR*tanhR_2*sumRc2;
         x[1] = fac0 + fac1*sumRc2 + fac2*pcP1harm.getLastEnergy() - fac3*vir + fac4*rHr + x[0]*x[0];
         return data;
     }

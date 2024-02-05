@@ -97,13 +97,16 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         if (omega2 != 0) {
-            double En_ho_nm = 1.0 / 2.0 / this.betaN;
-            double Cvn_ho_nm = nBeads / 2.0 / beta / beta;
+            double En_ho_nm = dim*nBeads / 2.0 / this.beta;
+            double Cvn_ho_nm = dim*nBeads / 2.0 / beta / beta;
             for (int k = 0; k < nBeads; k++) {
-                En_ho_nm -= gk[k];
-                Cvn_ho_nm += gk2[k];
+                En_ho_nm -= dim*gk[k];
+                Cvn_ho_nm += dim*gk2[k];
             }
             Cvn_ho_nm *= beta * beta;
+            //COM
+            En_ho_nm -= dim/2.0/beta;
+            Cvn_ho_nm -= dim/2.0/beta/beta;
             System.out.println(" En_ho_nm:  " + En_ho_nm);
             System.out.println(" Cvn_ho_nm: " + Cvn_ho_nm);
         }
@@ -155,6 +158,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             En -= dim*numAtoms*gk[i];
             Cvn += dim*numAtoms*gk2[i];
         }
+        //COM
         if (numAtoms > 1 && omega2 != 0) {
             En -= dim/2.0/beta; //com: -dim*gk[nK]
             Cvn -= dim/2.0/beta/beta;

@@ -110,15 +110,10 @@ public class MeterPIHMAcInf implements IDataSource, PotentialCallback {
 
 
         }
-        sumRc2 /=numAtoms;
+
         double mass = 1;
-        if(numAtoms==1){
-            x[0] = dim/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2*vir
-                    - 2*mass*omega*omega*cothR*tanhR_2*sumRc2;
-        } else {
-//            x[0] = -dim*(nBeads-1)/(2.0*nBeads)/beta - dim / 2.0 / beta + dim * (nBeads - 1.0) / 2.0 / nBeads / beta + dim * numAtoms / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-//            x[0] = dim * (numAtoms-1) / 2.0 / beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir; //En
-        }
+        x[0] = dim/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2*vir
+                - 2*mass*omega*omega*cothR*tanhR_2*sumRc2;
         x[1] = fac0 + fac1*sumRc2 + fac2*pcP1harm.getLastEnergy() - fac3*vir - fac5*virc + fac4*rHr + x[0]*x[0];
         return data;
     }

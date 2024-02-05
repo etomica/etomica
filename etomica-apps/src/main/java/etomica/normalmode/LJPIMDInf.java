@@ -22,6 +22,7 @@ import etomica.integrator.IntegratorLangevin;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.*;
+import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePair;
@@ -134,7 +135,15 @@ public class LJPIMDInf extends Simulation {
 
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
         moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
+
+
+
         integrator.setThermostatNoDrift(true);
+
+
+
+
+
         integrator.setIsothermal(true);
     }
 
@@ -144,9 +153,9 @@ public class LJPIMDInf extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.steps = 20000;
+            params.steps = 10000;
             params.hbar = 0.1;
-            params.temperature = 0.1;
+            params.temperature = 0.5;
             params.numAtoms = 32;
             params.rc = 2.5;
             params.isGraphic = !false;
@@ -158,7 +167,7 @@ public class LJPIMDInf extends Simulation {
 //            params.facTimestep = 0.1;
             params.timeStep = 0.001;
 
-            params.nBeads = 20;
+            params.nBeads = 160;
 
         }
 
@@ -238,18 +247,15 @@ public class LJPIMDInf extends Simulation {
         System.out.println(" rc: " + rc);
 
         DataSourceScalar meterKE = sim.integrator.getMeterKineticEnergy();
-//        meterPrimInf = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harm, sim.pcP1ah, nBeads, temperature, sim.box, omega, hbar);
-
         MeterPIPrimInf meterPrim = new MeterPIPrimInf(sim.pmBonding, sim.pcP1harmPI, sim.pmAggAh, nBeads, temperature, sim.box, omega, hbar);
-        MeterPIVir meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
-        MeterPICentVir meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
+        MeterPICentVirInf meterCentVir = new MeterPICentVirInf(sim.pcP1harmPI, sim.pmAggAh, temperature, sim.box, nBeads, omega, hbar);
         MeterPIHMAc meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
-        MeterPIHMA meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, beta/nBeads, nBeads, 0, sim.box, hbar);
-        MeterPIHMA meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, beta/nBeads, nBeads, omega2, sim.box, hbar);
-        MeterPIHMAReal2 meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple);
-        meterStageSimple.setNumShifts(nShifts);
-        MeterPIHMAReal2 meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC);
-        meterStageEC.setNumShifts(nShifts);
+//        MeterPIHMA meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, beta/nBeads, nBeads, 0, sim.box, hbar);
+//        MeterPIHMA meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, beta/nBeads, nBeads, omega2, sim.box, hbar);
+//        MeterPIHMAReal2 meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple);
+//        meterStageSimple.setNumShifts(nShifts);
+//        MeterPIHMAReal2 meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC);
+//        meterStageEC.setNumShifts(nShifts);
 
 
         int interval = 5;
@@ -343,67 +349,67 @@ public class LJPIMDInf extends Simulation {
 //        DataSourceMSDAC meterMSDAC = new DataSourceMSDAC(configStorage);
 
         //Write En
-        DataLogger dlPrim = new DataLogger();
-//        DataLogger dlV = new DataLogger();
-        DataLogger dlCV = new DataLogger();
-        DataLogger dlHMAc = new DataLogger();
-        DataLogger dlHMA2 = new DataLogger();
-
-        boolean writeEn = false;
-        if (writeEn) {
-            int intervalDL = 1;
-            //Prim
-            DataPumpListener dlPumpPrim = new DataPumpListener(meterPrim, dlPrim, intervalDL);
-            sim.integrator.getEventManager().addListener(dlPumpPrim);
-            dlPrim.setFileName("En_primT" + temperature + ".dat");
-            dlPrim.setAppending(false);
-            DataArrayWriter writerPrim = new DataArrayWriter();
-            writerPrim.setIncludeHeader(false);
-            dlPrim.setDataSink(writerPrim);
-            //Vir
-//            DataPumpListener dlPumpV = new DataPumpListener(meterVir, dlV, intervalDL);
-//            sim.integrator.getEventManager().addListener(dlPumpV);
-//            dlV.setFileName("En_virT"+temperature+".dat");
-//            dlV.setAppending(false);
-//            DataArrayWriter writerV = new DataArrayWriter();
-//            writerV.setIncludeHeader(false);
-//            dlV.setDataSink(writerV);
-
-            //CVir
-            DataPumpListener dlPumpCV = new DataPumpListener(meterCentVir, dlCV, intervalDL);
-            sim.integrator.getEventManager().addListener(dlPumpCV);
-            dlCV.setFileName("En_cvirT" + temperature + ".dat");
-            dlCV.setAppending(false);
-            DataArrayWriter writerCV = new DataArrayWriter();
-            writerCV.setIncludeHeader(false);
-            dlCV.setDataSink(writerCV);
-
-            //HMAc
-            DataPumpListener dlPumpHMAc = new DataPumpListener(meterHMAc, dlHMAc, intervalDL);
-            sim.integrator.getEventManager().addListener(dlPumpHMAc);
-            dlHMAc.setFileName("En_hmacT" + temperature + ".dat");
-            dlHMAc.setAppending(false);
-            DataArrayWriter writerHMAc = new DataArrayWriter();
-            writerHMAc.setIncludeHeader(false);
-            dlHMAc.setDataSink(writerHMAc);
-
-            //HMA2
-            DataPumpListener dlPumpHMA2 = new DataPumpListener(meterStageEC, dlHMA2, intervalDL);
-            sim.integrator.getEventManager().addListener(dlPumpHMA2);
-            dlHMA2.setFileName("En_hma2T" + temperature + ".dat");
-            dlHMA2.setAppending(false);
-            DataArrayWriter writerHMA2 = new DataArrayWriter();
-            writerHMA2.setIncludeHeader(false);
-            dlHMA2.setDataSink(writerHMA2);
-
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 1000));
-            dlPrim.cleanUp();
-//            dlV.cleanUp();
-            dlCV.cleanUp();
-            dlHMAc.cleanUp();
-            dlHMA2.cleanUp();
-            System.exit(0);
-        }
+//        DataLogger dlPrim = new DataLogger();
+////        DataLogger dlV = new DataLogger();
+//        DataLogger dlCV = new DataLogger();
+//        DataLogger dlHMAc = new DataLogger();
+//        DataLogger dlHMA2 = new DataLogger();
+//
+//        boolean writeEn = false;
+//        if (writeEn) {
+//            int intervalDL = 1;
+//            //Prim
+//            DataPumpListener dlPumpPrim = new DataPumpListener(meterPrim, dlPrim, intervalDL);
+//            sim.integrator.getEventManager().addListener(dlPumpPrim);
+//            dlPrim.setFileName("En_primT" + temperature + ".dat");
+//            dlPrim.setAppending(false);
+//            DataArrayWriter writerPrim = new DataArrayWriter();
+//            writerPrim.setIncludeHeader(false);
+//            dlPrim.setDataSink(writerPrim);
+//            //Vir
+////            DataPumpListener dlPumpV = new DataPumpListener(meterVir, dlV, intervalDL);
+////            sim.integrator.getEventManager().addListener(dlPumpV);
+////            dlV.setFileName("En_virT"+temperature+".dat");
+////            dlV.setAppending(false);
+////            DataArrayWriter writerV = new DataArrayWriter();
+////            writerV.setIncludeHeader(false);
+////            dlV.setDataSink(writerV);
+//
+//            //CVir
+//            DataPumpListener dlPumpCV = new DataPumpListener(meterCentVir, dlCV, intervalDL);
+//            sim.integrator.getEventManager().addListener(dlPumpCV);
+//            dlCV.setFileName("En_cvirT" + temperature + ".dat");
+//            dlCV.setAppending(false);
+//            DataArrayWriter writerCV = new DataArrayWriter();
+//            writerCV.setIncludeHeader(false);
+//            dlCV.setDataSink(writerCV);
+//
+//            //HMAc
+//            DataPumpListener dlPumpHMAc = new DataPumpListener(meterHMAc, dlHMAc, intervalDL);
+//            sim.integrator.getEventManager().addListener(dlPumpHMAc);
+//            dlHMAc.setFileName("En_hmacT" + temperature + ".dat");
+//            dlHMAc.setAppending(false);
+//            DataArrayWriter writerHMAc = new DataArrayWriter();
+//            writerHMAc.setIncludeHeader(false);
+//            dlHMAc.setDataSink(writerHMAc);
+//
+//            //HMA2
+//            DataPumpListener dlPumpHMA2 = new DataPumpListener(meterStageEC, dlHMA2, intervalDL);
+//            sim.integrator.getEventManager().addListener(dlPumpHMA2);
+//            dlHMA2.setFileName("En_hma2T" + temperature + ".dat");
+//            dlHMA2.setAppending(false);
+//            DataArrayWriter writerHMA2 = new DataArrayWriter();
+//            writerHMA2.setIncludeHeader(false);
+//            dlHMA2.setDataSink(writerHMA2);
+//
+//            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 1000));
+//            dlPrim.cleanUp();
+////            dlV.cleanUp();
+//            dlCV.cleanUp();
+//            dlHMAc.cleanUp();
+//            dlHMA2.cleanUp();
+//            System.exit(0);
+//        }
 
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
@@ -428,12 +434,12 @@ public class LJPIMDInf extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
         }
 
-        //2 Virial
-        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
-        if (meterPrim != null) {
-            DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpVir);
-        }
+//        2 Virial
+//        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
+//        if (meterPrim != null) {
+//            DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpVir);
+//        }
 
         //3 Centroid Virial
         AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
@@ -448,31 +454,31 @@ public class LJPIMDInf extends Simulation {
             DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
             sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
         }
-
-        //5 HMAq (Quantum EC)
-        AccumulatorAverageCovariance accumulatorNMSimple = new AccumulatorAverageCovariance(blockSize);
-        if (meterNMSimple != null) {
-            DataPumpListener accumulatorPumpHMAsimple = new DataPumpListener(meterNMSimple, accumulatorNMSimple, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpHMAsimple);
-        }
-
-        AccumulatorAverageCovariance accumulatorNMEC = new AccumulatorAverageCovariance(blockSize);
-        if (meterNMEC != null) {
-            DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterNMEC, accumulatorNMEC, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
-        }
-
-        AccumulatorAverageCovariance accumulatorStageSimple = new AccumulatorAverageCovariance(blockSize);
-        if (meterStageSimple != null) {
-            DataPumpListener pumpStagesimple = new DataPumpListener(meterStageSimple, accumulatorStageSimple, interval);
-            sim.integrator.getEventManager().addListener(pumpStagesimple);
-        }
-
-        AccumulatorAverageCovariance accumulatorStageEC = new AccumulatorAverageCovariance(blockSize);
-        if (meterStageEC != null) {
-            DataPumpListener pumpStageEC = new DataPumpListener(meterStageEC, accumulatorStageEC, interval);
-            sim.integrator.getEventManager().addListener(pumpStageEC);
-        }
+//
+//        //5 HMAq (Quantum EC)
+//        AccumulatorAverageCovariance accumulatorNMSimple = new AccumulatorAverageCovariance(blockSize);
+//        if (meterNMSimple != null) {
+//            DataPumpListener accumulatorPumpHMAsimple = new DataPumpListener(meterNMSimple, accumulatorNMSimple, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpHMAsimple);
+//        }
+//
+//        AccumulatorAverageCovariance accumulatorNMEC = new AccumulatorAverageCovariance(blockSize);
+//        if (meterNMEC != null) {
+//            DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterNMEC, accumulatorNMEC, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+//        }
+//
+//        AccumulatorAverageCovariance accumulatorStageSimple = new AccumulatorAverageCovariance(blockSize);
+//        if (meterStageSimple != null) {
+//            DataPumpListener pumpStagesimple = new DataPumpListener(meterStageSimple, accumulatorStageSimple, interval);
+//            sim.integrator.getEventManager().addListener(pumpStagesimple);
+//        }
+//
+//        AccumulatorAverageCovariance accumulatorStageEC = new AccumulatorAverageCovariance(blockSize);
+//        if (meterStageEC != null) {
+//            DataPumpListener pumpStageEC = new DataPumpListener(meterStageEC, accumulatorStageEC, interval);
+//            sim.integrator.getEventManager().addListener(pumpStageEC);
+//        }
 
 
         //Run ...
@@ -506,17 +512,16 @@ public class LJPIMDInf extends Simulation {
 //        double errCvnPrim = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1));
 
 
-        //2 Vir
-        DataGroup dataVir = (DataGroup) accumulatorVir.getData();
-        IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
-        IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
-        IData dataCorVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
-        IData dataCovVir = dataVir.getData(accumulatorVir.COVARIANCE.index);
-
-        double avgEnVir = dataAvgVir.getValue(0);
-        double errEnVir = dataErrVir.getValue(0);
-        double corEnVir = dataCorVir.getValue(0);
-        System.out.println(" En_vir:          " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
+//        //2 Vir
+//        DataGroup dataVir = (DataGroup) accumulatorVir.getData();
+//        IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
+//        IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
+//        IData dataCorVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
+//        IData dataCovVir = dataVir.getData(accumulatorVir.COVARIANCE.index);
+//        double avgEnVir = dataAvgVir.getValue(0);
+//        double errEnVir = dataErrVir.getValue(0);
+//        double corEnVir = dataCorVir.getValue(0);
+//        System.out.println(" En_vir:          " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
 //        double CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
 //        varX0 = errEnVir*errEnVir;
 //        varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
@@ -532,7 +537,7 @@ public class LJPIMDInf extends Simulation {
         double avgEnCentVir = dataAvgCentVir.getValue(0);
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorCentVir.getValue(0);
-        System.out.println(" En_cvir:         " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
+        System.out.println(" En_cvir:         " + avgEnCentVir/numAtoms + "   err: " + errEnCentVir/numAtoms + " cor: " + corEnCentVir);
 //        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
 //        varX0 = errEnCentVir*errEnCentVir;
 //        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
@@ -549,7 +554,7 @@ public class LJPIMDInf extends Simulation {
         double avgEnHMAc = dataAvgHMAc.getValue(0) ;
         double errEnHMAc = dataErrHMAc.getValue(0);
         double corEnHMAc = dataCorHMAc.getValue(0);
-        System.out.println(" En_hmac:         " + avgEnHMAc + "   err: " + errEnHMAc + " cor: " + corEnHMAc);
+        System.out.println(" En_hmac:         " + avgEnHMAc/numAtoms + "   err: " + errEnHMAc/numAtoms + " cor: " + corEnHMAc);
 //        double CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) - avgEnHMAc*avgEnHMAc);
 //        varX0 = errEnHMAc*errEnHMAc;
 //        varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
@@ -561,17 +566,15 @@ public class LJPIMDInf extends Simulation {
 
 
         //5 HMA simple NM
-        DataGroup dataNMsimple = (DataGroup) accumulatorNMSimple.getData();
-        IData dataAvgNMsimple = dataNMsimple.getData(accumulatorNMSimple.AVERAGE.index);
-        IData dataErrNMsimple = dataNMsimple.getData(accumulatorNMSimple.ERROR.index);
-        IData dataCorNMsimple = dataNMsimple.getData(accumulatorNMSimple.BLOCK_CORRELATION.index);
-        IData dataCovNMsimple = dataNMsimple.getData(accumulatorNMSimple.COVARIANCE.index);
-
-        double avgEnNMSimple = dataAvgNMsimple.getValue(0);
-        double errEnNMSimple = dataErrNMsimple.getValue(0);
-        double corEnNMSimple = dataCorNMsimple.getValue(0);
-        System.out.println(" En_nm_simple:    " + avgEnNMSimple + "   err: " + errEnNMSimple + " cor: " + corEnNMSimple);
-
+//        DataGroup dataNMsimple = (DataGroup) accumulatorNMSimple.getData();
+//        IData dataAvgNMsimple = dataNMsimple.getData(accumulatorNMSimple.AVERAGE.index);
+//        IData dataErrNMsimple = dataNMsimple.getData(accumulatorNMSimple.ERROR.index);
+//        IData dataCorNMsimple = dataNMsimple.getData(accumulatorNMSimple.BLOCK_CORRELATION.index);
+//        IData dataCovNMsimple = dataNMsimple.getData(accumulatorNMSimple.COVARIANCE.index);
+//        double avgEnNMSimple = dataAvgNMsimple.getValue(0);
+//        double errEnNMSimple = dataErrNMsimple.getValue(0);
+//        double corEnNMSimple = dataCorNMsimple.getValue(0);
+//        System.out.println(" En_nm_simple:    " + avgEnNMSimple/numAtoms + "   err: " + errEnNMSimple/numAtoms + " cor: " + corEnNMSimple);
 //        double Cvn_nm_simple  = kB_beta2*(dataAvgNMsimple.getValue(1) - avgEnNMSimple*avgEnNMSimple);
 //        varX0 = errEnNMSimple*errEnNMSimple;
 //        varX1 = dataErrNMsimple.getValue(1)*dataErrNMsimple.getValue(1);
@@ -579,17 +582,15 @@ public class LJPIMDInf extends Simulation {
 //        double errCvnNMsimple = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1));
 
         //6 HMA EC NM
-        DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
-        IData dataAvgNMEC = dataNMEC.getData(accumulatorNMEC.AVERAGE.index);
-        IData dataErrNMEC = dataNMEC.getData(accumulatorNMEC.ERROR.index);
-        IData dataCorNMEC = dataNMEC.getData(accumulatorNMEC.BLOCK_CORRELATION.index);
-        IData dataCovNMEC = dataNMEC.getData(accumulatorNMEC.COVARIANCE.index);
-
-        double avgEnNMEC = dataAvgNMEC.getValue(0);
-        double errEnNMEC = dataErrNMEC.getValue(0);
-        double corEnNMEC = dataCorNMEC.getValue(0);
-        System.out.println(" En_nm_ec:        " + avgEnNMEC + "   err: " + errEnNMEC + " cor: " + corEnNMEC);
-
+//        DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
+//        IData dataAvgNMEC = dataNMEC.getData(accumulatorNMEC.AVERAGE.index);
+//        IData dataErrNMEC = dataNMEC.getData(accumulatorNMEC.ERROR.index);
+//        IData dataCorNMEC = dataNMEC.getData(accumulatorNMEC.BLOCK_CORRELATION.index);
+//        IData dataCovNMEC = dataNMEC.getData(accumulatorNMEC.COVARIANCE.index);
+//        double avgEnNMEC = dataAvgNMEC.getValue(0);
+//        double errEnNMEC = dataErrNMEC.getValue(0);
+//        double corEnNMEC = dataCorNMEC.getValue(0);
+//        System.out.println(" En_nm_ec:        " + avgEnNMEC/numAtoms + "   err: " + errEnNMEC/numAtoms + " cor: " + corEnNMEC);
 //        double CvnNMEC  = kB_beta2*(dataAvgNMEC.getValue(1) - avgEnNMEC*avgEnNMEC);
 //        varX0 = errEnNMEC*errEnNMEC;
 //        varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
@@ -600,16 +601,15 @@ public class LJPIMDInf extends Simulation {
 //        }
 
         // 7 HMA simple stage
-        DataGroup dataStageSimple = (DataGroup) accumulatorStageSimple.getData();
-        IData dataAvgStageSimple = dataStageSimple.getData(accumulatorStageSimple.AVERAGE.index);
-        IData dataErrStageSimple = dataStageSimple.getData(accumulatorStageSimple.ERROR.index);
-        IData dataCorStageSimple = dataStageSimple.getData(accumulatorStageSimple.BLOCK_CORRELATION.index);
-        IData dataCovStageSimple = dataStageSimple.getData(accumulatorStageSimple.COVARIANCE.index);
-        double avgEnStageSimple = dataAvgStageSimple.getValue(0);
-        double errEnStageSimple = dataErrStageSimple.getValue(0);
-        double corEnStageSimple = dataCorStageSimple.getValue(0);
-        System.out.println(" En_stage_simple: " + avgEnStageSimple + "   err: " + errEnStageSimple + " cor: " + corEnStageSimple);
-
+//        DataGroup dataStageSimple = (DataGroup) accumulatorStageSimple.getData();
+//        IData dataAvgStageSimple = dataStageSimple.getData(accumulatorStageSimple.AVERAGE.index);
+//        IData dataErrStageSimple = dataStageSimple.getData(accumulatorStageSimple.ERROR.index);
+//        IData dataCorStageSimple = dataStageSimple.getData(accumulatorStageSimple.BLOCK_CORRELATION.index);
+//        IData dataCovStageSimple = dataStageSimple.getData(accumulatorStageSimple.COVARIANCE.index);
+//        double avgEnStageSimple = dataAvgStageSimple.getValue(0);
+//        double errEnStageSimple = dataErrStageSimple.getValue(0);
+//        double corEnStageSimple = dataCorStageSimple.getValue(0);
+//        System.out.println(" En_stage_simple: " + avgEnStageSimple/numAtoms + "   err: " + errEnStageSimple/numAtoms + " cor: " + corEnStageSimple);
 //        double Cvn_stage_simple  = kB_beta2*(dataAvgStageSimple.getValue(1) - avgEnStageSimple*avgEnStageSimple);
 //        varX0 = errEnStageSimple*errEnStageSimple;
 //        varX1 = dataErrStageSimple.getValue(1)*dataErrStageSimple.getValue(1);
@@ -617,16 +617,15 @@ public class LJPIMDInf extends Simulation {
 //        double errCvnStageSimple = Math.sqrt(kB_beta2*(varX1 + 4.0*avgEnStageSimple*avgEnStageSimple*varX0 - 4*avgEnStageSimple*dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(1)*corX0X1));
 
         //8 HMA EC stage
-        DataGroup dataStageEC = (DataGroup) accumulatorStageEC.getData();
-        IData dataAvgStageEC = dataStageEC.getData(accumulatorStageEC.AVERAGE.index);
-        IData dataErrStageEC = dataStageEC.getData(accumulatorStageEC.ERROR.index);
-        IData dataCorStageEC = dataStageEC.getData(accumulatorStageEC.BLOCK_CORRELATION.index);
-        IData dataCovStageEC = dataStageEC.getData(accumulatorStageEC.COVARIANCE.index);
-        double avgEnStageEC = dataAvgStageEC.getValue(0);
-        double errEnStageEC = dataErrStageEC.getValue(0);
-        double corEnStageEC = dataCorStageEC.getValue(0);
-        System.out.println(" En_stage_ec:     " + avgEnStageEC + "   err: " + errEnStageEC + " cor: " + corEnStageEC);
-
+//        DataGroup dataStageEC = (DataGroup) accumulatorStageEC.getData();
+//        IData dataAvgStageEC = dataStageEC.getData(accumulatorStageEC.AVERAGE.index);
+//        IData dataErrStageEC = dataStageEC.getData(accumulatorStageEC.ERROR.index);
+//        IData dataCorStageEC = dataStageEC.getData(accumulatorStageEC.BLOCK_CORRELATION.index);
+//        IData dataCovStageEC = dataStageEC.getData(accumulatorStageEC.COVARIANCE.index);
+//        double avgEnStageEC = dataAvgStageEC.getValue(0);
+//        double errEnStageEC = dataErrStageEC.getValue(0);
+//        double corEnStageEC = dataCorStageEC.getValue(0);
+//        System.out.println(" En_stage_ec:     " + avgEnStageEC/numAtoms + "   err: " + errEnStageEC/numAtoms + " cor: " + corEnStageEC);
 //        double CvnStageEC  = kB_beta2*(dataAvgStageEC.getValue(1) - avgEnStageEC*avgEnStageEC);
 //        varX0 = errEnStageEC*errEnStageEC;
 //        varX1 = dataErrStageEC.getValue(1)*dataErrStageEC.getValue(1);
