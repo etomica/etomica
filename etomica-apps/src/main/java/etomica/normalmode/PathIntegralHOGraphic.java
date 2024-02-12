@@ -34,7 +34,7 @@ public class PathIntegralHOGraphic {
 
         double temperature = params.temperature;
         double hbar = params.hbar;
-        double k2 = params.k2;
+        double k2 = params.mass*params.omega*params.omega;
         double k4 = params.k4;
         int nBeads = params.nBeads;
         boolean isTIA = params.isTIA;
@@ -47,7 +47,7 @@ public class PathIntegralHOGraphic {
             omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
         }
 
-        final SimQuantumAO sim = new SimQuantumAO(Space2D.getInstance(), SimQuantumAO.MoveChoice.Real, 1.0, nBeads, temperature, k2, k4, omega2, isTIA, hbar);
+        final SimQuantumAO sim = new SimQuantumAO(Space2D.getInstance(), SimQuantumAO.MoveChoice.Real, 1.0, nBeads, temperature, Math.sqrt(omega2), k4, isTIA, hbar);
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 

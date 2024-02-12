@@ -146,8 +146,8 @@ public class LJPIMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.steps = 1000000;
-            params.numAtoms = 32;
+            params.steps = 100000;
+            params.numAtoms = 108;
             params.nBeads = 1;
             params.isGraphic = false;
             params.temperature = 0.5;
@@ -181,8 +181,12 @@ public class LJPIMC extends Simulation {
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
 
         LJPIMC sim = new LJPIMC(space, coordType, mass, numAtoms, nBeads, temperature, density, rc, omega2, hbar);
+        sim.integrator.reset();
+
         long steps = params.steps;
         long stepsEq = steps/10;
+
+
         int interval = numAtoms;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
@@ -318,10 +322,10 @@ public class LJPIMC extends Simulation {
         System.out.println("equilibration finished");
 
         // <U>
-//        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-//        AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
-//        DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-//        sim.integrator.getEventManager().addListener(pump);
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
+        sim.integrator.getEventManager().addListener(pump);
 
         MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
@@ -357,14 +361,14 @@ public class LJPIMC extends Simulation {
 
 
         //<U>
-//        DataGroup dataPE = (DataGroup) acc.getData();
-//        double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
-//        double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
-//        double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
-//
-//        System.out.println();
-//        double En_sim = avg + sim.box.getSpace().D()/2.0*temperature;
-//        System.out.println("energy avg: " + En_sim + "  err: " + err + "  cor: " + cor);
+        DataGroup dataPE = (DataGroup) acc.getData();
+        double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
+        double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
+        double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);
+
+        System.out.println();
+        double En_sim = avg + sim.box.getSpace().D()/2.0*temperature;
+        System.out.println("energy avg: " + En_sim + "  err: " + err + "  cor: " + cor);
 
         //Prim
         DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();

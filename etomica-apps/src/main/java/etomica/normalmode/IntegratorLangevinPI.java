@@ -87,36 +87,40 @@ public class IntegratorLangevinPI extends IntegratorMD {
 
       // The "s" rescaling is no longer needed as s=1 always!
         // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = nBeads
-        double[] fu = new double[nBeads];
-        for (int i=nBeads-1; i>=0; i--) {
-            fu[0] += fScale0[i];
-            if (i>0) {
-                fu[i] = 1;
-                if (i < nBeads - 1) {
-                    fu[i] += fScale[i] * fu[i + 1];
-                }
-            }
-        }
-
-        double[] a = new double[nBeads];
-        double mm = box.getLeafList().get(0).getType().getMass();
-        double aSum = 0;
-        for (int i=0; i<nBeads; i++) {
-            a[i] = fu[i] / (mm*mScale[i]);
-            if (i>0) {
-                a[i] += f11[i] * a[i-1];
-                a[i] += f1N[i] * a[0];
-            }
-            aSum += a[i];
-        }
-        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
-        double M = nBeads/(aSum/nBeads);
-        double ss = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
+//        double[] fu = new double[nBeads];
+//        for (int i=nBeads-1; i>=0; i--) {
+//            fu[0] += fScale0[i];
+//            if (i>0) {
+//                fu[i] = 1;
+//                if (i < nBeads - 1) {
+//                    fu[i] += fScale[i] * fu[i + 1];
+//                }
+//            }
+//        }
+//
+//        double[] a = new double[nBeads];
+//        double mm = box.getLeafList().get(0).getType().getMass();
+//        double M = 0;
+//        for (int i=0; i<nBeads; i++) {
+//            a[i] = fu[i] / (mm*mScale[i]);
+//            if (i>0) {
+//                a[i] += f11[i] * a[i-1];
+//                a[i] += f1N[i] * a[0];
+//            }
+//            M += 1/a[i];
+//        }
+//        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
+//        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
 
 
         // mi need to be larger to match the real COM oscillations
         if (alpha == 0) {
-            double s = omega2HO/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1)/nBeads);
+            double ringMass = nBeads * box.getLeafList().get(0).getType().getMass();
+            double M = 0;
+            for (int i=0; i<nBeads; i++) {
+                M += 2.0*ringMass*omegaN2/omega2HO/(2.0*nBeads+i*(nBeads-i));
+            }
+            double s = ringMass / M;
             for (int i = 0; i < mScale.length; i++) {
                 mScale[i] *= s;
             }

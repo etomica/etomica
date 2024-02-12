@@ -74,10 +74,12 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     public void fieldComputeHessian(int i, Tensor Hii) {
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector tmpVecI = box.getSpace().makeVector();
+        Vector tmpVecI2 = box.getSpace().makeVector();
         tmpVecI.Ev1Mv2(ri, CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()));
         box.getBoundary().nearestImage(tmpVecI);
+        tmpVecI2.E(tmpVecI);
         Hii.transform(tmpVecI);
-        rHr += tmpVecI.dot(tmpVecI);
+        rHr += tmpVecI.dot(tmpVecI2);
     }
 
 

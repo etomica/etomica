@@ -90,11 +90,9 @@ public class IntegratorLangevinPINM extends IntegratorMD {
         // analytical scaling s (same as code above!)
         if (move.omega2 == 0) {
             double s = omega2/omegan2/nBeads;
-            double ss = omega2/nBeads;
             for (int i = 0; i < mScale.length; i++) {
                 mScale[i] *= s;
             }
-
         }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
