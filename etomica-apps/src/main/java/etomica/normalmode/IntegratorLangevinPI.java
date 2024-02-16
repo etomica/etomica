@@ -63,27 +63,13 @@ public class IntegratorLangevinPI extends IntegratorMD {
         fScale0 = new double[nBeads];
 
         mScale[0] = (alpha == 0) ? nBeads*omegaN2/omega2HO : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
-
-// Check how m0 varies with x for the EC-stage
-//        System.out.println(mScale[0]/nBeads);
-//        if (alpha != 0) {
-//            for (int i=1;i<=100;i++) {
-//                double x = 1.0*i;
-//                double n = 20 * x;
-//                double d = 1 + 0.5 * (x / n) * (x / n);
-//                double a = Math.log(d + Math.sqrt(d * d - 1));
-//                double m0 = 1 * (2 / n) * (n / x) * (n / x) * Math.sinh(a) * Math.tanh(n * a / 2);
-//                System.out.println(x + "  " + m0);
-//            }
-//            System.exit(0);
-//        }
-
         fScale0[0] = 1;
         for (int i=1; i<nBeads; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
             mScale[i]  = alpha == 0 ? nBeads*omegaN2/omega2HO*(nBeads - i + 1.0)/(nBeads - i) : nBeads*omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
+
 
       // The "s" rescaling is no longer needed as s=1 always!
         // F = M a;  M = F / a = (sum fi) / (avg ai); fi=1 => sum fi = nBeads
@@ -111,16 +97,14 @@ public class IntegratorLangevinPI extends IntegratorMD {
 //        }
 //        // M is the effective mass we have now; we want ring mass = nBeads * atomType mass
 //        double s = (nBeads * box.getLeafList().get(0).getType().getMass()) / M;
-
+//        for (int i = 0; i < mScale.length; i++) {
+//            mScale[i] *= s;
+//        }
 
         // mi need to be larger to match the real COM oscillations
         if (alpha == 0) {
             double ringMass = nBeads * box.getLeafList().get(0).getType().getMass();
-            double M = 0;
-            for (int i=0; i<nBeads; i++) {
-                M += 2.0*ringMass*omegaN2/omega2HO/(2.0*nBeads+i*(nBeads-i));
-            }
-            double s = ringMass / M;
+            double s = nBeads/(nBeads*omegaN2/omega2HO);
             for (int i = 0; i < mScale.length; i++) {
                 mScale[i] *= s;
             }

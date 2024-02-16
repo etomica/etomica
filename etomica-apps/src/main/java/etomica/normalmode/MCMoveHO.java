@@ -61,40 +61,25 @@ public class MCMoveHO extends MCMoveBox {
         }
 
         eigenvectors = new double[nBeads][nBeads];
-        eigenvectorsInv = new double[nBeads][nBeads];
+        eigenvectorsInv = new double[nBeads][nBeads];//inv=transpose
         for (int i = 0; i < nBeads; i++) {
             eigenvectors[i][nK] = 1.0/Math.sqrt(nBeads);//k=0
             eigenvectorsInv[nK][i] = 1.0/Math.sqrt(nBeads);//k=0
             for (int k = 1; k <= (nBeads-1)/2; k++) {
                 double arg = 2.0*Math.PI/nBeads*i*k;
-                eigenvectors[i][nK-k] = 2.0*Math.sin(-arg)/Math.sqrt(nBeads);
-                eigenvectors[i][nK+k] = 2.0*Math.cos(arg)/Math.sqrt(nBeads);
-                eigenvectorsInv[nK-k][i] = Math.sin(-arg)/Math.sqrt(nBeads); //sin then cos .. it's a must!
-                eigenvectorsInv[nK+k][i] = Math.cos(arg)/Math.sqrt(nBeads);
+                eigenvectors[i][nK-k] = Math.sqrt(2.0)*Math.sin(-arg)/Math.sqrt(nBeads);
+                eigenvectors[i][nK+k] = Math.sqrt(2.0)*Math.cos(arg)/Math.sqrt(nBeads);
+                eigenvectorsInv[nK-k][i] = Math.sqrt(2.0)*Math.sin(-arg)/Math.sqrt(nBeads); //sin then cos .. it's a must!
+                eigenvectorsInv[nK+k][i] = Math.sqrt(2.0)*Math.cos(arg)/Math.sqrt(nBeads);
             }
             if (nBeads % 2 == 0){ //even
                 int k = nK;
                 double arg = 2.0*Math.PI/nBeads*i*k;
-                eigenvectors[i][0] =  Math.cos(arg)/Math.sqrt(nBeads);
-                eigenvectorsInv[0][i] =  Math.cos(arg)/Math.sqrt(nBeads);
+                eigenvectors[i][0] =  Math.pow(-1, i)/Math.sqrt(nBeads);// Math.pow(-1, i)=Math.cos(arg);
+                eigenvectorsInv[0][i] =  Math.pow(-1, i)/Math.sqrt(nBeads);
             }
         }
-//        for (int i=0;i<nBeads;i++){
-//            for (int j=0;j<nBeads;j++){
-//                double s=0;
-//                for (int k=0;k<nBeads;k++){
-//                    s+=eigenvectors[i][k]*eigenvectorsInv[k][j];
-//                }
-//                if(Math.abs(s)<1e-15) {
-//                    System.out.print(0 + " ");
-//                }else {
-//                    System.out.print(s + " ");
-//                }
-//            }
-//            System.out.println();
-//        }
     }
-
 
     public boolean doTrial() {
         double uOld = pm.getLastEnergy();

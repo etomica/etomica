@@ -50,13 +50,15 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
     public IData getData() {
         double[] x = data.getData();
         Vector rirc = box.getSpace().makeVector();
-        rHr = 0;
+        for (IMolecule molecule : box.getMoleculeList()) {
+            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
+        }
+            rHr = 0;
         double vir = 0;
 //        pcP1.computeAll(true, null); // no Cv (rHr=0)
         pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
-            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
                 rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
@@ -75,7 +77,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector tmpVecI = box.getSpace().makeVector();
         Vector tmpVecI2 = box.getSpace().makeVector();
-        tmpVecI.Ev1Mv2(ri, CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()));
+        tmpVecI.Ev1Mv2(ri, rc[box.getLeafList().get(i).getParentGroup().getIndex()]);
         box.getBoundary().nearestImage(tmpVecI);
         tmpVecI2.E(tmpVecI);
         Hii.transform(tmpVecI);

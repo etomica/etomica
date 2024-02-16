@@ -24,7 +24,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
+import etomica.space1d.Space1D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Length;
@@ -123,14 +123,7 @@ public class SimQuantumAOPIMD extends Simulation {
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
         moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         integrator.setThermostatNoDrift(false);
-
-
-
-        integrator.setIsothermal(!true);
-
-
-
-
+        integrator.setIsothermal(true);
     }
 
     public Integrator getIntegrator() {
@@ -156,10 +149,7 @@ public class SimQuantumAOPIMD extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
             params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.StageEC;
-
-            params.isGraphic = true;
-            params.nBeads = 200;
-            params.timeStep = 0.0001;
+            params.timeStep = 0.1;
         }
 
         int nShifts = params.nShifts;
@@ -209,7 +199,7 @@ public class SimQuantumAOPIMD extends Simulation {
         }
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space3D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
         sim.integrator.reset();
 
         System.out.println(" PIMD-" + coordType);
@@ -358,8 +348,8 @@ public class SimQuantumAOPIMD extends Simulation {
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
         System.out.println("\n equilibration finished");
-
-        int interval = 10;
+        //10,2,4,6,8,
+        int interval = 100;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
         if (blockSize == 0) blockSize = 1;
