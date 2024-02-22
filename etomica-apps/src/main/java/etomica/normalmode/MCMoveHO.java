@@ -120,16 +120,16 @@ public class MCMoveHO extends MCMoveBox {
 
         uhNew += 1.0/2.0*lambda[nK]*q[nK].dot(q[nK]);
         for (int k = 1; k <= (nBeads-1)/2; k++) {
-            fack = 1.0/Math.sqrt(2.0*beta*lambda[nK-k]);
+            fack = 1.0/Math.sqrt(beta*lambda[nK-k]);
             for (int l=0; l<q[0].getD(); l++) {
                 q[nK-k].setX(l, fack * random.nextGaussian());
             }
-            uhNew += lambda[nK-k]*q[nK-k].dot(q[nK-k]);
-            fack = 1.0/Math.sqrt(2.0*beta*lambda[nK+k]);
+            uhNew += 1.0/2.0*lambda[nK-k]*q[nK-k].dot(q[nK-k]);
+            fack = 1.0/Math.sqrt(beta*lambda[nK+k]);
             for (int l=0; l<q[0].getD(); l++) {
                 q[nK+k].setX(l, fack * random.nextGaussian());
             }
-            uhNew += lambda[nK+k]*q[nK+k].dot(q[nK+k]);
+            uhNew += 1.0/2.0*lambda[nK+k]*q[nK+k].dot(q[nK+k]);
         }
         if (nBeads % 2 == 0){ //even
             fack = 1.0/Math.sqrt(beta*lambda[0]);
