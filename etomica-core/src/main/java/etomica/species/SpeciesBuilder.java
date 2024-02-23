@@ -18,6 +18,7 @@ public class SpeciesBuilder {
     private IConformation conformation;
     private final List<int[]> orientation;
     private boolean isDynamic;
+    private final List<Integer> atomNumber; //Added
     private boolean isMoleculeOriented;
     private final Space space;
     private SpeciesGeneral.AtomFactory atomFactory;
@@ -28,6 +29,7 @@ public class SpeciesBuilder {
         this.conformation = null;
         this.orientation = new ArrayList<>(2);
         this.atomNames = new ArrayList<>();
+        this.atomNumber = new ArrayList<>(); //added
         this.isDynamic = false;
         this.isMoleculeOriented = false;
         this.space = space;
@@ -75,6 +77,7 @@ public class SpeciesBuilder {
         this.atomTypes.add(type);
         this.atomPositions.add(position);
         this.atomNames.add(name);
+        //this.atomNumber.add(anumber);
         this.check();
         return this;
     }
@@ -97,6 +100,9 @@ public class SpeciesBuilder {
         }
         this.orientation.add(new int[] {fromAtom, toAtom});
         return this;
+    }
+    public List<Vector> getAtomPositions() {
+        return atomPositions;
     }
 
     public SpeciesGeneral build() {
@@ -134,6 +140,7 @@ public class SpeciesBuilder {
             throw new IllegalStateException("Cannot specify an atom count and add single atoms");
         }
     }
+
 
 }
 

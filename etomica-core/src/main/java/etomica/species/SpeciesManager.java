@@ -84,6 +84,33 @@ public final class SpeciesManager {
             return this;
         }
 
+        public Builder addSpeciesNew(ISpecies species) {
+            Objects.requireNonNull(species);
+            if (speciesList.contains(species)) {
+                throw new IllegalArgumentException("Species is already added: " + species);
+            }
+
+            species.setIndex(speciesList.size());
+            speciesList.add(species);
+
+            for (AtomType atomType : species.getUniqueAtomTypes()) {
+                atomType.setIndex(atomTypeCount);
+                atomTypeCount++;
+
+                IElement newElement = atomType.getElement();
+                elementSymbols.merge(newElement.getSymbol(), newElement, (oldElement, newEl) -> {
+                    if (oldElement != newEl) {
+                        /*throw new IllegalStateException(
+                                "Element symbol " + newEl.getSymbol() + " already exists in this simulation as a different element"
+                        );*/
+                    }
+                    return newEl;
+                });
+            }
+
+            return this;
+        }
+
         public Builder addSpecies(ISpecies... species) {
             Arrays.stream(species).forEach(this::addSpecies);
             return this;

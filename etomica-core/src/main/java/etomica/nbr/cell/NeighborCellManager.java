@@ -505,7 +505,7 @@ public class NeighborCellManager implements NeighborManager {
             }
 //            System.out.println();
             atomCell[iAtom] = cellNum;
-            cellNextAtom[iAtom] = cellLastAtom[cellNum];
+             cellNextAtom[iAtom] = cellLastAtom[cellNum];
             cellLastAtom[cellNum] = iAtom;
         }
     }

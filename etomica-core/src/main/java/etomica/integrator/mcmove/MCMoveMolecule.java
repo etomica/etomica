@@ -61,6 +61,7 @@ public class MCMoveMolecule extends MCMoveBoxStep {
         if (molecule == null) return false;
         uOld = potentialCompute.computeOneOldMolecule(molecule);
         if (uOld > 1e10) {
+            System.out.println(uOld  + " uOld");
             throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap ("+uOld+")");
         }
         translationVector.setRandomCube(random);

@@ -59,6 +59,10 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
         }
     }
 
+    public void setSpecies(ISpecies s) {
+        species = s;
+    }
+
     @Override
     public double energyChange() {
         return 0;
@@ -151,6 +155,9 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<box.getMoleculeList().size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
+                continue;
+            }
             for(int j = 0; j < moleculeList.get(i).getChildList().size(); j++) {
                 moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
             }

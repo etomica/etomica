@@ -1,5 +1,6 @@
 package etomica.potential;
 
+
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
@@ -14,6 +15,7 @@ import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
+import etomica.units.*;
 
 import java.util.*;
 
@@ -52,6 +54,11 @@ public class PotentialMasterBonding implements PotentialCompute {
     public void setBondingPotentialQuad(ISpecies species, IPotentialBondTorsion potential, List<int[]> bondedIndices) {
         bondingInfo.setBondingPotentialQuad(species, potential, bondedIndices);
     }
+
+    public void setBondingPotentialInvert(ISpecies species, IPotentialBondInversion potential, List<int[]> bondedIndices) {
+        bondingInfo.setBondingPotentialInvert(species, potential, bondedIndices);
+    }
+
 
     private void zeroArrays(boolean doForces) {
         if (doForces) {
@@ -97,54 +104,87 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         double[] uTot = {0};
         double[] uu = new double[5];
+        Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
         for (int i = 0; i < speciesList.size(); i++) {
             Map<IPotential2, List<int[]>> potentials = bondingInfo.bondedPairs[i];
             IMoleculeList molecules = box.getMoleculeList(speciesList.get(i));
             uu[2] -= uTot[0];
             potentials.forEach((potential, pairs) -> {
                 for (IMolecule molecule : molecules) {
+                    //System.out.println("\n Bonds");
                     for (int[] pair : pairs) {
                         IAtom iAtom = molecule.getChildList().get(pair[0]);
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
-                        uTot[0] += handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
+                        double u = handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
+                        uTot[0] += u;
+                      // System.out.println( iAtom+ " " + iAtom.getType() +" " + jAtom +" " + jAtom.getType() +" "+ kjmol.fromSim(u));
                     }
                 }
             });
+          //  System.out.println(kjmol.fromSim(uTot[0]) + " bonds");
             uu[2] += uTot[0];
 
             Map<IPotentialBondAngle, List<int[]>> potentials3 = bondingInfo.bondedTriplets[i];
             uu[3] -= uTot[0];
             potentials3.forEach((potential, triplets) -> {
                 for (IMolecule molecule : molecules) {
+                 // System.out.println("\nAngles");
                     for (int[] triplet : triplets) {
                         IAtom iAtom = molecule.getChildList().get(triplet[0]);
                         IAtom jAtom = molecule.getChildList().get(triplet[1]);
                         IAtom kAtom = molecule.getChildList().get(triplet[2]);
-                        uTot[0] += handleOneBondTriplet(doForces, box.getBoundary(), iAtom, jAtom, kAtom, potential, forces);
+                        double u = handleOneBondTriplet(doForces, box.getBoundary(), iAtom, jAtom, kAtom, potential, forces);
+                       //System.out.println( iAtom+ " " + iAtom.getType() +" " + jAtom +" " + jAtom.getType() +" "+ kAtom +" " + kAtom.getType() +" "+ kjmol.fromSim(u));
+                        uTot[0] += u ;
                     }
                 }
             });
-            uu[3] += uTot[0];
 
+            uu[3] += uTot[0];
+           // System.out.println(kjmol.fromSim(uu[3]) + " angles");
             Map<IPotentialBondTorsion, List<int[]>> potentials4 = bondingInfo.bondedQuads[i];
             uu[4] -= uTot[0];
             potentials4.forEach((potential, quads) -> {
                 for (IMolecule molecule : molecules) {
+                 //   System.out.println("\n Torsion");
                     for (int[] quad : quads) {
                         IAtom iAtom = molecule.getChildList().get(quad[0]);
                         IAtom jAtom = molecule.getChildList().get(quad[1]);
                         IAtom kAtom = molecule.getChildList().get(quad[2]);
                         IAtom lAtom = molecule.getChildList().get(quad[3]);
-                        uTot[0] += handleOneBondQuad(doForces, box.getBoundary(), iAtom, jAtom, kAtom, lAtom, potential, forces);
+                        double u = handleOneBondQuad(doForces, box.getBoundary(), iAtom, jAtom, kAtom, lAtom, potential, forces);
+                      //System.out.println( iAtom+ " " + iAtom.getType() +" " + jAtom +" " + jAtom.getType() +" "+ kAtom +" " + kAtom.getType() +" "+ lAtom +" " + lAtom.getType() +" "+ kjmol.fromSim(u));
+                        uTot[0] += u;
                     }
                 }
             });
+
             uu[4] += uTot[0];
+          //  System.out.println(kjmol.fromSim(uu[3]) + " angles");
+            Map<IPotentialBondInversion, List<int[]>> potentials5 = bondingInfo.bondedInverts[i];
+            uu[4] -= uTot[0];
+            potentials5.forEach((potential, inverts) -> {
+                for (IMolecule molecule : molecules) {
+                 //   System.out.println("\n Torsion");
+                    for (int[] invert : inverts) {
+                        IAtom iAtom = molecule.getChildList().get(invert[0]);
+                        IAtom jAtom = molecule.getChildList().get(invert[1]);
+                        IAtom kAtom = molecule.getChildList().get(invert[2]);
+                        IAtom lAtom = molecule.getChildList().get(invert[3]);
+                        double u = handleOneBondInvert(doForces, box.getBoundary(), iAtom, jAtom, kAtom, lAtom, potential, forces);
+                        //System.out.println( iAtom+ " " + iAtom.getType() +" " + jAtom +" " + jAtom.getType() +" "+ kAtom +" " + kAtom.getType() +" "+ lAtom +" " + lAtom.getType() +" "+ kjmol.fromSim(u));
+                        uTot[0] += u;
+                    }
+                }
+            });
+        // System.out.println(Arrays.toString(uu) + " here IN Potentialmasterbonding");
         }
+        //System.out.println(Arrays.toString(uTot) +" array");
         if (Double.isNaN(uTot[0])) throw new RuntimeException("oops");
 //        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
 //        System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
         energyTot = uTot[0];
+       // System.out.println(kjmol.fromSim(energyTot) + " energyTor");
         return uTot[0];
     }
 
@@ -169,6 +209,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                 IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
                 if (jAtom != atom && arrayContains(jAtom, startIdx, atoms)) continue;
                 uTot[0] += handleComputeOneBonded(potential, iAtom, jAtom);
+
             }
         });
         bondingInfo.bondedTripletPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
@@ -195,6 +236,20 @@ public class PotentialMasterBonding implements PotentialCompute {
                 uTot[0] += handleComputeOneBondedQuad(potential, iAtom, jAtom, kAtom, lAtom);
             }
         });
+        bondingInfo.bondedInvertPartners[atom.getParentGroup().getType().getIndex()].forEach((potential, partners) -> {
+            for (int[] pairIdx : partners[atom.getIndex()]) {
+                IAtom iAtom = parentMolecule.getChildList().get(pairIdx[0]);
+                if (iAtom != atom && arrayContains(iAtom, startIdx, atoms)) continue;
+                IAtom jAtom = parentMolecule.getChildList().get(pairIdx[1]);
+                if (jAtom != atom && arrayContains(jAtom, startIdx, atoms)) continue;
+                IAtom kAtom = parentMolecule.getChildList().get(pairIdx[2]);
+                if (kAtom != atom && arrayContains(kAtom, startIdx, atoms)) continue;
+                IAtom lAtom = parentMolecule.getChildList().get(pairIdx[3]);
+                if (lAtom != atom && arrayContains(lAtom, startIdx, atoms)) continue;
+                uTot[0] += handleComputeOneBondedInvert(potential, iAtom, jAtom, kAtom, lAtom);
+            }
+        });
+       // System.out.println(uTot +" utot");
         return uTot[0];
     }
 
@@ -204,7 +259,9 @@ public class PotentialMasterBonding implements PotentialCompute {
         Vector dr = space.makeVector();
         dr.Ev1Mv2(rj, ri);
         box.getBoundary().nearestImage(dr);
-        return pij.u(dr.squared());
+        double uTot = pij.u(dr.squared());
+      //  System.out.println(iAtom + " " + jAtom + " " + uTot);
+        return uTot;
     }
 
     private double handleComputeOneBondedTriplet(IPotentialBondAngle potential, IAtom iAtom, IAtom jAtom, IAtom kAtom) {
@@ -262,6 +319,29 @@ public class PotentialMasterBonding implements PotentialCompute {
         double costheta = vji.dot(vkl) * vji_vkl;
         return potential.u(costheta);
     }
+    private double handleComputeOneBondedInvert(IPotentialBondInversion potential, IAtom iAtom, IAtom jAtom, IAtom kAtom, IAtom lAtom) {
+        Vector ri = iAtom.getPosition();
+        Vector rj = jAtom.getPosition();
+        Vector rk = kAtom.getPosition();
+        Vector rl = lAtom.getPosition();
+        Vector rji = new Vector3D();
+        Vector rjk = new Vector3D();
+        Vector rjl = new Vector3D();
+        rji.Ev1Mv2(ri, rj);
+        box.getBoundary().nearestImage(rji);
+        rjk.Ev1Mv2(rk, rj);
+        box.getBoundary().nearestImage(rjk);
+        rjl.Ev1Mv2(rl, rj);
+        box.getBoundary().nearestImage(rjl);
+        rji.XE(rjk);
+
+        double rji2 = rji.squared();
+        double rjl2 = rjl.squared();
+        double dotprod = rji.dot(rjl);
+        double sintheta = dotprod/(rji2*rjl2);
+        double costheta = Math.cos(Math.asin(sintheta));
+        return potential.u(costheta);
+    }
 
     private static double handleOneBondPair(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, IPotential2 potential, Vector[] forces, PotentialCallback pc) {
         Vector ri = iAtom.getPosition();
@@ -273,8 +353,9 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] u012 = new double[3];
         potential.u012add(r2, u012);
         double uij = u012[0];
-//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-//        System.out.println("bond "+iAtom.getLeafIndex()+" "+jAtom.getLeafIndex()+" "+Math.sqrt(r2)+" "+kcalpmole.fromSim(uij));
+        //System.out.println(uij);
+        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
+        //System.out.println("bond "+iAtom.getLeafIndex()+" "+jAtom.getLeafIndex()+" "+Math.sqrt(r2)+" "+kcalpmole.fromSim(uij));
 
         if (pc != null) pc.pairCompute(iAtom.getLeafIndex(), jAtom.getLeafIndex(), dr, u012);
         if (doForces) {
@@ -306,8 +387,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] u = {0};
         double[] du = {0};
         potential.udu(costheta, u, du);
-//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-//        System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+costheta+" "+kcalpmole.fromSim(u[0]));
+       Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+       // System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+costheta+" "+kcalpmole.fromSim(u[0]));
         double uijk = u[0];
 //        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
 //        System.out.println("pmbangle "+iAtom.getLeafIndex()+" "+jAtom.getLeafIndex()+" "+kAtom.getLeafIndex()+" "+180/Math.PI*Math.acos(costheta)+" "+kcalpmole.fromSim(uijk));
@@ -372,8 +453,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         double costheta = vji.dot(vkl) * vji_vkl;
         double[] u = {0}, du = {0};
         potential.udu(costheta, u, du);
-//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-//        System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+lAtom+" "+costheta+" "+180/Math.PI*Math.acos(costheta)+" "+kcalpmole.fromSim(u[0]));
+     // Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+    //  System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+lAtom+" "+costheta+" "+180/Math.PI*Math.acos(costheta)+" "+kcalpmole.fromSim(u[0]));
 
         if (doForces) {
 
@@ -406,7 +487,36 @@ public class PotentialMasterBonding implements PotentialCompute {
             fk.ME(df);
             fj.PE(df);
         }
+        //System.out.println(u[0] + " u[0]");
         return u[0];
+    }
+
+    private static double handleOneBondInvert(boolean doForces, Boundary boundary, IAtom iAtom, IAtom jAtom, IAtom kAtom, IAtom lAtom, IPotentialBondInversion potential, Vector[] forces) {
+        Vector ri = iAtom.getPosition();
+        Vector rj = jAtom.getPosition();
+        Vector rk = kAtom.getPosition();
+        Vector rl = lAtom.getPosition();
+        Vector rji = new Vector3D();
+        Vector rjk = new Vector3D();
+        Vector rjl = new Vector3D();
+
+        rji.Ev1Mv2(ri, rj);
+        rjk.Ev1Mv2(rk, rj);
+        rjl.Ev1Mv2(rl, rj);
+
+        rji.XE(rjk);
+
+        double rji2 = rji.squared();
+        double rjl2 = rjl.squared();
+        double dotprod = rji.dot(rjl);
+        double sintheta = dotprod/(rji2*rjl2);
+        double costheta = Math.cos(Math.asin(sintheta)); // edit formula
+        return potential.u(costheta);
+        // Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+        //  System.out.println(iAtom+" "+jAtom+" "+kAtom+" "+lAtom+" "+costheta+" "+180/Math.PI*Math.acos(costheta)+" "+kcalpmole.fromSim(u[0]));
+
+        //System.out.println(u[0] + " u[0]");
+
     }
 
     @Override
@@ -448,7 +558,8 @@ public class PotentialMasterBonding implements PotentialCompute {
                 IAtom kAtom = molecule.getChildList().get(triplet[2]);
                 u[0] += handleOneBondTriplet(false, boundary, iAtom, jAtom, kAtom, potential, null);
             }
-        });
+        }
+        );
 
         Map<IPotentialBondTorsion, List<int[]>> potentials4 = bondingInfo.bondedQuads[molecule.getType().getIndex()];
         potentials4.forEach((potential, quads) -> {
@@ -458,9 +569,23 @@ public class PotentialMasterBonding implements PotentialCompute {
                 IAtom kAtom = molecule.getChildList().get(quad[2]);
                 IAtom lAtom = molecule.getChildList().get(quad[3]);
                 u[0] += handleOneBondQuad(false, boundary, iAtom, jAtom, kAtom, lAtom, potential, null);
+               // System.out.println(u[0] + " u[0] in computeOneMolecule");
             }
-        });
-
+        }
+        );
+        Map<IPotentialBondInversion, List<int[]>> potentials5 = bondingInfo.bondedInverts[molecule.getType().getIndex()];
+        potentials5.forEach((potential, inverts) -> {
+                    for (int[] invert : inverts) {
+                        IAtom iAtom = molecule.getChildList().get(invert[0]);
+                        IAtom jAtom = molecule.getChildList().get(invert[1]);
+                        IAtom kAtom = molecule.getChildList().get(invert[2]);
+                        IAtom lAtom = molecule.getChildList().get(invert[3]);
+                        u[0] += handleOneBondInvert(false, boundary, iAtom, jAtom, kAtom, lAtom, potential, null);
+                        // System.out.println(u[0] + " u[0] in computeOneMolecule");
+                    }
+                }
+        );
+        //System.out.println(u[0] + " u[0] in computeOneMolecule");
         return u[0];
     }
 
@@ -506,6 +631,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         public final Map<IPotentialBondAngle, int[][][]>[] bondedTripletPartners;
         public final Map<IPotentialBondTorsion, List<int[]>>[] bondedQuads;
         public final Map<IPotentialBondTorsion, int[][][]>[] bondedQuadPartners;
+        private final Map<IPotentialBondInversion, List<int[]>> [] bondedInverts;
+        public final Map<IPotentialBondInversion, int[][][]>[] bondedInvertPartners;
         public final int[][][] n;
 
         public FullBondingInfo(SpeciesManager sm) {
@@ -516,6 +643,8 @@ public class PotentialMasterBonding implements PotentialCompute {
             bondedTripletPartners = new HashMap[sm.getSpeciesCount()];
             bondedQuads = new HashMap[sm.getSpeciesCount()];
             bondedQuadPartners = new HashMap[sm.getSpeciesCount()];
+            bondedInverts = new HashMap[sm.getSpeciesCount()];
+            bondedInvertPartners = new HashMap[sm.getSpeciesCount()];
             for (int i = 0; i < sm.getSpeciesCount(); i++) {
                 bondedPairs[i] = new HashMap<>();
                 bondedPairPartners[i] = new HashMap<>();
@@ -523,6 +652,8 @@ public class PotentialMasterBonding implements PotentialCompute {
                 bondedTripletPartners[i] = new HashMap<>();
                 bondedQuads[i] = new HashMap<>();
                 bondedQuadPartners[i] = new HashMap<>();
+                bondedInverts[i] = new HashMap<>();
+                bondedInvertPartners[i] = new HashMap<>();
             }
             n = new int[sm.getSpeciesCount()][][];
             for (int i=0; i<n.length; i++) {
@@ -628,6 +759,14 @@ public class PotentialMasterBonding implements PotentialCompute {
             bondedQuads[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
         }
 
+        public void setBondingPotentialInvert(ISpecies species, IPotentialBondInversion potential, List<int[]> bondedIndices) {
+            int speciesIndex = species.getIndex();
+
+            int[][][] partners = handledIndices(species, bondedIndices);
+            bondedInvertPartners[speciesIndex].put(potential, partners);
+            bondedInverts[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
+        }
+
         @Override
         public boolean skipBondedChildren(ISpecies species, int child1, int child2) {
             if (bondedAtoms[species.getIndex()] == null) return true;
@@ -645,7 +784,9 @@ public class PotentialMasterBonding implements PotentialCompute {
 
         @Override
         public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
+          // System.out.println(iAtom.getParentGroup() + " "+ jAtom.getParentGroup());
             if (!isPureAtoms && iAtom.getParentGroup() == jAtom.getParentGroup()) {
+                // ensure i < j
                 // ensure i < j
                 if (isOnlyRigidMolecules) {
                     return true;

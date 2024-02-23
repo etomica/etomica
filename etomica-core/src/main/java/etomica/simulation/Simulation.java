@@ -230,7 +230,6 @@ public class Simulation {
         }
         this.smBuilder.addSpecies(species);
     }
-
     public final SpeciesManager getSpeciesManager() {
         if (speciesManager == null) {
             speciesManager = smBuilder.build();

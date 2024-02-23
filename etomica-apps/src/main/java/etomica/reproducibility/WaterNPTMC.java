@@ -150,7 +150,7 @@ public class WaterNPTMC extends Simulation {
 
         WaterNPTMC sim = new WaterNPTMC(params.numMolecules, temperature, density, pressure, rCutLJ);
 
-        if (false) {
+        if (true) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator, 5000000));
             sim.getController().addActionSequential(new IAction() {
                 @Override
