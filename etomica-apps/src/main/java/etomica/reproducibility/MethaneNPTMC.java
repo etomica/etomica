@@ -115,7 +115,7 @@ public class MethaneNPTMC extends Simulation {
         // TraPPE says CH4 is 16.04
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/(16.04/Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
 
-        if (true) {
+        if (false) {
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ((DiameterHashByType)graphic.getDisplayBox(sim.box()).getDiameterHash()).setDiameter(sim.species().getLeafType(), 3.73);
 
@@ -216,9 +216,9 @@ public class MethaneNPTMC extends Simulation {
         double cor = dataPE.getValue(accPE.BLOCK_CORRELATION.index);
 
         DataGroup dataDensity = (DataGroup) accDensity.getData();
-        double avgDensity = dataDensity.getValue(accPE.AVERAGE.index);
-        double errDensity = dataDensity.getValue(accPE.ERROR.index);
-        double corDensity = dataDensity.getValue(accPE.BLOCK_CORRELATION.index);
+        double avgDensity = dataDensity.getValue(accDensity.AVERAGE.index);
+        double errDensity = dataDensity.getValue(accDensity.ERROR.index);
+        double corDensity = dataDensity.getValue(accDensity.BLOCK_CORRELATION.index);
 
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
         System.out.println("density avg: " + avgDensity + "  err: " + errDensity + "  cor: " + corDensity);
