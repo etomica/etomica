@@ -43,7 +43,6 @@ import etomica.units.dimensions.Null;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +61,6 @@ public class PentaneNPTMC extends Simulation {
 
     public PentaneNPTMC(Space space, double density, int nSpheres, int numMolecules, double temperature, String configFilename, double rc, double pressure) {
         super(space);
-        setRandom(new RandomMersenneTwister(1));
         species = SpeciesAlkane.makeBuilder(nSpheres)
                 .build();
         addSpecies(species);
@@ -176,10 +174,6 @@ public class PentaneNPTMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numSteps = 350000;
-            params.density = 0.3;
-            params.configFilename = null; // "octane";
-            params.graphics = false;
         }
 
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/(72.15/Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
@@ -191,6 +185,7 @@ public class PentaneNPTMC extends Simulation {
         double density = dUnit.toSim(params.density);
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
+        long equilibration = params.equilibration;
         String configFilename = params.configFilename;
         double rc = params.rc;
         double pressureKPa = params.pressureKPa;
@@ -406,7 +401,7 @@ public class PentaneNPTMC extends Simulation {
             return;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/5));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, equilibration));
 
         int interval = 10;
         int pInterval = 10*numMolecules;
@@ -472,11 +467,12 @@ public class PentaneNPTMC extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperatureK = 372;
         public int numMolecules = 300;
-        public double density = 0.0005;
+        public double temperatureK = 372;
+        public double density = 0.539;
         public boolean graphics = false;
-        public long numSteps = 200000;
+        public long numSteps = numMolecules*1000*120;
+        public long equilibration = numMolecules*1000*50;
         public String configFilename = null;
         public double rc = 14;
         public double pressureKPa = 1402;
