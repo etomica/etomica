@@ -144,14 +144,17 @@ public class SimQuantumAO extends Simulation {
             // custom parameters
             params.steps = 1000000;
             params.hbar = 1;
-            params.temperature = 0.5;
+            params.temperature = 0.1;
             params.omega = 1;
             params.k4 = 0.1;
-//            params.coordType = MoveChoice.Real;
-            params.coordType = MoveChoice.NMEC;
-//            params.coordType = MoveChoice.StageEC;
             params.nShifts = 0;
             params.onlyCentroid = true;
+
+//            params.coordType = MoveChoice.Real;
+//            params.coordType = MoveChoice.NM;
+//            params.coordType = MoveChoice.NMEC;
+//            params.coordType = MoveChoice.Stage;
+            params.coordType = MoveChoice.StageEC;
         }
 
         int nShifts = params.nShifts;
@@ -215,6 +218,15 @@ public class SimQuantumAO extends Simulation {
         double CvnC = sim.space.D();
         System.out.println(" En_ho_c: " + EnC);
         System.out.println(" En_ho_q: " + EnQ);
+        double tau = 1/temperature*hbar*omega/nBeads;
+        double D = 2 + omega2 / (nBeads*omegaN*omegaN);
+        double alpha_2 = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
+
+        double EnQ_2 = temperature*(nBeads*Math.tanh(alpha_2/2.0)/Math.tanh(nBeads*alpha_2/2.0));
+        System.out.println(" En_ho_q_2: " + EnQ_2);
+
+
+
         System.out.println(" E_ho_q: " + EnQinf);
         System.out.println(" Cvn_ho_c: " + CvnC);
         System.out.println(" Cvn_ho_q: " + CvnQ);
@@ -237,9 +249,9 @@ public class SimQuantumAO extends Simulation {
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
-            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
             meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
             if (!onlyCentroid) {
+                meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
                 meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
                 meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
                 meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, 0, sim.box, hbar);
@@ -413,8 +425,8 @@ public class SimQuantumAO extends Simulation {
         //1 Primitive
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
         if (meterPrim != null) {
-            DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
+//            DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
         }
 
         //2 Virial
@@ -484,20 +496,6 @@ public class SimQuantumAO extends Simulation {
         double kB_beta2 = sim.betaN*sim.betaN*nBeads*nBeads;
         double varX0, varX1, corX0X1;
 
-        // Prim
-        DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();
-        IData dataAvgPrim = dataPrim.getData(accumulatorPrim.AVERAGE.index);
-        IData dataErrPrim = dataPrim.getData(accumulatorPrim.ERROR.index);
-        IData dataCorPrim = dataPrim.getData(accumulatorPrim.BLOCK_CORRELATION.index);
-        IData dataCovPrim = dataPrim.getData(accumulatorPrim.COVARIANCE.index);
-        double avgEnPrim = dataAvgPrim.getValue(0);
-        double errEnPrim = dataErrPrim.getValue(0);
-        double corEnPrim = dataCorPrim.getValue(0);
-        double CvnPrim = kB_beta2*(dataAvgPrim.getValue(1) - avgEnPrim*avgEnPrim);
-        varX0 = errEnPrim*errEnPrim;
-        varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
-        corX0X1 = dataCovPrim.getValue(1)/Math.sqrt(dataCovPrim.getValue(0))/Math.sqrt(dataCovPrim.getValue(3));
-        double errCvnPrim = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1);
 
 
         // Cent-Vir
@@ -509,18 +507,35 @@ public class SimQuantumAO extends Simulation {
         double avgEnCentVir = dataAvgCentVir.getValue(0);
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorCentVir.getValue(0);
-        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
-        varX0 = errEnCentVir*errEnCentVir;
-        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
-        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
-        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
-        double avgEnVir=0, avgEnHMAc=0, avgEnNMSimple=0, avgEnNMEC=0, avgEnStageSimple=0,avgEnStageEC=0;
-        double errEnVir=0, errEnHMAc=0, errEnNMSimple=0, errEnNMEC=0, errEnStageSimple=0, errEnStageEC=0;
-        double corEnVir=0, corEnHMAc=0, corEnNMSimple=0, corEnNMEC=0, corEnStageSimple=0, corEnStageEC=0;
-        double CvnVir=0, CvnHMAc=0, CvnNMSimple=0, CvnNMEC=0, CvnStageSimple=0, CvnStageEC=0;
-        double errCvnVir=0, errCvnHMAc=0, errCvnNMsimple=0, errCvnNMEC=0, errCvnStageSimple=0, errCvnStageEC=0;
+//        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
+//        varX0 = errEnCentVir*errEnCentVir;
+//        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
+//        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
+//        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
+
+
+        double avgEnPrim=0, avgEnVir=0, avgEnHMAc=0, avgEnNMSimple=0, avgEnNMEC=0, avgEnStageSimple=0,avgEnStageEC=0;
+        double errEnPrim=0, errEnVir=0, errEnHMAc=0, errEnNMSimple=0, errEnNMEC=0, errEnStageSimple=0, errEnStageEC=0;
+        double corEnPrim=0, corEnVir=0, corEnHMAc=0, corEnNMSimple=0, corEnNMEC=0, corEnStageSimple=0, corEnStageEC=0;
+        double CvnPrim=0, CvnVir=0, CvnHMAc=0, CvnNMSimple=0, CvnNMEC=0, CvnStageSimple=0, CvnStageEC=0;
+        double errCvnPrim=0, errCvnVir=0, errCvnHMAc=0, errCvnNMsimple=0, errCvnNMEC=0, errCvnStageSimple=0, errCvnStageEC=0;
 
         if (!onlyCentroid) {
+            // Prim
+            DataGroup dataPrim = (DataGroup) accumulatorPrim.getData();
+            IData dataAvgPrim = dataPrim.getData(accumulatorPrim.AVERAGE.index);
+            IData dataErrPrim = dataPrim.getData(accumulatorPrim.ERROR.index);
+            IData dataCorPrim = dataPrim.getData(accumulatorPrim.BLOCK_CORRELATION.index);
+            IData dataCovPrim = dataPrim.getData(accumulatorPrim.COVARIANCE.index);
+            avgEnPrim = dataAvgPrim.getValue(0);
+            errEnPrim = dataErrPrim.getValue(0);
+            corEnPrim = dataCorPrim.getValue(0);
+            CvnPrim = kB_beta2*(dataAvgPrim.getValue(1) - avgEnPrim*avgEnPrim);
+            varX0 = errEnPrim*errEnPrim;
+            varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
+            corX0X1 = dataCovPrim.getValue(1)/Math.sqrt(dataCovPrim.getValue(0))/Math.sqrt(dataCovPrim.getValue(3));
+            errCvnPrim = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1);
+
             // Vir
             DataGroup dataVir = (DataGroup) accumulatorVir.getData();
             IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
@@ -623,11 +638,10 @@ public class SimQuantumAO extends Simulation {
         }
 
         if (onlyCentroid) {
-            System.out.println("\n En_prim:          " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
             System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
             System.out.println();
-            System.out.println(" Cvn_prim:         " + CvnPrim +          "   err: " + errCvnPrim);
-            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+//            System.out.println(" Cvn_prim:         " + CvnPrim +          "   err: " + errCvnPrim);
+//            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
         } else {
             System.out.println("\n En_prim:          " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
             System.out.println(" En_vir:           " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
@@ -640,7 +654,7 @@ public class SimQuantumAO extends Simulation {
             System.out.println();
             System.out.println(" Cvn_prim:         " + CvnPrim +          "   err: " + errCvnPrim);
             System.out.println(" Cvn_vir:          " + CvnVir +           "   err: " + errCvnVir);
-            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+//            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
             System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
             System.out.println(" Cvn_nm_simple:    " + CvnNMSimple +    "   err: " + errCvnNMsimple);
             System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);

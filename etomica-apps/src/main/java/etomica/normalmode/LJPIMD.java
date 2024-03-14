@@ -659,7 +659,7 @@ public class LJPIMD extends Simulation {
     public static class SimParams extends ParameterBase {
         public int D = 3;
         public double k2 = 219.949835;
-        public double gammaLangevin = 2.0 * Math.sqrt(k2);
+        public double gammaLangevin = Math.sqrt(k2);
         public long steps = 100000;
         public double density = 1.0;
         public double temperature = 1.0;
