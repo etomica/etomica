@@ -34,7 +34,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected double uaNew = Double.NaN;
     protected double duTotal;
     protected double hbar;
-    protected double mass, beta, omegaN, betaN, sigma0;
+    protected double mass, beta, omegaN, sigma0;
     protected final double[] chainSigmas, gamma, dGamma;
     protected final double[] f11, f1N, df11, df1N,d2f11, d2f1N;
     protected final MoleculeSource moleculeSource;
@@ -57,7 +57,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         beta = 1.0/temperature;
         // mass here is the mass of the whole ring
-        mass = box.getLeafList().get(0).getType().getMass()*nBeads;
+        mass = nBeads * box.getLeafList().get(0).getType().getMass();  // ring mass, m
 
         chainSigmas = new double[nBeads];
         f11 = new double[nBeads];
@@ -82,8 +82,13 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         nGrow = 1;
         if (nBeads > 1) {
-            nGrow = nBeads/2;
+            nGrow = nBeads;
         }
+
+
+//        nGrow = nBeads/2;
+
+        System.out.println(" nGrow: " + nGrow);
     }
 
     public void setNumGrow(int nGrow) {
@@ -91,14 +96,10 @@ public class MCMoveHOReal2 extends MCMoveBox {
     }
 
     protected void init() {
-
-        betaN = beta/nBeads;
-        omegaN = 1.0/(hbar*betaN);
-        double omegaN2 = omegaN*omegaN;
-
-        double D = 2 + omega2 / (omegaN*omegaN);
+        omegaN = Math.sqrt(nBeads)/(hbar*beta);
+        double D = 2 + omega2 / (nBeads*omegaN*omegaN);
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
-        double dAlpha = 2.0/beta/Math.sqrt(1.0+4.0*omegaN2/omega2);
+        double dAlpha = 2.0/beta/Math.sqrt(1.0+4.0*nBeads*omegaN*omegaN/omega2);
         double dAlpha2 = dAlpha*dAlpha;
         double d2Alpha = -1.0/4.0*beta*dAlpha*dAlpha*dAlpha;
 
@@ -107,13 +108,13 @@ public class MCMoveHOReal2 extends MCMoveBox {
         double sinhNA = Math.sinh(nBeads*alpha);
         double coshhNA = Math.cosh(nBeads*alpha);
 
-        double k0 = 2.0*mass*omegaN2*sinhA*Math.tanh(nBeads*alpha/2.0);
-        sigma0 = k0 == 0 ? 0 : Math.sqrt(nBeads/(beta*k0));
+        double k0 = 2*mass*omegaN*omegaN*sinhA*Math.tanh(nBeads*alpha/2.0);
+        sigma0 = k0 == 0 ? 0 : 1/Math.sqrt(beta*k0);
         chainSigmas[0] = sigma0;
-        gamma[0] = alpha == 0 ? 0 : 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
-        dGamma[0] = -1.0/2.0/beta/beta - d2Alpha/2.0*(coshA/sinhA+nBeads/sinhNA)
-                + dAlpha2/2.0*(1.0/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
 
+        gamma[0] = alpha == 0 ? 0 : 1.0/2.0/beta - dAlpha/2.0*(coshA/sinhA+nBeads/sinhNA);
+        dGamma[0] = alpha == 0 ? 0 : -1.0/2.0/beta/beta - 1.0/2.0*d2Alpha*(coshA/sinhA+nBeads/sinhNA)
+                + 0.5*dAlpha2*(1/sinhA/sinhA+nBeads*nBeads/sinhNA*coshhNA/sinhNA);
 
         for (int i=1; i<nBeads; i++) {
             double sinhNmiA = Math.sinh((nBeads-i)*alpha);
@@ -122,26 +123,26 @@ public class MCMoveHOReal2 extends MCMoveBox {
             double coshNmip1A = Math.cosh((nBeads-i+1)*alpha);
 
             double sinhRatio = alpha == 0 ? (nBeads-i+1.0)/(nBeads-i) : (sinhNmip1A/sinhNmiA);
-            double ki = mass*omegaN2*sinhRatio;
-            chainSigmas[i] = Math.sqrt(nBeads/(beta*ki));
+            double ki = mass*omegaN*omegaN*sinhRatio;
+            chainSigmas[i] = 1.0/Math.sqrt(beta*ki);
             gamma[i] = alpha == 0 ? 1.0/2.0/beta : 1.0/2.0/beta - dAlpha/2.0*(coshNmip1A/sinhNmip1A - (nBeads-i)*sinhA/sinhNmip1A/sinhNmiA);
-            dGamma[i] = -1.0/2.0/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
+            dGamma[i] = alpha == 0 ? -1.0/2.0/beta/beta : -1.0/2.0/beta/beta - d2Alpha/2.0*coshNmip1A/sinhNmip1A + (nBeads-i)/2.0*d2Alpha*sinhA/sinhNmip1A/sinhNmiA
                       + dAlpha2/2.0*(nBeads-i+1)/sinhNmip1A/sinhNmip1A
                       + dAlpha2/2.0*(nBeads-i)*coshA/sinhNmip1A/sinhNmiA
                       - dAlpha2/2.0*(nBeads-i)*(nBeads-i+1)*sinhA/sinhNmip1A*coshNmip1A/sinhNmip1A/sinhNmiA
                       - dAlpha2/2.0*(nBeads-i)*(nBeads-i)*sinhA/sinhNmip1A/sinhNmiA*coshNmiA/sinhNmiA;
-            f11[i] = alpha == 0 ? ((nBeads-i)/(nBeads-i+1.0)) : (sinhNmiA/sinhNmip1A);
-            f1N[i] = alpha == 0 ? (1.0/(nBeads-i+1)) : (sinhA/sinhNmip1A);
+            f11[i] = alpha == 0 ? (nBeads-i)/(nBeads-i+1.0) : sinhNmiA/sinhNmip1A;
+            f1N[i] = alpha == 0 ? 1.0/(nBeads-i+1) : sinhA/sinhNmip1A;
 
             df11[i] = alpha == 0 ? 0 : dAlpha/sinhNmip1A*((nBeads-i)*coshNmiA-(nBeads-i+1)*sinhNmiA*coshNmip1A/sinhNmip1A);
             df1N[i] = alpha == 0 ? 0 : dAlpha/sinhNmip1A*(coshA - (nBeads-i+1)*sinhA*coshNmip1A/sinhNmip1A);
 
-            d2f11[i] = alpha == 0 ? 0 : (d2Alpha/dAlpha*df11[i] + dAlpha2/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
+            d2f11[i] = alpha == 0 ? 0 : d2Alpha/dAlpha*df11[i] + dAlpha2/sinhNmip1A*((nBeads-i)*(nBeads-i)*sinhNmiA
                      - 2*(nBeads-i+1)*(nBeads-i)*coshNmiA*coshNmip1A/sinhNmip1A
-                     + 1.0/2.0*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*alpha))));
-            d2f1N[i] = alpha == 0 ? 0 : (d2Alpha/dAlpha*df1N[i] + dAlpha2/sinhNmip1A*(sinhA
+                     + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhNmiA/sinhNmip1A/sinhNmip1A*(3.0+Math.cosh(2*(nBeads-i+1)*alpha)));
+            d2f1N[i] = alpha == 0 ? 0 : d2Alpha/dAlpha*df1N[i] + dAlpha2/sinhNmip1A*(sinhA
                      -2*(nBeads-i+1)*coshA*coshNmip1A/sinhNmip1A
-                     + 1.0/2.0*(nBeads-i+1)*(nBeads-i+1)*sinhA/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*alpha))));
+                     + 0.5*(nBeads-i+1)*(nBeads-i+1)*sinhA/sinhNmip1A/sinhNmip1A*(3.0 + Math.cosh(2*(nBeads-i+1)*alpha)));
         }
     }
 
@@ -193,7 +194,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
             Vector rjj = atoms.get(jj).getPosition();
             dr.Ev1Mv2(rjj, rj);
             box.getBoundary().nearestImage(dr);
-            uh += 1.0 / nBeads / 2.0 * mass * (omegaN * omegaN * dr.squared());
+            uh += 1.0 / 2.0 * mass * (omegaN * omegaN * dr.squared());
         }
         return uh;
     }

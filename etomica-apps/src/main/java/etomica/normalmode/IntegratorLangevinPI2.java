@@ -32,7 +32,7 @@ import etomica.util.random.IRandom;
  * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum of mode
  * 0 whenever the transformed coordinates are propagated.  As such, the kinetic energy should be the full 3/2 Nn kT.
  */
-public class IntegratorLangevinPI extends IntegratorMD {
+public class IntegratorLangevinPI2 extends IntegratorMD {
 
     protected double gamma;
     protected final double[] f11, f1N;
@@ -40,9 +40,9 @@ public class IntegratorLangevinPI extends IntegratorMD {
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
 
-    public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
-                                double timeStep, double temperature, Box box, double gamma,
-                                MCMoveHOReal2 move, double hbar, double omega2HO) {
+    public IntegratorLangevinPI2(PotentialCompute potentialCompute, IRandom random,
+                                 double timeStep, double temperature, Box box, double gamma,
+                                 MCMoveHOReal2 move, double hbar, double omega2HO) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
 
@@ -110,7 +110,16 @@ public class IntegratorLangevinPI extends IntegratorMD {
                 drPrev0.E(usave);
 
                 Vector v = ((IAtomKinetic)a).getVelocity();
-                u[i].PEa1Tv1(dt, v);
+                Vector u0 = box.getSpace().makeVector();
+                Vector v0 = box.getSpace().makeVector();
+                u0.E(u[i]);
+                v0.E(v);
+                double omega = Math.sqrt(omega2HO);
+                u[i].Ea1Tv1(Math.cos(omega*dt), u0);
+                u[i].PEa1Tv1(Math.sin(omega*dt)/omega, v0);
+
+                v.Ea1Tv1(-omega*Math.sin(omega*dt), u0);
+                v.PEa1Tv1(Math.cos(omega*dt), v0);
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
@@ -197,12 +206,12 @@ public class IntegratorLangevinPI extends IntegratorMD {
     protected void doStepInternal() {
         super.doStepInternal();
 
-        propagatorB(timeStep/2);
-        propagatorA(timeStep/2);
+        propagatorB(timeStep/4);
+        propagatorA(timeStep/4);
         propagatorO(timeStep);
-        propagatorA(timeStep/2);
+        propagatorA(timeStep/4);
         computeForce();
-        propagatorB(timeStep/2);
+        propagatorB(timeStep/4);
 
         computeKE();
     }

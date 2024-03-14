@@ -1,5 +1,6 @@
 package etomica.normalmode;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
@@ -17,10 +18,10 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPIHMA implements IDataSource, PotentialCallback {
+public class MeterPIHMAInf implements IDataSource, PotentialCallback {
     protected final PotentialMasterBonding pmBonding;
-    protected final PotentialCompute pcP1;
-    protected double betaN, beta, omega2, omegaN;
+    protected final PotentialCompute pcP1harm, pcP1ah;
+    protected double temperature, beta, R, sinhR, cothR;
     protected int nBeads;
     protected double[] gk, gk2;
     protected double[][] M, M2;
@@ -31,48 +32,55 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected DataDoubleArray data;
     protected Vector[] rdot, rddot;
     protected final Vector[] latticePositions;
-    protected int dim, numAtoms;
-    protected double EnShift;
+    protected int dim;
+    protected double fac1, fac2, fac3, fac4, mOmegaF2, mOmegaH2;
 
-    public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
+    public MeterPIHMAInf(PotentialMasterBonding pmBonding, PotentialCompute pcP1harm,PotentialCompute pcP1ah, double temperature, int nBeads, double omega,double omegaSample, Box box, double hbar) {
         int nData = 2;
+        this.box = box;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.dim = box.getSpace().D();
         this.pmBonding = pmBonding;
-        this.pcP1 = pcP1;
-        this.betaN = betaN;
+        this.pcP1harm = pcP1harm;
+        this.pcP1ah = pcP1ah;
+        this.temperature = temperature;
         this.nBeads = nBeads;
-        this.box = box;
-        this.beta = betaN*nBeads;
-        this.omega2 = omega2;
-        omegaN = Math.sqrt(nBeads)/(beta*hbar);
-        numAtoms = box.getMoleculeList().size();
+        this.beta = 1/temperature;
+        double mass = box.getLeafList().get(0).getType().getMass()*nBeads;
+
+        double RSample = beta*hbar*omegaSample/nBeads;
+        int numAtoms = box.getMoleculeList().size();
         rdot = box.getSpace().makeVectorArray(numAtoms*nBeads);
         rddot = box.getSpace().makeVectorArray(numAtoms*nBeads);
         gk = new double[nBeads];
         gk2 = new double[nBeads];
         int nK = nBeads/2;
-        beta = betaN*nBeads;
-        double a2 = (betaN*hbar/2.0)*(betaN*hbar/2.0)*omega2;
-        if (omega2 == 0){
+        if (omegaSample == 0){
             gk[nK] = 0;
             gk2[nK] = 0;
         } else {
-            gk[nK] = -1.0/2.0/beta;
-            gk2[nK] = 1.0/2.0/beta/beta;
+            gk[nK] = -RSample/2.0/beta/Math.sinh(RSample);
+            gk2[nK] = RSample*RSample/2/beta/beta*Math.cosh(RSample)/Math.sinh(RSample)/Math.sinh(RSample);
         }
+        double dRSample = RSample/beta;
         for(int k = 1; k <= nK; k++){
             double sin = Math.sin(Math.PI*k/nBeads);
-            double num = sin*sin - a2;
-            double dnum = -2.0*a2/beta;
-            double den = sin*sin + a2;
-            double dden = 2.0*a2/beta;
+            double num = 2/Math.tanh(RSample)*sin*sin - Math.tanh(RSample/2);
+            double dnum = -2/Math.sinh(RSample)/Math.sinh(RSample)*sin*sin-1.0/2.0/Math.cosh(RSample/2)/Math.cosh(RSample/2);
+            double den = sin*sin + Math.sinh(RSample/2)*Math.sinh(RSample/2);
+            double dden = Math.sinh(RSample)/2;
             double den2 = den*den;
-            gk[nK-k] = 1.0/2.0/beta*num/den;
-            gk2[nK-k] = -1.0/2.0/beta/beta*num/den + 1.0/2.0/beta*(den*dnum-num*dden)/den2;
+            if (omegaSample == 0) {
+                gk[nK-k] = 1.0/2.0/beta;
+                gk2[nK-k] = -1.0/2.0/beta/beta;
+            } else {
+                gk[nK-k] =  RSample/4.0/beta*num/den;
+                gk2[nK-k] = RSample/4/beta*(den*dnum-num*dden)/den2*dRSample;
+            }
+
             if (k != nK || nBeads % 2 != 0){ //odd
                 gk[nK+k] = gk[nK-k];
                 gk2[nK+k] = gk2[nK-k];
@@ -96,19 +104,31 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             }
         }
 
-        if (omega2 != 0) {
-            double En_ho_nm = dim*nBeads / 2.0 / this.beta;
-            double Cvn_ho_nm = dim*nBeads / 2.0 / beta / beta;
+        this.R = beta*hbar*omega/nBeads;
+        sinhR = Math.sinh(R);
+        cothR = 1/Math.tanh(R);
+        this.fac1 = R*R/beta*(1-2*cothR*cothR);
+        this.fac2 = R*R/2/beta/Math.cosh(R/2)/Math.cosh(R/2);
+        this.fac3 = -R*cothR;
+        this.fac4 = R/sinhR;
+        this.mOmegaF2 = mass*omega*omega/nBeads/R/sinhR;
+        this.mOmegaH2 = 2*mass*omega*omega*Math.tanh(R/2)/nBeads/R;
+
+        if (omegaSample != 0) {
+            double bA_ho_nm = dim*nBeads*numAtoms/2.0*Math.log(2*Math.PI*hbar*sinhR/mass/omega);
+            double E_ho_nm = hbar*omega/2.0*cothR;
+            double Cv_ho_nm = dim*nBeads*numAtoms/2.0/beta/beta*R*R/sinhR/sinhR;
             for (int k = 0; k < nBeads; k++) {
-                En_ho_nm -= dim*gk[k];
-                Cvn_ho_nm += dim*gk2[k];
+                double lambdak = 4.0* mOmegaF2 *Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mOmegaH2;
+                bA_ho_nm += 0.5*Math.log(beta*lambdak/2/Math.PI);
+                E_ho_nm -= gk[k];
+                Cv_ho_nm += gk2[k];
             }
-            Cvn_ho_nm *= beta * beta;
-            //COM
-            En_ho_nm -= dim/2.0/beta;
-            Cvn_ho_nm -= dim/2.0/beta/beta;
-            System.out.println(" En_ho_nm:  " + En_ho_nm);
-            System.out.println(" Cvn_ho_nm: " + Cvn_ho_nm);
+            Cv_ho_nm *= beta * beta;
+            System.out.println(" An_ho_nm:  " + bA_ho_nm/beta + "  A_ho_nm_inf: " + dim*numAtoms*Math.log(2*Math.sinh(beta*hbar*omega/2))/beta);
+            System.out.println(" En_ho_nm:  " + E_ho_nm + "  E_ho_nm_inf: " + dim*numAtoms*hbar*omega/2/Math.tanh(beta*hbar*omega/2));
+            System.out.println(" Cvn_ho_nm: " + Cv_ho_nm + "  Cv_ho_nm_inf: " + beta*beta*dim*numAtoms*hbar*hbar*omega*omega/4/Math.sinh(beta*hbar*omega/2)/Math.sinh(beta*hbar*omega/2));
+            System.out.println();
         }
 
 
@@ -116,18 +136,13 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
-
-        this.EnShift = 0;
     }
 
     @Override
     public IData getData() {
         drdotHdrdot = 0 ;
         double[] x = data.getData();
-        Vector drShift = box.getSpace().makeVector();
-        if (box.getMoleculeList().size() > 1) {
-            drShift = computeShift();
-        }
+        Vector shift = computeShift();
         IMoleculeList molecules = box.getMoleculeList();
         Vector drj = box.getSpace().makeVector();
         for (IMolecule m : molecules) {
@@ -139,7 +154,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             }
 
             for (int j = 0; j < nBeads; j++) {
-                computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], drShift, drj);
+                computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], shift, drj);
                 for (int i=0; i<nBeads; i++) {
                     int ia = atoms.get(i).getLeafIndex();
                     rdot[ia].PEa1Tv1(M[i][j], drj);
@@ -149,61 +164,50 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-//        pcP1.computeAll(true, null); //no Cv
-        pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
+        pcP1harm.computeAll(true); //no Cv
+//        pcP1ah.computeAll(true); //no Cv
+        pcP1ah.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
-        double En = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
-        double Cvn = dim*numAtoms*nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
+        int numAtoms = molecules.size();
+        double En = dim*nBeads*numAtoms/2.0/beta*R*cothR + fac3*pmBonding.getLastEnergy() + fac4*pcP1harm.getLastEnergy() + pcP1ah.getLastEnergy();
+        double Cvn = dim*nBeads*numAtoms/2.0/beta/beta*R*R/sinhR/sinhR + fac1*pmBonding.getLastEnergy() + fac2*pcP1harm.getLastEnergy();
+
+        if (box.getMoleculeList().size() > 1) {
+            En -= dim/2.0/beta;
+        }
         for (int i=0; i<nBeads; i++) {
             En -= dim*numAtoms*gk[i];
             Cvn += dim*numAtoms*gk2[i];
         }
-        //COM
-        if (numAtoms > 1 && omega2 != 0) {
-            En -= dim/2.0/beta; //com: -dim*gk[nK]
-            Cvn -= dim/2.0/beta/beta;
-        }
 
-
-        Vector[] forcesU = pcP1.getForces();
+        Vector[] forcesUharm = pcP1harm.getForces();
+        Vector[] forcesUah = pcP1ah.getForces();
         Vector[] forcesK = pmBonding.getForces();
 
-        double massRing = box.getLeafList().get(0).getType().getMass()*nBeads;
-        Vector tmpV = box.getSpace().makeVector();
+        for (IAtom a : box.getLeafList()) {
+            int j = a.getLeafIndex();
 
-        for (IMolecule molecule : box.getMoleculeList()) {
-            IAtomList atoms = molecule.getChildList();
-            for (int jj=0; jj<atoms.size(); jj++) {
-                int j = atoms.get(jj).getLeafIndex();
-                En -= beta*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
-                Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));
-                Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));
-                int jjp = (jj+1)%nBeads;
-                int jp = atoms.get(jjp).getLeafIndex();
-                tmpV.Ev1Mv2(rdot[j], rdot[jp]);
-                Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
-            }
+            En -= beta*( forcesK[j].dot(rdot[j])+forcesUharm[j].dot(rdot[j]) + forcesUah[j].dot(rdot[j]));
+            Cvn += beta*(forcesK[j].dot(rddot[j])+forcesUharm[j].dot(rddot[j]) + forcesUah[j].dot(rddot[j]));//rddot
+            Cvn += 2.0*(fac3*forcesK[j].dot(rdot[j])+fac4*forcesUharm[j].dot(rdot[j]) + forcesUah[j].dot(rdot[j]));//rdot
+
+            int jp = a.getIndex() == nBeads-1 ?  (j-nBeads+1) : j+1;
+            Vector tmpV = box.getSpace().makeVector();
+            tmpV.Ev1Mv2(rdot[j], rdot[jp]);
+            Cvn -= (beta* mOmegaF2 *(tmpV.squared()) + beta* mOmegaH2 *rdot[j].squared());
         }
-
         Cvn -= beta*drdotHdrdot;
-        x[0] = En - EnShift;
-        x[1] = Cvn + (En - EnShift)*(En - EnShift);
+        x[0] = En;
+        x[1] = Cvn + x[0]*x[0];
 
         return data;
     }
 
-    public void fieldComputeHessian(int i, Tensor Hii) {
-        Vector tmpV = box.getSpace().makeVector();
-        tmpV.E(rdot[i]);
-        Hii.transform(tmpV);
-        drdotHdrdot += rdot[i].dot(tmpV);
-    }
-
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
-        Vector rdotij = box.getSpace().makeVector();
-        rdotij.Ev1Mv2(rdot[i], rdot[j]);
-        Hij.transform(rdotij);
-        drdotHdrdot += rdotij.dot(rdot[i]) - rdotij.dot(rdot[j]);
+        Vector tmpV = box.getSpace().makeVector();
+        tmpV.E(rdot[j]);
+        Hij.transform(tmpV);
+        drdotHdrdot += rdot[i].dot(tmpV); //drdot.H.drdot
     }
 
     protected Vector computeShift() {
@@ -254,5 +258,4 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         return true;
     }
 
-    public void setEnShift(double E) { this.EnShift = E; }
 }
