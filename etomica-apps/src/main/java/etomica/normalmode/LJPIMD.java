@@ -161,6 +161,7 @@ public class LJPIMD extends Simulation {
         double gammaLangevin = params.gammaLangevin;
         double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
+        boolean onlyCentroid = params.onlyCentroid;
         MoveChoice coordType = params.coordType;
         long steps = params.steps;
         long stepsEq = steps/10;
