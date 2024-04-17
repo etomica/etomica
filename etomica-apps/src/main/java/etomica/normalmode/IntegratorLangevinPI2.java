@@ -39,6 +39,7 @@ public class IntegratorLangevinPI2 extends IntegratorMD {
     protected double omega2HO;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
+    protected final double coswt4, sinwt4;
 
     public IntegratorLangevinPI2(PotentialCompute potentialCompute, IRandom random,
                                  double timeStep, double temperature, Box box, double gamma,
@@ -79,6 +80,9 @@ public class IntegratorLangevinPI2 extends IntegratorMD {
         }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
+        double omega = Math.sqrt(omega2HO);
+        sinwt4 = Math.sin(omega*timeStep/4);
+        coswt4 = Math.cos(omega*timeStep/4);
     }
 
     public void setGamma(double newGamma) {
@@ -115,11 +119,11 @@ public class IntegratorLangevinPI2 extends IntegratorMD {
                 u0.E(u[i]);
                 v0.E(v);
                 double omega = Math.sqrt(omega2HO);
-                u[i].Ea1Tv1(Math.cos(omega*dt), u0);
-                u[i].PEa1Tv1(Math.sin(omega*dt)/omega, v0);
+                u[i].Ea1Tv1(coswt4, u0); // cosWdt
+                u[i].PEa1Tv1(sinwt4 /omega, v0);
 
-                v.Ea1Tv1(-omega*Math.sin(omega*dt), u0);
-                v.PEa1Tv1(Math.cos(omega*dt), v0);
+                v.Ea1Tv1(-omega* sinwt4, u0);
+                v.PEa1Tv1(coswt4, v0);
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);

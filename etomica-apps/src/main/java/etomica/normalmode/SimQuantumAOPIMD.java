@@ -118,7 +118,6 @@ public class SimQuantumAOPIMD extends Simulation {
         } else { //StageEC -- default
             MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
             integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
-//            integrator = new IntegratorLangevinPI2(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
         }
 
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
@@ -146,14 +145,13 @@ public class SimQuantumAOPIMD extends Simulation {
             params.onlyCentroid = true;
             params.gammaLangevin = params.omega;
 
-            params.nBeads = 40;
-            params.timeStep = 2;//max
-
 //            params.coordType = MoveChoice.Real;
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
+
+            params.timeStep = 0.1;
         }
 
         int nShifts = params.nShifts;
@@ -180,23 +178,6 @@ public class SimQuantumAOPIMD extends Simulation {
 
         double omegaN = Math.sqrt(nBeads)*temperature/hbar;
         double timeStep = params.timeStep;
-        if (timeStep == -1) {
-            double c = 0.1;
-            if (params.coordType == MoveChoice.Real) {
-                timeStep = c / omegaN / Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
-            } else if (params.coordType == MoveChoice.NM) {
-                timeStep = c/omegaN/Math.sqrt(nBeads); // which is 1/sqrt(n)
-            } else if (params.coordType == MoveChoice.Stage) {
-                double M = 0;
-                for (int i=0; i<nBeads; i++) {
-                    M += 2.0*omegaN*omegaN/omega2/(2.0*nBeads+i*(nBeads-i));
-                }
-                double s = mass / M;
-                timeStep = c*Math.sqrt(s)/omega; // for large n, timeStep ~ hbar/T
-            } else {
-                timeStep = c/omega;
-            }
-        }
 
         if (isTIA){
             omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
@@ -242,7 +223,7 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" E_ho_q: " + EnQinf);
         System.out.println(" Cvn_ho_c: " + CvnC);
         System.out.println(" Cvn_ho_q: " + CvnQ);
-        System.out.println(" Cv_ho_c: " + CvnQinf + "\n");
+        System.out.println(" Cv_ho_q: " + CvnQinf + "\n");
 
 
 //        System.out.println("Real: " + 1/omegaN/Math.sqrt(nBeads));
@@ -273,7 +254,6 @@ public class SimQuantumAOPIMD extends Simulation {
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
-            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
             meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
             if (!onlyCentroid) {
                 meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
@@ -332,11 +312,11 @@ public class SimQuantumAOPIMD extends Simulation {
                         COM.PE(atom.getPosition());
                     }
                     COM.TE(1.0/sim.box.getLeafList().size());
-                    return Math.sqrt(COM.squared());
+                    return COM.getX(0);
                 }
             };
             AccumulatorHistory historyCOM = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyCOM.setTimeDataSource(new DataSourceCountSteps(sim.integrator));
+            historyCOM.setTimeDataSource(new DataSourceCountTime(sim.integrator));
             DataPumpListener pumpCOM = new DataPumpListener(meterCOM, historyCOM, intervalG);
             sim.integrator.getEventManager().addListener(pumpCOM);
             DisplayPlotXChart plotCOM = new DisplayPlotXChart();
@@ -351,9 +331,9 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.flush();
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
+
         System.out.println("\n equilibration finished");
-        //10,2,4,6,8,
-        int interval = 100;
+        int interval = 1;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
         if (blockSize == 0) blockSize = 1;
@@ -457,11 +437,11 @@ public class SimQuantumAOPIMD extends Simulation {
         double avgEnCentVir = dataAvgCentVir.getValue(0);
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorCentVir.getValue(0);
-//        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
-//        varX0 = errEnCentVir*errEnCentVir;
-//        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
-//        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
-//        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
+        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
+        varX0 = errEnCentVir*errEnCentVir;
+        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
+        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
+        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
 
         double avgEnPrim=0, avgEnVir=0, avgEnHMAc=0, avgEnNMSimple=0, avgEnNMEC=0, avgEnStageSimple=0,avgEnStageEC=0;
         double errEnPrim=0, errEnVir=0, errEnHMAc=0, errEnNMSimple=0, errEnNMEC=0, errEnStageSimple=0, errEnStageEC=0;
@@ -588,8 +568,7 @@ public class SimQuantumAOPIMD extends Simulation {
 
         if (onlyCentroid) {
             System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
-            System.out.println();
-//            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
         } else {
             System.out.println("\n En_prim:          " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
             System.out.println(" En_vir:           " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
@@ -601,7 +580,7 @@ public class SimQuantumAOPIMD extends Simulation {
             System.out.println(" En_stage_ec:      " + avgEnStageEC + "   err: " + errEnStageEC + " cor: " + corEnStageEC);
             System.out.println();
             System.out.println(" Cvn_prim:         " + CvnPrim +          "   err: " + errCvnPrim);
-            System.out.println(" Cvn_vir:          " + CvnVir +           "   err: " + errCvnVir);
+//            System.out.println(" Cvn_vir:          " + CvnVir +           "   err: " + errCvnVir);
 //            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
             System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
             System.out.println(" Cvn_nm_simple:    " + CvnNMSimple +    "   err: " + errCvnNMsimple);

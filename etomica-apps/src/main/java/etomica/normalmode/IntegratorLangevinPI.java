@@ -9,6 +9,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMD;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
@@ -54,28 +55,20 @@ public class IntegratorLangevinPI extends IntegratorMD {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
         int nBeads = box.getMoleculeList().get(0).getChildList().size();
-        double omegaN = Math.sqrt(nBeads)/(hbar* move.beta);
+        double omegaN = nBeads/(hbar* move.beta);
         double omegaN2 = omegaN*omegaN;
-        double D = 2 + move.omega2 / (nBeads*omegaN2);
+        double D = 2 + move.omega2 / omegaN2;
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
         mScale = new double[nBeads];
         fScale = new double[nBeads];
         fScale0 = new double[nBeads];
 
-        mScale[0] = (alpha == 0) ? nBeads*omegaN2/omega2HO : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
+        mScale[0] = (alpha == 0) ? nBeads : 2.0*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
         fScale0[0] = 1;
         for (int i=1; i<nBeads; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
-            mScale[i]  = alpha == 0 ? nBeads*omegaN2/omega2HO*(nBeads - i + 1.0)/(nBeads - i) : nBeads*omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
-        }
-
-        if (alpha == 0) {
-            double ringMass = nBeads * box.getLeafList().get(0).getType().getMass();
-            double s = nBeads/(nBeads*omegaN2/omega2HO);
-            for (int i = 0; i < mScale.length; i++) {
-                mScale[i] *= s;
-            }
+            mScale[i]  = alpha == 0 ? nBeads*(nBeads - i + 1.0)/(nBeads - i) : omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
@@ -90,6 +83,8 @@ public class IntegratorLangevinPI extends IntegratorMD {
         Vector drPrev = box.getSpace().makeVector();
 
         for (IMolecule m : box.getMoleculeList()) {
+
+
             IAtomList atoms = m.getChildList();
             Vector dr0 = box.getSpace().makeVector();
             dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[m.getIndex()]);

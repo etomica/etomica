@@ -144,7 +144,7 @@ public class SimQuantumAO extends Simulation {
             // custom parameters
             params.steps = 1000000;
             params.hbar = 1;
-            params.temperature = 0.1;
+            params.temperature = 0.5;
             params.omega = 1;
             params.k4 = 0.1;
             params.nShifts = 0;
@@ -507,11 +507,11 @@ public class SimQuantumAO extends Simulation {
         double avgEnCentVir = dataAvgCentVir.getValue(0);
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorCentVir.getValue(0);
-//        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
-//        varX0 = errEnCentVir*errEnCentVir;
-//        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
-//        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
-//        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
+        double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
+        varX0 = errEnCentVir*errEnCentVir;
+        varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
+        corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
+        double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
 
 
         double avgEnPrim=0, avgEnVir=0, avgEnHMAc=0, avgEnNMSimple=0, avgEnNMEC=0, avgEnStageSimple=0,avgEnStageEC=0;
@@ -638,10 +638,10 @@ public class SimQuantumAO extends Simulation {
         }
 
         if (onlyCentroid) {
-            System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
             System.out.println();
+            System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
 //            System.out.println(" Cvn_prim:         " + CvnPrim +          "   err: " + errCvnPrim);
-//            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
         } else {
             System.out.println("\n En_prim:          " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
             System.out.println(" En_vir:           " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);

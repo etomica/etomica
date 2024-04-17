@@ -54,18 +54,13 @@ public class IntegratorLangevinPINM extends IntegratorMD {
         int nBeads = box.getMoleculeList().get(0).getChildList().size();
         double mass = box.getLeafList().get(0).getType().getMass();//m/n
         mScale = new double[nBeads];
-
+        double omegaN2 = Math.pow(nBeads*temperature/hbar,2);
         for (int k = 0; k < nBeads; k++) {
-            mScale[k] = move.lambda[k]/(mass*omega2);
-        }
-
-        double omegan2 = nBeads*temperature*temperature/hbar/hbar;
-        if (move.omega2 == 0) mScale[nBeads/2] = nBeads*omegan2/omega2;
-
-        if (move.omega2 == 0) {
-            double s = omega2/omegan2/nBeads;
-            for (int i = 0; i < mScale.length; i++) {
-                mScale[i] *= s;
+            if (move.omega2 == 0) {
+                mScale[k] = nBeads*nBeads*move.lambda[k]/(mass*omegaN2);
+                if (k==nBeads/2) mScale[nBeads/2] = nBeads;
+            } else {
+                mScale[k] = nBeads*move.lambda[k]/(mass*omega2);
             }
         }
 
@@ -90,10 +85,9 @@ public class IntegratorLangevinPINM extends IntegratorMD {
                 dr.Ev1Mv2(r, latticePositions[m.getIndex()]);
                 box.getBoundary().nearestImage(dr);
                 for (int k = 0; k < nBeads; k++) {
-                    q[k].PEa1Tv1(move.eigenvectorsInv[k][i], dr);
+                    q[k].PEa1Tv1(move.eigenvectorsInv[k][i]/Math.sqrt(nBeads), dr);
                 }
             }
-            // propagate NM coord
 
             for (IAtom a : atoms) {
                 Vector v = ((IAtomKinetic) a).getVelocity();
@@ -108,7 +102,7 @@ public class IntegratorLangevinPINM extends IntegratorMD {
                 rOrig.E(r);
                 r.E(latticePositions[m.getIndex()]);
                 for (int k = 0; k < nBeads; k++) {
-                    r.PEa1Tv1(move.eigenvectors[i][k], q[k]);
+                    r.PEa1Tv1(Math.sqrt(nBeads)*move.eigenvectors[i][k], q[k]);
                 }
                 Vector drShift = box.getSpace().makeVector();
                 drShift.Ev1Mv2(r, rOrig);
@@ -128,7 +122,7 @@ public class IntegratorLangevinPINM extends IntegratorMD {
             for (IAtom a : atoms) {
                 int i = a.getIndex();
                 for (int k = 0; k < nBeads; k++) {
-                    fq[k].PEa1Tv1(move.eigenvectors[i][k], forces[a.getLeafIndex()]);
+                    fq[k].PEa1Tv1(Math.sqrt(nBeads)*move.eigenvectorsInv[k][i], forces[a.getLeafIndex()]);
                 }
             }
 

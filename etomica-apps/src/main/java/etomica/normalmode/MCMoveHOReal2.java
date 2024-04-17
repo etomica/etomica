@@ -84,10 +84,6 @@ public class MCMoveHOReal2 extends MCMoveBox {
         if (nBeads > 1) {
             nGrow = nBeads;
         }
-
-
-//        nGrow = nBeads/2;
-
         System.out.println(" nGrow: " + nGrow);
     }
 
@@ -182,14 +178,11 @@ public class MCMoveHOReal2 extends MCMoveBox {
         IAtomList atoms = molecule.getChildList();
         double uh = 0;
         Vector dr = box.getSpace().makeVector();
-        for (int j = 0; omega2 > 0 && j < nBeads; j++) {
+        for (int j = 0; j < nBeads; j++) {
             Vector rj = atoms.get(j).getPosition();
             dr.Ev1Mv2(rj, latticePositions[molecule.getIndex()]);
             box.getBoundary().nearestImage(dr);
             uh += 1.0 / nBeads / 2.0 * mass * (omega2 * dr.squared());
-        }
-        for (int j = 0; j < nBeads; j++) {
-            Vector rj = atoms.get(j).getPosition();
             int jj = (j+1)%nBeads;
             Vector rjj = atoms.get(jj).getPosition();
             dr.Ev1Mv2(rjj, rj);
@@ -266,6 +259,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
 
         double uhNew = uHarmonic(molecule);
         double uNew = pm.computeOneMolecule(molecule);
+
         uaOld = uOld - uhOld;
         uaNew = uNew - uhNew;
         duTotal = uNew - uOld;

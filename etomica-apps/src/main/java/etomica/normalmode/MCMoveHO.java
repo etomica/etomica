@@ -44,19 +44,19 @@ public class MCMoveHO extends MCMoveBox {
 
         lambda = new double[nBeads];
         beta = 1.0/temperature;
-        omegaN = Math.sqrt(nBeads)/(hbar*beta);
+        omegaN = nBeads/(hbar*beta);
         mass = box.getLeafList().get(0).getType().getMass();// m/n
         int nK = nBeads/2;
         lambda[nK] = mass*omega2; //k=0
         double lambda_k;
         for(int k = 1; k <= (nBeads-1)/2; k++){
-            lambda_k = 4.0*mass*nBeads*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mass*omega2;
+            lambda_k = 4.0*mass*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mass*omega2;
             lambda[nK-k] = lambda_k;
             lambda[nK+k] = lambda_k;
         }
         if (nBeads % 2 == 0){
             int k = nK;
-            lambda_k = 4.0*mass*nBeads*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mass*omega2;
+            lambda_k = 4.0*mass*omegaN*omegaN*Math.sin(Math.PI*k/nBeads)*Math.sin(Math.PI*k/nBeads) + mass*omega2;
             lambda[0] = lambda_k;
         }
 
@@ -95,7 +95,7 @@ public class MCMoveHO extends MCMoveBox {
             rip1 = atomip1.getPosition();
             Vector dr = box.getSpace().makeVector();
             dr.Ev1Mv2(ri, rip1);
-            uhOld += 0.5*mass*nBeads*(omegaN*omegaN*dr.squared() + omega2*ri.squared()/nBeads);
+            uhOld += 0.5*mass*(omegaN*omegaN*dr.squared() + omega2*ri.squared());
         }
         uaOld = uOld - uhOld;
 
@@ -103,7 +103,7 @@ public class MCMoveHO extends MCMoveBox {
         Vector[] q = box.getSpace().makeVectorArray(nBeads);
 
         int nK = nBeads/2;
-        double fack = 1.0/Math.sqrt(beta*lambda[nK]);
+        double fack = 1.0/Math.sqrt(beta*nBeads*lambda[nK]);
 
         for (int l=0; l<q[0].getD(); l++) {
             q[nK].setX(l, fack * random.nextGaussian());
@@ -114,29 +114,29 @@ public class MCMoveHO extends MCMoveBox {
             for (int i = 0; i < nBeads; i++) {
                 atomi = atomList.get(i);
                 ri = atomi.getPosition();
-                q[nK].PEa1Tv1(1/Math.sqrt(nBeads), ri);
+                q[nK].PEa1Tv1(1.0/nBeads, ri);
             }
         }
 
-        uhNew += 1.0/2.0*lambda[nK]*q[nK].dot(q[nK]);
+        uhNew += 1.0/2.0*nBeads*lambda[nK]*q[nK].dot(q[nK]);
         for (int k = 1; k <= (nBeads-1)/2; k++) {
-            fack = 1.0/Math.sqrt(beta*lambda[nK-k]);
+            fack = 1.0/Math.sqrt(beta*nBeads*lambda[nK-k]);
             for (int l=0; l<q[0].getD(); l++) {
                 q[nK-k].setX(l, fack * random.nextGaussian());
             }
-            uhNew += 1.0/2.0*lambda[nK-k]*q[nK-k].dot(q[nK-k]);
-            fack = 1.0/Math.sqrt(beta*lambda[nK+k]);
+            uhNew += 1.0/2.0*nBeads*lambda[nK-k]*q[nK-k].dot(q[nK-k]);
+            fack = 1.0/Math.sqrt(beta*nBeads*lambda[nK+k]);
             for (int l=0; l<q[0].getD(); l++) {
                 q[nK+k].setX(l, fack * random.nextGaussian());
             }
-            uhNew += 1.0/2.0*lambda[nK+k]*q[nK+k].dot(q[nK+k]);
+            uhNew += 1.0/2.0*nBeads*lambda[nK+k]*q[nK+k].dot(q[nK+k]);
         }
         if (nBeads % 2 == 0){ //even
-            fack = 1.0/Math.sqrt(beta*lambda[0]);
+            fack = 1.0/Math.sqrt(beta*nBeads*lambda[0]);
             for (int l=0; l<q[0].getD(); l++) {
                 q[0].setX(l, fack * random.nextGaussian());
             }
-            uhNew += 1.0/2.0*lambda[0]*q[0].dot(q[0]);
+            uhNew += 1.0/2.0*nBeads*lambda[0]*q[0].dot(q[0]);
         }
 
         for (int i = 0; i < nBeads; i++) {
@@ -144,7 +144,7 @@ public class MCMoveHO extends MCMoveBox {
             ri = atomi.getPosition();
             ri.E(0);
             for (int k = 0; k < nBeads; k++) {
-                ri.PEa1Tv1(eigenvectors[i][k], q[k]);
+                ri.PEa1Tv1(Math.sqrt(nBeads)*eigenvectors[i][k], q[k]);
             }
         }
 
@@ -159,7 +159,7 @@ public class MCMoveHO extends MCMoveBox {
                 rip1 = atomip1.getPosition();
                 Vector dr = box.getSpace().makeVector();
                 dr.Ev1Mv2(ri, rip1);
-                uReal += 0.5*mass*nBeads*(omegaN*omegaN*dr.squared() + omega2*ri.squared()/nBeads);
+                uReal += 0.5*mass*(omegaN*omegaN*dr.squared() + omega2*ri.squared());
             }
             double uNM = uhNew;
             double foo = uNM/uReal;
