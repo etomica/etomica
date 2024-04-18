@@ -16,7 +16,10 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.*;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.potential.P1Anharmonic;
 import etomica.potential.P1AnharmonicTIA;
 import etomica.potential.P2Harmonic;
@@ -112,9 +115,18 @@ public class SimQuantumAO extends Simulation {
         } else if (coordType == MoveChoice.Stage) {
             move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
             integrator.getMoveManager().addMCMove(move);
-        } else {
+        } else if (coordType == MoveChoice.StageFast) {
+            move = new MCMoveHOReal3(space, pmAgg, random, temperature, 0, box, hbar);
+            integrator.getMoveManager().addMCMove(move);
+        } else if (coordType == MoveChoice.StageEC) {
             move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
             integrator.getMoveManager().addMCMove(move);
+        } else if (coordType == MoveChoice.StageFastEC) {
+            move = new MCMoveHOReal3(space, pmAgg, random, temperature, omega2, box, hbar);
+            integrator.getMoveManager().addMCMove(move);
+        }
+        else {
+            throw new RuntimeException("Unknown move choice "+coordType);
         }
 
         if (coordType == MoveChoice.Real || coordType == MoveChoice.NM || coordType == MoveChoice.Stage) {
@@ -676,7 +688,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println("\n time: (min) " + (endTime - startTime)/60.0/1000.0);
     }
 
-    public enum MoveChoice {Real, NM, NMEC, Stage, StageEC};
+    public enum MoveChoice {Real, NM, NMEC, Stage, StageEC, StageFast, StageFastEC};
 
     public static class OctaneParams extends ParameterBase {
         public double temperature = 1.0;
