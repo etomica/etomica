@@ -113,18 +113,18 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
     protected double transformBondedAtoms(Vector dr, int index, IAtomList atoms, Vector shift){
         double m = 0;
         for(int k = 0; k < bonding[index].size(); k++) {
-            boolean rotated = false;
+            boolean alreadyMoved = false;
             for (int l = 0; l < modifiedIndex; l++) {
                 if (bonding[index].getInt(k) == modified[l]) {
-                    rotated = true;
+                    alreadyMoved = true;
                     break;
                 }
             }
-            if (!rotated) {
+            if (!alreadyMoved) {
                 m += transform(dr, atoms.get(bonding[index].getInt(k)), shift);
                 modified[modifiedIndex] = bonding[index].getInt(k);
                 ++modifiedIndex;
-                transformBondedAtoms(dr, bonding[index].getInt(k), atoms, shift);
+                m += transformBondedAtoms(dr, bonding[index].getInt(k), atoms, shift);
             }
         }
         return m;
