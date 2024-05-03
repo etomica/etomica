@@ -102,6 +102,7 @@ public class VirialChain {
         double refFreq = params.refFreq;
         double sigmaHSRef = 1.5 + 0.15*nSpheres;
         double eFENE = params.eFENE;
+        double rc = params.rc;
 
         Space space = Space3D.getInstance();
 
@@ -114,7 +115,10 @@ public class VirialChain {
 
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
         System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
-        P2LennardJones p2 = new P2LennardJones(1, 1);
+        IPotential2 p2 = new P2LennardJones(1, 1);
+        if (rc > 0 && rc < Double.POSITIVE_INFINITY) {
+            p2 = new P2SoftSphericalTruncatedShifted(p2, rc);
+        }
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         MayerFunction fRefPos = new MayerFunction() {
@@ -188,8 +192,7 @@ public class VirialChain {
 
         if (nSpheres > 1 && eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
             P2Fene potentialFene = new P2Fene(2, eFENE);
-            P2LennardJones potentialLJ = new P2LennardJones();
-            P2SoftSphericalSum pBonding = new P2SoftSphericalSum(potentialFene, potentialLJ);
+            P2SoftSphericalSum pBonding = new P2SoftSphericalSum(potentialFene, p2);
             List<int[]> pairs = new ArrayList<>();
             for (int i=0; i<nSpheres-1; i++) {
                 pairs.add(new int[]{i,i+1});
@@ -211,7 +214,6 @@ public class VirialChain {
         sim.setDoWiggle(false);
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTarget.getAtomPotentials());
-        sim.setRandom(new RandomMersenneTwister(2));
         sim.init();
 
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
@@ -401,5 +403,6 @@ public class VirialChain {
         public long numSteps = 1000000;
         public double refFreq = -1;
         public double eFENE = 0;
+        public double rc = 0;
     }
 }
