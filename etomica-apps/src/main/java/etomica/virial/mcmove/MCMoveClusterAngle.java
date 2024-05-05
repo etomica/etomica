@@ -51,6 +51,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         this.bonding = bonding;
         this.stepSize = stepSize;
         modified = new int[bonding.length];
+        setStepSizeMax(Math.PI/2);
     }
 
     public void setBox(Box p) {
