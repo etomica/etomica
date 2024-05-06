@@ -32,7 +32,6 @@ import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
-import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.cluster.ClusterChainHS;
@@ -190,9 +189,22 @@ public class VirialChain {
 
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
 
-        if (nSpheres > 1 && eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
-            P2Fene potentialFene = new P2Fene(2, eFENE);
-            P2SoftSphericalSum pBonding = new P2SoftSphericalSum(potentialFene, p2);
+        if (nSpheres > 1) {
+            IPotential2 pBonding;
+            if (eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
+                P2Fene potentialFene = new P2Fene(2, eFENE);
+                pBonding = new P2SoftSphericalSum(potentialFene, p2);
+            }
+            else {
+                // we need to do this to convince the system that the molecules are not rigid
+                // if bondingInfo thinks molecules are rigid then intramolecular LJ will not be computed
+                pBonding = new IPotential2() {
+                    @Override
+                    public double getRange() { return 2; }
+                    @Override
+                    public void u012add(double r2, double[] u012) { }
+                };
+            }
             List<int[]> pairs = new ArrayList<>();
             for (int i=0; i<nSpheres-1; i++) {
                 pairs.add(new int[]{i,i+1});
