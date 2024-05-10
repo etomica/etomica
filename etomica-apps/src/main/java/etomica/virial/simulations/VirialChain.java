@@ -84,7 +84,7 @@ public class VirialChain {
     }
 
     public static void main(String[] args) {
-        VirialSiepmannSpheresParam params = new VirialSiepmannSpheresParam();
+        VirialChainParams params = new VirialChainParams();
         boolean isCommandline = args.length > 0;
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
@@ -102,10 +102,11 @@ public class VirialChain {
         double sigmaHSRef = 1.5 + 0.15*nSpheres;
         double eFENE = params.eFENE;
         double rc = params.rc;
+        double bondLength = params.bondLength;
 
         Space space = Space3D.getInstance();
 
-        ConformationLinear conf = new ConformationLinear(Space3D.getInstance(), 1, new double[]{0,Math.PI/2});
+        ConformationLinear conf = new ConformationLinear(Space3D.getInstance(), bondLength, new double[]{0,Math.PI/2});
         AtomType type = AtomType.simple("A");
         ISpecies species = new SpeciesBuilder(Space3D.getInstance())
                 .addCount(type, nSpheres)
@@ -114,9 +115,20 @@ public class VirialChain {
 
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
         System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
+        System.out.println("Bond length: "+bondLength+"  with eFENE "+eFENE);
+        if (rc>0 && rc<Double.POSITIVE_INFINITY) System.out.println("LJ truncated at "+rc+" with "+params.truncation);
+        else System.out.println("LJ untruncated");
         IPotential2 p2 = new P2LennardJones(1, 1);
         if (rc > 0 && rc < Double.POSITIVE_INFINITY) {
-            p2 = new P2SoftSphericalTruncatedShifted(p2, rc);
+            if (params.truncation == TruncationChoice.SIMPLE) {
+                p2 = new P2SoftSphericalTruncated(p2, rc);
+            }
+            else if (params.truncation == TruncationChoice.SHIFT){
+                p2 = new P2SoftSphericalTruncatedShifted(p2, rc);
+            }
+            else if (params.truncation == TruncationChoice.FORCESHIFT) {
+                p2 = new P2SoftSphericalTruncatedForceShifted(p2, rc);
+            }
         }
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
@@ -193,7 +205,8 @@ public class VirialChain {
             IPotential2 pBonding;
             if (eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
                 P2Fene potentialFene = new P2Fene(2, eFENE);
-                pBonding = new P2SoftSphericalSum(potentialFene, p2);
+                P2SoftSphericalTruncatedShifted p2BondLJ = new P2SoftSphericalTruncatedShifted(new P2LennardJones(bondLength, 1), rc);
+                pBonding = new P2SoftSphericalSum(potentialFene, p2BondLJ);
             }
             else {
                 // we need to do this to convince the system that the molecules are not rigid
@@ -405,10 +418,14 @@ public class VirialChain {
         System.out.println("time: "+(t2-t1)/1e9);
     }
 
+    public enum TruncationChoice {
+        SIMPLE, SHIFT, FORCESHIFT
+    }
+
     /**
      * Inner class for parameters
      */
-    public static class VirialSiepmannSpheresParam extends ParameterBase {
+    public static class VirialChainParams extends ParameterBase {
         public int nPoints = 2;
         public int nSpheres = 3;
         public double temperature = 1;
@@ -416,5 +433,7 @@ public class VirialChain {
         public double refFreq = -1;
         public double eFENE = 0;
         public double rc = 0;
+        public double bondLength = 1;
+        public TruncationChoice truncation = TruncationChoice.SHIFT;
     }
 }
