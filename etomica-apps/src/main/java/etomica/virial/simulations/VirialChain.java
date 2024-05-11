@@ -103,6 +103,7 @@ public class VirialChain {
         double eFENE = params.eFENE;
         double rc = params.rc;
         double bondLength = params.bondLength;
+        double kBend = params.kBend;
 
         Space space = Space3D.getInstance();
 
@@ -199,14 +200,17 @@ public class VirialChain {
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
 
-        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm) {
+            @Override
+            public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
+                return false;
+            }
+        };
 
         if (nSpheres > 1) {
             IPotential2 pBonding;
             if (eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
-                P2Fene potentialFene = new P2Fene(2, eFENE);
-                P2SoftSphericalTruncatedShifted p2BondLJ = new P2SoftSphericalTruncatedShifted(new P2LennardJones(bondLength, 1), rc);
-                pBonding = new P2SoftSphericalSum(potentialFene, p2BondLJ);
+                pBonding = new P2Fene(2, eFENE);
             }
             else {
                 // we need to do this to convince the system that the molecules are not rigid
@@ -224,8 +228,8 @@ public class VirialChain {
             }
             bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
         }
-        if (nSpheres > 2 && false) {
-            P3BondAngle p3 = null;
+        if (nSpheres > 2 && kBend > 0) {
+            P3BondAngleStiffChain p3 = new P3BondAngleStiffChain(kBend);
             List<int[]> triplets = new ArrayList<>();
             for (int i=0; i<nSpheres-2; i++) {
                 triplets.add(new int[]{i,i+1,i+2});
@@ -254,8 +258,6 @@ public class VirialChain {
             constraintMap[nPoints] = 0;
             mcMoveHSC.setConstraintMap(constraintMap);
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
-//            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
-//            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
         }
 
         if (refFreq >= 0) {
@@ -388,11 +390,9 @@ public class VirialChain {
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
         System.out.println("MC Move step sizes (ref)    "
-                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[0].getStepSize()))+" "
-                +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
+                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[0].getStepSize())));
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
-                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize()))+" "
-                +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
+                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize())));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.getController().runActivityBlocking(ai);
@@ -435,5 +435,6 @@ public class VirialChain {
         public double rc = 0;
         public double bondLength = 1;
         public TruncationChoice truncation = TruncationChoice.SHIFT;
+        public double kBend = 0;
     }
 }
