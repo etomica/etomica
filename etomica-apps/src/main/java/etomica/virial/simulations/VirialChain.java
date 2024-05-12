@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.data.IDataInfo;
