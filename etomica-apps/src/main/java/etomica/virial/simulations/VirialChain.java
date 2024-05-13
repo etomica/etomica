@@ -208,7 +208,7 @@ public class VirialChain {
             }
         };
 
-        if (nSpheres > 1) {
+        if (nSpheres > 1 && (kBend == 0 || eFENE > 0)) {
             IPotential2 pBonding;
             if (eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
                 pBonding = new P2Fene(2, eFENE);
@@ -229,7 +229,7 @@ public class VirialChain {
             }
             bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
         }
-        if (nSpheres > 2 && kBend > 0) {
+        if (nSpheres > 2 && kBend > 0 && kBend < Double.POSITIVE_INFINITY) {
             P3BondAngleStiffChain p3 = new P3BondAngleStiffChain(kBend);
             List<int[]> triplets = new ArrayList<>();
             for (int i=0; i<nSpheres-2; i++) {
@@ -295,7 +295,7 @@ public class VirialChain {
             sim.integrators[1].getMoveManager().addMCMove(stretchMoves[1]);
         }
 
-        if (nSpheres > 2) {
+        if (nSpheres > 2 && kBend < Double.POSITIVE_INFINITY) {
             angleMoves = new MCMoveClusterAngle[2];
             angleMoves[0] = new MCMoveClusterAngle(sim.integrators[0].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMoves[0].setBox(sim.box[0]);
