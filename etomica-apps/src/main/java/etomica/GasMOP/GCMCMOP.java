@@ -24,7 +24,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
 import etomica.potential.COMPASS.LJCOMPASS;
 import etomica.potential.COMPASS.PDBReaderCOMPASS;
-import etomica.potential.TraPPE.speciesGasTraPPE;
+import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.UFF.*;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -35,15 +35,12 @@ import etomica.species.SpeciesManager;
 import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
-import org.apache.bcel.Constants;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import static etomica.potential.TraPPE.speciesGasTraPPE.ChemForm.*;
-import static etomica.util.Constants.BOLTZMANN_K;
+import static etomica.potential.TraPPE.SpeciesGasTraPPE.ChemForm.*;
 
 public class GCMCMOP extends Simulation {
     public IntegratorMC integrator;
@@ -117,18 +114,18 @@ public class GCMCMOP extends Simulation {
         speciesMOP = pdbReaderMOP.getSpeciesMOP(confNameOne, false, new Vector3D(0.0,0.0,0.0), false);
         System.out.println(speciesMOP.getMass());
         cifReader cifReader = new cifReader();
-        speciesGasTraPPE speciesGasTraPPE = new speciesGasTraPPE();
+        SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
         if(isGasTraPPE){
             if(confNameGasOne.equals("F://Avagadro//molecule//ch4")){
-                etomica.potential.TraPPE.speciesGasTraPPE.ChemForm = CH4;
+                SpeciesGasTraPPE.ChemForm = CH4;
             } else if (confNameGasOne.equals("F://Avagadro//molecule//ethane")) {
-                etomica.potential.TraPPE.speciesGasTraPPE.ChemForm = C2H6;
+                SpeciesGasTraPPE.ChemForm = C2H6;
             } else if (confNameGasOne.equals("F://Avagadro//molecule//propane")) {
-                etomica.potential.TraPPE.speciesGasTraPPE.ChemForm = C3H8;
+                SpeciesGasTraPPE.ChemForm = C3H8;
             } else if (confNameGasOne.equals("F://Avagadro//molecule//ethene")) {
-                etomica.potential.TraPPE.speciesGasTraPPE.ChemForm = C2H4;
+                SpeciesGasTraPPE.ChemForm = C2H4;
             } else if (confNameGasOne.equals("F://Avagadro//molecule//propene")) {
-                etomica.potential.TraPPE.speciesGasTraPPE.ChemForm = C3H6;
+                SpeciesGasTraPPE.ChemForm = C3H6;
             }
         }
         //speciesMOP = cifReader.speciesCIF(confNameOne,false);
@@ -137,7 +134,7 @@ public class GCMCMOP extends Simulation {
         if(isGasCOMPASS){
             speciesGas = pdbReaderCOMPASS.getSpecies(confNameGasOne, false, true, new Vector3D(0,0,0));
         }else if (isGasTraPPE){
-            speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), etomica.potential.TraPPE.speciesGasTraPPE.ChemForm, false);
+            speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
         } else {
             speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true,new Vector3D(0,0,0), false);
         }
