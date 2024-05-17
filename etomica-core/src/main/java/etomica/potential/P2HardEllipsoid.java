@@ -5,20 +5,15 @@
 package etomica.potential;
 
 import etomica.atom.AtomOriented;
-import etomica.atom.AtomOrientedQuaternion;
-import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
-import etomica.spaceNd.VectorND;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
-
-import java.util.List;
 
 /**
  * Evaluates overlap of two identical ellipsoids of revolution at arbitrary separation and orientations.
