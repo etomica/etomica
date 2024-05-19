@@ -191,7 +191,7 @@ public class P2HardEllipsoid implements IPotential2 {
     }
 
     /*
-    Vieillard-Baron algorithm
+    Vieillard-Baron algorithm, specific to ellipsoids of revolution
      */
     // requires prior call to setupPW
     public boolean overlapVB(Vector3D dr, Vector3D a1, Vector3D b1) {
@@ -260,9 +260,31 @@ public class P2HardEllipsoid implements IPotential2 {
 
     /*
     Tests implementation of algorithms by generating random configurations of random ellipsoids and
-    checking that all methods agree on whether ellipsoids overlap
+    checking that all methods agree on whether ellipsoids overlap.
      */
     public static void main(String[] args) {
+
+        boolean B2test = true;
+
+        if (B2test) {
+            //Test against values in Table III of Boublik & Nezbeda
+            double l = 1.25;
+            System.out.println("B2: "+P2HardEllipsoid.B2(l,1)/(8.*Math.PI/6*l)); //4.053
+            System.out.println("B2: "+P2HardEllipsoid.B2(l/2,0.5)/(Math.PI/6*l)); //4.053
+            l = 5;
+            System.out.println("B2: "+P2HardEllipsoid.B2(l,1)/(8.*Math.PI/6*l)); //7.552
+            l = 10.;
+            System.out.println("B2: "+P2HardEllipsoid.B2(l,1)/(8.*Math.PI/6*l)); //13.191
+            l = 0.80;
+            System.out.println("B2: "+P2HardEllipsoid.B2(l,1)/(8.*Math.PI/6*l)); //4.053
+            l = 0.3636;
+            System.out.println("B2: "+P2HardEllipsoid.B2(l,1)/(8.*Math.PI/6*l)); //5.211
+            l = 0.1;
+            System.out.println("B2: "+P2HardEllipsoid.B2(l,1)/(8.*Math.PI/6*l)); //13.191
+            return;
+        }
+
+        //overlap test
         int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         IRandom random = new RandomMersenneTwister(seeds);
 
@@ -313,6 +335,38 @@ public class P2HardEllipsoid implements IPotential2 {
             System.out.println("Fraction overlap: "+(double)nOverlap/nTot);
         }
 
+    }
+
+    /**
+     * Second virial coefficient for two identical ellipsoids of revolution.
+     * Based on formulas given in:
+     * T Boublik, I Nezbeda, Collection of Czechoslovak Chemical Communications, vol 51, p 2301 (1986)
+     * Equation 3.28 and Table I
+     *
+     * @param Rsym half-length of symmetry axis
+     * @param Rperp half-length of axes perpendicular to symmetry axis
+     * @return B2, in same units used for Rsym and Rperp
+     */
+    public static double B2(double Rsym, double Rperp) {
+
+        double l = Rsym/Rperp;//aspect ratio
+        double s = 2*Rperp;
+
+        double V = Math.PI * l * s*s*s / 6.0;
+        double S, R;
+
+        if (l == 1) return 4*V; //sphere
+
+        if(l >= 1.0) {
+            double d = Math.sqrt(l*l - 1);
+            S = 0.5*Math.PI * s*s * (1.0 + l*l*Math.acos(1.0/l)/d);
+            R = 0.25 * s * (l + Math.log(l + d)/d);
+        } else {
+            double d = Math.sqrt(1 - l*l);
+            S = 0.5*Math.PI * s*s * (1.0 + l*l/d * Math.log((1 + d)/l));
+            R = 0.25 * s * (l + Math.acos(l)/d);
+        }
+        return V + S*R;
     }
 
 }
