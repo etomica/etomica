@@ -9,7 +9,6 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.config.ConformationLinear;
 import etomica.graphics.*;
-import etomica.math.SpecialFunctions;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -57,7 +56,6 @@ public class VirialChainTheta {
         int nSpheres = params.nSpheres;
         double temperature = params.temperature;
         long steps = params.numSteps;
-        double sigmaHSRef = 1.5 + 0.15*nSpheres;
         double rc = params.rc;
         double bondLength = params.bondLength;
         double kBend = params.kBend;
@@ -99,14 +97,12 @@ public class VirialChainTheta {
         ClusterWeightAbs sampleCluster = new ClusterWeightAbs(alkaneDiagrams.makeVirialCluster(fTarget));
         ClusterSum cluster1 = alkaneDiagrams.makeVirialCluster(fTheta1);
         ClusterSum cluster2 = alkaneDiagrams.makeVirialCluster(fTheta2);
-        double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
-        final double refIntegral = SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1);
+        final double refIntegral = -1;
 
         sampleCluster.setTemperature(temperature);
         cluster1.setTemperature(temperature);
         cluster2.setTemperature(temperature);
 
-        System.out.println("sigmaHSRef: "+sigmaHSRef);
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
 
@@ -152,8 +148,7 @@ public class VirialChainTheta {
         bondingInfodk.setBondingPotentialTriplet(species, p3dk, triplets);
         fTheta1.setPotentialDK(pmBondingdk);
 
-        PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, sim.box, bondingInfo);
-        fTheta2.setPotentialDK(pmBonding);
+        fTheta2.setPotentialDK(sim.integrator.getPotentialCompute());
 
         System.out.println(steps+" steps");
 
