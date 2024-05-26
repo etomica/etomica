@@ -35,14 +35,15 @@ import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
+import etomica.virial.cluster.ClusterAbstract;
 import etomica.virial.cluster.ClusterChainHS;
 import etomica.virial.cluster.ClusterSum;
-import etomica.virial.cluster.ClusterSumShell;
 import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.mcmove.MCMoveClusterAngle;
 import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
 import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
 import etomica.virial.mcmove.MCMoveClusterStretch;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import javax.swing.*;
 import java.awt.*;
@@ -105,6 +106,7 @@ public class VirialChain {
         double rc = params.rc;
         double bondLength = params.bondLength;
         double kBend = params.kBend;
+        int nDer = params.nDer;
 
         Space space = Space3D.getInstance();
 
@@ -118,6 +120,9 @@ public class VirialChain {
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
         System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
         System.out.println("Bond length: "+bondLength+"  with eFENE "+eFENE);
+        if (kBend == Double.POSITIVE_INFINITY) System.out.println("Rigid bond angles");
+        else if (kBend == 0) System.out.println("Flexible bond angles");
+        else System.out.println("Bond angle bend constant: "+kBend);
         if (rc>0 && rc<Double.POSITIVE_INFINITY) System.out.println("LJ truncated at "+rc+" with "+params.truncation);
         else System.out.println("LJ untruncated");
         IPotential2 p2 = new P2LennardJones(1, 1);
@@ -146,17 +151,26 @@ public class VirialChain {
         boolean flex = nSpheres > 2 && nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, flex);
         alkaneDiagrams.setDoReeHoover(false);
-        ClusterSum targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
+        ClusterAbstract targetCluster;
+        if (nDer == 0) {
+            targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
+        }
+        else if (flex) {
+            throw new RuntimeException("Cannot compute derivatives for flex diagrams");
+        }
+        else {
+            targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
+        }
         ClusterChainHS refCluster = new ClusterChainHS(nPoints, fRefPos);
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double refIntegral = SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1);
 
-        ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
         int[] targetDiagramNumbers = new int[0];
         boolean[] diagramFlexCorrection = null;
 
-        if (nSpheres > 2) {
-            targetDiagrams = alkaneDiagrams.makeSingleVirialClusters(targetCluster, null, fTarget);
+        if (nSpheres > 2 && nDer == 0) {
+            targetDiagrams = alkaneDiagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fTarget);
             targetDiagramNumbers = new int[targetDiagrams.length];
             System.out.println("individual clusters:");
             Set<Graph> singleGraphs = alkaneDiagrams.getMSMCGraphs(true, false);
@@ -188,6 +202,12 @@ public class VirialChain {
                 	System.out.println(g.coefficient()+" "+getSplitGraphString(gSplit, alkaneDiagrams, true));
                 }
                 System.out.println();
+            }
+        }
+        else if (nDer > 0) {
+            targetDiagrams = new ClusterAbstract[nDer];
+            for(int m=1;m<=nDer;m++){
+                targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes((ClusterWheatleySoftDerivatives) targetCluster,m);
             }
         }
 
@@ -300,12 +320,14 @@ public class VirialChain {
             angleMoves[0] = new MCMoveClusterAngle(sim.integrators[0].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMoves[0].setBox(sim.box[0]);
             sim.integrators[0].getMoveManager().addMCMove(angleMoves[0]);
+//            ((MCMoveStepTracker)angleMoves[0].getTracker()).setNoisyAdjustment(true);
             angleMoves[1] = new MCMoveClusterAngle(sim.integrators[1].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMoves[1].setBox(sim.box[1]);
             sim.integrators[1].getMoveManager().addMCMove(angleMoves[1]);
+//            ((MCMoveStepTracker)angleMoves[1].getTracker()).setNoisyAdjustment(true);
         }
 
-        if(true) {
+        if(false) {
             double size = (nSpheres + 5) * 1.5;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
@@ -402,18 +424,25 @@ public class VirialChain {
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         String[] extraNames = new String[targetDiagrams.length];
-        for (int i=0; i<targetDiagrams.length; i++) {
-            String n = "";
-            if (targetDiagramNumbers[i] < 0) {
-                n = "diagram " + (-targetDiagramNumbers[i]) + "bc";
-            } else {
-                n = "diagram " + targetDiagramNumbers[i];
+        if (flex) {
+            for (int i = 0; i < targetDiagrams.length; i++) {
+                String n = "";
+                if (targetDiagramNumbers[i] < 0) {
+                    n = "diagram " + (-targetDiagramNumbers[i]) + "bc";
+                } else {
+                    n = "diagram " + targetDiagramNumbers[i];
 
-                if (diagramFlexCorrection[i]) {
-                    n += "c";
+                    if (diagramFlexCorrection[i]) {
+                        n += "c";
+                    }
                 }
+                extraNames[i] = n;
             }
-            extraNames[i] = n;
+        }
+        else if (nDer > 0) {
+            for (int i = 1; i <= nDer; i++) {
+                extraNames[i - 1] = "derivative " + i;
+            }
         }
         sim.printResults(refIntegral, extraNames);
         System.out.println("time: "+(t2-t1)/1e9);
@@ -437,5 +466,6 @@ public class VirialChain {
         public double bondLength = 1;
         public TruncationChoice truncation = TruncationChoice.SHIFT;
         public double kBend = 0;
+        public int nDer = 0;
     }
 }
