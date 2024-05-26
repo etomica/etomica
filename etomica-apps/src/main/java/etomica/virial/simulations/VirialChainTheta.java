@@ -72,6 +72,7 @@ public class VirialChainTheta {
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
         System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
         System.out.println("Bond length: "+bondLength);
+        System.out.println("kBend: "+kBend);
         if (rc>0 && rc<Double.POSITIVE_INFINITY) System.out.println("LJ truncated at "+rc+" with "+params.truncation);
         else System.out.println("LJ untruncated");
         IPotential2 p2 = new P2LennardJones(1, 1);
