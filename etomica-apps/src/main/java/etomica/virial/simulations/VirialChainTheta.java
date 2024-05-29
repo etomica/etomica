@@ -162,7 +162,7 @@ public class VirialChainTheta {
         }
         bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
-        if (kBend > 0) {
+        if (kBend < Double.POSITIVE_INFINITY) {
             MCMoveClusterAngle angleMove = new MCMoveClusterAngle(sim.integrator.getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMove.setBox(sim.box);
             sim.integrator.getMoveManager().addMCMove(angleMove);
