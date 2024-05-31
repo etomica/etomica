@@ -6,8 +6,13 @@ package etomica.potential;
 
 import etomica.atom.AtomOriented;
 import etomica.atom.IAtom;
+import etomica.data.HistogramDataSource;
+import etomica.data.histogram.HistogramSimple;
+import etomica.data.meter.MeterProfile;
+import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
@@ -37,6 +42,13 @@ public class P2HardEllipsoid implements IPotential2 {
     protected double w0b, w0c, w1b;
     protected final double w0a, w0d, w1a, w1c, w2a, w2b;
     protected final Vector3D wVec = new Vector3D();//work vector
+    protected final Vector3D insertionMultiplier; //used by makeOverlap
+    protected final Vector3D ez = new Vector3D(0.0, 0.0, 1.0);
+    protected final RotationTensor3D rotate = new RotationTensor3D(); // used by makeOverlap
+
+    protected int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+    protected IRandom random = new RandomMersenneTwister(seeds);
+
 
     /**
      * Constructor with Rperp = 1.0 as default
@@ -57,7 +69,7 @@ public class P2HardEllipsoid implements IPotential2 {
         this.space = space;
         R1 = Rsym;
         R2 = Rperp;
-        R3 = Rperp;
+        R3 = Rperp; //uniaxial ellipsoid: R3 = R2
         al = 1 / (R3 * R3);
         ga = 1 / (R1 * R1) - al;
         be = 1 / (R3 * R3);
@@ -84,6 +96,13 @@ public class P2HardEllipsoid implements IPotential2 {
             System.out.println("If application here is needed, consider implementing a proper maximization algorithm with Perram-Wertheim");
             System.out.println("Aspect ratio: "+Rsym/Rperp);
             throw new RuntimeException();
+        }
+
+        //Multiplier used by makeOverlap
+        if(Rsym >= Rperp) {//prolate
+            insertionMultiplier = new Vector3D(4*Rsym,2*(Rsym+Rperp),2*(Rsym+Rperp));
+        } else {//oblate
+            insertionMultiplier = new Vector3D(2*(Rsym+Rperp),4*Rperp,4*Rperp);
         }
     }
 
@@ -258,13 +277,66 @@ public class P2HardEllipsoid implements IPotential2 {
 
     }
 
+    /**
+     * Puts two ellipsoids into a random configuration where they overlap each other
+     * @param atom1 the reference ellipsoid; position and orientation remain unchanged
+     * @param atom2 the ellipsoid placed at random to overlap atom1; it will have a new position/orientation upon return
+     * @return number of random attempts required to find overlap configuration
+     */
+    public int makeOverlap(IAtom atom1, IAtom atom2)  {
+        AtomOriented atom1q = (AtomOriented) atom1;
+        AtomOriented atom2q = (AtomOriented) atom2;
+
+        Vector3D aDir = (Vector3D)atom1q.getOrientation().getDirection();
+        Vector3D bDir = (Vector3D)atom2q.getOrientation().getDirection();
+        Vector3D aPos = (Vector3D)atom1q.getPosition();
+        Vector3D bPos = (Vector3D)atom2q.getPosition();
+        Vector3D aDirSave = new Vector3D(aDir);
+
+        aDir.E(1.0, 0.0, 0.0);
+        int count=0;
+        do {
+            count++;
+            bDir.setRandomSphere(random);
+            bPos.setRandomCube(random);
+//            bPos.TE(4 * Math.max(R1, R2));//multiplier for cubic box
+            bPos.TE(insertionMultiplier);
+        } while (u(bPos, atom1, atom2) == 0.0);
+
+        rotate.setRotation(aDir, aDirSave);//rotation matrix from lab frame to atom1 direction
+        aDir.E(aDirSave); //restore atom1's direction
+        rotate.transform(bPos);
+        rotate.transform(bDir);
+        bPos.PE(aPos);
+
+        //code used to check that transformation to atom1 direction maintains overlap
+//        Vector3D temp = new Vector3D(bPos);
+//        temp.ME(aPos);
+//        checkCount++;
+//        if(u(temp,atom1,atom2)==0.0 /*|| random.nextDouble()<0.001*/) {
+//            System.out.println("r1 = {"+aPos.getX(0)+","+aPos.getX(1)+","+aPos.getX(2)+"};");
+//            System.out.println("ADir = {"+aDir.getX(0)+","+aDir.getX(1)+","+aDir.getX(2)+"};");
+//            System.out.println("r2 = {"+bPos.getX(0)+","+bPos.getX(1)+","+bPos.getX(2)+"};");
+//            System.out.println("BDir = {"+bDir.getX(0)+","+bDir.getX(1)+","+bDir.getX(2)+"};");
+//            throw new RuntimeException("uh oh. Checked ok this many times: " + checkCount);
+//        }
+
+        return count;
+    }
+//    int checkCount = 0;
+
     /*
     Tests implementation of algorithms by generating random configurations of random ellipsoids and
     checking that all methods agree on whether ellipsoids overlap.
      */
     public static void main(String[] args) {
 
-        boolean B2test = true;
+        int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+        IRandom random = new RandomMersenneTwister(seeds);
+
+        boolean B2test = false;
+        boolean overlapTest = false;
+        boolean insertionTest = true;
 
         if (B2test) {
             //Test against values in Table III of Boublik & Nezbeda
@@ -285,54 +357,92 @@ public class P2HardEllipsoid implements IPotential2 {
         }
 
         //overlap test
-        int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
-        IRandom random = new RandomMersenneTwister(seeds);
+        if(overlapTest) {
+            Vector3D dr = new Vector3D();
+            Vector3D a = new Vector3D();
+            Vector3D b = new Vector3D();
+            boolean agree = true;
+            int nTot = 100000;
+            int nOverlap = 0;
+            for (int i = 0; i < nTot; i++) {
+                double R = 200 * random.nextDouble() + 0.1;
+                double Rperp = 2 * random.nextDouble() + 1.0;
+                P2HardEllipsoid potential = new P2HardEllipsoid(Space3D.getInstance(), R, Rperp);
 
-        Vector3D dr = new Vector3D();
-        Vector3D a = new Vector3D();
-        Vector3D b = new Vector3D();
-        boolean agree = true;
-        int nTot = 100000;
-        int nOverlap = 0;
-        for(int i=0; i<nTot; i++) {
-            double R = 200 * random.nextDouble() + 0.1;
-            double Rperp = 2*random.nextDouble() + 1.0;
-            P2HardEllipsoid potential = new P2HardEllipsoid(Space3D.getInstance(),R, Rperp);
+                dr.setRandomCube(random);
+                dr.TE(15);
+                a.setRandomCube(random);
+                b.setRandomCube(random);
+                a.normalize();
+                b.normalize();
 
-            dr.setRandomCube(random);
-            dr.TE(15);
-            a.setRandomCube(random);
-            b.setRandomCube(random);
-            a.normalize();
-            b.normalize();
+                AtomOriented atom1 = new AtomOriented(Space3D.getInstance(), null, true);
+                AtomOriented atom2 = new AtomOriented(Space3D.getInstance(), null, true);
+                atom1.getOrientation().setDirection(a);
+                atom2.getOrientation().setDirection(b);
 
-            AtomOriented atom1 = new AtomOriented(Space3D.getInstance(), null, true);
-            AtomOriented atom2 = new AtomOriented(Space3D.getInstance(), null, true);
-            atom1.getOrientation().setDirection(a);
-            atom2.getOrientation().setDirection(b);
-
-            boolean overlapPW = potential.overlapPW(dr, a, b);
-            boolean overlapVB = potential.overlapVB(dr, a, b);
-            boolean overlap = potential.u(dr, atom1, atom2) == 0.0 ? false : true;
-            if(overlap) nOverlap++;
-            agree = (overlapPW == overlapVB) && (overlapPW == overlap);
-            if(!agree) {
-                System.out.println("Failure to agree");
-                System.out.println("Perram-Wertheim:" + overlapPW);
-                System.out.println("Vieillard-Baron:" + overlapVB);
-                System.out.println("Combination:\t" + overlap);
-                System.out.println("dr: "+dr.toString());
-                System.out.println("a: "+a.toString());
-                System.out.println("b: "+b.toString());
-                System.out.println("R: "+R);
-                System.out.println("Rperp: "+Rperp);
-                System.out.println(R/Rperp);
-                break;
+                boolean overlapPW = potential.overlapPW(dr, a, b);
+                boolean overlapVB = potential.overlapVB(dr, a, b);
+                boolean overlap = potential.u(dr, atom1, atom2) == 0.0 ? false : true;
+                if (overlap) nOverlap++;
+                agree = (overlapPW == overlapVB) && (overlapPW == overlap);
+                if (!agree) {
+                    System.out.println("Failure to agree");
+                    System.out.println("Perram-Wertheim:" + overlapPW);
+                    System.out.println("Vieillard-Baron:" + overlapVB);
+                    System.out.println("Combination:\t" + overlap);
+                    System.out.println("dr: " + dr.toString());
+                    System.out.println("a: " + a.toString());
+                    System.out.println("b: " + b.toString());
+                    System.out.println("R: " + R);
+                    System.out.println("Rperp: " + Rperp);
+                    System.out.println(R / Rperp);
+                    break;
+                }
+            }
+            if (agree) {
+                System.out.println("Finished without disagreement");
+                System.out.println("Fraction overlap: " + (double) nOverlap / nTot);
             }
         }
-        if(agree) {
-            System.out.println("Finished without disagreement");
-            System.out.println("Fraction overlap: "+(double)nOverlap/nTot);
+
+        if(insertionTest) {
+            double R = 20;
+            P2HardEllipsoid potential = new P2HardEllipsoid(Space3D.getInstance(), R);
+            AtomOriented atom1 = new AtomOriented(Space3D.getInstance(), null, true);
+            AtomOriented atom2 = new AtomOriented(Space3D.getInstance(), null, true);
+            Vector aDir = atom1.getOrientation().getDirection();
+            Vector bDir = atom2.getOrientation().getDirection();
+            //Put atom1 at a random position and orientation
+            atom1.getPosition().setRandomCube(random);
+            atom1.getPosition().TE(10);
+            aDir.setRandomSphere(random);
+
+
+            HistogramSimple histogram = new HistogramSimple(new DoubleRange(0.0,1.0));
+
+            //double p = 2*B2(R,1)/(64.*R*R*R);
+            double p = (R>=1) ? 2*B2(R,1)/(16.*R*(R+1)*(R+1)) : 2*B2(R,1)/(32.*(R+1));
+            System.out.println("Expected trials till overlap: "+1/p);
+            p = (R>=1) ? 2*B2(R,1)/(64.*R*R*R) : 2*B2(R,1)/64.;
+            System.out.println("Expected number if using cubic box: "+1/p);
+
+            int sum = 0;
+            int nInsert = 1000000;
+            for(int i=0; i<nInsert; i++) {
+                sum += potential.makeOverlap(atom1, atom2);
+                histogram.addValue(aDir.dot(bDir));
+            }
+
+            double[] xvals = histogram.xValues();
+            double[] hist = histogram.getHistogram();
+            System.out.println("Average number of attempts till overlap found: "+(1.0*sum/nInsert)+"\n");
+            System.out.println("Histogram of orientations");
+            System.out.print("{");
+            for(int i=0; i<xvals.length; i++) {
+                System.out.print("{"+xvals[i]+", "+hist[i]+"},");
+            }
+            System.out.print("};");
         }
 
     }
