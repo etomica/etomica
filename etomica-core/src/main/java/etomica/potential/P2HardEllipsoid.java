@@ -43,7 +43,6 @@ public class P2HardEllipsoid implements IPotential2 {
     protected final double w0a, w0d, w1a, w1c, w2a, w2b;
     protected final Vector3D wVec = new Vector3D();//work vector
     protected final Vector3D insertionMultiplier; //used by makeOverlap
-    protected final Vector3D ez = new Vector3D(0.0, 0.0, 1.0);
     protected final RotationTensor3D rotate = new RotationTensor3D(); // used by makeOverlap
 
     protected int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
