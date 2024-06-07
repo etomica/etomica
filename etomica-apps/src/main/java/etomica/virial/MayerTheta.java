@@ -26,6 +26,8 @@ public class MayerTheta implements MayerFunction {
 
     /**
      * Constructor Mayer function using given potential.
+     *   addUE is true to get dB2/dbeta
+     *   addUE is false to get dB2/dk
      */
     public MayerTheta(IPotentialMolecular potential, boolean addUE) {
         this.potential = potential;
@@ -51,6 +53,7 @@ public class MayerTheta implements MayerFunction {
         double dudk = pcdk.computeAll(false);
         double rv = f * dudk;
         if (addUE && f>-1) rv -= x/beta * (f+1);
+        else if (!addUE) rv *= beta;
         return rv;
     }
 
