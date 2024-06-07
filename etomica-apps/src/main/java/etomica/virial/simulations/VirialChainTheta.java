@@ -89,20 +89,20 @@ public class VirialChainTheta {
         }
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
-        MayerTheta fTheta1 = new MayerTheta(pTarget, false);
-        MayerTheta fTheta2 = new MayerTheta(pTarget, true);
+        MayerTheta fThetadk = new MayerTheta(pTarget, false);
+        MayerTheta fThetadBeta = new MayerTheta(pTarget, true);
 
         boolean flex = nSpheres > 2 && nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, flex);
         alkaneDiagrams.setDoReeHoover(false);
         ClusterWeightAbs sampleCluster = new ClusterWeightAbs(alkaneDiagrams.makeVirialCluster(fTarget));
-        ClusterSum cluster1 = alkaneDiagrams.makeVirialCluster(fTheta1);
-        ClusterSum cluster2 = alkaneDiagrams.makeVirialCluster(fTheta2);
+        ClusterSum clusterdk = alkaneDiagrams.makeVirialCluster(fThetadk);
+        ClusterSum clusterdBeta = alkaneDiagrams.makeVirialCluster(fThetadBeta);
         final double refIntegral = -1;
 
         sampleCluster.setTemperature(temperature);
-        cluster1.setTemperature(temperature);
-        cluster2.setTemperature(temperature);
+        clusterdk.setTemperature(temperature);
+        clusterdBeta.setTemperature(temperature);
 
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
@@ -127,7 +127,7 @@ public class VirialChainTheta {
         }
 
         final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{species},
-                new int[]{flex ? (nPoints+1) : nPoints}, temperature, sampleCluster, cluster2, new ClusterAbstract[]{cluster1});
+                new int[]{flex ? (nPoints+1) : nPoints}, temperature, sampleCluster, clusterdBeta, new ClusterAbstract[]{clusterdk});
         sim.setDoWiggle(false);
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTarget.getAtomPotentials());
@@ -147,9 +147,9 @@ public class VirialChainTheta {
         PotentialMasterBonding pmBondingdk = new PotentialMasterBonding(sm, sim.box, bondingInfodk);
         P3BondAngleStiffChain p3dk = new P3BondAngleStiffChain(1);
         bondingInfodk.setBondingPotentialTriplet(species, p3dk, triplets);
-        fTheta1.setPotentialDK(pmBondingdk);
+        fThetadk.setPotentialDK(pmBondingdk);
 
-        fTheta2.setPotentialDK(sim.integrator.getPotentialCompute());
+        fThetadBeta.setPotentialDK(sim.integrator.getPotentialCompute());
 
         System.out.println(steps+" steps");
 
