@@ -35,13 +35,10 @@ import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
-import etomica.virial.cluster.ClusterAbstract;
-import etomica.virial.cluster.ClusterChainHS;
-import etomica.virial.cluster.ClusterSum;
-import etomica.virial.cluster.VirialDiagrams;
+import etomica.virial.MayerTheta;
+import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterAngle;
 import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
-import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
 import etomica.virial.mcmove.MCMoveClusterStretch;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
@@ -49,7 +46,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -85,6 +81,10 @@ public class VirialChain {
         return str;
     }
 
+    public static ClusterSum makeB2Cluster(MayerFunction f) {
+        return new ClusterSum(new ClusterBonds[]{new ClusterBonds(2, new int[][][]{{{0,1}}})}, new double[]{1}, new MayerFunction[]{f});
+    }
+
     public static void main(String[] args) {
         VirialChainParams params = new VirialChainParams();
         boolean isCommandline = args.length > 0;
@@ -107,6 +107,10 @@ public class VirialChain {
         double bondLength = params.bondLength;
         double kBend = params.kBend;
         int nDer = params.nDer;
+        TargetChoice targetChoice = params.targetChoice;
+        if (targetChoice != TargetChoice.NORMAL && nDer > 0) {
+            throw new RuntimeException("Arbitrary derivatives only available for NORMAL");
+        }
 
         Space space = Space3D.getInstance();
 
@@ -151,65 +155,32 @@ public class VirialChain {
         boolean flex = nSpheres > 2 && nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, flex);
         alkaneDiagrams.setDoReeHoover(false);
-        ClusterAbstract targetCluster;
-        if (nDer == 0) {
-            targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
+        ClusterAbstract targetCluster = null;
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
+        MayerTheta fThetadk = new MayerTheta(pTarget, false);
+        MayerTheta fThetadBeta = new MayerTheta(pTarget, true);
+
+        if (targetChoice == TargetChoice.NORMAL) {
+            if (nDer == 0) {
+                targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
+            } else if (flex) {
+                throw new RuntimeException("Cannot compute derivatives for flex diagrams");
+            } else {
+                targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
+                targetDiagrams = new ClusterAbstract[nDer];
+                for(int m=1;m<=nDer;m++){
+                    targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes((ClusterWheatleySoftDerivatives) targetCluster,m);
+                }
+            }
         }
-        else if (flex) {
-            throw new RuntimeException("Cannot compute derivatives for flex diagrams");
-        }
-        else {
-            targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
+        else if (targetChoice == TargetChoice.DBETADK) {
+            targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, 1);
+            targetDiagrams = new ClusterAbstract[]{makeB2Cluster(fThetadk),makeB2Cluster(fThetadBeta),
+                    new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes((ClusterWheatleySoftDerivatives) targetCluster,1)};
         }
         ClusterChainHS refCluster = new ClusterChainHS(nPoints, fRefPos);
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double refIntegral = SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1);
-
-        ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
-        int[] targetDiagramNumbers = new int[0];
-        boolean[] diagramFlexCorrection = null;
-
-        if (nSpheres > 2 && nDer == 0) {
-            targetDiagrams = alkaneDiagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fTarget);
-            targetDiagramNumbers = new int[targetDiagrams.length];
-            System.out.println("individual clusters:");
-            Set<Graph> singleGraphs = alkaneDiagrams.getMSMCGraphs(true, false);
-            Map<Graph,Graph> cancelMap = alkaneDiagrams.getCancelMap();
-            int iGraph = 0;
-            diagramFlexCorrection = new boolean[targetDiagrams.length];
-            for (Graph g : singleGraphs) {
-            	System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
-            	targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
-
-                Graph cancelGraph = cancelMap.get(g);
-                if (cancelGraph != null) {
-                    diagramFlexCorrection[iGraph] = true;
-                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
-
-                    System.out.print(" - "+getSplitGraphString(gSplit, alkaneDiagrams, false));
-
-                }
-            	System.out.println();
-            	iGraph++;
-            }
-            System.out.println();
-            Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
-            if (disconnectedGraphs.size() > 0) {
-                System.out.println("extra clusters:");
-                
-                for (Graph g : disconnectedGraphs) {
-                	Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
-                	System.out.println(g.coefficient()+" "+getSplitGraphString(gSplit, alkaneDiagrams, true));
-                }
-                System.out.println();
-            }
-        }
-        else if (nDer > 0) {
-            targetDiagrams = new ClusterAbstract[nDer];
-            for(int m=1;m<=nDer;m++){
-                targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes((ClusterWheatleySoftDerivatives) targetCluster,m);
-            }
-        }
 
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
@@ -249,12 +220,12 @@ public class VirialChain {
             }
             bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
         }
-        if (nSpheres > 2 && kBend > 0 && kBend < Double.POSITIVE_INFINITY) {
+        List<int[]> triplets = new ArrayList<>();
+        for (int i=0; i<nSpheres-2; i++) {
+            triplets.add(new int[]{i,i+1,i+2});
+        }
+        if (nSpheres > 2 && kBend < Double.POSITIVE_INFINITY) {
             P3BondAngleStiffChain p3 = new P3BondAngleStiffChain(kBend);
-            List<int[]> triplets = new ArrayList<>();
-            for (int i=0; i<nSpheres-2; i++) {
-                triplets.add(new int[]{i,i+1,i+2});
-            }
             bondingInfo.setBondingPotentialTriplet(species, p3, triplets);
         }
 
@@ -266,20 +237,19 @@ public class VirialChain {
         sim.setIntraPairPotentials(pTarget.getAtomPotentials());
         sim.init();
 
+        PotentialMasterBonding.FullBondingInfo bondingInfodk = new PotentialMasterBonding.FullBondingInfo(sm);
+
+        PotentialMasterBonding pmBondingdk = new PotentialMasterBonding(sm, sim.box[1], bondingInfodk);
+        P3BondAngleStiffChain p3dk = new P3BondAngleStiffChain(1);
+        bondingInfodk.setBondingPotentialTriplet(species, p3dk, triplets);
+        fThetadk.setPotentialDK(pmBondingdk);
+
+        fThetadBeta.setPotentialDK(sim.integrators[1].getPotentialCompute());
+
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
         MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
-
-        if (flex) {
-            int[] constraintMap = new int[nPoints+1];
-            for (int i=0; i<nPoints; i++) {
-                constraintMap[i] = i;
-            }
-            constraintMap[nPoints] = 0;
-            mcMoveHSC.setConstraintMap(constraintMap);
-            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
-        }
 
         if (refFreq >= 0) {
             sim.integratorOS.setAdjustStepFraction(false);
@@ -424,25 +394,15 @@ public class VirialChain {
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         String[] extraNames = new String[targetDiagrams.length];
-        if (flex) {
-            for (int i = 0; i < targetDiagrams.length; i++) {
-                String n = "";
-                if (targetDiagramNumbers[i] < 0) {
-                    n = "diagram " + (-targetDiagramNumbers[i]) + "bc";
-                } else {
-                    n = "diagram " + targetDiagramNumbers[i];
-
-                    if (diagramFlexCorrection[i]) {
-                        n += "c";
-                    }
-                }
-                extraNames[i] = n;
-            }
-        }
-        else if (nDer > 0) {
+        if (nDer > 0) {
             for (int i = 1; i <= nDer; i++) {
                 extraNames[i - 1] = "derivative " + i;
             }
+        }
+        else if (targetChoice == TargetChoice.DBETADK) {
+            extraNames[0] = "dB2dk";
+            extraNames[1] = "dB2dbeta";
+            extraNames[2] = "CWSD dB2dbeta";
         }
         sim.printResults(refIntegral, extraNames);
         System.out.println("time: "+(t2-t1)/1e9);
@@ -450,6 +410,10 @@ public class VirialChain {
 
     public enum TruncationChoice {
         SIMPLE, SHIFT, FORCESHIFT
+    }
+
+    public enum TargetChoice {
+        NORMAL, DBETADK
     }
 
     /**
@@ -467,5 +431,6 @@ public class VirialChain {
         public TruncationChoice truncation = TruncationChoice.SHIFT;
         public double kBend = 0;
         public int nDer = 0;
+        public TargetChoice targetChoice = TargetChoice.NORMAL;
     }
 }
