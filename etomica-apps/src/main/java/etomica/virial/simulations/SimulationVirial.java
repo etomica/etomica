@@ -258,6 +258,15 @@ public class SimulationVirial extends Simulation {
 
         System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
         System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+
+        for (int i=2; i<averageData.getLength(); i++) {
+            System.out.print(String.format("\ntarget %d average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                    i, averageData.getValue(i), stdevData.getValue(i), errorData.getValue(i), correlationData.getValue(i)));
+            correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((i-1)*nData+i));
+            correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+            System.out.print(String.format("ratio %d average: %20.15e  error: %9.4e  cor: %6.4f\n", i, ratioData.getValue(i), ratioErrorData.getValue(i), correlationCoef));
+            System.out.print(String.format("full %d average: %20.15e  error: %9.4e\n", i, ratioData.getValue(i)*refIntegral, ratioErrorData.getValue(i)*Math.abs(refIntegral)));
+        }
     }
 
     @Override
