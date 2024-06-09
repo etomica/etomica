@@ -6,10 +6,10 @@ package etomica.potential;
 
 import etomica.atom.AtomOriented;
 import etomica.atom.IAtom;
-import etomica.data.HistogramDataSource;
+import etomica.atom.IAtomList;
 import etomica.data.histogram.HistogramSimple;
-import etomica.data.meter.MeterProfile;
 import etomica.math.DoubleRange;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
@@ -23,8 +23,10 @@ import etomica.util.random.RandomNumberGeneratorUnix;
 /**
  * Evaluates overlap of two identical ellipsoids of revolution at arbitrary separation and orientations.
  * Handles oblate or prolate cases, having a single symmetry axis.
+ *
+ * This potential can act as a potential between oriented atoms or between chain (rod) molecules.
  */
-public class P2HardEllipsoid implements IPotential2 {
+public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
 
     protected final Space space;
     protected Vector3D[] a = new Vector3D[4];//these are numbered 1,2,3 because that's how I did it
@@ -275,6 +277,48 @@ public class P2HardEllipsoid implements IPotential2 {
         return overlapVB((Vector3D)dr12, aDir, bDir) ? Double.POSITIVE_INFINITY : 0.0;
 
     }
+
+    @Override
+    public double energy(IMoleculeList molecules) {
+
+        IAtomList atoms1 = molecules.get(0).getChildList();
+        IAtomList atoms2 = molecules.get(1).getChildList();
+        if (molecules.get(0).getIndex() > molecules.get(1).getIndex()) {
+            // enforce ordering to avoid numeric inconsistency
+            IAtomList a = atoms1;
+            atoms1 = atoms2;
+            atoms2 = a;
+        }
+        int n = atoms1.size();
+
+        Vector3D rm1 = new Vector3D();
+        Vector3D rm2 = new Vector3D();
+        rm1.Ev1Pv2(atoms1.get(n-1).getPosition(), atoms1.get(0).getPosition());
+        rm1.TE(0.5);
+        rm2.Ev1Pv2(atoms2.get(n-1).getPosition(), atoms2.get(0).getPosition());
+        rm2.TE(0.5);
+
+        Vector3D dr12 = new Vector3D();
+        dr12.Ev1Mv2(rm2, rm1);
+        double r2 = dr12.squared();
+
+        if (r2 > sigmaLarge2) return 0; // no overlap if further than circumscribed sphere
+        if (r2 < sigmaSmall2) return Double.POSITIVE_INFINITY; //overlap if closer than inscribed sphere
+
+        Vector3D aDir = new Vector3D();
+        Vector3D bDir = new Vector3D();
+        aDir.Ev1Mv2(atoms1.get(n-1).getPosition(), atoms1.get(0).getPosition());
+        aDir.normalize();
+        bDir.Ev1Mv2(atoms2.get(n-1).getPosition(), atoms2.get(0).getPosition());
+        bDir.normalize();
+
+        setupPW(aDir, bDir);
+        if (FPW(0.5, dr12) > 1) return 0; //Perram-Wertheim screening can identify some non-overlaps
+
+        double u = overlapVB(dr12, aDir, bDir) ? Double.POSITIVE_INFINITY : 0.0;
+        return u;
+    }
+
 
     /**
      * Puts two ellipsoids into a random configuration where they overlap each other
