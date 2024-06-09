@@ -252,7 +252,8 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
         if(c2*c2 - 4*c0 <= 0) return true;
 
         double term1 = (c2*c2 + 12*c0);
-        double term2 = (2*c2*c2*c2 - 72*c2*c0 + 27*c1*c1);
+        //double term2 = (2*c2*c2*c2 - 72*c2*c0 + 27*c1*c1);
+        double term2 = 27*n1*n1 + 2*n2*n2*n2 - 9*n1*n2*n3 + 9*n0*(-8*n2 + 3*n3*n3);
         double D27 = 4*term1*term1*term1 - term2*term2;
 
         return (D27 < 0);
@@ -378,8 +379,9 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
         IRandom random = new RandomMersenneTwister(seeds);
 
         boolean B2test = false;
-        boolean overlapTest = false;
-        boolean insertionTest = true;
+        boolean overlapTest = true;
+        boolean insertionTest = false;
+        boolean singleOverlapTest = true;
 
         if (B2test) {
             //Test against values in Table III of Boublik & Nezbeda
@@ -413,7 +415,7 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
                 P2HardEllipsoid potential = new P2HardEllipsoid(Space3D.getInstance(), R, Rperp);
 
                 dr.setRandomCube(random);
-                dr.TE(15);
+                dr.TE(R/2.);
                 a.setRandomCube(random);
                 b.setRandomCube(random);
                 a.normalize();
@@ -447,6 +449,21 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
                 System.out.println("Finished without disagreement");
                 System.out.println("Fraction overlap: " + (double) nOverlap / nTot);
             }
+        }
+
+        // Tests for overlap for a given configuration
+        if(singleOverlapTest) {
+            P2HardEllipsoid p2he = new P2HardEllipsoid(Space3D.getInstance(), 64, 0.5);
+            AtomOriented a1 = new AtomOriented(Space3D.getInstance(), null, true);
+            AtomOriented a2 = new AtomOriented(Space3D.getInstance(), null, true);
+            Vector3D drr = new Vector3D(new double[]{13.989536697923471, -8.888981715738439, -9.768698242558184});
+            a2.getPosition().E(drr);
+            a1.getOrientation().getDirection().E(new double[]{0.7666813691598432, -0.4195946486740683, -0.4859423926632389});
+            a2.getOrientation().getDirection().E(new double[]{-0.6805581716906213, 0.17848508284880518, -0.7106220163670515});
+            double u1 = p2he.u(drr, a1, a2);
+            drr.TE(-1);
+            double u2 = p2he.u(drr, a2, a1);
+            System.out.println(u1+" "+u2);
         }
 
         if(insertionTest) {
