@@ -268,7 +268,7 @@ public class VirialChainDirect {
         sim.getController().runActivityBlocking(ai);
         long t2 = System.nanoTime();
 
-        sim.printResults(refIntegral, new String[]{"dB2dk"});
+        sim.printResults(refIntegral);
         System.out.println("time: "+(t2-t1)/1e9);
     }
 
