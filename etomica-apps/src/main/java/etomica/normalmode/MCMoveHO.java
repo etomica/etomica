@@ -74,7 +74,6 @@ public class MCMoveHO extends MCMoveBox {
             }
             if (nBeads % 2 == 0){ //even
                 int k = nK;
-                double arg = 2.0*Math.PI/nBeads*i*k;
                 eigenvectors[i][0] =  Math.pow(-1, i)/Math.sqrt(nBeads);// Math.pow(-1, i)=Math.cos(arg);
                 eigenvectorsInv[0][i] =  Math.pow(-1, i)/Math.sqrt(nBeads);
             }

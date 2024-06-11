@@ -51,7 +51,7 @@ public class SimQuantumAOFD extends Simulation {
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pmAgg;
     public P1Anharmonic p1ah;
-    public double betaN;
+    public double beta, betaN;
     public int nBeads;
     public double k2_kin;
     public SimQuantumAOFD(Space space, MoveChoice coordType, double mass, int nBeads, double temperature, double omega, double k4, boolean isTIA, double hbar) {
@@ -67,7 +67,7 @@ public class SimQuantumAOFD extends Simulation {
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
-        double beta = 1.0/temperature;
+        beta = 1.0/temperature;
         betaN = beta/nBeads;
         double omegaN = Math.sqrt(nBeads)/(hbar*beta);
         k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
@@ -80,7 +80,6 @@ public class SimQuantumAOFD extends Simulation {
             pairs.add(p);
         }
         pmBonding.setBondingPotentialPair(species, p2Bond, pairs);
-
         pcP1 = new PotentialComputeField(getSpeciesManager(), box);
         p1ah = new P1Anharmonic(space, omega2/nBeads, k4/nBeads);
         pcP1.setFieldPotential(species.getLeafType(), p1ah);
@@ -143,7 +142,7 @@ public class SimQuantumAOFD extends Simulation {
             // custom parameters
             params.steps = 1000000;
             params.hbar = 1;
-            params.temperature = 0.5;
+            params.temperature = 1;
             params.omega = 1;
             params.k4 = 0.1;
             params.nShifts = 0;
@@ -154,6 +153,7 @@ public class SimQuantumAOFD extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
+
         }
 
         int nShifts = params.nShifts;
@@ -248,20 +248,21 @@ public class SimQuantumAOFD extends Simulation {
         MeterPIHMAc meterHMAc = null;
         MeterPIHMAcFD meterHMAcFD = null;
         MeterPIHMA meterNMEC = null;
+        MeterPIHMAFD meterNMECFD = null;
         MeterPIHMAReal2 meterStageEC = null;
 
         meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
-        double dbeta = 0.1;
+        double dbeta = 0.001;
         meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
         meterVirFD = new MeterPIVirFD(sim.pcP1, temperature, sim.box, dbeta);
         meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
         meterCentVirFD = new MeterPICentVirFD(sim.pcP1, temperature, nBeads, sim.box, dbeta);
         meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
         meterHMAcFD = new MeterPIHMAcFD(sim.pcP1, temperature, nBeads, sim.box, dbeta);
-
+        meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.beta, nBeads, omega2, sim.box, hbar);
+        meterNMECFD = new MeterPIHMAFD(sim.pmBonding, sim.pcP1, sim.beta, nBeads, omega2, sim.box, hbar, dbeta);
 
         if (!onlyCentroid) {
-            meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
             meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageEC);
             meterStageEC.setNumShifts(nShifts);
         }
@@ -371,10 +372,18 @@ public class SimQuantumAOFD extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpHMAcFD);
         }
 
+        //NMEC
         AccumulatorAverageCovariance accumulatorNMEC = new AccumulatorAverageCovariance(blockSize);
         if (meterNMEC != null) {
             DataPumpListener accumulatorPumpHMA = new DataPumpListener(meterNMEC, accumulatorNMEC, interval);
             sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
+        }
+
+        //NMEC: FD
+        AccumulatorAverageCovariance accumulatorNMECFD = new AccumulatorAverageCovariance(blockSize);
+        if (meterNMECFD != null) {
+            DataPumpListener accumulatorPumpHMAFD = new DataPumpListener(meterNMECFD, accumulatorNMECFD, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpHMAFD);
         }
 
         AccumulatorAverageCovariance accumulatorStageEC = new AccumulatorAverageCovariance(blockSize);
@@ -508,24 +517,45 @@ public class SimQuantumAOFD extends Simulation {
             errCvnHMAcFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAcFD*avgEnHMAcFD*varX0 );
         }
 
+        // NMEC
+        DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
+        IData dataAvgNMEC = dataNMEC.getData(accumulatorNMEC.AVERAGE.index);
+        IData dataErrNMEC = dataNMEC.getData(accumulatorNMEC.ERROR.index);
+        IData dataCorNMEC = dataNMEC.getData(accumulatorNMEC.BLOCK_CORRELATION.index);
+        IData dataCovNMEC = dataNMEC.getData(accumulatorNMEC.COVARIANCE.index);
+        avgEnNMEC = dataAvgNMEC.getValue(0);
+        errEnNMEC = dataErrNMEC.getValue(0);
+        corEnNMEC = dataCorNMEC.getValue(0);
+        CvnNMEC  = kB_beta2*(dataAvgNMEC.getValue(1) - avgEnNMEC*avgEnNMEC);
+        varX0 = errEnNMEC*errEnNMEC;
+        varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
+        corX0X1 = dataCovNMEC.getValue(1)/Math.sqrt(dataCovNMEC.getValue(0))/Math.sqrt(dataCovNMEC.getValue(3));
+        errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
+        if (errEnNMEC < 1e-10){
+            errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
+        }
+
+
+        // NMEC: FD
+        DataGroup dataNMECFD = (DataGroup) accumulatorNMECFD.getData();
+        IData dataAvgNMECFD = dataNMECFD.getData(accumulatorNMECFD.AVERAGE.index);
+        IData dataErrNMECFD = dataNMECFD.getData(accumulatorNMECFD.ERROR.index);
+        IData dataCorNMECFD = dataNMECFD.getData(accumulatorNMECFD.BLOCK_CORRELATION.index);
+        IData dataCovNMECFD = dataNMECFD.getData(accumulatorNMECFD.COVARIANCE.index);
+        double avgEnNMECFD = dataAvgNMECFD.getValue(0);
+        double errEnNMECFD = dataErrNMECFD.getValue(0);
+        double corEnNMECFD = dataCorNMECFD.getValue(0);
+        double CvnNMECFD  = kB_beta2*(dataAvgNMECFD.getValue(1) - avgEnNMECFD*avgEnNMECFD);
+        varX0 = errEnNMECFD*errEnNMECFD;
+        varX1 = dataErrNMECFD.getValue(1)*dataErrNMECFD.getValue(1);
+        corX0X1 = dataCovNMECFD.getValue(1)/Math.sqrt(dataCovNMECFD.getValue(0))/Math.sqrt(dataCovNMECFD.getValue(3));
+        double errCvnNMECFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMECFD*avgEnNMECFD*varX0 - 4*avgEnNMECFD*errEnNMECFD*dataErrNMECFD.getValue(1)*corX0X1);
+        if (errEnNMECFD < 1e-10){
+            errCvnNMECFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMECFD*avgEnNMECFD*varX0);
+        }
+
+
         if (!onlyCentroid) {
-            // HMA EC NM
-            DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
-            IData dataAvgNMEC = dataNMEC.getData(accumulatorNMEC.AVERAGE.index);
-            IData dataErrNMEC = dataNMEC.getData(accumulatorNMEC.ERROR.index);
-            IData dataCorNMEC = dataNMEC.getData(accumulatorNMEC.BLOCK_CORRELATION.index);
-            IData dataCovNMEC = dataNMEC.getData(accumulatorNMEC.COVARIANCE.index);
-            avgEnNMEC = dataAvgNMEC.getValue(0);
-            errEnNMEC = dataErrNMEC.getValue(0);
-            corEnNMEC = dataCorNMEC.getValue(0);
-            CvnNMEC  = kB_beta2*(dataAvgNMEC.getValue(1) - avgEnNMEC*avgEnNMEC);
-            varX0 = errEnNMEC*errEnNMEC;
-            varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
-            corX0X1 = dataCovNMEC.getValue(1)/Math.sqrt(dataCovNMEC.getValue(0))/Math.sqrt(dataCovNMEC.getValue(3));
-            errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
-            if (errEnNMEC < 1e-10){
-                errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
-            }
 
             // HMA EC stage
             DataGroup dataStageEC = (DataGroup) accumulatorStageEC.getData();
@@ -555,6 +585,8 @@ public class SimQuantumAOFD extends Simulation {
             System.out.println(" En_cvir_fd:         " + avgEnCentVirFD + "   err: " + errEnCentVirFD + " cor: " + corEnCentVirFD);
             System.out.println(" En_hmac:          " + avgEnHMAc + "   err: " + errEnHMAc + " cor: " + corEnHMAc);
             System.out.println(" En_hmac_fd:          " + avgEnHMAcFD + "   err: " + errEnHMAcFD + " cor: " + corEnHMAcFD);
+            System.out.println(" En_nm_ec:         " + avgEnNMEC + "   err: " + errEnNMEC + " cor: " + corEnNMEC);
+            System.out.println(" En_nm_ec_fd:         " + avgEnNMECFD + "   err: " + errEnNMECFD + " cor: " + corEnNMECFD);
 
             System.out.println();
             System.out.println(" Cvn_prim:         " + CvnPrim +         "   err: " + errCvnPrim);
@@ -564,12 +596,12 @@ public class SimQuantumAOFD extends Simulation {
             System.out.println(" Cvn_cvir_fd:         " + CvnCentVirFD +    "   err: " + errCvnCentVirFD);
             System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
             System.out.println(" Cvn_hmac_fd:         " + CvnHMAcFD +          "   err: " + errCvnHMAcFD);
+            System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);
+            System.out.println(" Cvn_nm_ec_fd:        " + CvnNMECFD +          "   err: " + errCvnNMECFD);
 
         } else {
-            System.out.println(" En_nm_ec:         " + avgEnNMEC + "   err: " + errEnNMEC + " cor: " + corEnNMEC);
             System.out.println(" En_stage_ec:      " + avgEnStageEC + "   err: " + errEnStageEC + " cor: " + corEnStageEC);
             System.out.println();
-            System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);
             System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
         }
 

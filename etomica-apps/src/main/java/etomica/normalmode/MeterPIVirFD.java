@@ -74,7 +74,7 @@ public class MeterPIVirFD implements IDataSource, PotentialCallback {
             x[1] = dim/2.0/beta/beta - d2bUdb2 +  x[0]*x[0];
         }
 
-
+//        System.out.println("  Vir: " + box.getMoleculeList().get(0).getChildList().get(0).getPosition());
 
         return data;
     }
@@ -86,10 +86,6 @@ public class MeterPIVirFD implements IDataSource, PotentialCallback {
 
     public DataTag getTag() {
         return tag;
-    }
-
-    public boolean wantsHessian() {
-        return true;
     }
 
     public void setEnShift(double E) { this.EnShift = E; }

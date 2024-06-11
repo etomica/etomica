@@ -21,8 +21,10 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorLangevin;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
@@ -36,12 +38,12 @@ import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Length;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import etomica.util.random.RandomMersenneTwister;
 
 /**
  * PIMD using Langevin Thermostat using BAOAB algorithm.
@@ -57,11 +59,16 @@ public class LJPIMD extends Simulation {
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
     public final MCMoveHOReal2 moveStageSimple, moveStageEC;
-    public double betaN;
+    public double beta;
     public int dim;
 
     public LJPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, int numAtoms, double temperature, double density, double rc, double omega2, double hbar) {
         super(Space3D.getInstance());
+
+        //Set random seed
+        setRandom(new RandomMersenneTwister(2));
+
+
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .setDynamic(true)
                 .addCount(AtomType.simple("A", mass / nBeads), nBeads)
@@ -71,14 +78,13 @@ public class LJPIMD extends Simulation {
         this.dim = space.D();
         box = new Box(space);
         addBox(box);
-        NeighborListManagerPI neighborManager = new NeighborListManagerPI(getSpeciesManager(), box, 2, 1.4*rc, BondingInfo.noBonding());
+        NeighborListManagerPI neighborManager = new NeighborListManagerPI(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
-        double beta = 1 / temperature;
-        betaN = beta/nBeads;
+        beta = 1.0/temperature;
 
-        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
+        double omegaN = nBeads/(hbar*beta);
+        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN/nBeads;
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < nBeads; i++) {
@@ -103,15 +109,15 @@ public class LJPIMD extends Simulation {
         PotentialComputeAggregate.localStorageDefault = true;
         pmAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
 
-        if (coordType == MoveChoice.Real) {
+        if (coordType == LJPIMD.MoveChoice.Real) {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
-        } else if (coordType == MoveChoice.NM) {
+        } else if (coordType == LJPIMD.MoveChoice.NM) {
             MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, 0, box, hbar);
             integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
-        } else if (coordType == MoveChoice.NMEC) {
+        } else if (coordType == LJPIMD.MoveChoice.NMEC) {
             MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, omega2, box, hbar);
             integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
-        } else if (coordType == MoveChoice.Stage) {
+        } else if (coordType == LJPIMD.MoveChoice.Stage) {
             MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
             integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
         } else { //StageEC -- default
@@ -119,22 +125,27 @@ public class LJPIMD extends Simulation {
             integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
         }
 
+        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+        potentialMaster.init();
+        // and then never update neighbor lists
+        integrator.getEventManager().removeListener(neighborManager);
+        p2.setTruncationRadius(2*rc);
+
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
         moveStageEC = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
         integrator.setThermostatNoDrift(false);
         integrator.setIsothermal(true);
-
     }
 
     public static void main(String[] args) {
         long t1 = System.currentTimeMillis();
-        SimParams params = new SimParams();
+        LJPIMD.SimParams params = new LJPIMD.SimParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.steps = 10000;
             params.hbar = 0.1;
-            params.temperature = 0.5;
+            params.temperature = 1;
             params.numAtoms = 32;
             params.rc = 2.5;
             params.isGraphic = false;
@@ -143,8 +154,11 @@ public class LJPIMD extends Simulation {
 //            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.NMEC;
-            params.coordType = MoveChoice.StageEC;
-            params.nBeads = 16;
+            params.coordType = LJPIMD.MoveChoice.StageEC;
+
+
+            params.nBeads = 4;
+
             params.timeStep = 0.01;
         }
         double facTimestep = params.facTimestep;
@@ -163,7 +177,7 @@ public class LJPIMD extends Simulation {
         double timeStep = params.timeStep;
         boolean isGraphic = params.isGraphic;
         boolean onlyCentroid = params.onlyCentroid;
-        MoveChoice coordType = params.coordType;
+        LJPIMD.MoveChoice coordType = params.coordType;
         long steps = params.steps;
         long stepsEq = steps/10;
 
@@ -172,8 +186,7 @@ public class LJPIMD extends Simulation {
         if (nBeads == -1){
             nBeads = (int) (20*x);
         }
-
-        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+        double omegaN = nBeads*temperature/hbar;
 //        if (timeStep == -1) {
 //            if (coordType == MoveChoice.Real) {
 //                timeStep = facTimestep/omegaN/Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
@@ -214,28 +227,35 @@ public class LJPIMD extends Simulation {
         MeterPIPrim meterPrim = null;
         MeterPIVir meterVir = null;
         MeterPICentVir meterCentVir = null;
+        MeterPICentVirFD meterCentVirFD = null;
         MeterPIHMAc meterHMAc = null;
+        MeterPIHMAcFD meterHMAcFD = null;
         MeterPIHMA meterNMEC = null;
+        MeterPIHMAFD meterNMECFD = null;
         MeterPIHMA meterNMSimple = null;
         MeterPIHMAReal2 meterStageEC = null;
         MeterPIHMAReal2 meterStageSimple = null;
 
-        meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
+        double dbeta = 0.0001;
+        System.out.println(" dbeta: " + dbeta);
         meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
+        meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
+        meterCentVirFD = new MeterPICentVirFD(sim.potentialMaster, temperature, nBeads, sim.box, dbeta);
+        meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
+        meterHMAcFD = new MeterPIHMAcFD(sim.potentialMaster, temperature, nBeads, sim.box, dbeta);
+        meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.beta, nBeads, omega2, sim.box, hbar);
+        meterNMECFD = new MeterPIHMAFD(sim.pmBonding, sim.potentialMaster, sim.beta, nBeads, omega2, sim.box, hbar, dbeta);
 
         if (!onlyCentroid) {
             meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
             meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
             meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
-            meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
-            meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, 0, sim.box, hbar);
-            meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, omega2, sim.box, hbar);
+            meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.beta, nBeads, 0, sim.box, hbar);
             meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple);
             meterStageSimple.setNumShifts(nShifts);
             meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC);
             meterStageEC.setNumShifts(nShifts);
         }
-
 
         int interval = 5;
         int blocks = 100;
@@ -377,7 +397,6 @@ public class LJPIMD extends Simulation {
         System.out.println(" uLat: " + uLat);
         System.out.println(" pLat: " + pLat);
 
-
         // equilibration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
         System.out.println(" equilibration finished");
@@ -403,12 +422,8 @@ public class LJPIMD extends Simulation {
         EnShift = dataAvgShort.getValue(0);
         errEnShift = dataErrShort.getValue(0);
         System.out.println(" EnShift:  " + EnShift/numAtoms + "  err: " + errEnShift/numAtoms);
-        meterCentVir.setEnShift(EnShift);
         accumulatorCentVir.reset();
-
-        // Centroid Virial
         meterCentVir.setEnShift(EnShift);
-
 
 
         AccumulatorAverageCovariance accumulatorKE = new AccumulatorAverageCovariance(blockSize);
@@ -431,12 +446,27 @@ public class LJPIMD extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpVir);
         }
 
-        // HMAc (CLassical EC)
+        AccumulatorAverageCovariance accumulatorCentVirFD = new AccumulatorAverageCovariance(blockSize);
+        if (meterCentVirFD != null) {
+            meterCentVirFD.setEnShift(EnShift);
+            DataPumpListener accumulatorPumpCentVirFD = new DataPumpListener(meterCentVirFD, accumulatorCentVirFD, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpCentVirFD);
+        }
+
+        // HMAc
         AccumulatorAverageCovariance accumulatorHMAc = new AccumulatorAverageCovariance(blockSize);
         if (meterHMAc != null) {
             meterHMAc.setEnShift(EnShift);
             DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
             sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
+        }
+
+        // HMAc FD
+        AccumulatorAverageCovariance accumulatorHMAcFD = new AccumulatorAverageCovariance(blockSize);
+        if (meterHMAcFD != null) {
+            meterHMAcFD.setEnShift(EnShift);
+            DataPumpListener accumulatorPumpHMAcFD = new DataPumpListener(meterHMAcFD, accumulatorHMAcFD, interval);
+            sim.integrator.getEventManager().addListener(accumulatorPumpHMAcFD);
         }
 
         //Simple NM
@@ -447,12 +477,20 @@ public class LJPIMD extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpHMAsimple);
         }
 
-        //HO NM
+        //NMEC
         AccumulatorAverageCovariance accumulatorNMEC = new AccumulatorAverageCovariance(blockSize);
         if (meterNMEC != null) {
             meterNMEC.setEnShift(EnShift);
             DataPumpListener accumulatorPumpNMEC = new DataPumpListener(meterNMEC, accumulatorNMEC, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpNMEC);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpNMEC);
+        }
+
+        //NMEC: FD
+        AccumulatorAverageCovariance accumulatorNMECFD = new AccumulatorAverageCovariance(blockSize);
+        if (meterNMECFD != null) {
+            meterNMECFD.setEnShift(EnShift);
+            DataPumpListener accumulatorPumpNMECFD = new DataPumpListener(meterNMECFD, accumulatorNMECFD, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpNMECFD);
         }
 
         //Simple stage
@@ -471,10 +509,6 @@ public class LJPIMD extends Simulation {
             sim.integrator.getEventManager().addListener(pumpStageEC);
         }
 
-
-
-
-
         //Run ...
         sim.integrator.resetStepCount();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
@@ -486,7 +520,7 @@ public class LJPIMD extends Simulation {
         double corKE = dataKE.getValue(accumulatorKE.BLOCK_CORRELATION.index);
         System.out.println(" T_measured: " + avgKE / (1.5 * numAtoms * nBeads) + " +/- " + errKE / (1.5 * numAtoms * nBeads) + " cor: " + corKE);
         System.out.println();
-        double kB_beta2 = sim.betaN*sim.betaN*nBeads*nBeads;
+        double kB_beta2 = sim.beta*sim.beta;
         double varX0, varX1, corX0X1;
 
 
@@ -499,16 +533,32 @@ public class LJPIMD extends Simulation {
         double avgEnCentVir = dataAvgCentVir.getValue(0);
         double errEnCentVir = dataErrCentVir.getValue(0);
         double corEnCentVir = dataCorCentVir.getValue(0);
-
-        double avgPnCentVir = dataAvgCentVir.getValue(2);
-        double errPnCentVir = dataErrCentVir.getValue(2);
-        double corPnCentVir = dataCorCentVir.getValue(2);
-
+//        double avgPnCentVir = dataAvgCentVir.getValue(2);
+//        double errPnCentVir = dataErrCentVir.getValue(2);
+//        double corPnCentVir = dataCorCentVir.getValue(2);
         double CvnCentVir = kB_beta2*(dataAvgCentVir.getValue(1) - avgEnCentVir*avgEnCentVir);
         varX0 = errEnCentVir*errEnCentVir;
         varX1 = dataErrCentVir.getValue(1)*dataErrCentVir.getValue(1);
         corX0X1 = dataCovCentVir.getValue(1)/Math.sqrt(dataCovCentVir.getValue(0))/Math.sqrt(dataCovCentVir.getValue(3));
         double errCvnCentVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVir*avgEnCentVir*varX0 - 4*avgEnCentVir*dataErrCentVir.getValue(0)*dataErrCentVir.getValue(1)*corX0X1);
+
+        // Cent-Vir: FD
+        DataGroup dataCentVirFD = (DataGroup) accumulatorCentVirFD.getData();
+        IData dataAvgCentVirFD = dataCentVirFD.getData(accumulatorCentVirFD.AVERAGE.index);
+        IData dataErrCentVirFD = dataCentVirFD.getData(accumulatorCentVirFD.ERROR.index);
+        IData dataCorCentVirFD = dataCentVirFD.getData(accumulatorCentVirFD.BLOCK_CORRELATION.index);
+        IData dataCovCentVirFD = dataCentVirFD.getData(accumulatorCentVirFD.COVARIANCE.index);
+        double avgEnCentVirFD = dataAvgCentVirFD.getValue(0);
+        double errEnCentVirFD = dataErrCentVirFD.getValue(0);
+        double corEnCentVirFD = dataCorCentVirFD.getValue(0);
+//        double avgPnCentVirFD = dataAvgCentVirFD.getValue(2);
+//        double errPnCentVirFD = dataErrCentVirFD.getValue(2);
+//        double corPnCentVirFD = dataCorCentVirFD.getValue(2);
+        double CvnCentVirFD = kB_beta2*(dataAvgCentVirFD.getValue(1) - avgEnCentVirFD*avgEnCentVirFD);
+        varX0 = errEnCentVirFD*errEnCentVirFD;
+        varX1 = dataErrCentVirFD.getValue(1)*dataErrCentVirFD.getValue(1);
+        corX0X1 = dataCovCentVirFD.getValue(1)/Math.sqrt(dataCovCentVirFD.getValue(0))/Math.sqrt(dataCovCentVirFD.getValue(3));
+        double errCvnCentVirFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnCentVirFD*avgEnCentVirFD*varX0 - 4*avgEnCentVirFD*dataErrCentVirFD.getValue(0)*dataErrCentVirFD.getValue(1)*corX0X1);
 
         double avgEnPrim=0, avgEnVir=0, avgEnHMAc=0, avgEnNMSimple=0, avgEnNMEC=0, avgEnStageSimple=0,avgEnStageEC=0;
         double errEnPrim=0, errEnVir=0, errEnHMAc=0, errEnNMSimple=0, errEnNMEC=0, errEnStageSimple=0, errEnStageEC=0;
@@ -525,14 +575,89 @@ public class LJPIMD extends Simulation {
         avgEnPrim = dataAvgPrim.getValue(0);
         errEnPrim = dataErrPrim.getValue(0);
         corEnPrim = dataCorPrim.getValue(0);
-        avgPnPrim = dataAvgPrim.getValue(2);
-        errPnPrim = dataErrPrim.getValue(2);
-        corPnPrim = dataCorPrim.getValue(2);
+//        avgPnPrim = dataAvgPrim.getValue(2);
+//        errPnPrim = dataErrPrim.getValue(2);
+//        corPnPrim = dataCorPrim.getValue(2);
         CvnPrim = kB_beta2*(dataAvgPrim.getValue(1) - avgEnPrim*avgEnPrim);
         varX0 = errEnPrim*errEnPrim;
         varX1 = dataErrPrim.getValue(1)*dataErrPrim.getValue(1);
         corX0X1 = dataCovPrim.getValue(1)/Math.sqrt(dataCovPrim.getValue(0))/Math.sqrt(dataCovPrim.getValue(3));
         errCvnPrim = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1);
+
+
+        // HMAc
+        DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
+        IData dataAvgHMAc = dataHMAc.getData(accumulatorHMAc.AVERAGE.index);
+        IData dataErrHMAc = dataHMAc.getData(accumulatorHMAc.ERROR.index);
+        IData dataCorHMAc = dataHMAc.getData(accumulatorHMAc.BLOCK_CORRELATION.index);
+        IData dataCovHMAc = dataHMAc.getData(accumulatorHMAc.COVARIANCE.index);
+        avgEnHMAc = dataAvgHMAc.getValue(0) ;
+        errEnHMAc = dataErrHMAc.getValue(0);
+        corEnHMAc = dataCorHMAc.getValue(0);
+        CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) - avgEnHMAc*avgEnHMAc);
+        varX0 = errEnHMAc*errEnHMAc;
+        varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
+        corX0X1 = dataCovHMAc.getValue(1)/Math.sqrt(dataCovHMAc.getValue(0))/Math.sqrt(dataCovHMAc.getValue(3));
+        errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - 4*avgEnHMAc*dataErrHMAc.getValue(0)*dataErrHMAc.getValue(1)*corX0X1);
+        if (errEnHMAc < 1e-10){
+            errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 );
+        }
+
+
+        // HMAc: FD
+        DataGroup dataHMAcFD = (DataGroup) accumulatorHMAcFD.getData();
+        IData dataAvgHMAcFD = dataHMAcFD.getData(accumulatorHMAcFD.AVERAGE.index);
+        IData dataErrHMAcFD = dataHMAcFD.getData(accumulatorHMAcFD.ERROR.index);
+        IData dataCorHMAcFD = dataHMAcFD.getData(accumulatorHMAcFD.BLOCK_CORRELATION.index);
+        IData dataCovHMAcFD = dataHMAcFD.getData(accumulatorHMAcFD.COVARIANCE.index);
+        double avgEnHMAcFD = dataAvgHMAcFD.getValue(0) ;
+        double errEnHMAcFD = dataErrHMAcFD.getValue(0);
+        double corEnHMAcFD = dataCorHMAcFD.getValue(0);
+        double CvnHMAcFD = kB_beta2*(dataAvgHMAcFD.getValue(1) - avgEnHMAcFD*avgEnHMAcFD);
+        varX0 = errEnHMAcFD*errEnHMAcFD;
+        varX1 = dataErrHMAcFD.getValue(1)*dataErrHMAcFD.getValue(1);
+        corX0X1 = dataCovHMAcFD.getValue(1)/Math.sqrt(dataCovHMAcFD.getValue(0))/Math.sqrt(dataCovHMAcFD.getValue(3));
+        double errCvnHMAcFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAcFD*avgEnHMAcFD*varX0 - 4*avgEnHMAcFD*dataErrHMAcFD.getValue(0)*dataErrHMAcFD.getValue(1)*corX0X1);
+        if (errEnHMAcFD < 1e-10){
+            errCvnHMAcFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAcFD*avgEnHMAcFD*varX0 );
+        }
+
+
+        // NMEC
+        DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
+        IData dataAvgNMEC = dataNMEC.getData(accumulatorNMEC.AVERAGE.index);
+        IData dataErrNMEC = dataNMEC.getData(accumulatorNMEC.ERROR.index);
+        IData dataCorNMEC = dataNMEC.getData(accumulatorNMEC.BLOCK_CORRELATION.index);
+        IData dataCovNMEC = dataNMEC.getData(accumulatorNMEC.COVARIANCE.index);
+        avgEnNMEC = dataAvgNMEC.getValue(0);
+        errEnNMEC = dataErrNMEC.getValue(0);
+        corEnNMEC = dataCorNMEC.getValue(0);
+        CvnNMEC  = kB_beta2*(dataAvgNMEC.getValue(1) - avgEnNMEC*avgEnNMEC);
+        varX0 = errEnNMEC*errEnNMEC;
+        varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
+        corX0X1 = dataCovNMEC.getValue(1)/Math.sqrt(dataCovNMEC.getValue(0))/Math.sqrt(dataCovNMEC.getValue(3));
+        errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
+        if (errEnNMEC < 1e-10){
+            errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
+        }
+
+        // NMEC: FD
+        DataGroup dataNMECFD = (DataGroup) accumulatorNMECFD.getData();
+        IData dataAvgNMECFD = dataNMECFD.getData(accumulatorNMECFD.AVERAGE.index);
+        IData dataErrNMECFD = dataNMECFD.getData(accumulatorNMECFD.ERROR.index);
+        IData dataCorNMECFD = dataNMECFD.getData(accumulatorNMECFD.BLOCK_CORRELATION.index);
+        IData dataCovNMECFD = dataNMECFD.getData(accumulatorNMECFD.COVARIANCE.index);
+        double avgEnNMECFD = dataAvgNMECFD.getValue(0);
+        double errEnNMECFD = dataErrNMECFD.getValue(0);
+        double corEnNMECFD = dataCorNMECFD.getValue(0);
+        double CvnNMECFD  = kB_beta2*(dataAvgNMECFD.getValue(1) - avgEnNMECFD*avgEnNMECFD);
+        varX0 = errEnNMECFD*errEnNMECFD;
+        varX1 = dataErrNMECFD.getValue(1)*dataErrNMECFD.getValue(1);
+        corX0X1 = dataCovNMECFD.getValue(1)/Math.sqrt(dataCovNMECFD.getValue(0))/Math.sqrt(dataCovNMECFD.getValue(3));
+        double errCvnNMECFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMECFD*avgEnNMECFD*varX0 - 4*avgEnNMECFD*errEnNMECFD*dataErrNMECFD.getValue(1)*corX0X1);
+        if (errEnNMECFD < 1e-10){
+            errCvnNMECFD = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMECFD*avgEnNMECFD*varX0);
+        }
 
 
         if (!onlyCentroid) {
@@ -566,23 +691,6 @@ public class LJPIMD extends Simulation {
             corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
             errCvnVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVir*avgEnVir*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1);
 
-            // HMAc
-            DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
-            IData dataAvgHMAc = dataHMAc.getData(accumulatorHMAc.AVERAGE.index);
-            IData dataErrHMAc = dataHMAc.getData(accumulatorHMAc.ERROR.index);
-            IData dataCorHMAc = dataHMAc.getData(accumulatorHMAc.BLOCK_CORRELATION.index);
-            IData dataCovHMAc = dataHMAc.getData(accumulatorHMAc.COVARIANCE.index);
-            avgEnHMAc = dataAvgHMAc.getValue(0) ;
-            errEnHMAc = dataErrHMAc.getValue(0);
-            corEnHMAc = dataCorHMAc.getValue(0);
-            CvnHMAc = kB_beta2*(dataAvgHMAc.getValue(1) - avgEnHMAc*avgEnHMAc);
-            varX0 = errEnHMAc*errEnHMAc;
-            varX1 = dataErrHMAc.getValue(1)*dataErrHMAc.getValue(1);
-            corX0X1 = dataCovHMAc.getValue(1)/Math.sqrt(dataCovHMAc.getValue(0))/Math.sqrt(dataCovHMAc.getValue(3));
-            errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 - 4*avgEnHMAc*dataErrHMAc.getValue(0)*dataErrHMAc.getValue(1)*corX0X1);
-            if (errEnHMAc < 1e-10){
-                errCvnHMAc = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnHMAc*avgEnHMAc*varX0 );
-            }
 
 
             // HMA simple NM
@@ -600,23 +708,6 @@ public class LJPIMD extends Simulation {
             corX0X1 = dataCovNMsimple.getValue(1)/Math.sqrt(dataCovNMsimple.getValue(0))/Math.sqrt(dataCovNMsimple.getValue(3));
             errCvnNMsimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1);
 
-            // HMA EC NM
-            DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
-            IData dataAvgNMEC = dataNMEC.getData(accumulatorNMEC.AVERAGE.index);
-            IData dataErrNMEC = dataNMEC.getData(accumulatorNMEC.ERROR.index);
-            IData dataCorNMEC = dataNMEC.getData(accumulatorNMEC.BLOCK_CORRELATION.index);
-            IData dataCovNMEC = dataNMEC.getData(accumulatorNMEC.COVARIANCE.index);
-            avgEnNMEC = dataAvgNMEC.getValue(0);
-            errEnNMEC = dataErrNMEC.getValue(0);
-            corEnNMEC = dataCorNMEC.getValue(0);
-            CvnNMEC  = kB_beta2*(dataAvgNMEC.getValue(1) - avgEnNMEC*avgEnNMEC);
-            varX0 = errEnNMEC*errEnNMEC;
-            varX1 = dataErrNMEC.getValue(1)*dataErrNMEC.getValue(1);
-            corX0X1 = dataCovNMEC.getValue(1)/Math.sqrt(dataCovNMEC.getValue(0))/Math.sqrt(dataCovNMEC.getValue(3));
-            errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0 - 4*avgEnNMEC*errEnNMEC*dataErrNMEC.getValue(1)*corX0X1);
-            if (errEnNMEC < 1e-10){
-                errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
-            }
 
             // HMA simple stage
             DataGroup dataStageSimple = (DataGroup) accumulatorStageSimple.getData();
@@ -656,29 +747,33 @@ public class LJPIMD extends Simulation {
         if (onlyCentroid) {
             System.out.println(" En_prim:         " + (avgEnPrim+EnShift)/numAtoms + "   err: " + errEnPrim/numAtoms + " cor: " + corEnPrim);
             System.out.println(" En_cvir:         " + (avgEnCentVir+EnShift)/numAtoms + "   err: " + errEnCentVir/numAtoms + " cor: " + corEnCentVir);
+            System.out.println(" En_cvir_fd:      " + (avgEnCentVirFD+EnShift)/numAtoms + "   err: " + errEnCentVirFD/numAtoms + " cor: " + corEnCentVirFD);
+            System.out.println(" En_hmac:         " + (avgEnHMAc+EnShift)/numAtoms + "   err: " + errEnHMAc/numAtoms + " cor: " + corEnHMAc);
+            System.out.println(" En_hmac_fd:      " + (avgEnHMAcFD+EnShift)/numAtoms + "   err: " + errEnHMAcFD/numAtoms + " cor: " + corEnHMAcFD);
+//            System.out.println(" En_nm_ec:        " + (avgEnNMEC+EnShift)/numAtoms + "   err: " + errEnNMEC/numAtoms + " cor: " + corEnNMEC);
+//            System.out.println(" En_nm_ec_fd:     " + (avgEnNMECFD+EnShift)/numAtoms + "   err: " + errEnNMECFD/numAtoms + " cor: " + corEnNMECFD);
+
             System.out.println();
-            System.out.println(" Pn_prim:         " + avgPnPrim + "   err: " + errPnPrim + " cor: " + corPnPrim);
-            System.out.println(" Pn_cvir:         " + avgPnCentVir + "   err: " + errPnCentVir + " cor: " + corPnCentVir);
-            System.out.println();
+//            System.out.println(" Pn_prim:         " + avgPnPrim + "   err: " + errPnPrim + " cor: " + corPnPrim);
+//            System.out.println(" Pn_cvir:         " + avgPnCentVir + "   err: " + errPnCentVir + " cor: " + corPnCentVir);
+//            System.out.println();
             System.out.println(" Cvn_prim:         " + CvnPrim/numAtoms +       "   err: " + errCvnPrim/numAtoms);
-            System.out.println(" Cvn_cvir:         " + CvnCentVir/numAtoms +       "   err: " + errCvnCentVir/numAtoms);
+            System.out.println(" Cvn_cvir:         " + CvnCentVir/numAtoms +    "   err: " + errCvnCentVir/numAtoms);
+            System.out.println(" Cvn_cvir_fd:      " + CvnCentVirFD/numAtoms +  "   err: " + errCvnCentVirFD/numAtoms);
+            System.out.println(" Cvn_hmac:         " + CvnHMAc/numAtoms +       "   err: " + errCvnHMAc/numAtoms);
+            System.out.println(" Cvn_hmac_fd:      " + CvnHMAcFD/numAtoms +     "   err: " + errCvnHMAcFD/numAtoms);
+//            System.out.println(" Cvn_nm_ec:        " + CvnNMEC/numAtoms +       "   err: " + errCvnNMEC/numAtoms);
+//            System.out.println(" Cvn_nm_ec_fd:     " + CvnNMECFD/numAtoms +     "   err: " + errCvnNMECFD/numAtoms);
 
         } else {
             System.out.println("\n En_prim:          " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
             System.out.println(" En_vir:          " + (avgEnVir+EnShift)/numAtoms + "   err: " + errEnVir/numAtoms + " cor: " + corEnVir);
-            System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
-            System.out.println(" En_hmac:         " + (avgEnHMAc+EnShift)/numAtoms + "   err: " + errEnHMAc/numAtoms + " cor: " + corEnHMAc);
             System.out.println(" En_nm_simple:    " + (avgEnNMSimple+EnShift)/numAtoms + "   err: " + errEnNMSimple/numAtoms + " cor: " + corEnNMSimple);
-            System.out.println(" En_nm_ec:        " + (avgEnNMEC+EnShift)/numAtoms + "   err: " + errEnNMEC/numAtoms + " cor: " + corEnNMEC);
             System.out.println(" En_stage_simple: " + (avgEnStageSimple+EnShift)/numAtoms + "   err: " + errEnStageSimple/numAtoms + " cor: " + corEnStageSimple);
             System.out.println(" En_stage_ec:     " + (avgEnStageEC+EnShift)/numAtoms + "   err: " + errEnStageEC/numAtoms + " cor: " + corEnStageEC);
             System.out.println();
             System.out.println(" Cvn_prim:         " + CvnPrim/numAtoms +          "   err: " + errCvnPrim/numAtoms);
-            System.out.println(" Cvn_vir:          " + CvnVir/numAtoms +           "   err: " + errCvnVir/numAtoms);
-//            System.out.println(" Cvn_cvir:         " + CvnCentVir/numAtoms +       "   err: " + errCvnCentVir/numAtoms);
-            System.out.println(" Cvn_hmac:         " + CvnHMAc/numAtoms +          "   err: " + errCvnHMAc/numAtoms);
             System.out.println(" Cvn_nm_simple:    " + CvnNMSimple/numAtoms +    "   err: " + errCvnNMsimple/numAtoms);
-            System.out.println(" Cvn_nm_ec:        " + CvnNMEC/numAtoms +          "   err: " + errCvnNMEC/numAtoms);
             System.out.println(" Cvn_stage_simple: " + CvnStageSimple/numAtoms + "   err: " + errCvnStageSimple/numAtoms);
             System.out.println(" Cvn_stage_ec:     " + CvnStageEC/numAtoms +       "   err: " + errCvnStageEC/numAtoms);
         }
@@ -742,7 +837,7 @@ public class LJPIMD extends Simulation {
         public int nShifts = 0;
         public double timeStep = -1;
         public int nBeads = -1;
-        public MoveChoice coordType = MoveChoice.StageEC;
+        public LJPIMD.MoveChoice coordType = LJPIMD.MoveChoice.StageEC;
         public double facTimestep = 0.01;
         public boolean onlyCentroid = true;
     }

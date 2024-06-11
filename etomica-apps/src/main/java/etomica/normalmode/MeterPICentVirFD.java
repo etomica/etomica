@@ -77,9 +77,11 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
 
         x[1] = dim*numAtoms/2.0/beta/beta - d2bUdb2 +  x[0]*x[0];
 
+//        System.out.println("FD-CV: "+ (-d2bUdb2));
+//        System.out.println();
+
         return data;
     }
-
 
     public IDataInfo getDataInfo() {
         return dataInfo;
@@ -87,10 +89,6 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
 
     public DataTag getTag() {
         return tag;
-    }
-
-    public boolean wantsHessian() {
-        return true;
     }
 
     public void setEnShift(double E) { this.EnShift = E; }
@@ -112,7 +110,7 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
-                rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
+                rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);//no need to recompute rc, because it isn't changed!
                 box.getBoundary().nearestImage(rirc);
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
@@ -125,7 +123,6 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
                 atom.getPosition().E(rOrig[atom.getLeafIndex()]);
             }
         }
-
 
         return dbUdb;
     }

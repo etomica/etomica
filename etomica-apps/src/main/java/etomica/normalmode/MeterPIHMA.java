@@ -34,7 +34,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected int dim, numAtoms;
     protected double EnShift;
 
-    public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double betaN, int nBeads, double omega2, Box box, double hbar) {
+    public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double beta, int nBeads, double omega2, Box box, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
@@ -43,10 +43,10 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         this.dim = box.getSpace().D();
         this.pmBonding = pmBonding;
         this.pcP1 = pcP1;
-        this.betaN = betaN;
         this.nBeads = nBeads;
         this.box = box;
-        this.beta = betaN*nBeads;
+        this.beta = beta;
+        this.betaN = beta/nBeads;
         this.omega2 = omega2;
         omegaN = Math.sqrt(nBeads)/(beta*hbar);
         numAtoms = box.getMoleculeList().size();
@@ -122,6 +122,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
     @Override
     public IData getData() {
+        double d2bUdb2 = 0;
         drdotHdrdot = 0 ;
         double[] x = data.getData();
         Vector drShift = box.getSpace().makeVector();
@@ -154,6 +155,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
 
         double En = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
         double Cvn = dim*numAtoms*nBeads/2.0/beta/beta - 2.0/beta*pmBonding.getLastEnergy();
+        d2bUdb2 = - 2.0/beta*pmBonding.getLastEnergy();
         for (int i=0; i<nBeads; i++) {
             En -= dim*numAtoms*gk[i];
             Cvn += dim*numAtoms*gk2[i];
@@ -176,18 +178,24 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             for (int jj=0; jj<atoms.size(); jj++) {
                 int j = atoms.get(jj).getLeafIndex();
                 En -= beta*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
+                d2bUdb2 += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));
+                d2bUdb2 += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));
                 Cvn += 2.0*(forcesU[j].dot(rdot[j]) - forcesK[j].dot(rdot[j]));
                 Cvn += beta*(forcesU[j].dot(rddot[j]) + forcesK[j].dot(rddot[j]));
                 int jjp = (jj+1)%nBeads;
                 int jp = atoms.get(jjp).getLeafIndex();
                 tmpV.Ev1Mv2(rdot[j], rdot[jp]);
+                d2bUdb2 -= beta*massRing*omegaN*omegaN*(tmpV.squared());
                 Cvn -= beta*massRing*omegaN*omegaN*(tmpV.squared());
             }
         }
 
+        d2bUdb2 -= beta*drdotHdrdot;
         Cvn -= beta*drdotHdrdot;
         x[0] = En - EnShift;
         x[1] = Cvn + (En - EnShift)*(En - EnShift);
+
+//        System.out.println(" AN: " + d2bUdb2);
 
         return data;
     }

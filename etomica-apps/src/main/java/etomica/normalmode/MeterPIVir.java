@@ -63,6 +63,7 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         if (numAtoms == 1) { // e.g., HO or EC
             x[0] =   pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;
             x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
+//            System.out.println(1.0/4.0/beta*(-3.0*vir - rHr));
         } else {
             x[0] = dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir- EnShift;
             x[1] = dim/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
