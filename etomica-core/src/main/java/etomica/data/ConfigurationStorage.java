@@ -16,15 +16,17 @@ import etomica.util.Statefull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Listener that can store configurations.  For the purposes of MSD, it
  * will save all configurations that will be needed to compute MSD from.
  * With LOG2 storage, it will store configurations that are (more or less)
  * 1, 2, 4, 8, 16... steps ago.
+ *
+ * Configs are saved as part of the integrator's stepStarted event.
  */
 public class ConfigurationStorage implements IntegratorListener, Statefull {
 
@@ -39,7 +41,7 @@ public class ConfigurationStorage implements IntegratorListener, Statefull {
     protected StorageType storageType;
     protected final Vector[] dr;
     protected final Vector dri;
-    protected final Set<ConfigurationStorageListener> listeners;
+    protected final List<ConfigurationStorageListener> listeners;
     protected boolean enabled;
     protected int interval, intervalCountdown;
     protected boolean doVel;
@@ -59,7 +61,7 @@ public class ConfigurationStorage implements IntegratorListener, Statefull {
         for (int i = 0; i < savedSteps.length; i++) savedTimes[i] = savedSteps[i] = -1;
         dr = box.getSpace().makeVectorArray(box.getLeafList().size());
         dri = box.getSpace().makeVector();
-        listeners = new HashSet<>();
+        listeners = new ArrayList<>();
         enabled = true;
         this.doVel = false;
     }
@@ -97,10 +99,6 @@ public class ConfigurationStorage implements IntegratorListener, Statefull {
 
     public void addListener(ConfigurationStorageListener l) {
         listeners.add(l);
-    }
-
-    @Override
-    public void integratorInitialized(IntegratorEvent e) {
     }
 
     @Override
@@ -280,12 +278,11 @@ public class ConfigurationStorage implements IntegratorListener, Statefull {
         return configVelList[idx];
     }
 
+    /**
+     * @return the time interval between consecutive configs.
+     */
     public double getDeltaT() {
         return dt;
-    }
-
-    @Override
-    public void integratorStepFinished(IntegratorEvent e) {
     }
 
     public interface ConfigurationStorageListener {
