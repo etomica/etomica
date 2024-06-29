@@ -44,6 +44,8 @@ import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -91,10 +93,11 @@ public class VirialChain {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 2;
-            params.nSpheres = 50;
-            params.temperature = 3;
-            params.eFENE = 10;
+            params.nPoints = 4;
+            params.nSpheres = 128;
+            params.temperature = 4.55897667284274;
+            params.kBend = 7.11111111111111111;
+            params.numSteps = 1000000;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -369,13 +372,16 @@ public class VirialChain {
         long t1 = System.nanoTime();
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
+        long initSteps = steps/40;
+        if (params.fFile != null) {
+            initSteps = steps;
+        }
         // this will either read the refpref in from a file or run a short simulation to find it
-        sim.initRefPref(refFileName, steps/40);
+        sim.initRefPref(refFileName, initSteps);
 
-                
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/20);
+        sim.equilibrate(refFileName, 2*initSteps);
         ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
         sim.setAccumulatorBlockSize(steps);
 
@@ -388,8 +394,41 @@ public class VirialChain {
                 +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize())));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
+
+        ClusterAbstract tc = targetCluster;
+        FileWriter fw;
+        if (params.fFile != null) {
+            try {
+                fw = new FileWriter(params.fFile);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(new IAction() {
+                @Override
+                public void actionPerformed() {
+                    double f = -2 * tc.value(sim.box[1]);
+                    try {
+                        fw.write(sim.integrators[1].getStepCount() + " " + f + "\n");
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }));
+        }
+        else {
+            fw = null;
+        }
+
         sim.getController().runActivityBlocking(ai);
         long t2 = System.nanoTime();
+
+        if (fw != null) {
+            try {
+                fw.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -432,5 +471,6 @@ public class VirialChain {
         public double kBend = 0;
         public int nDer = 0;
         public TargetChoice targetChoice = TargetChoice.NORMAL;
+        public String fFile = null;
     }
 }
