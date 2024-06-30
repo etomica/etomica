@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial.simulations;
+package etomica.virial.simulations.theta;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
@@ -32,11 +32,11 @@ import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
-import etomica.virial.MayerTheta;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterAngle;
 import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
 import etomica.virial.mcmove.MCMoveClusterStretch;
+import etomica.virial.simulations.SimulationVirialOverlap2;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import javax.swing.*;
