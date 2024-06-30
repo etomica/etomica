@@ -67,7 +67,8 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     @Override
     public boolean doTrial() {
         uOld = potential.computeAll(false);
-        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wNew = wOld = 1;
+        if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<moleculeList.size(); i++) {
             if (species != null && moleculeList.get(i).getType() != species) {
@@ -113,9 +114,11 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
                 aa.getPosition().PE(shift);
             }
         }
-        ((BoxCluster)box).trialNotify();
+        if (box instanceof BoxCluster) {
+            ((BoxCluster)box).trialNotify();
+            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        }
         uNew = potential.computeAll(false);
-        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
 
@@ -157,7 +160,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
 
     @Override
     public void acceptNotify() {
-        ((BoxCluster)box).acceptNotify();
+        if (box instanceof BoxCluster) ((BoxCluster)box).acceptNotify();
     }
 
     @Override
@@ -168,6 +171,6 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
                 moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
             }
         }
-        ((BoxCluster)box).rejectNotify();
+        if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }
 }

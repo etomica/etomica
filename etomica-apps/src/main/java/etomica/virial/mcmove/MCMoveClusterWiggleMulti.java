@@ -61,7 +61,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = pc.computeAll(false);
-        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wOld = wNew = 1;
+        if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = 0; i<moleculeList.size(); i++) {
@@ -194,14 +195,16 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 }
             }
         }
-        ((BoxCluster)box).trialNotify();
-        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        if (box instanceof BoxCluster) {
+            ((BoxCluster) box).trialNotify();
+            wNew = ((BoxCluster) box).getSampleCluster().value((BoxCluster) box);
+        }
         uNew = pc.computeAll(false);
         return true;
     }
     
     public void acceptNotify() {
-        ((BoxCluster)box).acceptNotify();
+        if (box instanceof BoxCluster) ((BoxCluster)box).acceptNotify();
     }
 
     public void rejectNotify() {
@@ -216,7 +219,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             }
             selectedAtoms[i].getPosition().ME(translationVectors[i]);
         }
-        ((BoxCluster)box).rejectNotify();
+        if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }
 
     public double getChi(double temperature) {
