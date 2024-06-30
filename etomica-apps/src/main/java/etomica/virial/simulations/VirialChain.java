@@ -12,9 +12,6 @@ import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.graph.model.Graph;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
@@ -48,7 +45,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Mayer sampling simulation for alkanes using the TraPPE-United Atoms force field.
@@ -61,27 +57,6 @@ import java.util.Set;
  *   March 2013
  */
 public class VirialChain {
-
-    public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
-        DeleteEdge edgeDeleter = new DeleteEdge();
-        DeleteEdgeParameters ede = new DeleteEdgeParameters(flexDiagrams.eBond);
-        boolean first = true;
-        String str = "";
-        for (Graph gs : gSplit) {
-            if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
-                str += " "+gs.nodeCount()+"bc";
-            }
-            else {
-                str += " "+gs.getStore().toNumberString();
-                if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
-                    str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
-                }
-            }
-            if (first && correction) str += "c";
-            first = false;
-        }
-        return str;
-    }
 
     public static ClusterSum makeB2Cluster(MayerFunction f) {
         return new ClusterSum(new ClusterBonds[]{new ClusterBonds(2, new int[][][]{{{0,1}}})}, new double[]{1}, new MayerFunction[]{f});
