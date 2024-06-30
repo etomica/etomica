@@ -42,6 +42,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     int [] modified;
     int modifiedIndex = 0;
     int b = 0;
+    protected int start, stop;
 
     public MCMoveClusterAngle(PotentialCompute potentialCompute, Space space, IntArrayList[] bonding, IRandom random, double stepSize) {
         super();
@@ -52,11 +53,18 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         this.stepSize = stepSize;
         modified = new int[bonding.length];
         setStepSizeMax(Math.PI/2);
+        start = 0;
+        stop = Integer.MAX_VALUE;
     }
 
     public void setBox(Box p) {
         super.setBox(p);
         position = new Vector[p.getMoleculeList().size()][p.getMoleculeList().get(0).getChildList().size()];
+    }
+
+    public void setAtomRange(int start, int stop) {
+        this.start = start;
+        this.stop = stop;
     }
 
     @Override
@@ -83,9 +91,11 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
             if (molecule.getChildList().size() < 3) continue;
             modifiedIndex = 0;
             dt = 2 * stepSize * (random.nextDouble() - 0.5);
+            int d = 0;
             do{
                 b = random.nextInt(bonding.length);
-            }while (bonding[b].size() < 2);
+                d = Math.min(b, bonding.length-1-b);
+            }while (bonding[b].size() < 2 || (d < start || d >= stop));
             modified[modifiedIndex]=b;
             ++modifiedIndex;
             int a = random.nextInt(bonding[b].size());
