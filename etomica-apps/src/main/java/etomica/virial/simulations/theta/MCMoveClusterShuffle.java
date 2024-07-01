@@ -50,8 +50,8 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         super.setBox(p);
         int n = p.getMoleculeList().get(0).getChildList().size();
         oldPosition = space.makeVectorArray(n);
-        seq = new int[n-1];
-        setStepSizeMax(n-1);
+        seq = new int[n-2];
+        setStepSizeMax(n-2);
     }
 
     @Override
