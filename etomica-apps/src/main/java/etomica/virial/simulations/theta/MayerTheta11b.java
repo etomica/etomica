@@ -27,6 +27,9 @@ public class MayerTheta11b implements MayerFunction {
         this.potential = potential;
     }
 
+    /**
+     * Sets the PotentialCompute that computes the total intramolecular energy
+     */
     public void setPotentialu(PotentialCompute pcu) {
         this.pcu = pcu;
     }
@@ -47,6 +50,7 @@ public class MayerTheta11b implements MayerFunction {
         }
         double e = f+1;
         double u = pcu.computeAll(false);
+        if (e == 0) return -u*u;
         return e*(u+U)*(u+U) - u*u;
     }
 

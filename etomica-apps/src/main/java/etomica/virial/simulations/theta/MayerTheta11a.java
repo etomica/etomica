@@ -33,9 +33,16 @@ public class MayerTheta11a implements MayerFunction {
         this.potential = potential;
     }
 
+    /**
+     * Sets the PotentialCompute that computes du/dk
+     */
     public void setPotentialDK(PotentialCompute pcdk) {
         this.pcdk = pcdk;
     }
+
+    /**
+     * Sets the PotentialCompute that computes the total intramolecular energy
+     */
     public void setPotentialu(PotentialCompute pcu) {
         this.pcu = pcu;
     }
@@ -57,7 +64,9 @@ public class MayerTheta11a implements MayerFunction {
         double e = f+1;
         double dudk = pcdk.computeAll(false);
         double u = pcu.computeAll(false);
-        return -e*x*dudk + f*dudk*(beta*u-1);
+        double rv = f*dudk*(beta*u-1);
+        if (e>0) rv += -e*x*dudk;
+        return rv;
     }
 
     public void setBox(Box newBox) {
