@@ -33,8 +33,9 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     protected final Space space;
     protected ISpecies species;
     protected double dt = 0;
-    protected Vector[][] position = null;
+    protected Vector[] position = null;
     protected final IntArrayList [] bonding;
+    protected int iMolecule;
     double uOld = 0;
     double uNew = 0;
     double wOld = 0;
@@ -59,7 +60,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
 
     public void setBox(Box p) {
         super.setBox(p);
-        position = new Vector[p.getMoleculeList().size()][p.getMoleculeList().get(0).getChildList().size()];
+        position = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
     }
 
     public void setAtomRange(int start, int stop) {
@@ -78,48 +79,50 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         wNew = wOld = 1;
         if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i = 0; i<moleculeList.size(); i++) {
-            if (species != null && moleculeList.get(i).getType() != species) {
-                continue;
-            }
-            IMolecule molecule = moleculeList.get(i);
-            IAtomList atoms = molecule.getChildList();
-            for(int j = 0; j < molecule.getChildList().size(); j++) {
-                position[i][j] = space.makeVector();
-                position[i][j].E(atoms.get(j).getPosition());
-            }
-            if (molecule.getChildList().size() < 3) continue;
-            modifiedIndex = 0;
-            dt = 2 * stepSize * (random.nextDouble() - 0.5);
-            int d = 0;
-            do{
-                b = random.nextInt(bonding.length);
-                d = Math.min(b, bonding.length-1-b);
-            }while (bonding[b].size() < 2 || (d < start || d >= stop));
-            modified[modifiedIndex]=b;
-            ++modifiedIndex;
-            int a = random.nextInt(bonding[b].size());
-            a = bonding[b].getInt(a);
-            modified[modifiedIndex] = a;
-            ++modifiedIndex;
-            Vector axis = space.makeVector();
-            axis.setRandomSphere(random);
-            Vector r = space.makeVector();
-            r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(a).getPosition());
-            Vector projection = space.makeVector();
-            projection.Ea1Tv1(axis.dot(r)/r.squared(), r);
-            axis.ME(projection);
-            axis.normalize();
-            RotationTensor3D rotationTensor = new RotationTensor3D();
-            rotationTensor.setRotationAxis(axis, dt);
-            Vector shift = space.makeVector();
-            transform(rotationTensor, a, atoms, shift);
-            transformBondedAtoms(rotationTensor, a, atoms, shift);
+        iMolecule = random.nextInt(moleculeList.size());
+        while (species != null && moleculeList.get(iMolecule).getType() != species) {
+            iMolecule = random.nextInt(moleculeList.size());
+        }
+
+        IMolecule molecule = moleculeList.get(iMolecule);
+        IAtomList atoms = molecule.getChildList();
+        for(int j = 0; j < molecule.getChildList().size(); j++) {
+            position[j].E(atoms.get(j).getPosition());
+        }
+        if (molecule.getChildList().size() < 3) return false;
+        modifiedIndex = 0;
+        dt = 2 * stepSize * (random.nextDouble() - 0.5);
+        int d = 0;
+        do{
+            b = random.nextInt(bonding.length);
+            d = Math.min(b, bonding.length-1-b);
+        }while (bonding[b].size() < 2 || (d < start || d >= stop));
+        modified[modifiedIndex]=b;
+        ++modifiedIndex;
+        int a = random.nextInt(bonding[b].size());
+        a = bonding[b].getInt(a);
+        modified[modifiedIndex] = a;
+        ++modifiedIndex;
+        Vector axis = space.makeVector();
+        axis.setRandomSphere(random);
+        Vector r = space.makeVector();
+        r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(a).getPosition());
+        Vector projection = space.makeVector();
+        projection.Ea1Tv1(axis.dot(r)/r.squared(), r);
+        axis.ME(projection);
+        axis.normalize();
+        RotationTensor3D rotationTensor = new RotationTensor3D();
+        rotationTensor.setRotationAxis(axis, dt);
+        Vector shift = space.makeVector();
+        transform(rotationTensor, a, atoms, shift);
+        transformBondedAtoms(rotationTensor, a, atoms, shift);
+
+        if (iMolecule==0) {
             double mt = 0;
             for (IAtom aa : atoms) {
                 mt += aa.getType().getMass();
             }
-            shift.TE(-1.0/mt);
+            shift.TE(-1.0 / mt);
             for (IAtom aa : atoms) {
                 aa.getPosition().PE(shift);
             }
@@ -176,10 +179,8 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     @Override
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i = 0; i<box.getMoleculeList().size(); i++) {
-            for(int j = 0; j < moleculeList.get(i).getChildList().size(); j++) {
-                moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
-            }
+        for(int j = 0; j < moleculeList.get(iMolecule).getChildList().size(); j++) {
+            moleculeList.get(iMolecule).getChildList().get(j).getPosition().E(position[j]);
         }
         if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }
