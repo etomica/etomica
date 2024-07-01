@@ -22,8 +22,11 @@ import etomica.util.random.IRandom;
  * sequentially, each from a Gaussian distribution.  The cost is O(n), where n is the number of beads in the ring.
  * The move is accepted/rejected based on the difference between the actual energy of the system and the harmonic
  * approximation to the energy used to generate the configuration.
+ *
+ * This code works like Real2, but is hardcoded for HO model -- it computes the whole system energy rather than
+ * energy of one molecule.
  */
-public class MCMoveHOReal2 extends MCMoveBox {
+public class MCMoveHOReal3 extends MCMoveBox {
     protected int nBeads;
     protected double omega2;
     protected final IRandom random;
@@ -42,7 +45,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
     protected Vector[] latticePositions;
     protected int nGrow;
 
-    public MCMoveHOReal2(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box, double hbar) {
+    public MCMoveHOReal3(Space space, PotentialCompute pm, IRandom random, double temperature, double omega2, Box box, double hbar) {
         super();
         this.pm = pm;
         this.random = random;
@@ -195,7 +198,7 @@ public class MCMoveHOReal2 extends MCMoveBox {
     public boolean doTrial() {
         molecule = moleculeSource.getMolecule();
 
-        double uOld = pm.computeOneOldMolecule(molecule);
+        double uOld = pm.getLastEnergy();
 
         IAtomList atoms = molecule.getChildList();
         Vector oldCOM = omega2 == 0 && nGrow == nBeads ? CenterOfMass.position(box, molecule) : null;
@@ -253,12 +256,8 @@ public class MCMoveHOReal2 extends MCMoveBox {
             }
         }
 
-        for (int k = 0; k < nBeads; k++) {
-            pm.updateAtom(atoms.get(k));
-        }
-
         double uhNew = uHarmonic(molecule);
-        double uNew = pm.computeOneMolecule(molecule);
+        double uNew = pm.computeAll(false);
 
         uaOld = uOld - uhOld;
         uaNew = uNew - uhNew;
@@ -275,22 +274,6 @@ public class MCMoveHOReal2 extends MCMoveBox {
     }
 
     public void acceptNotify() {
-        pm.processAtomU(1);
-        // put it back, then compute old contributions to energy
-        IAtomList atoms = molecule.getChildList();
-        Vector[] newPositions = box.getSpace().makeVectorArray(nBeads);
-        for (int j=0; j<nBeads; j++) {
-            Vector r = atoms.get(j).getPosition();
-            newPositions[j].E(r);
-            r.E(oldPositions[j]);
-            pm.updateAtom(atoms.get(j));
-        }
-        pm.computeOneMolecule(molecule);
-        pm.processAtomU(-1);
-        for (int j=0; j<nBeads; j++) {
-            atoms.get(j).getPosition().E(newPositions[j]);
-            pm.updateAtom(atoms.get(j));
-        }
     }
 
     public void rejectNotify() {
@@ -298,8 +281,9 @@ public class MCMoveHOReal2 extends MCMoveBox {
         IAtomList atoms = molecule.getChildList();
         for (int j=0; j<nBeads; j++) {
             atoms.get(j).getPosition().E(oldPositions[j]);
-            pm.updateAtom(atoms.get(j));
         }
+        pm.init();
+        pm.computeAll(false);
     }
 
 }

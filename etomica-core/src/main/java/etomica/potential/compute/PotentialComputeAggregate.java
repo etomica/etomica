@@ -149,32 +149,44 @@ public class PotentialComputeAggregate implements PotentialCompute {
 
     @Override
     public double computeOneOld(IAtom iAtom) {
-        return this.potentialComputes.stream().mapToDouble(c -> c.computeOneOld(iAtom)).sum();
+        double sum = 0;
+        for (PotentialCompute pc : potentialComputes) sum += pc.computeOneOld(iAtom);
+        return sum;
     }
 
     @Override
     public double computeOneOldMolecule(IMolecule molecule) {
-        return this.potentialComputes.stream().mapToDouble(c -> c.computeOneOldMolecule(molecule)).sum();
+        double sum = 0;
+        for (PotentialCompute pc : potentialComputes) sum += pc.computeOneOldMolecule(molecule);
+        return sum;
     }
 
     @Override
     public double computeOne(IAtom iAtom) {
-        return this.potentialComputes.stream().mapToDouble(c -> c.computeOne(iAtom)).sum();
+        double sum = 0;
+        for (PotentialCompute pc : potentialComputes) sum += pc.computeOne(iAtom);
+        return sum;
     }
 
     @Override
     public double computeManyAtomsOld(IAtom... atoms) {
-        return this.potentialComputes.stream().mapToDouble(c -> c.computeManyAtomsOld(atoms)).sum();
+        double sum = 0;
+        for (PotentialCompute pc : potentialComputes) sum += pc.computeManyAtomsOld(atoms);
+        return sum;
     }
 
     @Override
     public double computeManyAtoms(IAtom... atoms) {
-        return this.potentialComputes.stream().mapToDouble(c -> c.computeManyAtoms(atoms)).sum();
+        double sum = 0;
+        for (PotentialCompute pc : potentialComputes) sum += pc.computeManyAtoms(atoms);
+        return sum;
     }
 
     @Override
     public double computeOneMolecule(IMolecule molecule) {
-        return this.potentialComputes.stream().mapToDouble(c -> c.computeOneMolecule(molecule)).sum();
+        double sum = 0;
+        for (PotentialCompute pc : potentialComputes) sum += pc.computeOneMolecule(molecule);
+        return sum;
     }
 
     @Override

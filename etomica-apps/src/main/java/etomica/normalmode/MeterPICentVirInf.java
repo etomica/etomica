@@ -15,80 +15,86 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPICentVir implements IDataSource, PotentialCallback {
+public class MeterPICentVirInf implements IDataSource, PotentialCallback {
     protected Box box;
-    protected final PotentialCompute pcP1;
+    protected final PotentialCompute pcP1harm, pcP1ah;
     protected double beta;
-    protected int nBeads;
     protected double rHr;
     protected final DataTag tag;
     protected DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected Vector[] rc;
     protected int dim;
-    protected int numAtoms;
-    protected double EnShift;
-    protected double volume;
+    protected int numAtoms, nBeads;
+    protected double omega, R, cothR, tanhR_2, hbar;
+    protected double fac0, fac1, fac2, fac3, fac4;
+    protected Vector[] latticePositions;
 
-    public MeterPICentVir(PotentialCompute pcP1, double temperature, int nBeads, Box box) {
+    public MeterPICentVirInf(PotentialCompute pcP1harm, PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
         int nData = 2;
-        this.volume = box.getBoundary().volume();
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
         dataInfo.addTag(tag);
 
-        this.pcP1 = pcP1;
+        this.pcP1harm = pcP1harm;
+        this.pcP1ah = pcP1ah;
         this.nBeads = nBeads;
         this.beta = 1/temperature;
+        this.omega = omega;
+        this.hbar = hbar;
         this.box = box;
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
-        this.EnShift = 0;
+        this.R = beta*hbar*omega/nBeads;
+        this.tanhR_2 = Math.tanh(R/2);
+        this.cothR = 1/Math.tanh(R);
+        double coshR = Math.cosh(R);
+        double sinhR = Math.sinh(R);
+        double massRing=1;
+        this.fac0 = dim*numAtoms*R*R/2/beta/beta/sinhR/sinhR;
+        this.fac1 = R/beta*massRing*omega*omega*tanhR_2*(1+2.0*coshR/sinhR/sinhR);
+        this.fac2 = -R*R/2/beta*coshR/Math.sinh(R/2)/Math.sinh(R/2);
+        this.fac3 = R*R/4/beta*(1-1/sinhR/sinhR) + R*cothR/beta;
+        this.fac4 = -R*R*cothR*cothR/4/beta;
+
+        latticePositions = box.getSpace().makeVectorArray(box.getMoleculeList().size());
+        for (int i=0; i<latticePositions.length; i++) {
+            latticePositions[i].E(CenterOfMass.position(box, box.getMoleculeList().get(i)));
+        }
     }
 
     @Override
     public IData getData() {
         double[] x = data.getData();
+        Vector rcNI = box.getSpace().makeVector();
         Vector rirc = box.getSpace().makeVector();
-        for (IMolecule molecule : box.getMoleculeList()) {
-            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
-        }
         rHr = 0;
         double vir = 0;
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //with Cv
-        Vector[] forces = pcP1.getForces();
+        pcP1harm.computeAll(false);
+        pcP1ah.computeAll(true); //no Cv
+//        pcP1ah.computeAll(true, this); //with Cv
+        Vector[] forces = pcP1ah.getForces();
+        double sumRc2 = 0;
         for (IMolecule molecule : box.getMoleculeList()) {
+            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
                 rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
                 box.getBoundary().nearestImage(rirc);
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
+
+            rcNI.Ev1Mv2(rc[molecule.getIndex()], latticePositions[molecule.getIndex()]);
+            box.getBoundary().nearestImage(rcNI);
+            sumRc2 += rcNI.squared();
         }
-        // same for both bound and unbound systems
-        x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir - EnShift;
-        x[1] = dim*numAtoms/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
-//        x[2] = numAtoms/volume/beta - pcP1.getLastVirial()/dim/volume + vir/dim/volume;
-
-//        System.out.println("AN-CV: " + 1.0/4.0/beta*(-3.0*vir - rHr));
-
+        double mass = 1;
+        x[0] = dim*numAtoms/2.0/beta*R*cothR + pcP1ah.getLastEnergy() +  R/tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2.0*vir - mass*omega*omega*cothR*tanhR_2*sumRc2;
+        x[1] = fac0 + fac1*sumRc2 + fac2*pcP1harm.getLastEnergy() - fac3*vir + fac4*rHr + x[0]*x[0];
         return data;
     }
-
-    public void fieldComputeHessian(int i, Tensor Hii) {
-        Vector ri = box.getLeafList().get(i).getPosition();
-        Vector tmpVecI = box.getSpace().makeVector();
-        Vector tmpVecI2 = box.getSpace().makeVector();
-        tmpVecI.Ev1Mv2(ri, rc[box.getLeafList().get(i).getParentGroup().getIndex()]);
-        box.getBoundary().nearestImage(tmpVecI);
-        tmpVecI2.E(tmpVecI);
-        Hii.transform(tmpVecI);
-        rHr += tmpVecI.dot(tmpVecI2);
-    }
-
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
         Vector ri = box.getLeafList().get(i).getPosition();
@@ -99,10 +105,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         tmpVecJ.Ev1Mv2(rj, CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()));
         box.getBoundary().nearestImage(tmpVecI);
         box.getBoundary().nearestImage(tmpVecJ);
-        Vector tmpVecIJ = box.getSpace().makeVector();
-        tmpVecIJ.Ev1Mv2(tmpVecI, tmpVecJ);
-        Hij.transform(tmpVecIJ);
-        rHr += tmpVecIJ.dot(tmpVecI) - tmpVecIJ.dot(tmpVecJ);
+        Hij.transform(tmpVecI);
+        rHr += tmpVecI.dot(tmpVecJ);
     }
 
     public IDataInfo getDataInfo() {
@@ -117,5 +121,4 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         return true;
     }
 
-    public void setEnShift(double E) { this.EnShift = E; }
 }
