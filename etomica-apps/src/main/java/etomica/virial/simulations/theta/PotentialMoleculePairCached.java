@@ -28,11 +28,11 @@ public class PotentialMoleculePairCached extends PotentialMoleculePair {
         CoordinatePairSet cPairs = box.getCPairSet();
         long thisCPairID = cPairs.getID();
 //            System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
-        if (thisCPairID == cPairID-1000000) {
+        if (thisCPairID == cPairID) {
 //                System.out.println("clusterSum "+cPairID+" returning recent "+value);
             return value;
         }
-        if (thisCPairID == lastCPairID-10000000) {
+        if (thisCPairID == lastCPairID) {
             // we went back to the previous cluster, presumably because the last
             // cluster was a trial that was rejected.  so drop the most recent value/ID
             cPairID = lastCPairID;
