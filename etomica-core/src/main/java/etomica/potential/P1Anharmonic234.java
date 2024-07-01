@@ -60,31 +60,38 @@ public class P1Anharmonic234 implements IPotential1 {
     }
 
     public double u(IAtom atom) {
-        Vector dr = space.makeVector();
-        dr.Ev1Mv2(atom.getPosition(), x0);
-        return 1.0/2.0*k2*dr.squared() + k3*dr.squared()*Math.sqrt(dr.squared()) + k4*dr.squared()*dr.squared();
+        Vector dx = space.makeVector();
+        dx.Ev1Mv2(atom.getPosition(), x0);
+        double dx2 = dx.getX(0)*dx.getX(0);
+        double dx3 = dx2*dx.getX(0);
+        double dx4 = dx2*dx2;
+        return 1.0/2.0*k2*dx2 + k3*dx3 + k4*dx4;
     }
 
     public double udu(IAtom atom, Vector f) {
-        Vector dr = space.makeVector();
-        dr.Ev1Mv2(atom.getPosition(), x0);
-        double u = 1.0/2.0*k2*dr.squared() + k3*dr.squared()*Math.sqrt(dr.squared()) + k4*dr.squared()*dr.squared();
-        f.PEa1Tv1(-1.0*(k2 + 3*k3*Math.sqrt(dr.squared()) + 4*k4*dr.squared()), dr);
+        Vector dx = space.makeVector();
+        dx.Ev1Mv2(atom.getPosition(), x0);
+        double dx2 = dx.getX(0)*dx.getX(0);
+        double dx3 = dx2*dx.getX(0);
+        double dx4 = dx2*dx2;
+        double u = 1.0/2.0*k2*dx2 + k3*dx3 + k4*dx4;
+        f.PEa1Tv1(-k2 - 3*k3*dx.getX(0) - 4*k4*dx2, dx);
         return u;
     }
 
     @Override
     public Tensor d2u(IAtom atom) {
         Tensor Hii = space.makeTensor();
-        Vector dr = space.makeVector();
-        dr.Ev1Mv2(atom.getPosition(), x0);
-        double dr2 = dr.squared();
-        double dr4 = dr2*dr2;
-        double du = 1.0*(k2*dr2 + 3*k3*dr.squared()*Math.sqrt(dr.squared()) + 4*k4*dr4);
-        double d2u = 1.0*(k2*dr2 + 6*k3*dr.squared()*Math.sqrt(dr.squared()) + 12*k4*dr4);
-        Hii.Ev1v2(dr, dr);
-        Hii.TE((d2u-du)/dr4);
-        Hii.PEa1Tt1(du/dr2, eye);
+        Vector dx = space.makeVector();
+        dx.Ev1Mv2(atom.getPosition(), x0);
+        double dx2 = dx.getX(0)*dx.getX(0);
+        double dx3 = dx2*dx.getX(0);
+        double dx4 = dx2*dx2;
+        double du = k2*dx2 + 3*k3*dx3 + 4*k4*dx4;//xdu
+        double d2u = k2*dx2 + 6*k3*dx3 + 12*k4*dx4;
+        Hii.Ev1v2(dx, dx);
+        Hii.TE((d2u-du)/dx4);
+        Hii.PEa1Tt1(du/dx2, eye);
         return Hii;
     }
 

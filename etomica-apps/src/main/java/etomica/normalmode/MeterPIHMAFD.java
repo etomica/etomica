@@ -103,13 +103,13 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
         }
         if (numAtoms > 1 && omega2 != 0) Cvn -= dim/2.0/beta/beta; //com
 
+        if (numAtoms > 1) drShift = computeShift();
+
         getEn(beta_p, lambda_p, M_p);
         double dbUdb_p = dbUdb;
         getEn(beta_m, lambda_m, M_m);
         double dbUdb_m = dbUdb;
         double d2bUdb2 = (dbUdb_p - dbUdb_m)/(2*dbeta);
-//        System.out.println(" FD: " + (-d2bUdb2));
-//        System.out.println();
         x[1] = Cvn - d2bUdb2  + x[0]*x[0];
 
         return data;
@@ -117,8 +117,6 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
 
     private void getEn(double beta_new, double[] lambda_new, double[][] M_new) {
         if (beta_new != beta) scaleCoord(beta_new, lambda_new);
-        if (numAtoms > 1 && beta_new == beta) drShift = computeShift();
-
         // rdot
         Vector drj = box.getSpace().makeVector();
         for (int i = 0; i < rdot.length; i++) rdot[i].E(0);
@@ -172,7 +170,6 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
 
     // Scale coordinates using NM
     private void scaleCoord(double beta_new, double[] lambda_new) {
-        if (numAtoms > 1) drShift = computeShift();
         Vector dri = box.getSpace().makeVector();
         for (IMolecule molecule : box.getMoleculeList()) {
             // Real -> NM
@@ -298,24 +295,25 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
         Vector dr = box.getSpace().makeVector();
         IAtomList atoms = box.getMoleculeList().get(0).getChildList();
         dr.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-        boundary.nearestImage(dr);
+//        boundary.nearestImage(dr);
         shift0.Ea1Tv1(-1, dr);
         // will shift ring0 back to lattice site; everything should be close and PBC should lock in
         // now determine additional shift needed to bring back to original COM
-        Vector totalShift = box.getSpace().makeVector();
-        for (int j = 0; j < numAtoms; j++) {
-            IMolecule molecule = box.getMoleculeList().get(j);
-            for (int i = 0; i < n; i++) {
-                Vector r = molecule.getChildList().get(i).getPosition();
-                dr.Ev1Mv2(r, latticePositions[j]);
-                dr.PE(shift0);
-                boundary.nearestImage(dr);
-                totalShift.PE(dr);
-            }
-        }
-        totalShift.TE(-1.0/box.getLeafList().size());
-        totalShift.PE(shift0);
-        return totalShift;
+//        Vector totalShift = box.getSpace().makeVector();
+//        for (int j = 0; j < numAtoms; j++) {
+//            IMolecule molecule = box.getMoleculeList().get(j);
+//            for (int i = 0; i < n; i++) {
+//                Vector r = molecule.getChildList().get(i).getPosition();
+//                dr.Ev1Mv2(r, latticePositions[j]);
+//                dr.PE(shift0);
+//                boundary.nearestImage(dr);
+//                totalShift.PE(dr);
+//            }
+//        }
+//        totalShift.TE(-1.0/box.getLeafList().size());
+//        totalShift.PE(shift0);
+//        return totalShift;
+        return shift0;
     }
 
     public IDataInfo getDataInfo() {

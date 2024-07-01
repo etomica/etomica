@@ -32,21 +32,23 @@ import etomica.util.random.IRandom;
  * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum of mode
  * 0 whenever the transformed coordinates are propagated.  As such, the kinetic energy should be the full 3/2 Nn kT.
  */
-public class IntegratorLangevinPI2 extends IntegratorMD {
+public class IntegratorLangevinPIExactB extends IntegratorMD {
 
     protected double gamma;
     protected final double[] f11, f1N;
-    protected double omega2HO;
+    protected double omega, omega2HO;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
-    protected final double coswt4, sinwt4;
+    protected final double cosOmegaDt_2, sinOmegaDt_2;
+    protected final MCMoveHOReal2 move;
 
-    public IntegratorLangevinPI2(PotentialCompute potentialCompute, IRandom random,
-                                 double timeStep, double temperature, Box box, double gamma,
-                                 MCMoveHOReal2 move, double hbar, double omega2HO) {
+    public IntegratorLangevinPIExactB(PotentialCompute potentialCompute, IRandom random,
+                                      double timeStep, double temperature, Box box, double gamma,
+                                      MCMoveHOReal2 move, double hbar, double omega2HO) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
 
+        this.move = move;
         f11 = move.f11;
         f1N = move.f1N;
         this.omega2HO = omega2HO;
@@ -55,34 +57,31 @@ public class IntegratorLangevinPI2 extends IntegratorMD {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
         int nBeads = box.getMoleculeList().get(0).getChildList().size();
-        double omegaN = Math.sqrt(nBeads)/(hbar* move.beta);
+        double omegaN = nBeads/(hbar* move.beta);
         double omegaN2 = omegaN*omegaN;
-        double D = 2 + move.omega2 / (nBeads*omegaN2);
+        double D = 2 + move.omega2 / omegaN2;
         double alpha = Math.log(D/2 + Math.sqrt(D*D/4 - 1));
         mScale = new double[nBeads];
         fScale = new double[nBeads];
         fScale0 = new double[nBeads];
 
-        mScale[0] = (alpha == 0) ? nBeads*omegaN2/omega2HO : 2.0*nBeads*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
+        mScale[0] = (alpha == 0) ? nBeads : 2.0*omegaN2/omega2HO*Math.sinh(alpha)*Math.tanh(nBeads*alpha/2.0);
         fScale0[0] = 1;
         for (int i=1; i<nBeads; i++) {
             fScale0[i] = alpha == 0 ? 1.0 : Math.cosh((nBeads / 2.0 - i)*alpha) / Math.cosh(nBeads/2.0*alpha);
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
-            mScale[i]  = alpha == 0 ? nBeads*omegaN2/omega2HO*(nBeads - i + 1.0)/(nBeads - i) : nBeads*omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
-        }
-
-        if (alpha == 0) {
-            double ringMass = nBeads * box.getLeafList().get(0).getType().getMass();
-            double s = nBeads/(nBeads*omegaN2/omega2HO);
-            for (int i = 0; i < mScale.length; i++) {
-                mScale[i] *= s;
-            }
+            mScale[i]  = alpha == 0 ? nBeads*(nBeads - i + 1.0)/(nBeads - i) : omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
 
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
-        double omega = Math.sqrt(omega2HO);
-        sinwt4 = Math.sin(omega*timeStep/4);
-        coswt4 = Math.cos(omega*timeStep/4);
+
+        if (move.omega2 == 0) {
+            omega = Math.sqrt(omegaN2/nBeads);
+        } else {
+            omega = Math.sqrt(omega2HO);
+        }
+        sinOmegaDt_2 = Math.sin(omega*timeStep/2);
+        cosOmegaDt_2 = Math.cos(omega*timeStep/2);
     }
 
     public void setGamma(double newGamma) {
@@ -118,12 +117,15 @@ public class IntegratorLangevinPI2 extends IntegratorMD {
                 Vector v0 = box.getSpace().makeVector();
                 u0.E(u[i]);
                 v0.E(v);
-                double omega = Math.sqrt(omega2HO);
-                u[i].Ea1Tv1(coswt4, u0); // cosWdt
-                u[i].PEa1Tv1(sinwt4 /omega, v0);
+                if (move.omega2 == 0 && i == 0) {
+                    u[i].PEa1Tv1(dt, v0);
+                } else {
+                    u[i].Ea1Tv1(cosOmegaDt_2, u0);
+                    u[i].PEa1Tv1(sinOmegaDt_2/omega, v0);
 
-                v.Ea1Tv1(-omega* sinwt4, u0);
-                v.PEa1Tv1(coswt4, v0);
+                    v.Ea1Tv1(-omega*sinOmegaDt_2, u0);
+                    v.PEa1Tv1(cosOmegaDt_2, v0);
+                }
 
                 Vector rOrig = box.getSpace().makeVector();
                 rOrig.E(r);
@@ -210,12 +212,12 @@ public class IntegratorLangevinPI2 extends IntegratorMD {
     protected void doStepInternal() {
         super.doStepInternal();
 
-        propagatorB(timeStep/4);
-        propagatorA(timeStep/4);
+        propagatorB(timeStep/2);
+        propagatorA(timeStep/2);
         propagatorO(timeStep);
-        propagatorA(timeStep/4);
+        propagatorA(timeStep/2);
         computeForce();
-        propagatorB(timeStep/4);
+        propagatorB(timeStep/2);
 
         computeKE();
     }

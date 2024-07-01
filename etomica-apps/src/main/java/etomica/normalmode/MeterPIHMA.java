@@ -195,8 +195,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         x[0] = En - EnShift;
         x[1] = Cvn + (En - EnShift)*(En - EnShift);
 
-//        System.out.println(" AN: " + d2bUdb2);
-
         return data;
     }
 
@@ -224,24 +222,25 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         Vector dr = box.getSpace().makeVector();
         IAtomList atoms = box.getMoleculeList().get(0).getChildList();
         dr.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-        boundary.nearestImage(dr);
+//        boundary.nearestImage(dr);
         shift0.Ea1Tv1(-1, dr);
         // will shift ring0 back to lattice site; everything should be close and PBC should lock in
         // now determine additional shift needed to bring back to original COM
-        Vector totalShift = box.getSpace().makeVector();
-        for (int j = 0; j < box.getMoleculeList().size(); j++) {
-            IMolecule m = box.getMoleculeList().get(j);
-            for (int i = 0; i < n; i++) {
-                Vector r = m.getChildList().get(i).getPosition();
-                dr.Ev1Mv2(r, latticePositions[j]);
-                dr.PE(shift0);
-                boundary.nearestImage(dr);
-                totalShift.PE(dr);
-            }
-        }
-        totalShift.TE(-1.0/box.getLeafList().size());
-        totalShift.PE(shift0);
-        return totalShift;
+//        Vector totalShift = box.getSpace().makeVector();
+//        for (int j = 0; j < box.getMoleculeList().size(); j++) {
+//            IMolecule m = box.getMoleculeList().get(j);
+//            for (int i = 0; i < n; i++) {
+//                Vector r = m.getChildList().get(i).getPosition();
+//                dr.Ev1Mv2(r, latticePositions[j]);
+//                dr.PE(shift0);
+//                boundary.nearestImage(dr);
+//                totalShift.PE(dr);
+//            }
+//        }
+//        totalShift.TE(-1.0/box.getLeafList().size());
+//        totalShift.PE(shift0);
+//        return totalShift;
+        return shift0;
     }
 
     protected void computeDR(Vector r, Vector latticeSite, Vector shift, Vector dr) {

@@ -20,10 +20,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveMoleculeRotate;
-import etomica.potential.P1Anharmonic;
-import etomica.potential.P1AnharmonicTIA;
-import etomica.potential.P2Harmonic;
-import etomica.potential.PotentialMasterBonding;
+import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
@@ -50,12 +47,13 @@ public class SimQuantumAO extends Simulation {
     public PotentialComputeField pcP1, pcP1EnTIA;
     public PotentialMasterBonding pmBonding;
     public PotentialCompute pmAgg;
-    public P1Anharmonic p1ah;
+//    public IPotential1 p1ah;
+    public P1Anharmonic234 p1ah;
     public P1AnharmonicTIA p1ahUeff;
     public double betaN;
     public int nBeads;
     public double k2_kin;
-    public SimQuantumAO(Space space, MoveChoice coordType, double mass, int nBeads, double temperature, double omega, double k4, boolean isTIA, double hbar) {
+    public SimQuantumAO(Space space, MoveChoice coordType, double mass, int nBeads, double temperature, double omega, double k3, double k4, boolean isTIA, double hbar) {
         super(space);
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .addCount(AtomType.simple("A", mass / nBeads), nBeads)
@@ -88,7 +86,7 @@ public class SimQuantumAO extends Simulation {
             p1ahUeff = new P1AnharmonicTIA(space, omega2, k4, nBeads, mass*omegaN*omegaN, facUeff);
             pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
-            p1ah = new P1Anharmonic(space, omega2/nBeads, k4/nBeads);
+            p1ah = new P1Anharmonic234(space, omega2/nBeads, k3/nBeads, k4/nBeads);
             pcP1.setFieldPotential(species.getLeafType(), p1ah);
         }
 
@@ -158,7 +156,8 @@ public class SimQuantumAO extends Simulation {
             params.hbar = 1;
             params.temperature = 0.5;
             params.omega = 1;
-            params.k4 = 0.1;
+            params.k3 = 0.1;
+            params.k4 = 0.01;
             params.nShifts = 0;
             params.onlyCentroid = true;
 
@@ -167,6 +166,8 @@ public class SimQuantumAO extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
+
+            params.nBeads = 64;
         }
 
         int nShifts = params.nShifts;
@@ -174,6 +175,7 @@ public class SimQuantumAO extends Simulation {
         double hbar = params.hbar;
         double mass = params.mass;
         double omega = params.omega;
+        double k3 = params.k3;
         double k4 = params.k4;
         boolean isGraphic = params.isGraphic;
         long steps = params.steps;
@@ -196,7 +198,7 @@ public class SimQuantumAO extends Simulation {
 //        double actualOmega2 = omega2;
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), coordType, mass, nBeads, temperature, omega, k4, isTIA, hbar);
+        final SimQuantumAO sim = new SimQuantumAO(Space1D.getInstance(), coordType, mass, nBeads, temperature, omega, k3, k4, isTIA, hbar);
         sim.integrator.reset();
         System.out.println(" PIMC-" + coordType);
         System.out.println(" mass: " + mass);
@@ -209,6 +211,7 @@ public class SimQuantumAO extends Simulation {
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" omega: " + omega);
+        System.out.println(" k3: " + k3);
         System.out.println(" k4: " + k4);
         System.out.println(" isTIA: " + isTIA);
         System.out.println(" onlyCentroid: " + onlyCentroid);
@@ -695,7 +698,8 @@ public class SimQuantumAO extends Simulation {
         public double hbar = 0.1;
         public double mass = 1;
         public double omega = 1;
-        public double k4 = 0;
+        public double k3 = 0.1;
+        public double k4 = 0.01;
         public long steps = 1_000_000;
         public boolean isGraphic = false;
         public boolean isTIA = false;

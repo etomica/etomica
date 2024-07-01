@@ -42,7 +42,7 @@ public class SimQuantumAOPIMD extends Simulation {
     public final PotentialMasterBonding pmBonding;
     public final Box box;
     public final PotentialComputeAggregate pmAgg;
-    public IPotential1 p1ah, p2ah;
+    public P1Anharmonic234 p1ah, p2ah;
     public P1AnharmonicTIA p1ahUeff;
     public double betaN;
     public double k2_kin;
@@ -50,7 +50,7 @@ public class SimQuantumAOPIMD extends Simulation {
     public MCMoveHOReal2 moveStageSimple, moveStageEC;
     public int dim;
 
-    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k4, double omega, boolean isTIA, double hbar) {
+    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k3, double k4, double omega, boolean isTIA, double hbar, boolean isExactB) {
         super(space);
 
         SpeciesGeneral species = new SpeciesBuilder(space)
@@ -90,9 +90,9 @@ public class SimQuantumAOPIMD extends Simulation {
             p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facUeff);
             pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
-            p1ah = new P1Anharmonic(space, mass*omega2/nBeads, k4/nBeads);
+            p1ah = new P1Anharmonic234(space, omega2/nBeads, k3/nBeads, k4/nBeads);
             pcP1.setFieldPotential(species.getLeafType(), p1ah);
-            p2ah = new P1Anharmonic(space, 0, k4/nBeads);
+            p2ah = new P1Anharmonic234(space, 0,k3/nBeads, k4/nBeads);
             pcP2.setFieldPotential(species.getLeafType(), p2ah);
         }
 
@@ -108,16 +108,32 @@ public class SimQuantumAOPIMD extends Simulation {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         } else if (coordType == MoveChoice.NM) {
             MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, 0, box, hbar);
-            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactB) {
+                integrator = new IntegratorLangevinPINMExactB(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else {
+                integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            }
         } else if (coordType == MoveChoice.NMEC) {
             MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, omega2, box, hbar);
-            integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactB) {
+                integrator = new IntegratorLangevinPINMExactB(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else {
+                integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            }
         } else if (coordType == MoveChoice.Stage) {
             MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
-            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactB) {
+                integrator = new IntegratorLangevinPIExactB(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else {
+                integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            }
         } else { //StageEC -- default
             MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
-            integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactB) {
+                integrator = new IntegratorLangevinPIExactB(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else {
+                integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            }
         }
 
         moveStageSimple = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
@@ -139,19 +155,20 @@ public class SimQuantumAOPIMD extends Simulation {
             // custom parameters
             params.hbar = 1.0;
             params.steps = 1000000;
-            params.temperature = 0.5;
+            params.temperature = 1;
             params.omega = 1;
-            params.k4 = 0.1;
+            params.k3 = 0;
+            params.k4 = 0;
             params.onlyCentroid = true;
             params.gammaLangevin = params.omega;
 
 //            params.coordType = MoveChoice.Real;
-//            params.coordType = MoveChoice.NM;
+            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
-            params.coordType = MoveChoice.StageEC;
-
-            params.timeStep = 0.1;
+//            params.coordType = MoveChoice.StageEC;
+            params.timeStep = 5;
+            params.isExactB = !false;
         }
 
         int nShifts = params.nShifts;
@@ -159,9 +176,11 @@ public class SimQuantumAOPIMD extends Simulation {
         double temperature = params.temperature;
         double hbar = params.hbar;
         double omega = params.omega;
+        double k3 = params.k3;
         double k4 = params.k4;
         double gammaLangevin = params.gammaLangevin;
         boolean isGraphic = params.isGraphic;
+        boolean isExactB = params.isExactB;
         long steps = params.steps;
         long stepsEq = steps/10;
         boolean isTIA = params.isTIA;
@@ -184,7 +203,7 @@ public class SimQuantumAOPIMD extends Simulation {
         }
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k4, omega, isTIA, hbar);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k3, k4, omega, isTIA, hbar, isExactB);
         sim.integrator.reset();
 
         System.out.println(" PIMD-" + coordType);
@@ -198,10 +217,12 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" nShifts: "+ nShifts);
         System.out.println(" steps: " +  steps + " stepsEq: " + stepsEq);
         System.out.println(" timestep: " + timeStep);
+        System.out.println(" k3: " + k3);
         System.out.println(" k4: " + k4);
         System.out.println(" isTIA: " + isTIA);
         System.out.println(" gammaLangevin: " + gammaLangevin);
         System.out.println(" onlyCentroid: " + onlyCentroid);
+        System.out.println(" isExactB: " + isExactB);
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
         System.out.println(" ====================================");
@@ -605,7 +626,8 @@ public class SimQuantumAOPIMD extends Simulation {
         public double hbar = 1;
         public double omega = 1;
         public double gammaLangevin = omega;
-        public double k4 = 0;
+        public double k3 = 0.1;
+        public double k4 = 0.01;
         public long steps = 10_000_000;
         public boolean isGraphic = false;
         public boolean isTIA = false;
@@ -616,5 +638,6 @@ public class SimQuantumAOPIMD extends Simulation {
         public double timeStep = -1;
         public int nBeads = -1;
         public int nShifts = 0;
+        public boolean isExactB = true;
     }
 }
