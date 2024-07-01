@@ -11,6 +11,7 @@ import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
+import etomica.data.meter.MeterRadiusGyration;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.DisplayBox;
@@ -160,7 +161,6 @@ public class VirialChainSingle {
         angleMove1.setBox(sim.box());
         angleMove1.setAtomRange(0, nSpheres/8);
         integrator.getMoveManager().addMCMove(angleMove1, 0.25);
-//            ((MCMoveStepTracker)angleMoves[0].getTracker()).setNoisyAdjustment(true);
         MCMoveClusterAngle angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
         angleMove2.setBox(sim.box());
         angleMove2.setAtomRange(nSpheres/8, nSpheres/4);
@@ -178,14 +178,9 @@ public class VirialChainSingle {
         reptateMove.setBox(sim.box());
         integrator.getMoveManager().addMCMove(reptateMove);
 
-        MCMoveClusterWiggleMulti wiggleMove = new MCMoveClusterWiggleMulti(sim.getRandom(), pc, sim.box());
-        wiggleMove.setBox(sim.box());
-//        integrator.getMoveManager().addMCMove(wiggleMove);
-
         MCMoveClusterShuffle shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
         shuffleMove.setBox(sim.box());
         integrator.getMoveManager().addMCMove(shuffleMove);
-        ((MCMoveStepTracker)shuffleMove.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
 
         if (false) {
@@ -216,7 +211,6 @@ public class VirialChainSingle {
         System.out.println("equilibration finished");
         System.out.println("Angle move step size    "+angleMove1.getStepSize()+" "+angleMove2.getStepSize()+" "+angleMove3.getStepSize()+" "+angleMove4.getStepSize());
         System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
-        System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
 
         integrator.getMoveManager().setEquilibrating(false);
 
@@ -225,8 +219,19 @@ public class VirialChainSingle {
         DataPumpListener pumpTheta = new DataPumpListener(dsTheta, accTheta, 10);
         integrator.getEventManager().addListener(pumpTheta);
 
+        MeterRadiusGyration meterRg = new MeterRadiusGyration(sim.box());
+        AccumulatorAverageFixed accRg = new AccumulatorAverageFixed(steps/1000);
+        DataPumpListener pumpRg = new DataPumpListener(meterRg, accRg, 10);
+        integrator.getEventManager().addListener(pumpRg);
+
         ai = new ActivityIntegrate(integrator, steps);
         sim.getController().runActivityBlocking(ai);
+
+        System.out.println();
+        System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
+        System.out.println("Angle move acceptance "+angleMove1.getTracker().acceptanceProbability()+" "+angleMove2.getTracker().acceptanceProbability()+" "+angleMove3.getTracker().acceptanceProbability()+" "+angleMove4.getTracker().acceptanceProbability());
+        System.out.println("Shuffle move acceptance "+shuffleMove.getTracker().acceptanceProbability());
+        System.out.println();
 
         DataGroup allYourBase = (DataGroup)accTheta.getData();
         IData avg = allYourBase.getData(accTheta.AVERAGE.index);
@@ -237,6 +242,12 @@ public class VirialChainSingle {
         System.out.println("dlnqdk: "+avg.getValue(1)+"   err: "+err.getValue(1)+"   cor: "+cor.getValue(1));
         System.out.println("qkboq: "+avg.getValue(2)+"   err: "+err.getValue(2)+"   cor: "+cor.getValue(2));
         System.out.println("qbboq: "+avg.getValue(3)+"   err: "+err.getValue(3)+"   cor: "+cor.getValue(3));
+
+        double avgRg = accRg.getData(accRg.AVERAGE).getValue(0);
+        double errRg = accRg.getData(accRg.ERROR).getValue(0);
+        double corRg = accRg.getData(accRg.BLOCK_CORRELATION).getValue(0);
+
+        System.out.println("Rg2: "+avgRg+"   err: "+errRg+"  cor: "+corRg);
 
         long t2 = System.nanoTime();
         System.out.println("time: "+(t2-t1)/1e9);
