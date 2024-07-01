@@ -9,6 +9,8 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.config.ConformationLinear;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
@@ -195,20 +197,52 @@ public class VirialChainThetaSimple {
         }
         bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
+        MCMoveClusterAngle angleMove1 = null, angleMove2 = null, angleMove3 = null, angleMove4 = null;
+        MCMoveClusterShuffle shuffleMove = null;
+        MCMoveClusterReptate reptateMove = null;
         if (kBend < Double.POSITIVE_INFINITY) {
-            MCMoveClusterAngle angleMove = new MCMoveClusterAngle(sim.integrator.getPotentialCompute(), space, bonding, sim.getRandom(), 1);
-            angleMove.setBox(sim.box);
-            sim.integrator.getMoveManager().addMCMove(angleMove);
+            IntegratorMC integrator = sim.integrator;
+            if (nSpheres < 5) {
+                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove1.setBox(sim.box());
+                integrator.getMoveManager().addMCMove(angleMove1);
+            }
+            else if (nSpheres < 9) {
+                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove1.setBox(sim.box());
+                angleMove1.setAtomRange(0, nSpheres/4);
+                integrator.getMoveManager().addMCMove(angleMove1, 0.5);
+                angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove2.setBox(sim.box());
+                angleMove2.setAtomRange(nSpheres/4, nSpheres);
+                integrator.getMoveManager().addMCMove(angleMove2, 0.5);
+            }
+            else {
+                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove1.setBox(sim.box());
+                angleMove1.setAtomRange(0, nSpheres / 8);
+                integrator.getMoveManager().addMCMove(angleMove1, 0.25);
+                angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove2.setBox(sim.box());
+                angleMove2.setAtomRange(nSpheres / 8, nSpheres / 4);
+                integrator.getMoveManager().addMCMove(angleMove2, 0.25);
+                angleMove3 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove3.setBox(sim.box());
+                angleMove3.setAtomRange(nSpheres / 4, 3 * nSpheres / 8);
+                integrator.getMoveManager().addMCMove(angleMove3, 0.25);
+                angleMove4 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+                angleMove4.setBox(sim.box());
+                angleMove4.setAtomRange(3 * nSpheres / 8, nSpheres);
+                integrator.getMoveManager().addMCMove(angleMove4, 0.25);
+            }
+            reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
+            reptateMove.setBox(sim.box());
+            sim.integrator.getMoveManager().addMCMove(reptateMove);
 
-//            MCMoveClusterReptate reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
-//            reptateMove.setBox(sim.box());
-//            sim.integrator.getMoveManager().addMCMove(reptateMove);
-//
-//            MCMoveClusterShuffle shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
-//            shuffleMove.setBox(sim.box());
-//            sim.integrator.getMoveManager().addMCMove(shuffleMove);
-//            ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
-
+            shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
+            shuffleMove.setBox(sim.box());
+            sim.integrator.getMoveManager().addMCMove(shuffleMove);
+            ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
         }
 
         if (false) {
@@ -254,16 +288,34 @@ public class VirialChainThetaSimple {
         sim.setAccumulatorBlockSize(steps/1000);
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize()+" "
                 +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate.getStepSize())));
+        if (angleMove1!=null) {
+            if (angleMove2 == null) {
+                System.out.println("Angle move step size    " + angleMove1.getStepSize());
+            } else if (angleMove3 == null) {
+                System.out.println("Angle move step size    " + angleMove1.getStepSize() + " " + angleMove2.getStepSize());
+            } else {
+                System.out.println("Angle move step size    " + angleMove1.getStepSize() + " " + angleMove2.getStepSize() + " " + angleMove3.getStepSize() + " " + angleMove4.getStepSize());
+            }
+        }
+        if (shuffleMove != null) System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
 
         sim.getController().runActivityBlocking(ai);
         long t2 = System.nanoTime();
 
-        sim.printResults(refIntegral);
+        System.out.println();
+        if (reptateMove!=null) System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
+        if (angleMove1 != null) {
+            if (angleMove2 == null) {
+                System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability());
+            } else if (angleMove3 == null) {
+                System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability() + " " + angleMove2.getTracker().acceptanceProbability());
+            } else {
+                System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability() + " " + angleMove2.getTracker().acceptanceProbability() + " " + angleMove3.getTracker().acceptanceProbability() + " " + angleMove4.getTracker().acceptanceProbability());
+            }
+            System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
+        }
 
-//        IData avgXY = accXY.getData(accXY.AVERAGE);
-//        IData errXY = accXY.getData(accXY.ERROR);
-//        IData stdevXY = accXY.getData(accXY.STANDARD_DEVIATION);
-//        System.out.println("optimal a: "+(-avgXY.getValue(2)/stdevXY.getValue(0)));
+        sim.printResults(refIntegral);
 
         System.out.println("time: "+(t2-t1)/1e9);
     }
