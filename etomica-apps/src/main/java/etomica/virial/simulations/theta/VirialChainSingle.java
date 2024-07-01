@@ -35,7 +35,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.virial.mcmove.MCMoveClusterAngle;
-import etomica.virial.mcmove.MCMoveClusterWiggleMulti;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -157,22 +156,40 @@ public class VirialChainSingle {
         }
         bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
-        MCMoveClusterAngle angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
-        angleMove1.setBox(sim.box());
-        angleMove1.setAtomRange(0, nSpheres/8);
-        integrator.getMoveManager().addMCMove(angleMove1, 0.25);
-        MCMoveClusterAngle angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
-        angleMove2.setBox(sim.box());
-        angleMove2.setAtomRange(nSpheres/8, nSpheres/4);
-        integrator.getMoveManager().addMCMove(angleMove2, 0.25);
-        MCMoveClusterAngle angleMove3 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
-        angleMove3.setBox(sim.box());
-        angleMove3.setAtomRange(nSpheres/4, 3*nSpheres/8);
-        integrator.getMoveManager().addMCMove(angleMove3, 0.25);
-        MCMoveClusterAngle angleMove4 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
-        angleMove4.setBox(sim.box());
-        angleMove4.setAtomRange(3*nSpheres/8, nSpheres);
-        integrator.getMoveManager().addMCMove(angleMove4, 0.25);
+        MCMoveClusterAngle angleMove1 = null, angleMove2 = null, angleMove3 = null, angleMove4 = null;
+        if (nSpheres < 5) {
+            angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove1.setBox(sim.box());
+            integrator.getMoveManager().addMCMove(angleMove1);
+        }
+        else if (nSpheres < 9) {
+            angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove1.setBox(sim.box());
+            angleMove1.setAtomRange(0, nSpheres/4);
+            integrator.getMoveManager().addMCMove(angleMove1, 0.5);
+            angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove2.setBox(sim.box());
+            angleMove2.setAtomRange(nSpheres/4, nSpheres);
+            integrator.getMoveManager().addMCMove(angleMove2, 0.5);
+        }
+        else {
+            angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove1.setBox(sim.box());
+            angleMove1.setAtomRange(0, nSpheres / 8);
+            integrator.getMoveManager().addMCMove(angleMove1, 0.25);
+            angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove2.setBox(sim.box());
+            angleMove2.setAtomRange(nSpheres / 8, nSpheres / 4);
+            integrator.getMoveManager().addMCMove(angleMove2, 0.25);
+            angleMove3 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove3.setBox(sim.box());
+            angleMove3.setAtomRange(nSpheres / 4, 3 * nSpheres / 8);
+            integrator.getMoveManager().addMCMove(angleMove3, 0.25);
+            angleMove4 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove4.setBox(sim.box());
+            angleMove4.setAtomRange(3 * nSpheres / 8, nSpheres);
+            integrator.getMoveManager().addMCMove(angleMove4, 0.25);
+        }
 
         MCMoveClusterReptate reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
         reptateMove.setBox(sim.box());
@@ -209,7 +226,15 @@ public class VirialChainSingle {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println("equilibration finished");
-        System.out.println("Angle move step size    "+angleMove1.getStepSize()+" "+angleMove2.getStepSize()+" "+angleMove3.getStepSize()+" "+angleMove4.getStepSize());
+        if (angleMove2 == null) {
+            System.out.println("Angle move step size    " + angleMove1.getStepSize());
+        }
+        else if (angleMove3 == null) {
+            System.out.println("Angle move step size    " + angleMove1.getStepSize() + " " + angleMove2.getStepSize());
+        }
+        else {
+            System.out.println("Angle move step size    " + angleMove1.getStepSize() + " " + angleMove2.getStepSize() + " " + angleMove3.getStepSize() + " " + angleMove4.getStepSize());
+        }
         System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
 
         integrator.getMoveManager().setEquilibrating(false);
@@ -229,7 +254,15 @@ public class VirialChainSingle {
 
         System.out.println();
         System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
-        System.out.println("Angle move acceptance "+angleMove1.getTracker().acceptanceProbability()+" "+angleMove2.getTracker().acceptanceProbability()+" "+angleMove3.getTracker().acceptanceProbability()+" "+angleMove4.getTracker().acceptanceProbability());
+        if (angleMove2 == null) {
+            System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability());
+        }
+        else if (angleMove3 == null) {
+            System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability() + " " + angleMove2.getTracker().acceptanceProbability());
+        }
+        else {
+            System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability() + " " + angleMove2.getTracker().acceptanceProbability() + " " + angleMove3.getTracker().acceptanceProbability() + " " + angleMove4.getTracker().acceptanceProbability());
+        }
         System.out.println("Shuffle move acceptance "+shuffleMove.getTracker().acceptanceProbability());
         System.out.println();
 
