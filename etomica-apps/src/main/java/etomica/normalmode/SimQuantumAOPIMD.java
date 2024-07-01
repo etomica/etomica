@@ -50,9 +50,13 @@ public class SimQuantumAOPIMD extends Simulation {
     public MCMoveHOReal2 moveStageSimple, moveStageEC;
     public int dim;
 
-    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k3, double k4, double omega, boolean isTIA, double hbar, boolean isExactB) {
+    public SimQuantumAOPIMD(Space space, MoveChoice coordType, double mass, double timeStep, double gammaLangevin, int nBeads, double temperature, double k3, double k4, double omega, boolean isTIA, double hbar, boolean isExactA, boolean isCayleyA) {
         super(space);
 
+        if (isExactA && isCayleyA) {
+            System.out.println(" Can not have both isExactA and isCayleyA to be true!");
+            System.exit(0);
+        }
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .setDynamic(true)
                 .addCount(AtomType.simple("A", mass / nBeads), nBeads)
@@ -108,29 +112,37 @@ public class SimQuantumAOPIMD extends Simulation {
             integrator = new IntegratorLangevin(pmAgg, random, timeStep, temperature, box, gammaLangevin);
         } else if (coordType == MoveChoice.NM) {
             MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, 0, box, hbar);
-            if (isExactB) {
-                integrator = new IntegratorLangevinPINMExactB(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactA) {
+                integrator = new IntegratorLangevinPINMExactA(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else if (isCayleyA) {
+                integrator = new IntegratorLangevinPINMCayleyA(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             } else {
                 integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             }
         } else if (coordType == MoveChoice.NMEC) {
             MCMoveHO move = new MCMoveHO(space, pmAgg, random, temperature, omega2, box, hbar);
-            if (isExactB) {
-                integrator = new IntegratorLangevinPINMExactB(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactA) {
+                integrator = new IntegratorLangevinPINMExactA(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else if (isCayleyA) {
+                integrator = new IntegratorLangevinPINMCayleyA(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             } else {
                 integrator = new IntegratorLangevinPINM(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             }
         } else if (coordType == MoveChoice.Stage) {
             MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, 0, box, hbar);
-            if (isExactB) {
-                integrator = new IntegratorLangevinPIExactB(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactA) {
+                integrator = new IntegratorLangevinPIExactA(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else if (isCayleyA) {
+                integrator = new IntegratorLangevinPICayleyA(pcP1, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             } else {
                 integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             }
         } else { //StageEC -- default
             MCMoveHOReal2 move = new MCMoveHOReal2(space, pmAgg, random, temperature, omega2, box, hbar);
-            if (isExactB) {
-                integrator = new IntegratorLangevinPIExactB(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            if (isExactA) {
+                integrator = new IntegratorLangevinPIExactA(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
+            } else if (isCayleyA) {
+                integrator = new IntegratorLangevinPICayleyA(pcP2, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             } else {
                 integrator = new IntegratorLangevinPI(pmAgg, random, timeStep, temperature, box, gammaLangevin, move, hbar, omega2);
             }
@@ -157,18 +169,19 @@ public class SimQuantumAOPIMD extends Simulation {
             params.steps = 1000000;
             params.temperature = 1;
             params.omega = 1;
-            params.k3 = 0;
-            params.k4 = 0;
+            params.k3 = 0.1;
+            params.k4 = 0.1;
             params.onlyCentroid = true;
             params.gammaLangevin = params.omega;
 
 //            params.coordType = MoveChoice.Real;
-            params.coordType = MoveChoice.NM;
+//            params.coordType = MoveChoice.NM;
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
-//            params.coordType = MoveChoice.StageEC;
-            params.timeStep = 5;
-            params.isExactB = !false;
+            params.coordType = MoveChoice.StageEC;
+            params.timeStep = 0.3;
+            params.isExactA = false;
+            params.isCayleyA = true;
         }
 
         int nShifts = params.nShifts;
@@ -180,7 +193,8 @@ public class SimQuantumAOPIMD extends Simulation {
         double k4 = params.k4;
         double gammaLangevin = params.gammaLangevin;
         boolean isGraphic = params.isGraphic;
-        boolean isExactB = params.isExactB;
+        boolean isExactA = params.isExactA;
+        boolean isCayley = params.isCayleyA;
         long steps = params.steps;
         long stepsEq = steps/10;
         boolean isTIA = params.isTIA;
@@ -203,7 +217,7 @@ public class SimQuantumAOPIMD extends Simulation {
         }
 //        if (zerok0) omega2 = 0;
 
-        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k3, k4, omega, isTIA, hbar, isExactB);
+        final SimQuantumAOPIMD sim = new SimQuantumAOPIMD(Space1D.getInstance(), coordType, mass, timeStep, gammaLangevin, nBeads, temperature, k3, k4, omega, isTIA, hbar, isExactA, isCayley);
         sim.integrator.reset();
 
         System.out.println(" PIMD-" + coordType);
@@ -222,7 +236,8 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" isTIA: " + isTIA);
         System.out.println(" gammaLangevin: " + gammaLangevin);
         System.out.println(" onlyCentroid: " + onlyCentroid);
-        System.out.println(" isExactB: " + isExactB);
+        System.out.println(" isExactA: " + isExactA);
+        System.out.println(" isCayley: " + isCayley);
 
         System.out.println("\n Quantum Harmonic Oscillator Theory");
         System.out.println(" ====================================");
@@ -638,6 +653,7 @@ public class SimQuantumAOPIMD extends Simulation {
         public double timeStep = -1;
         public int nBeads = -1;
         public int nShifts = 0;
-        public boolean isExactB = true;
+        public boolean isExactA = false;
+        public boolean isCayleyA = true;
     }
 }
