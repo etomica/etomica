@@ -228,6 +228,10 @@ public class SimulationVirial extends Simulation {
 
 
     public void printResults(double refIntegral) {
+        printResults(refIntegral, null);
+    }
+
+    public void printResults(double refIntegral, String[] extraNames) {
 
         DataGroup allYourBase = (DataGroup)accumulator.getData();
         IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
@@ -255,17 +259,36 @@ public class SimulationVirial extends Simulation {
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
 
         System.out.println();
+        if (averageData.getValue(0) != 0) {
+            System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+            System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1) * refIntegral, ratioErrorData.getValue(1) * Math.abs(refIntegral)));
+        }
 
-        System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+        int n = averageData.getLength();
+        double[] var = new double[n];
+        for (int i=0; i<n; i++) {
+            var[i] = covarianceData.getValue((i) * n + (i));
+        }
 
         for (int i=2; i<averageData.getLength(); i++) {
-            System.out.print(String.format("\ntarget %d average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
-                    i, averageData.getValue(i), stdevData.getValue(i), errorData.getValue(i), correlationData.getValue(i)));
-            correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((i-1)*nData+i));
-            correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-            System.out.print(String.format("ratio %d average: %20.15e  error: %9.4e  cor: %6.4f\n", i, ratioData.getValue(i), ratioErrorData.getValue(i), correlationCoef));
-            System.out.print(String.format("full %d average: %20.15e  error: %9.4e\n", i, ratioData.getValue(i)*refIntegral, ratioErrorData.getValue(i)*Math.abs(refIntegral)));
+            String name = String.format("%d", i);
+            if (extraNames != null) {
+                name = extraNames[i-2];
+            }
+            System.out.print(String.format("target %s average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f tcor: ",
+                    name, averageData.getValue(i), stdevData.getValue(i), errorData.getValue(i), correlationData.getValue(i)));
+            for (int j=1; j<i; j++) {
+                double c = var[i]*var[j] == 0 ? 0 : covarianceData.getValue((i)*n+(j))/Math.sqrt(var[i]*var[j]);
+                System.out.print(String.format(" %20.18f", c));
+            }
+            System.out.println();
+            if (averageData.getValue(0) != 0) {
+                correlationCoef = covarianceData.getValue(i) / Math.sqrt(covarianceData.getValue(0) * covarianceData.getValue((i - 1) * nData + i));
+                correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+                System.out.print(String.format("ratio %s average: %20.15e  error: %9.4e  cor: %6.4f\n", name, ratioData.getValue(i), ratioErrorData.getValue(i), correlationCoef));
+                System.out.print(String.format("full %s average: %20.15e  error: %9.4e\n", name, ratioData.getValue(i) * refIntegral, ratioErrorData.getValue(i) * Math.abs(refIntegral)));
+                System.out.println();
+            }
         }
     }
 
