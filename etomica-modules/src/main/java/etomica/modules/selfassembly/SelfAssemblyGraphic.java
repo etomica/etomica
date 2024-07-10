@@ -24,6 +24,8 @@ import etomica.units.dimensions.Quantity;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  *
@@ -90,6 +92,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.getTypeB1(), new Color(0, 0, 200));
         colorScheme.setColor(sim.getTypeB2(), new Color(0, 200, 0));
         getDisplayBox(sim.box).setColorScheme(colorScheme);
+
+        DeviceAtomColor deviceAtomColorA = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeA(), getPaintAction(sim.box));
+        DeviceAtomColor deviceAtomColorB1 = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeB1(), getPaintAction(sim.box));
+        DeviceAtomColor deviceAtomColorB2 = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeB2(), getPaintAction(sim.box));
 
         getController().getSimRestart().setIgnoreOverlap(true);
         IAction reconfig = new IAction() {
@@ -356,6 +362,43 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         });
         printParamsButton.setLabel("Print parameters");
 
+        JPanel colorPanel = new JPanel(new GridBagLayout());
+        JButton colorButtonA = new JButton("A ");
+        colorButtonA.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame f = new JFrame();
+                f.getContentPane().add(deviceAtomColorA.graphic());
+                f.pack();
+                f.setTitle("Atom A Color");
+                f.setVisible(true);
+            }
+        });
+        colorPanel.add(colorButtonA, vertGBC);
+        JButton colorButtonB1 = new JButton("B1");
+        colorButtonB1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame f = new JFrame();
+                f.getContentPane().add(deviceAtomColorB1.graphic());
+                f.pack();
+                f.setTitle("Atom B1 Color");
+                f.setVisible(true);
+            }
+        });
+        colorPanel.add(colorButtonB1, vertGBC);
+        JButton colorButtonB2 = new JButton("B2");
+        colorButtonB2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame f = new JFrame();
+                f.getContentPane().add(deviceAtomColorB2.graphic());
+                f.pack();
+                f.setTitle("Atom B2 Color");
+                f.setVisible(true);
+            }
+        });
+        colorPanel.add(colorButtonB2, vertGBC);
 
         // ***********  Assemble controls
         final JTabbedPane sliderPanel = new JTabbedPane();
@@ -370,6 +413,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         sliderPanel.add(B1B1Sliders.panel, "B1-B1");
         sliderPanel.add(B1B2Sliders.panel, "B1-B2");
         sliderPanel.add(B2B2Sliders.panel, "B2-B2");
+        sliderPanel.add(colorPanel, "Colors");
         controls.add(delaySlider.graphic(), vertGBC);
         if (showAtomFilterButtons) {
             controls.add(atomFilterButtonA.graphic(), vertGBC);
