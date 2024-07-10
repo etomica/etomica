@@ -121,8 +121,7 @@ public class StarPolymerMD extends Simulation {
         sim.integratorMD.getEventManager().addListener(pumpPF);
         sim.integratorMD.reset();
 
-        MeterRadiusGyration meterRG = new MeterRadiusGyration(sim.getSpace());
-        meterRG.setBox(sim.getBox(0));
+        MeterRadiusGyration meterRG = new MeterRadiusGyration(sim.getBox(0));
         System.out.println(String.format("Squared Radius of Gyration: %.8f\n", meterRG.getDataAsScalar()));
 
         DataFork rgFork = new DataFork();

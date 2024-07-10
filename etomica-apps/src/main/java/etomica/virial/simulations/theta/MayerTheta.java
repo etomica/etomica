@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial;
+package etomica.virial.simulations.theta;
 
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialMolecular;
 import etomica.potential.compute.PotentialCompute;
+import etomica.virial.MayerFunction;
 
 /**
  * MayerFunction implementation that returns f * du/dk where
@@ -23,6 +24,7 @@ public class MayerTheta implements MayerFunction {
     // this returns du/dk for the intramolecular energy of all molecules, probably a PotentialMasterBonding
     protected PotentialCompute pcdk;
     protected final boolean addUE;
+    protected double u1;
 
     /**
      * Constructor Mayer function using given potential.
@@ -38,6 +40,10 @@ public class MayerTheta implements MayerFunction {
         this.pcdk = pcdk;
     }
 
+    public void setu1(double u1) {
+        this.u1 = u1;
+    }
+
     public double f(IMoleculeList pair, double r2, double beta) {
         double x = -beta*potential.energy(pair);
         double f;
@@ -51,7 +57,7 @@ public class MayerTheta implements MayerFunction {
             throw new  RuntimeException("bogus f: "+f+"   beta: "+beta+"   u: "+potential.energy(pair));
         }
         double dudk = pcdk.computeAll(false);
-        double rv = f * dudk;
+        double rv = f * (dudk - u1);
         if (addUE && f>-1) rv -= x/beta * (f+1);
         else if (!addUE) rv *= beta;
         return rv;

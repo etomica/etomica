@@ -285,12 +285,6 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
 
         IAtomList atoms1 = molecules.get(0).getChildList();
         IAtomList atoms2 = molecules.get(1).getChildList();
-        if (molecules.get(0).getIndex() > molecules.get(1).getIndex()) {
-            // enforce ordering to avoid numeric inconsistency
-            IAtomList a = atoms1;
-            atoms1 = atoms2;
-            atoms2 = a;
-        }
         int n = atoms1.size();
 
         Vector3D rm1 = new Vector3D();

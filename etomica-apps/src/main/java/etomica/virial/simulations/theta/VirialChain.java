@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial.simulations;
+package etomica.virial.simulations.theta;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
@@ -12,9 +12,6 @@ import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.graph.model.Graph;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
@@ -35,18 +32,19 @@ import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
-import etomica.virial.MayerTheta;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterAngle;
 import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
 import etomica.virial.mcmove.MCMoveClusterStretch;
+import etomica.virial.simulations.SimulationVirialOverlap2;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Mayer sampling simulation for alkanes using the TraPPE-United Atoms force field.
@@ -60,27 +58,6 @@ import java.util.Set;
  */
 public class VirialChain {
 
-    public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
-        DeleteEdge edgeDeleter = new DeleteEdge();
-        DeleteEdgeParameters ede = new DeleteEdgeParameters(flexDiagrams.eBond);
-        boolean first = true;
-        String str = "";
-        for (Graph gs : gSplit) {
-            if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
-                str += " "+gs.nodeCount()+"bc";
-            }
-            else {
-                str += " "+gs.getStore().toNumberString();
-                if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
-                    str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
-                }
-            }
-            if (first && correction) str += "c";
-            first = false;
-        }
-        return str;
-    }
-
     public static ClusterSum makeB2Cluster(MayerFunction f) {
         return new ClusterSum(new ClusterBonds[]{new ClusterBonds(2, new int[][][]{{{0,1}}})}, new double[]{1}, new MayerFunction[]{f});
     }
@@ -91,10 +68,11 @@ public class VirialChain {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 2;
-            params.nSpheres = 50;
-            params.temperature = 3;
-            params.eFENE = 10;
+            params.nPoints = 4;
+            params.nSpheres = 128;
+            params.temperature = 4.55897667284274;
+            params.kBend = 7.11111111111111111;
+            params.numSteps = 1000000;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -369,13 +347,16 @@ public class VirialChain {
         long t1 = System.nanoTime();
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
+        long initSteps = steps/40;
+        if (params.fFile != null) {
+            initSteps = steps;
+        }
         // this will either read the refpref in from a file or run a short simulation to find it
-        sim.initRefPref(refFileName, steps/40);
+        sim.initRefPref(refFileName, initSteps);
 
-                
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/20);
+        sim.equilibrate(refFileName, 2*initSteps);
         ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
         sim.setAccumulatorBlockSize(steps);
 
@@ -388,8 +369,41 @@ public class VirialChain {
                 +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize())));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
+
+        ClusterAbstract tc = targetCluster;
+        FileWriter fw;
+        if (params.fFile != null) {
+            try {
+                fw = new FileWriter(params.fFile);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(new IAction() {
+                @Override
+                public void actionPerformed() {
+                    double f = -2 * tc.value(sim.box[1]);
+                    try {
+                        fw.write(sim.integrators[1].getStepCount() + " " + f + "\n");
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }));
+        }
+        else {
+            fw = null;
+        }
+
         sim.getController().runActivityBlocking(ai);
         long t2 = System.nanoTime();
+
+        if (fw != null) {
+            try {
+                fw.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -432,5 +446,6 @@ public class VirialChain {
         public double kBend = 0;
         public int nDer = 0;
         public TargetChoice targetChoice = TargetChoice.NORMAL;
+        public String fFile = null;
     }
 }
