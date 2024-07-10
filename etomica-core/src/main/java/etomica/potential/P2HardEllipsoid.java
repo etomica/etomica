@@ -251,7 +251,8 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
         double c0 = -(3./256)* n3*n3*n3*n3 + 0.0625*n3*n3*n2 - 0.25 * n3 * n1 + n0;
         if(c2*c2 - 4*c0 <= 0) return true;
 
-        double term1 = (c2*c2 + 12*c0);
+ //       double term1 = (c2*c2 + 12*c0);
+        double term1 = 12*n0 + n2*n2 - 3*n1*n3;
         //double term2 = (2*c2*c2*c2 - 72*c2*c0 + 27*c1*c1);
         double term2 = 27*n1*n1 + 2*n2*n2*n2 - 9*n1*n2*n3 + 9*n0*(-8*n2 + 3*n3*n3);
         double D27 = 4*term1*term1*term1 - term2*term2;
