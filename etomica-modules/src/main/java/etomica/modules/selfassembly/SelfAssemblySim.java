@@ -197,7 +197,7 @@ public class SelfAssemblySim extends Simulation {
         return new SpeciesBuilder(space)
                 .addCount(typeB1, nB1)
                 .addCount(typeB2, nB2)
-                .withConformation(new ConformationLinear(space, 0.501))
+                .withConformation(new ConformationLinear(space, 0.201))
                 .setDynamic(true)
                 .build();
     }
