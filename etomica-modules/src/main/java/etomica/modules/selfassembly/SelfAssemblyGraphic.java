@@ -366,43 +366,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 
         // Color tab
         JPanel colorPanel = new JPanel(new GridBagLayout());
-        JButton colorButtonA = new JButton("A ");
-        colorButtonA.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame f = new JFrame();
-                f.getContentPane().add(deviceAtomColorA.graphic());
-                f.pack();
-                f.setTitle("Atom A Color");
-                f.setVisible(true);
-            }
-        });
-        colorPanel.add(colorButtonA, vertGBC);
-        JButton colorButtonB1 = new JButton("B1");
-        colorButtonB1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame f = new JFrame();
-                f.getContentPane().add(deviceAtomColorB1.graphic());
-                f.pack();
-                f.setTitle("Atom B1 Color");
-                f.setVisible(true);
-            }
-        });
-        colorPanel.add(colorButtonB1, vertGBC);
-        JButton colorButtonB2 = new JButton("B2");
-        colorButtonB2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame f = new JFrame();
-                f.getContentPane().add(deviceAtomColorB2.graphic());
-                f.pack();
-                f.setTitle("Atom B2 Color");
-                f.setVisible(true);
-            }
-        });
-        colorPanel.add(colorButtonB2, vertGBC);
 
+        colorPanel.add(deviceAtomColorA.new Button("A ","Atom A Color"),vertGBC);
+        colorPanel.add(deviceAtomColorB1.new Button("B1","Atom B1 Color"),vertGBC);
+        colorPanel.add(deviceAtomColorB2.new Button("B2","Atom B2 Color"),vertGBC);
         colorPanel.add(deviceBGColor.new Button(), vertGBC);
 
 

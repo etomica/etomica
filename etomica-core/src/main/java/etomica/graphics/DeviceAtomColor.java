@@ -11,6 +11,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class DeviceAtomColor extends Device implements ChangeListener {
 
@@ -46,5 +48,29 @@ public class DeviceAtomColor extends Device implements ChangeListener {
         Color newColor = jcc.getColor();
         colorScheme.setColor(type, newColor);
         if (repaintAction!=null) repaintAction.actionPerformed();
+    }
+
+    /**
+     * A button that will pop up the color-change widget
+     */
+    public class Button extends JButton {
+        /**
+         *
+         * @param buttonText descriptive text that appears on the button
+         * @param panelText descriptive text that appears on the color widget's panel
+         */
+        public Button(String buttonText, String panelText) {
+            super(buttonText);
+            addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JFrame f = new JFrame();
+                    f.getContentPane().add(DeviceAtomColor.this.graphic());
+                    f.pack();
+                    f.setTitle(panelText);
+                    f.setVisible(true);
+                }
+            });
+        }
     }
 }
