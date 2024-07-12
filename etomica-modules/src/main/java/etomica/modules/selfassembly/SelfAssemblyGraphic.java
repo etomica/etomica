@@ -97,6 +97,8 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         DeviceAtomColor deviceAtomColorB1 = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeB1(), getPaintAction(sim.box));
         DeviceAtomColor deviceAtomColorB2 = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeB2(), getPaintAction(sim.box));
 
+        DeviceBackgroundColor deviceBGColor = new DeviceBackgroundColor(sim.getController(), this, sim.box, getPaintAction(sim.box));
+
         getController().getSimRestart().setIgnoreOverlap(true);
         IAction reconfig = new IAction() {
             public void actionPerformed() {
@@ -362,6 +364,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         });
         printParamsButton.setLabel("Print parameters");
 
+        // Color tab
         JPanel colorPanel = new JPanel(new GridBagLayout());
         JButton colorButtonA = new JButton("A ");
         colorButtonA.addActionListener(new ActionListener() {
@@ -399,6 +402,9 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
         });
         colorPanel.add(colorButtonB2, vertGBC);
+
+        colorPanel.add(deviceBGColor.new Button(), vertGBC);
+
 
         // ***********  Assemble controls
         final JTabbedPane sliderPanel = new JTabbedPane();
