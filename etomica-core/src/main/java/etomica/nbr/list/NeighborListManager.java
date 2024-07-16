@@ -40,6 +40,7 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
     private final List<INeighborListener> listeners;
     private int numUnsafe = -1;
     private double minR2;
+    private boolean autoUpdateNeighbors = true;
 
     public NeighborListManager(SpeciesManager sm, Box box, int cellRange, double nbrRange, BondingInfo bondingInfo) {
         this.box = box;
@@ -57,6 +58,14 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
         isPureAtoms = sm.isPureAtoms();
         this.neighborIterator = new NeighborIteratorList(this, box);
         listeners = new ArrayList<>();
+    }
+
+    /**
+     * If false, neighbors will not be found when starting the integrator and
+     * will not be updated during the simulation.  doUpdate is true by default.
+     */
+    public void setAutoUpdateNeighbors(boolean doUpdate) {
+        autoUpdateNeighbors = doUpdate;
     }
 
     public NeighborCellManager getCellManager() {
@@ -130,12 +139,12 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
 
     @Override
     public void integratorInitialized(IntegratorEvent e) {
-        init();
+        if (autoUpdateNeighbors) init();
     }
 
     @Override
     public void integratorStepStarted(IntegratorEvent e) {
-        checkUpdateNbrs();
+        if (autoUpdateNeighbors) checkUpdateNbrs();
     }
 
 
