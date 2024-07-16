@@ -62,18 +62,23 @@ public class MCMoveClusterReptate extends MCMoveBox {
         for(int i = 0; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
             IAtomList atoms = molecule.getChildList();
-            forward[i] = random.nextInt(2) == 1;
+            forward[i] = random.nextInt(2) == 0;
             Vector drNew = space.makeVector();
             drNew.setRandomSphere(random);
+            Vector shift = space.makeVector();
             if (forward[i]) {
+                shift.E(atoms.get(0).getPosition());
                 oldPosition[i].Ev1Mv2(atoms.get(0).getPosition(), atoms.get(1).getPosition());
                 goForward(atoms, drNew);
+                shift.ME(atoms.get(atoms.size()-1).getPosition());
             }
             else {
+                shift.E(atoms.get(atoms.size()-1).getPosition());
                 oldPosition[i].Ev1Mv2(atoms.get(atoms.size()-1).getPosition(), atoms.get(atoms.size()-2).getPosition());
                 goBackward(atoms, drNew);
+                shift.ME(atoms.get(0).getPosition());
             }
-            shiftCOM(atoms, drNew, oldPosition[i]);
+            if (i==0) shiftCOM(atoms, shift);
         }
         uNew = potential.computeAll(false);
         if (box instanceof BoxCluster) {
@@ -83,12 +88,11 @@ public class MCMoveClusterReptate extends MCMoveBox {
         return true;
     }
 
-    protected void shiftCOM(IAtomList atoms, Vector rNew, Vector rOld) {
-        rNew.ME(rOld);
+    protected void shiftCOM(IAtomList atoms, Vector shift) {
         double mt = atoms.get(0).getType().getMass() * atoms.size();
-        rNew.TE(-1.0/mt);
+        shift.TE(1.0/mt);
         for (IAtom aa : atoms) {
-            aa.getPosition().PE(rNew);
+            aa.getPosition().PE(shift);
         }
     }
 
@@ -123,15 +127,20 @@ public class MCMoveClusterReptate extends MCMoveBox {
         for(int i = 0; i<box.getMoleculeList().size(); i++) {
             IAtomList atoms = moleculeList.get(i).getChildList();
             Vector rNew = space.makeVector();
+            Vector shift = space.makeVector();
             if (forward[i]) {
+                shift.E(atoms.get(atoms.size()-1).getPosition());
                 rNew.Ev1Mv2(atoms.get(atoms.size()-1).getPosition(), atoms.get(atoms.size()-2).getPosition());
                 goBackward(atoms, oldPosition[i]);
+                shift.ME(atoms.get(0).getPosition());
             }
             else {
+                shift.E(atoms.get(0).getPosition());
                 rNew.Ev1Mv2(atoms.get(0).getPosition(), atoms.get(1).getPosition());
                 goForward(atoms, oldPosition[i]);
+                shift.ME(atoms.get(atoms.size()-1).getPosition());
             }
-            shiftCOM(atoms, oldPosition[i], rNew);
+            if (i==0) shiftCOM(atoms, shift);
         }
         if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }
