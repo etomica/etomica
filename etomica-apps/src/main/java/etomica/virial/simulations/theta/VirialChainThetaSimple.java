@@ -4,11 +4,13 @@
 
 package etomica.virial.simulations.theta;
 
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.config.ConformationLinear;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.*;
@@ -36,6 +38,8 @@ import etomica.virial.simulations.SimulationVirial;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,14 +137,27 @@ public class VirialChainThetaSimple {
             }
         };
 
-        if (nSpheres < 3) {
-            throw new RuntimeException("This simulation is only useful for 3+ spheres");
+        if (nSpheres > 2 && kBend == 0) {
+            // we need to do this to convince the system that the molecules are not rigid
+            // if bondingInfo thinks molecules are rigid then intramolecular LJ will not be computed
+            IPotential2 pBonding = new IPotential2() {
+                @Override
+                public double getRange() { return 2; }
+                @Override
+                public void u012add(double r2, double[] u012) { }
+            };
+            List<int[]> pairs = new ArrayList<>();
+            for (int i=0; i<nSpheres-1; i++) {
+                pairs.add(new int[]{i,i+1});
+            }
+            bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
         }
+
         List<int[]> triplets = new ArrayList<>();
-        for (int i=0; i<nSpheres-2; i++) {
-            triplets.add(new int[]{i,i+1,i+2});
+        for (int i = 0; i < nSpheres - 2; i++) {
+            triplets.add(new int[]{i, i + 1, i + 2});
         }
-        if (kBend > 0) {
+        if (nSpheres > 2 && kBend < Double.POSITIVE_INFINITY) {
             P3BondAngleStiffChain p3 = new P3BondAngleStiffChain(kBend);
             bondingInfo.setBondingPotentialTriplet(species, p3, triplets);
         }
@@ -200,7 +217,7 @@ public class VirialChainThetaSimple {
         MCMoveClusterAngle angleMove1 = null, angleMove2 = null, angleMove3 = null, angleMove4 = null;
         MCMoveClusterShuffle shuffleMove = null;
         MCMoveClusterReptate reptateMove = null;
-        if (kBend < Double.POSITIVE_INFINITY) {
+        if (kBend < Double.POSITIVE_INFINITY && nSpheres >= 3) {
             IntegratorMC integrator = sim.integrator;
             if (nSpheres < 5) {
                 angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
@@ -279,7 +296,12 @@ public class VirialChainThetaSimple {
 
         long t1 = System.nanoTime();
 
-        sim.equilibrate(steps/10);
+        if (params.fFile == null) {
+            sim.equilibrate(steps / 10);
+        }
+        else {
+            sim.equilibrate(steps);
+        }
 
         ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
         sim.setAccumulatorBlockSize(steps);
@@ -299,8 +321,39 @@ public class VirialChainThetaSimple {
         }
         if (shuffleMove != null) System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
 
+        ClusterAbstract tc = targetDiagrams[0];
+        FileWriter fw;
+        if (params.fFile != null) {
+            try {
+                fw = new FileWriter(params.fFile);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(new IAction() {
+                @Override
+                public void actionPerformed() {
+                    double f = tc.value((BoxCluster)sim.box());
+                    try {
+                        fw.write(sim.integrator.getStepCount() + " " + f + "\n");
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }));
+        }
+        else {
+            fw = null;
+        }
+
         sim.getController().runActivityBlocking(ai);
         long t2 = System.nanoTime();
+
+        try {
+            if (fw != null) fw.close();
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
 
         System.out.println();
         if (reptateMove!=null) System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
@@ -315,7 +368,9 @@ public class VirialChainThetaSimple {
             System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
         }
 
-        sim.printResults(refIntegral);
+        sim.printResults(refIntegral, new String[]{
+                "Ibb", "alpha", "dfdk", "Ikb"
+        });
 
         System.out.println("time: "+(t2-t1)/1e9);
     }
@@ -337,5 +392,6 @@ public class VirialChainThetaSimple {
         public double kBend = 0;
         public double dlnqdb = 0;
         public double dlnqdk = 0;
+        public String fFile = null;
     }
 }
