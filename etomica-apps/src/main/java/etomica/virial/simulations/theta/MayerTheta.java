@@ -57,9 +57,8 @@ public class MayerTheta implements MayerFunction {
             throw new  RuntimeException("bogus f: "+f+"   beta: "+beta+"   u: "+potential.energy(pair));
         }
         double dudk = pcdk.computeAll(false);
-        double rv = f * (dudk - u1);
+        double rv = f * (dudk - 2*u1);
         if (addUE && f>-1) rv -= x/beta * (f+1);
-        else if (!addUE) rv *= beta;
         return rv;
     }
 
