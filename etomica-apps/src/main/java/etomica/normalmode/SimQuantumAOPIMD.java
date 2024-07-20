@@ -72,11 +72,11 @@ public class SimQuantumAOPIMD extends Simulation {
         this.dim = space.D();
         double beta = 1.0/temperature;
         betaN = beta/nBeads;
-        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
+        double omegaN = nBeads/(hbar*beta);
         double omegaN2 = omegaN*omegaN;
         double omega2 = omega*omega;
 
-        k2_kin = nBeads == 1 ? 0 : mass*omegaN2;
+        k2_kin = nBeads == 1 ? 0 : mass*omegaN2/nBeads;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -91,7 +91,7 @@ public class SimQuantumAOPIMD extends Simulation {
 
         if (isTIA){
             double facUeff = 1.0;
-            p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facUeff);
+            p1ahUeff = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2/nBeads, facUeff);
             pcP1.setFieldPotential(species.getLeafType(), p1ahUeff);
         } else {
             p1ah = new P1Anharmonic234(space, omega2/nBeads, k3/nBeads, k4/nBeads);
@@ -104,7 +104,7 @@ public class SimQuantumAOPIMD extends Simulation {
         pmAgg = new PotentialComputeAggregate(pmBonding, pcP1);
 
         double facEn = 3.0;
-        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2, facEn);
+        P1AnharmonicTIA p1ahEn = new P1AnharmonicTIA(space, 1, k4, nBeads, mass*omegaN2/nBeads, facEn);
         pcP1EnTIA = new PotentialComputeField(getSpeciesManager(), box);
         pcP1EnTIA.setFieldPotential(species.getLeafType(), p1ahEn);
 
@@ -209,11 +209,11 @@ public class SimQuantumAOPIMD extends Simulation {
             nBeads = (int) (20*x);
         }
 
-        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+        double omegaN = nBeads*temperature/hbar;
         double timeStep = params.timeStep;
 
         if (isTIA){
-            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN*omegaN));
+            omega2 = omega2*(1.0 + omega2/12.0/(omegaN*omegaN));
         }
 //        if (zerok0) omega2 = 0;
 
@@ -262,8 +262,8 @@ public class SimQuantumAOPIMD extends Simulation {
         System.out.println(" Cv_ho_q: " + CvnQinf + "\n");
 
 
-//        System.out.println("Real: " + 1/omegaN/Math.sqrt(nBeads));
-//        double s2 = omega2/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1.0)/nBeads);
+//        System.out.println("Real: " + nBeads/omegaN/Math.sqrt(nBeads));
+//        double s2 = omega2*nBeads*nBeads/omegaN/omegaN*(1 + 1.0/12.0*(nBeads*nBeads-1.0)/nBeads);
 //        System.out.println("SS: " + Math.sqrt(s2)/omega);
 //        s2 = omega2;
 //        System.out.println("SNM: " + Math.sqrt(s2)/omega);
@@ -296,10 +296,8 @@ public class SimQuantumAOPIMD extends Simulation {
                 meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
                 meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, 0, sim.box, hbar);
                 meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
-                meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageSimple);
-                meterStageSimple.setNumShifts(nShifts);
-                meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageEC);
-                meterStageEC.setNumShifts(nShifts);
+                meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageSimple, nShifts);
+                meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageEC, nShifts);
             }
         }
 

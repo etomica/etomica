@@ -165,7 +165,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         double omegaRing = Math.sqrt(mOmegaH2 * nBeads / mass);
         double omegaBead = Math.sqrt(mOmegaF2 * nBeads / mass);
 
-        double omegaN = Math.sqrt(nBeads) * temperature / hbar;
+        double omegaN = nBeads*temperature/hbar;
         double timeStep = params.timeStep;
         if (timeStep == -1) {
             double c = 0.1;
@@ -175,7 +175,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
                 double s = omega2 / nBeads;
                 timeStep = c * Math.sqrt(s) / omega; // which is 1/sqrt(n)
             } else if (params.coordType == MoveChoice.Stage) {
-                double s = omega2 / omegaN / omegaN * (1 + 1.0 / 12.0 * (nBeads * nBeads - 1.0) / nBeads);
+                double s = omega2*nBeads/omegaN/omegaN * (1 + 1.0 / 12.0 * (nBeads * nBeads - 1.0) / nBeads);
                 timeStep = c * Math.sqrt(s) / omega; // for large n, timeStep ~ hbar/T
             } else {
                 timeStep = c / omegaRing;
@@ -183,7 +183,7 @@ public class SimQuantumAOPIMDInf extends Simulation {
         }
 
 //        if (isTIA){
-//            omega2 = omega2*(1.0 + omega2/12.0/(nBeads*omegaN2));
+//            omega2 = omega2*(1.0 + omega2/12.0/(omegaN2));
 //        }
 //        if (zerok0) omega2 = 0;
 

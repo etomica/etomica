@@ -17,6 +17,9 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
+/**
+ Only works for PIMD where atoms are not wrapped back to box. Needs fixed for PIMC.
+ */
 public class MeterPIHMAc implements IDataSource, PotentialCallback {
     protected Box box;
     protected final PotentialCompute pcP1;
@@ -62,6 +65,14 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             drShift = computeShift();
         }
 
+        for (IMolecule molecule : box.getMoleculeList()) {
+            rc[molecule.getIndex()].E(0);
+            for (IAtom atom : molecule.getChildList()) {
+                rc[molecule.getIndex()].PE(atom.getPosition());
+            }
+            rc[molecule.getIndex()].TE(1.0 / nBeads);
+        }
+
         rHr = 0;
         double vir = 0;
         double virc = 0;
@@ -71,10 +82,10 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
-            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
             drc.Ev1Mv2(rc[molecule.getIndex()], latticePositions[molecule.getIndex()]);
             drc.PE(drShift);
             box.getBoundary().nearestImage(drc);
+
             for (IAtom atom : molecule.getChildList()) {
                 dri.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
                 dri.PE(drShift);
@@ -114,10 +125,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector dri = box.getSpace().makeVector();
         dri.Ev1Mv2(ri, latticePositions[moleculeIndexI]);
-        box.getBoundary().nearestImage(dri);
         Vector drcI = box.getSpace().makeVector();
-        drcI.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()), latticePositions[moleculeIndexI]);
-        box.getBoundary().nearestImage(drcI);
+        drcI.Ev1Mv2(rc[box.getLeafList().get(i).getParentGroup().getIndex()], latticePositions[moleculeIndexI]);
         Vector tmpVecI = box.getSpace().makeVector();
         tmpVecI.Ev1Mv2(dri, drcI);
         tmpVecI.ME(drcI);
@@ -141,12 +150,13 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
 
         Vector drcI = box.getSpace().makeVector();
         Vector drcJ = box.getSpace().makeVector();
-        drcI.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()), latticePositions[moleculeIndexI]);
-        drcJ.Ev1Mv2(CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()), latticePositions[moleculeIndexJ]);
+        drcI.Ev1Mv2(rc[box.getLeafList().get(i).getParentGroup().getIndex()], latticePositions[moleculeIndexI]);
+        drcJ.Ev1Mv2(rc[box.getLeafList().get(j).getParentGroup().getIndex()], latticePositions[moleculeIndexJ]);
         drcI.PE(drShift);
         drcJ.PE(drShift);
         box.getBoundary().nearestImage(drcI);
         box.getBoundary().nearestImage(drcJ);
+
         Vector tmpVecI = box.getSpace().makeVector();
         Vector tmpVecJ = box.getSpace().makeVector();
         tmpVecI.Ev1Mv2(dri, drcI);
@@ -162,36 +172,11 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
 
 
     protected Vector computeShift() {
-        if (box.getMoleculeList().size() == 1) {
-            return box.getSpace().makeVector();
-        }
-        int n = box.getMoleculeList().get(0).getChildList().size();
-        Vector shift0 = box.getSpace().makeVector();
-        Boundary boundary = box.getBoundary();
-        Vector dr = box.getSpace().makeVector();
+        if (box.getMoleculeList().size() == 1) return box.getSpace().makeVector();
         IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        dr.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-//        boundary.nearestImage(dr);//actually, not needed (but does not hurt!)
-        shift0.Ea1Tv1(-1, dr);
-        // will shift ring0 back to lattice site; everything should be close and PBC should lock in
-        // now determine additional shift needed to bring back to original COM
-
-// Not needed as well
-//        Vector totalShift = box.getSpace().makeVector();
-//        for (int j = 0; j < box.getMoleculeList().size(); j++) {
-//            IMolecule m = box.getMoleculeList().get(j);
-//            for (int i = 0; i < n; i++) {
-//                Vector r = m.getChildList().get(i).getPosition();
-//                dr.Ev1Mv2(r, latticePositions[j]);
-//                dr.PE(shift0);
-//                boundary.nearestImage(dr);
-//                totalShift.PE(dr);
-//            }
-//        }
-//        totalShift.TE(-1.0/box.getLeafList().size());
-//        totalShift.PE(shift0);
-//        return totalShift;
-        return shift0;
+        Vector drShift = box.getSpace().makeVector();
+        drShift.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
+        drShift.TE(-1);
+        return drShift;
     }
-
 }

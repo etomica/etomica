@@ -80,9 +80,9 @@ public class LJPIMC extends Simulation {
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
         double beta = 1/temperature;
-        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
+        double omegaN = nBeads/(hbar*beta);
 
-        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
+        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN/nBeads;
 
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
@@ -178,7 +178,7 @@ public class LJPIMC extends Simulation {
         if (nBeads == -1){
             nBeads = (int) (20*x);
         }
-        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+        double omegaN = nBeads*temperature/hbar;
 
         LJPIMC sim = new LJPIMC(space, coordType, mass, numAtoms, nBeads, temperature, density, rc, omega2, hbar);
         sim.integrator.reset();
@@ -347,7 +347,8 @@ public class LJPIMC extends Simulation {
         DataPumpListener accumulatorPumpHMAc = new DataPumpListener(meterHMAc, accumulatorHMAc, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
 
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC);
+        int nShifts = 0;
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC, nShifts);
         AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);

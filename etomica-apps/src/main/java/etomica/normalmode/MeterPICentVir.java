@@ -15,6 +15,9 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
+/**
+ Only works for PIMD where atoms are not wrapped back to box. Needs fixed for PIMC.
+ */
 public class MeterPICentVir implements IDataSource, PotentialCallback {
     protected Box box;
     protected final PotentialCompute pcP1;
@@ -53,18 +56,20 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         double[] x = data.getData();
         Vector rirc = box.getSpace().makeVector();
         for (IMolecule molecule : box.getMoleculeList()) {
-            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
+            rc[molecule.getIndex()].E(0);
+            for (IAtom atom : molecule.getChildList()) {
+                rc[molecule.getIndex()].PE(atom.getPosition());
+            }
+            rc[molecule.getIndex()].TE(1.0/nBeads);
         }
         rHr = 0;
         double vir = 0;
-//        pcP1.computeAll(true, null); // no Cv (rHr=0)
         pcP1.computeAll(true, this); //with Cv
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
                 rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);
-                box.getBoundary().nearestImage(rirc);
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
@@ -83,7 +88,6 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector tmpVecI = box.getSpace().makeVector();
         Vector tmpVecI2 = box.getSpace().makeVector();
         tmpVecI.Ev1Mv2(ri, rc[box.getLeafList().get(i).getParentGroup().getIndex()]);
-        box.getBoundary().nearestImage(tmpVecI);
         tmpVecI2.E(tmpVecI);
         Hii.transform(tmpVecI);
         rHr += tmpVecI.dot(tmpVecI2);
@@ -95,10 +99,8 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         Vector rj = box.getLeafList().get(j).getPosition();
         Vector tmpVecI = box.getSpace().makeVector();
         Vector tmpVecJ = box.getSpace().makeVector();
-        tmpVecI.Ev1Mv2(ri, CenterOfMass.position(box, box.getLeafList().get(i).getParentGroup()));
-        tmpVecJ.Ev1Mv2(rj, CenterOfMass.position(box, box.getLeafList().get(j).getParentGroup()));
-        box.getBoundary().nearestImage(tmpVecI);
-        box.getBoundary().nearestImage(tmpVecJ);
+        tmpVecI.Ev1Mv2(ri, rc[box.getLeafList().get(i).getParentGroup().getIndex()]);
+        tmpVecJ.Ev1Mv2(rj, rc[box.getLeafList().get(j).getParentGroup().getIndex()]);
         Vector tmpVecIJ = box.getSpace().makeVector();
         tmpVecIJ.Ev1Mv2(tmpVecI, tmpVecJ);
         Hij.transform(tmpVecIJ);

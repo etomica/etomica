@@ -12,11 +12,13 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
-import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
+/**
+ Only works for PIMD where atoms are not wrapped back to box. Needs fixed for PIMC.
+ */
 public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialCompute pcP1;
@@ -33,6 +35,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     protected final Vector[] latticePositions;
     protected int dim, numAtoms;
     protected double EnShift;
+    protected Vector drShift;
 
     public MeterPIHMA(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double beta, int nBeads, double omega2, Box box, double hbar) {
         int nData = 2;
@@ -118,6 +121,7 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         this.EnShift = 0;
+        drShift = box.getSpace().makeVector();
     }
 
     @Override
@@ -125,14 +129,11 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         double d2bUdb2 = 0;
         drdotHdrdot = 0 ;
         double[] x = data.getData();
-        Vector drShift = box.getSpace().makeVector();
-        if (box.getMoleculeList().size() > 1) {
-            drShift = computeShift();
-        }
+        if (box.getMoleculeList().size() > 1) drShift = computeShift();
         IMoleculeList molecules = box.getMoleculeList();
         Vector drj = box.getSpace().makeVector();
-        for (IMolecule m : molecules) {
-            IAtomList atoms = m.getChildList();
+        for (IMolecule molecule : molecules) {
+            IAtomList atoms = molecule.getChildList();
             for (int i = 0; i < nBeads; i++) {
                 int ia = atoms.get(i).getLeafIndex();
                 rdot[ia].E(0);
@@ -140,7 +141,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
             }
 
             for (int j = 0; j < nBeads; j++) {
-                computeDR(atoms.get(j).getPosition(), latticePositions[m.getIndex()], drShift, drj);
+                drj.Ev1Mv2(atoms.get(j).getPosition(), latticePositions[molecule.getIndex()]);
+                drj.PE(drShift);
                 for (int i=0; i<nBeads; i++) {
                     int ia = atoms.get(i).getLeafIndex();
                     rdot[ia].PEa1Tv1(M[i][j], drj);
@@ -150,7 +152,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         }
 
         pmBonding.computeAll(true);
-//        pcP1.computeAll(true, null); //no Cv
         pcP1.computeAll(true, this); //with Cv (replace 'this' by 'null' for no Cv)
 
         double En = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy();
@@ -195,6 +196,8 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         x[0] = En - EnShift;
         x[1] = Cvn + (En - EnShift)*(En - EnShift);
 
+//        System.out.println("NM: " + x[0]);
+
         return data;
     }
 
@@ -212,43 +215,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         drdotHdrdot += rdotij.dot(rdot[i]) - rdotij.dot(rdot[j]);
     }
 
-    protected Vector computeShift() {
-        if (box.getMoleculeList().size() == 1) {
-            return box.getSpace().makeVector();
-        }
-        int n = box.getMoleculeList().get(0).getChildList().size();
-        Vector shift0 = box.getSpace().makeVector();
-        Boundary boundary = box.getBoundary();
-        Vector dr = box.getSpace().makeVector();
-        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        dr.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-//        boundary.nearestImage(dr);
-        shift0.Ea1Tv1(-1, dr);
-        // will shift ring0 back to lattice site; everything should be close and PBC should lock in
-        // now determine additional shift needed to bring back to original COM
-//        Vector totalShift = box.getSpace().makeVector();
-//        for (int j = 0; j < box.getMoleculeList().size(); j++) {
-//            IMolecule m = box.getMoleculeList().get(j);
-//            for (int i = 0; i < n; i++) {
-//                Vector r = m.getChildList().get(i).getPosition();
-//                dr.Ev1Mv2(r, latticePositions[j]);
-//                dr.PE(shift0);
-//                boundary.nearestImage(dr);
-//                totalShift.PE(dr);
-//            }
-//        }
-//        totalShift.TE(-1.0/box.getLeafList().size());
-//        totalShift.PE(shift0);
-//        return totalShift;
-        return shift0;
-    }
-
-    protected void computeDR(Vector r, Vector latticeSite, Vector shift, Vector dr) {
-        dr.Ev1Mv2(r, latticeSite);
-        dr.PE(shift);
-        box.getBoundary().nearestImage(dr);
-    }
-
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
@@ -262,4 +228,14 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
     }
 
     public void setEnShift(double E) { this.EnShift = E; }
+
+    protected Vector computeShift() {
+        if (box.getMoleculeList().size() == 1) return box.getSpace().makeVector();
+        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
+        Vector drShift = box.getSpace().makeVector();
+        drShift.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
+        drShift.TE(-1);
+        return drShift;
+    }
+
 }

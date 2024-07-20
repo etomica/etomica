@@ -186,7 +186,7 @@ public class IntegratorLangevinPIInf extends IntegratorMD {
             Vector dr = box.getSpace().makeVector();
             double mass = 1.0;
             double hbar = 1.0;
-            double omegaN = Math.sqrt(nBeads)/(hbar)*temperature;
+            double omegaN = nBeads*temperature/hbar;
             for (int j = 0; omegaSample > 0 && j < nBeads; j++) {
                 Vector rj = atoms.get(j).getPosition();
                 dr.Ev1Mv2(rj, latticePositions[m.getIndex()]);

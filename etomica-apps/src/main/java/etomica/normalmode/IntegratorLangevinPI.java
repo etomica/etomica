@@ -82,18 +82,23 @@ public class IntegratorLangevinPI extends IntegratorMD {
         Vector drPrev0 = box.getSpace().makeVector();
         Vector drPrev = box.getSpace().makeVector();
 
+
+        Vector drShift = space.makeVector();
+        drShift.Ev1Mv2(box.getLeafList().get(0).getPosition(), latticePositions[0]);
+        drShift.TE(-1);
+
         for (IMolecule m : box.getMoleculeList()) {
             IAtomList atoms = m.getChildList();
             Vector dr0 = box.getSpace().makeVector();
             dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[m.getIndex()]);
-            box.getBoundary().nearestImage(dr0);
+            dr0.PE(drShift);
             Vector[] u = box.getSpace().makeVectorArray(atoms.size());
-            // first compute collective coordinates
+            // r->u
             for (IAtom a : atoms) {
                 int i = a.getIndex();
                 Vector r = a.getPosition();
                 u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(u[i]);
+                u[i].PE(drShift);
                 Vector usave = box.getSpace().makeVector();
                 usave.E(u[i]);
                 if (i > 0) {
@@ -105,8 +110,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
                 Vector v = ((IAtomKinetic)a).getVelocity();
                 u[i].PEa1Tv1(dt, v);
 
-                Vector rOrig = box.getSpace().makeVector();
-                rOrig.E(r);
                 r.E(latticePositions[m.getIndex()]);
                 if (i>0) {
                     r.PEa1Tv1(f11[i], drPrev);
@@ -114,11 +117,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
                 }
                 r.PE(u[i]);
                 drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
-                // shift atom back to side of box where it started, even if outside
-                Vector drShift = box.getSpace().makeVector();
-                drShift.Ev1Mv2(r, rOrig);
-                box.getBoundary().nearestImage(drShift);
-                r.Ev1Pv2(rOrig, drShift);
+                r.ME(drShift);
             }
         }
     }

@@ -9,14 +9,15 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
-import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
+/**
+ Only works for PIMD where atoms are not wrapped back to box. Needs fixed for PIMC.
+ */
 public class MeterPIHMAFD implements IDataSource, PotentialCallback {
     protected final PotentialMasterBonding pmBonding;
     protected final PotentialCompute pcP1;
@@ -34,7 +35,7 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
     protected final Vector[] latticePositions;
     protected int dim, numAtoms;
     protected double EnShift, dbeta, beta_p, beta_m;
-    protected double En, dbUdb, hbar;
+    protected double hbar;
     protected Vector drShift;
     double[][] eigenvectors;
     protected Vector[] rOrig;
@@ -60,7 +61,7 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
         rOrig = box.getSpace().makeVectorArray(box.getLeafList().size());
         rdot = box.getSpace().makeVectorArray(numAtoms*nBeads);
 
-        getMappingParams();
+        computeMappingParams();
 
         if (omega2 != 0) {
             double En_ho_nm = dim*nBeads/2.0/beta;
@@ -84,38 +85,36 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
     @Override
     public IData getData() {
         double[] x = data.getData();
-
+        if (numAtoms > 1) drShift = computeShift();
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 rOrig[atom.getLeafIndex()].E(atom.getPosition());
             }
         }
-
-        getEn(beta, lambda, M);
-        x[0] = En - EnShift;
-        if (numAtoms > 1 && omega2 != 0) {
-            x[0] -= dim/2.0/beta; //com: -dim*gk[nK]
-        }
-
+        double En = dim*numAtoms*nBeads/2.0/beta - EnShift;
         double Cvn = dim*numAtoms*nBeads/2.0/beta/beta;
         for (int k = 0; k < nBeads; k++) {
+            En -= dim*numAtoms*gk[k];
             Cvn += dim*numAtoms*gk2[k];
         }
-        if (numAtoms > 1 && omega2 != 0) Cvn -= dim/2.0/beta/beta; //com
+        if (numAtoms > 1 && omega2 != 0) {
+            En -= dim/2.0/beta; //com: -dim*gk[nK]
+            Cvn -= dim/2.0/beta/beta;
+        }
 
-        if (numAtoms > 1) drShift = computeShift();
+        double dbUdb = getdbUdb(beta, lambda, M);
+        En += dbUdb;
+        x[0] = En;
 
-        getEn(beta_p, lambda_p, M_p);
-        double dbUdb_p = dbUdb;
-        getEn(beta_m, lambda_m, M_m);
-        double dbUdb_m = dbUdb;
+        double dbUdb_p = getdbUdb(beta_p, lambda_p, M_p);
+        double dbUdb_m = getdbUdb(beta_m, lambda_m, M_m);
         double d2bUdb2 = (dbUdb_p - dbUdb_m)/(2*dbeta);
         x[1] = Cvn - d2bUdb2  + x[0]*x[0];
 
         return data;
     }
 
-    private void getEn(double beta_new, double[] lambda_new, double[][] M_new) {
+    private double getdbUdb(double beta_new, double[] lambda_new, double[][] M_new) {
         if (beta_new != beta) scaleCoord(beta_new, lambda_new);
         // rdot
         Vector drj = box.getSpace().makeVector();
@@ -125,7 +124,6 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
             for (int j = 0; j < nBeads; j++) {
                 drj.Ev1Mv2(atoms.get(j).getPosition(), latticePositions[molecule.getIndex()]);
                 drj.PE(drShift);
-                box.getBoundary().nearestImage(drj);
                 for (int i = 0; i < nBeads; i++) {
                     int iAtom = atoms.get(i).getLeafIndex();
                     rdot[iAtom].PEa1Tv1(M_new[i][j], drj);
@@ -145,15 +143,11 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
             forcesK[i].TE(beta2/beta_new2);
         }
 
-        dbUdb = U - K;
-        En = dim*numAtoms*nBeads/2.0/beta + U - K;
-        for (int i = 0; i < nBeads; i++) En -= dim*numAtoms*gk[i];
-
+        double dbUdb = U - K;
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 int j = atom.getLeafIndex();
                 dbUdb -= beta_new*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
-                En -= beta_new*(forcesU[j].dot(rdot[j]) + forcesK[j].dot(rdot[j]));
             }
         }
 
@@ -165,7 +159,7 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
                 }
             }
         }
-
+        return dbUdb;
     }
 
     // Scale coordinates using NM
@@ -177,12 +171,11 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
             for (IAtom atom : molecule.getChildList()) {
                 dri.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
                 dri.PE(drShift);
-                box.getBoundary().nearestImage(dri);
                 for (int k = 0; k < nBeads; k++) {
                     q[k].PEa1Tv1(eigenvectors[atom.getIndex()][k]/Math.sqrt(nBeads), dri);
                 }
             }
-            // Scale NM
+            // Scaled NM
             for (int k = 0; k < nBeads; k++) {
                 q[k].TE(Math.sqrt(lambda[k]*beta/lambda_new[k]/beta_new));
             }
@@ -192,7 +185,6 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
                 for (int k = 0; k < nBeads; k++) {
                     dri.PEa1Tv1(Math.sqrt(nBeads)*eigenvectors[atom.getIndex()][k], q[k]);
                 }
-                box.getBoundary().nearestImage(dri);
                 atom.getPosition().Ev1Pv2(latticePositions[molecule.getIndex()], dri);
             }
         }
@@ -200,7 +192,7 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
 
     // gk, gk2, eigenvalues and M at 0,+,- perturpations.
     // eigenvectors
-    private void getMappingParams() {
+    private void computeMappingParams() {
         int nK = nBeads/2;
         //Scaling parameters: gk
         gk = new double[nBeads]; gk_p = new double[nBeads]; gk_m = new double[nBeads];
@@ -287,35 +279,6 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
         }
     }
 
-    protected Vector computeShift() {
-        if (numAtoms == 1) return box.getSpace().makeVector();
-        int n = box.getMoleculeList().get(0).getChildList().size();
-        Vector shift0 = box.getSpace().makeVector();
-        Boundary boundary = box.getBoundary();
-        Vector dr = box.getSpace().makeVector();
-        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        dr.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-//        boundary.nearestImage(dr);
-        shift0.Ea1Tv1(-1, dr);
-        // will shift ring0 back to lattice site; everything should be close and PBC should lock in
-        // now determine additional shift needed to bring back to original COM
-//        Vector totalShift = box.getSpace().makeVector();
-//        for (int j = 0; j < numAtoms; j++) {
-//            IMolecule molecule = box.getMoleculeList().get(j);
-//            for (int i = 0; i < n; i++) {
-//                Vector r = molecule.getChildList().get(i).getPosition();
-//                dr.Ev1Mv2(r, latticePositions[j]);
-//                dr.PE(shift0);
-//                boundary.nearestImage(dr);
-//                totalShift.PE(dr);
-//            }
-//        }
-//        totalShift.TE(-1.0/box.getLeafList().size());
-//        totalShift.PE(shift0);
-//        return totalShift;
-        return shift0;
-    }
-
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
@@ -325,4 +288,14 @@ public class MeterPIHMAFD implements IDataSource, PotentialCallback {
     }
 
     public void setEnShift(double E) { this.EnShift = E; }
+
+    protected Vector computeShift() {
+        if (box.getMoleculeList().size() == 1) return box.getSpace().makeVector();
+        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
+        Vector drShift = box.getSpace().makeVector();
+        drShift.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
+        drShift.TE(-1);
+        return drShift;
+    }
+
 }

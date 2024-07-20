@@ -72,8 +72,8 @@ public class LJPIMDFD extends Simulation {
         double beta = 1 / temperature;
         betaN = beta/nBeads;
 
-        double omegaN = Math.sqrt(nBeads)/(hbar*beta);
-        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN;
+        double omegaN = nBeads/(hbar*beta);
+        double k2_kin = nBeads == 1 ? 0 : mass*omegaN*omegaN/nBeads;
         P2Harmonic p2Bond = new P2Harmonic(k2_kin, 0);
         List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < nBeads; i++) {
@@ -168,7 +168,7 @@ public class LJPIMDFD extends Simulation {
             nBeads = (int) (20*x);
         }
 
-        double omegaN = Math.sqrt(nBeads)*temperature/hbar;
+        double omegaN = nBeads*temperature/hbar;
 //        if (timeStep == -1) {
 //            if (coordType == MoveChoice.Real) {
 //                timeStep = facTimestep/omegaN/Math.sqrt(nBeads);// mi=m/n in real space, so m wn^2 = (m/n)*(n wn^2)==> dt~1/[wn sqrt(n)]
@@ -230,10 +230,8 @@ public class LJPIMDFD extends Simulation {
             meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
             meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, 0, sim.box, hbar);
             meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, omega2, sim.box, hbar);
-            meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple);
-            meterStageSimple.setNumShifts(nShifts);
-            meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC);
-            meterStageEC.setNumShifts(nShifts);
+            meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple, nShifts);
+            meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC, nShifts);
         }
 
 

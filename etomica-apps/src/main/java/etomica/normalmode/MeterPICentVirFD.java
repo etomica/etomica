@@ -15,6 +15,9 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
+/**
+ Only works for PIMD where atoms are not wrapped back to box. Needs fixed for PIMC.
+ */
 public class MeterPICentVirFD implements IDataSource, PotentialCallback {
     protected Box box;
     protected final PotentialCompute pcP1;
@@ -55,7 +58,11 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
     public IData getData() {
         double[] x = data.getData();
         for (IMolecule molecule : box.getMoleculeList()) {
-            rc[molecule.getIndex()] = CenterOfMass.position(box, molecule);
+            rc[molecule.getIndex()].E(0);
+            for (IAtom atom : molecule.getChildList()) {
+                rc[molecule.getIndex()].PE(atom.getPosition());
+            }
+            rc[molecule.getIndex()].TE(1.0/nBeads);
         }
         double vir = 0;
         pcP1.computeAll(true, null);
@@ -65,7 +72,6 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
             for (IAtom atom : molecule.getChildList()) {
                 rOrig[atom.getLeafIndex()].E(atom.getPosition());
                 rirc.Ev1Mv2(rOrig[atom.getLeafIndex()], rc[molecule.getIndex()]);
-                box.getBoundary().nearestImage(rirc);
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
@@ -76,9 +82,6 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
         double d2bUdb2 = (dbUdb_p - dbUdb_m)/(2*dbeta);
 
         x[1] = dim*numAtoms/2.0/beta/beta - d2bUdb2 +  x[0]*x[0];
-
-//        System.out.println("FD-CV: "+ (-d2bUdb2));
-//        System.out.println();
 
         return data;
     }
@@ -98,7 +101,6 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 rirc.Ev1Mv2(atom.getPosition(), rc[molecule.getIndex()]);
-                box.getBoundary().nearestImage(rirc);
                 rirc.TE(Math.sqrt(beta_new/beta));
                 atom.getPosition().Ev1Pv2(rc[molecule.getIndex()], rirc);
             }
@@ -111,13 +113,13 @@ public class MeterPICentVirFD implements IDataSource, PotentialCallback {
             for (IAtom atom : molecule.getChildList()) {
                 Vector ri = atom.getPosition();
                 rirc.Ev1Mv2(ri, rc[molecule.getIndex()]);//no need to recompute rc, because it isn't changed!
-                box.getBoundary().nearestImage(rirc);
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
 
-        double dbUdb = pcP1.getLastEnergy() + 1.0 / 2.0 * vir;
 
+        double dbUdb = pcP1.getLastEnergy() + 1.0/2.0*vir;
+        // Bring atoms back to their original coord
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 atom.getPosition().E(rOrig[atom.getLeafIndex()]);
