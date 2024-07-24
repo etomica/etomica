@@ -3,27 +3,18 @@ package etomica.GasMOP;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
-import etomica.potential.TraPPE.LJTraPPE;
-import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.UFF.*;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.units.*;
-import etomica.util.Constants;
 
 import java.util.*;
 
 public class SetPotential {
     public IntegratorMC integrator;
-    public MCMoveMolecule mcMoveMolecule;
-    public MCMoveMoleculeRotate mcMoveMoleculeRotate;
-    public MCMoveInsertDelete mcMoveID;
-    public ISpecies speciesMOP, speciesGas, speciesGrapheneOne, speciesGrapheneTwo;
+  //  public MCMoveInsertDelete mcMoveID;
     public Box box;
     public P2LennardJones potential;
     public SpeciesManager sm;
@@ -31,8 +22,7 @@ public class SetPotential {
     public static double sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey;
     public int i;
     public static String atomName1,atomName2, atomName3 ;
-    public static List<List<AtomType>> listMOPGasMixed = new ArrayList<>();
-    public static List<List<AtomType>> listGrapheneGasMixed = new ArrayList<>();
+
 
     public void setBondStretch(ISpecies species1, Map<String[], List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1, Map<String[],List<int[]>> torsionTypesMap1, ArrayList<Integer> bondsNum1, ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1, Map<String, double[]> atomicPotMap1, PotentialMasterBonding pmBonding){
         double Vi =0, Vj =0, V=0, Vtrue=0,  type;
@@ -210,7 +200,7 @@ public class SetPotential {
             i++;
         }
     }
-    public void doLJ(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, int pairAtomSize, double truncatedRadius, boolean ifTraPPE){
+   /* public void doLJ(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, int pairAtomSize, double truncatedRadius, boolean ifTraPPE){
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
         int i = 0;
@@ -227,10 +217,10 @@ public class SetPotential {
             String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
             double[] iKey = pdbReaderMOP.atomicPot(atomTypeOne);
             double[] jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
-         /*   if (atomTypeOne.equals("CX") && atomTypeTwo.equals("CX")){
+            if (atomTypeOne.equals("CX") && atomTypeTwo.equals("CX")){
                 System.out.println("Here in CXCX");
                 continue;
-            }*/
+            }
             // System.out.println(atomTypeOne+ " "+ Arrays.toString(iKey)+" " +atomTypeTwo+ " "+ Arrays.toString(jKey));
             if(iKey == null){
                 iKey = returnGaFF(atomTypeOne);
@@ -268,7 +258,7 @@ public class SetPotential {
             //potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);
             i++;
         }
-    }
+    }*/
 
     public void doLJElectrostatic(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, IPotential2[] p2lj, int pairAtomSize, double truncatedRadius, boolean doElectrostatics){
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
@@ -331,7 +321,7 @@ public class SetPotential {
     }
     public void doLJElectrostatic(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, int pairAtomSize, double truncatedRadius, boolean doElectrostatics, boolean ifTraPPE){
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
-        SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
+        //SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
         int i = 0;
         UFF uff = new UFF();
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
@@ -353,7 +343,7 @@ public class SetPotential {
             }*/
             // System.out.println(atomTypeOne+ " "+ Arrays.toString(iKey)+" " +atomTypeTwo+ " "+ Arrays.toString(jKey));
             if(iKey == null && ifTraPPE){
-                iKey  = speciesTraPPE.atomicPot(atomTypeOne);
+             //   iKey  = speciesTraPPE.atomicPot(atomTypeOne);
                 sigmaIKey = iKey[0];
                 epsilonIKey = Math.pow(2,1.0/6.0)*0.001987*Kelvin.UNIT.toSim(iKey[1]);
             } else if (iKey == null ) {
@@ -372,7 +362,7 @@ public class SetPotential {
                 epsilonJKey = kcals.toSim(iKey[0]);
                 sigmaJKey = jKey[1];
             }else if (ifTraPPE) {
-                jKey  = speciesTraPPE.atomicPot(atomTypeTwo);
+              //  jKey  = speciesTraPPE.atomicPot(atomTypeTwo);
                 sigmaJKey = jKey[0];
                 epsilonJKey =Math.pow(2,1.0/6.0)*0.001987*Kelvin.UNIT.toSim(jKey[1]);
             } else {
