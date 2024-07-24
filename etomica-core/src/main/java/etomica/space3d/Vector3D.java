@@ -186,8 +186,10 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public double dot(Vector u) {
-        return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
-                * ((Vector3D) u).z;
+        double dx = x * ((Vector3D) u).x;
+        double dy = y * ((Vector3D) u).y;
+        double dz = z * ((Vector3D) u).z;
+        return dx + dy +dz;
     }
 
     /*

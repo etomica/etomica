@@ -31,7 +31,9 @@ import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.MCMoveWiggle;
 import etomica.simulation.prototypes.MeterTorsionAngle;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesManager;
@@ -65,9 +67,11 @@ public class UniversalSimulation extends Simulation {
 
         super(space);
         int atom1 = 0, atom2 = 0, atom3=0;
-        String confName = "F://Avagadro//molecule//ch4" ;
+       // String confName = "F://Avagadro//mopstrands//demo//3" ;
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         int num = 1;
-        species = PDBReaderReplica.getSpecies(confName);
+        Vector centreMol = new Vector3D(0.0,0.0,0.0);
+        species = pdbReaderMOP.getSpecies(configFileName, false, centreMol, false);
         System.out.println("Species");
         System.out.println(species.getMass());
         List<AtomType> atomTypes = species.getUniqueAtomTypes();
@@ -97,52 +101,54 @@ public class UniversalSimulation extends Simulation {
         box.setNMolecules(species, numMoleules);
         new BoxInflate(box, space, density).actionPerformed();
         System.out.println(species);
+
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
         System.out.println("In simulation Universal");
-        ArrayList<ArrayList<Integer>> connectedAtoms = PDBReaderReplica.getConnectivityWithoutRunning();
+        ArrayList<ArrayList<Integer>> connectedAtoms = pdbReaderMOP.getConnectivity();
         System.out.println(connectedAtoms+ ": connectedAtom");
-        ArrayList<ArrayList<Integer>> connectivityModified = PDBReaderReplica.getConnectivityModifiedWithoutRunning();
+        ArrayList<ArrayList<Integer>> connectivityModified = pdbReaderMOP.getConnectivityModifiedWithoutRunning();
         System.out.println(connectivityModified+ ": connectedAtomModified" );
-        Map<Integer,String> atomMap = PDBReaderReplica.getAtomMapWithoutRunning();
+        Map<Integer,String> atomMap = pdbReaderMOP.getAtomMapWithoutRunning();
         System.out.println(atomMap + ": atomMap");
-        HashMap<Integer, String> atomMapModified = PDBReaderReplica.getAtomMapModifiedWithoutRunning();
+        Map<Integer, String> atomMapModified = pdbReaderMOP.getAtomMapModifiedWithoutRunning();
         System.out.println(atomMapModified + ": atomMapModified");
-        List<int[]> duplets = PDBReaderReplica.getduplets();
+        List<int[]> duplets = pdbReaderMOP.getduplets();
         System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
-        List<int[]> triplets = PDBReaderReplica.gettriplets();
+        List<int[]> triplets = pdbReaderMOP.gettriplets();
         System.out.println(Arrays.deepToString(triplets.toArray())+ ": listOfAngleModified");
-        List<int[]> quadruplets = PDBReaderReplica.getquadruplets();
+        List<int[]> quadruplets = pdbReaderMOP.getquadruplets();
         System.out.println(Arrays.deepToString(quadruplets.toArray())+ " listOfTorsionModified");
-        ArrayList<Integer> bondList = PDBReaderReplica.getBondList(connectedAtoms, atomMap);
+        ArrayList<Integer> bondList = pdbReaderMOP.getBondList(connectedAtoms, atomMap);
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        Map<Integer, String> atomIdentifierMapModified = PDBReaderReplica.getModifiedAtomIdentifierMap();
-        Map<String, double[]> atomicPotMap = PDBReaderReplica.atomicPotMap();
+        Map<Integer, String> atomIdentifierMapModified = pdbReaderMOP.getModifiedAtomIdentifierMap();
+        Map<String, double[]> atomicPotMap = pdbReaderMOP.atomicPotMap();
         System.out.println(atomicPotMap +" atomic Pot");
         makeAtomPotentials(sm);
         System.out.println(atomicPotMap + "atomicPotMap");
         System.out.println(atomIdentifierMapModified);
        // System.exit(1);
-        ArrayList<Integer> bondsNum = PDBReaderReplica.getBonds();
+        ArrayList<Integer> bondsNum = pdbReaderMOP.getBonds();
         System.out.println(bondsNum + " bondNums");
-        List<int[]> dupletsSorted= PDBReaderReplica.getDupletesSorted();
-        Map<String, Integer> anglemap = PDBReaderReplica.getangleMap(dupletsSorted, bondsNum);
+        List<int[]> dupletsSorted= pdbReaderMOP.getDupletesSorted();
+        Map<String, Integer> anglemap = pdbReaderMOP.getangleMap(dupletsSorted, bondsNum);
         System.out.println(Arrays.deepToString(dupletsSorted.toArray()) + " duplets Sorted");
         System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
-        List<int[]>tripletsSorted= PDBReaderReplica.getAnglesSorted();
+        List<int[]>tripletsSorted= pdbReaderMOP.getAnglesSorted();
         System.out.println(Arrays.deepToString(tripletsSorted.toArray()) + "triplets");
-        List<int[]>quadrupletsSorted= PDBReaderReplica.getTorsionSorted();
-        List<int[]> inversionsSorted = PDBReaderReplica.getListofInversions();
+        List<int[]>quadrupletsSorted= pdbReaderMOP.getTorsionSorted();
+        List<int[]> inversionsSorted = pdbReaderMOP.getListofInversions();
         System.out.println(Arrays.deepToString(inversionsSorted.toArray()));
+        System.out.println("Here 137");
         //System.exit(1);
       // List<int[]>inversionSorted=PDBReader.getListofInversions();
        // System.out.println(Arrays.deepToString(inversionSorted.toArray()));
 
         //List<int[]>valuePairs = PDBReader.firstLocationOfAtomPrinter(atomIdentifierMapModified);
         //System.out.println(Arrays.deepToString(valuePairs.toArray()) + "valuePairs");
-        Map<String[],List<int[]>> angleTypesMap= PDBReaderReplica.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
-        Map<String[],List<int[]>> torsionTypesMap= PDBReaderReplica.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
-        Map<Integer, Integer> angleTypeSorter = PDBReaderReplica.coordinationNumberDeterminer(connectivityModified, atomIdentifierMapModified);
+        Map<String[],List<int[]>> angleTypesMap= pdbReaderMOP.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> torsionTypesMap= pdbReaderMOP.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
+        Map<Integer, Integer> angleTypeSorter = pdbReaderMOP.coordinationNumberDeterminer(connectivityModified, atomIdentifierMapModified);
        // System.out.println(angleTypeSorter);
         //Set<String> uniqueAtoms = PDBReader.uniqueElementIdentifier();
         //System.out.println(uniqueAtoms + "uniqueAtoms");
@@ -289,7 +295,8 @@ public class UniversalSimulation extends Simulation {
                 System.out.println(bondListValueOne +" " +bondListValueTwo +" " +bondListValueThree);
                 angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree, num);
                 System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
-                P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3], atomTwoPot[1] ,num, caseNum);
+                double angleTwoPot = Degree.UNIT.toSim(atomTwoPot[1]);
+                P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3],angleTwoPot  ,num, caseNum);
                 pmBonding.setBondingPotentialTriplet(species, p3Angle, angle);
                 break;
             }
@@ -392,8 +399,8 @@ public class UniversalSimulation extends Simulation {
             String atomTypeStringTwo = String.valueOf(atomPairs.get(1));
             String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
             String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
-            double[] iKey = PDBReaderReplica.atomicPot(atomTypeOne);
-            double[] jKey = PDBReaderReplica.atomicPot(atomTypeTwo);
+            double[] iKey = pdbReaderMOP.atomicPot(atomTypeOne);
+            double[] jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
             //System.out.println(atomNameOne + " " + Arrays.toString(iKey) + " " + atomNameTwo + " " + Arrays.toString(jKey));
             double epsilonIKey = kcals.toSim(iKey[3]);
             double epsilonJKey = kcals.toSim(jKey[3]);
@@ -425,32 +432,30 @@ public class UniversalSimulation extends Simulation {
         integratorMC.getMoveManager().addMCMove(moveAtom);
 
 
-        if (configFileName != null) {
-            ConfigurationFile config = new ConfigurationFile(configFileName);
-            config.initializeCoordinates(box);
-            BoxImposePbc.imposePBC(box);
-        }
-        else {
+       // if (configFileName != null) {
+           // ConfigurationFile config = new ConfigurationFile(configFileName);
+           // config.initializeCoordinates(box);
+           //BoxImposePbc.imposePBC(box);
+        //}
+      //  else {
             ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
             configuration.initializeCoordinates(box);
             potentialMasterCell.init();
             double u0 = potentialMasterCell.computeAll(false);
             double x = 1;
-            //System.out.println( u0 + " "+ x +" inMain "  + kcals.fromSim(u0));
+            System.out.println( u0 + " "+ x +" inMain "  + kcals.fromSim(u0));
+            System.exit(1);
            while (u0 > 1e6*numMoleules) {
                //System.out.println(x +" before");
                x *= 0.99;
               // System.out.println( x +" =x");
                 for(int j = 0; j< pairAtomSize; j++){
                     System.out.println(x + " " + sigmaIJ[0]);
-                    p2LJ[j].setSigmaNew(x*sigmaIJ[j]);
+                    p2LJ[j].setSigma(x*sigmaIJ[j]);
                     ((P2SoftSphericalSumTruncatedForceShifted)p2lj[j]).setTruncationRadius(rc);
                 }
                 u0 = potentialMasterCell.computeAll(false);
-
-
-
-               // System.out.println( u0 + " inMain afterwards " +kcals.fromSim(u0));
+                System.out.println( u0 + " inMain afterwards " +kcals.fromSim(u0));
             }
             //System.out.println( u0 + " inMain afterwards "  + kcals.fromSim(u0));
 
@@ -468,14 +473,14 @@ public class UniversalSimulation extends Simulation {
                     if (x > 1) x = 1;
                     for(int j = 0; j< pairAtomSize; j++){
                         //  System.out.println("Inside Loop Two - 3");
-                        p2LJ[j].setSigmaNew(x*sigmaIJ[j]);
+                        p2LJ[j].setSigma(x*sigmaIJ[j]);
                         ((P2SoftSphericalSumTruncatedForceShifted)p2lj[j]).setTruncationRadius(rc);
                     }
                     u0 = potentialMasterCell.computeAll(false);
                     //System.out.println(u0 +" inside Array @");
                 }
                 integratorMC.reset();
-            }
+           // }
         }
     }
 
@@ -488,7 +493,7 @@ public class UniversalSimulation extends Simulation {
         else {
             params.numSteps = 3500000;
             params.density = 0.00003;
-            params.configFilename = null; // "octane";
+            //params.configFilename = null; // "octane";
             params.graphics = true;
         }
 
@@ -522,7 +527,7 @@ public class UniversalSimulation extends Simulation {
         System.out.println("u0/N "+(meterU.getDataAsScalar()/numMolecules));
         Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT);
         System.out.println("u0/N  "+ kjmol.fromSim(meterU.getDataAsScalar() / numMolecules) + " kJ/mol");
-        System.exit(1);
+       // System.exit(1);
 
         MeterPressure meterP = new MeterPressure(sim.box, sim.pcAgg);
         meterP.setTemperature(temperature);
@@ -807,8 +812,8 @@ public class UniversalSimulation extends Simulation {
         //public int pressure = 10;
         public double density = 0.0000005;
         public boolean graphics = false;
-        public long numSteps = 1;
-        public String configFilename = null;
+        public long numSteps = 1000000;
+        public String configFilename = "F://Avagadro//molecule//co2";
         public double rc = 10;
         public double pressureKPa = 1402;
     }
@@ -818,7 +823,7 @@ public class UniversalSimulation extends Simulation {
         // we could try to store the potentials more compactly, but it doesn't really matter
         ISpecies species = sm.getSpecies(sm.getSpeciesCount() - 1);
         int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
-        System.out.println(lastTypeIndex + 1+ " "+lastTypeIndex + 1 + " lastTypeIndex" + " "+species.getAtomType(species.getUniqueAtomTypeCount() - 1));
+       // System.out.println(lastTypeIndex + 1+ " "+lastTypeIndex + 1 + " lastTypeIndex" + " "+species.getAtomType(species.getUniqueAtomTypeCount() - 1));
         return new IPotential2[lastTypeIndex + 1][lastTypeIndex + 1];
     }
 }

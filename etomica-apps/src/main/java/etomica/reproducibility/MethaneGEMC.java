@@ -13,12 +13,15 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.*;
+import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -45,11 +48,12 @@ public class MethaneGEMC extends Simulation {
     public final IntegratorManagerMC integratorGEMC;
     public final IntegratorMC[] integrator;
     public MCMoveAtom[] mcMoveAtom;
+    public MCMoveVolume[] mcMoveVolume;
 
     /**
      * Creates simulation with the given parameters
      */
-    public MethaneGEMC(int[] numAtoms, double[] density, double temperature, double rc, boolean shift, boolean lrc) {
+    public MethaneGEMC(int[] numAtoms, double[] density, double temperature, double pressure, double rc, boolean shift, boolean lrc) {
         super(Space3D.getInstance());
 
         SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
@@ -64,6 +68,7 @@ public class MethaneGEMC extends Simulation {
         potentialMaster = new PotentialMasterCell[2];
         integrator = new IntegratorMC[2];
         mcMoveAtom = new MCMoveAtom[2];
+        mcMoveVolume = new MCMoveVolume[2];
         Box[] boxes = new Box[2];
         for (int i=0; i<2; i++) {
             boxes[i] = new Box(space);
@@ -83,6 +88,8 @@ public class MethaneGEMC extends Simulation {
 
             mcMoveAtom[i] = new MCMoveAtom(random, potentialMaster[i], boxes[i]);
             integrator[i].getMoveManager().addMCMove(mcMoveAtom[i]);
+
+            mcMoveVolume[i] = new MCMoveVolume(integrator[i],random, Bar.UNIT.toSim(pressure));
         }
 
         integratorGEMC = IntegratorGEMC.buildGEMC(integrator[0], integrator[1], random, space);
@@ -93,12 +100,12 @@ public class MethaneGEMC extends Simulation {
     public static void main(String[] args) {
 
         SimParams params = new SimParams();
-        if (args.length > 0) {
+      /*  if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.steps = 120 * 1000 * (params.numAtoms[0] + params.numAtoms[1]);
-        }
+            params.steps = 120 * 1 * (params.numAtoms[0] + params.numAtoms[1]);
+        }*/
 
         // TraPPE says CH4 is 16.04
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/(16.04/Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
@@ -106,11 +113,12 @@ public class MethaneGEMC extends Simulation {
 
         double temperatureK = params.temperatureK;
         double temperature = Kelvin.UNIT.toSim(temperatureK);
+        double pressure = Bar.UNIT.toSim(params.pressure);
         double[] density = new double[]{dUnit.toSim(params.density[0]), dUnit.toSim(params.density[1])};
 
-        MethaneGEMC sim = new MethaneGEMC(params.numAtoms, density, temperature, params.rc, params.shift, params.lrc);
+        MethaneGEMC sim = new MethaneGEMC(params.numAtoms, density, temperature,pressure, params.rc, params.shift, params.lrc);
 
-        if (true) {
+        if (false) {
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DiameterHashByType diameterHash = (DiameterHashByType)graphic.getDisplayBox(sim.getBox(0)).getDiameterHash();
             diameterHash.setDiameter(sim.species().getLeafType(), 3.73);
@@ -219,52 +227,53 @@ public class MethaneGEMC extends Simulation {
         sim.mcMoveAtom[1].getTracker().reset();
 
         // data collection
-//        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-//        AccumulatorAverageFixed accPE = new AccumulatorAverageFixed(blockSize);
-//        DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, interval);
-//        sim.integrator.getEventManager().addListener(pumpPE);
-//
-//        MeterDensity meterDensity = new MeterDensity(sim.box());
-//        AccumulatorAverageFixed accDensity = new AccumulatorAverageFixed(blockSize);
-//        DataPumpListener pumpDensity = new DataPumpListener(meterDensity, accDensity, interval);
-//        sim.integrator.getEventManager().addListener(pumpDensity);
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator[0]);
+        AccumulatorAverageFixed accPE = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, interval);
+        sim.integrator[0].getEventManager().addListener(pumpPE);
+
+        MeterDensity meterDensity = new MeterDensity(sim.box());
+        AccumulatorAverageFixed accDensity = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpDensity = new DataPumpListener(meterDensity, accDensity, interval);
+        sim.integrator[0].getEventManager().addListener(pumpDensity);
 
         sim.integratorGEMC.resetStepCount();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorGEMC, steps));
 
         long t2 = System.currentTimeMillis();
-//
-//        MCMoveStepTracker volumeTracker = (MCMoveStepTracker) sim.mcMoveVolume.getTracker();
-//        System.out.println("volume change fraction: "+((double)volumeTracker.nTrials)/params.steps);
-//        System.out.println("volume change step size: "+sim.mcMoveVolume.getStepSize());
-//        System.out.println("volume change acceptance: "+volumeTracker.acceptanceProbability());
-//
-//        MCMoveStepTracker displacementTracker = (MCMoveStepTracker) sim.mcMoveAtom.getTracker();
-//        System.out.println("displacement fraction: "+((double)displacementTracker.nTrials)/params.steps);
-//        System.out.println("displacement step size: "+sim.mcMoveAtom.getStepSize());
-//        System.out.println("displacement acceptance: "+displacementTracker.acceptanceProbability());
-//        System.out.println();
-//
-//        DataGroup dataPE = (DataGroup) accPE.getData();
-//        int numAtoms = sim.getBox(0).getLeafList().size();
-//        double avg = dataPE.getValue(accPE.AVERAGE.index) / numAtoms;
-//        double err = dataPE.getValue(accPE.ERROR.index) / numAtoms;
-//        double cor = dataPE.getValue(accPE.BLOCK_CORRELATION.index);
-//
-//        DataGroup dataDensity = (DataGroup) accDensity.getData();
-//        double avgDensity = dataDensity.getValue(accPE.AVERAGE.index);
-//        double errDensity = dataDensity.getValue(accPE.ERROR.index);
-//        double corDensity = dataDensity.getValue(accPE.BLOCK_CORRELATION.index);
-//
-//        System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
-//        System.out.println("density avg: " + avgDensity + "  err: " + errDensity + "  cor: " + corDensity);
-//        System.out.println("density avg (g/cm^3): " + dUnit.fromSim(avgDensity) + "  err: " + dUnit.fromSim(errDensity) + "  cor: " + corDensity);
+
+        MCMoveStepTracker volumeTracker = (MCMoveStepTracker) sim.mcMoveVolume[1].getTracker();
+        System.out.println("volume change fraction: "+((double)volumeTracker.nTrials)/params.steps);
+        System.out.println("volume change step size: "+sim.mcMoveVolume[1].getStepSize());
+        System.out.println("volume change acceptance: "+volumeTracker.acceptanceProbability());
+
+        MCMoveStepTracker displacementTracker = (MCMoveStepTracker) sim.mcMoveAtom[0].getTracker();
+       System.out.println("displacement fraction: "+((double)displacementTracker.nTrials)/params.steps);
+        System.out.println("displacement step size: "+sim.mcMoveAtom[0].getStepSize());
+        System.out.println("displacement acceptance: "+displacementTracker.acceptanceProbability());
+        System.out.println();
+
+        DataGroup dataPE = (DataGroup) accPE.getData();
+        int numAtoms = sim.getBox(0).getLeafList().size();
+        double avg = dataPE.getValue(accPE.AVERAGE.index) / numAtoms;
+        double err = dataPE.getValue(accPE.ERROR.index) / numAtoms;
+        double cor = dataPE.getValue(accPE.BLOCK_CORRELATION.index);
+
+        DataGroup dataDensity = (DataGroup) accDensity.getData();
+        double avgDensity = dataDensity.getValue(accPE.AVERAGE.index);
+        double errDensity = dataDensity.getValue(accPE.ERROR.index);
+        double corDensity = dataDensity.getValue(accPE.BLOCK_CORRELATION.index);
+
+        System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
+        System.out.println("density avg: " + avgDensity + "  err: " + errDensity + "  cor: " + corDensity);
+        System.out.println("density avg (g/cm^3): " + dUnit.fromSim(avgDensity) + "  err: " + dUnit.fromSim(errDensity) + "  cor: " + corDensity);
         System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 100000000;
+        public long steps = 2000000;
         public double[] density = new double[]{0.3752,0.0117};
+        public double pressure = 10;
         public double temperatureK = 140;
         public int[] numAtoms = new int[]{900,100};
         public double rc = 14;

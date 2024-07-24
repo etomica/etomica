@@ -284,4 +284,5 @@ public class SpeciesGasTraPPE {
         return atomicConstant.get(atomtype);
     }
 
+
 }

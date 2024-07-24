@@ -55,7 +55,7 @@ public class VirialLJV {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.nPoints = 2;
-            params.numSteps = 10000000L;
+            params.numSteps = 100000L;
             params.ref = ReferenceChoice.CHAIN_TREE;
             params.chainFrac = 0.5;
             params.D = 3;
@@ -77,7 +77,6 @@ public class VirialLJV {
         System.out.println("B" + nPoints);
 
         Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : new BoundaryRectangularNonperiodic(space);
-
         MayerVDependent fTarget = new MayerVDependent(new MayerGeneralSpherical(new P2LennardJones()), b);
         MayerVDependent fRefPos = new MayerVDependent(new MayerFunction() {
             @Override
@@ -164,7 +163,7 @@ public class VirialLJV {
             throw new RuntimeException("Unknown reference");
         }
 
-        if (false) {
+       /* if (false) {
             if (L == Double.POSITIVE_INFINITY || L == 0)
                 sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -228,7 +227,7 @@ public class VirialLJV {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
 
             return;
-        }
+        }*/
 
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
@@ -258,7 +257,7 @@ public class VirialLJV {
      */
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
-        public long numSteps = 100000000;
+        public long numSteps = 100000;
         public ReferenceChoice ref = ReferenceChoice.CHAIN_TREE;
         public double chainFrac = 0.5;
         public int D = 3;

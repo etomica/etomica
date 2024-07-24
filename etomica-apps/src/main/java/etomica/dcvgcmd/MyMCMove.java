@@ -70,9 +70,9 @@ public class MyMCMove extends MCMoveInsertDelete {
 					continue;
 				}
 				nReservoirTrialsAccepted++;
-				if (nReservoirTrialsAccepted % 100000 == 0) {
+				/*if (nReservoirTrialsAccepted % 100000 == 0) {
 					System.out.println(nReservoirTrials + " trials, " + (nReservoirTrialsAccepted / (double) nReservoirTrials) + " accepted");
-				}
+				}*/
 				u = uNew;
 			}
 

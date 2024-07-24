@@ -153,6 +153,7 @@ public class SimGlass extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
+
         integrator.setThermostatNoDrift(true);
         if (potentialChoice == PotentialChoice.HS) {
             integrator.setAlwaysScaleRandomizedMomenta(true);

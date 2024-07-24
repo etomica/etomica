@@ -23,7 +23,7 @@ import etomica.util.random.IRandom;
 
 public class IntegratorMC extends IntegratorBox {
 
-    public static boolean dodebug;
+    public static boolean dodebug =false;
     protected final IRandom random;
     protected final EventManager<MCMoveEvent> moveEventManager;
     private final MCMoveEvent trialEvent, trialFailedEvent;
@@ -88,9 +88,10 @@ public class IntegratorMC extends IntegratorBox {
 
         //decide acceptance
         double chi = move.getChi(temperature);
+///        System.out.println(stepCount);
         if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
-            if (dodebug) {
-                System.out.println(stepCount + " move " + move + " rejected " + chi);
+          if (dodebug) {
+               System.out.println(stepCount + " move " + move + " rejected " + chi +" \n");
             }
             move.getTracker().updateCounts(false, chi);
             move.rejectNotify();
@@ -98,8 +99,8 @@ public class IntegratorMC extends IntegratorBox {
             rejectedEvent.chi = chi;
             moveEventManager.fireEvent(rejectedEvent);
         } else {
-            if (dodebug) {
-                System.out.println(stepCount + " move " + move + " accepted " + chi);
+          if (dodebug) {
+                System.out.println(stepCount + " move " + move + " accepted " + chi + " \n");
             }
             move.getTracker().updateCounts(true, chi);
             move.acceptNotify();

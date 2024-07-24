@@ -1,6 +1,5 @@
 package etomica.potential.COMPASS;
 
-import etomica.potential.IPotential2;
 import etomica.potential.IPotentialBondTorsionHybrid;
 
 public class BondTorsionCOMPASS implements IPotentialBondTorsionHybrid {

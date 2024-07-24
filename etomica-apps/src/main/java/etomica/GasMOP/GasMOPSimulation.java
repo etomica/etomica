@@ -36,6 +36,7 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.units.*;
 import etomica.units.dimensions.Null;
+import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
@@ -47,10 +48,9 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class GasMOPSimulation extends Simulation {
+public class GasMOPSimulation extends Simulation{
     public PotentialCompute pcAgg;
     public IntegratorMC integratorMC;
-    // public SpeciesGeneral species;
     public Box box;
     public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDelete mcMoveID;
@@ -66,31 +66,32 @@ public class GasMOPSimulation extends Simulation {
     public static String atomName1, atomName2, atomName3;
 
 
-    public GasMOPSimulation(Space space,String speciesMOPName,String speciesGasName,  double density, int numMoleulesGas, int numMoleulesMOP, double temperature, String configFileName, int rc, double pressure, boolean isDynamic, Vector boxSize){
+    public GasMOPSimulation(Space space,String speciesMOPName, Vector centreMOP,String speciesGasName,  double density, int numMoleulesGas, int numMoleulesMOP, double temperature, String configFileName, double rc, double pressure, boolean isDynamic, Vector boxSize){
         super(space);
         int i, j;
+        System.out.println(rc);
        // setRandom(new RandomMersenneTwister(1));
         //Call MoleculeOne
-        System.out.println("Molecule One");
+  //      System.out.println("Molecule One");
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
-        DoPotential doPotential = new DoPotential();
-        speciesMOP = pdbReaderMOP.getSpecies(speciesMOPName, isDynamic );
-        System.out.println(speciesMOP);
+        SetPotential doPotential = new SetPotential();
+        speciesMOP = pdbReaderMOP.getSpecies(speciesMOPName, isDynamic, centreMOP, false );
+      //  System.out.println(speciesMOP);
        // printCOM(speciesMOP, centreMOP);
         List<AtomType> atomTypes1 = speciesMOP.getUniqueAtomTypes();
         List<List<AtomType>> pairsAtoms1 = VirialMultiUFF.getSpeciesPairs(speciesMOP);
-        System.out.println(Arrays.deepToString(pairsAtoms1.toArray()));
+       // System.out.println(Arrays.deepToString(pairsAtoms1.toArray()));
         int pairAtomSize = pairsAtoms1.size();
 
         //Call Molecule Two
-        System.out.println("Molecule Two");
-        speciesGas = pdbReaderReplica.getSpecies(speciesGasName);
+      //  System.out.println("Molecule Two");
+        speciesGas = pdbReaderReplica.getSpecies(speciesGasName, true,new Vector3D(0,0,0), false);
      //   printCOM(speciesGas, centreGas);
         List<List<AtomType>> pairsAtoms2 = VirialMultiUFF.getSpeciesPairs(speciesGas);
         int pairAtomSize2 = pairsAtoms2.size();
         //Add both Molecules
-        setRandom(new RandomMersenneTwister(1));
+
         addSpecies(speciesMOP);
         addSpecies(speciesGas);
         box = this.makeBox();
@@ -103,19 +104,19 @@ public class GasMOPSimulation extends Simulation {
 
 
         //Set Potential One
-        ArrayList<ArrayList<Integer>> connectedAtoms1 = pdbReaderMOP.getConnectivityWithoutRunning();
-        System.out.println(connectedAtoms1);
+        ArrayList<ArrayList<Integer>> connectedAtoms1 = pdbReaderMOP.getConnectivity();
+        //System.out.println(connectedAtoms1);
         ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModifiedWithoutRunning();
-        System.out.println(connectivityModified1);
+       // System.out.println(connectivityModified1);
         Map<Integer,String> atomMap1 = pdbReaderMOP.getAtomMapWithoutRunning();
-        System.out.println(atomMap1);
-        HashMap<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModifiedWithoutRunning();
-        System.out.println(atomMapModified1);
+       // System.out.println(atomMap1);
+        Map<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModifiedWithoutRunning();
+       // System.out.println(atomMapModified1);
         ArrayList<Integer> bondList1 = pdbReaderMOP.getBondList(connectedAtoms1, atomMap1);
-        System.out.println(bondList1);
+       // System.out.println(bondList1);
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
         Map<String, double[]> atomicPotMap1 = pdbReaderMOP.atomicPotMap();
-        System.out.println(atomicPotMap1);
+       // System.out.println(atomicPotMap1);
         ArrayList<Integer> bondsNum1 = pdbReaderMOP.getBonds();
 
         Map<Integer, String> atomIdentifierMapModified1 = pdbReaderMOP.getModifiedAtomIdentifierMap();
@@ -132,7 +133,7 @@ public class GasMOPSimulation extends Simulation {
             ArrayList<Integer> modifiedInnerList = new ArrayList<>(innerList.subList(1, innerList.size()));
             modifiedOutput1.add(modifiedInnerList);
         }
-        System.out.println(modifiedOutput1 +" modified");
+     //   System.out.println(modifiedOutput1 +" modified");
         IntArrayList[] dupletsIntArrayList1 = new IntArrayList[modifiedOutput1.size()];
 
         for (i = 0; i < modifiedOutput1.size(); i++) {
@@ -145,19 +146,20 @@ public class GasMOPSimulation extends Simulation {
             dupletsIntArrayList1[i] = intArrayList;
             //  System.out.println(dupletsIntArrayList[i]);
         }
-        for (IntArrayList list : dupletsIntArrayList1) {
+       /* for (IntArrayList list : dupletsIntArrayList1) {
             for (i = 0; i < list.size(); i++) {
                 int value = list.getInt(i);
-                System.out.print(value + " ");
+               // System.out.print(value + " ");
             }
-        }
+        }*/
+        SetPotential setPotential = new SetPotential();
         PotentialMasterBonding.FullBondingInfo bondingInfo1 = new PotentialMasterBonding.FullBondingInfo(sm1);
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
-        setupBondStrech(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, bondingInfo1, pmBonding);
+        setPotential.setupBondStrech(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, bondingInfo1, pmBonding);
         LJUFF[] p2LJ1 = new LJUFF[pairAtomSize];
         IPotential2[] p2lj1 = new IPotential2[pairAtomSize];
         double[] sigmaIJ1 = new double[pairAtomSize];
-        doPotential.doLJ(pairsAtoms1, p2LJ1, p2lj1, rc, potentialMasterCell, sigmaIJ1);
+        //doPotential.doLJ(pairsAtoms1, p2LJ1, p2lj1, rc, potentialMasterCell, sigmaIJ1);
 
 
         //Set Potential Two
@@ -183,7 +185,7 @@ public class GasMOPSimulation extends Simulation {
             ArrayList<Integer> modifiedInnerList = new ArrayList<>(innerList.subList(1, innerList.size()));
             modifiedOutput2.add(modifiedInnerList);
         }
-        System.out.println(modifiedOutput2 +" modified");
+     //   System.out.println(modifiedOutput2 +" modified");
         IntArrayList[] dupletsIntArrayList2 = new IntArrayList[modifiedOutput2.size()];
         for (i = 0; i < modifiedOutput2.size(); i++) {
             ArrayList<Integer> innerList = modifiedOutput2.get(i);
@@ -195,17 +197,17 @@ public class GasMOPSimulation extends Simulation {
             dupletsIntArrayList2[i] = intArrayList;
             //  System.out.println(dupletsIntArrayList[i]);
         }
-        for (IntArrayList list : dupletsIntArrayList2) {
+      /*  for (IntArrayList list : dupletsIntArrayList2) {
             for (i = 0; i < list.size(); i++) {
                 int value = list.getInt(i);
                 System.out.print(value + " ");
             }
-        }
-        setupBondStrech(speciesGas,bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2,quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, bondingInfo1, pmBonding);
+        }*/
+        setPotential.setupBondStrech(speciesGas,bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2,quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, bondingInfo1, pmBonding);
         LJUFF[] p2LJ2 = new LJUFF[pairAtomSize2];
         IPotential2[] p2lj2 = new IPotential2[pairAtomSize2];
         double[] sigmaIJ2 = new double[pairAtomSize2];
-        doPotential.doLJ(pairsAtoms2, p2LJ2, p2lj2, rc, potentialMasterCell, sigmaIJ2);
+        //doPotential.doLJ(pairsAtoms2, p2LJ2, p2lj2, rc, potentialMasterCell, sigmaIJ2);
 
 
         //Set Interatomic Pot
@@ -214,7 +216,16 @@ public class GasMOPSimulation extends Simulation {
         List<AtomType> list3 = new ArrayList<>(list1);
         int list2Size = list2.size();
         boolean isEqual =false;
-        for(i=0; i<list2Size; i++) {
+        List<List<AtomType>> pairsAtomsTotal = new ArrayList<>();
+        for( i=0; i<list1.size(); i++){
+            for ( j=0; j<list2.size(); j++){
+                List<AtomType> subPair = new ArrayList<>();
+                subPair.add(list1.get(i));
+                subPair.add(list2.get(j));
+                pairsAtomsTotal.add(subPair);
+            }
+        }
+      /*  for(i=0; i<list2Size; i++) {
             String name = list2.get(i).getName();
             for(j =0; j<list3.size(); j++){
                 String nameSet = list3.get(j).getName();
@@ -240,7 +251,8 @@ public class GasMOPSimulation extends Simulation {
                     pairsAtomsTotal.add(subPair);
                 }
             }
-        }
+        }*/
+        //System.out.println(pairsAtomsTotal);
         int pairAtomsTotalSize = pairsAtomsTotal.size();
         LJUFF[] p2LJTotal = new LJUFF[pairAtomsTotalSize];
         IPotential2[] p2ljTotal = new IPotential2[pairAtomsTotalSize];
@@ -251,7 +263,10 @@ public class GasMOPSimulation extends Simulation {
         integratorMC = new IntegratorMC(pcAgg, random, temperature, box);
         getController().addActivity(new ActivityIntegrate(integratorMC));
 
-       mcMoveMolecule = new MCMoveMolecule(random, pcAgg, box);
+       /* MCMoveAtom mcMoveAtom = new MCMoveAtom(random, pcAgg, box);
+        integratorMC.getMoveManager().addMCMove(mcMoveAtom);*/
+
+        mcMoveMolecule = new MCMoveMolecule(random, pcAgg, box);
         integratorMC.getMoveManager().addMCMove(mcMoveMolecule);
         ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
 
@@ -259,11 +274,9 @@ public class GasMOPSimulation extends Simulation {
         integratorMC.getMoveManager().addMCMove(mcMoveMoleculeRotate);
         ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);
 
-        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-        configuration.initializeCoordinates(box);
         potentialMasterCell.init();
-        double u0 = potentialMasterCell.computeAll(true);
-        System.out.println(kcals.fromSim(u0) + " " + u0);
+     //   double u0 = potentialMasterCell.computeAll(true);
+      //  System.out.println(kcals.fromSim(u0) + " " + u0);
 
 
     /*    if (configFileName != null) {
@@ -364,267 +377,108 @@ public class GasMOPSimulation extends Simulation {
         double[] expo = {1.0, -3.0};
         CompoundUnit dalUnit = new CompoundUnit(pref, expo);
         double temperatureK = params.temperatureK;
-        double temperature = Kelvin.UNIT.toSim(temperatureK);
+     //   double temperature = Kelvin.UNIT.toSim(temperatureK);
        // System.out.println("Tsim "+temperature);
         int numMoleculesGas = params.numMoleculesGas;
         int numMoleculesMOP = params.NumMoleculesMOP;
         double density = dalUnit.toSim(params.density);
         long numSteps = params.numSteps;
         String configFilename = params.configFilename;
-        int rc = params.rc;
+        double rc = params.rc;
         double pressureKPa = params.pressureKPa;
         Unit pUnit = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
         double pressure = pUnit.toSim(pressureKPa);
+        double rcLimit = params.rcLimit;
         String speciesMOPName = params.speciesMOPName;
         String speciesGasName = params.speciesGasName;
         boolean isDynamic = params.isDynamic;
         boolean dographics = params.graphics;
         boolean isResidual = params.isResidual;
+        Vector centreMOP = params.centreMOP;
         Vector boxSize = params.boxSize;
 
        // System.out.println(numSteps+" steps");
-        System.out.println("rc: "+rc);
-        System.out.println("pressure "+ pressureKPa);
-        System.out.println("initial density "+ density);
-        System.out.println("initial density (g/cm^3) "+ density);
-        final GasMOPSimulation sim = new GasMOPSimulation(Space3D.getInstance(),speciesMOPName, speciesGasName, density, numMoleculesGas, numMoleculesMOP, temperature, configFilename, rc, pressure, isDynamic, boxSize );
-        MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integratorMC);
-        sim.integratorMC.getPotentialCompute().init();
-        sim.integratorMC.reset();
-       // System.out.println("u0/N "+(meterU.getDataAsScalar()/numMoleculesGas));
-   //     Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT);
-   //     System.out.println("u0/N  "+ kjmol.fromSim(meterU.getDataAsScalar() / numMoleculesGas) + " kJ/mol");
-        //System.exit(1);
+      //  System.out.println("rc: "+rc);
+      //  System.out.println("pressure "+ pressureKPa);
+       // System.out.println("initial density "+ density);
+       // System.out.println("initial density (g/cm^3) "+ density);
+        List<Double> rcValues = new ArrayList<>();
+        //rcValues.add(rcLimit);
+        for(double i=params.tempStart; i<params.tempLimit ; i+=params.tempDiff){
+            rcValues.add(i);
+        }
+        System.out.println(rcValues);
+        for (int i=0; i<rcValues.size(); i++){
+            double temperature = Kelvin.UNIT.toSim(rcValues.get(i));
+            final GasMOPSimulation sim = new GasMOPSimulation(Space3D.getInstance(),speciesMOPName, centreMOP, speciesGasName, density, numMoleculesGas, numMoleculesMOP, temperature, configFilename, rcLimit, pressure, isDynamic, boxSize );
+            MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integratorMC);
+            sim.integratorMC.getPotentialCompute().init();
+            sim.integratorMC.reset();
+            // System.out.println("u0/N "+(meterU.getDataAsScalar()/numMoleculesGas));
+            //     Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT);
+            //     System.out.println("u0/N  "+ kjmol.fromSim(meterU.getDataAsScalar() / numMoleculesGas) + " kJ/mol");
+            //System.exit(1);
 
-        MeterPressure meterP = new MeterPressure(sim.box, sim.pcAgg);
-        meterP.setTemperature(temperature);
-        meterP.doCallComputeAll(true);
-        DataProcessorForked dpZ = new DataProcessorForked() {
-            final DataDouble.DataInfoDouble dataInfo = new DataDouble.DataInfoDouble("Z", Null.DIMENSION);
-            final DataDouble data = new DataDouble();
-
-            @Override
-            protected IData processData(IData inputData) {
-                data.x = inputData.getValue(0) / temperature / density;
-                return data;
-            }
-
-            @Override
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                return dataInfo;
-            }
-        };
-    //    System.out.println("Reached before dataforked");
-        DataProcessorForked dpZm1oR = new DataProcessorForked() {
-            DataDouble.DataInfoDouble dataInfo = new DataDouble.DataInfoDouble("(Z-1)/rho", Null.DIMENSION);
-            DataDouble data = new DataDouble();
-
-            @Override
-            protected IData processData(IData inputData) {
-                data.x = (inputData.getValue(0) / temperature / density - 1) / density;
-                return data;
-            }
-
-            @Override
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                return dataInfo;
-            }
-        };
-        //DataFork forkP = new DataFork(new IDataSink[]{dpZ, dpZm1oR});
-
-       /*if (false) {
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorMC, 5000000));
-            sim.getController().addActionSequential(new IAction() {
-                @Override
-                public void actionPerformed() {
-                    sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveVolume);
-                }
-            });
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorMC));
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Universal MC", 3);
-            System.out.println("Reached after simulation graphic");
-            DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
-
-
-            DataSourceCountSteps timeSource = new DataSourceCountSteps(sim.integratorMC);
-
-            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-
-            List<DataPump> dataPumps = simGraphic.getController().getDataStreamPumps();
-            // System.out.println("Reached dataPump");
-            DataSourceCountSteps timer = new DataSourceCountSteps(sim.integratorMC);
-            DisplayTextBox timerBox = new DisplayTextBox();
-            timerBox.setLabel("Steps");
-            DataPumpListener pumpSteps = new DataPumpListener(timer, timerBox, numMolecules);
-            sim.integratorMC.getEventManager().addListener(pumpSteps);
-            simGraphic.add(timerBox);
-
-            MeterDensity meterDensity = new MeterDensity(sim.box());
-            AccumulatorHistory accDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
-            accDensity.setTimeDataSource(timer);
-            DataPumpListener pumpDensity = new DataPumpListener(meterDensity, accDensity, 10);
-            sim.integratorMC.getEventManager().addListener(pumpDensity);
-            dataPumps.add(pumpDensity);
-
-            DisplayPlot historyDensity = new DisplayPlot();
-            accDensity.setDataSink(historyDensity.getDataSet().makeDataSink());
-            historyDensity.setLabel("Density");
-            historyDensity.setUnit(dUnit);
-            simGraphic.add(historyDensity);
-
-            Unit perN = new SimpleUnit(Null.DIMENSION, numMolecules, "1/N", "1/N", false);
-
-            AccumulatorHistory historyU = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyU.setTimeDataSource(timer);
-            AccumulatorHistory historyU2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyU2.setTimeDataSource(timer);
-            AccumulatorAverageCollapsing avgEnergy = new AccumulatorAverageCollapsing();
-            avgEnergy.setPushInterval(10);
-            DataFork forkU = new DataFork(new IDataSink[]{historyU, historyU2, avgEnergy});
-            DataPumpListener pumpU = new DataPumpListener(meterU, forkU, 10);
-            dataPumps.add(pumpU);
-            sim.integratorMC.getEventManager().addListener(pumpU);
-            DisplayPlotXChart plotU = new DisplayPlotXChart();
-            plotU.setLabel("U");
-            historyU.addDataSink(plotU.makeSink("U"));
-            plotU.setLegend(new DataTag[]{historyU.getTag()}, "samples");
-            historyU2.addDataSink(plotU.makeSink("Uavg"));
-            plotU.setLegend(new DataTag[]{historyU2.getTag()}, "avg");
-            plotU.setUnit(perN);
-            simGraphic.add(plotU);
-
-            simGraphic.getController().getDataStreamPumps().add(pumpU);
-
-            DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-            display.setAccumulator(avgEnergy);
-            display.setUnit(perN);
-            simGraphic.add(display);
-
+            MeterPressure meterP = new MeterPressure(sim.box, sim.pcAgg);
             meterP.setTemperature(temperature);
             meterP.doCallComputeAll(true);
-            AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyP.setTimeDataSource(timer);
-            AccumulatorHistory historyP2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyP2.setTimeDataSource(timer);
-            AccumulatorAverageCollapsing avgP = new AccumulatorAverageCollapsing();
-            forkP.addDataSink(historyP);
-            forkP.addDataSink(historyP2);
-            forkP.addDataSink(avgP);
-            DataPumpListener pumpP = new DataPumpListener(meterP, forkP, numMolecules);
-            dataPumps.add(pumpP);
-            sim.integratorMC.getEventManager().addListener(pumpP);
-            DisplayPlotXChart plotP = new DisplayPlotXChart();
-            plotP.setLabel("P");
-            historyP.addDataSink(plotP.makeSink("P"));
-            plotP.setLegend(new DataTag[]{historyP.getTag()}, "samples");
-            historyP2.addDataSink(plotP.makeSink("Pavg"));
-            plotP.setLegend(new DataTag[]{historyP2.getTag()}, "avg");
-            plotP.setUnit(pUnit);
-            simGraphic.add(plotP);
-            simGraphic.getController().getDataStreamPumps().add(pumpP);
+            DataProcessorForked dpZ = new DataProcessorForked() {
+                final DataDouble.DataInfoDouble dataInfo = new DataDouble.DataInfoDouble("Z", Null.DIMENSION);
+                final DataDouble data = new DataDouble();
 
-            DisplayTextBoxesCAE displayP = new DisplayTextBoxesCAE();
-            displayP.setAccumulator(avgP);
-            simGraphic.add(displayP);
+                @Override
+                protected IData processData(IData inputData) {
+                    data.x = inputData.getValue(0) / temperature / density;
+                    return data;
+                }
 
-            AccumulatorHistory historyZ = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyZ.setTimeDataSource(timer);
-            AccumulatorHistory historyZ2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyZ2.setTimeDataSource(timer);
-            AccumulatorAverageCollapsing avgZ = new AccumulatorAverageCollapsing();
-            dpZ.addDataSink(historyZ);
-            dpZ.addDataSink(historyZ2);
-            dpZ.addDataSink(avgZ);
-            DisplayPlotXChart plotZ = new DisplayPlotXChart();
-            plotZ.setLabel("Z");
-            historyZ.addDataSink(plotZ.makeSink("Zsamples"));
-            plotZ.setLegend(new DataTag[]{historyZ.getTag()}, "samples");
-            historyZ2.addDataSink(plotZ.makeSink("Zavg"));
-            plotZ.setLegend(new DataTag[]{historyZ2.getTag()}, "avg");
-            simGraphic.add(plotZ);
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    return dataInfo;
+                }
+            };
+            //    System.out.println("Reached before dataforked");
+            DataProcessorForked dpZm1oR = new DataProcessorForked() {
+                DataDouble.DataInfoDouble dataInfo = new DataDouble.DataInfoDouble("(Z-1)/rho", Null.DIMENSION);
+                DataDouble data = new DataDouble();
 
-            DisplayTextBoxesCAE displayZ = new DisplayTextBoxesCAE();
-            displayZ.setLabel("Z");
-            displayZ.setAccumulator(avgZ);
-            simGraphic.add(displayZ);
+                @Override
+                protected IData processData(IData inputData) {
+                    data.x = (inputData.getValue(0) / temperature / density - 1) / density;
+                    return data;
+                }
 
-            AccumulatorHistory historyZ_ = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyZ_.setTimeDataSource(timer);
-            AccumulatorHistory historyZ_2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyZ_2.setTimeDataSource(timer);
-            AccumulatorAverageCollapsing avgZ_ = new AccumulatorAverageCollapsing();
-            dpZm1oR.addDataSink(historyZ_);
-            dpZm1oR.addDataSink(historyZ_2);
-            dpZm1oR.addDataSink(avgZ_);
-            DisplayPlotXChart plotZ_ = new DisplayPlotXChart();
-            plotZ_.setLabel("(Z-1)/rho");
-            historyZ_.addDataSink(plotZ_.makeSink("samples"));
-            plotZ_.setLegend(new DataTag[]{historyZ_.getTag()}, "samples");
-            historyZ_2.addDataSink(plotZ_.makeSink("avg"));
-            plotZ_.setLegend(new DataTag[]{historyZ_2.getTag()}, "avg");
-            simGraphic.add(plotZ_);
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    return dataInfo;
+                }
+            };
 
-            DisplayTextBoxesCAE displayZ_ = new DisplayTextBoxesCAE();
-            displayZ_.setLabel("(Z-1)/rho");
-            displayZ_.setAccumulator(avgZ_);
+            long samples = numSteps / (numMoleculesGas* 8L);
+            long bs = samples / 10;
+            if (bs == 0) bs = 1;
 
-            simGraphic.add(displayZ_);
-            simGraphic.makeAndDisplayFrame(APP_NAME);
-
-
-            MeterTorsionAngle meterTorsion = new MeterTorsionAngle(sim.box, 2, 3, 4, 5);
-            AccumulatorAverageBlockless accTorsion1 = new AccumulatorAverageBlockless();
-            AccumulatorAverageCollapsing accTorsion2 = new AccumulatorAverageCollapsing();
-            AccumulatorHistory historyTorsion = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyTorsion.setTimeDataSource(timer);
-            AccumulatorHistory historyTorsion2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyTorsion2.setTimeDataSource(timer);
-            DataFork forkTorsion = new DataFork(new IDataSink[]{accTorsion1, accTorsion2, historyTorsion, historyTorsion2});
-            DataPumpListener pumpTorsion = new DataPumpListener(meterTorsion, forkTorsion, numMolecules);
-            dataPumps.add(pumpTorsion);
-            sim.integratorMC.getEventManager().addListener(pumpTorsion);
-            DisplayTextBoxesCAE displayTorsion = new DisplayTextBoxesCAE();
-            displayTorsion.setLabel("Torsion cos");
-            displayTorsion.setAccumulator(accTorsion2);
-            DisplayPlotXChart plotTorsion = new DisplayPlotXChart();
-            plotTorsion.setLabel("torsion");
-            historyTorsion.addDataSink(plotTorsion.makeSink("samples"));
-            plotTorsion.setLegend(new DataTag[]{historyTorsion.getTag()}, "samples");
-            historyTorsion2.addDataSink(plotTorsion.makeSink("avg"));
-            plotTorsion.setLegend(new DataTag[]{historyTorsion2.getTag()}, "avg");
-            simGraphic.add(plotTorsion);
-            simGraphic.makeAndDisplayFrame();
-            return;
-
-        }*/
-
-
-        long samples = numSteps / (numMoleculesGas* 8L);
-        long bs = samples / 10;
-        if (bs == 0) bs = 1;
-
-        MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.box, sim.random, sim.integratorMC.getPotentialCompute(), sim.integratorMC.getTemperature());
-        meterWidom.setNInsert(1);
-       // meterWidom.setPressure(Bar.UNIT.toSim(15));
-        meterWidom.setSpecies(sim.speciesGas);
-        meterWidom.setResidual(isResidual);
-        meterWidom.setTemperature(sim.integratorMC.getTemperature());
+            MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.box, sim.random, sim.integratorMC.getPotentialCompute(), sim.integratorMC.getTemperature());
+            // meterWidom.setPressure(Bar.UNIT.toSim(15));
+            meterWidom.setSpecies(sim.speciesGas);
+            meterWidom.setResidual(isResidual);
+            meterWidom.setNInsert(100);
+            //meterWidom.setPressure(Bar.UNIT.toSim(500));
+            meterWidom.setTemperature(sim.integratorMC.getTemperature());
         if(dographics){
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Widom");
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
             dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
-            dhbt.setDiameter(sim.speciesGas.getAtomType(0), 1.5);
-
-            dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
-            dhbt.setDiameter(sim.speciesMOP.getAtomType(1), 1);
-            //  dhbt.setDiameter(sim.speciesMOP.getAtomType(2), 1);
-            // dhbt.setDiameter(sim.speciesMOP.getAtomType(3), 1);
-            // dhbt.setDiameter(sim.speciesMOP.getAtomType(4), 1);
-            // dhbt.setDiameter(sim.speciesMOP.getAtomType(5), 1);
-            // dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(0), 1);
+            //dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
+            /*dhbt.setDiameter(sim.speciesMOP.getAtomType(1), 1);
+            dhbt.setDiameter(sim.speciesMOP.getAtomType(2), 1);
+            dhbt.setDiameter(sim.speciesMOP.getAtomType(3), 1);
+            dhbt.setDiameter(sim.speciesMOP.getAtomType(4), 1);*/
+            //dhbt.setDiameter(sim.speciesMOP.getAtomType(5), 1);
+            //dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
             //dhbt.setDiameter(sim.speciesGrapheneTwo.getAtomType(0), 1);
             ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(0), Color.lightGray);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(1), Color.red);
+            //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(1), Color.red);
             //   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGas.getAtomType(0), Color.cyan);
 
             //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getTypeByName("Cu"), Color.white);
@@ -641,38 +495,38 @@ public class GasMOPSimulation extends Simulation {
             sim.getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
             return;
         }
-        meterWidom.setPositionSource(new RandomPositionSourceRectangular(Space3D.getInstance(), sim.random) {
-            public Vector randomPosition() {
-                Vector v;
-                do {
-                    v = super.randomPosition();
+            meterWidom.setPositionSource(new RandomPositionSourceRectangular(Space3D.getInstance(), sim.random) {
+                public Vector randomPosition() {
+                    Vector v;
+                    do {
+                        v = super.randomPosition();
+                    }
+                    while (v.getX(0) < 0);
+                    return v;
                 }
-                while (v.getX(0) < 0);
-                return v;
-            }
-        });
-        //   System.out.println("Reached after for loop");
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps/10));
-        //sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveMolecule);
+            });
+            //   System.out.println("Reached after for loop");
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps/10));
+            //sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveMolecule);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps/5));
-        DataFork muDataFork = new DataFork();
-        DataPumpListener muDataPump = new DataPumpListener(meterWidom, muDataFork);
-        AccumulatorAverageCollapsing muDataAccu = new AccumulatorAverageCollapsing();
-        muDataFork.addDataSink(muDataAccu);
-        sim.integratorMC.getEventManager().addListener(muDataPump);
-        muDataAccu.setPushInterval(100);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps/5));
+            DataFork muDataFork = new DataFork();
+            DataPumpListener muDataPump = new DataPumpListener(meterWidom, muDataFork);
+            AccumulatorAverageCollapsing muDataAccu = new AccumulatorAverageCollapsing();
+            muDataFork.addDataSink(muDataAccu);
+            sim.integratorMC.getEventManager().addListener(muDataPump);
+            muDataAccu.setPushInterval(100);
         /*AccumulatorHistory muHistoryA = new AccumulatorHistory(new HistoryCollapsingAverage());
         muDataAccu.addDataSink(muHistoryA);*/
-      DataProcessor uProcessor = new DataProcessorFunction(new IFunction() {
-            public double f(double x) {
-                if (x == 0) return Double.POSITIVE_INFINITY;
-                return -Math.log(x) * sim.integratorMC.getTemperature();
-            }
-        });
-        muDataFork.addDataSink(uProcessor);
+            DataProcessor uProcessor = new DataProcessorFunction(new IFunction() {
+                public double f(double x) {
+                    if (x == 0) return Double.POSITIVE_INFINITY;
+                    return -Math.log(x) * sim.integratorMC.getTemperature();
+                }
+            });
+            muDataFork.addDataSink(uProcessor);
 
-      //  System.out.println("Reached after interval");
+            //  System.out.println("Reached after interval");
 
 /*
        AccumulatorAverageFixed accU = new AccumulatorAverageFixed((numSteps/10)/1000);
@@ -688,14 +542,22 @@ public class GasMOPSimulation extends Simulation {
         DataPumpListener pumpP = new DataPumpListener(meterP, forkP, 8*numMoleculesGas);
         sim.integratorMC.getEventManager().addListener(pumpP);
 */
-        long t1 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps));
-        long t2 = System.nanoTime();
-       // System.out.println("Done with time");
-        IData dataWidom = muDataAccu.getData();
-        double scalar = meterWidom.getDataAsScalar();
-        double avg = dataWidom.getValue(muDataAccu.AVERAGE.index);
-        System.out.println(avg + " widom");
+            long t1 = System.nanoTime();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps));
+            long t2 = System.nanoTime();
+            // System.out.println("Done with time");
+            IData dataWidom = muDataAccu.getData();
+            double scalar = meterWidom.getDataAsScalar();
+            double avg = dataWidom.getValue(muDataAccu.AVERAGE.index);
+            double errRho = muDataAccu.getData(muDataAccu.ERROR).getValue(0);
+            double corRho = muDataAccu.getData(muDataAccu.BLOCK_CORRELATION).getValue(0);
+            double chemicalPot = -Constants.BOLTZMANN_K*temperatureK*Math.log(avg);
+            double chemPot10 = -Constants.BOLTZMANN_K*temperatureK*Math.log10(avg);
+            System.out.println("conf Names " +params.speciesMOPName + " " + params.speciesGasName);
+            System.out.println("temp "+ rcValues.get(i)+ " boxsize "+ boxSize  );
+            System.out.println(avg + " widom " + chemicalPot + " "+ chemPot10 + " " + errRho +  " " +corRho);
+            double[] arrBox = boxSize.toArray();
+            System.out.println("B2 " + -0.5*arrBox[0]*arrBox[1]*arrBox[2]*(1-avg) + " " + -0.5*arrBox[0]*arrBox[1]*arrBox[2]*(avg-1));
 
        /* IData dataU = muDataAccu.getData();
         double avgU = dataU.getValue(AccumulatorAverage.AVERAGE.index) / numMoleculesGas;
@@ -727,7 +589,8 @@ public class GasMOPSimulation extends Simulation {
         double corZ_ = dataZ_.getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
         System.out.println("(Z-1)/rho: "+" "+avgZ_+"   err: "+" "+errZ_+"   cor: "+" "+corZ_);*/
 
-        System.out.println("time: "+" "+(t2-t1)/1e9);
+            System.out.println("time: "+" "+(t2-t1)/1e9);
+        }
     }
 
     public static void printCOM(ISpecies species, Vector center){
@@ -758,122 +621,29 @@ public class GasMOPSimulation extends Simulation {
 
 
     public static class GasMOPSimulationParams extends ParameterBase {
-        public String speciesMOPName = "F://Avagadro//mop//benzene_cu_2C";
-        public String speciesGasName = "F://Avagadro//molecule//He";
-        public double temperatureK = 200;
+        public String speciesMOPName = "F://Avagadro//mop//tetra_cu";
+        public String speciesGasName = "F://Avagadro//molecule//Ar" ;
+        public double temperatureK = 330;
         public int numMoleculesGas = 1;
         public int NumMoleculesMOP = 1;
         //public int pressure = 10;
         public double density = 1e-9;
         public boolean graphics = false;
-        public long numSteps = 5000000;
-        public Vector boxSize = new Vector3D(30.0,30.0, 30.0);
+        public long numSteps = 1000000;
+        public Vector boxSize = new Vector3D(14,14,14);
         public String configFilename = null;
-        public int rc = 10;
+        public double rc = 10;
+       // public double rcLimit = boxSize.toArray()[0]/2 + 1 ;
+        public double rcLimit =10 ;
+        public double stepsize = 3;
+        public Vector centreMOP = new Vector3D(0.0,0.0, 0.0);
+
+        public double tempStart = 250;
+        public double tempDiff = 20;
+        public double tempLimit = 375;
         public double pressureKPa = 1402;
         public boolean isDynamic = true;
         public boolean isResidual = true;
 
-    }
-    public void setupBondStrech(ISpecies species1,Map<String[],List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1,Map<String[],List<int[]>> torsionTypesMap1,ArrayList<Integer> bondsNum1,ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1,Map<String, double[]> atomicPotMap1, PotentialMasterBonding.FullBondingInfo bondingInfo1, PotentialMasterBonding pmBonding  ){
-        double Vi =0, Vj =0, V=0, Vtrue=0,  type;
-        int p;
-        int i =0;
-        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        for (Map.Entry<String[], List<int[]>> entry : bondTypesMap1.entrySet()) {
-            String[] bondType = entry.getKey();
-            List<int[]> bonds = entry.getValue();
-            // System.out.println(Arrays.toString(bondType) + ": " + Arrays.deepToString(bonds.toArray()));
-            for(int[]bondIndividual: bonds){
-              //  bonds.add(bondIndividual);
-                double[] bondParamsArray = new double[2];
-                double[] bondConstant = new double[2];
-                atom1 = bondIndividual[0];
-                atom2 = bondIndividual[1];
-                atomName1 = atomIdentifierMapModified1.get(atom1);
-                atomName2 = atomIdentifierMapModified1.get(atom2);
-                double[] atomOnePot = atomicPotMap1.get(atomName1);
-                double[] atomTwoPot = atomicPotMap1.get(atomName2);
-                double bondOrder = bondsNum1.get(i);
-              /*  if(atomName1.equals("C_Ar") && atomName2.equals("C_Ar")){
-                    bondOrder = 1.5;
-                } else {
-                    bondOrder = 1;
-                }*/
-                System.out.println(bondOrder +" bondorder");
-                //  System.out.println(Arrays.toString(dupletsSorted.get(i)) + " " + bondOrder+ " " + atomName1 + " " + atomName2+" "+ Arrays.toString(atomOnePot) +" " + Arrays.toString(atomTwoPot));
-                bondParamsArray= UFF.bondUFF (atomOnePot[0],  atomTwoPot[0], atomOnePot[5],  atomTwoPot[5], atomOnePot[6], atomTwoPot[6], bondOrder);
-                //System.out.println(Arrays.toString(bondParamsArray) + " ArrayToString");
-                bondConstant = UFF.BondConstantArray(bondParamsArray[0], bondParamsArray[1]);
-                //System.out.println(Arrays.toString(bondConstant) + " arrayConstant");
-                P2HarmonicUFF p2Bond = new P2HarmonicUFF(bondParamsArray[0],  bondParamsArray[1]);
-                //bondParams.add(bondConstant);
-                pmBonding.setBondingPotentialPair(species1, p2Bond, bonds);
-                i++;
-                break;
-            }
-        }
-
-        for (Map.Entry<String[], List<int[]>> entry : angleTypesMap1.entrySet()) {
-            String[] angleType = entry.getKey();
-            List<int[]> angle = entry.getValue();
-            // System.out.println(Arrays.toString(angleType) + ": " + Arrays.deepToString(angle.toArray()));
-            for(int[]angleIndividual: angle){
-                double[] angleParamsArray = new double[4];
-                atom1 = angleIndividual[0];
-                atom2 = angleIndividual[1];
-                atom3 = angleIndividual[2];
-                atomName1 = atomIdentifierMapModified1.get(atom1);
-                atomName2 = atomIdentifierMapModified1.get(atom2);
-                atomName3 = atomIdentifierMapModified1.get(atom3);
-                int bondListValueOne = bondList1.get(atom1);
-                int bondListValueTwo = bondList1.get(atom2);
-                int bondListValueThree = bondList1.get(atom3);
-                double[] atomOnePot = atomicPotMap1.get(atomName1);
-                double[] atomTwoPot = atomicPotMap1.get(atomName2);
-                double[] atomThreePot = atomicPotMap1.get(atomName3);
-                int num =0;
-                int caseNum =1;
-                angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree,0);
-                // System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
-                P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3],Degree.UNIT.toSim( atomTwoPot[1]), 0, caseNum);
-                pmBonding.setBondingPotentialTriplet(species1, p3Angle, angle);
-                break;
-            }
-        }
-
-        P4BondTorsionUFF[] p4BondTorsionArray2 = new P4BondTorsionUFF[quadrupletsSorted1.size()];
-        ArrayList<double[]> p4ValueArray2 = new ArrayList<>();
-
-        for (Map.Entry<String[], List<int[]>> entry : torsionTypesMap1.entrySet()) {
-            i = 0;
-            String[] torsionType = entry.getKey();
-            List<int[]> torsion = entry.getValue();
-            // System.out.println(Arrays.toString(torsionType) + ": " + Arrays.deepToString(torsion.toArray()));
-            for(int[]torsionIndividual: torsion){
-                type = 0;
-                p = 0;
-                double[] torsionParamsArray = new double[4];
-                atom2 = torsionIndividual[1];
-                atom3 = torsionIndividual[2];
-                atomName2 = atomIdentifierMapModified1.get(atom2);
-                atomName3 = atomIdentifierMapModified1.get(atom3);
-                Vi = UFF.switchCaseTorsion(atomName2);
-                int bondListValueOne = bondList1.get(torsionIndividual[1]);
-                int bondListValueTwo = bondList1.get(torsionIndividual[2]);
-                p = p + bondListValueOne + bondListValueTwo;
-                Vj = UFF.switchCaseTorsion(atomName3);
-                V = Math.sqrt(Vi*Vj);
-                Vtrue = kcals.toSim(V);
-                double bondOrder = 1 ;
-                torsionParamsArray = UFF.torsionUFF(Vtrue, p, bondOrder);
-                p4BondTorsionArray2[i] = new P4BondTorsionUFF(torsionParamsArray[0], (int) torsionParamsArray[1], torsionParamsArray[2]);
-                double[] array = {torsionParamsArray[0], torsionParamsArray[1], torsionParamsArray[2]};
-                p4ValueArray2.add(array);
-                //System.out.println(Arrays.toString(array));
-                pmBonding.setBondingPotentialQuad(species1, p4BondTorsionArray2[i], torsion);
-                i++;
-            }
-        }
     }
 }

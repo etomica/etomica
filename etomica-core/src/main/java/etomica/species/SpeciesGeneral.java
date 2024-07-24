@@ -123,6 +123,7 @@ public class SpeciesGeneral implements ISpecies {
             IAtom atom = this.atomFactory.makeAtom(atomType);
             molecule.addChildAtom(atom);
         }
+      //  System.out.println("Reached initialize positions");
         this.conformation.initializePositions(molecule.getChildList());
         return molecule;
     }
@@ -246,6 +247,9 @@ public class SpeciesGeneral implements ISpecies {
                         : new Atom(space, atomType);
             }
         };
+    }
+    public void setMass(String symbol, double mass){
+
     }
 
     public interface AtomFactory {

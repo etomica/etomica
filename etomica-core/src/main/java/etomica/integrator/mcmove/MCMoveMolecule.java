@@ -6,14 +6,17 @@ package etomica.integrator.mcmove;
 
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,6 +36,9 @@ public class MCMoveMolecule extends MCMoveBoxStep {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected MoleculeSource moleculeSource;
+    protected ISpecies species;
+    protected IMoleculeList moleculeList;
+    protected List<IMolecule> exceptionList = new ArrayList<>();
     protected boolean fixOverlap;
     protected Space space;
 
@@ -60,7 +66,7 @@ public class MCMoveMolecule extends MCMoveBoxStep {
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
         uOld = potentialCompute.computeOneOldMolecule(molecule);
-        if (uOld > 1e10) {
+        if (uOld > 1e15) {
             System.out.println(uOld  + " uOld");
             throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap ("+uOld+")");
         }
@@ -70,18 +76,23 @@ public class MCMoveMolecule extends MCMoveBoxStep {
             oldPositions.add(space.makeVector());
         }
         molecule.getChildList().forEach(atom -> {
-            oldPositions.get(atom.getIndex()).E(atom.getPosition());
+            Vector vec = atom.getPosition();
+            Vector oldPosn = oldPositions.get(atom.getIndex());
+            oldPosn.E(vec);
             atom.getPosition().PE(translationVector);
             Vector shift = box.getBoundary().centralImage(atom.getPosition());
             atom.getPosition().PE(shift);
             potentialCompute.updateAtom(atom);
         });
+       // double uNew = potentialCompute.computeOneMolecule(molecule);
+      //  System.out.println(uOld + " " + uNew);
         return true;
     }//end of doTrial
 
     public double getChi(double temperature) {
         uNew = potentialCompute.computeOneMolecule(molecule);
-//        System.out.println("translate "+molecule.getIndex()+" "+uOld+" => "+uNew);
+      //  System.out.println("translate "+molecule.getIndex()+" "+uOld+" => "+uNew + " difference " + (uNew - uOld));
+       // System.out.println("Move Molecule " + uOld + " =>  " + uNew + " difference " + (uNew - uOld));
         return Math.exp(-(uNew - uOld) / temperature);
     }
 
@@ -119,6 +130,7 @@ public class MCMoveMolecule extends MCMoveBoxStep {
         super.setBox(p);
         moleculeSource.setBox(p);
     }
+
 
     /**
      * The MoleculeSource is used to select the molecule at the beginning of the trial

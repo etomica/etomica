@@ -1,6 +1,9 @@
 package etomica.potential.UFF;
 
+import etomica.potential.IPotential2;
 import etomica.potential.P2Electrostatic;
+import etomica.potential.TraPPE.LJTraPPE;
+import etomica.potential.TruncationFactoryForceShift;
 import etomica.species.ISpecies;
 import etomica.units.*;
 import g3dsys.images.Box;
@@ -15,12 +18,13 @@ public class UFF {
         double lambda = 0.1332;
         double rbo = - lambda * (ri+rj) * Math.log(bo);
         double rjk = ri + rj +rbo - ren;
+        //System.out.println(bo+ " " + rjk);
         return rjk;
     }
 
     public static double[] bondUFF(double ri, double rj, double zi, double zj, double chiI, double chiJ, double bondOrder){
         double rjk = getbondUFF( ri, rj,  chiI,  chiJ, bondOrder);
-        double kjk = (0.5*664.12*zi*zj/((Math.pow(rjk,3)))); //UFF error. Difference of factor of 2.
+        double kjk = (0.5*664.12*zi*zj/((Math.pow(rjk,3))));//UFF error. Difference of factor of 2.
         Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Angstrom.UNIT};
         double[] newExpo ={1.0, -1.0, -2.0};
         CompoundUnit molA2 = new CompoundUnit(newOnw,newExpo);
@@ -141,10 +145,31 @@ public class UFF {
     }
 
     public LJUFF vdw(double xa, double xb, double da, double db){
+        double xab = (xa + xb)/2;
+       // System.out.println(xa + " " + xb + " " + da + " " + db);
+        //double xab = Math.sqrt(xa * xb);
+        double dab = Math.sqrt(da * db);
+        return new LJUFF(xab, dab);
+    }
+    public IPotential2 vdwNew(double xa, double xb, double da, double db, TruncationFactoryForceShift tf){
+        double xab = (xa + xb)/2;
+        // System.out.println(xa + " " + xb + " " + da + " " + db);
+        //double xab = Math.sqrt(xa * xb);
+        double dab = Math.sqrt(da * db);
+        return tf.make(new LJUFF(xab, dab));
+    }
+    public LJUFF vdwModified(double xa, double xb, double da, double db){
         //double xab = (xa + xb)/2;
+        // System.out.println(xa + " " + xb + " " + da + " " + db);
         double xab = Math.sqrt(xa * xb);
         double dab = Math.sqrt(da * db);
         return new LJUFF(xab, dab);
+    }
+
+    public LJTraPPE vdwTraPPE(double xa, double xb, double da, double db){
+        double xab = Math.sqrt(xa * xb);
+        double dab = Math.sqrt(da * db);
+        return new LJTraPPE(xab, dab);
     }
 
 

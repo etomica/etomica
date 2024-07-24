@@ -11,6 +11,7 @@ public class P2HarmonicUFF implements IPotential2 {
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
     private final boolean r0Zero;
     private double r0;
+    private double[] u012New;
 
     public P2HarmonicUFF(double w) {
         this(w, 0.0);
@@ -26,6 +27,7 @@ public class P2HarmonicUFF implements IPotential2 {
         this.r0Zero = r0Zero;
     }
 
+
     public void u012add(double r2, double[] u012) {
         if (r0Zero) {
             u012[0] = u012[1] = u012[2] = 2*w*r2;
@@ -34,14 +36,22 @@ public class P2HarmonicUFF implements IPotential2 {
         }
         double r = Math.sqrt(r2);
        // Unit kjoulepmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
-       // double wnew = kjoulepmole.fromSim(w);
+      //  double wnew = kjoulepmole.fromSim(w);
+       // double denergy = wnew*dx*dx;
+       // System.out.println( " Energy Bonding : " + denergy  +" " +  dx + " " + r + " "  + r0 + " w " + wnew);
         double dx = r - r0;
-        //double denergy = wnew*dx*dx;
-       // System.out.println( " Energy Bonding : " + denergy  +" " +  dx );
-
         u012[0] = w*dx*dx;
         u012[1] = 2*w*r*dx;
         u012[2] = 2*w*r2;
+        setu012add(u012);
+    }
+
+    public void setu012add(double[] u012){
+        this.u012New = u012;
+    }
+
+    public double[] getU012New(){
+        return u012New;
     }
 
     public double u(double r2) {

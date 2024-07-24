@@ -4,6 +4,8 @@ import etomica.potential.IPotentialBondAngle;
 import etomica.units.*;
 import etomica.util.MathTiming;
 
+import java.util.Arrays;
+
 public class P3BondAngleUFF  implements IPotentialBondAngle{
     public double theta0;
     private int num, caseNum;
@@ -45,11 +47,11 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
         double val = theta - theta0Act + 0.25;
         //System.exit(1);
         //System.out.println(theta + " theta here" + theta0 + " theta0 here");
-        if(caseNum == 0){
+      //  if(caseNum == 0){
             u[0] =  kijk*  ( c0 + c1 * costheta + c2 * Math.cos(2 * theta));
-            du[0] =  -kijk*(c1 + 4*costheta*c2);
+            du[0] = kijk*(c1 + 4*costheta*c2);
            // System.out.println(u[0] + " case 0 "  + kjmol.fromSim(u[0]));
-       } else {
+      /* } else {
             double funct = Math.exp(-20.0*(theta - theta0Act + 0.25));
             //System.out.println(kjmol.fromSim(kijk) + " " + num + " " + theta + " " + theta0Act);
             //double part1 = kjmol.fromSim(kijk * (1 - Math.cos(num * theta)));// double part2 = (Math.exp(-20.0*(theta - theta0Act + 0.25)));
@@ -58,7 +60,7 @@ public class P3BondAngleUFF  implements IPotentialBondAngle{
             //System.out.println(part1 + " " + part2 + " "+ expo +" "+ kjmol.fromSim(u[0]));
             du[0] = kijk * Math.sin(num * theta) - 20.0 * funct;
             //System.out.println(  kjmol.fromSim(u[0]));
-        }
+        }*/
        // System.out.println( " Energy Angle : " + u[0] );
         /*double cosntheta = Math.cos(num*theta);
         u[0] = (kijk / (num *  num))*(1-cosntheta);

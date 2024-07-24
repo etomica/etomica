@@ -422,8 +422,8 @@ public class DataVirialOverlap implements ReferenceFracSource {
         double refFrac = 1.0 / (1 + targetErrorRatio/refErrorRatio * Math.sqrt((1-oldFrac)/(oldFrac)));
         
         if (Debug.ON && Debug.DEBUG_NOW) {
-            System.out.println("error ratios "+refErrorRatio+" "+targetErrorRatio);
-            System.out.println("frac "+refFrac);
+           // System.out.println("error ratios "+refErrorRatio+" "+targetErrorRatio);
+           // System.out.println("frac "+refFrac);
         }
         return refFrac;
     }

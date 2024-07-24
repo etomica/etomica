@@ -12,6 +12,7 @@ import etomica.data.DataSourceScalar;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.species.ISpecies;
+import etomica.units.*;
 import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
 
@@ -37,6 +38,7 @@ import etomica.util.random.IRandom;
  */
 public class MeterWidomInsertion extends DataSourceScalar {
 
+    int j = 0;
     public MeterWidomInsertion(Box box, IRandom random, PotentialCompute potentialCompute, double temperature) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
@@ -109,6 +111,8 @@ public class MeterWidomInsertion extends DataSourceScalar {
      * <code>residual</code> is false
      */
     public double getDataAsScalar() {
+       // int numLess = 0;
+       // int numMore = 0;
         double sum = 0.0; //sum for local insertion average
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
@@ -116,18 +120,28 @@ public class MeterWidomInsertion extends DataSourceScalar {
             box.addMolecule(testMolecule);
             double u = potentialCompute.computeOneMolecule(testMolecule);
             sum += Math.exp(-u / temperature);
+        //    System.out.println("Sum/ninserts " +sum + " "+ sum/nInsert + " u " +u);
+         //   System.out.println("sum " +sum + "  u "+ u);
             if (Double.isInfinite(sum)) {
                 throw new RuntimeException("oops");
             }
             box.removeMolecule(testMolecule);
         }
-
+        /*if(sum<1){
+            numLess++;
+        } else {
+            numMore++;
+        }*/
         if (!residual) {
             // multiply by V/N
             sum *= box.getBoundary().volume() / (box.getNMolecules(species) + 1);
         } else if (!Double.isNaN(pressure)) {
             sum *= pressure * box.getBoundary().volume() / ((box.getNMolecules(species) + 1) * temperature);
         }
+     /*   if(numLess<1){
+            System.out.println("Num More " + numMore);
+        }*/
+       // System.out.println("Average "+sum/nInsert  );
         return sum / nInsert; //return average
     }
 

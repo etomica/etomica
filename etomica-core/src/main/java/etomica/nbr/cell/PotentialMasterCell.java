@@ -38,7 +38,6 @@ public class PotentialMasterCell extends PotentialMaster {
 
     @Override
     public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
-       // System.out.println( atomType1 +  " " + atomType2 + " " + p12 + " " + "In setpairpotential");
         super.setPairPotential(atomType1, atomType2, p12);
         cellManager.setPotentialRange(getRange());
     }
@@ -71,6 +70,7 @@ public class PotentialMasterCell extends PotentialMaster {
     }
 
     public double computeAll(boolean doForces, PotentialCallback pc) {
+      //  Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
         double[] uAtomOld = new double[uAtom.length];
         boolean debug = false;
         if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
@@ -96,7 +96,7 @@ public class PotentialMasterCell extends PotentialMaster {
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
             IPotential2[] ip1 = pairPotentials[iType];
-         //  double[][] pScale1 = pScale[iAtom.getType().getIndex()];
+            //double[][] pScale1 = pScale[iAtom.getType().getIndex()];
             int j = i;
             Vector jbo = boxOffsets[atomCell[i]];
             while ((j = cellNextAtom[j]) > -1) {
@@ -120,11 +120,12 @@ public class PotentialMasterCell extends PotentialMaster {
                     if (ip2 == null) continue;
                     Vector rj = jAtom.getPosition();
                     uTot += handleComputeAll(doForces,iAtom, jAtom, i, j, ri, rj, jbo, ip2, pc);
-                   // Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
                 }
+               // System.out.println("out One " + uTot);
             }
-
+           // System.out.println("out Two " + uTot);
         }
+       // System.out.println("out Three " + uTot);
         tAll += System.nanoTime() - t1;
         double[] uCorrection = new double[1];
         double[] duCorrection = new double[1];
@@ -147,7 +148,6 @@ public class PotentialMasterCell extends PotentialMaster {
             System.out.println("success!");
         }
         energyTot = uTot;
-      //  System.out.println(uTot + " utot fromPotentialMasterCell");
         return uTot;
     }
 
@@ -178,10 +178,8 @@ public class PotentialMasterCell extends PotentialMaster {
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 Vector rj = jAtom.getPosition();
-                u1 += handleComputeOne(iAtom, jAtom, ri, rj, jbo, pij);
-                //u1 += handleComputeOne(pij, ri, rj, jbo, i, j, skipIntra);
+                 u1 += handleComputeOne(iAtom, jAtom, ri, rj, jbo, pij);
             }
         }
         for (int cellOffset : cellOffsets) {
@@ -194,9 +192,7 @@ public class PotentialMasterCell extends PotentialMaster {
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
-                u1 += handleComputeOne(iAtom, jAtom, ri, jAtom.getPosition(), jbo, pij);
-               // u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
+                u1 += handleComputeOne(iAtom, jAtom,ri, jAtom.getPosition(), jbo, pij);
             }
 
             // now down
@@ -209,13 +205,10 @@ public class PotentialMasterCell extends PotentialMaster {
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 u1 += handleComputeOne(iAtom, jAtom,ri, jAtom.getPosition(), jbo, pij);
-               // u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
             }
         }
         tMC += System.nanoTime() - t1;
-       // System.out.println(u1+ " u1 PMC");
         return u1;
     }
 }

@@ -18,6 +18,7 @@ import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.units.*;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.BoxCluster;
 import etomica.virial.ConfigurationCluster;
@@ -197,7 +198,10 @@ public class SimulationVirial extends Simulation {
 
 
     public void printResults(double refIntegral) {
-
+        Unit cm =new PrefixedUnit(Prefix.CENTI, Meter.UNIT);
+        Unit cm6 = new CompoundUnit(new Unit[]{cm}, new double[]{6});
+        Unit mol2 = new CompoundUnit(new Unit[]{Mole.UNIT}, new double[]{2});
+        Unit cm3mol = new UnitRatio(cm6, mol2);
         DataGroup allYourBase = (DataGroup)accumulator.getData();
         IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
         IData stdevData = allYourBase.getData(accumulator.STANDARD_DEVIATION.index);
@@ -208,12 +212,12 @@ public class SimulationVirial extends Simulation {
         IData covarianceData = allYourBase.getData(accumulator.BLOCK_COVARIANCE.index);
 
         System.out.println();
-        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        /*System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                 averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
 
         System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
-                averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
-
+                averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));*/
+        System.out.println(" average: "+averageData.getValue(0) + " std dev: "+ stdevData.getValue(0));
         int nData = averageData.getLength();
         int nCovData = covarianceData.getLength();
         if (nData*nData != nCovData) {
@@ -225,8 +229,11 @@ public class SimulationVirial extends Simulation {
 
         System.out.println();
 
-        System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+       // System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        //System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+
+        System.out.println("abs average: "+(ratioData.getValue(1)*refIntegral) + " std dev: "+ (ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+        System.out.println("abs average (cm3/mol): "+cm3mol.fromSim(ratioData.getValue(1)*refIntegral) + " std dev: "+ cm3mol.fromSim(ratioErrorData.getValue(1)*Math.abs(refIntegral)));
     }
 
     @Override

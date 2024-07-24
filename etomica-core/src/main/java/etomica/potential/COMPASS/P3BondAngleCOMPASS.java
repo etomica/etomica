@@ -1,9 +1,6 @@
 package etomica.potential.COMPASS;
 
-import etomica.potential.IPotential2;
 import etomica.potential.IPotentialBondAngle;
-import etomica.potential.P3BondAngle;
-import etomica.potential.P3BondAngleHybrid;
 
 public class P3BondAngleCOMPASS implements IPotentialBondAngle {
     private double k2 = 100.0, k3=100, k4 =100;// Spring constant gives a measure of the strength of harmonic interaction

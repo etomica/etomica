@@ -21,17 +21,17 @@ public abstract class MCMove {
 
 
 	public MCMove() {
-        this(new MCMoveTracker());
-    }
+		this(new MCMoveTracker());
+	}
 
-    public MCMove(MCMoveTracker acceptanceTracker) {
-        moveTracker = acceptanceTracker;
-        nominalFrequency = 100;
-    }
+	public MCMove(MCMoveTracker acceptanceTracker) {
+		moveTracker = acceptanceTracker;
+		nominalFrequency = 100;
+	}
 
-    public void setTracker(MCMoveTracker newTracker) {
-        moveTracker = newTracker;
-    }
+	public void setTracker(MCMoveTracker newTracker) {
+		moveTracker = newTracker;
+	}
 
 	/**
 	 * Method to perform trial move. Returns false if the trial could not be
@@ -41,13 +41,13 @@ public abstract class MCMove {
 	public abstract boolean doTrial();
 
 	/**
-     * Chi is the parameter within standard Metropolis Monte Carlo.  The
-     * probability of accepting the move is given by min(1,chi).
-     *
-     * @param temperature used to compute chi
-     * @return chi
-     */
-    public abstract double getChi(double temperature);
+	 * Chi is the parameter within standard Metropolis Monte Carlo.  The
+	 * probability of accepting the move is given by min(1,chi).
+	 *
+	 * @param temperature used to compute chi
+	 * @return chi
+	 */
+	public abstract double getChi(double temperature);
 
 	/**
 	 * Method called by IntegratorMC in the event that the most recent trial is
@@ -70,9 +70,9 @@ public abstract class MCMove {
 	public abstract double energyChange(Box box);
 
 	public MCMoveTracker getTracker() {
-        return moveTracker;
-    }
-    
+		return moveTracker;
+	}
+
 	/**
 	 * Returns a nominal, unnormalized frequency for performing this move,
 	 * relative to the other moves that have been added to the integrator. Each
@@ -87,16 +87,16 @@ public abstract class MCMove {
 	public final int getNominalFrequency() {
 		return nominalFrequency;
 	}
-	
+
 	public String toString() {
-	    return getClass().toString();
+		return getClass().toString();
 	}
 
-    /**
+	/**
 	 * Value giving nominal frequency for performing this move. Default is 100,
 	 * but may be given a different value by subclasses.
 	 */
 	protected int nominalFrequency;
-    
-    protected MCMoveTracker moveTracker;
+
+	protected MCMoveTracker moveTracker;
 }

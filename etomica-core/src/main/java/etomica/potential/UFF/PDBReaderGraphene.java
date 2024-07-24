@@ -331,7 +331,7 @@ public class PDBReaderGraphene {
 
     public static void main(String[] args) {
         PDBReaderGraphene pdbReaderGraphene = new PDBReaderGraphene();
-        String confName = "F://Avagadro//pristine";
+        String confName = "F://Avagadro//PG_30x30";
         pdbReaderGraphene.readPDBGrapheneFile(confName);
     }
 }
