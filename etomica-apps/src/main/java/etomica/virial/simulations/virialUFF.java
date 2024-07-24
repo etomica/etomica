@@ -20,6 +20,7 @@ import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.*;
 import etomica.units.*;
 import etomica.units.dimensions.*;
@@ -76,26 +77,27 @@ public class virialUFF {
 
         }
         final int nPoints = params.nPoints;
-        double temperature = params.temperature;
+     //   double temperature = params.temperature;
         long steps = params.numSteps;
         double refFreq = params.refFreq;
-        double rc = params.rc;
+      //  double rc = params.rc;
         double sigmaHSRef = params.sigmaHSRef;
         Space space = Space3D.getInstance();
         String confName = params.confName;
-        species = PDBReaderReplica.getSpecies(confName);
-        System.out.println("Species");
+        PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
+        species = pdbReaderReplica.getSpecies(confName, true,new Vector3D(0,0,0), false);
+      //  System.out.println("Species");
        // box.addNewMolecule(species);
 
-        java.util.List<AtomType> atomTypes = species.getUniqueAtomTypes();
-        java.util.List<java.util.List<AtomType>> pairsAtoms = new ArrayList<>();
-        System.out.println(species);
+        List<AtomType> atomTypes = species.getUniqueAtomTypes();
+        List<List<AtomType>> pairsAtoms = new ArrayList<>();
+      //  System.out.println(species);
         for(i=0; i<atomTypes.size(); i++) {
             for (int j = 0; j < atomTypes.size(); j++) {
                 if(i<=j){
                     List<AtomType> subPair = new ArrayList<>();
                     subPair.add(species.getAtomType(i));
-                    System.out.println(species.getAtomType(i) + " " +species.getAtomType(j)  + " Pair");
+                //    System.out.println(species.getAtomType(i) + " " +species.getAtomType(j)  + " Pair");
                     subPair.add(species.getAtomType(j));
                     pairsAtoms.add(subPair);
                     //System.out.println(subPair + " subPair");
@@ -106,36 +108,36 @@ public class virialUFF {
         String atomName1 , atomName2, atomName3;
 
         int pairAtomSize = pairsAtoms.size();
-        System.out.println(pairsAtoms + " pairs " + pairAtomSize);
+       // System.out.println(pairsAtoms + " pairs " + pairAtomSize);
         SpeciesBuilder speciesBuilder = new SpeciesBuilder(Space3D.getInstance());
         speciesBuilder.setDynamic(true);
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
-        System.out.println(nPoints+" at "+temperature+"K");
-        temperature = Kelvin.UNIT.toSim(temperature);
-        ArrayList<ArrayList<Integer>> connectedAtoms = PDBReaderReplica.getConnectivityWithoutRunning();
-        ArrayList<ArrayList<Integer>> connectivityModified = PDBReaderReplica.getConnectivityModifiedWithoutRunning();
-        Map<Integer,String> atomMap = PDBReaderReplica.getAtomMapWithoutRunning();
-        HashMap<Integer, String> atomMapModified = PDBReaderReplica.getAtomMapModifiedWithoutRunning();
-        List<int[]> duplets = PDBReaderReplica.getBondedAtomList(connectivityModified);
-        List<int[]> triplets = PDBReaderReplica.getAngleList(connectivityModified);
-        List<int[]> quadruplets = PDBReaderReplica.getTorsionList(connectedAtoms);
-        ArrayList<Integer> bondList = PDBReaderReplica.getBondList(connectedAtoms, atomMap);
-        System.out.println(bondList +" bondList");
+       // System.out.println(nPoints+" at "+temperature+"K");
+       // temperature = Kelvin.UNIT.toSim(temperature);
+        ArrayList<ArrayList<Integer>> connectedAtoms = pdbReaderReplica.getConnectivityWithoutRunning();
+        ArrayList<ArrayList<Integer>> connectivityModified = pdbReaderReplica.getConnectivityModifiedWithoutRunning();
+        Map<Integer,String> atomMap = pdbReaderReplica.getAtomMapWithoutRunning();
+        HashMap<Integer, String> atomMapModified = pdbReaderReplica.getAtomMapModifiedWithoutRunning();
+        List<int[]> duplets = pdbReaderReplica.getBondedAtomList(connectivityModified);
+        List<int[]> triplets = pdbReaderReplica.getAngleList(connectivityModified);
+        List<int[]> quadruplets = pdbReaderReplica.getTorsionList(connectedAtoms);
+        ArrayList<Integer> bondList = pdbReaderReplica.getBondList(connectedAtoms, atomMap);
+      //  System.out.println(bondList +" bondList");
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        Map<String, double[]> atomicPotMap = PDBReaderReplica.atomicPotMap();
-        UniversalSimulation.makeAtomPotentials(sm);
-        Map<Integer, String> atomIdentifierMapModified = PDBReaderReplica.atomIdentifierMapModified(connectivityModified, atomMapModified);
-        System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
-        List<int[]>dupletsSorted= PDBReaderReplica.getDupletesSorted();
-        List<int[]>tripletsSorted= PDBReaderReplica.getAnglesSorted();
-        List<int[]>quadrupletsSorted= PDBReaderReplica.getTorsionSorted();
+        Map<String, double[]> atomicPotMap = pdbReaderReplica.atomicPotMap();
+        makeAtomPotentials(sm);
+        Map<Integer, String> atomIdentifierMapModified = pdbReaderReplica.atomIdentifierMapModified(connectivityModified, atomMapModified);
+      //  System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
+        List<int[]>dupletsSorted= pdbReaderReplica.getDupletesSorted();
+        List<int[]>tripletsSorted= pdbReaderReplica.getAnglesSorted();
+        List<int[]>quadrupletsSorted= pdbReaderReplica.getTorsionSorted();
         //ArrayList<Integer> bondsNum = PDBReader.getBonds();
-        Map<String[],List<int[]>> bondTypesMap= PDBReaderReplica.idenBondTypes(dupletsSorted, atomIdentifierMapModified);
-        Map<String[],List<int[]>> angleTypesMap= PDBReaderReplica.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
-        Map<String[],List<int[]>> torsionTypesMap= PDBReaderReplica.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
-        System.out.println(connectivityModified);
+        Map<String[],List<int[]>> bondTypesMap= pdbReaderReplica.idenBondTypes(dupletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> angleTypesMap= pdbReaderReplica.idenAngleTypes(tripletsSorted, atomIdentifierMapModified);
+        Map<String[],List<int[]>> torsionTypesMap= pdbReaderReplica.idenTorsionTypes(quadrupletsSorted, atomIdentifierMapModified);
+     //   System.out.println(connectivityModified);
        // PDBReaderReplica.centreOfMass(species, atomIdentifierMapModified);
 
         ArrayList<ArrayList<Integer>> modifiedOutput = new ArrayList<>();
@@ -143,7 +145,7 @@ public class virialUFF {
             ArrayList<Integer> modifiedInnerList = new ArrayList<>(innerList.subList(1, innerList.size()));
             modifiedOutput.add(modifiedInnerList);
         }
-        System.out.println(modifiedOutput +" modified");
+     //   System.out.println(modifiedOutput +" modified");
         IntArrayList[] dupletsIntArrayList = new IntArrayList[modifiedOutput.size()];
 
         for (i = 0; i < modifiedOutput.size(); i++) {
@@ -151,21 +153,21 @@ public class virialUFF {
             IntArrayList intArrayList = new IntArrayList(innerList.size());
             for (int j = 0; j < innerList.size(); j++) {
                 intArrayList.add(innerList.get(j));
-                System.out.println(intArrayList);
+               // System.out.println(intArrayList);
             }
             dupletsIntArrayList[i] = intArrayList;
-            System.out.println(dupletsIntArrayList[i]);
+           // System.out.println(dupletsIntArrayList[i]);
         }
-        for (IntArrayList list : dupletsIntArrayList) {
+      /*  for (IntArrayList list : dupletsIntArrayList) {
             for (i = 0; i < list.size(); i++) {
                 int value = list.getInt(i);
                 System.out.print(value + " ");
             }
             System.out.println();
-        }
+        }*/
 
-        Set<String> uniqueAtoms = PDBReaderReplica.uniqueElementIdentifier();
-        System.out.println(uniqueAtoms + "uniqueAtoms");
+        Set<String> uniqueAtoms = pdbReaderReplica.uniqueElementIdentifier();
+       // System.out.println(uniqueAtoms + "uniqueAtoms");
         //System.exit(0);
         box = new Box(space);
         // FIll it up with Meyer Function and Target Diagram
@@ -178,6 +180,7 @@ public class virialUFF {
                 return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
             }
         };
+        long t1Final = System.nanoTime();
 
         boolean alkaneFlex = nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, alkaneFlex);
@@ -226,17 +229,6 @@ public class virialUFF {
             System.out.println();
         }
 
-
-        targetCluster.setTemperature(temperature);
-        refCluster.setTemperature(temperature);
-        for (i=0; i<targetDiagrams.length; i++) {
-            targetDiagrams[i].setTemperature(temperature);
-        }
-
-        System.out.println("sigmaHSRef: "+params.sigmaHSRef);
-        // eovererr expects this string, BnHS
-        System.out.println("B"+nPoints+"HS: "+refIntegral);
-
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
         for (Map.Entry<String[], List<int[]>> entry : bondTypesMap.entrySet()) {
             String[] bondType = entry.getKey();
@@ -256,9 +248,9 @@ public class virialUFF {
                 int bondListValueTwo = bondList.get(atom2);
                 int bondOrder = 1;
                 bondParamsArray= UFF.bondUFF(atomOnePot[0],  atomTwoPot[0], atomOnePot[5],  atomTwoPot[5], atomOnePot[6], atomTwoPot[6] , bondOrder);
-                System.out.println(Arrays.toString(bondParamsArray) + " ArrayToString");
+            //    System.out.println(Arrays.toString(bondParamsArray) + " ArrayToString");
                 bondConstant = UFF.BondConstantArray(bondParamsArray[0], bondParamsArray[1]);
-                System.out.println(Arrays.toString(bondConstant) + " arrayConstant");
+             //   System.out.println(Arrays.toString(bondConstant) + " arrayConstant");
                 P2HarmonicUFF p2Bond = new P2HarmonicUFF(bondParamsArray[0],  bondParamsArray[1]);
                 bondingInfo.setBondingPotentialPair(species, p2Bond, bonds);
                 i++;
@@ -279,8 +271,12 @@ public class virialUFF {
                 atomName1 = atomIdentifierMapModified.get(atom1);
                 atomName2 = atomIdentifierMapModified.get(atom2);
                 atomName3 = atomIdentifierMapModified.get(atom3);
+                int bondListValueTwo = 0;
+                if(atomName2.equals("C_1p") && atomName3.equals("O_1p")){
+                     bondListValueTwo = 2;
+                }
                 int bondListValueOne = bondList.get(atom1);
-                int bondListValueTwo = bondList.get(atom2);
+               
                 int bondListValueThree = bondList.get(atom3);
                 double[] atomOnePot = atomicPotMap.get(atomName1);
                 double[] atomTwoPot = atomicPotMap.get(atomName2);
@@ -288,7 +284,7 @@ public class virialUFF {
                 int num =0;
                 int caseNum =1;
                 angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree,0);
-                System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
+             //   System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
                 P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3],atomTwoPot[1], 0, caseNum);
                 bondingInfo.setBondingPotentialTriplet(species, p3Angle, angle);
                 break;
@@ -296,11 +292,11 @@ public class virialUFF {
 
         }
 
-        System.out.println(species+"Species");
+      //  System.out.println(species+"Species");
         P4BondTorsionUFF torsionUFF = null;
         double Vi =0, Vj =0, V=0, Vtrue=0,  type;
         int p;
-        System.out.println(quadruplets.size() + " Quad size");
+    //    System.out.println(quadruplets.size() + " Quad size");
 
         P4BondTorsionUFF[] p4BondTorsionArray = new P4BondTorsionUFF[quadruplets.size()];
         ArrayList<double[]> p4ValueArray = new ArrayList<>();
@@ -334,89 +330,158 @@ public class virialUFF {
                 i++;
             }
         }
-        System.out.println(Arrays.deepToString(p4ValueArray.toArray()));
-
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm,
-                new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, refCluster, targetCluster);
-        sim.setExtraTargetClusters(targetDiagrams);
-        sim.setBondingInfo(bondingInfo);
-        sim.setIntraPairPotentials(pTarget.getAtomPotentials());
-        sim.setRandom(new RandomMersenneTwister(2));
-        sim.init();
-        PotentialCompute pc0 = sim.integrators[0].getPotentialCompute();
-        //MCMoveClusterMoleculeMulti mcMoveMulti = new MCMoveClusterMoleculeMulti(pc0, space, sim.getRandom(), 0.05);
-        if(bondTypesMap.size()> 0){
-            MCMoveClusterStretch mcMoveStretchRef = new MCMoveClusterStretch(pc0, space, dupletsIntArrayList, sim.getRandom(), 0.05);
-            MCMoveClusterAngleBend mcMoveBendRef = new MCMoveClusterAngleBend(pc0, sim.getRandom(), 0.05, space);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveStretchRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveBendRef);
-            PotentialCompute pc1 = sim.integrators[1].getPotentialCompute();
-            MCMoveClusterStretch mcMoveStretchTarget = new MCMoveClusterStretch(pc1, space, dupletsIntArrayList, sim.getRandom(), 0.05);
-            MCMoveClusterAngleBend mcMoveBendTarget = new MCMoveClusterAngleBend(pc1, sim.getRandom(), 0.05, space);
-            sim.integrators[1].getMoveManager().addMCMove(mcMoveStretchTarget);
-            sim.integrators[1].getMoveManager().addMCMove(mcMoveBendTarget);
-        } //else {
-           // MCMoveClusterMoleculeMulti mcMoveClusterMoleculeRef = new MCMoveClusterMoleculeMulti(sim.getRandom(), box);
-      //  }
-
-       if (alkaneFlex) {
-            int[] constraintMap = new int[nPoints+1];
-            for (i=0; i<nPoints; i++) {
-                constraintMap[i] = i;
-            }
-            constraintMap[nPoints] = 0;
-            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
-            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
-            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
-        }
-
-        if (refFreq >= 0) {
-            sim.integratorOS.setAdjustStepFraction(false);
-            sim.integratorOS.setRefStepFraction(refFreq);
-        }
-
-        sim.integratorOS.setNumSubSteps(1000);
-        sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        System.out.println(steps+" steps (100 blocks of "+steps/1000+")");
-        steps /= 1000;
-
+        //System.out.println(Arrays.deepToString(p4ValueArray.toArray()));
         // set pairwise potentials
         LJUFF[] p2LJ = new LJUFF[pairAtomSize];
         IPotential2[] p2lj = new IPotential2[pairAtomSize];
         double[] sigmaIJ = new double[pairAtomSize];
         i = 0;
-        System.out.println(Arrays.deepToString(pairsAtoms.toArray()));
+      //  System.out.println(Arrays.deepToString(pairsAtoms.toArray()));
         UFF uff = new UFF();
         for(List<AtomType> atomPairs : pairsAtoms) {
             //String nameKey ="key";
             AtomType atomNameOne = atomPairs.get(0);
             AtomType atomNameTwo = atomPairs.get(1);
-           // System.out.println( atomNameOne + " " + atomNameTwo);
+            // System.out.println( atomNameOne + " " + atomNameTwo);
             String atomTypeStringOne = String.valueOf(atomPairs.get(0));
             String atomTypeStringTwo = String.valueOf(atomPairs.get(1));
             String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
             String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
-            double[] iKey = PDBReaderReplica.atomicPot(atomTypeOne);
-            double[] jKey = PDBReaderReplica.atomicPot(atomTypeTwo);
+            double[] iKey = pdbReaderReplica.atomicPot(atomTypeOne);
+            double[] jKey = pdbReaderReplica.atomicPot(atomTypeTwo);
             //System.out.println(atomNameOne + " " + Arrays.toString(iKey) + " " + atomNameTwo + " " + Arrays.toString(jKey));
             double epsilonIKey = kcals.toSim(iKey[3]);
             double epsilonJKey = kcals.toSim(jKey[3]);
             double sigmaIKey = iKey[2];
             double sigmaJKey = jKey[2];
             sigmaIJ[i] = (sigmaIKey + sigmaJKey) / 2;
-            TruncationFactory tf = new TruncationFactoryForceShift(rc);
+        //    TruncationFactoryForceShift tf = new TruncationFactoryForceShift(rc);
             p2LJ[i] = uff.vdw(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey);
-            p2lj[i] = tf.make(p2LJ[i]);
+          //  p2lj[i] = tf.make(p2LJ[i]);
+           // p2lj[i] = uff.vdwNew(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey, tf);
             System.out.println(atomNameOne + " " + atomNameTwo);
             // potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo,p2lj[i]);
-            pTarget.setAtomPotentials(atomNameOne, atomNameTwo, p2lj[i], new double[]{1, 0, 0, 1});
+            pTarget.setAtomPotentials(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1});
             i++;
         }
+        List<Integer> temp = new ArrayList<>();
 
-        sim.integratorOS.setNumSubSteps(1000);
+        for(int j =5; j< 11; j++){
+            double temperatureNew =Kelvin.UNIT.toSim(j*params.temperature) ;
+            System.out.println("\n" +j*params.temperature + " " + temperatureNew);
+            targetCluster.setTemperature(temperatureNew);
+            refCluster.setTemperature(temperatureNew);
+            long newStep = params.numSteps;
+            for (i=0; i<targetDiagrams.length; i++) {
+                targetDiagrams[i].setTemperature(temperatureNew);
+            }
+
+            System.out.println("sigmaHSRef: "+params.sigmaHSRef);
+            // eovererr expects this string, BnHS
+            System.out.println("B"+nPoints+"HS: "+refIntegral);
+            final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm,
+                    new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperatureNew, refCluster, targetCluster);
+            sim.setExtraTargetClusters(targetDiagrams);
+            sim.setBondingInfo(bondingInfo);
+            sim.setIntraPairPotentials(pTarget.getAtomPotentials());
+           // sim.setRandom(new RandomMersenneTwister(2));
+            sim.init();
+            PotentialCompute pc0 = sim.integrators[0].getPotentialCompute();
+            //MCMoveClusterMoleculeMulti mcMoveMulti = new MCMoveClusterMoleculeMulti(pc0, space, sim.getRandom(), 0.05);
+            if(bondTypesMap.size()> 0){
+                MCMoveClusterStretch mcMoveStretchRef = new MCMoveClusterStretch(pc0, space, dupletsIntArrayList, sim.getRandom(), 0.05);
+                MCMoveClusterAngleBend mcMoveBendRef = new MCMoveClusterAngleBend(pc0, sim.getRandom(), 0.05, space);
+                sim.integrators[0].getMoveManager().addMCMove(mcMoveStretchRef);
+                sim.integrators[0].getMoveManager().addMCMove(mcMoveBendRef);
+                PotentialCompute pc1 = sim.integrators[1].getPotentialCompute();
+                MCMoveClusterStretch mcMoveStretchTarget = new MCMoveClusterStretch(pc1, space, dupletsIntArrayList, sim.getRandom(), 0.05);
+                MCMoveClusterAngleBend mcMoveBendTarget = new MCMoveClusterAngleBend(pc1, sim.getRandom(), 0.05, space);
+                sim.integrators[1].getMoveManager().addMCMove(mcMoveStretchTarget);
+                sim.integrators[1].getMoveManager().addMCMove(mcMoveBendTarget);
+            } //else {
+            // MCMoveClusterMoleculeMulti mcMoveClusterMoleculeRef = new MCMoveClusterMoleculeMulti(sim.getRandom(), box);
+            //  }
+
+            if (alkaneFlex) {
+                int[] constraintMap = new int[nPoints+1];
+                for (i=0; i<nPoints; i++) {
+                    constraintMap[i] = i;
+                }
+                constraintMap[nPoints] = 0;
+              //  ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
+               // ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
+               // ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
+            }
+
+            if (refFreq >= 0) {
+                sim.integratorOS.setAdjustStepFraction(false);
+                sim.integratorOS.setRefStepFraction(refFreq);
+            }
+
+            sim.integratorOS.setNumSubSteps(1000);
+            sim.integratorOS.setAggressiveAdjustStepFraction(true);
+            System.out.println(newStep+" steps (100 blocks of "+newStep/1000+")");
+            newStep /= 1000;
 
 
-        if(false) {
+
+            sim.integratorOS.setNumSubSteps(1000);
+            long t1 = System.nanoTime();
+            // if running interactively, don't use the file
+            //String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
+            // this will either read the refpref in from a file or run a short simulation to find it
+            //sim.initRefPref(refFileName, steps/40);
+
+
+            // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
+            // if it does continue looking for a pref, it will write the value to the file
+            //sim.equilibrate(refFileName, steps/20);
+            ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+            System.out.println(steps);
+            sim.setAccumulatorBlockSize(newStep);
+            System.out.println("\n +" + sim.temperature + " K" );
+            System.out.println("equilibration finished");
+            sim.setAccumulatorBlockSize(newStep);
+            sim.integratorOS.setNumSubSteps((int)newStep);
+            System.out.println("MC Move step sizes (ref)    "
+                    +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[0].getStepSize()))+" "
+                    +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
+            System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
+                    +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize()))+" "
+                    +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
+
+            sim.integratorOS.getMoveManager().setEquilibrating(false);
+            sim.getController().runActivityBlocking(ai);
+            long t2 = System.nanoTime();
+
+
+
+            System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+            System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
+            String[] extraNames = new String[targetDiagrams.length];
+            for (i=0; i<targetDiagrams.length; i++) {
+                String n = "";
+                if (targetDiagramNumbers[i] < 0) {
+                    n = "diagram " + (-targetDiagramNumbers[i]) + "bc";
+                } else {
+                    n = "diagram " + targetDiagramNumbers[i];
+
+                    if (diagramFlexCorrection[i]) {
+                        n += "c";
+                    }
+                }
+                extraNames[i] = n;
+            }
+            sim.printResults(refIntegral, extraNames);
+            System.out.println("time: "+(t2-t1)/1e9);
+            System.out.println("\n");
+        }
+
+        long t2Final = System.nanoTime();
+        System.out.println("time: "+(t2Final-t1Final)/1e9);
+
+
+      /*  if(false) {
             double size =20;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
@@ -486,63 +551,25 @@ public class virialUFF {
             errorBox.setUnit(unit);
             sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
             return;
-        }
-
-        long t1 = System.nanoTime();
-        // if running interactively, don't use the file
-        String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
-        // this will either read the refpref in from a file or run a short simulation to find it
-        sim.initRefPref(refFileName, steps/40);
+        }*/
 
 
-        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
-        // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/20);
-        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
-        sim.setAccumulatorBlockSize(steps);
-
-        System.out.println("equilibration finished");
-        sim.setAccumulatorBlockSize(steps);
-        sim.integratorOS.setNumSubSteps((int)steps);
-        System.out.println("MC Move step sizes (ref)    "
-                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[0].getStepSize()))+" "
-                +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
-        System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
-                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate[1].getStepSize()))+" "
-                +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
-
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(ai);
-        long t2 = System.nanoTime();
-
-
-
-        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
-        String[] extraNames = new String[targetDiagrams.length];
-        for (i=0; i<targetDiagrams.length; i++) {
-            String n = "";
-            if (targetDiagramNumbers[i] < 0) {
-                n = "diagram " + (-targetDiagramNumbers[i]) + "bc";
-            } else {
-                n = "diagram " + targetDiagramNumbers[i];
-
-                if (diagramFlexCorrection[i]) {
-                    n += "c";
-                }
-            }
-            extraNames[i] = n;
-        }
-        sim.printResults(refIntegral, extraNames);
-        System.out.println("time: "+(t2-t1)/1e9);
     }
     public static class VirialUniversalParam extends ParameterBase {
-        public String confName ="F://Avagadro//molecule//butane";
-        public int nPoints =4;
-        public double temperature = 100;// Kelvin
-        public long numSteps = 500000;
-        public double refFreq = -1;
-        public double sigmaHSRef = 5.23;
+        public String confName ="F://Avagadro//molecule//co2";
+        public int nPoints =2;
+        public double temperature =1000;// Kelvin
+        public long numSteps = 50000000;
         public double rc = 10;
+        public double refFreq = -1;
+        public double sigmaHSRef = 7;
+
+    }
+    public static IPotential2[][] makeAtomPotentials(SpeciesManager sm) {
+        // we could try to store the potentials more compactly, but it doesn't really matter
+        ISpecies species = sm.getSpecies(sm.getSpeciesCount() - 1);
+        int lastTypeIndex = species.getAtomType(species.getUniqueAtomTypeCount() - 1).getIndex();
+        // System.out.println(lastTypeIndex + 1+ " "+lastTypeIndex + 1 + " lastTypeIndex" + " "+species.getAtomType(species.getUniqueAtomTypeCount() - 1));
+        return new IPotential2[lastTypeIndex + 1][lastTypeIndex + 1];
     }
 }

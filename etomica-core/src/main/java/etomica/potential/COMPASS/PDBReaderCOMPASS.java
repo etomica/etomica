@@ -5,7 +5,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.*;
 import etomica.molecule.IMolecule;
-import etomica.potential.GAFF.PDBReaderGAFF;
+//import etomica.potential.GAFF.PDBReaderGAFF;
 import etomica.potential.UFF.PDBReaderMOP;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -15,7 +15,7 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 
 import java.util.*;
-
+/*
 public class PDBReaderCOMPASS {
     ISpecies species;
     Map<Integer, Integer> assignCharges = new HashMap<>();
@@ -80,8 +80,8 @@ public class PDBReaderCOMPASS {
         List<int[]> endBondTorsion = PDBReaderCOMPASS.getEndBondTorsion(listOfTorsionModified);
         List<int[]> midBondTorsion = PDBReaderCOMPASS.getMidBondTorsion(listOfTorsionModified);
         List<int[]> angleTorsion = PDBReaderCOMPASS.getAngleTorsion(listOfTorsionModified);
-        List<int[]> angleAngleTorsion = PDBReaderCOMPASS.getAngleAngleTorsion(listOfTorsionModified);*/
-        //System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
+        List<int[]> angleAngleTorsion = PDBReaderCOMPASS.getAngleAngleTorsion(listOfTorsionModified);
+        System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
         System.out.println( PDBReader.positions + " Here positions");
         Space space = Space3D.getInstance();
         Vector center = space.makeVector();
@@ -796,7 +796,7 @@ public class PDBReaderCOMPASS {
         double[] valueBondTwo = pdbReaderCOMPASS.getQuadBondPot(orderTwoNew[0], orderTwoNew[1]);
         double[] valueBondThree = pdbReaderCOMPASS.getQuadBondPot(orderTwoNewNew[0], orderTwoNewNew[1]);
         System.out.println(Arrays.toString(orderTwo) + " " + Arrays.toString(orderTwoNew) + " " + Arrays.toString(orderTwoNewNew));
-        System.out.println(Arrays.toString(valueBondOne) + " " + Arrays.toString(valueBondTwo) + " " + Arrays.toString(valueBondThree));*/
+        System.out.println(Arrays.toString(valueBondOne) + " " + Arrays.toString(valueBondTwo) + " " + Arrays.toString(valueBondThree));
     }
 
-}
+}*/
