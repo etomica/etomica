@@ -65,7 +65,7 @@ public class GCMCMOP extends Simulation {
         super(Space3D.getInstance());
 
         //Make Species
-        setRandom(new RandomMersenneTwister(2));
+       // setRandom(new RandomMersenneTwister(2));
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         PDBReaderMOP pdbReaderMOP2 = new PDBReaderMOP();
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
@@ -492,7 +492,7 @@ public class GCMCMOP extends Simulation {
         IPotential2[] p2mopgas = new IPotential2[listMOPGasPairs.size()];
      //   LJCOMPASS[] p2LJMOPGasCOMPASS = new LJCOMPASS[listMOPGasPairs.size()];
         if(isGasTraPPE){
-            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell,  p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, false, true);
+       //     SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell,  p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, false, true);
         }else {
             SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell,  p2LJMOPGas, p2ElectroMOPGas,p2mopgas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics);
         }
@@ -514,7 +514,7 @@ public class GCMCMOP extends Simulation {
             List<List<AtomType>> listGrapheneGasFinal = SetPotential.listGrapheneSpecial(speciesGrapheneOne.getUniqueAtomTypes(), listGas);
           //  List<List<AtomType>> listGrapheneGasFinal = SetPotential.listFinal(listGrapheneGasUnique);
             LJUFF[] p2LJGrapheneGas = new LJUFF[listGrapheneGasFinal.size()];
-            SetPotential.doLJ(listGrapheneGasFinal, potentialMasterCell,  p2LJGrapheneGas, listGrapheneGasFinal.size(), truncatedRadiusLJ, isGasTraPPE);
+         //   SetPotential.doLJ(listGrapheneGasFinal, potentialMasterCell,  p2LJGrapheneGas, listGrapheneGasFinal.size(), truncatedRadiusLJ, isGasTraPPE);
         }
 
         integrator = new IntegratorMC(potentialMasterCell, random, Kelvin.UNIT.toSim(temperature), box);

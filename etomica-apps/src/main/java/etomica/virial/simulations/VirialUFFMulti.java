@@ -39,11 +39,11 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
+/*
 public class VirialUFFMulti {
 
     public static void main(String[] args) {
-        VirialCO2H2OSC.VirialCO2SCParam params = new VirialCO2H2OSC.VirialCO2SCParam();
+        VirialCO2SCParam params = new VirialCO2SCParam();
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
             ParseArgs.doParseArgs(params, args);
@@ -376,7 +376,7 @@ public class VirialUFFMulti {
 
     /**
      * Inner class for parameters
-     */
+
     public static class VirialCO2SCParam extends ParameterBase {
         // don't change these
         public int[] nTypes = new int[]{1,1};
@@ -390,4 +390,4 @@ public class VirialUFFMulti {
         public boolean useSZ = false;
 
     }
-}
+}*/
