@@ -24,6 +24,7 @@ import etomica.potential.compute.NeighborManagerIntra;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -132,7 +133,7 @@ public class VirialChainSingle {
         }
 
         Simulation sim = new Simulation(Space3D.getInstance(), sm);
-        sim.makeBox();
+        sim.makeBox(new BoundaryRectangularNonperiodic(space));
         sim.box().setNMolecules(species, 1);
 
         PotentialMasterBonding.FullBondingInfo bondingInfodk = new PotentialMasterBonding.FullBondingInfo(sm);
