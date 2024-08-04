@@ -36,7 +36,7 @@ public class DataSourceThetaSingle implements IDataSource {
     public IData getData() {
         double[] y = data.getData();
         double ulj = pcLJ.computeAll(false);
-        double dudk = pcdudk.computeAll(false);
+        double dudk = pcdudk == null ? 0 : pcdudk.computeAll(false);
         double u1 = ulj + kBend*dudk;
         y[0] = -u1;
         y[1] = -dudk/temperature;
