@@ -7,13 +7,15 @@ package etomica.virial.simulations.theta;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.config.ConformationLinear;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.potential.*;
+import etomica.potential.IPotential2;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.P2SquareWell;
+import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -46,7 +48,7 @@ import java.util.List;
 /**
  * Computes dbeta/dk for a stiff polymer chain
  */
-public class VirialChainThetaSimple {
+public class VirialChainThetaSQW {
 
     public static ClusterSum makeFCluster(MayerFunction f) {
         return new ClusterSum(new ClusterBonds[]{new ClusterBonds(2, new int[][][]{{{0,1}}})}, new double[]{1}, new MayerFunction[]{f});
@@ -57,87 +59,67 @@ public class VirialChainThetaSimple {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nSpheres = 64;
-            params.temperature = 4; //4.34913746887839;
-            params.numSteps = 1000000;
-            params.rc = 0;
-            params.kBend = 0;
-            params.dlnqdb = 0.7366170977353794;
-            params.dlnqdk = -0.39372299306802533;
         }
         final int nPoints = 2;
-        int nSpheres = params.nSpheres;
+        int nH = params.nH;
+        int nT = params.nT;
+        double lambda = params.lambda;
         double temperature = params.temperature;
         long steps = params.numSteps;
-        double rc = params.rc;
-        double bondLength = params.bondLength;
-        double kBend = params.kBend;
+        int nSpheres = nH + nT;
+
+        double epsH = 0.25;
+        double epsT = 0.75;
+        double epsHT = 0.25;
+        System.out.println("epsH: "+epsH+"   epsT: "+epsT+"    epsHT: "+epsHT);
 
         Space space = Space3D.getInstance();
 
-        ConformationLinear conf = new ConformationLinear(Space3D.getInstance(), bondLength, new double[]{0,Math.PI/2});
-        AtomType type = AtomType.simple("A");
+        ConformationLinear conf = new ConformationLinear(Space3D.getInstance(), 1, new double[]{0,Math.PI/2});
+        AtomType typeH = AtomType.simple("H");
+        AtomType typeT = AtomType.simple("T");
         ISpecies species = new SpeciesBuilder(Space3D.getInstance())
-                .addCount(type, nSpheres)
+                .addCount(typeH, nH)
+                .addCount(typeT, nT)
                 .withConformation(conf).build();
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
         PotentialMoleculePairCached pTarget = new PotentialMoleculePairCached(space, sm);
-        System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
-        System.out.println("Bond length: "+bondLength);
-        System.out.println("kBend: "+kBend);
-        if (rc>0 && rc<Double.POSITIVE_INFINITY) System.out.println("LJ truncated at "+rc+" with "+params.truncation);
-        else System.out.println("LJ untruncated");
-        IPotential2 p2 = new P2LennardJones(1, 1);
-        if (rc > 0 && rc < Double.POSITIVE_INFINITY) {
-            if (params.truncation == TruncationChoice.SIMPLE) {
-                p2 = new P2SoftSphericalTruncated(p2, rc);
-            }
-            else if (params.truncation == TruncationChoice.SHIFT){
-                p2 = new P2SoftSphericalTruncatedShifted(p2, rc);
-            }
-            else if (params.truncation == TruncationChoice.FORCESHIFT) {
-                p2 = new P2SoftSphericalTruncatedForceShifted(p2, rc);
-            }
-        }
+        System.out.println(nSpheres+"-mer chain");
+        System.out.println("T: "+temperature);
+        System.out.println("nH: "+nH);
+        System.out.println("nT: "+nT);
+        System.out.println("SQW lambda: "+lambda);
+        P2HardGeneric p2HH = P2SquareWell.makePotential(1, lambda, epsH);
+        P2HardGeneric p2TT = P2SquareWell.makePotential(1, lambda, epsH);
+        P2HardGeneric p2HT = P2SquareWell.makePotential(1, lambda, epsHT);
+        if (nH>0) pTarget.setAtomPotential(typeH, typeH, p2HH);
+        if (nT>0) pTarget.setAtomPotential(typeT, typeT, p2TT);
+        if (nH*nT>0) pTarget.setAtomPotential(typeH, typeT, p2HT);
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         MayerTheta11b f11b = new MayerTheta11b(pTarget);
         MayerTheta fAlpha = new MayerTheta(pTarget, true);
-        MayerTheta fdfdk = new MayerTheta(pTarget, false);
-        MayerTheta11a f11a = new MayerTheta11a(pTarget);
         fAlpha.setu1(-params.dlnqdb);
-        fdfdk.setu1(-params.dlnqdk*temperature);
 
         // search needs fTarget, fAlpha, f11b
-        // integration needs fAlpha, fdfdk
-        // stability needs f11a, f11b, fTarget, fAlpha
 
-        ClusterAbstract[] targetDiagrams = new ClusterAbstract[5];
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[3];
         targetDiagrams[0] = makeFCluster(fTarget);
         targetDiagrams[0].setTemperature(temperature);
         targetDiagrams[1] = makeFCluster(f11b);
         targetDiagrams[1].setTemperature(temperature);
         targetDiagrams[2] = makeFCluster(fAlpha);
         targetDiagrams[2].setTemperature(temperature);
-        targetDiagrams[3] = makeFCluster(fdfdk);
-        targetDiagrams[3].setTemperature(temperature);
-        targetDiagrams[4] = makeFCluster(f11a);
-        targetDiagrams[4].setTemperature(temperature);
         ClusterWeightAbs sampleCluster = new ClusterWeightAbs(targetDiagrams[0]);
         final double refIntegral = 1;
 
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
 
-        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm) {
-            @Override
-            public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
-                return false;
-            }
-        };
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
 
-        if (nSpheres > 2 && kBend == 0) {
+        if (nSpheres > 2) {
             // we need to do this to convince the system that the molecules are not rigid
             // if bondingInfo thinks molecules are rigid then intramolecular LJ will not be computed
             IPotential2 pBonding = new IPotential2() {
@@ -153,14 +135,6 @@ public class VirialChainThetaSimple {
             bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
         }
 
-        List<int[]> triplets = new ArrayList<>();
-        for (int i = 0; i < nSpheres - 2; i++) {
-            triplets.add(new int[]{i, i + 1, i + 2});
-        }
-        if (nSpheres > 2 && kBend < Double.POSITIVE_INFINITY) {
-            P3BondAngleStiffChain p3 = new P3BondAngleStiffChain(kBend);
-            bondingInfo.setBondingPotentialTriplet(species, p3, triplets);
-        }
         ClusterAbstract refCluster = new ClusterAbstract() {
             @Override
             public ClusterAbstract makeCopy() {
@@ -190,22 +164,12 @@ public class VirialChainThetaSimple {
 
         pTarget.setBox((BoxCluster) sim.box());
 
-        PotentialMasterBonding.FullBondingInfo bondingInfodk = new PotentialMasterBonding.FullBondingInfo(sm);
-        PotentialMasterBonding pmBondingdk = new PotentialMasterBonding(sm, sim.box, bondingInfodk);
-        P3BondAngleStiffChain p3dk = new P3BondAngleStiffChain(1);
-        bondingInfodk.setBondingPotentialTriplet(species, p3dk, triplets);
-
         PotentialCompute pc = sim.integrator.getPotentialCompute();
 
         f11b.setPotentialu(pc);
-        f11a.setPotentialu(pc);
-        f11a.setPotentialDK(pmBondingdk);
         fAlpha.setPotentialDK(pc);
-        fdfdk.setPotentialDK(pmBondingdk);
 
         System.out.println(steps+" steps");
-
-        pTarget.setAtomPotential(type, type, p2);
 
         IntArrayList[] bonding = new IntArrayList[nSpheres];
         bonding[0] = new IntArrayList(new int[]{1});
@@ -217,9 +181,9 @@ public class VirialChainThetaSimple {
         MCMoveClusterAngle angleMove1 = null, angleMove2 = null, angleMove3 = null, angleMove4 = null;
         MCMoveClusterShuffle shuffleMove = null;
         MCMoveClusterReptate reptateMove = null;
-        if (kBend < Double.POSITIVE_INFINITY && nSpheres >= 3) {
+        if (nSpheres >= 3) {
             IntegratorMC integrator = sim.integrator;
-            if (nSpheres < 5) {
+            if (nSpheres < 6) {
                 angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove1.setBox(sim.box());
                 integrator.getMoveManager().addMCMove(angleMove1);
@@ -375,23 +339,16 @@ public class VirialChainThetaSimple {
         System.out.println("time: "+(t2-t1)/1e9);
     }
 
-    public enum TruncationChoice {
-        SIMPLE, SHIFT, FORCESHIFT
-    }
-
     /**
      * Inner class for parameters
      */
     public static class VirialChainParams extends ParameterBase {
-        public int nSpheres = 3;
+        public int nH = 5;
+        public int nT = 0;
         public double temperature = 1;
+        public double lambda = 1.5;
         public long numSteps = 1000000;
-        public double rc = 0;
-        public double bondLength = 1;
-        public TruncationChoice truncation = TruncationChoice.SHIFT;
-        public double kBend = 0;
         public double dlnqdb = 0;
-        public double dlnqdk = 0;
         public String fFile = null;
     }
 }
