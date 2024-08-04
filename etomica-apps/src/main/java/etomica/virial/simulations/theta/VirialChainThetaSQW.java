@@ -333,7 +333,7 @@ public class VirialChainThetaSQW {
         }
 
         sim.printResults(refIntegral, new String[]{
-                "Ibb", "alpha", "dfdk", "Ikb"
+                "Ibb", "alpha"
         });
 
         System.out.println("time: "+(t2-t1)/1e9);
