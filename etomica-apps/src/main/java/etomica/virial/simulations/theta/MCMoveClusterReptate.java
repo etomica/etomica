@@ -8,6 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.compute.PotentialCompute;
@@ -34,12 +35,17 @@ public class MCMoveClusterReptate extends MCMoveBox {
     double uNew = 0;
     double wOld = 0;
     double wNew = 0;
+    protected boolean doLattice;
 
     public MCMoveClusterReptate(PotentialCompute potentialCompute, Space space, IRandom random) {
         super();
         this.potential = potentialCompute;
         this.space = space;
         this.random = random;
+    }
+
+    public void setDoLattice(boolean doLattice) {
+        this.doLattice = doLattice;
     }
 
     public void setBox(Box p) {
@@ -64,7 +70,19 @@ public class MCMoveClusterReptate extends MCMoveBox {
             IAtomList atoms = molecule.getChildList();
             forward[i] = random.nextInt(2) == 0;
             Vector drNew = space.makeVector();
-            drNew.setRandomSphere(random);
+            if (doLattice) {
+                boolean allZero = false;
+                do {
+                    for (int j = 0; j < drNew.getD(); j++) {
+                        int dx = random.nextInt(3) - 1;
+                        drNew.setX(j, dx);
+                    }
+                }
+                while (drNew.isZero());
+            }
+            else {
+                drNew.setRandomSphere(random);
+            }
             Vector shift = space.makeVector();
             if (forward[i]) {
                 shift.E(atoms.get(0).getPosition());
@@ -78,7 +96,10 @@ public class MCMoveClusterReptate extends MCMoveBox {
                 goBackward(atoms, drNew);
                 shift.ME(atoms.get(0).getPosition());
             }
-            if (i==0) shiftCOM(atoms, shift);
+            if (i==0) {
+                if (doLattice) shiftLatticeCOM(molecule, shift);
+                else shiftCOM(atoms, shift);
+            }
         }
         uNew = potential.computeAll(false);
         if (box instanceof BoxCluster) {
@@ -86,6 +107,17 @@ public class MCMoveClusterReptate extends MCMoveBox {
             wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         }
         return true;
+    }
+
+    protected void shiftLatticeCOM(IMolecule molecule, Vector shift) {
+        shift.E(CenterOfMass.position(box, molecule));
+        shift.TE(-1);
+        for (int k=0; k<shift.getD(); k++) {
+            shift.setX(k, Math.floor(shift.getX(k)));
+        }
+        for (IAtom aa : molecule.getChildList()) {
+            aa.getPosition().PE(shift);
+        }
     }
 
     protected void shiftCOM(IAtomList atoms, Vector shift) {
@@ -140,7 +172,10 @@ public class MCMoveClusterReptate extends MCMoveBox {
                 goForward(atoms, oldPosition[i]);
                 shift.ME(atoms.get(atoms.size()-1).getPosition());
             }
-            if (i==0) shiftCOM(atoms, shift);
+            if (i==0) {
+                if (doLattice) shiftLatticeCOM(moleculeList.get(i), shift);
+                else shiftCOM(atoms, shift);
+            }
         }
         if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }

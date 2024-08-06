@@ -33,6 +33,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     private MoleculeAction relaxAction;
     protected final Vector r0;
     protected final RotationTensor rotationTensor;
+    protected boolean doLattice;
+    protected int[] rotationCenters;
 
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Box box) {
         super();
@@ -43,11 +45,16 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
         setStepSizeMax(Math.PI);
     }
 
+    public void setDoLattice(boolean doLattice) {
+        this.doLattice = doLattice;
+    }
+
     public void setBox(Box p) {
         super.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
         rotationAxis = new int[moleculeList.size()];
         theta = new double[rotationAxis.length];
+        rotationCenters = new int[rotationAxis.length];
         if (constraintMap == null) {
             constraintMap = new int[box.getMoleculeList().size()];
             for (int i=0; i<constraintMap.length; i++) {
@@ -90,11 +97,23 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
         IMoleculeList moleculeList = box.getMoleculeList();
         for (int i = 0; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
-            r0.E(CenterOfMass.position(box, molecule));
+            if (doLattice) {
+                if (i==0) continue;
+                rotationCenters[i] = random.nextInt(box.getLeafList().size());
+                r0.E(box.getLeafList().get(rotationCenters[i]).getPosition());
+            }
+            else {
+                r0.E(CenterOfMass.position(box, molecule));
+            }
 
             int j = constraintMap[i];
             if (j == i) {
-                theta[j] = (2*random.nextDouble() - 1.0)*stepSize;
+                if (doLattice) {
+                    theta[j] = Math.PI/2 * (random.nextInt(2)*2-1);
+                }
+                else {
+                    theta[j] = (2 * random.nextDouble() - 1.0) * stepSize;
+                }
                 rotationAxis[j] = random.nextInt(3);
             }
 
@@ -105,6 +124,19 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             if (doRelax && relaxAction != null) {
                 relaxAction.actionPerformed(molecule);
             }
+
+            if (i==0 && doLattice) {
+                Vector shift = box.getSpace().makeVector();
+                shift.E(CenterOfMass.position(box, molecule));
+                shift.TE(-1);
+                for (int k=0; k<shift.getD(); k++) {
+                    shift.setX(k, Math.floor(shift.getX(k)));
+                }
+                for (IAtom aa : molecule.getChildList()) {
+                    aa.getPosition().PE(shift);
+                }
+            }
+
         }
 
         ((BoxCluster)box).trialNotify();
@@ -127,11 +159,29 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
         IMoleculeList moleculeList = box.getMoleculeList();
         for (int i = 0; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
-            r0.E(CenterOfMass.position(box, molecule));
+            if (doLattice) {
+                if (i==0) continue;
+                r0.E(box.getLeafList().get(rotationCenters[i]).getPosition());
+            }
+            else {
+                r0.E(CenterOfMass.position(box, molecule));
+            }
             int j = constraintMap[i];
             rotationTensor.setAxial(rotationAxis[j],-theta[j]);
 
             doTransform(molecule);
+
+            if (i==0 && doLattice) {
+                Vector shift = box.getSpace().makeVector();
+                shift.E(CenterOfMass.position(box, molecule));
+                shift.TE(-1);
+                for (int k=0; k<shift.getD(); k++) {
+                    shift.setX(k, Math.floor(shift.getX(k)));
+                }
+                for (IAtom aa : molecule.getChildList()) {
+                    aa.getPosition().PE(shift);
+                }
+            }
         }
         ((BoxCluster)box).rejectNotify();
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {

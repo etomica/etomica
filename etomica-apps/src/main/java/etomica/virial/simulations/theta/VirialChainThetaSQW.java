@@ -7,6 +7,7 @@ package etomica.virial.simulations.theta;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.DiameterHashByType;
 import etomica.config.ConformationLinear;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
@@ -36,6 +37,8 @@ import etomica.virial.cluster.ClusterBonds;
 import etomica.virial.cluster.ClusterSum;
 import etomica.virial.cluster.ClusterWeightAbs;
 import etomica.virial.mcmove.MCMoveClusterAngle;
+import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.simulations.SimulationVirial;
 
 import javax.swing.*;
@@ -59,6 +62,10 @@ public class VirialChainThetaSQW {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
+            params.nH = 8;
+            params.temperature = 5.8;
+            params.numSteps = 10000000;
+            params.lattice = true;
         }
         final int nPoints = 2;
         int nH = params.nH;
@@ -67,11 +74,15 @@ public class VirialChainThetaSQW {
         double temperature = params.temperature;
         long steps = params.numSteps;
         int nSpheres = nH + nT;
+        boolean doLattice = params.lattice;
 
         double epsH = 0.25;
         double epsT = 0.75;
         double epsHT = 0.25;
         System.out.println("epsH: "+epsH+"   epsT: "+epsT+"    epsHT: "+epsHT);
+
+        double sigma = doLattice ? 0.9 : 1;
+        lambda = doLattice ? 2 : lambda;
 
         Space space = Space3D.getInstance();
 
@@ -89,10 +100,10 @@ public class VirialChainThetaSQW {
         System.out.println("T: "+temperature);
         System.out.println("nH: "+nH);
         System.out.println("nT: "+nT);
-        System.out.println("SQW lambda: "+lambda);
-        P2HardGeneric p2HH = P2SquareWell.makePotential(1, lambda, epsH);
-        P2HardGeneric p2TT = P2SquareWell.makePotential(1, lambda, epsH);
-        P2HardGeneric p2HT = P2SquareWell.makePotential(1, lambda, epsHT);
+        if (!doLattice) System.out.println("SQW lambda: "+lambda);
+        P2HardGeneric p2HH = P2SquareWell.makePotential(sigma, lambda, epsH);
+        P2HardGeneric p2TT = P2SquareWell.makePotential(sigma, lambda, epsH);
+        P2HardGeneric p2HT = P2SquareWell.makePotential(sigma, lambda, epsHT);
         if (nH>0) pTarget.setAtomPotential(typeH, typeH, p2HH);
         if (nT>0) pTarget.setAtomPotential(typeT, typeT, p2TT);
         if (nH*nT>0) pTarget.setAtomPotential(typeH, typeT, p2HT);
@@ -178,50 +189,62 @@ public class VirialChainThetaSQW {
         }
         bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
+        ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate).setDoLattice(doLattice);
+        ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate).setDoLattice(doLattice);
+
         MCMoveClusterAngle angleMove1 = null, angleMove2 = null, angleMove3 = null, angleMove4 = null;
         MCMoveClusterShuffle shuffleMove = null;
         MCMoveClusterReptate reptateMove = null;
         if (nSpheres >= 3) {
             IntegratorMC integrator = sim.integrator;
-            if (nSpheres < 6) {
+            if (nSpheres < 6 || doLattice) {
                 angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove1.setBox(sim.box());
+                angleMove1.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove1);
             }
             else if (nSpheres < 9) {
                 angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove1.setBox(sim.box());
                 angleMove1.setAtomRange(0, nSpheres/4);
+                angleMove1.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove1, 0.5);
                 angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove2.setBox(sim.box());
                 angleMove2.setAtomRange(nSpheres/4, nSpheres);
+                angleMove2.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove2, 0.5);
             }
             else {
                 angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove1.setBox(sim.box());
                 angleMove1.setAtomRange(0, nSpheres / 8);
+                angleMove1.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove1, 0.25);
                 angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove2.setBox(sim.box());
                 angleMove2.setAtomRange(nSpheres / 8, nSpheres / 4);
+                angleMove2.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove2, 0.25);
                 angleMove3 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove3.setBox(sim.box());
                 angleMove3.setAtomRange(nSpheres / 4, 3 * nSpheres / 8);
+                angleMove3.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove3, 0.25);
                 angleMove4 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
                 angleMove4.setBox(sim.box());
                 angleMove4.setAtomRange(3 * nSpheres / 8, nSpheres);
+                angleMove4.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove4, 0.25);
             }
             reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
             reptateMove.setBox(sim.box());
+            reptateMove.setDoLattice(doLattice);
             sim.integrator.getMoveManager().addMCMove(reptateMove);
 
             shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
             shuffleMove.setBox(sim.box());
+            shuffleMove.setDoLattice(doLattice);
             sim.integrator.getMoveManager().addMCMove(shuffleMove);
             ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
         }
@@ -234,6 +257,8 @@ public class VirialChainThetaSQW {
             displayBox0.setPixelUnit(new Pixel(300.0 / size));
             displayBox0.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DiameterHashByType)displayBox0.getDiameterHash()).setDiameter(typeH, 1);
+            ((DiameterHashByType)displayBox0.getDiameterHash()).setDiameter(typeT, 1);
 
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
@@ -350,5 +375,6 @@ public class VirialChainThetaSQW {
         public long numSteps = 1000000;
         public double dlnqdb = 0;
         public String fFile = null;
+        public boolean lattice = false;
     }
 }

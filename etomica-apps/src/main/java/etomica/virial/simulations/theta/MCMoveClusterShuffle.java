@@ -8,6 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.compute.PotentialCompute;
@@ -37,6 +38,7 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
     double uNew = 0;
     double wOld = 0;
     double wNew = 0;
+    protected boolean doLattice;
 
     public MCMoveClusterShuffle(PotentialCompute potentialCompute, Space space, IRandom random) {
         super();
@@ -44,6 +46,10 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         this.space = space;
         this.random = random;
         setStepSizeMin(2);
+    }
+
+    public void setDoLattice(boolean doLattice) {
+        this.doLattice = doLattice;
     }
 
     public void setBox(Box p) {
@@ -91,11 +97,18 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
             shift.ME(atoms.get(start+j).getPosition());
         }
 
-        if (iMolecule > 0 || true) {
-            shift.TE(1.0/atoms.size());
-            for (IAtom a : atoms) {
-                a.getPosition().PE(shift);
+        if (doLattice && iMolecule==0) {
+            shift.E(CenterOfMass.position(box, molecule));
+            shift.TE(-1);
+            for (int k=0; k<shift.getD(); k++) {
+                shift.setX(k, Math.floor(shift.getX(k)));
             }
+        }
+        else if (!doLattice) {
+            shift.TE(1.0/atoms.size());
+        }
+        for (IAtom a : atoms) {
+            a.getPosition().PE(shift);
         }
 
         uNew = potential.computeAll(false);
@@ -127,11 +140,18 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
             shift.ME(atoms.get(start+j).getPosition());
         }
 
-        if (iMolecule > 0 || true) {
-            shift.TE(1.0/atoms.size());
-            for (IAtom a : atoms) {
-                a.getPosition().PE(shift);
+        if (doLattice && iMolecule==0) {
+            shift.E(CenterOfMass.position(box, moleculeList.get(iMolecule)));
+            shift.TE(-1);
+            for (int k=0; k<shift.getD(); k++) {
+                shift.setX(k, Math.floor(shift.getX(k)));
             }
+        }
+        else if (!doLattice) {
+            shift.TE(1.0/atoms.size());
+        }
+        for (IAtom a : atoms) {
+            a.getPosition().PE(shift);
         }
 
         if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();

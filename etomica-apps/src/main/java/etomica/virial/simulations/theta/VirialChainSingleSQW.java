@@ -52,7 +52,8 @@ public class VirialChainSingleSQW {
         } else {
             params.numSteps = 1000000;
             params.nH = 24;
-            params.temperature = 1;
+            params.temperature = 3;
+            params.lattice = true;
         }
         double temperature = params.temperature;
         long steps = params.numSteps;
@@ -63,6 +64,7 @@ public class VirialChainSingleSQW {
             throw new RuntimeException("nH: "+nH+"    and nT: "+nT);
         }
         int nSpheres = nH + nT;
+        boolean doLattice = params.lattice;
 
         double epsH = 0.25;
         double epsT = 0.75;
@@ -80,16 +82,19 @@ public class VirialChainSingleSQW {
                 .withConformation(conf).build();
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
+        double sigma = doLattice ? 0.9 : 1;
+        lambda = doLattice ? 2 : lambda;
+
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
         System.out.println(nSpheres+"-mer chain");
         System.out.println("T: "+temperature);
         System.out.println("nH: "+nH);
         System.out.println("nT: "+nT);
-        System.out.println("SQW lambda: "+lambda);
+        if (!doLattice) System.out.println("SQW lambda: "+lambda);
 
-        P2HardGeneric p2HH = P2SquareWell.makePotential(1, lambda, epsH);
-        P2HardGeneric p2TT = P2SquareWell.makePotential(1, lambda, epsH);
-        P2HardGeneric p2HT = P2SquareWell.makePotential(1, lambda, epsHT);
+        P2HardGeneric p2HH = P2SquareWell.makePotential(sigma, lambda, epsH);
+        P2HardGeneric p2TT = P2SquareWell.makePotential(sigma, lambda, epsH);
+        P2HardGeneric p2HT = P2SquareWell.makePotential(sigma, lambda, epsHT);
         if (nH>0) pTarget.setAtomPotential(typeH, typeH, p2HH);
         if (nT>0) pTarget.setAtomPotential(typeT, typeT, p2TT);
         if (nH*nT>0) pTarget.setAtomPotential(typeH, typeT, p2HT);
@@ -131,18 +136,21 @@ public class VirialChainSingleSQW {
 
         MCMoveClusterAngle angleMove = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
         angleMove.setBox(sim.box());
+        angleMove.setDoLattice(doLattice);
         integrator.getMoveManager().addMCMove(angleMove);
 
         MCMoveClusterReptate reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
         reptateMove.setBox(sim.box());
+        reptateMove.setDoLattice(doLattice);
         integrator.getMoveManager().addMCMove(reptateMove);
 
         MCMoveClusterShuffle shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
         shuffleMove.setBox(sim.box());
+        shuffleMove.setDoLattice(doLattice);
         integrator.getMoveManager().addMCMove(shuffleMove);
         ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
 
-        if (true) {
+        if (false) {
             ActivityIntegrate ai = new ActivityIntegrate(integrator);
             sim.getController().addActivity(ai, Long.MAX_VALUE, 10);
 
@@ -210,10 +218,6 @@ public class VirialChainSingleSQW {
         System.out.println("time: "+(t2-t1)/1e9);
     }
 
-    public enum TruncationChoice {
-        SIMPLE, SHIFT, FORCESHIFT
-    }
-
     /**
      * Inner class for parameters
      */
@@ -223,5 +227,6 @@ public class VirialChainSingleSQW {
         public double lambda = 1.5;
         public int nH = 5;
         public int nT = 0;
+        public boolean lattice;
     }
 }
