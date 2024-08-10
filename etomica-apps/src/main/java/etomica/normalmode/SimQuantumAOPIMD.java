@@ -5,9 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtom;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageCovariance;
@@ -17,6 +15,7 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorLangevin;
@@ -25,7 +24,6 @@ import etomica.potential.P1Anharmonic234;
 import etomica.potential.P1AnharmonicTIA;
 import etomica.potential.P2Harmonic;
 import etomica.potential.PotentialMasterBonding;
-import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
@@ -71,9 +69,18 @@ public class SimQuantumAOPIMD extends Simulation {
                 .withConformation(new ConformationLinear(space, 0))
                 .build();
         addSpecies(species);
+        SpeciesGeneral speciesLattice = null;
+        if (space.D() == 3) {
+            speciesLattice = new SpeciesBuilder(space)
+                    .setDynamic(true)
+                    .addAtom(AtomType.simple("L", Double.POSITIVE_INFINITY), space.makeVector())
+                    .build();
+            addSpecies(speciesLattice);
+        }
         this.nBeads = nBeads;
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, 1);
+        if (speciesLattice!=null) box.setNMolecules(speciesLattice, 1);
         //pm2 that uses the full PI potential, for data collection
         //spring P2 part (x_i-x_{i+1})^2
         pmBonding = new PotentialMasterBonding(getSpeciesManager(), box);
@@ -315,6 +322,7 @@ public class SimQuantumAOPIMD extends Simulation {
                 protected Color[] allColors;
 
                 public Color getAtomColor(IAtom a) {
+                    if (a.getType().getMass() == Double.POSITIVE_INFINITY) return Color.WHITE;
                     if (allColors == null) {
                         allColors = new Color[768];
                         for (int i = 0; i < 256; i++) {
@@ -331,8 +339,30 @@ public class SimQuantumAOPIMD extends Simulation {
                 }
             };
 
-            simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 0.7);
+            DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
+            displayBox.setColorScheme(colorScheme);
+            ((DiameterHashByType) displayBox.getDiameterHash()).setDiameter(sim.getSpecies(0).getAtomType(0), 0.7);
+            ((DiameterHashByType) displayBox.getDiameterHash()).setDiameter(sim.getSpecies(1).getAtomType(0), 0.5);
+
+            if (sim.space.D() == 3) {
+                AtomPair pair = new AtomPair();
+                for (int j = 0; j < 1; j++) {
+                    IAtomList beads = sim.box.getMoleculeList().get(j).getChildList();
+                    for (int i = 0; i < nBeads; i++) {
+                        pair.atom0 = beads.get(i);
+                        int next = i + 1;
+                        if (next == nBeads) next = 0;
+                        pair.atom1 = beads.get(next);
+                        ((DisplayBoxCanvasG3DSys) displayBox.canvas).makeBond(pair, null);
+                    }
+                }
+                IAtomList beads = sim.box.getLeafList();
+                for (int i = 0; i < nBeads; i++) {
+                    pair.atom0 = beads.get(i);
+                    pair.atom1 = beads.get(nBeads);
+                    ((DisplayBoxCanvasG3DSys) displayBox.canvas).makeBond(pair, Color.BLUE);
+                }
+            }
 
             simGraphic.makeAndDisplayFrame("PIMD - "+coordType);
 
