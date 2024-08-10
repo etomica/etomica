@@ -102,7 +102,7 @@ public class VirialChainThetaSQW {
         System.out.println("nT: "+nT);
         if (!doLattice) System.out.println("SQW lambda: "+lambda);
         P2HardGeneric p2HH = P2SquareWell.makePotential(sigma, lambda, epsH);
-        P2HardGeneric p2TT = P2SquareWell.makePotential(sigma, lambda, epsH);
+        P2HardGeneric p2TT = P2SquareWell.makePotential(sigma, lambda, epsT);
         P2HardGeneric p2HT = P2SquareWell.makePotential(sigma, lambda, epsHT);
         if (nH>0) pTarget.setAtomPotential(typeH, typeH, p2HH);
         if (nT>0) pTarget.setAtomPotential(typeT, typeT, p2TT);
