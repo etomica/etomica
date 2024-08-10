@@ -13,10 +13,7 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceScalar;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorLangevin;
 import etomica.integrator.IntegratorMD;
@@ -27,6 +24,7 @@ import etomica.potential.PotentialMasterBonding;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -70,7 +68,7 @@ public class SimQuantumAOPIMD extends Simulation {
                 .build();
         addSpecies(species);
         SpeciesGeneral speciesLattice = null;
-        if (space.D() == 3) {
+        if (space.D() > 1) {
             speciesLattice = new SpeciesBuilder(space)
                     .setDynamic(true)
                     .addAtom(AtomType.simple("L", Double.POSITIVE_INFINITY), space.makeVector())
@@ -172,6 +170,30 @@ public class SimQuantumAOPIMD extends Simulation {
     public Integrator getIntegrator() {
         return integrator;
     }
+
+    /**
+     * This draws a line for a bond in 2D
+     */
+    public static class MyBond implements Drawable {
+        public final Vector v1, v2;
+        public final Color c;
+        public final Boundary b;
+        public MyBond(Vector v1, Vector v2, Color c, Boundary b) {
+            this.v1 = v1;
+            this.v2 = v2;
+            this.c = c;
+            this.b = b;
+        }
+        public void draw(Graphics g, int[] origin, double toPixels) {
+            int x1 = origin[0] + (int)(0.5*toPixels*b.getBoxSize().getX(0)) + (int)(toPixels*v1.getX(0));
+            int y1 = origin[1] + (int)(0.5*toPixels*b.getBoxSize().getX(1)) + (int)(toPixels*v1.getX(1));
+            int x2 = origin[0] + (int)(0.5*toPixels*b.getBoxSize().getX(0)) + (int)(toPixels*v2.getX(0));
+            int y2 = origin[1] + (int)(0.5*toPixels*b.getBoxSize().getX(1)) + (int)(toPixels*v2.getX(1));
+            g.setColor(c);
+            g.drawLine(x1,y1,x2,y2);
+        }
+    }
+
 
     public static void main(String[] args) {
         final long startTime = System.currentTimeMillis();
@@ -322,7 +344,7 @@ public class SimQuantumAOPIMD extends Simulation {
                 protected Color[] allColors;
 
                 public Color getAtomColor(IAtom a) {
-                    if (a.getType().getMass() == Double.POSITIVE_INFINITY) return Color.WHITE;
+                    if (a.getType().getMass() == Double.POSITIVE_INFINITY) return sim.space.D() == 2 ? Color.BLACK : Color.WHITE;
                     if (allColors == null) {
                         allColors = new Color[768];
                         for (int i = 0; i < 256; i++) {
@@ -361,6 +383,20 @@ public class SimQuantumAOPIMD extends Simulation {
                     pair.atom0 = beads.get(i);
                     pair.atom1 = beads.get(nBeads);
                     ((DisplayBoxCanvasG3DSys) displayBox.canvas).makeBond(pair, Color.BLUE);
+                }
+            }
+            else if (sim.space.D() == 2) {
+                for (int j = 0; j < 1; j++) {
+                    IAtomList beads = sim.box.getMoleculeList().get(j).getChildList();
+                    for (int i = 0; i < nBeads; i++) {
+                        int next = i + 1;
+                        if (next == nBeads) next = 0;
+                        displayBox.addDrawable(new MyBond(beads.get(i).getPosition(), beads.get(next).getPosition(), Color.RED, sim.box.getBoundary()));
+                    }
+                }
+                IAtomList beads = sim.box.getLeafList();
+                for (int i = 0; i < nBeads; i++) {
+                    displayBox.addDrawable(new MyBond(beads.get(i).getPosition(), beads.get(nBeads).getPosition(), Color.BLUE, sim.box.getBoundary()));
                 }
             }
 
