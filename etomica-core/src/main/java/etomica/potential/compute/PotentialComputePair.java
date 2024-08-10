@@ -12,6 +12,7 @@ import etomica.nbr.cell.NeighborIteratorCell;
 import etomica.potential.BondingInfo;
 import etomica.potential.IPotential2;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 import etomica.util.collections.DoubleArrayList;
@@ -35,7 +36,7 @@ public class PotentialComputePair implements PotentialCompute {
     protected double virialTot = Double.NaN, energyTot = Double.NaN;
     protected Vector[] forces;
     protected final Space space;
-
+    protected final Tensor Hij;
     protected final int[] atomCountByType;
     protected boolean duAtomMulti = false;
 
@@ -63,6 +64,7 @@ public class PotentialComputePair implements PotentialCompute {
         duAtom = new DoubleArrayList(16);
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
+        Hij = space.makeTensor();
 
         this.atomCountByType = new int[numAtomTypes];
         box.getEventManager().addListener(new BoxEventListener() {
@@ -199,6 +201,8 @@ public class PotentialComputePair implements PotentialCompute {
 
     @Override
     public double computeAll(boolean doForces, PotentialCallback pc) {
+        final boolean wantsHessian = pc != null && pc.wantsHessian();
+
         zeroArrays(doForces);
 
         IAtomList atoms = box.getLeafList();
@@ -217,6 +221,7 @@ public class PotentialComputePair implements PotentialCompute {
                 double[] u012 = new double[3];
                 double r2 = rij.squared();
                 pij.u012add(r2, u012);
+
                 double uij = u012[0];
                 if (uij == 0) return;
                 if (pc != null) pc.pairCompute(finalI, j, rij, u012);
@@ -225,11 +230,19 @@ public class PotentialComputePair implements PotentialCompute {
                 double duij = u012[1];
                 virialTot += duij;
                 if (doForces && duij != 0) {
-                    rij.TE(duij / r2);
-                    forces[finalI].PE(rij);
-                    forces[j].ME(rij);
+                    forces[finalI].PEa1Tv1(duij/r2, rij);
+                    forces[j].PEa1Tv1(-duij / r2, rij);
                 }
                 uTot[0] += uij;
+
+                if(wantsHessian){
+                    Hij.Ev1v2(rij, rij);
+                    Hij.TE((u012[2] - u012[1])/r2/r2);
+                    for (int k = 0; k < Hij.D(); k++) {
+                        Hij.PE(k, k, u012[1]/r2);
+                    }
+                    pc.pairComputeHessian(finalI, j, Hij);
+                }
             });
         }
 

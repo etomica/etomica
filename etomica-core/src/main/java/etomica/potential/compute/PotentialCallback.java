@@ -25,5 +25,7 @@ public interface PotentialCallback {
      */
     default void pairComputeGeneral(IPotential2 pij, IAtom atom1, IAtom atom2, Vector drij, Vector fij, Vector tij, Vector tji) {}
 
-    default void pairComputeHessian(int i, int j, Tensor phi) {}
+    default void pairComputeHessian(int i, int j, Tensor Hij) {}
+
+    default void fieldComputeHessian(int i, Tensor Hii) {}
 }

@@ -15,9 +15,9 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterPIVir implements IDataSource, PotentialCallback {
+public class MeterPIVirInf implements IDataSource, PotentialCallback {
     protected Box box;
-    protected final PotentialCompute pcP1;
+    protected final PotentialCompute pcP1harm, pcP1ah;
     protected double beta;
     protected double rHr;
     protected final DataTag tag;
@@ -26,30 +26,42 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
     protected int dim;
     protected int numAtoms;
     protected Vector[] rc;
-    protected double EnShift;
+    protected double omega, hbar, R, cothR, tanhR_2, fac1, fac2, fac3;
 
-    public MeterPIVir(PotentialCompute pcP1, double temperature, Box box) {
+    public MeterPIVirInf(PotentialCompute pcP1harm, PotentialCompute pcP1ah, double temperature, Box box, int nBeads, double omega, double hbar) {
         int nData = 2;
         data = new DataDoubleArray(nData);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("PI",Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
         dataInfo.addTag(tag);
-        this.pcP1 = pcP1;
+        this.pcP1harm = pcP1harm;
+        this.pcP1ah = pcP1ah;
+        this.omega = omega;
+        this.hbar = hbar;
         this.beta = 1/temperature;
         this.box = box;
         dim = box.getSpace().D();
         numAtoms = box.getMoleculeList().size();
         rc = box.getSpace().makeVectorArray(box.getMoleculeList().size());
-        this.EnShift = 0;
+        this.R = beta*hbar*omega/nBeads;
+        this.tanhR_2 = Math.tanh(R/2);
+        this.cothR = 1/Math.tanh(R);
+        this.fac1 = -R*R/2/beta*Math.cosh(R)/Math.sinh(R/2)/Math.sinh(R/2);
+        this.fac2 = R*R/4/beta*(1-1/Math.sinh(R)/Math.sinh(R)) + R*cothR/beta;
+        this.fac3 = -R*R*cothR*cothR/4/beta;
+//        System.out.println(-R*hbar*omega/2/beta/Math.tanh(R)/Math.tanh(nBeads*R/2));
+//        System.out.println(hbar*hbar*omega*omega/4/Math.sinh(nBeads*R)/Math.sinh(nBeads*R));
+
     }
 
     @Override
     public IData getData() {
         double[] x = data.getData();
         rHr = 0;
-//        pcP1.computeAll(true); // no Cv (rHr=0)
-        pcP1.computeAll(true, this); //with Cv
-        Vector[] forces = pcP1.getForces();
+        pcP1harm.computeAll(false);
+//        pcP1ah.computeAll(true); //no Cv
+        pcP1ah.computeAll(true, this); //with Cv
+        Vector[] forces = pcP1ah.getForces();
         double vir = 0;
 
         for (IMolecule molecule : box.getMoleculeList()) {
@@ -60,36 +72,19 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
             }
         }
 
-        if (numAtoms == 1) { // e.g., HO or EC
-            x[0] =   pcP1.getLastEnergy() + 1.0/2.0*vir - EnShift;
-            x[1] = 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
-//            System.out.println(1.0/4.0/beta*(-3.0*vir - rHr));
-        } else {
-            x[0] = dim/2.0/beta + pcP1.getLastEnergy() + 1.0/2.0*vir- EnShift;
-            x[1] = dim/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) + x[0]*x[0];
-        }
-        return data;
-    }
+        x[0] =   pcP1ah.getLastEnergy() + R/ tanhR_2 *pcP1harm.getLastEnergy() + R*cothR/2.0*vir;//En
+        x[1] =  fac1*pcP1harm.getLastEnergy() - fac2*vir + fac3*rHr + x[0]*x[0];
 
-    public void fieldComputeHessian(int i, Tensor Hii) { // in general potential, Hij is the Hessian between same beads of atom i and j
-        Vector ri = box.getLeafList().get(i).getPosition();
-        Vector tmpV = box.getSpace().makeVector();
-        tmpV.E(ri);
-        Hii.transform(tmpV);
-        rHr += ri.dot(tmpV); //rHr
+        return data;
     }
 
     public void pairComputeHessian(int i, int j, Tensor Hij) { // in general potential, Hij is the Hessian between same beads of atom i and j
         Vector ri = box.getLeafList().get(i).getPosition();
         Vector rj = box.getLeafList().get(j).getPosition();
-        Vector rij = box.getSpace().makeVector();
-        rij.Ev1Mv2(ri, rj);
-        box.getBoundary().nearestImage(rij);
-        Hij.transform(rij);
-        Vector rij2 = box.getSpace().makeVector();
-        rij2.Ev1Mv2(ri, rj);
-        box.getBoundary().nearestImage(rij2);
-        rHr += rij.dot(rij2);
+        Vector tmpV = box.getSpace().makeVector();
+        tmpV.E(rj);
+        Hij.transform(tmpV);
+        rHr += ri.dot(tmpV); //rHr
     }
 
     public IDataInfo getDataInfo() {
@@ -104,5 +99,4 @@ public class MeterPIVir implements IDataSource, PotentialCallback {
         return true;
     }
 
-    public void setEnShift(double E) { this.EnShift = E; }
 }

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.integrator;
-
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -17,7 +17,7 @@ import etomica.util.random.IRandom;
  * originally developed by Leimkuhler and Matthews, Appl. Math. Res. eXpress 2013, 34–56 (2013)
  * and Leimkuhler and Matthews, J. Chem. Phys. 138, 174102 (2013)
  *
- * code adapted from https://github.com/Allen-Tildesley/examples/blob/master/bd_nvt_lj.f90
+ * code adapted from <a href="https://github.com/Allen-Tildesley/examples/blob/master/bd_nvt_lj.f90">...</a>
  *
  * With isothermal = false or gamma = 0, the integration thermostat will be disabled, resulting
  * in velocity-Verlet integration for NVE.
@@ -76,14 +76,29 @@ public class IntegratorLangevin extends IntegratorMD {
         Vector rand = space.makeVector();
         int nLeaf = atoms.size();
         double expX = Math.exp(-x);
+        Vector netMomentum = space.makeVector();
+        double totalMass = 0;
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            for (int i=0; i<rand.getD(); i++) {
-                rand.setX(i, c*sqrtT * random.nextGaussian());
-            }
             IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
+            double m = a.getType().getMass();
+            double sqrtM = Math.sqrt(m);
+            for (int i=0; i<rand.getD(); i++) {
+                rand.setX(i, c * sqrtT / sqrtM * random.nextGaussian());
+            }
             Vector v = a.getVelocity();
             v.TE(expX);
             v.PE(rand);
+            if (thermostatNoDrift) {
+                totalMass += m;
+                netMomentum.PEa1Tv1(m, v);
+            }
+        }
+        if (thermostatNoDrift) {
+            netMomentum.TE(1.0/totalMass);
+            for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
+                IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
+                a.getVelocity().ME(netMomentum);
+            }
         }
     }
 
@@ -132,6 +147,18 @@ public class IntegratorLangevin extends IntegratorMD {
 
         currentPotentialEnergy = potentialCompute.computeAll(true);
         eventManager.forceComputed();
+    }
+
+    public void randomizeMomenta() {
+        atomActionRandomizeVelocity.setTemperature(temperature);
+        IAtomList leafList = box.getLeafList();
+        for (IAtom a : leafList) {
+            atomActionRandomizeVelocity.actionPerformed(a);
+            ((IAtomKinetic) a).getVelocity().TE(1 / Math.sqrt(1.0));
+        }
+        if (alwaysScaleMomenta) {
+            scaleMomenta();
+        }
     }
 
     public void postRestore() {

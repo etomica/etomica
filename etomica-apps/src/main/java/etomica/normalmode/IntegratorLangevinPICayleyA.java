@@ -9,7 +9,6 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMD;
-import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
@@ -33,21 +32,22 @@ import etomica.util.random.IRandom;
  * Zeroing net momentum is implemented not by altering the velocities, but by subtracting off the net momentum of mode
  * 0 whenever the transformed coordinates are propagated.  As such, the kinetic energy should be the full 3/2 Nn kT.
  */
-public class IntegratorLangevinPI extends IntegratorMD {
+public class IntegratorLangevinPICayleyA extends IntegratorMD {
 
     protected double gamma;
     protected final double[] f11, f1N;
-    protected double omega2HO;
+    protected double omega, omega2HO;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
-    protected int nBeads;
+    protected final MCMoveHOReal2 move;
 
-    public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
-                                double timeStep, double temperature, Box box, double gamma,
-                                MCMoveHOReal2 move, double hbar, double omega2HO) {
+    public IntegratorLangevinPICayleyA(PotentialCompute potentialCompute, IRandom random,
+                                       double timeStep, double temperature, Box box, double gamma,
+                                       MCMoveHOReal2 move, double hbar, double omega2HO) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
 
+        this.move = move;
         f11 = move.f11;
         f1N = move.f1N;
         this.omega2HO = omega2HO;
@@ -55,7 +55,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
-        nBeads = box.getMoleculeList().get(0).getChildList().size();
+        int nBeads = box.getMoleculeList().get(0).getChildList().size();
         double omegaN = nBeads/(hbar* move.beta);
         double omegaN2 = omegaN*omegaN;
         double D = 2 + move.omega2 / omegaN2;
@@ -71,7 +71,14 @@ public class IntegratorLangevinPI extends IntegratorMD {
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
             mScale[i]  = alpha == 0 ? nBeads*(nBeads - i + 1.0)/(nBeads - i) : omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
+
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
+
+        if (move.omega2 == 0) {
+            omega = Math.sqrt(omegaN2/nBeads);
+        } else {
+            omega = Math.sqrt(omega2HO);
+        }
     }
 
     public void setGamma(double newGamma) {
@@ -79,42 +86,68 @@ public class IntegratorLangevinPI extends IntegratorMD {
     }
 
     protected void propagatorA(double dt) {
-        Vector dr0 = box.getSpace().makeVector();
-        Vector dri = box.getSpace().makeVector();
+
+        double a2 = Math.pow(omega*dt/2, 2);
+        double A00 = (1-a2)/(1+a2);
+        double A11 = (1-a2)/(1+a2);
+        double A01 = dt/(1+a2);
+        double A10 = -omega*omega*dt/(1+a2);
+
         Vector drPrev0 = box.getSpace().makeVector();
         Vector drPrev = box.getSpace().makeVector();
-        Vector v = box.getSpace().makeVector();
-        Vector[] u = box.getSpace().makeVectorArray(nBeads);
 
-        for (IMolecule molecule : box.getMoleculeList()) {
-            IAtomList atoms = molecule.getChildList();
-            dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[molecule.getIndex()]);
-
-            for (IAtom atom : atoms) {
-                // r->u
-                int i = atom.getIndex();
-                dri.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
-                u[i].E(dri);
+        for (IMolecule m : box.getMoleculeList()) {
+            IAtomList atoms = m.getChildList();
+            Vector dr0 = box.getSpace().makeVector();
+            dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[m.getIndex()]);
+            box.getBoundary().nearestImage(dr0);
+            Vector[] u = box.getSpace().makeVectorArray(atoms.size());
+            // first compute collective coordinates
+            for (IAtom a : atoms) {
+                int i = a.getIndex();
+                Vector r = a.getPosition();
+                u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
+                box.getBoundary().nearestImage(u[i]);
+                Vector usave = box.getSpace().makeVector();
+                usave.E(u[i]);
                 if (i > 0) {
-                    u[i].PEa1Tv1(-f1N[i], dr0);
                     u[i].PEa1Tv1(-f11[i], drPrev0);
+                    u[i].PEa1Tv1(-f1N[i], dr0);
                 }
-                drPrev0.E(dri);
-                // propagate u
-                v.E(((IAtomKinetic) atom).getVelocity());
-                u[i].PEa1Tv1(dt, v);
+                drPrev0.E(usave);
 
-                atom.getPosition().E(latticePositions[molecule.getIndex()]);
-                if (i > 0) {
-                    atom.getPosition().PEa1Tv1(f1N[i], u[0]);
-                    atom.getPosition().PEa1Tv1(f11[i], drPrev);
+                Vector v = ((IAtomKinetic)a).getVelocity();
+                Vector u0 = box.getSpace().makeVector();
+                Vector v0 = box.getSpace().makeVector();
+                u0.E(u[i]);
+                v0.E(v);
+                if (move.omega2 == 0 && i == 0) {
+                    u[i].PEa1Tv1(dt, v0);
+                } else {
+                    u[i].Ea1Tv1(A00, u0);
+                    u[i].PEa1Tv1(A01, v0);
+
+                    v.Ea1Tv1(A10, u0);
+                    v.PEa1Tv1(A11, v0);
                 }
-                atom.getPosition().PE(u[i]);
-                drPrev.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
+
+                Vector rOrig = box.getSpace().makeVector();
+                rOrig.E(r);
+                r.E(latticePositions[m.getIndex()]);
+                if (i>0) {
+                    r.PEa1Tv1(f11[i], drPrev);
+                    r.PEa1Tv1(f1N[i], u[0]);
+                }
+                r.PE(u[i]);
+                drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
+                // shift atom back to side of box where it started, even if outside
+                Vector drShift = box.getSpace().makeVector();
+                drShift.Ev1Mv2(r, rOrig);
+                box.getBoundary().nearestImage(drShift);
+                r.Ev1Pv2(rOrig, drShift);
             }
         }
     }
-
 
     protected void propagatorB(double dt) {
         Vector[] forces = potentialCompute.getForces();

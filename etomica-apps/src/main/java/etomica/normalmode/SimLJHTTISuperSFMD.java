@@ -98,13 +98,13 @@ public class SimLJHTTISuperSFMD extends Simulation {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
-            params.numAtoms = 500;
+            params.numAtoms = 32;
             params.numSteps = 10000;
-            params.temperature = 1;
+            params.temperature = 0.5;
             params.density = 1;
-            params.rc = 3;
+            params.rc = 2.5;
             params.bpharm = 9;
-            params.doD2 = true;
+            params.doD2 = !true;
         } else {
             ParseArgs.doParseArgs(params, args);
         }

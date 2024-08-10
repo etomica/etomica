@@ -120,8 +120,9 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
             if (step % (1L << x) == 0) {
                 if (i >= bacSum.length) reallocate(i + 1);
                 Vector[] iCoords = configStorage.getSavedConfig(i + 1);
+                Vector iShift = computeShift(iCoords, n);
                 for (int j = 0; j < box.getMoleculeList().size(); j++) {
-                    double dot = computeDR(coords, j, n, shift).dot(computeDR(iCoords, j, n, shift));
+                    double dot = computeDR(coords, j, n, shift).dot(computeDR(iCoords, j, n, iShift));
                     bacSum[i] += dot;
                     bac2Sum[i] += dot*dot;
                     if (i==0) sum0 += computeDR(coords, j, n, shift).dot(computeDR(coords, j, n, shift));
@@ -141,8 +142,9 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
             boundary.nearestImage(dr);
             shift0.PE(dr);
         }
-        // will shift ring0 back to lattice site
         shift0.TE(-1.0/n);
+        // will shift ring0 back to lattice site; everything should be close and PBC should lock in
+        // now determine additional shift needed to bring back to original COM
         Vector totalShift = box.getSpace().makeVector();
         for (int j = 0; j < box.getMoleculeList().size(); j++) {
             for (int i = 0; i < n; i++) {
@@ -153,6 +155,7 @@ public class DataSourceRAC implements IDataSource, ConfigurationStorage.Configur
             }
         }
         totalShift.TE(-1.0/(n*(box.getMoleculeList().size()-1)));
+        totalShift.PE(shift0);
         return totalShift;
     }
 

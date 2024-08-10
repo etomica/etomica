@@ -166,7 +166,7 @@ public class PotentialComputeField implements PotentialCompute {
 
             if(wantsHessian){
                 Tensor Hii = ip.d2u(iAtom);
-                pc.pairComputeHessian(i, i, Hii);
+                pc.fieldComputeHessian(i, Hii);
             }
         }
         energyTot = uTot;
