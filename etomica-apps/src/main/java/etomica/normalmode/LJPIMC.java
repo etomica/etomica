@@ -327,7 +327,7 @@ public class LJPIMC extends Simulation {
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
         sim.integrator.getEventManager().addListener(pump);
 
-        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
+        MeterPIPrim meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, temperature, nBeads, sim.box);
         AccumulatorAverageCovariance accumulatorPrim = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpPrim = new DataPumpListener(meterPrim, accumulatorPrim, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
@@ -348,7 +348,7 @@ public class LJPIMC extends Simulation {
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAc);
 
         int nShifts = 0;
-        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC, nShifts);
+        MeterPIHMAReal2 meterHMAReal2 = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, temperature, nBeads, sim.moveStageEC, nShifts);
         AccumulatorAverageCovariance accumulatorHMAReal2 = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener accumulatorPumpHMAReal2 = new DataPumpListener(meterHMAReal2, accumulatorHMAReal2, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpHMAReal2);

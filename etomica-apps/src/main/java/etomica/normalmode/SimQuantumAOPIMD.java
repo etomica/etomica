@@ -10,14 +10,22 @@ import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
-import etomica.data.*;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceScalar;
+import etomica.data.IData;
 import etomica.data.types.DataGroup;
-import etomica.graphics.*;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorLangevin;
 import etomica.integrator.IntegratorMD;
-import etomica.potential.*;
+import etomica.potential.P1Anharmonic234;
+import etomica.potential.P1AnharmonicTIA;
+import etomica.potential.P2Harmonic;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
@@ -166,12 +174,12 @@ public class SimQuantumAOPIMD extends Simulation {
         } else {
             // custom parameters
             params.hbar = 1.0;
-            params.steps = 1000000;
+            params.steps = 100000;
             params.temperature = 1;
             params.omega = 1;
             params.k3 = 0.1;
             params.k4 = 0.1;
-            params.onlyCentroid = true;
+            params.onlyCentroid = false;
             params.gammaLangevin = params.omega;
 
 //            params.coordType = MoveChoice.Real;
@@ -179,9 +187,7 @@ public class SimQuantumAOPIMD extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
 //            params.coordType = MoveChoice.Stage;
             params.coordType = MoveChoice.StageEC;
-            params.timeStep = 0.3;
-            params.isExactA = false;
-            params.isCayleyA = true;
+            params.timeStep = 111;
         }
 
         int nShifts = params.nShifts;
@@ -275,7 +281,6 @@ public class SimQuantumAOPIMD extends Simulation {
 
 //        MeterMSDHO meterMSDHO = new MeterMSDHO(sim.box);
         MeterPIPrim meterPrim = null;
-        MeterPIVir meterVir = null;
         MeterPICentVir meterCentVir = null;
         MeterPIHMAc meterHMAc = null;
         MeterPIHMA meterNMEC = null;
@@ -284,20 +289,17 @@ public class SimQuantumAOPIMD extends Simulation {
         MeterPIHMAReal2 meterStageSimple = null;
         if (isTIA){
 //            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1EnTIA, nBeads, sim.betaN);
-//            meterVir = new MeterPIVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
 //            meterCentVir = new MeterPICentVirTIA(sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, sim.box);
             meterHMAc = null;
 //            meterHMA = new MeterPIHMATIA(sim.pmBonding, sim.pcP1EnTIA, sim.pcP1, sim.betaN, nBeads, omega2, sim.box);
 //            meterHMAcent = null;
         } else {
+            meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, temperature, nBeads, sim.box);
             meterCentVir = new MeterPICentVir(sim.pcP1, temperature, nBeads, sim.box);
             if (!onlyCentroid) {
-                meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
                 meterHMAc = new MeterPIHMAc(sim.pcP1, temperature, nBeads, sim.box);
-                meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, 0, sim.box, hbar);
-                meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, sim.betaN, nBeads, omega2, sim.box, hbar);
-                meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageSimple, nShifts);
-                meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageEC, nShifts);
+                meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1, temperature, nBeads, omega2, sim.box, hbar);
+                meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, temperature, nBeads, sim.moveStageEC, nShifts);
             }
         }
 
@@ -305,7 +307,7 @@ public class SimQuantumAOPIMD extends Simulation {
 
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY);
             int intervalG = 100;
             simGraphic.setPaintInterval(sim.box, intervalG);
             int finalNBeads = nBeads;
@@ -330,12 +332,8 @@ public class SimQuantumAOPIMD extends Simulation {
             };
 
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 1.0);
-            DisplayTextBox timer = new DisplayTextBox();
-            DataSourceCountTime counter = new DataSourceCountTime(sim.integrator);
-            DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
-            sim.integrator.getEventManager().addListener(counterPump);
-            simGraphic.getPanel().controlPanel.add(timer.graphic());
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 0.7);
+
             simGraphic.makeAndDisplayFrame("PIMD - "+coordType);
 
             DataSourceScalar meterCOM = new DataSourceScalar("COM", Length.DIMENSION) {
@@ -349,15 +347,6 @@ public class SimQuantumAOPIMD extends Simulation {
                     return COM.getX(0);
                 }
             };
-            AccumulatorHistory historyCOM = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyCOM.setTimeDataSource(new DataSourceCountTime(sim.integrator));
-            DataPumpListener pumpCOM = new DataPumpListener(meterCOM, historyCOM, intervalG);
-            sim.integrator.getEventManager().addListener(pumpCOM);
-            DisplayPlotXChart plotCOM = new DisplayPlotXChart();
-            plotCOM.setLabel("COM");
-            historyCOM.addDataSink(plotCOM.makeSink("COM"));
-            plotCOM.setLegend(new DataTag[]{meterCOM.getTag()}, "COM");
-            simGraphic.add(plotCOM);
 
             return;
         }
@@ -390,13 +379,6 @@ public class SimQuantumAOPIMD extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpPrim);
         }
 
-        //2 Virial
-        AccumulatorAverageCovariance accumulatorVir = new AccumulatorAverageCovariance(blockSize);
-        if (meterVir != null) {
-            DataPumpListener accumulatorPumpVir = new DataPumpListener(meterVir, accumulatorVir, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpVir);
-        }
-
         //3 Centroid Virial
         AccumulatorAverageCovariance accumulatorCentVir = new AccumulatorAverageCovariance(blockSize);
         if (meterCentVir != null) {
@@ -412,11 +394,11 @@ public class SimQuantumAOPIMD extends Simulation {
         }
 
         //5 HMAq (Quantum EC)
-        AccumulatorAverageCovariance accumulatorNMSimple = new AccumulatorAverageCovariance(blockSize);
-        if (meterNMSimple != null) {
-            DataPumpListener accumulatorPumpHMAsimple = new DataPumpListener(meterNMSimple, accumulatorNMSimple, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpHMAsimple);
-        }
+//        AccumulatorAverageCovariance accumulatorNMSimple = new AccumulatorAverageCovariance(blockSize);
+//        if (meterNMSimple != null) {
+//            DataPumpListener accumulatorPumpHMAsimple = new DataPumpListener(meterNMSimple, accumulatorNMSimple, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpHMAsimple);
+//        }
 
         AccumulatorAverageCovariance accumulatorNMEC = new AccumulatorAverageCovariance(blockSize);
         if (meterNMEC != null) {
@@ -424,11 +406,11 @@ public class SimQuantumAOPIMD extends Simulation {
             sim.integrator.getEventManager().addListener(accumulatorPumpHMA);
         }
 
-        AccumulatorAverageCovariance accumulatorStageSimple = new AccumulatorAverageCovariance(blockSize);
-        if (meterStageSimple != null) {
-            DataPumpListener pumpStagesimple = new DataPumpListener(meterStageSimple, accumulatorStageSimple, interval);
-            sim.integrator.getEventManager().addListener(pumpStagesimple);
-        }
+//        AccumulatorAverageCovariance accumulatorStageSimple = new AccumulatorAverageCovariance(blockSize);
+//        if (meterStageSimple != null) {
+//            DataPumpListener pumpStagesimple = new DataPumpListener(meterStageSimple, accumulatorStageSimple, interval);
+//            sim.integrator.getEventManager().addListener(pumpStagesimple);
+//        }
 
         AccumulatorAverageCovariance accumulatorStageEC = new AccumulatorAverageCovariance(blockSize);
         if (meterStageEC != null) {
@@ -499,20 +481,6 @@ public class SimQuantumAOPIMD extends Simulation {
             corX0X1 = dataCovPrim.getValue(1)/Math.sqrt(dataCovPrim.getValue(0))/Math.sqrt(dataCovPrim.getValue(3));
             errCvnPrim = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnPrim*avgEnPrim*varX0 - 4*avgEnPrim*dataErrPrim.getValue(0)*dataErrPrim.getValue(1)*corX0X1);
 
-            // Vir
-            DataGroup dataVir = (DataGroup) accumulatorVir.getData();
-            IData dataAvgVir = dataVir.getData(accumulatorVir.AVERAGE.index);
-            IData dataErrVir = dataVir.getData(accumulatorVir.ERROR.index);
-            IData dataCorVir = dataVir.getData(accumulatorVir.BLOCK_CORRELATION.index);
-            IData dataCovVir = dataVir.getData(accumulatorVir.COVARIANCE.index);
-            avgEnVir = dataAvgVir.getValue(0);
-            errEnVir = dataErrVir.getValue(0);
-            corEnVir = dataCorVir.getValue(0);
-            CvnVir = kB_beta2*(dataAvgVir.getValue(1) - avgEnVir*avgEnVir);
-            varX0 = errEnVir*errEnVir;
-            varX1 = dataErrVir.getValue(1)*dataErrVir.getValue(1);
-            corX0X1 = dataCovVir.getValue(1)/Math.sqrt(dataCovVir.getValue(0))/Math.sqrt(dataCovVir.getValue(3));
-            errCvnVir = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnVir*avgEnVir*varX0 - 4*avgEnVir*dataErrVir.getValue(0)*dataErrVir.getValue(1)*corX0X1);
 
             // HMAc
             DataGroup dataHMAc = (DataGroup) accumulatorHMAc.getData();
@@ -533,20 +501,20 @@ public class SimQuantumAOPIMD extends Simulation {
             }
 
 
-            // HMA simple NM
-            DataGroup dataNMsimple = (DataGroup) accumulatorNMSimple.getData();
-            IData dataAvgNMsimple = dataNMsimple.getData(accumulatorNMSimple.AVERAGE.index);
-            IData dataErrNMsimple = dataNMsimple.getData(accumulatorNMSimple.ERROR.index);
-            IData dataCorNMsimple = dataNMsimple.getData(accumulatorNMSimple.BLOCK_CORRELATION.index);
-            IData dataCovNMsimple = dataNMsimple.getData(accumulatorNMSimple.COVARIANCE.index);
-            avgEnNMSimple = dataAvgNMsimple.getValue(0);
-            errEnNMSimple = dataErrNMsimple.getValue(0);
-            corEnNMSimple = dataCorNMsimple.getValue(0);
-            CvnNMSimple  = kB_beta2*(dataAvgNMsimple.getValue(1) - avgEnNMSimple*avgEnNMSimple);
-            varX0 = errEnNMSimple*errEnNMSimple;
-            varX1 = dataErrNMsimple.getValue(1)*dataErrNMsimple.getValue(1);
-            corX0X1 = dataCovNMsimple.getValue(1)/Math.sqrt(dataCovNMsimple.getValue(0))/Math.sqrt(dataCovNMsimple.getValue(3));
-            errCvnNMsimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1);
+//            // HMA simple NM
+//            DataGroup dataNMsimple = (DataGroup) accumulatorNMSimple.getData();
+//            IData dataAvgNMsimple = dataNMsimple.getData(accumulatorNMSimple.AVERAGE.index);
+//            IData dataErrNMsimple = dataNMsimple.getData(accumulatorNMSimple.ERROR.index);
+//            IData dataCorNMsimple = dataNMsimple.getData(accumulatorNMSimple.BLOCK_CORRELATION.index);
+//            IData dataCovNMsimple = dataNMsimple.getData(accumulatorNMSimple.COVARIANCE.index);
+//            avgEnNMSimple = dataAvgNMsimple.getValue(0);
+//            errEnNMSimple = dataErrNMsimple.getValue(0);
+//            corEnNMSimple = dataCorNMsimple.getValue(0);
+//            CvnNMSimple  = kB_beta2*(dataAvgNMsimple.getValue(1) - avgEnNMSimple*avgEnNMSimple);
+//            varX0 = errEnNMSimple*errEnNMSimple;
+//            varX1 = dataErrNMsimple.getValue(1)*dataErrNMsimple.getValue(1);
+//            corX0X1 = dataCovNMsimple.getValue(1)/Math.sqrt(dataCovNMsimple.getValue(0))/Math.sqrt(dataCovNMsimple.getValue(3));
+//            errCvnNMsimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMSimple*avgEnNMSimple*varX0 - 4*avgEnNMSimple*dataErrNMsimple.getValue(0)*dataErrNMsimple.getValue(1)*corX0X1);
 
             // HMA EC NM
             DataGroup dataNMEC = (DataGroup) accumulatorNMEC.getData();
@@ -566,20 +534,20 @@ public class SimQuantumAOPIMD extends Simulation {
                 errCvnNMEC = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnNMEC*avgEnNMEC*varX0);
             }
 
-            // HMA simple stage
-            DataGroup dataStageSimple = (DataGroup) accumulatorStageSimple.getData();
-            IData dataAvgStageSimple = dataStageSimple.getData(accumulatorStageSimple.AVERAGE.index);
-            IData dataErrStageSimple = dataStageSimple.getData(accumulatorStageSimple.ERROR.index);
-            IData dataCorStageSimple = dataStageSimple.getData(accumulatorStageSimple.BLOCK_CORRELATION.index);
-            IData dataCovStageSimple = dataStageSimple.getData(accumulatorStageSimple.COVARIANCE.index);
-            avgEnStageSimple = dataAvgStageSimple.getValue(0);
-            errEnStageSimple = dataErrStageSimple.getValue(0);
-            corEnStageSimple = dataCorStageSimple.getValue(0);
-            CvnStageSimple  = kB_beta2*(dataAvgStageSimple.getValue(1) - avgEnStageSimple*avgEnStageSimple);
-            varX0 = errEnStageSimple*errEnStageSimple;
-            varX1 = dataErrStageSimple.getValue(1)*dataErrStageSimple.getValue(1);
-            corX0X1 = dataCovStageSimple.getValue(1)/Math.sqrt(dataCovStageSimple.getValue(0))/Math.sqrt(dataCovStageSimple.getValue(3));
-            errCvnStageSimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageSimple*avgEnStageSimple*varX0 - 4*avgEnStageSimple*dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(1)*corX0X1);
+//            // HMA simple stage
+//            DataGroup dataStageSimple = (DataGroup) accumulatorStageSimple.getData();
+//            IData dataAvgStageSimple = dataStageSimple.getData(accumulatorStageSimple.AVERAGE.index);
+//            IData dataErrStageSimple = dataStageSimple.getData(accumulatorStageSimple.ERROR.index);
+//            IData dataCorStageSimple = dataStageSimple.getData(accumulatorStageSimple.BLOCK_CORRELATION.index);
+//            IData dataCovStageSimple = dataStageSimple.getData(accumulatorStageSimple.COVARIANCE.index);
+//            avgEnStageSimple = dataAvgStageSimple.getValue(0);
+//            errEnStageSimple = dataErrStageSimple.getValue(0);
+//            corEnStageSimple = dataCorStageSimple.getValue(0);
+//            CvnStageSimple  = kB_beta2*(dataAvgStageSimple.getValue(1) - avgEnStageSimple*avgEnStageSimple);
+//            varX0 = errEnStageSimple*errEnStageSimple;
+//            varX1 = dataErrStageSimple.getValue(1)*dataErrStageSimple.getValue(1);
+//            corX0X1 = dataCovStageSimple.getValue(1)/Math.sqrt(dataCovStageSimple.getValue(0))/Math.sqrt(dataCovStageSimple.getValue(3));
+//            errCvnStageSimple = kB_beta2*Math.sqrt(varX1 + 4.0*avgEnStageSimple*avgEnStageSimple*varX0 - 4*avgEnStageSimple*dataErrStageSimple.getValue(0)*dataErrStageSimple.getValue(1)*corX0X1);
 
             // HMA EC stage
             DataGroup dataStageEC = (DataGroup) accumulatorStageEC.getData();
@@ -605,21 +573,15 @@ public class SimQuantumAOPIMD extends Simulation {
             System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
         } else {
             System.out.println("\n En_prim:          " + avgEnPrim + "   err: " + errEnPrim + " cor: " + corEnPrim);
-            System.out.println(" En_vir:           " + avgEnVir + "   err: " + errEnVir + " cor: " + corEnVir);
             System.out.println(" En_cvir:          " + avgEnCentVir + "   err: " + errEnCentVir + " cor: " + corEnCentVir);
             System.out.println(" En_hmac:          " + avgEnHMAc + "   err: " + errEnHMAc + " cor: " + corEnHMAc);
-            System.out.println(" En_nm_simple:     " + avgEnNMSimple + "   err: " + errEnNMSimple + " cor: " + corEnNMSimple);
             System.out.println(" En_nm_ec:         " + avgEnNMEC + "   err: " + errEnNMEC + " cor: " + corEnNMEC);
-            System.out.println(" En_stage_simple:  " + avgEnStageSimple + "   err: " + errEnStageSimple + " cor: " + corEnStageSimple);
             System.out.println(" En_stage_ec:      " + avgEnStageEC + "   err: " + errEnStageEC + " cor: " + corEnStageEC);
             System.out.println();
             System.out.println(" Cvn_prim:         " + CvnPrim +          "   err: " + errCvnPrim);
-//            System.out.println(" Cvn_vir:          " + CvnVir +           "   err: " + errCvnVir);
-//            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
+            System.out.println(" Cvn_cvir:         " + CvnCentVir +       "   err: " + errCvnCentVir);
             System.out.println(" Cvn_hmac:         " + CvnHMAc +          "   err: " + errCvnHMAc);
-            System.out.println(" Cvn_nm_simple:    " + CvnNMSimple +    "   err: " + errCvnNMsimple);
             System.out.println(" Cvn_nm_ec:        " + CvnNMEC +          "   err: " + errCvnNMEC);
-            System.out.println(" Cvn_stage_simple: " + CvnStageSimple + "   err: " + errCvnStageSimple);
             System.out.println(" Cvn_stage_ec:     " + CvnStageEC +       "   err: " + errCvnStageEC);
         }
 
@@ -652,6 +614,6 @@ public class SimQuantumAOPIMD extends Simulation {
         public int nBeads = -1;
         public int nShifts = 0;
         public boolean isExactA = false;
-        public boolean isCayleyA = true;
+        public boolean isCayleyA = false;
     }
 }

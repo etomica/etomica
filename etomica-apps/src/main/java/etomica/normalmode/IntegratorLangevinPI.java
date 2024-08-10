@@ -40,6 +40,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
     protected double omega2HO;
     protected final Vector[] latticePositions;
     protected final double[] mScale, fScale, fScale0;
+    protected int nBeads;
 
     public IntegratorLangevinPI(PotentialCompute potentialCompute, IRandom random,
                                 double timeStep, double temperature, Box box, double gamma,
@@ -54,7 +55,7 @@ public class IntegratorLangevinPI extends IntegratorMD {
         for (IMolecule m : box.getMoleculeList()) {
             latticePositions[m.getIndex()].E(m.getChildList().get(0).getPosition());
         }
-        int nBeads = box.getMoleculeList().get(0).getChildList().size();
+        nBeads = box.getMoleculeList().get(0).getChildList().size();
         double omegaN = nBeads/(hbar* move.beta);
         double omegaN2 = omegaN*omegaN;
         double D = 2 + move.omega2 / omegaN2;
@@ -70,7 +71,6 @@ public class IntegratorLangevinPI extends IntegratorMD {
             fScale[i]  = alpha == 0 ? (nBeads - i - 1.0)/(nBeads - i) : Math.sinh((nBeads - i - 1) * alpha)/Math.sinh((nBeads - i)*alpha);
             mScale[i]  = alpha == 0 ? nBeads*(nBeads - i + 1.0)/(nBeads - i) : omegaN2/omega2HO*Math.sinh((nBeads - i + 1) * alpha)/Math.sinh((nBeads - i)*alpha);
         }
-
         meterKE = new IntegratorPIMD.MeterKineticEnergy(box, mScale);
     }
 
@@ -79,48 +79,42 @@ public class IntegratorLangevinPI extends IntegratorMD {
     }
 
     protected void propagatorA(double dt) {
+        Vector dr0 = box.getSpace().makeVector();
+        Vector dri = box.getSpace().makeVector();
         Vector drPrev0 = box.getSpace().makeVector();
         Vector drPrev = box.getSpace().makeVector();
+        Vector v = box.getSpace().makeVector();
+        Vector[] u = box.getSpace().makeVectorArray(nBeads);
 
+        for (IMolecule molecule : box.getMoleculeList()) {
+            IAtomList atoms = molecule.getChildList();
+            dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[molecule.getIndex()]);
 
-        Vector drShift = space.makeVector();
-        drShift.Ev1Mv2(box.getLeafList().get(0).getPosition(), latticePositions[0]);
-        drShift.TE(-1);
-
-        for (IMolecule m : box.getMoleculeList()) {
-            IAtomList atoms = m.getChildList();
-            Vector dr0 = box.getSpace().makeVector();
-            dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[m.getIndex()]);
-            dr0.PE(drShift);
-            Vector[] u = box.getSpace().makeVectorArray(atoms.size());
-            // r->u
-            for (IAtom a : atoms) {
-                int i = a.getIndex();
-                Vector r = a.getPosition();
-                u[i].Ev1Mv2(r, latticePositions[m.getIndex()]);
-                u[i].PE(drShift);
-                Vector usave = box.getSpace().makeVector();
-                usave.E(u[i]);
+            for (IAtom atom : atoms) {
+                // r->u
+                int i = atom.getIndex();
+                dri.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
+                u[i].E(dri);
                 if (i > 0) {
-                    u[i].PEa1Tv1(-f11[i], drPrev0);
                     u[i].PEa1Tv1(-f1N[i], dr0);
+                    u[i].PEa1Tv1(-f11[i], drPrev0);
                 }
-                drPrev0.E(usave);
-
-                Vector v = ((IAtomKinetic)a).getVelocity();
+                drPrev0.E(dri);
+                // propagate u
+                v.E(((IAtomKinetic) atom).getVelocity());
                 u[i].PEa1Tv1(dt, v);
 
-                r.E(latticePositions[m.getIndex()]);
-                if (i>0) {
-                    r.PEa1Tv1(f11[i], drPrev);
-                    r.PEa1Tv1(f1N[i], u[0]);
+                atom.getPosition().E(latticePositions[molecule.getIndex()]);
+                if (i > 0) {
+                    atom.getPosition().PEa1Tv1(f1N[i], u[0]);
+                    atom.getPosition().PEa1Tv1(f11[i], drPrev);
                 }
-                r.PE(u[i]);
-                drPrev.Ev1Mv2(r, latticePositions[m.getIndex()]);
-                r.ME(drShift);
+                atom.getPosition().PE(u[i]);
+                drPrev.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
             }
         }
     }
+
 
     protected void propagatorB(double dt) {
         Vector[] forces = potentialCompute.getForces();

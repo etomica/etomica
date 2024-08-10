@@ -38,7 +38,7 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
     protected Vector[] rOrig;
     protected Vector drShift;
     protected double hbar, mass;
-    protected double[] ki_0, gamma_0, dGamma_0;
+    protected double[] ki_0, gamma_0, dGamma_0, f11_0, f1N_0;
     protected double[][] params_0, params_m, params_p;
 
     public MeterPIHMAReal2FD(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double omega2, Box box, double temperature, double hbar, double dbeta, int nShifts) {
@@ -75,6 +75,8 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
         ki_0     = params_0[0];
         gamma_0  = params_0[1];
         dGamma_0 = params_0[2];
+        f11_0    = params_0[3];
+        f1N_0    = params_0[4];
 
         double En_ho_stage = dim*nBeads/2.0/beta_0;
         for (int k = 0; k < nBeads; k++) {
@@ -100,6 +102,7 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
         for (int i = 0; i < x.length; i++) x[i] = 0;
 
         if (box.getMoleculeList().size() > 1) drShift = computeShift();
+
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
                 rOrig[atom.getLeafIndex()].E(atom.getPosition());
@@ -121,18 +124,14 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
         double dbUdb_m = getdbUdb(beta_m, params_m);
         double d2bUdb2 = (dbUdb_p - dbUdb_m)/(2*dbeta);
 
-//        x[0] = En + dbUdb - EnShift;
-        x[0] = En + d2bUdb2 - EnShift;
+        x[0] = En + dbUdb - EnShift;
         x[1] = Cvn - d2bUdb2  + x[0]*x[0];
 
-        System.out.println("FD " + d2bUdb2);
-        System.out.println();
         return data;
     }
 
     private double getdbUdb(double beta, double[][] params) {
         if (beta != beta_0) scaleCoord(beta, params);
-//        double[] ki = params[0];
         double[] gamma = params[1];
         double[] f11   = params[3];
         double[] f1N   = params[4];
@@ -161,47 +160,43 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
 
         IMoleculeList molecules = box.getMoleculeList();
 
-//        double Uh = 0;
-
-//        double dbUdb = 0;
-//        int ns = nShifts + 1;
-//        for (int indexShift = 0; indexShift < nBeads; indexShift += nBeads/ns) {
-//            for (int i = 0; i < molecules.size(); i++) {
-//                IAtomList beads = molecules.get(i).getChildList();
-//                dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
-//                dr0.PE(drShift);
-//                Vector drPrev = box.getSpace().makeVector();
-//                for (int j = 0; j < beads.size(); j++) {
-//                    int aj = (j + indexShift) % beads.size();
-//                    IAtom atomj = beads.get(aj);
-//                    drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
-//                    drj.PE(drShift);
-//                    tmp_r.E(drj);
-//                    if (j > 0) {
-//                        tmp_r.PEa1Tv1(-f11[j], drPrev);
-//                        tmp_r.PEa1Tv1(-f1N[j], dr0);
-//                    }
-//                    v.Ea1Tv1(gamma[j], tmp_r);
-////                    Uh += 1.0/2.0*ki[j]*tmp_r.squared() - 1/2.0*219.949835/nBeads*drj.squared();
-//                    if (j > 0) {
-//                        v.PEa1Tv1(df11[j], drPrev);
-//                        v.PEa1Tv1(df1N[j], dr0);
-//                        v.PEa1Tv1(f11[j], vPrev);
-//                        v.PEa1Tv1(f1N[j], v0);
-//                    }
-//                    int jj = atomj.getLeafIndex();
-//                    dbUdb -= beta*forcesU[jj].dot(v) + beta*forcesK[jj].dot(v);
-//
-//                    drPrev.E(drj);
-//                    if (j == 0) {
-//                        v0.E(v);
-//                    }
-//                    vPrev.E(v);
-//                } // beads
-//            }//mol
-//        }//shifts
-//        dbUdb /= ns;
-//        dbUdb += U - K;
+        double dbUdb = 0;
+        int ns = nShifts + 1;
+        for (int indexShift = 0; indexShift < nBeads; indexShift += nBeads/ns) {
+            for (int i = 0; i < molecules.size(); i++) {
+                IAtomList beads = molecules.get(i).getChildList();
+                dr0.Ev1Mv2(beads.get(indexShift).getPosition(), latticePositions[i]);
+                dr0.PE(drShift);
+                Vector drPrev = box.getSpace().makeVector();
+                for (int j = 0; j < beads.size(); j++) {
+                    int aj = (j + indexShift) % beads.size();
+                    IAtom atomj = beads.get(aj);
+                    drj.Ev1Mv2(atomj.getPosition(), latticePositions[i]);
+                    drj.PE(drShift);
+                    tmp_r.E(drj);
+                    if (j > 0) {
+                        tmp_r.PEa1Tv1(-f11[j], drPrev);
+                        tmp_r.PEa1Tv1(-f1N[j], dr0);
+                    }
+                    v.Ea1Tv1(gamma[j], tmp_r);
+                    if (j > 0) {
+                        v.PEa1Tv1(df11[j], drPrev);
+                        v.PEa1Tv1(df1N[j], dr0);
+                        v.PEa1Tv1(f11[j], vPrev);
+                        v.PEa1Tv1(f1N[j], v0);
+                    }
+                    int jj = atomj.getLeafIndex();
+                    dbUdb -= beta*forcesU[jj].dot(v) + beta*forcesK[jj].dot(v);
+                    drPrev.E(drj);
+                    if (j == 0) {
+                        v0.E(v);
+                    }
+                    vPrev.E(v);
+                } // beads
+            }//mol
+        }//shifts
+        dbUdb /= ns;
+        dbUdb += U - K;
 
         // If atoms scaled, bring them back to their original coords
         if (beta != beta_0) {
@@ -212,7 +207,7 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
             }
         }
 
-        return beta*U;
+        return dbUdb;
     }
 
     private void scaleCoord(double beta, double[][] params) {
@@ -220,26 +215,27 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
         double[] f11 = params[3];
         double[] f1N = params[4];
 
+        Vector dr0 = box.getSpace().makeVector();
+        Vector dri = box.getSpace().makeVector();
         Vector drPrev0 = box.getSpace().makeVector();
         Vector drPrev = box.getSpace().makeVector();
+        Vector[] u = box.getSpace().makeVectorArray(nBeads);
+
         for (IMolecule molecule : box.getMoleculeList()) {
             IAtomList atoms = molecule.getChildList();
-            Vector dr0 = box.getSpace().makeVector();
             dr0.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[molecule.getIndex()]);
             dr0.PE(drShift);
-            Vector[] u = box.getSpace().makeVectorArray(atoms.size());
             for (IAtom atom : atoms) {
-                //r->u
+                // r->u
                 int i = atom.getIndex();
-                u[i].Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
-                u[i].PE(drShift);
-                Vector driSave = box.getSpace().makeVector();
-                driSave.E(u[i]);
+                dri.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
+                dri.PE(drShift);
+                u[i].E(dri);
                 if (i > 0) {
-                    u[i].PEa1Tv1(-f11[i], drPrev0);
-                    u[i].PEa1Tv1(-f1N[i], dr0);
+                    u[i].PEa1Tv1(-f1N_0[i], dr0);
+                    u[i].PEa1Tv1(-f11_0[i], drPrev0);
                 }
-                drPrev0.E(driSave);
+                drPrev0.E(dri);
 
                 //scaling: u->u'
                 u[i].TE(Math.sqrt(beta_0*ki_0[i]/(beta*ki[i])));
@@ -249,15 +245,11 @@ public class MeterPIHMAReal2FD implements IDataSource, PotentialCallback {
                 atom.getPosition().PE(u[i]);
 
                 if (i > 0) {
-                    atom.getPosition().PEa1Tv1(f11[i], drPrev);
                     atom.getPosition().PEa1Tv1(f1N[i], u[0]);
+                    atom.getPosition().PEa1Tv1(f11[i], drPrev);
                 }
                 drPrev.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
                 atom.getPosition().ME(drShift);
-
-//                Vector d = box.getSpace().makeVector();
-//                d.Ev1Mv2(a.getPosition(), rOrig[a.getLeafIndex()]);
-//                System.out.println(d.getX(0));
             } // a
         } // m
     }

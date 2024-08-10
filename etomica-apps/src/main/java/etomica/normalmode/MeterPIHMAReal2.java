@@ -45,7 +45,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     protected Vector drShift;
 
 
-    public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, MCMoveHOReal2 move, int nShifts) {
+    public MeterPIHMAReal2(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double temperature, int nBeads, MCMoveHOReal2 move, int nShifts) {
         int nData = 2;
         this.move = move;
         this.beta = 1/temperature;
@@ -87,9 +87,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                 Cvn_ho_stage += dim * dGamma[k];
             }
             Cvn_ho_stage *= beta * beta;
-            //COM
-            En_ho_stage -= dim/2.0/beta;
-            Cvn_ho_stage -= dim/2.0/beta/beta;
+
             System.out.println(" En_ho_stage:  " + En_ho_stage);
             System.out.println(" Cvn_ho_stage: " + Cvn_ho_stage);
         }
@@ -121,7 +119,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
             En0 -= dim*numAtoms*gamma[i];
             Cvn0 += dim*numAtoms*dGamma[i];
         }
-
+        //COM
         if (numAtoms > 1 && move.omega2 != 0) {
             En0 -= dim/2.0/beta;
             Cvn0 -= dim/2.0/beta/beta;
@@ -141,10 +139,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         if (box.getMoleculeList().size() > 1) drShift = computeShift();
         int ns = nShifts+1;
         Vector dr0 = box.getSpace().makeVector();
-
-
-        double y = 0;
-        double U = pcP1.getLastEnergy();
 
         for (int indexShift = 0; indexShift < nBeads; indexShift += nBeads/ns) {
             double En = 0;
@@ -188,8 +182,7 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
                         }
                     }
                     int jj = atomj.getLeafIndex();
-//                    En -= beta*forcesU[jj].dot(v) + beta*forcesK[jj].dot(v);
-                    y -= beta*forcesU[jj].dot(v);
+                    En -= beta*forcesU[jj].dot(v) + beta*forcesK[jj].dot(v);
                     Cvn += beta*(forcesU[jj].dot(a) + forcesK[jj].dot(a)) + 2.0*(forcesU[jj].dot(v) - forcesK[jj].dot(v));
 
                     drPrev.E(drj);
@@ -208,18 +201,11 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
 
             x[0] += En;
             x[1] += Cvn + (En0+En- EnShift)*(En0+En- EnShift);
-
-//            double y =  -2.0/beta*pmBonding.getLastEnergy() + Cvn;
         }//shifts
         x[0] = En0 + x[0]/ns - EnShift;
         x[1] = Cvn0 + x[1]/ns;
 
-        y /= ns;
-
-//        y += pcP1.getLastEnergy() - pmBonding.getLastEnergy();
-        y += U;
-
-        System.out.println("AN: " + y);
+        System.out.println("sg: " + x[0]);
 
         return data;
     }
@@ -253,11 +239,20 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
     public void setEnShift(double E) { this.EnShift = E; }
 
     protected Vector computeShift() {
-        if (box.getMoleculeList().size() == 1) return box.getSpace().makeVector();
-        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        Vector drShift = box.getSpace().makeVector();
-        drShift.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-        drShift.TE(-1);
+        drShift.E(0);
+        for (IMolecule molecule : box.getMoleculeList()) {
+            for (IAtom atom : molecule.getChildList()) {
+                Vector drTmp = box.getSpace().makeVector();
+                drTmp.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
+                drShift.PE(drTmp);
+            }
+        }
+        drShift.TE(-1.0/box.getLeafList().size());
         return drShift;
     }
+
 }
+
+
+
+

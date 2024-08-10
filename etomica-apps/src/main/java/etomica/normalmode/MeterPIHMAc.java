@@ -1,7 +1,6 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -12,7 +11,6 @@ import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.potential.compute.PotentialCallback;
 import etomica.potential.compute.PotentialCompute;
-import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -103,6 +101,8 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             x[1] = -dim/2.0/beta/beta + dim*numAtoms/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         }
 
+        System.out.println("hmac: " + x[0]);
+
         return data;
     }
 
@@ -170,13 +170,17 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
         rHr += tmpVecIJ.dot(tmpVecI) - tmpVecIJ.dot(tmpVecJ);
     }
 
-
     protected Vector computeShift() {
-        if (box.getMoleculeList().size() == 1) return box.getSpace().makeVector();
-        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        Vector drShift = box.getSpace().makeVector();
-        drShift.Ev1Mv2(atoms.get(0).getPosition(), latticePositions[0]);
-        drShift.TE(-1);
+        drShift.E(0);
+        for (IMolecule molecule : box.getMoleculeList()) {
+            for (IAtom atom : molecule.getChildList()) {
+                Vector drTmp = box.getSpace().makeVector();
+                drTmp.Ev1Mv2(atom.getPosition(), latticePositions[molecule.getIndex()]);
+                drShift.PE(drTmp);
+            }
+        }
+        drShift.TE(-1.0/box.getLeafList().size());
         return drShift;
     }
+
 }

@@ -21,7 +21,7 @@ public class MeterPIPrim implements IDataSource {
     protected double EnShift;
     protected double volume;
 
-    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, int nBeads, double temperature, Box box) {
+    public MeterPIPrim(PotentialMasterBonding pmBonding, PotentialCompute pcP1, double temperature, int nBeads, Box box) {
         int nData = 2;
         this.volume = box.getBoundary().volume();
         data = new DataDoubleArray(nData);
@@ -55,7 +55,7 @@ public class MeterPIPrim implements IDataSource {
         pcP1.computeAll(true);
         x[0] = dim*numAtoms*nBeads/2.0/beta + pcP1.getLastEnergy() - pmBonding.getLastEnergy() - EnShift; //En
         x[1] = dim*numAtoms*nBeads/2.0/beta/beta - 2*pmBonding.getLastEnergy()/beta + x[0]*x[0];
-//        x[2] = nBeads*numAtoms/volume/beta - 2.0/dim/volume*pmBonding.getLastEnergy() - pcP1.getLastVirial()/dim/volume;
+//        x[2] = nBeads*numAtoms/volume/beta - 2.0/dim/volume*pmBonding.getLastEnergy() - pcP1.getLastVirial()/dim/volume; //Pressure
         return data;
     }
 

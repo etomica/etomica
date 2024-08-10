@@ -73,13 +73,12 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
                 vir -= forces[atom.getLeafIndex()].dot(rirc);
             }
         }
+
         // same for both bound and unbound systems
         x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir - EnShift;
         x[1] = dim*numAtoms/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
-//        x[2] = numAtoms/volume/beta - pcP1.getLastVirial()/dim/volume + vir/dim/volume;
-
-//        System.out.println("AN-CV: " + 1.0/4.0/beta*(-3.0*vir - rHr));
-
+        System.out.println("cv: " + x[0]);
+//        x[2] = numAtoms/volume/beta - pcP1.getLastVirial()/dim/volume + vir/dim/volume; //Pressure
         return data;
     }
 

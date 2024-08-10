@@ -83,7 +83,6 @@ public class IntegratorLangevinPINM extends IntegratorMD {
                 Vector r = a.getPosition();
                 Vector dr = box.getSpace().makeVector();
                 dr.Ev1Mv2(r, latticePositions[m.getIndex()]);
-                box.getBoundary().nearestImage(dr);
                 for (int k = 0; k < nBeads; k++) {
                     q[k].PEa1Tv1(move.eigenvectorsInv[k][i]/Math.sqrt(nBeads), dr);
                 }
@@ -94,6 +93,7 @@ public class IntegratorLangevinPINM extends IntegratorMD {
                 int k = a.getIndex();
                 q[k].PEa1Tv1(dt, v);
             }
+
             // convert to real coord
             for (IAtom a : atoms) {
                 int i = a.getIndex();
@@ -104,10 +104,6 @@ public class IntegratorLangevinPINM extends IntegratorMD {
                 for (int k = 0; k < nBeads; k++) {
                     r.PEa1Tv1(Math.sqrt(nBeads)*move.eigenvectors[i][k], q[k]);
                 }
-                Vector drShift = box.getSpace().makeVector();
-                drShift.Ev1Mv2(r, rOrig);
-                box.getBoundary().nearestImage(drShift);
-                r.Ev1Pv2(rOrig, drShift);
             }
         }
     }

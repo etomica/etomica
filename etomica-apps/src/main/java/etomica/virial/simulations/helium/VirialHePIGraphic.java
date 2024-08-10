@@ -89,7 +89,7 @@ public class VirialHePIGraphic {
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
-        
+
         VirialHePI.FlexApproach flexApproach = params.flexApproach;
         if (flexApproach != VirialHePI.FlexApproach.FULL) {
             System.out.println("using "+flexApproach+" approach");
@@ -130,7 +130,7 @@ public class VirialHePIGraphic {
         HSB[5] = Standard.B5HS(sigmaHSRef);
         HSB[6] = Standard.B6HS(sigmaHSRef);
         HSB[7] = Standard.B7HS(sigmaHSRef);
-		
+
         Space space = Space3D.getInstance();
 
         double heMass = 4.002602;
@@ -284,7 +284,7 @@ public class VirialHePIGraphic {
             }
 
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
-            
+
             ClusterSum[] targetDiagramsPlus = null;
             if (pairOnly) {
                 targetDiagramsPlus = flexDiagrams.makeSingleVirialClusters(fullTargetCluster, null, fTarget);
@@ -454,11 +454,11 @@ public class VirialHePIGraphic {
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).setConstraintMap(constraintMap);
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
         }
-        
+
         // rotation is a bit pointless when we can regrow the chain completely
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
         sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
-        
+
         System.out.println("regrow full ring");
         MCMoveClusterRingRegrow ring0 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*heMass*temperature);
@@ -515,16 +515,11 @@ public class VirialHePIGraphic {
         }
 
         double vSize =10;
-        sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
         sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-        DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
         DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-        displayBox0.setPixelUnit(new Pixel(300.0/vSize));
         displayBox1.setPixelUnit(new Pixel(300.0/vSize));
-        displayBox0.setShowBoundary(false);
         displayBox1.setShowBoundary(false);
-        ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
         ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
         AtomPair pair = new AtomPair();
         for (int j=0; j<nPoints+(doFlex?1:0); j++) {
@@ -546,7 +541,7 @@ public class VirialHePIGraphic {
 
 
         AtomType type = species.getAtomType(0);
-        DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
+        DiameterHashByType diameterManager = (DiameterHashByType)displayBox1.getDiameterHash();
         diameterManager.setDiameter(type, 0.1+1.0/nBeads);
         displayBox1.setDiameterHash(diameterManager);
         ColorScheme colorScheme = new ColorScheme() {
@@ -554,7 +549,6 @@ public class VirialHePIGraphic {
                 return Color.RED;
             }
         };
-        displayBox0.setColorScheme(colorScheme);
         displayBox1.setColorScheme(colorScheme);
         simGraphic.makeAndDisplayFrame();
 

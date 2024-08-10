@@ -139,7 +139,7 @@ public class LJPIMDFD extends Simulation {
 //            params.coordType = MoveChoice.Stage;
 //            params.coordType = MoveChoice.NMEC;
             params.coordType = MoveChoice.StageEC;
-            params.nBeads = 16;
+            params.nBeads = 3;
             params.timeStep = 0.01;
         }
         double facTimestep = params.facTimestep;
@@ -220,18 +220,18 @@ public class LJPIMDFD extends Simulation {
         meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
         double dbeta = 0.01;
         meterCentVirFD = new MeterPICentVirFD(sim.potentialMaster, temperature, nBeads, sim.box, dbeta);
-        meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
+        meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, temperature, nBeads, sim.box);
         meterHMAc = new MeterPIHMAc(sim.potentialMaster, temperature, nBeads, sim.box);
         meterHMAcFD = new MeterPIHMAcFD(sim.potentialMaster, temperature, nBeads, sim.box, dbeta);
 
         if (!onlyCentroid) {
-            meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.box);
+            meterPrim = new MeterPIPrim(sim.pmBonding, sim.potentialMaster, temperature, nBeads, sim.box);
             meterVir = new MeterPIVir(sim.potentialMaster, temperature, sim.box);
             meterCentVir = new MeterPICentVir(sim.potentialMaster, temperature, nBeads, sim.box);
             meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, 0, sim.box, hbar);
             meterNMEC = new MeterPIHMA(sim.pmBonding, sim.potentialMaster, sim.betaN, nBeads, omega2, sim.box, hbar);
-            meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageSimple, nShifts);
-            meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, nBeads, temperature, sim.moveStageEC, nShifts);
+            meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, temperature, nBeads, sim.moveStageSimple, nShifts);
+            meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.potentialMaster, temperature, nBeads, sim.moveStageEC, nShifts);
         }
 
 

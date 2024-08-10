@@ -251,7 +251,7 @@ public class SimQuantumAOFD extends Simulation {
         MeterPIHMAFD meterNMECFD = null;
         MeterPIHMAReal2 meterStageEC = null;
 
-        meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.box);
+        meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1, temperature, nBeads, sim.box);
         double dbeta = 0.001;
         meterVir = new MeterPIVir(sim.pcP1, temperature, sim.box);
         meterVirFD = new MeterPIVirFD(sim.pcP1, temperature, sim.box, dbeta);
@@ -263,7 +263,7 @@ public class SimQuantumAOFD extends Simulation {
         meterNMECFD = new MeterPIHMAFD(sim.pmBonding, sim.pcP1, sim.beta, nBeads, omega2, sim.box, hbar, dbeta);
 
         if (!onlyCentroid) {
-            meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, nBeads, temperature, sim.moveStageEC, nShifts);
+            meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1, temperature, nBeads, sim.moveStageEC, nShifts);
         }
 
         if (isGraphic) {

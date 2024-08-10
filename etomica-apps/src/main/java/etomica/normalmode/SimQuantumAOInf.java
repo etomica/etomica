@@ -241,13 +241,13 @@ public class SimQuantumAOInf extends Simulation {
         } else {
             meterCentVirInf = new MeterPICentVirInf(sim.pcP1harm, sim.pcP1ah, temperature, sim.box, nBeads, omega, hbar);
             if (!onlyCentroid) {
-                meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1ah, nBeads, temperature, sim.box);
+                meterPrim = new MeterPIPrim(sim.pmBonding, sim.pcP1ah, temperature, nBeads, sim.box);
                 meterVir = new MeterPIVir(sim.pcP1ah, temperature, sim.box);
                 meterHMAc = new MeterPIHMAc(sim.pcP1ah, temperature, nBeads, sim.box);
                 meterNMSimple = new MeterPIHMA(sim.pmBonding, sim.pcP1ah, sim.betaN, nBeads, 0, sim.box, hbar);
                 meterNMEC = new MeterPIHMA(sim.pmBonding, sim.pcP1ah, sim.betaN, nBeads, omega2, sim.box, hbar);
-                meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1ah, nBeads, temperature, sim.moveStageSimple, nShifts);
-                meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1ah, nBeads, temperature, sim.moveStageEC, nShifts);
+                meterStageSimple = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1ah, temperature, nBeads, sim.moveStageSimple, nShifts);
+                meterStageEC = new MeterPIHMAReal2(sim.pmBonding, sim.pcP1ah, temperature, nBeads, sim.moveStageEC, nShifts);
             }
         }
 
