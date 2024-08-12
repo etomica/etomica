@@ -14,6 +14,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
+import etomica.molecule.Molecule;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2PotentialGroupBuilder;
 import etomica.potential.PotentialMoleculePair;
@@ -38,6 +39,7 @@ import etomica.virial.wheatley.ClusterWheatleyHS;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMixBD;
+import org.apache.commons.math3.analysis.function.Sin;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -58,13 +60,12 @@ public class VirialTraPPE {
         }
         else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.NH3};
-            params.nPoints = 6;
-            params.nTypes = new int[]{6};
-            params.nDer = 3;
-            params.temperature = 530;
-            params.numSteps = 1000000;
-
+            params.chemForm = new ChemForm[]{ChemForm.CH4};
+            params.nPoints = 2;
+            params.nTypes = new int[]{2};
+            params.nDer = 0;
+            params.temperature = 400;
+            params.numSteps = 5000000;
             params.refFrac = -1;
             params.sigmaHSRef = 5;
             params.seed = null;
@@ -377,7 +378,7 @@ public class VirialTraPPE {
     }
 
     enum ChemForm {
-        N2, O2, CO2, NH3
+        N2, O2, CO2, NH3, CH4, CH3OH, C6H6, ethane, propane
     }
 
     /**
@@ -576,6 +577,300 @@ public class VirialTraPPE {
                         .addAtom(typeM, posM, "M")
                         .build();
             }
+            else if (chemForm == ChemForm.CH4) {
+                //TraPPE-EH
+                //Atom in Compound
+                AtomType typeC = new AtomType(Carbon.INSTANCE);
+                AtomType typeM = new AtomType(elementM);
+
+                atomTypes = new AtomType[]{typeC,typeM};
+
+                //TraPPE Parameters
+                double bondLengthCM = 0.55; // Angstrom
+                double sigmaC = 3.31; // Angstrom
+                double epsilonC = Kelvin.UNIT.toSim(0.01);
+                double qC = Electron.UNIT.toSim(0.0);
+                double sigmaM = 3.31; // Angstrom
+                double epsilonM = Kelvin.UNIT.toSim(15.30);
+                double qM = Electron.UNIT.toSim(0.000);
+
+                //Construct Arrays
+                sigma = new double[] {sigmaC,sigmaM};
+                epsilon = new double[] {epsilonC,epsilonM};
+                charge = new double[]{qC, qM};
+
+                //Get Coordinates
+                Vector3D posC = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posM1 = new Vector3D(new double[]{bondLengthCM * 0.577,  bondLengthCM * 0.577, bondLengthCM * 0.577});
+                Vector3D posM2 = new Vector3D(new double[]{-bondLengthCM * 0.577, -bondLengthCM * 0.577, bondLengthCM * 0.577});
+                Vector3D posM3 = new Vector3D(new double[]{-bondLengthCM * 0.577,  bondLengthCM * 0.577, -bondLengthCM * 0.577});
+                Vector3D posM4 = new Vector3D(new double[]{bondLengthCM * 0.577,  -bondLengthCM * 0.577, -bondLengthCM * 0.577});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC, "C")
+                        .addAtom(typeM, posM1, "M1")
+                        .addAtom(typeM, posM2, "M2")
+                        .addAtom(typeM, posM3, "M3")
+                        .addAtom(typeM, posM4, "M4")
+                        .build();
+            }
+            else if (chemForm == ChemForm.CH4) {
+                //TraPPE-EH
+                //Atom in Compound
+                AtomType typeC = new AtomType(Carbon.INSTANCE);
+                AtomType typeM = new AtomType(elementM);
+
+                atomTypes = new AtomType[]{typeC,typeM};
+
+                //TraPPE Parameters
+                double bondLengthCM = 0.55; // Angstrom
+                double sigmaC = 3.31; // Angstrom
+                double epsilonC = Kelvin.UNIT.toSim(0.01);
+                double qC = Electron.UNIT.toSim(0.0);
+                double sigmaM = 3.31; // Angstrom
+                double epsilonM = Kelvin.UNIT.toSim(15.30);
+                double qM = Electron.UNIT.toSim(0.000);
+
+                //Construct Arrays
+                sigma = new double[] {sigmaC,sigmaM};
+                epsilon = new double[] {epsilonC,epsilonM};
+                charge = new double[]{qC, qM};
+
+                //Get Coordinates
+                Vector3D posC = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posM1 = new Vector3D(new double[]{bondLengthCM * 0.577,  bondLengthCM * 0.577, bondLengthCM * 0.577});
+                Vector3D posM2 = new Vector3D(new double[]{-bondLengthCM * 0.577, -bondLengthCM * 0.577, bondLengthCM * 0.577});
+                Vector3D posM3 = new Vector3D(new double[]{-bondLengthCM * 0.577,  bondLengthCM * 0.577, -bondLengthCM * 0.577});
+                Vector3D posM4 = new Vector3D(new double[]{bondLengthCM * 0.577,  -bondLengthCM * 0.577, -bondLengthCM * 0.577});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC, "C")
+                        .addAtom(typeM, posM1, "M1")
+                        .addAtom(typeM, posM2, "M2")
+                        .addAtom(typeM, posM3, "M3")
+                        .addAtom(typeM, posM4, "M4")
+                        .build();
+            }
+            else if (chemForm == ChemForm.CH3OH) {
+                //TraPPE-UA
+                //Atom in Compound
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
+                AtomType typeO = new AtomType(Oxygen.INSTANCE);
+                AtomType typeH = new AtomType(Hydrogen.INSTANCE);
+
+                atomTypes = new AtomType[]{typeCH3,typeO, typeH};
+
+                //TraPPE Parameters
+                double bondLengthCH3OH = 1.43; // Angstrom
+                double bondLengthOH = 0.945; //Angstrom
+                double thetaCH3OH = Degree.UNIT.toSim(18.5) ;
+                double sigmaCH3 = 3.75; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(98);
+                double qCH3 = Electron.UNIT.toSim(0.265);
+                double sigmaO = 3.02; // Angstrom
+                double epsilonO = Kelvin.UNIT.toSim(93);
+                double qO = Electron.UNIT.toSim(-0.700);
+                double sigmaH = 0.0; // Angstrom
+                double epsilonH = Kelvin.UNIT.toSim(0.0);
+                double qH = Electron.UNIT.toSim(0.435);
+
+
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3,sigmaO, sigmaH};
+                epsilon = new double[] {epsilonCH3,epsilonO, epsilonH};
+                charge = new double[]{qCH3, qO, qH};
+
+                //Get Coordinates
+                Vector3D posO = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posCH3 = new Vector3D(new double[]{-bondLengthCH3OH * Math.sin(thetaCH3OH), -bondLengthCH3OH * Math.cos(thetaCH3OH), 0});
+                Vector3D posH = new Vector3D(new double[]{bondLengthOH,0,0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH3, posCH3, "CH3")
+                        .addAtom(typeO, posO, "O")
+                        .addAtom(typeH, posH, "H")
+                        .build();
+            }
+            else if (chemForm == ChemForm.C6H6) {
+                //TraPPE-EH
+                //Atom in Compound
+                AtomType typeC = new AtomType(Carbon.INSTANCE);
+                AtomType typeH = new AtomType(Hydrogen.INSTANCE);
+
+                atomTypes = new AtomType[]{typeC, typeH};
+
+                //TraPPE Parameters
+                double bondLengthCC = 1.392; // Angstrom
+                double bondLengthCH = 1.08; //Angstrom
+                double sumbond = bondLengthCC + bondLengthCH;
+                double theta = Degree.UNIT.toSim(60);
+                double sigmaC = 3.60; // Angstrom
+                double epsilonC = Kelvin.UNIT.toSim(30.70);
+                double qC = Electron.UNIT.toSim(-0.095);
+                double sigmaH = 2.36; // Angstrom
+                double epsilonH = Kelvin.UNIT.toSim(25.45);
+                double qH = Electron.UNIT.toSim(0.095);
+
+
+                //Construct Arrays
+                sigma = new double[] {sigmaC,sigmaH};
+                epsilon = new double[] {epsilonC,epsilonH};
+                charge = new double[]{qC, qH};
+
+                //Get Coordinates
+                Vector3D posC1 = new Vector3D(new double[]{bondLengthCC,0,  0});
+                Vector3D posC2 = new Vector3D(new double[]{bondLengthCC * Math.cos(theta), bondLengthCC * Math.sin(theta), 0});
+                Vector3D posC3 = new Vector3D(new double[]{-bondLengthCC * Math.cos(theta), bondLengthCC * Math.sin(theta), 0});
+                Vector3D posC4 = new Vector3D(new double[]{-bondLengthCC,0, 0});
+                Vector3D posC5 = new Vector3D(new double[]{-bondLengthCC * Math.cos(theta), -bondLengthCC * Math.sin(theta), 0});
+                Vector3D posC6 = new Vector3D(new double[]{bondLengthCC * Math.cos(theta), -bondLengthCC * Math.sin(theta), 0});
+
+                Vector3D posH1 = new Vector3D(new double[]{sumbond,0,  0});
+                Vector3D posH2 = new Vector3D(new double[]{sumbond * Math.cos(theta), sumbond * Math.sin(theta), 0});
+                Vector3D posH3 = new Vector3D(new double[]{-sumbond * Math.cos(theta), sumbond * Math.sin(theta), 0});
+                Vector3D posH4 = new Vector3D(new double[]{-sumbond,0, 0});
+                Vector3D posH5 = new Vector3D(new double[]{-sumbond * Math.cos(theta), -sumbond * Math.sin(theta), 0});
+                Vector3D posH6 = new Vector3D(new double[]{sumbond * Math.cos(theta), -sumbond * Math.sin(theta), 0});
+
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC1, "C1")
+                        .addAtom(typeC, posC2, "C2")
+                        .addAtom(typeC, posC3, "C3")
+                        .addAtom(typeC, posC4, "C4")
+                        .addAtom(typeC, posC5, "C5")
+                        .addAtom(typeC, posC6, "C6")
+
+                        .addAtom(typeH, posH1, "H1")
+                        .addAtom(typeH, posH2, "H2")
+                        .addAtom(typeH, posH3, "H3")
+                        .addAtom(typeH, posH4, "H4")
+                        .addAtom(typeH, posH5, "H5")
+                        .addAtom(typeH, posH6, "H6")
+
+                        .build();
+            }
+            else if (chemForm == ChemForm.ethane) {
+                //TraPPE-EH
+                //Atom in Compound
+                AtomType typeC = new AtomType(Carbon.INSTANCE);
+                AtomType typeM = new AtomType(elementM);
+
+                atomTypes = new AtomType[]{typeC,typeM};
+
+                //TraPPE Parameters
+                double bondLengthCM = 0.55; // Angstrom
+                double bondLengthCC = 1.5350; //Angstrom
+                double thetaHCH = Degree.UNIT.toSim(107.80);
+                double thetaCCH = Degree.UNIT.toSim(110.70);
+                double a120 = Degree.UNIT.toSim(120);
+                double a240 = Degree.UNIT.toSim(240);
+
+                double sigmaC = 3.30; // Angstrom
+                double epsilonC = Kelvin.UNIT.toSim(4.00);
+                double qC = Electron.UNIT.toSim(0.0);
+                double sigmaM = 3.31; // Angstrom
+                double epsilonM = Kelvin.UNIT.toSim(15.30);
+                double qM = Electron.UNIT.toSim(0.000);
+
+                //Construct Arrays
+                sigma = new double[] {sigmaC,sigmaM};
+                epsilon = new double[] {epsilonC,epsilonM};
+                charge = new double[]{qC, qM};
+
+                //Get Coordinates
+                Vector3D posC1 = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posC2 = new Vector3D(new double[]{0, 0, bondLengthCC});
+                Vector3D posM1 = new Vector3D(new double[]{bondLengthCM * Math.sin(thetaCCH),  0, bondLengthCM * Math.cos(thetaCCH)});
+                Vector3D posM2 = new Vector3D(new double[]{bondLengthCM * Math.sin(thetaCCH) * Math.cos(a120), bondLengthCM * Math.sin(thetaCCH) * Math.sin(a120), bondLengthCM * Math.cos(thetaCCH)});
+                Vector3D posM3 = new Vector3D(new double[]{bondLengthCM * Math.sin(thetaCCH) * Math.cos(a240), bondLengthCM * Math.sin(thetaCCH) * Math.sin(a240), bondLengthCM * Math.cos(thetaCCH)});
+                Vector3D posM4 = new Vector3D(new double[]{bondLengthCM * Math.sin(thetaCCH),  0, bondLengthCC + bondLengthCM * Math.cos(thetaCCH)});
+                Vector3D posM5 = new Vector3D(new double[]{bondLengthCM * Math.sin(thetaCCH) * Math.cos(a120), bondLengthCM * Math.sin(thetaCCH) * Math.sin(a120), bondLengthCC + bondLengthCM * Math.cos(thetaCCH)});
+                Vector3D posM6 = new Vector3D(new double[]{bondLengthCM * Math.sin(thetaCCH) * Math.cos(a240), bondLengthCM * Math.sin(thetaCCH) * Math.sin(a240), bondLengthCC + bondLengthCM * Math.cos(thetaCCH)});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC1, "C1")
+                        .addAtom(typeC, posC2, "C2")
+                        .addAtom(typeM, posM1, "M1")
+                        .addAtom(typeM, posM2, "M2")
+                        .addAtom(typeM, posM3, "M3")
+                        .addAtom(typeM, posM4, "M4")
+                        .addAtom(typeM, posM5, "M5")
+                        .addAtom(typeM, posM6, "M6")
+
+                        .build();
+            }
+            else if (chemForm == ChemForm.propane) {
+                //TraPPE-EH
+                //Atom in Compound
+                AtomType typeC = new AtomType(Carbon.INSTANCE);
+                AtomType typemidC = new AtomType(Carbon.INSTANCE);
+                AtomType typeM = new AtomType(elementM);
+
+                atomTypes = new AtomType[]{typeC, typemidC, typeM};
+
+                //TraPPE Parameters
+                double bondLengthCM = 0.55; // Angstrom
+                double bondLengthCC = 1.5350; //Angstrom
+                double alpha = Degree.UNIT.toSim(53.90);
+                double thetaCCH = Degree.UNIT.toSim(110.70);
+                double thetaCCC = Degree.UNIT.toSim(112.70);
+                double a120 = Degree.UNIT.toSim(120);
+                double a240 = Degree.UNIT.toSim(240);
+
+                double sigmaC = 3.30; // Angstrom
+                double epsilonC = Kelvin.UNIT.toSim(4.00);
+                double qC = Electron.UNIT.toSim(0.0);
+                double sigmamidC = 3.65; // Angstrom
+                double epsilonmidC = Kelvin.UNIT.toSim(5.00);
+                double qmidC = Electron.UNIT.toSim(0.0);
+                double sigmaM = 3.31; // Angstrom
+                double epsilonM = Kelvin.UNIT.toSim(15.30);
+                double qM = Electron.UNIT.toSim(0.000);
+
+                //Construct Arrays
+                sigma = new double[] {sigmaC,sigmamidC, sigmaM};
+                epsilon = new double[] {epsilonC,epsilonmidC, epsilonM};
+                charge = new double[]{qC, qmidC, qM};
+
+
+                double x3 = bondLengthCC + bondLengthCC * Math.cos(thetaCCC);
+                double y3 = bondLengthCC * Math.sin(thetaCCC);
+
+                //Get Coordinates
+                Vector3D posC1 = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posC2 = new Vector3D(new double[]{bondLengthCC, 0, 0});
+                Vector3D posC3 = new Vector3D(new double[]{x3,y3, 0});
+                Vector3D posM1 = new Vector3D(new double[]{-bondLengthCM * Math.cos(thetaCCH),  0, bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM2 = new Vector3D(new double[]{bondLengthCM * Math.cos(thetaCCH) * Math.cos(a120), bondLengthCM * Math.cos(thetaCCH) * Math.sin(a120), bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM3 = new Vector3D(new double[]{bondLengthCM * Math.cos(thetaCCH) * Math.cos(a240), bondLengthCM * Math.cos(thetaCCH) * Math.sin(a240), bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM4 = new Vector3D(new double[]{bondLengthCC + bondLengthCM * Math.cos(thetaCCH) * Math.cos(alpha),  bondLengthCM * Math.cos(thetaCCH) * Math.sin(alpha), bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM5 = new Vector3D(new double[]{bondLengthCC + bondLengthCM * Math.cos(thetaCCH) * Math.cos(-alpha),  bondLengthCM * Math.cos(thetaCCH) * Math.sin(alpha), bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM6 = new Vector3D(new double[]{x3 - bondLengthCM * Math.cos(thetaCCH), y3, bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM7 = new Vector3D(new double[]{x3 + bondLengthCM * Math.cos(thetaCCH) * Math.cos(a120), y3 + bondLengthCM * Math.cos(thetaCCH) * Math.sin(a120), bondLengthCM * Math.sin(thetaCCH)});
+                Vector3D posM8 = new Vector3D(new double[]{x3 + bondLengthCM * Math.cos(thetaCCH) * Math.cos(a240), y3 + bondLengthCM * Math.cos(thetaCCH) * Math.sin(a240), bondLengthCM * Math.sin(thetaCCH)});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC1, "C1")
+                        .addAtom(typemidC, posC2, "C2")
+                        .addAtom(typeC, posC3, "C3")
+                        .addAtom(typeM, posM1, "M1")
+                        .addAtom(typeM, posM2, "M2")
+                        .addAtom(typeM, posM3, "M3")
+                        .addAtom(typeM, posM4, "M4")
+                        .addAtom(typeM, posM5, "M5")
+                        .addAtom(typeM, posM6, "M6")
+                        .addAtom(typeM, posM7, "M7")
+                        .addAtom(typeM, posM8, "M8")
+                        .build();
+            }
+
             else {
                 throw new RuntimeException("unrecognized chem form");
             }
@@ -599,6 +894,27 @@ public class VirialTraPPE {
                 P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
                 potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
             }
+            else if (chemForm == ChemForm.CH4) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.CH3OH) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.C6H6) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.ethane) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.propane) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+
 
         }
 
