@@ -19,10 +19,9 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
-import etomica.potential.compute.NeighborManagerIntra;
-import etomica.potential.compute.PotentialComputeAggregate;
-import etomica.potential.compute.PotentialComputePair;
+import etomica.potential.compute.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
@@ -63,6 +62,13 @@ public class VirialChainSingle {
         double rc = params.rc;
         double bondLength = params.bondLength;
         double kBend = params.kBend;
+        boolean ideal = params.ideal;
+
+        if (ideal) {
+            eFENE = 0;
+            temperature = 1;
+            kBend = 0;
+        }
 
         Space space = Space3D.getInstance();
 
@@ -74,6 +80,13 @@ public class VirialChainSingle {
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
+        if (ideal) {
+            pTarget  = new PotentialMoleculePair(space, sm) {
+                public double energy(IMoleculeList molecules) {
+                    return 0;
+                }
+            };
+        }
         System.out.println(nSpheres+"-mer chain at T = "+temperature);
         System.out.println("Bond length: "+bondLength+"  with eFENE "+eFENE);
         if (kBend == Double.POSITIVE_INFINITY) System.out.println("Rigid bond angles");
@@ -93,7 +106,7 @@ public class VirialChainSingle {
                 p2 = new P2SoftSphericalTruncatedForceShifted(p2, rc);
             }
         }
-        pTarget.setAtomPotential(type, type, p2);
+        if (!ideal) pTarget.setAtomPotential(type, type, p2);
 
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm) {
             @Override
@@ -143,7 +156,28 @@ public class VirialChainSingle {
         bondingInfodk.setBondingPotentialTriplet(species, p3dk, triplets);
 
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, sim.box(), bondingInfo);
-        PotentialComputePair pcPair = new PotentialComputePair(sm, sim.box(), new NeighborManagerIntra(sim.box(), bondingInfo), pTarget.getAtomPotentials());
+        NeighborManager nbrManager = new NeighborManagerIntra(sim.box(), bondingInfo);
+        if (ideal) {
+            nbrManager = new NeighborManagerIntra(sim.box(), bondingInfo) {
+                public NeighborIterator makeNeighborIterator() {
+                    return new NeighborIterator() {
+                        @Override
+                        public void iterUpNeighbors(int i, NeighborConsumer consumer) {}
+
+                        @Override
+                        public void iterDownNeighbors(int i, NeighborConsumer consumer) {}
+
+                        @Override
+                        public void iterAllNeighbors(int i, NeighborConsumer consumer) {}
+
+                        @Override
+                        public double iterAndSumAllNeighbors(IAtom atom1, SuperNbrConsumer consumer) {return 0;}
+                    };
+                }
+
+            };
+        }
+        PotentialComputePair pcPair = new PotentialComputePair(sm, sim.box(), nbrManager, pTarget.getAtomPotentials());
         PotentialComputeAggregate pc = new PotentialComputeAggregate(pmBonding, pcPair);
 
         IntegratorMC integrator = new IntegratorMC(pc, sim.getRandom(), temperature, sim.box());
@@ -256,5 +290,6 @@ public class VirialChainSingle {
         public double bondLength = 1;
         public TruncationChoice truncation = TruncationChoice.SHIFT;
         public double kBend = 0;
+        public boolean ideal = false;
     }
 }
