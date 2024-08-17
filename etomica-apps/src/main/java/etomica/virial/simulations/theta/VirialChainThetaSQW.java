@@ -75,14 +75,19 @@ public class VirialChainThetaSQW {
         long steps = params.numSteps;
         int nSpheres = nH + nT;
         boolean doLattice = params.lattice;
+        int latNabs = params.latNabs;
 
-        double epsH = 0.25;
-        double epsT = 0.75;
-        double epsHT = 0.25;
+        double epsH = 1;
+        double epsT = 3;
+        double epsHT = 1;
         System.out.println("epsH: "+epsH+"   epsT: "+epsT+"    epsHT: "+epsHT);
 
         double sigma = doLattice ? 0.9 : 1;
-        lambda = doLattice ? 2 : lambda;
+        if (doLattice) {
+            if (latNabs == 26) lambda = 2;
+            else if (latNabs == 20) lambda = 1.6;
+            else if (latNabs == 6) lambda = 1.2;
+        }
 
         Space space = Space3D.getInstance();
 
@@ -189,6 +194,11 @@ public class VirialChainThetaSQW {
         }
         bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
+        if (nSpheres==1) {
+            sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+            sim.mcMoveTranslate = new MCMoveClusterMoleculeMulti(sim.getRandom(), sim.box());
+            sim.integrator.getMoveManager().addMCMove(sim.mcMoveTranslate);
+        }
         ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate).setDoLattice(doLattice);
         ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate).setDoLattice(doLattice);
 
@@ -239,14 +249,21 @@ public class VirialChainThetaSQW {
             }
             reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
             reptateMove.setBox(sim.box());
-            reptateMove.setDoLattice(doLattice);
+            if (doLattice && latNabs == 6) {
+                reptateMove.setDoCubicLattice(true);
+            }
+            else {
+                reptateMove.setDoLattice(doLattice);
+            }
             sim.integrator.getMoveManager().addMCMove(reptateMove);
 
-            shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
-            shuffleMove.setBox(sim.box());
-            shuffleMove.setDoLattice(doLattice);
-            sim.integrator.getMoveManager().addMCMove(shuffleMove);
-            ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
+            if (nSpheres > 3) {
+                shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
+                shuffleMove.setBox(sim.box());
+                shuffleMove.setDoLattice(doLattice);
+                sim.integrator.getMoveManager().addMCMove(shuffleMove);
+                ((MCMoveStepTracker) shuffleMove.getTracker()).setAcceptanceTarget(0.3);
+            }
         }
 
         if (false) {
@@ -297,8 +314,13 @@ public class VirialChainThetaSQW {
 
         System.out.println("equilibration finished");
         sim.setAccumulatorBlockSize(steps/1000);
-        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize()+" "
-                +(sim.mcMoveRotate==null ? "" : (""+sim.mcMoveRotate.getStepSize())));
+        if (doLattice) {
+            System.out.println("MC Move step size " + sim.mcMoveTranslate.getStepSize());
+        }
+        else {
+            System.out.println("MC Move step sizes " + sim.mcMoveTranslate.getStepSize() + " "
+                    + (sim.mcMoveRotate == null ? "" : ("" + sim.mcMoveRotate.getStepSize())));
+        }
         if (angleMove1!=null) {
             if (angleMove2 == null) {
                 System.out.println("Angle move step size    " + angleMove1.getStepSize());
@@ -345,6 +367,10 @@ public class VirialChainThetaSQW {
         }
 
         System.out.println();
+        if (doLattice) {
+            System.out.println("Translate move acceptance "+sim.mcMoveTranslate.getTracker().acceptanceProbability());
+            System.out.println("Rotate move acceptance "+sim.mcMoveRotate.getTracker().acceptanceProbability());
+        }
         if (reptateMove!=null) System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
         if (angleMove1 != null) {
             if (angleMove2 == null) {
@@ -354,7 +380,7 @@ public class VirialChainThetaSQW {
             } else {
                 System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability() + " " + angleMove2.getTracker().acceptanceProbability() + " " + angleMove3.getTracker().acceptanceProbability() + " " + angleMove4.getTracker().acceptanceProbability());
             }
-            System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
+            if (shuffleMove!=null) System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
         }
 
         sim.printResults(refIntegral, new String[]{
@@ -376,5 +402,6 @@ public class VirialChainThetaSQW {
         public double dlnqdb = 0;
         public String fFile = null;
         public boolean lattice = false;
+        public int latNabs = 26;
     }
 }

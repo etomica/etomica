@@ -36,6 +36,7 @@ public class MCMoveClusterReptate extends MCMoveBox {
     double wOld = 0;
     double wNew = 0;
     protected boolean doLattice;
+    protected boolean doCubicLattice;
 
     public MCMoveClusterReptate(PotentialCompute potentialCompute, Space space, IRandom random) {
         super();
@@ -47,6 +48,7 @@ public class MCMoveClusterReptate extends MCMoveBox {
     public void setDoLattice(boolean doLattice) {
         this.doLattice = doLattice;
     }
+    public void setDoCubicLattice(boolean doCubicLattice) {this.doCubicLattice = doCubicLattice; doLattice = doCubicLattice;}
 
     public void setBox(Box p) {
         super.setBox(p);
@@ -65,15 +67,20 @@ public class MCMoveClusterReptate extends MCMoveBox {
         wNew = wOld = 1;
         if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
+        int D = space.D();
         for(int i = 0; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
             IAtomList atoms = molecule.getChildList();
             forward[i] = random.nextInt(2) == 0;
             Vector drNew = space.makeVector();
-            if (doLattice) {
+            if (doCubicLattice) {
+                int d = random.nextInt(D);
+                drNew.setX(d, random.nextInt(2)*2-1);
+            }
+            else if (doLattice) {
                 boolean allZero = false;
                 do {
-                    for (int j = 0; j < drNew.getD(); j++) {
+                    for (int j = 0; j < D; j++) {
                         int dx = random.nextInt(3) - 1;
                         drNew.setX(j, dx);
                     }
