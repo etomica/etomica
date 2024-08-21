@@ -615,44 +615,6 @@ public class VirialTraPPE {
                         .addAtom(typeM, posM4, "M4")
                         .build();
             }
-            else if (chemForm == ChemForm.CH4) {
-                //TraPPE-EH
-                //Atom in Compound
-                AtomType typeC = new AtomType(Carbon.INSTANCE);
-                AtomType typeM = new AtomType(elementM);
-
-                atomTypes = new AtomType[]{typeC,typeM};
-
-                //TraPPE Parameters
-                double bondLengthCM = 0.55; // Angstrom
-                double sigmaC = 3.31; // Angstrom
-                double epsilonC = Kelvin.UNIT.toSim(0.01);
-                double qC = Electron.UNIT.toSim(0.0);
-                double sigmaM = 3.31; // Angstrom
-                double epsilonM = Kelvin.UNIT.toSim(15.30);
-                double qM = Electron.UNIT.toSim(0.000);
-
-                //Construct Arrays
-                sigma = new double[] {sigmaC,sigmaM};
-                epsilon = new double[] {epsilonC,epsilonM};
-                charge = new double[]{qC, qM};
-
-                //Get Coordinates
-                Vector3D posC = new Vector3D(new double[]{0, 0, 0});
-                Vector3D posM1 = new Vector3D(new double[]{bondLengthCM * 0.577,  bondLengthCM * 0.577, bondLengthCM * 0.577});
-                Vector3D posM2 = new Vector3D(new double[]{-bondLengthCM * 0.577, -bondLengthCM * 0.577, bondLengthCM * 0.577});
-                Vector3D posM3 = new Vector3D(new double[]{-bondLengthCM * 0.577,  bondLengthCM * 0.577, -bondLengthCM * 0.577});
-                Vector3D posM4 = new Vector3D(new double[]{bondLengthCM * 0.577,  -bondLengthCM * 0.577, -bondLengthCM * 0.577});
-
-                //Set Geometry
-                species = new SpeciesBuilder(space)
-                        .addAtom(typeC, posC, "C")
-                        .addAtom(typeM, posM1, "M1")
-                        .addAtom(typeM, posM2, "M2")
-                        .addAtom(typeM, posM3, "M3")
-                        .addAtom(typeM, posM4, "M4")
-                        .build();
-            }
             else if (chemForm == ChemForm.CH3OH) {
                 //TraPPE-UA
                 //Atom in Compound
@@ -661,7 +623,7 @@ public class VirialTraPPE {
                 AtomType typeH = new AtomType(Hydrogen.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH3,typeO, typeH};
-
+                polar = true;
                 //TraPPE Parameters
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
