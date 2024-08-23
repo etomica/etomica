@@ -32,7 +32,7 @@ import java.io.PrintWriter;
  * <p>
  * Buch, V.; Sandler, P.; Sadlej, J. Simulations of H2O Solid, Liquid,
  * and Clusters, with an Emphasis on Ferroelectric Ordering Transition
- * in Hexagonal Ice. J. Phys. Chem. B 1998, 102, 8641−8653.
+ * in Hexagonal Ice. J. Phys. Chem. B 1998, 102, 8641-8653.
  *
  * @author Sabry Moustafa
  */

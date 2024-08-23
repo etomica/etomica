@@ -14,6 +14,7 @@ import etomica.data.types.DataDouble;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
+import etomica.graph.util.GraphNumber;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
@@ -52,6 +53,7 @@ import java.util.Set;
 
 /**
  * Mayer sampling simulation for alkanes using the TraPPE-United Atoms force field.
+ *
  *   M.G. Martin and J.I. Siepmann, "Transferable Potentials for Phase
  *   Equilibria. 1. United-Atom Description of n-Alkanes," J. Phys. Chem. B
  *   102, 2569-2577 (1998)
@@ -60,6 +62,8 @@ import java.util.Set;
  *   modified from VirialAlkaneFlex2 so that eovererr can be used
  *   March 2013
  */
+
+
 public class VirialAlkane {
 
     public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
@@ -89,7 +93,10 @@ public class VirialAlkane {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-
+            params.nPoints = 3;
+            params.nSpheres = 3;
+            params.temperature = 500;
+            params.numSteps = 10000000;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;

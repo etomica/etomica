@@ -15,7 +15,8 @@ import etomica.graph.viewer.ClusterViewer;
 public class GraphNumber {
 
   public static void main(String[] args) {
-	  
+
+      args = new String[]{"-display", "1023"};
     String usage = "usage: GraphNumber [-display] num [nodeCount]";
     if (args.length == 0) {
       System.out.println(usage);
