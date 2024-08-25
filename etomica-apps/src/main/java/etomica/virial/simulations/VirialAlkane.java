@@ -95,7 +95,7 @@ public class VirialAlkane {
         } else {
             params.nPoints = 3;
             params.nSpheres = 3;
-            params.temperature = 500;
+            params.temperature = 600;
             params.numSteps = 10000000;
         }
         final int nPoints = params.nPoints;

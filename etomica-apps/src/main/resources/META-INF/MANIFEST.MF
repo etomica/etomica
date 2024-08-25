@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: etomica.virial.simulations.VirialAlkane
+Main-Class: etomica.virial.simulations.VirialTraPPE
 
