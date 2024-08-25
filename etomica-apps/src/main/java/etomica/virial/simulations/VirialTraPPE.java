@@ -55,18 +55,18 @@ public class VirialTraPPE {
     public static void main(String[] args) {
         VirialParam params = new VirialParam();
         VirialAlkane alkane = new VirialAlkane();
-        alkane.main(args);
+//        alkane.main(args);
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
             ParseArgs.doParseArgs(params, args);
         }
         else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propaneUA};
+            params.chemForm = new ChemForm[]{ChemForm.propane};
             params.nPoints = 3;
             params.nTypes = new int[]{3};
             params.nDer = 0;
-            params.temperature = 500;
+            params.temperature = 600;
             params.numSteps = 10000000;
             params.refFrac = -1;
             params.sigmaHSRef = 5;
@@ -380,7 +380,7 @@ public class VirialTraPPE {
     }
 
     enum ChemForm {
-        N2, O2, CO2, NH3, CH4, CH3OH, C6H6, ethane, propane, ethaneUA, propaneUA, butaneUA
+        N2, O2, CO2, NH3, CH4, CH3OH, C6H6, ethane, propane, ethaneUA, propaneUA, butaneUA, methaneUA
     }
 
     /**
@@ -936,6 +936,32 @@ public class VirialTraPPE {
 
                         .build();
             }
+            else if (chemForm == ChemForm.methaneUA) {
+                //TraPPE-UA
+                //Atom in Compound
+                AtomType typeCH4 = new AtomType(Carbon.INSTANCE);
+
+                atomTypes = new AtomType[]{typeCH4};
+
+                //TraPPE Parameters
+                double sigmaCH4 = 3.73; // Angstrom
+                double epsilonCH4 = Kelvin.UNIT.toSim(148);
+                double qCH4 = Electron.UNIT.toSim(0.0);
+
+                //Construct Arrays
+                sigma = new double[] {sigmaCH4};
+                epsilon = new double[] {epsilonCH4};
+                charge = new double[]{qCH4};
+
+                //Get Coordinates
+                Vector3D posC1 = new Vector3D(new double[]{0, 0, 0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH4, posC1, "C1")
+
+                        .build();
+            }
 
             else {
                 throw new RuntimeException("unrecognized chem form");
@@ -992,6 +1018,11 @@ public class VirialTraPPE {
                 P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
                 potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
             }
+            else if (chemForm == ChemForm.methaneUA) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+
 
 
         }
