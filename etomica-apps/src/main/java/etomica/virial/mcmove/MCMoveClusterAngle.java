@@ -46,6 +46,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     int b = 0;
     protected int start, stop;
     protected boolean doLattice;
+    protected int[] constraintMap;
 
     public MCMoveClusterAngle(PotentialCompute potentialCompute, Space space, IntArrayList[] bonding, IRandom random, double stepSize) {
         super();
@@ -72,6 +73,10 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     public void setAtomRange(int start, int stop) {
         this.start = start;
         this.stop = stop;
+    }
+
+    public void setConstraintMap(int[] newConstraintMap) {
+        constraintMap = newConstraintMap;
     }
 
     @Override
@@ -133,7 +138,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         transform(rotationTensor, a, atoms, shift);
         transformBondedAtoms(rotationTensor, a, atoms, shift);
 
-        if (iMolecule==0) {
+        if (iMolecule==0 || (constraintMap != null && constraintMap[iMolecule] == 0)) {
             if (doLattice) {
                 shift.E(CenterOfMass.position(box, molecule));
                 shift.TE(-1);

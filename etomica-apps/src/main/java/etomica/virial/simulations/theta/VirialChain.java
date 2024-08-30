@@ -33,9 +33,7 @@ import etomica.util.collections.IntArrayList;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.cluster.*;
-import etomica.virial.mcmove.MCMoveClusterAngle;
-import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
-import etomica.virial.mcmove.MCMoveClusterStretch;
+import etomica.virial.mcmove.*;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
@@ -68,11 +66,11 @@ public class VirialChain {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 4;
-            params.nSpheres = 128;
-            params.temperature = 4.55897667284274;
-            params.kBend = 7.11111111111111111;
-            params.numSteps = 1000000;
+            params.nPoints = 3;
+            params.nSpheres = 4;
+            params.temperature = 5;
+            params.kBend = 0;
+            params.numSteps = 10000000;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -229,6 +227,19 @@ public class VirialChain {
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
 
+        int[] constraintMap = new int[nPoints+1];
+        if (flex) {
+            for (int i=0; i<nPoints; i++) {
+                constraintMap[i] = i;
+            }
+            constraintMap[nPoints] = 0;
+            mcMoveHSC.setConstraintMap(constraintMap);
+            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
+            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
+            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
+        }
+
+
         if (refFreq >= 0) {
             sim.integratorOS.setAdjustStepFraction(false);
             sim.integratorOS.setRefStepFraction(refFreq);
@@ -267,15 +278,17 @@ public class VirialChain {
             angleMoves = new MCMoveClusterAngle[2];
             angleMoves[0] = new MCMoveClusterAngle(sim.integrators[0].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMoves[0].setBox(sim.box[0]);
+            angleMoves[0].setConstraintMap(constraintMap);
             sim.integrators[0].getMoveManager().addMCMove(angleMoves[0]);
 //            ((MCMoveStepTracker)angleMoves[0].getTracker()).setNoisyAdjustment(true);
             angleMoves[1] = new MCMoveClusterAngle(sim.integrators[1].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMoves[1].setBox(sim.box[1]);
+            angleMoves[1].setConstraintMap(constraintMap);
             sim.integrators[1].getMoveManager().addMCMove(angleMoves[1]);
 //            ((MCMoveStepTracker)angleMoves[1].getTracker()).setNoisyAdjustment(true);
         }
 
-        if(false) {
+        if (true) {
             double size = (nSpheres + 5) * 1.5;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
@@ -290,11 +303,15 @@ public class VirialChain {
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[0], sim.getRandom());
+            ColorScheme colorScheme = new ColorScheme() {
+                @Override
+                public Color getAtomColor(IAtom a) {
+                    Color[] c = new Color[]{Color.BLUE, Color.RED, Color.YELLOW, Color.GREEN};
+                    return c[a.getParentGroup().getIndex()];
+                }
+            };
             displayBox0.setColorScheme(colorScheme);
-            colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
-
 
             simGraphic.makeAndDisplayFrame();
 
