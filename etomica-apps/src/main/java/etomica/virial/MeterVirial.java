@@ -40,7 +40,11 @@ public class MeterVirial implements IDataSource, java.io.Serializable {
     
     public IData getData() {
         double pi = box.getSampleCluster().value(box);
-        if (pi == 0 || pi == Double.POSITIVE_INFINITY || Double.isNaN(pi)) throw new RuntimeException("oops "+pi+" for box "+box.getIndex());
+        if (pi == 0 || pi == Double.POSITIVE_INFINITY || Double.isNaN(pi)) {
+            box.trialNotify();
+            box.getSampleCluster().value(box);
+            throw new RuntimeException("oops "+pi+" for box "+box.getIndex());
+        }
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
             x[i] = clusters[i].value(box)/pi;
