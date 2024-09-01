@@ -8,10 +8,10 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.IData;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.math.numerical.AkimaSpline;
 import etomica.overlap.AlphaSource;
 import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
 import etomica.util.Debug;
-import etomica.math.numerical.AkimaSpline;
 
 /**
  * Convenience class that analyzes data from the reference and target system,
@@ -42,6 +42,7 @@ public class DataVirialOverlap implements ReferenceFracSource {
     protected final FullResult fullOverlapResult, fullSystemResult, fullRatioResult;
     protected final StatType avgStat, errorStat, ratioStat, ratioErrorStat;
     protected boolean doIgnoreRefAvg;
+    protected boolean qualityResult;
 
 	public DataVirialOverlap(AlphaSource alphaSource, AccumulatorRatioAverageCovarianceFull aRefAccumulator, 
 			AccumulatorRatioAverageCovarianceFull aTargetAccumulator) {
@@ -117,6 +118,7 @@ public class DataVirialOverlap implements ReferenceFracSource {
      * values, linear interpolation is used.  
      */
     public double getOverlapAverage() {
+        qualityResult = true;
 	    int numAlpha = alphaSource.getNumAlpha();
 	    // nTargets is the number of "target" values.  normally, we would just have
 	    // the nonimal target, v/|v|.  But we might have additional target values
@@ -150,9 +152,11 @@ public class DataVirialOverlap implements ReferenceFracSource {
             // Math.exp(lnAlphaDiff[0] + lnAlpha[0]) would be the new estimate
             //  for this input alpha, but it's often a poor estimate
             newAlpha = Math.exp(lnAlpha[0]);
+            qualityResult = false;
         }
         else if (lnAlphaDiff[numAlpha-1] > 0) {
             newAlpha = Math.exp(lnAlpha[numAlpha-1]);
+            qualityResult = false;
         }
         else if (numAlpha > 4) {
             // interpolate in ln(new)-ln(old) vs. ln(alpha) 
@@ -194,6 +198,10 @@ public class DataVirialOverlap implements ReferenceFracSource {
 
         return newAlpha;
 	}
+
+    public boolean isQualityResult() {
+        return qualityResult;
+    }
 
     /**
      * Simply return the reference and target averages and uncertainties.

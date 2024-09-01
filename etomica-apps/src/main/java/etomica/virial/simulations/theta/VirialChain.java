@@ -6,10 +6,14 @@ package etomica.virial.simulations.theta;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
@@ -42,6 +46,7 @@ import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -212,6 +217,7 @@ public class VirialChain {
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTarget.getAtomPotentials());
         sim.init();
+        System.out.println("random seeds: "+ Arrays.toString(sim.getRandomSeeds()));
 
         PotentialMasterBonding.FullBondingInfo bondingInfodk = new PotentialMasterBonding.FullBondingInfo(sm);
 
@@ -288,7 +294,7 @@ public class VirialChain {
 //            ((MCMoveStepTracker)angleMoves[1].getTracker()).setNoisyAdjustment(true);
         }
 
-        if (true) {
+        if (false) {
             double size = (nSpheres + 5) * 1.5;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
@@ -320,6 +326,19 @@ public class VirialChain {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
+            ClusterAbstract myTargetCluster = targetCluster;
+            Activity activityRelax = new Activity() {
+                @Override
+                public void runActivity(Controller.ControllerHandle handle) {
+                    myTargetCluster.setTemperature(100);
+                    for (int i = 0; i < 10; i++) {
+                        handle.yield(sim.integrators[0]::doStep);
+                        handle.yield(sim.integrators[1]::doStep);
+                    }
+                    myTargetCluster.setTemperature(temperature);
+                }
+            };
+            sim.getController().addActivity(activityRelax);
             sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20, false);
             sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
@@ -327,6 +346,22 @@ public class VirialChain {
                 throw new RuntimeException("Oops");
             }
 
+            final DisplayTextBox stepsBox0 = new DisplayTextBox();
+            stepsBox0.setLabel("Reference");
+            final DisplayTextBox stepsBox1 = new DisplayTextBox();
+            stepsBox1.setLabel("Target");
+            JLabel jLabelPanelParentGroupSteps = new JLabel("steps");
+            final JPanel panelParentGroupSteps = new JPanel(new BorderLayout());
+            panelParentGroupSteps.add(jLabelPanelParentGroupSteps, CompassDirection.NORTH.toString());
+            panelParentGroupSteps.add(stepsBox0.graphic(), BorderLayout.WEST);
+            panelParentGroupSteps.add(stepsBox1.graphic(), BorderLayout.EAST);
+            simGraphic.getPanel().controlPanel.add(panelParentGroupSteps, SimulationPanel.getVertGBC());
+            DataSourceCountSteps dsSteps0 = new DataSourceCountSteps(sim.integrators[0]);
+            DataPumpListener pumpSteps0 = new DataPumpListener(dsSteps0, stepsBox0, 1000);
+            sim.integrators[0].getEventManager().addListener(pumpSteps0);
+            DataSourceCountSteps dsSteps1 = new DataSourceCountSteps(sim.integrators[1]);
+            DataPumpListener pumpSteps1 = new DataPumpListener(dsSteps1, stepsBox1, 1000);
+            sim.integrators[1].getEventManager().addListener(pumpSteps1);
             final DisplayTextBox averageBox = new DisplayTextBox();
             averageBox.setLabel("Average");
             final DisplayTextBox errorBox = new DisplayTextBox();
@@ -362,6 +397,21 @@ public class VirialChain {
         }
 
         long t1 = System.nanoTime();
+
+        targetCluster.setTemperature(temperature * 100);
+        long relaxSteps = steps/40;
+        Activity activityInitRefPref = new Activity() {
+            @Override
+            public void runActivity(Controller.ControllerHandle handle) {
+                for (int i = 0; i < relaxSteps; i++) {
+                    handle.yield(sim.integrators[0]::doStep);
+                    handle.yield(sim.integrators[1]::doStep);
+                }
+            }
+        };
+        sim.getController().runActivityBlocking(activityInitRefPref);
+        targetCluster.setTemperature(temperature);
+
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
         long initSteps = steps/40;
