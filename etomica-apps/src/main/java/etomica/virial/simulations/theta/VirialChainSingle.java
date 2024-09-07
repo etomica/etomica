@@ -191,18 +191,23 @@ public class VirialChainSingle {
         }
         bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
-        MCMoveClusterAngle angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
-        angleMove1.setBox(sim.box());
-        integrator.getMoveManager().addMCMove(angleMove1);
+        MCMoveClusterAngle angleMove1 = null;
+        MCMoveClusterReptate reptateMove = null;
+        MCMoveClusterShuffle shuffleMove = null;
+        if (kBend < Double.POSITIVE_INFINITY) {
+            angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+            angleMove1.setBox(sim.box());
+            integrator.getMoveManager().addMCMove(angleMove1);
 
-        MCMoveClusterReptate reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
-        reptateMove.setBox(sim.box());
-        integrator.getMoveManager().addMCMove(reptateMove);
+            reptateMove = new MCMoveClusterReptate(pc, space, sim.getRandom());
+            reptateMove.setBox(sim.box());
+            integrator.getMoveManager().addMCMove(reptateMove);
 
-        MCMoveClusterShuffle shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
-        shuffleMove.setBox(sim.box());
-        integrator.getMoveManager().addMCMove(shuffleMove);
-        ((MCMoveStepTracker)shuffleMove.getTracker()).setAcceptanceTarget(0.3);
+            shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
+            shuffleMove.setBox(sim.box());
+            integrator.getMoveManager().addMCMove(shuffleMove);
+            ((MCMoveStepTracker) shuffleMove.getTracker()).setAcceptanceTarget(0.3);
+        }
 
         if (false) {
             ActivityIntegrate ai = new ActivityIntegrate(integrator);
@@ -215,9 +220,6 @@ public class VirialChainSingle {
             displayBox0.setPixelUnit(new Pixel(300.0 / size));
             displayBox0.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
-
-            ColorSchemeRandom colorScheme = new ColorSchemeRandom(sim.box(), sim.getRandom());
-            displayBox0.setColorScheme(colorScheme);
 
             simGraphic.makeAndDisplayFrame();
 
@@ -249,10 +251,12 @@ public class VirialChainSingle {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println();
-        System.out.println("Reptate move acceptance "+reptateMove.getTracker().acceptanceProbability());
-        System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability());
-        System.out.println("Shuffle move acceptance "+shuffleMove.getTracker().acceptanceProbability());
-        System.out.println();
+        if (kBend < Double.POSITIVE_INFINITY) {
+            System.out.println("Reptate move acceptance " + reptateMove.getTracker().acceptanceProbability());
+            System.out.println("Angle move acceptance " + angleMove1.getTracker().acceptanceProbability());
+            System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
+            System.out.println();
+        }
 
         DataGroup allYourBase = (DataGroup)accTheta.getData();
         IData avg = allYourBase.getData(accTheta.AVERAGE.index);
