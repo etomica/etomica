@@ -19,12 +19,11 @@ import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
 /**
- * Monte Carlo move for Mayer sampling that explore bond angle degrees of
- * freedom.  One bond angle is varied in each molecule.  Atoms on each side of
- * the bond are rotated around the middle atom of the bond angle with the
- * overall molecule COM fixed.
+ * Monte Carlo move for Mayer (or Boltzmann) sampling that shuffles the bonds
+ * among some group of atoms in a linear section of a polymer molecule.  The
+ * endpoints of the section remain fixed.
  *
- * Originally developed by Arpit for alkanes.
+ * For nonlinear topologies, max step size needs to be specified.
  */
 public class MCMoveClusterShuffle extends MCMoveBoxStep {
     private final PotentialCompute potential;
@@ -63,7 +62,6 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         bondVector = space.makeVectorArray(n);
         seq = new int[n-1];
         imposedBonds = new int[n-1];
-        setStepSizeMax(n-2);
         if (bonding == null) {
             bonding = new IntArrayList[n];
             bonding[0] = new IntArrayList(new int[]{1});
@@ -71,6 +69,7 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
                 bonding[i] = new IntArrayList(new int[]{i-1,i+1});
             }
             bonding[n-1] = new IntArrayList(new int[]{n-2});
+            setStepSizeMax(n-2);
         }
     }
 
@@ -94,21 +93,24 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         numMoved = Math.min(numMoved, atoms.size()-1);
         boolean forward = false;
         int start = 1 + random.nextInt(atoms.size() - numMoved - 1);
-        while (bonding[start].size() != 2) {
-            start = 1 + random.nextInt(atoms.size() - numMoved - 1);
-        }
-        seq[1] = start;
         int actualMoved = 1;
-        forward = random.nextInt(2) == 0;
-        seq[0] = bonding[start].getInt(forward ? 0 : 1);
-        // bondVector[i] is vector forward from i
-        bondVector[0].Ev1Mv2(atoms.get(seq[1]).getPosition(), atoms.get(seq[0]).getPosition());
-        for (int i = 2; i <= numMoved && bonding[seq[i-1]].size() == 2; i++) {
-            seq[i] = bonding[seq[i-1]].getInt(forward ? 1 : 0);
-            bondVector[i-1].Ev1Mv2(atoms.get(seq[i]).getPosition(), atoms.get(seq[i - 1]).getPosition());
-            actualMoved++;
+        while (actualMoved < numMoved) {
+            actualMoved = 1;
+            while (bonding[start].size() != 2) {
+                start = 1 + random.nextInt(atoms.size() - numMoved - 1);
+            }
+            seq[1] = start;
+            forward = random.nextInt(2) == 0;
+            seq[0] = bonding[start].getInt(forward ? 0 : 1);
+            // bondVector[i] is vector forward from i
+            bondVector[0].Ev1Mv2(atoms.get(seq[1]).getPosition(), atoms.get(seq[0]).getPosition());
+            for (int i = 2; i <= numMoved && bonding[seq[i - 1]].size() == 2; i++) {
+                seq[i] = bonding[seq[i - 1]].getInt(forward ? 1 : 0);
+                bondVector[i - 1].Ev1Mv2(atoms.get(seq[i]).getPosition(), atoms.get(seq[i - 1]).getPosition());
+                actualMoved++;
+            }
         }
-        numMoved = actualMoved;
+
         for (int i=0; i<numMoved; i++) {
             imposedBonds[i] = i;
         }
