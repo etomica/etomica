@@ -73,6 +73,8 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         }
     }
 
+    public long trials, searches;
+
     @Override
     public double energyChange() {
         return 0;
@@ -92,10 +94,17 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         // setup
         numMoved = Math.min(numMoved, atoms.size()-1);
         boolean forward = false;
-        int start = 1 + random.nextInt(atoms.size() - numMoved - 1);
         int actualMoved = 1;
+        trials++;
+        int searchCount = 0;
         while (actualMoved < numMoved) {
+            searchCount++;
+            if (searchCount>10000) {
+                throw new RuntimeException("oops "+stepSize);
+            }
+            searches++;
             actualMoved = 1;
+            int start = 1 + random.nextInt(atoms.size() - numMoved - 1);
             while (bonding[start].size() != 2) {
                 start = 1 + random.nextInt(atoms.size() - numMoved - 1);
             }
