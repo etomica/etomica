@@ -18,6 +18,7 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
@@ -72,7 +73,7 @@ public class VirialChain {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.nPoints = 3;
-            params.nSpheres = 4;
+            params.nSpheres = 8;
             params.temperature = 5;
             params.kBend = 0;
             params.numSteps = 10000000;
@@ -262,6 +263,8 @@ public class VirialChain {
 
         MCMoveClusterAngle[] angleMoves = null;
         MCMoveClusterStretch[] stretchMoves = null;
+        MCMoveClusterShuffle[] shuffleMoves = null;
+        MCMoveClusterReptate[] reptateMoves = null;
 
         IntArrayList[] bonding = new IntArrayList[nSpheres];
         bonding[0] = new IntArrayList(new int[]{1});
@@ -286,18 +289,38 @@ public class VirialChain {
             angleMoves[0].setBox(sim.box[0]);
             angleMoves[0].setConstraintMap(constraintMap);
             sim.integrators[0].getMoveManager().addMCMove(angleMoves[0]);
-//            ((MCMoveStepTracker)angleMoves[0].getTracker()).setNoisyAdjustment(true);
             angleMoves[1] = new MCMoveClusterAngle(sim.integrators[1].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
             angleMoves[1].setBox(sim.box[1]);
             angleMoves[1].setConstraintMap(constraintMap);
             sim.integrators[1].getMoveManager().addMCMove(angleMoves[1]);
-//            ((MCMoveStepTracker)angleMoves[1].getTracker()).setNoisyAdjustment(true);
+
+            reptateMoves = new MCMoveClusterReptate[2];
+            reptateMoves[0] = new MCMoveClusterReptate(sim.integrators[0].getPotentialCompute(), space, sim.getRandom());
+            reptateMoves[0].setConstraintMap(constraintMap);
+            reptateMoves[0].setBox(sim.box[0]);
+            sim.integrators[0].getMoveManager().addMCMove(reptateMoves[0]);
+            reptateMoves[1] = new MCMoveClusterReptate(sim.integrators[1].getPotentialCompute(), space, sim.getRandom());
+            reptateMoves[1].setConstraintMap(constraintMap);
+            reptateMoves[1].setBox(sim.box[1]);
+            sim.integrators[1].getMoveManager().addMCMove(reptateMoves[1]);
+
+            shuffleMoves = new MCMoveClusterShuffle[2];
+            shuffleMoves[0] = new MCMoveClusterShuffle(sim.integrators[0].getPotentialCompute(), space, sim.getRandom());
+            shuffleMoves[0].setConstraintMap(constraintMap);
+            shuffleMoves[0].setBox(sim.box[0]);
+            sim.integrators[0].getMoveManager().addMCMove(shuffleMoves[0]);
+            ((MCMoveStepTracker) shuffleMoves[0].getTracker()).setAcceptanceTarget(0.3);
+            shuffleMoves[1] = new MCMoveClusterShuffle(sim.integrators[1].getPotentialCompute(), space, sim.getRandom());
+            shuffleMoves[1].setConstraintMap(constraintMap);
+            shuffleMoves[1].setBox(sim.box[1]);
+            sim.integrators[1].getMoveManager().addMCMove(shuffleMoves[1]);
+            ((MCMoveStepTracker) shuffleMoves[1].getTracker()).setAcceptanceTarget(0.3);
         }
 
         if (false) {
             double size = (nSpheres + 5) * 1.5;
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
-            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(size, size, size));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(size, size, size));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
