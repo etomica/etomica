@@ -37,6 +37,7 @@ public class MCMoveClusterReptate extends MCMoveBox {
     double wNew = 0;
     protected boolean doLattice;
     protected boolean doCubicLattice;
+    protected int[] constraintMap;
 
     public MCMoveClusterReptate(PotentialCompute potentialCompute, Space space, IRandom random) {
         super();
@@ -59,6 +60,10 @@ public class MCMoveClusterReptate extends MCMoveBox {
     @Override
     public double energyChange() {
         return 0;
+    }
+
+    public void setConstraintMap(int[] map) {
+        constraintMap = map;
     }
 
     @Override
@@ -103,7 +108,7 @@ public class MCMoveClusterReptate extends MCMoveBox {
                 goBackward(atoms, drNew);
                 shift.ME(atoms.get(0).getPosition());
             }
-            if (i==0) {
+            if (i==0 || (constraintMap!=null && constraintMap[i]==0)) {
                 if (doLattice) shiftLatticeCOM(molecule, shift);
                 else shiftCOM(atoms, shift);
             }
@@ -179,7 +184,7 @@ public class MCMoveClusterReptate extends MCMoveBox {
                 goForward(atoms, oldPosition[i]);
                 shift.ME(atoms.get(atoms.size()-1).getPosition());
             }
-            if (i==0) {
+            if (i==0 || (constraintMap!=null && constraintMap[i] == 0)) {
                 if (doLattice) shiftLatticeCOM(moleculeList.get(i), shift);
                 else shiftCOM(atoms, shift);
             }

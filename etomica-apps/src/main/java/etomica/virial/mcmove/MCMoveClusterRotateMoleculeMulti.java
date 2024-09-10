@@ -125,7 +125,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
                 relaxAction.actionPerformed(molecule);
             }
 
-            if (i==0 && doLattice) {
+            if (doLattice && (i==0 || (constraintMap != null && constraintMap[i]==0))) {
                 Vector shift = box.getSpace().makeVector();
                 shift.E(CenterOfMass.position(box, molecule));
                 shift.TE(-1);
@@ -171,7 +171,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
 
             doTransform(molecule);
 
-            if (i==0 && doLattice) {
+            if (doLattice && (i==0 || (constraintMap != null && constraintMap[i]==0))) {
                 Vector shift = box.getSpace().makeVector();
                 shift.E(CenterOfMass.position(box, molecule));
                 shift.TE(-1);
