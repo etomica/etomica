@@ -39,6 +39,7 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
     double wNew = 0;
     protected boolean doLattice;
     protected IntArrayList[] bonding;
+    protected int[] constraintMap;
 
     public MCMoveClusterShuffle(PotentialCompute potentialCompute, Space space, IRandom random) {
         super();
@@ -50,6 +51,10 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
 
     public void setBonding(IntArrayList[] bonding) {
         this.bonding = bonding;
+    }
+
+    public void setConstraintMap(int[] map) {
+        constraintMap = map;
     }
 
     public void setDoLattice(boolean doLattice) {
@@ -132,12 +137,13 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
             int ss = imposedBonds[s];
             imposedBonds[s] = imposedBonds[j];
             imposedBonds[j] = ss;
-            shift.PE(atoms.get(seq[j]).getPosition());
+            shift.PE(atoms.get(seq[j+1]).getPosition());
             atoms.get(seq[j+1]).getPosition().Ev1Pv2(atoms.get(seq[j]).getPosition(), bondVector[ss]);
-            shift.ME(atoms.get(seq[j]).getPosition());
+            shift.ME(atoms.get(seq[j+1]).getPosition());
         }
 
-        if (doLattice && iMolecule==0) {
+        if (doLattice && (iMolecule==0 || constraintMap[iMolecule] == 0)) {
+            // for lattice, only shift molecule 0 or alt root
             shift.E(CenterOfMass.position(box, molecule));
             shift.TE(-1);
             for (int k=0; k<shift.getD(); k++) {
@@ -145,6 +151,7 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
             }
         }
         else if (!doLattice) {
+            // off lattice always fix COM
             shift.TE(1.0/atoms.size());
         }
         for (IAtom a : atoms) {
@@ -175,12 +182,12 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         IAtomList atoms = moleculeList.get(iMolecule).getChildList();
         Vector shift = space.makeVector();
         for (int j=0; j<numMoved; j++) {
-            shift.PE(atoms.get(seq[j]).getPosition());
+            shift.PE(atoms.get(seq[j+1]).getPosition());
             atoms.get(seq[j+1]).getPosition().Ev1Pv2(atoms.get(seq[j]).getPosition(), bondVector[j]);
-            shift.ME(atoms.get(seq[j]).getPosition());
+            shift.ME(atoms.get(seq[j+1]).getPosition());
         }
 
-        if (doLattice && iMolecule==0) {
+        if (doLattice && (iMolecule==0 || constraintMap[iMolecule] == 0)) {
             shift.E(CenterOfMass.position(box, moleculeList.get(iMolecule)));
             shift.TE(-1);
             for (int k=0; k<shift.getD(); k++) {
