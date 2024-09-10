@@ -648,7 +648,6 @@ public class SimulationVirialOverlap2 extends Simulation {
                         throw new RuntimeException("oops refpref "+newRefPref);
                     }
                     double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(newRefPref);
-                    System.out.println("I see "+newRefPref+" -- "+alphaData[0]+" "+alphaData[1]);
                     double relerr = alphaData[1]/alphaData[0];
 
                     if (relerr > 0.4 || Double.isNaN(alphaData[1]) || alphaData[0] == 0 || Double.isInfinite(alphaData[0])) {
@@ -656,6 +655,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                         // trying more steps
                         myInitSteps *= 2;
                         System.out.println("Poor estimate for alpha ("+(int)(relerr*100)+"% error) let's try "+myInitSteps+" steps");
+                        if (myInitSteps > initSteps*10) {
+                            throw new RuntimeException("Nope.  Seems like a lost cause");
+                        }
                         continue;
                     }
 
@@ -775,7 +777,6 @@ public class SimulationVirialOverlap2 extends Simulation {
                     if (refPref == -1) {
                         double newRefPref = dvo.getOverlapAverage();
                         double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(newRefPref);
-                        System.out.println("I see " + alphaData[0] + " " + alphaData[1]);
                         double relerr = alphaData[1] / alphaData[0];
 
                         if (!dvo.isQualityResult() || relerr > 0.3 || Double.isNaN(alphaData[1]) || alphaData[0] == 0 || Double.isInfinite(alphaData[0])) {
@@ -788,6 +789,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                             // trying more steps
                             myInitSteps *= 2;
                             System.out.println("Poor estimate for alpha (" + (int) (relerr * 100) + "% error) let's try " + myInitSteps + " steps");
+                            if (myInitSteps > initSteps*10) {
+                                throw new RuntimeException("Nope.  Seems like a lost cause");
+                            }
                             continue;
                         }
                         refPref = newRefPref;
