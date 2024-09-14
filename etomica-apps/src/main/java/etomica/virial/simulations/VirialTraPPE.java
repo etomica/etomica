@@ -8,16 +8,15 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
+import etomica.graph.model.Graph;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.Molecule;
 import etomica.molecule.MoleculePositionCOM;
-import etomica.potential.P2PotentialGroupBuilder;
-import etomica.potential.PotentialMoleculePair;
+import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -35,14 +34,17 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
+import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
+import etomica.virial.mcmove.MCMoveClusterTorsionMulti;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMixBD;
-import org.apache.commons.math3.analysis.function.Sin;
-import etomica.virial.simulations.VirialAlkane;
+
 import java.awt.*;
-import java.util.Arrays;
+import java.util.*;
+import java.util.List;
 
 /**
  * Compute pure, binary, ternary and quaternary mixture virial coefficients using overlap sampling simulations
@@ -59,19 +61,17 @@ public class VirialTraPPE {
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
             ParseArgs.doParseArgs(params, args);
-        }
-        else {
+        } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propane};
+            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
             params.nPoints = 3;
             params.nTypes = new int[]{3};
             params.nDer = 0;
             params.temperature = 600;
             params.numSteps = 10000000;
             params.refFrac = -1;
-            params.sigmaHSRef = 5;
+            params.sigmaHSRef = 5.26;
             params.seed = null;
-
             params.dorefpref = false;
             params.doChainRef = true;
 
@@ -103,16 +103,17 @@ public class VirialTraPPE {
         final double BDAccFrac = 0.1;
 
         // Check Params
-        if( chemForm.length != nTypes.length ) throw new RuntimeException("chemFrom and nTypes lengths are unequal!");
+        if (chemForm.length != nTypes.length) throw new RuntimeException("chemFrom and nTypes lengths are unequal!");
 
-        if( chemForm.length > 1 && Arrays.stream(nTypes).sum() != nPoints ) throw new RuntimeException("nPoints and nTypes do not match!");
+        if (chemForm.length > 1 && Arrays.stream(nTypes).sum() != nPoints)
+            throw new RuntimeException("nPoints and nTypes do not match!");
 
-        boolean isMixture = ( nTypes.length > 1 ) ;
+        boolean isMixture = (nTypes.length > 1);
 
         // Check if Pure or Mixture
-        if(isMixture){
-            for(int i=0; i<nTypes.length; i++){
-                if(nTypes[i]==nPoints) isMixture=false;
+        if (isMixture) {
+            for (int i = 0; i < nTypes.length; i++) {
+                if (nTypes[i] == nPoints) isMixture = false;
             }
         }
 
@@ -122,36 +123,35 @@ public class VirialTraPPE {
         // Evaluate Hard Sphere Coefficient
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
-
+        System.out.println("Chemform Length:" + chemForm.length);
         // Print Pretext
-        if(!isMixture) {
+        if (!isMixture) {
             ChemForm chemFormPure = chemForm[0];
-            if(nTypes.length>1) {
-                for(int i=0; i<nTypes.length; i++){
-                    if(nTypes[i]==nPoints) chemFormPure=chemForm[i];
+            if (nTypes.length > 1) {
+                for (int i = 0; i < nTypes.length; i++) {
+                    if (nTypes[i] == nPoints) chemFormPure = chemForm[i];
                 }
             }
 
             System.out.println("Overlap sampling for TraPPE " + chemFormPure + " at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
-        }
-        else{
-            String nTstr="{";
-            for(int i=0; i<nTypes.length; i++){
-                if(nTypes[i]!=0) nTstr += ((nTstr=="{") ? "":",")+nTypes[i];
+        } else {
+            String nTstr = "{";
+            for (int i = 0; i < nTypes.length; i++) {
+                if (nTypes[i] != 0) nTstr += ((nTstr == "{") ? "" : ",") + nTypes[i];
             }
-            nTstr+="}";
+            nTstr += "}";
 
-            String CFstr="";
-            for(int i=0; i<chemForm.length; i++){
-                if(nTypes[i]!=0) CFstr += chemForm[i]+" ";
+            String CFstr = "";
+            for (int i = 0; i < chemForm.length; i++) {
+                if (nTypes[i] != 0) CFstr += chemForm[i] + " ";
             }
 
-            System.out.println("Overlap sampling for TraPPE " + CFstr + " " +nTstr + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
+            System.out.println("Overlap sampling for TraPPE " + CFstr + " " + nTstr + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
         }
 
-        System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
+        System.out.println("Reference diagram: B" + nPoints + " for hard spheres with diameter " + sigmaHSRef + " Angstroms");
 
-        System.out.println("  B"+nPoints+"HS: "+HSBn);
+        System.out.println("  B" + nPoints + "HS: " + HSBn);
 
         // Set up Space
         Space space = Space3D.getInstance();
@@ -172,50 +172,127 @@ public class VirialTraPPE {
         refCluster.setTemperature(temperature);
 
         // Setting up Target Cluster Mayer Function
-        ClusterAbstractMultivalue targetCluster = null;
-        ClusterWheatleySoftDerivativesMixBD targetClusterBD = null;
+        ClusterAbstractMultivalue targetClusterRigid = null;
+
+        ClusterWheatleySoftDerivativesMixBD targetClusterBDRigid = null;
         SpeciesManager.Builder sb = SpeciesManager.builder();
 
         boolean anyPolar = false;
         MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
         TraPPEParams[] TPList = new TraPPEParams[chemForm.length];
-
-        for(int i=0; i<TPList.length; i++){
+        for (int i = 0; i < TPList.length; i++) {
             TPList[i] = new TraPPEParams(space, chemForm[i]);
         }
 
-        for(int i=0; i<chemForm.length; i++) {
+        for (int i = 0; i < chemForm.length; i++) {
             sb.addSpecies(TPList[i].species);
         }
         SpeciesManager sm = sb.build();
 
-        for(int i=0; i<chemForm.length; i++) {
+        for (int i = 0; i < chemForm.length; i++) {
             TraPPEParams TPi = TPList[i];
             TPi.buildPotentials(sm);
             PotentialMoleculePair PGii = TPi.potentialGroup;
 
-            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes,TPi.sigma,TPi.epsilon,TPi.charge);
+            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge);
             fAll[i][i] = new MayerGeneral(PGii);
 
-            anyPolar=(anyPolar||TPi.polar);
+            anyPolar = (anyPolar || TPi.polar);
 
-            for(int j=i+1; j<chemForm.length; j++){
+            for (int j = i + 1; j < chemForm.length; j++) {
 
                 TraPPEParams TPj = TPList[j];
 
-                P2PotentialGroupBuilder.ModelParams MPj = new P2PotentialGroupBuilder.ModelParams(TPj.atomTypes,TPj.sigma,TPj.epsilon,TPj.charge);
+                P2PotentialGroupBuilder.ModelParams MPj = new P2PotentialGroupBuilder.ModelParams(TPj.atomTypes, TPj.sigma, TPj.epsilon, TPj.charge);
 
-                PotentialMoleculePair PGij = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,sm, MPi,MPj);
+                PotentialMoleculePair PGij = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, MPj);
 
                 fAll[i][j] = fAll[j][i] = new MayerGeneral(PGij);
 
             }
         }
 
-        // Setting up Target Cluster
-        targetCluster = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes,fAll, BDtol, nDer);
-        targetCluster.setTemperature(temperature);
+        //flex moves
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
+        int nSpheres = TPList[0].species.getAtomTypes().size();
+        boolean isFlex = nSpheres > 2 && nPoints > 2;
 
+        System.out.println(isFlex);
+        VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
+        Diagrams.setDoReeHoover(false);
+        ClusterSum targetCluster = Diagrams.makeVirialCluster(fAll[0][0]);
+        ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
+        int[] targetDiagramNumbers = new int[0];
+        boolean[] diagramFlexCorrection = null;
+
+        if (nSpheres > 2) {
+            targetDiagrams = Diagrams.makeSingleVirialClusters(targetCluster, null, fAll[0][0]);
+            targetDiagramNumbers = new int[targetDiagrams.length];
+            System.out.println("individual clusters:");
+            Set<Graph> singleGraphs = Diagrams.getMSMCGraphs(true, false);
+            Map<Graph,Graph> cancelMap = Diagrams.getCancelMap();
+            int iGraph = 0;
+            diagramFlexCorrection = new boolean[targetDiagrams.length];
+            for (Graph g : singleGraphs) {
+                System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
+                targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+
+                Graph cancelGraph = cancelMap.get(g);
+                if (cancelGraph != null) {
+                    diagramFlexCorrection[iGraph] = true;
+                    Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
+
+                    System.out.print(" - "+alkane.getSplitGraphString(gSplit, Diagrams, false));
+
+                }
+                System.out.println();
+                iGraph++;
+            }
+            System.out.println();
+            Set<Graph> disconnectedGraphs = Diagrams.getExtraDisconnectedVirialGraphs();
+            if (disconnectedGraphs.size() > 0) {
+                System.out.println("extra clusters:");
+
+                for (Graph g : disconnectedGraphs) {
+                    Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(g);
+                    System.out.println(g.coefficient()+" "+alkane.getSplitGraphString(gSplit, Diagrams, true));
+                }
+                System.out.println();
+            }
+        }
+
+        targetCluster.setTemperature(temperature);
+        for (int i=0; i<targetDiagrams.length; i++) {
+            targetDiagrams[i].setTemperature(temperature);
+        }
+
+
+        //P3 bond angle
+
+        if (nSpheres > 2) {
+            P3BondAngle p3 = new P3BondAngle(Math.PI*114.0/180.0, Kelvin.UNIT.toSim(62500));
+            java.util.List<int[]> triplets = new ArrayList<>();
+            for (int i=0; i<nSpheres-2; i++) {
+                  triplets.add(new int[]{i,i+1,i+2});
+                }
+                bondingInfo.setBondingPotentialTriplet(TPList[0].species, p3, triplets);
+            }
+        //dihedral stuff
+
+        P4BondTorsion p4 = null;
+        if (nSpheres > 3) {
+            p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
+            List<int[]> quads = new ArrayList<>();
+            for (int i=0; i<nSpheres-3; i++) {
+                quads.add(new int[]{i,i+1,i+2,i+3});
+            }
+            bondingInfo.setBondingPotentialQuad(TPList[0].species, p4, quads);
+        }
+
+
+        // Setting up Target Cluster for Rigid
+        targetClusterRigid = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes, fAll, BDtol, nDer);
+        targetClusterRigid.setTemperature(temperature);
 
         // Setting BlockSize
         long blockSize = steps/numBlocks;
@@ -225,49 +302,75 @@ public class VirialTraPPE {
         System.out.println("BD_Tol: " + BDtol + " BDAccFrac: " + BDAccFrac);
 
         // Setting up Flipping
-        if(anyPolar && nPoints==2) {
+        if(anyPolar && (isFlex || nPoints==2) && false) {
             System.out.println("Performing Flipping");
-            ((ClusterWheatleySoftDerivativesMix) targetCluster).setTolerance(0);
+            ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
-            targetClusterBD = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
-            targetClusterBD.setTemperature(temperature);
-            ((ClusterWheatleySoftDerivativesMix) targetCluster).setDoCaching(false);
-            targetClusterBD.setDoCaching(false);
-            targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
+            targetClusterBDRigid = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
+            targetClusterBDRigid.setTemperature(temperature);
+            ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setDoCaching(false);
+            targetClusterBDRigid.setDoCaching(false);
+            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
         }
 
         // Setting up Simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, nTypes, temperature, refCluster, targetCluster);
-        if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
-        System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
-        if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
-            ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
-        }
-        else {
-            ((ClusterWheatleySoftDerivativesMix) targetCluster).setBDAccFrac(BDAccFrac, sim.getRandom());
-            ((ClusterWheatleySoftDerivativesMix) targetCluster).setNumBDCheckBins(8);
-        }
+        SimulationVirialOverlap2 sim = null;
 
-        // Adding derivative clusters to simulation
-        ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
-        for(int m=0;m<primes.length;m++){
-            primes[m] = new ClusterMultiToSingle(targetCluster, m + 1);
-        }
-        sim.setExtraTargetClusters(primes);
+        if(!isFlex) {
+            sim = new SimulationVirialOverlap2(space, sm, nTypes, temperature, refCluster, targetClusterRigid);
+            if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
+            System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
 
+            if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
+                ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
+            } else {
+                ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
+                ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setNumBDCheckBins(8);
+            }
+            // Adding derivative clusters to simulation
+            ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
+            for(int m=0;m<primes.length;m++){
+                primes[m] = new ClusterMultiToSingle(targetClusterRigid, m + 1);
+            }
+            sim.setExtraTargetClusters(primes);
+
+        }
+        else{
+            sim = new SimulationVirialOverlap2(space, sm, new int[]{(nPoints+1)}, temperature, refCluster, targetCluster);
+            sim.setExtraTargetClusters(targetDiagrams);
+//            sim.setDoWiggle(nSpheres > 2);
+            sim.setBondingInfo(bondingInfo);
+            sim.setIntraPairPotentials(TPList[0].potentialGroup.getAtomPotentials());
+            sim.setRandom(new RandomMersenneTwister(2));
+        }
         // Initialize Simulation
         sim.init();
 
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
-
+//        sim.integrators[1].dodebug = true;
+//        System.out.println(targetCluster.value(sim.box[1]));
+//        System.exit(0);
         // Setting Chain Ref Moves
-        if (doChainRef) {
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+        if (isFlex) {
+            int[] constraintMap = new int[nPoints+1];
+            for (int i=0; i<nPoints; i++) {
+                constraintMap[i] = i;
+            }
+            constraintMap[nPoints] = 0;
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
-            sim.accumulators[0].setBlockSize(1);
+            mcMoveHSC.setConstraintMap(constraintMap);
+            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
+            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
+            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
+        }
+        else if (doChainRef) {
+                sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+                MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
+                sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+                sim.accumulators[0].setBlockSize(1);
+
         }
 
         // Run with Graphics
@@ -302,6 +405,22 @@ public class VirialTraPPE {
             return;
         }
 
+        // create the intramolecular potential here, add to it and add it to
+        // the potential master if needed
+        MCMoveClusterTorsionMulti[] torsionMoves = null;
+
+        if (nSpheres > 3) {
+            torsionMoves = new MCMoveClusterTorsionMulti[2];
+            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[0].getPotentialCompute(), space, sim.getRandom(), p4, 40);
+            torsionMoves[0].setBox(sim.box[0]);
+            torsionMoves[0].setTemperature(temperature);
+            sim.integrators[0].getMoveManager().addMCMove(torsionMoves[0]);
+            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialCompute(), space, sim.getRandom(), p4, 40);
+            torsionMoves[1].setBox(sim.box[1]);
+            torsionMoves[1].setTemperature(temperature);
+            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
+        }
+
         // Setting up Equilibration
         sim.integratorOS.setNumSubSteps(EqSubSteps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -316,7 +435,7 @@ public class VirialTraPPE {
 
         System.out.println();
         String refFileName = null;
-
+        System.out.println("iscommandline:"+isCommandline);
         if (isCommandline) {
             // if running interactively, don't use the file
             String tempString = ""+temperatureK;
@@ -354,28 +473,53 @@ public class VirialTraPPE {
 
         System.out.println();
 
-        // Print Simulation Output
-        System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
-        System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
-
-        String[] extraNames = new String[nDer];
-        for (int i = 1; i <= nDer; i++) {
-            extraNames[i - 1] = "derivative " + i;
-        }
-        sim.printResults(HSBn, extraNames);
 
         // Print BD and Flip Stats
-        if (targetCluster instanceof ClusterWheatleySoftDerivatives) {
-            System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftcount());
-        }
-        else if (targetCluster instanceof ClusterCoupledFlippedMultivalue) {
-            ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue)targetCluster;
-            System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
-            System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
-        }
+        if(!isFlex) {
+            // Print Simulation Output
+            System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
+            System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
 
+            String[] extraNames = new String[nDer];
+            for (int i = 1; i <= nDer; i++) {
+                extraNames[i - 1] = "derivative " + i;
+            }
+            sim.printResults(HSBn, extraNames);
+
+            if (targetClusterRigid instanceof ClusterWheatleySoftDerivatives) {
+                System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives) targetClusterRigid).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives) targetClusterRigid).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives) targetClusterRigid).getSoftcount());
+            } else if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
+                ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue) targetClusterRigid;
+                System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
+                System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
+            }
+        }
         long t2 = System.currentTimeMillis();
         System.out.println("time: " + (t2 - t1) / 1000.0);
+        if(isFlex){
+            if (nSpheres > 3) {
+                System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
+                        torsionMoves[1].getTracker().acceptanceRatio());
+            }
+
+            System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+            System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
+            String[] extraNames = new String[targetDiagrams.length];
+            for (int i=0; i<targetDiagrams.length; i++) {
+                String n = "";
+                if (targetDiagramNumbers[i] < 0) {
+                    n = "diagram " + (-targetDiagramNumbers[i]) + "bc";
+                } else {
+                    n = "diagram " + targetDiagramNumbers[i];
+
+                    if (diagramFlexCorrection[i]) {
+                        n += "c";
+                    }
+                }
+                extraNames[i] = n;
+            }
+            sim.printResults(HSBn, extraNames);
+        }
 
     }
 
@@ -399,7 +543,7 @@ public class VirialTraPPE {
         public double sigmaHSRef = 5;
         public int[] seed = null;
 
-        public boolean dorefpref = false;
+        public boolean dorefpref = true;
         public boolean doChainRef = true;
 
         public double BDtol = 1e-12;
@@ -698,6 +842,9 @@ public class VirialTraPPE {
                 Vector3D posH4 = new Vector3D(new double[]{-sumbond,0, 0});
                 Vector3D posH5 = new Vector3D(new double[]{-sumbond * Math.cos(theta), -sumbond * Math.sin(theta), 0});
                 Vector3D posH6 = new Vector3D(new double[]{sumbond * Math.cos(theta), -sumbond * Math.sin(theta), 0});
+                System.out.println("Carbon Positions: " + Arrays.toString(new Vector3D[]{posC1, posC2, posC3, posC4, posC5, posC6}));
+                System.out.println("Hydrogen Positions: " + Arrays.toString(new Vector3D[]{posH1, posH2, posH3, posH4, posH5, posH6}));
+
 
 
                 //Set Geometry
@@ -926,6 +1073,7 @@ public class VirialTraPPE {
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy, 0, 0});
                 Vector3D posC3 = new Vector3D(new double[]{bondLengthCHxCHy + bondLengthCHxCHy * Math.cos(thetaCCH), bondLengthCHxCHy * Math.sin(thetaCCH),0});
                 Vector3D posC4 = new Vector3D(new double[]{bondLengthCHxCHy + 2 * bondLengthCHxCHy * Math.cos(thetaCCH), 2 * bondLengthCHxCHy * Math.sin(thetaCCH),0});
+                System.out.println("Carbon Positions: " + Arrays.toString(new Vector3D[]{posC1, posC2, posC3, posC4}));
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
