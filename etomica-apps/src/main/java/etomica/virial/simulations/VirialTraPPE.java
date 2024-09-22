@@ -33,10 +33,7 @@ import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.*;
-import etomica.virial.mcmove.MCMoveClusterMoleculeHSChain;
-import etomica.virial.mcmove.MCMoveClusterMoleculeMulti;
-import etomica.virial.mcmove.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.mcmove.MCMoveClusterTorsionMulti;
+import etomica.virial.mcmove.*;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
@@ -270,7 +267,7 @@ public class VirialTraPPE {
         //P3 bond angle
 
         if (nSpheres > 2) {
-            P3BondAngle p3 = new P3BondAngle(Math.PI*114.0/180.0, Kelvin.UNIT.toSim(62500));
+            P3BondAngle p3 = new P3BondAngle(TPList[0].theta_eq[0], TPList[0].k_theta[0]);
             java.util.List<int[]> triplets = new ArrayList<>();
             for (int i=0; i<nSpheres-2; i++) {
                   triplets.add(new int[]{i,i+1,i+2});
@@ -302,7 +299,7 @@ public class VirialTraPPE {
         System.out.println("BD_Tol: " + BDtol + " BDAccFrac: " + BDAccFrac);
 
         // Setting up Flipping
-        if(anyPolar && (isFlex || nPoints==2) && false) {
+        if(anyPolar && (isFlex || nPoints==2) && true) {
             System.out.println("Performing Flipping");
             ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
@@ -353,21 +350,28 @@ public class VirialTraPPE {
 //        System.out.println(targetCluster.value(sim.box[1]));
 //        System.exit(0);
         // Setting Chain Ref Moves
+        int[] constraintMap = new int[nPoints+1];
+
         if (isFlex) {
-            int[] constraintMap = new int[nPoints+1];
             for (int i=0; i<nPoints; i++) {
                 constraintMap[i] = i;
             }
             constraintMap[nPoints] = 0;
-            MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-            mcMoveHSC.setConstraintMap(constraintMap);
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
+            MCMoveClusterAngleBend mcMoveAngle = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
+
         }
-        else if (doChainRef) {
+        if (doChainRef) {
                 sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
                 MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
+                if(isFlex) {
+                    mcMoveHSC.setConstraintMap(constraintMap);
+                }
+                MCMoveClusterAngleBend mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
+                sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle1);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
                 sim.accumulators[0].setBlockSize(1);
 
@@ -559,12 +563,15 @@ public class VirialTraPPE {
         public final double[] sigma;
         public final double[] epsilon;
         public final double[] charge;
+        public double[] k_theta;
+        public double[] theta_eq;
         public final ISpecies species;
         public PotentialMoleculePair potentialGroup;
         protected static Element elementM = new ElementSimple("M", 0.0);
         protected boolean polar;
         protected final ChemForm chemForm;
         protected final Space space;
+
         //Set up computing the boolean. It is hard coded for now.
 
         public TraPPEParams(Space space, ChemForm chemForm){
@@ -774,6 +781,7 @@ public class VirialTraPPE {
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
                 double thetaCH3OH = Degree.UNIT.toSim(18.5) ;
+                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
                 double qCH3 = Electron.UNIT.toSim(0.265);
@@ -783,12 +791,15 @@ public class VirialTraPPE {
                 double sigmaH = 0.0; // Angstrom
                 double epsilonH = Kelvin.UNIT.toSim(0.0);
                 double qH = Electron.UNIT.toSim(0.435);
+                double k_thetaCH3OH = Kelvin.UNIT.toSim(55400.0);
 
 
                 //Construct Arrays
                 sigma = new double[] {sigmaCH3,sigmaO, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonO, epsilonH};
                 charge = new double[]{qCH3, qO, qH};
+                theta_eq = new double[]{theta_CH3OH};
+                k_theta = new double[]{k_thetaCH3OH};
 
                 //Get Coordinates
                 Vector3D posO = new Vector3D(new double[]{0, 0, 0});
@@ -1116,6 +1127,8 @@ public class VirialTraPPE {
             }
 
         }
+
+
 
         public void buildPotentials(SpeciesManager sm) {
             if(chemForm == ChemForm.N2) {
