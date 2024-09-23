@@ -93,8 +93,8 @@ public class VirialAlkane {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 3;
-            params.nSpheres = 3;
+            params.nPoints = 2; // B order
+            params.nSpheres = 3; // length of alkane
             params.temperature = 600;
             params.numSteps = 10000000;
         }
@@ -220,7 +220,8 @@ public class VirialAlkane {
         sim.setRandom(new RandomMersenneTwister(2));
         sim.init();
 
-        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+//        sim.integrators[0].getMoveManager().remove
+//        MCMove(sim.mcMoveTranslate[0]);
         MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
@@ -286,7 +287,7 @@ public class VirialAlkane {
             displayBox1.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
-
+            System.out.println("Flag");
 
             DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
             if (nSpheres>2) diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
