@@ -9,6 +9,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterRadiusGyration;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
@@ -180,7 +181,7 @@ public class VirialStarSingle {
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
                 public Color getAtomColor(IAtom a) {
-                    Color[] c = new Color[]{Color.BLACK, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.ORANGE};
+                    Color[] c = new Color[]{Color.BLACK, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.ORANGE, new Color(128,128,128)};
                     return c[(a.getIndex()+armLength-1)/armLength];
                 }
             };
@@ -190,6 +191,9 @@ public class VirialStarSingle {
 
             final DisplayTextBox stepsBox = new DisplayTextBox();
             stepsBox.setLabel("Steps");
+            DataSourceCountSteps stepCounter = new DataSourceCountSteps(integrator);
+            DataPumpListener stepPump = new DataPumpListener(stepCounter, stepsBox, 1000);
+            integrator.getEventManager().addListener(stepPump);
             simGraphic.add(stepsBox);
 
             return;
@@ -231,7 +235,7 @@ public class VirialStarSingle {
 
         long t3 = System.nanoTime();
 
-        System.out.println("time: "+(t2-t1)/1e9);
+        System.out.println("time: "+(t3-t2)/1e9);
     }
 
     /**

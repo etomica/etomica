@@ -265,13 +265,18 @@ public class VirialChainTheta {
         if (false) {
             double size = (nSpheres + 5) * 1.5;
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "TBoyle n="+nSpheres+" T="+temperature);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box);
             displayBox0.setPixelUnit(new Pixel(300.0 / size));
             displayBox0.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
 
-            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim.getSpeciesManager(), sim.box, sim.getRandom());
+            ColorScheme colorScheme = new ColorScheme() {
+                @Override
+                public Color getAtomColor(IAtom a) {
+                    return a.getParentGroup().getIndex() == 0 ? Color.RED : Color.BLUE;
+                }
+            };
             displayBox0.setColorScheme(colorScheme);
 
             simGraphic.makeAndDisplayFrame();
