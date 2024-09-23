@@ -232,20 +232,22 @@ public class PDBReaderReplica {
                 massSum += mass;
             }
             centreMOP.TE(1.0 / massSum);
-
-            for(int i=0; i<atomIdentifierMap.size(); i++){
-                IAtom a = children.get(i);
-                String symbol = String.valueOf(atomIdentifierMap.get(i));
-                int startIndex = symbol.indexOf("[") + 1;
-                int endIndex = symbol.indexOf("]");
-                String nameNew = symbol.substring(startIndex, endIndex);
-                typeNew = typeMapNew.get(nameNew);
-                Vector v = a.getPosition();
-                v.ME(centreMOP);
-                // System.out.println(v);
-                speciesBuilderNewMod.addAtom(typeNew,v, "" );
+            if(false){
+                for(int i=0; i<atomIdentifierMap.size(); i++){
+                    IAtom a = children.get(i);
+                    String symbol = String.valueOf(atomIdentifierMap.get(i));
+                    int startIndex = symbol.indexOf("[") + 1;
+                    int endIndex = symbol.indexOf("]");
+                    String nameNew = symbol.substring(startIndex, endIndex);
+                    typeNew = typeMapNew.get(nameNew);
+                    Vector v = a.getPosition();
+                    v.ME(centreMOP);
+                    // System.out.println(v);
+                    speciesBuilderNewMod.addAtom(typeNew,v, "" );
+                }
+                species = speciesBuilderNewMod.setDynamic(isDynamic).build();
             }
-            species = speciesBuilderNewMod.setDynamic(isDynamic).build();
+
 
         }
 
@@ -729,6 +731,9 @@ public class PDBReaderReplica {
             } else if (element.equals("KR")) {
                 AtomType Kr = new AtomType(Krypton.INSTANCE, "Kr");
                 atomIdentifierMap.put(0, Kr);
+            }else if (element.equals("HE")) {
+                AtomType He = new AtomType(Helium.INSTANCE, "He");
+                atomIdentifierMap.put(0, He);
             }
         }
         //System.out.println(connectivityModified + "connectivityModified");
@@ -1548,6 +1553,7 @@ public class PDBReaderReplica {
         atomicConstant.put("O2", new double[]{0, 0,  3.5, 0.06, 14.085, 2.3,8.74,0.018});
         atomicConstant.put("N1", new double[]{0.7, 106.7, 3.66, 0.069, 13.407, 2.544, 6.899,0.45});
         atomicConstant.put("HK", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("B", new double[]{0.828, 109.48, 4.083,0.180,12.052, 1.755, 4.528, 0});
         double [] sample = atomicConstant.get(atomtype);
         return sample;
     }

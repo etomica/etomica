@@ -84,6 +84,32 @@ public class UFF {
         return new double[]{(float) c0, (float) c1, (float) c2, (float) newkijk, num};
     }
 
+    public static double[] angleUFF(double ri, double rj, double rk, double zi, double zj, double zk, double chiI, double chiJ, double chiK, double theta0, double valueOne, double valueTwo, int num ){
+        double rij, rjk, rik, beta, kijk, c0, c1, c2, costheta0, sintheta0, kb;
+        double thetanormal = theta0;
+        theta0 = Degree.UNIT.toSim(theta0);
+        costheta0 = Math.cos(theta0);
+        sintheta0 = Math.sin(theta0);
+        c2=1/(4*sintheta0*sintheta0);
+        c1=-4*c2*costheta0;
+        c0=c2*(2*costheta0*costheta0+1);
+        rij = getbondUFF(ri, rj, chiI, chiJ, valueOne);
+        rjk = getbondUFF(rj, rk, chiJ, chiK, valueTwo);
+        //System.out.println(rij + " " + rjk);
+        rik = Math.sqrt(rij*rij + rjk*rjk -2*rij*rjk*costheta0); //from openBabel
+        beta = 664.12 / (rij * rjk);
+        kijk = beta * (zi*zk/Math.pow(rik,5)) * ((3*rij*rjk*(1-costheta0*costheta0))-(rik*rik*costheta0))* rij*rjk;
+        if( num != 0){
+            kijk = kijk / 9;
+        }
+        Unit[] newOnw = {new PrefixedUnit(Prefix.KILO,Calorie.UNIT), Mole.UNIT, Radian.UNIT};
+        double[] newExpo ={1.0, -1.0, -2.0};
+        CompoundUnit molrad2 = new CompoundUnit(newOnw,newExpo);
+     //   double newkijkkJ = kijk * 4.182;
+        double newkijk = molrad2.toSim(kijk);
+        // System.out.println(newkijkkJ + " kij");
+        return new double[]{(float) c0, (float) c1, (float) c2, (float) newkijk, num};
+    }
     public static double[] torsionUFF(double V, int type,double rbo){
         double phi = 0;
         double n;

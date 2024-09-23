@@ -76,7 +76,7 @@ public class GasMOPSimulation extends Simulation{
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
         SetPotential doPotential = new SetPotential();
-        speciesMOP = pdbReaderMOP.getSpecies(speciesMOPName, isDynamic, centreMOP, false );
+        speciesMOP = pdbReaderMOP.getSpecies(speciesMOPName, isDynamic, centreMOP, false, false);
       //  System.out.println(speciesMOP);
        // printCOM(speciesMOP, centreMOP);
         List<AtomType> atomTypes1 = speciesMOP.getUniqueAtomTypes();

@@ -356,8 +356,8 @@ public class PotentialMaster implements PotentialCompute {
             duAtom.plusEquals(0, 0.5 * uij);
             duAtom.add(0.5 * uij);
         }
-       //  System.out.println("Non " + uij);
-        //System.out.println(iAtom.getType() + " "+ iAtom.getPosition()+" " + jAtom.getType() + " "+jAtom.getPosition()+" " + uij +" "+  Math.exp(-uij/291));
+         //System.out.println("Non " + uij);
+       // System.out.println(iAtom.getType() + " "+ iAtom.getPosition()+" " + jAtom.getType() + " "+jAtom.getPosition()+" " + uij +" "+  Math.exp(-uij/291));
         return uij;
 
     }
