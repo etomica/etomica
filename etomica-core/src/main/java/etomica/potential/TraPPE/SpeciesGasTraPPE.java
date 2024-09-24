@@ -161,7 +161,7 @@ public class SpeciesGasTraPPE {
             sigma = new double[]{sigmaCH4};
             epsilon = new double[]{epsilonCH4};
             charge = new double[]{0};
-            atomMap.put(0, typeCH4.getName());
+            //atomMap.put(0, typeCH4.getName());
 
             Vector3D posCH4 = new Vector3D(new double[]{0, 0, 0});
 
@@ -183,8 +183,8 @@ public class SpeciesGasTraPPE {
             sigma = new double[]{sigmaCH3};
             epsilon = new double[]{epsilonCH3};
             charge = new double[]{0.0};
-            atomMap.put(0, typeCH3.getName());
-            atomMap.put(1, typeCH3.getName());
+          //  atomMap.put(0, typeCH3.getName());
+           // atomMap.put(1, typeCH3.getName());
 
             Vector3D posnC1 = new Vector3D(new double[]{0, 0, 0});
             Vector3D posnC2 = new Vector3D(new double[]{bondLength, 0, 0});

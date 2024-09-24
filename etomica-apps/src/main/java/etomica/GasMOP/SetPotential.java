@@ -147,6 +147,8 @@ public class SetPotential {
             bond.add(bondArr);
             bondArr = new int[]{2,0};
             bond.add(bondArr);
+        } else if (name.equals("ch4")) {
+            
         } else {
             throw new RuntimeException("TraPPE gas unknown");
         }

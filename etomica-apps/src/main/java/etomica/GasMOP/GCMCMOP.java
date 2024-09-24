@@ -548,7 +548,7 @@ public class GCMCMOP extends Simulation {
         IPotential2[] p2mopgas = new IPotential2[listMOPGasPairs.size()];
         //   LJCOMPASS[] p2LJMOPGasCOMPASS = new LJCOMPASS[listMOPGasPairs.size()];
         if (isGasTraPPE) {
-            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, true, true);
+            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, true);
         } else {
             SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, p2mopgas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics);
         }
@@ -701,8 +701,8 @@ public class GCMCMOP extends Simulation {
    //    mopNames.add(params.confNameEight);
        // gasNames.add(params.confNamegasThree);
         gasNames.add(params.confNameGasTwo);
-     //   gasNames.add(params.confNamegasOne);
-        temperatureList.add(77);
+        gasNames.add(params.confNamegasOne);
+      //  temperatureList.add(77);
        // temperatureList.add(77);
         double t1Start = System.nanoTime();
        for (int i = (int) mu1; i>params.muLimit; i= (int) (i+muDecrease)){
@@ -714,8 +714,8 @@ public class GCMCMOP extends Simulation {
      for(int a =0; a<gasNames.size(); a++){
          String confNamegas = gasNames.get(a);
          System.out.println(confNamegas);
-         double tempActual =temperatureList.get(a);
-         System.out.println(tempActual);
+      //   double tempActual =temperatureList.get(a);
+     //    System.out.println(tempActual);
          for (int p = 0; p < mopNames.size(); p++) {
              // double temperature = mopNames.get(p);
              String confNameMOPOne = mopNames.get(p);
@@ -724,7 +724,7 @@ public class GCMCMOP extends Simulation {
                  int numSteps = params.numSteps;
                  int mu = muValues.get(i);
                  System.out.println(mu);
-                 GCMCMOP sim = new GCMCMOP(confNameMOPOne, confNamegas, confNamegas, confNameGraphene, centreMOP, centreMOPTwo, centreMOPThree, centreMOPFour, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, grapheneFive, grapheneSix, grapheneSeven, grapheneEight, grapheneNine, grapheneTen, grapheneEleven, grapheneTwelve, grapheneThirteen, numAtomOne, numAtomTwo, tempActual, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSize, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent);
+                 GCMCMOP sim = new GCMCMOP(confNameMOPOne, confNamegas, confNamegas, confNameGraphene, centreMOP, centreMOPTwo, centreMOPThree, centreMOPFour, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, grapheneFive, grapheneSix, grapheneSeven, grapheneEight, grapheneNine, grapheneTen, grapheneEleven, grapheneTwelve, grapheneThirteen, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSize, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent);
                  if (massMembrane < 1) {
                      massMembrane = 1;
                  }
@@ -1053,25 +1053,25 @@ public class GCMCMOP extends Simulation {
         public Vector centreMOP = new Vector3D(0.0,0.0,-30);
         public Vector centreMOPThree = new Vector3D(0.0,0.0,-50);
         public Vector centreMOPFour = new Vector3D(0.0,0.0,50);
-        public String confNameGasTwo ="F://Avagadro//molecule//n2";
+        public String confNameGasTwo ="F://Avagadro//molecule//ch4";
         public int numAtomOne = 1;
         public int numAtomTwo = 1;
 
         public double sigma =2.7;
-        public int numSteps = 5000000;
+        public int numSteps = 1000000;
         public boolean makeAllMove = false;
         public boolean doHistogram = false;
         //public double partial = -82.2479;
-        public double temperature = 77;
+        public double temperature = 298;
       //  public String confNameGasOne = "F://Avagadro//molecule//ethane" ;
       //  public String confNamegas = "F://Avagadro//molecule//ethene" ;
       //  public String confNamegasOne = "F://Avagadro//molecule//ch4" ;
        // public String confNamegasTwo = "F://Avagadro//molecule//h2" ;
         public String confNamegasThree = "F://Avagadro//molecule//n2" ;
-        public String confNamegasOne = "F://Avagadro//molecule//n2" ;
-        public double mu1 = -550;
+        public String confNamegasOne = "F://Avagadro//molecule//ethane" ;
+        public double mu1 = -2600;
         public double muDecrease = -20;
-        public int muLimit = -730;
+        public int muLimit = -3200;
         public boolean ifCOF = false;
         public String confNameCOF = "F://Avagadro//mop//tetra_CuCOOCH3";
         public String confNameGraphene = "F://Avagadro//holeGO60";
@@ -1082,9 +1082,9 @@ public class GCMCMOP extends Simulation {
         public double truncatedRadius = boxSize.getX(2)/2;
         public int numBins = 6;
         public String confNameOne = "F://Avagadro//mop//mop3//verify//p1//cif//02";
-        public boolean doGraphics =true;
+        public boolean doGraphics =false;
         public boolean isGasCOMPASS = false;
-        public boolean isGasTraPPE = false;
+        public boolean isGasTraPPE = true;
         public boolean ifGraphenePresent = false;
         public boolean ifMultipleGraphenePresent = false;
         public boolean ifSecondGasPresent = false;
