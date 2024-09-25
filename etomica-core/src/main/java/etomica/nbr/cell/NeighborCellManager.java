@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 public class NeighborCellManager implements NeighborManager {
     protected final Box box;
+    protected final Vector translationVector = null, oldPosition = null;
     private final boolean isPureAtoms;
     private final BondingInfo bondingInfo;
     protected int cellRange;
@@ -128,6 +129,9 @@ public class NeighborCellManager implements NeighborManager {
                 }
                 for (IAtom atom : e.getMolecule().getChildList()) {
                     int i = atom.getLeafIndex();
+                    Vector r = atom.getPosition();
+                    Vector shift = box.getBoundary().centralImage(r);
+                    r.PE(shift);
                     cellNextAtom[i] = -1;
                     atomCell[i] = -1;
                     updateAtom(atom);
