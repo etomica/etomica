@@ -71,7 +71,7 @@ public class UniversalSimulation extends Simulation {
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         int num = 1;
         Vector centreMol = new Vector3D(0.0,0.0,0.0);
-        species = pdbReaderMOP.getSpecies(configFileName, false, centreMol, false);
+        species = pdbReaderMOP.getSpecies(configFileName, false, centreMol, false, false);
         System.out.println("Species");
         System.out.println(species.getMass());
         List<AtomType> atomTypes = species.getUniqueAtomTypes();

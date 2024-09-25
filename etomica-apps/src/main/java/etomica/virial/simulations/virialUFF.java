@@ -83,7 +83,13 @@ public class virialUFF {
       //  double rc = params.rc;
         double sigmaHSRef = params.sigmaHSRef;
         Space space = Space3D.getInstance();
-        String confName = params.confName;
+        List<String> confString = new ArrayList<>();
+        confString.add(params.confName);
+        confString.add(params.conf2Name);
+      //  confString.add(params.conf3Name);
+for(int alpha =0; alpha< confString.size(); alpha++){
+        String confName = confString.get(alpha);
+    System.out.println(confName);
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
         species = pdbReaderReplica.getSpecies(confName, true,new Vector3D(0,0,0), false);
       //  System.out.println("Species");
@@ -366,7 +372,7 @@ public class virialUFF {
         }
         List<Integer> temp = new ArrayList<>();
 
-        for(int j =5; j< 11; j++){
+        for(int j =1; j< 11; j++){
             double temperatureNew =Kelvin.UNIT.toSim(j*params.temperature) ;
             System.out.println("\n" +j*params.temperature + " " + temperatureNew);
             targetCluster.setTemperature(temperatureNew);
@@ -428,14 +434,14 @@ public class virialUFF {
             sim.integratorOS.setNumSubSteps(1000);
             long t1 = System.nanoTime();
             // if running interactively, don't use the file
-            //String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
+            String refFileName = isCommandline ? "refpref"+nPoints+"_"+j*params.temperature : null;
             // this will either read the refpref in from a file or run a short simulation to find it
-            //sim.initRefPref(refFileName, steps/40);
+            sim.initRefPref(refFileName, steps/40);
 
 
             // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
             // if it does continue looking for a pref, it will write the value to the file
-            //sim.equilibrate(refFileName, steps/20);
+            sim.equilibrate(refFileName, steps/20);
             ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
             System.out.println(steps);
             sim.setAccumulatorBlockSize(newStep);
@@ -555,11 +561,14 @@ public class virialUFF {
 
 
     }
+    }
     public static class VirialUniversalParam extends ParameterBase {
-        public String confName ="F://Avagadro//molecule//co2";
+        public String confName ="F://Avagadro//molecule//ch4";
+        public String conf2Name ="F://Avagadro//molecule//methanol";
+        public String conf3Name ="F://Avagadro//molecule//butadiene";
         public int nPoints =2;
-        public double temperature =1000;// Kelvin
-        public long numSteps = 50000000;
+        public double temperature =100;// Kelvin
+        public long numSteps = 500000;
         public double rc = 10;
         public double refFreq = -1;
         public double sigmaHSRef = 7;

@@ -171,14 +171,14 @@ public class PDBReaderMOP {
             //System.out.println(Arrays.deepToString(dupletsSorted.toArray()) + " duplets Sorted");
             //System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
             tripletsSorted=angleSorter(listOfAngleModified, atomIdentifierMapMod);
-            List<int[]> listOfTorsionModified = getTorsionList(connectivity);
+           // List<int[]> listOfTorsionModified = getTorsionList(connectivity);
             //System.out.println( Arrays.deepToString(listOfTorsionModified.toArray()) + "torsionModified");
-            quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapMod);
+           // quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapMod);
             // System.out.println(Arrays.deepToString(quadrupletsSorted.toArray()) + "quadrupletsSorted");
-            Map<String[],List<int[]>> torsionTypesMap= idenTorsionTypes(quadrupletsSorted, atomIdentifierMapMod);
-            aromaticIdentifier(torsionTypesMap);
-            aromaticOtherElementFormer(connectivityModified, modifiedAtomIdentifierMap);
-            listOfInversions = idenInversions(tripletsSorted);
+         //   Map<String[],List<int[]>> torsionTypesMap= idenTorsionTypes(quadrupletsSorted, atomIdentifierMapMod);
+         //   aromaticIdentifier(torsionTypesMap);
+         //   aromaticOtherElementFormer(connectivityModified, modifiedAtomIdentifierMap);
+          //  listOfInversions = idenInversions(tripletsSorted);
            // System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
         }
       //  System.out.println(positions + " Here positions");
@@ -546,8 +546,21 @@ public class PDBReaderMOP {
         List<String> key30 = Arrays.asList("O_1", "C_3");
         List<String> key31 = Arrays.asList("O_2", "C_3");
         List<String> key32 = Arrays.asList("O_Ar", "C_3");
-        List<String> key33 = Arrays.asList(" ", " ");
-        List<String> key34 = Arrays.asList(" ", " ");
+        List<String> key33 = Arrays.asList("C_3", "O_2");
+        List<String> key34 = Arrays.asList("O_3", "O_Ar");
+        List<String> key35 = Arrays.asList("N_3", "N_1");
+        List<String> key36 = Arrays.asList("O_2", "Co");
+        List<String> key37 = Arrays.asList("null", "O_3");
+        List<String> key38 = Arrays.asList("", "");
+        List<String> key39 = Arrays.asList("", "");
+        List<String> key40 = Arrays.asList("", "");
+        List<String> key41 = Arrays.asList("", "");
+        List<String> key42 = Arrays.asList("", "");
+        List<String> key43 = Arrays.asList("", "");
+        List<String> key44 = Arrays.asList("", "");
+        List<String> key45 = Arrays.asList("", "");
+        List<String> key46 = Arrays.asList("", "");
+        List<String> key47 = Arrays.asList("", "");
         map.put(key1, 1.0);
         map.put(key2, 1.0);
         map.put(key3, 1.0);
@@ -582,6 +595,16 @@ public class PDBReaderMOP {
         map.put(key32, 1.0);
         map.put(key33, 1.0);
         map.put(key34, 1.0);
+        map.put(key35, 1.0);
+        map.put(key36, 1.0);
+        map.put(key37, 1.0);
+        map.put(key38, 1.0);
+        map.put(key39, 1.0);
+        map.put(key40, 1.0);
+        map.put(key41, 1.0);
+        map.put(key42, 1.0);
+        map.put(key43, 1.0);
+        map.put(key44, 1.0);
         Double value = map.get(bondedAtoms);
         if(value == null){
             throw new RuntimeException("Atoms " + bondedAtoms);
@@ -1582,6 +1605,7 @@ public class PDBReaderMOP {
         //List<int[]> priorityList = new ArrayList<>();
         List<int[]> dupletsActual = new ArrayList<>();
         for(int i=0; i<duplets.size(); i++){
+         //   System.out.println(i);
             int[] newCombo = new int[2];
             int firstElement = duplets.get(i)[0];
             int secondElement = duplets.get(i)[1];
@@ -1592,7 +1616,12 @@ public class PDBReaderMOP {
            // }
             atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
             atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
-          //  System.out.println(atomOne + " "+atomTwo);
+            if(atomTwo == "null"){
+                atomTwo = "H";
+            } else if (atomOne == "null") {
+                atomOne ="H";
+            }
+            //  System.out.println(atomOne + " "+atomTwo);
                // System.out.println("Both atoms are not null");
                 int numOne = priorityMapGenerator(atomOne);
                 int numTwo = priorityMapGenerator(atomTwo);
@@ -1631,6 +1660,13 @@ public class PDBReaderMOP {
             String atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
             String atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
             String atomThree = String.valueOf(atomIdentifierMapModified.get(thirdElement));
+            System.out.println(i + " " + atomOne + " " +atomThree);
+            if(atomThree == "null"){
+                atomThree = "H";
+            }
+            if (atomOne == "null") {
+                atomOne ="H";
+            }
             int numOne = priorityMapGenerator(atomOne);
             int numThree = priorityMapGenerator(atomThree);
             if (numOne > numThree) {

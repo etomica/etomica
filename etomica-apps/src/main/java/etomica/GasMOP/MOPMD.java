@@ -79,14 +79,13 @@ public class MOPMD extends Simulation{
         PDBReaderMOP pdbReaderReplicaGasNew = new PDBReaderMOP();
         GeneralGrapheneReader grapheneReader = new GeneralGrapheneReader();
         GeneralGrapheneReader grapheneReaderTwo = new GeneralGrapheneReader();
-        System.out.println(Constants.BOLTZMANN_K);
-        System.out.println(1/(Constants.BOLTZMANN_K*temperature));
-        System.exit(1);
+      //  System.out.println(Constants.BOLTZMANN_K);
+       // System.out.println(1/(Constants.BOLTZMANN_K*temperature));
         List<ISpecies> listSpecies = new ArrayList<>();
-        System.out.println(Constants.BOLTZMANN_K);
-        System.out.println(1/(Constants.BOLTZMANN_K*temperature));
+     //   System.out.println(Constants.BOLTZMANN_K);
+     //   System.out.println(1/(Constants.BOLTZMANN_K*temperature));
         if(ifMOPPresent){
-            speciesMOP = pdbReaderMOP.getSpecies(confNameOne, true, centreMOP, ifMOPFixed);
+            speciesMOP = pdbReaderMOP.getSpecies(confNameOne, true, centreMOP, ifMOPFixed, true);
             addSpecies(speciesMOP);
             listSpecies.add(speciesMOP);
         }
@@ -140,7 +139,7 @@ public class MOPMD extends Simulation{
         space = box.getSpace();
         box.getBoundary().setBoxSize(boxsize);
         if(ifMOPPresent){
-            box.setNMolecules(speciesMOP,1);
+            box.setNMolecules(speciesMOP,0);
         }
 
         List<Vector> oldPositions = new ArrayList<>();
@@ -195,8 +194,8 @@ public class MOPMD extends Simulation{
             atom.getPosition().PE(shift);
         });*/
         box.getMoleculeList();
-        System.out.println(Constants.BOLTZMANN_K);
-        System.out.println(1/(Constants.BOLTZMANN_K*temperature));
+       // System.out.println(Constants.BOLTZMANN_K);
+        //System.out.println(1/(Constants.BOLTZMANN_K*temperature));
 
         /*if(ifGraphenePresent && ifMOPPresent){
             if(ifSecondGasPresent){
@@ -888,14 +887,14 @@ public class MOPMD extends Simulation{
     public static class MOPMDParams extends ParameterBase {
         public double density = 0.003;
         public boolean setMOPmassInfinite = true;
-        public int numGas = 2;
+        public int numGas = 1;
         public int numGraphene = 2;
         public int numMOP = 2;
 
         public boolean isDynamic = true;
 
         public int numAtomOne = 10;
-        public int truncatedRadius = 5;
+        public int truncatedRadius = 15;
         public int temperature = 1200;
         public double sigma = 5.2;
         public int numAtomTwo = 1;
@@ -903,12 +902,12 @@ public class MOPMD extends Simulation{
         public double mu = -2500;
         public int mcSteps=0;
         public int cycles=5000;
-        public int truncatedRadiusLJ = 5;
+        public int truncatedRadiusLJ = 15;
         public String confNameOne = "F://Avagadro//mop//tetra_cu";
-        public String confNameGasTwo = "F://Avagadro//molecule//ch4";
+        public String confNameGasTwo = "F://Avagadro//molecule//He";
         public String confNameGraphene = "F://Avagadro//holeGO60";
       // public String confNameGraphene = "F://Avagadro//molecule//ethaneholeGO60";
-        public String confNameGasOne = "F://Avagadro//molecule//h2";
+        public String confNameGasOne = "F://Avagadro//molecule//Ar";
         public Vector centreMOPTwo = new Vector3D(50,50,50);
         public Vector centreMOP = new Vector3D(-5,-5,5);
         public Vector boxSize = new Vector3D(30,30,50);
@@ -923,7 +922,7 @@ public class MOPMD extends Simulation{
         public boolean ifMOPPresent = true;
         public boolean ifGOMOPMove = false;
         public boolean ifMOPFixed = true;
-        public int numGasOne =1 ;
-        public int numGasTwo =1;
+        public int numGasOne =2 ;
+        public int numGasTwo =0;
     }
 }

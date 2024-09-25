@@ -52,10 +52,10 @@ public class VirialMultiUFF {
         boolean doTrunc = params.doTrunc;
         List<Double> truncRad = new ArrayList<>();
         List<String> moleName = new ArrayList<>();
-        moleName.add(params.confListName1);
-        moleName.add(params.confListName2);
+      //  moleName.add(params.confListName1);
+       // moleName.add(params.confListName2);
         moleName.add(params.confListName3);
-        moleName.add(params.confListName5);
+     //   moleName.add(params.confListName5);
         moleName.add(params.confListName4);
         List<String> moleName2 = new ArrayList<>();
         moleName2.add(params.confName1);
@@ -83,7 +83,7 @@ public class VirialMultiUFF {
             PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
             String confName2 = moleName.get(p);
             String confName1 = moleName2.get(m);
-            species1 = pdbReaderMOP.getSpecies(confName1, false, centreMol, false);
+            species1 = pdbReaderMOP.getSpecies(confName1, false, centreMol, false, true);
             //System.out.println(species1);
             printCOM(species1);
             //List<AtomType> atomTypes1 = species1.getUniqueAtomTypes();
@@ -195,7 +195,7 @@ public class VirialMultiUFF {
           //  System.out.println("B"+nPoints+"HS: "+refIntegral);
 
             PotentialMasterBonding.FullBondingInfo bondingInfo1 = new PotentialMasterBonding.FullBondingInfo(sm1);
-            doBondStrech(species1, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, bondingInfo1);
+            doBondStrech(species1, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, bondingInfo1, true);
             LJUFF[] p2LJ = new LJUFF[pairAtomSize];
             IPotential2[] p2lj = new IPotential2[pairAtomSize];
             doLJ(pairsAtoms1,pTargetA, p2LJ, p2lj,rc, doTrunc);
@@ -253,7 +253,7 @@ public class VirialMultiUFF {
 
 
 
-            doBondStrech(species2,bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2,quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, bondingInfo1);
+            doBondStrech(species2,bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2,quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, bondingInfo1, false);
             LJUFF[] p2LJ2 = new LJUFF[pairAtomSize2];
             IPotential2[] p2lj2 = new IPotential2[pairAtomSize2];
             doLJ(pairsAtoms2, pTargetB,  p2LJ2, p2lj2, rc, doTrunc);
@@ -523,6 +523,7 @@ public class VirialMultiUFF {
             String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
             double[] iKey = pdbReaderReplica.atomicPot(atomTypeOne);
             double[] jKey = pdbReaderReplica.atomicPot(atomTypeTwo);
+          //  System.out.println( atomTypeOne + " " + Arrays.toString(iKey) + " " + atomTypeTwo + " " + Arrays.toString(jKey));
             double epsilonIKey = kcals.toSim(iKey[3]);
             double epsilonJKey = kcals.toSim(jKey[3]);
             double sigmaIKey = iKey[2];
@@ -542,8 +543,10 @@ public class VirialMultiUFF {
         }
     }
 
-    public static void doBondStrech(ISpecies species1,Map<String[],List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1,Map<String[],List<int[]>> torsionTypesMap1,ArrayList<Integer> bondsNum1,ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1,Map<String, double[]> atomicPotMap1, PotentialMasterBonding.FullBondingInfo bondingInfo1){
-        double Vi =0, Vj =0, V=0, Vtrue=0,  type;
+    public static void doBondStrech(ISpecies species1,Map<String[],List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1,Map<String[],List<int[]>> torsionTypesMap1,ArrayList<Integer> bondsNum1,ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1,Map<String, double[]> atomicPotMap1, PotentialMasterBonding.FullBondingInfo bondingInfo1, boolean ifMOPPresent){
+        double Vi =0, Vj =0, V=0, Vtrue=0,  type, bondOrder, bondOrder2;
+
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         int p;
         int i =0;
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
@@ -561,18 +564,25 @@ public class VirialMultiUFF {
                 atomName2 = atomIdentifierMapModified1.get(atom2);
                 double[] atomOnePot = atomicPotMap1.get(atomName1);
                 double[] atomTwoPot = atomicPotMap1.get(atomName2);
-                double bondOrder = bondsNum1.get(i);
-                if(atomName1.equals("C_3") && atomName2.equals("O_1")){
-                    bondOrder = 2;
-                }
-                if(atomName1.equals("O_3") && atomName2.equals("Cu")){
-                    bondOrder = 1;
-                }
-                if(atomName1.equals("C_3") && atomName2.equals("H")){
-                    bondOrder = 1;
-                }
-                if(atomName1.equals("C_3") && atomName2.equals("O_3")){
-                    bondOrder = 1;
+                if(ifMOPPresent){
+                    List<String> atomsBonded = Arrays.asList(atomName1,atomName2);
+                    bondOrder = pdbReaderMOP.getMOPBonds(atomsBonded);
+                }else {
+                     bondOrder = bondsNum1.get(i);
+                    if(atomName1.equals("C_3") && atomName2.equals("O_1")){
+                        bondOrder = 2;
+                    }
+                    if(atomName1.equals("O_3") && atomName2.equals("Cu")){
+                        bondOrder = 1;
+                    }
+                    if(atomName1.equals("C_3") && atomName2.equals("H")){
+                        bondOrder = 1;
+                    }
+                    if(atomName1.equals("C_3") && atomName2.equals("O_3")){
+                        bondOrder = 1;
+                    }
+                    System.out.println(atomName1 + " " +atomName2 +" "+atomOnePot.length+ " "+atomTwoPot.length);
+
                 }
                 //  System.out.println(bondOrder +" bondorder");
                 //  System.out.println(Arrays.toString(dupletsSorted.get(i)) + " " + bondOrder+ " " + atomName1 + " " + atomName2+" "+ Arrays.toString(atomOnePot) +" " + Arrays.toString(atomTwoPot));
@@ -600,22 +610,33 @@ public class VirialMultiUFF {
                 atomName1 = atomIdentifierMapModified1.get(atom1);
                 atomName2 = atomIdentifierMapModified1.get(atom2);
                 atomName3 = atomIdentifierMapModified1.get(atom3);
-                if(bondList1.size()< atom1){
-                    bondList1.set(atom1, 1);
-                } else if (bondList1.size()< atom2) {
-                    bondList1.set(atom2, 1);
-                }else if (bondList1.size()< atom3) {
-                    bondList1.set(atom3, 1);
-                }
-                int bondListValueOne = bondList1.get(atom1);
-                int bondListValueTwo = bondList1.get(atom2);
-                int bondListValueThree = bondList1.get(atom3);
                 double[] atomOnePot = atomicPotMap1.get(atomName1);
                 double[] atomTwoPot = atomicPotMap1.get(atomName2);
                 double[] atomThreePot = atomicPotMap1.get(atomName3);
                 int num =0;
+               // System.out.println(atom1 + " " +atom2+" " +atom3 +" "+atomName1 +" "+ atomName2+ " "+atomName3);
+                if(ifMOPPresent){
+                    List<String> atomsBonded = Arrays.asList(atomName1,atomName2);
+                    List<String> atoms2Bonded = Arrays.asList(atomName2,atomName3);
+                    bondOrder = pdbReaderMOP.getMOPBonds(atomsBonded);
+                    bondOrder2 = pdbReaderMOP.getMOPBonds(atoms2Bonded);
+                    angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondOrder, bondOrder2,0);
+                }else {
+                    if(bondList1.size()< atom1){
+                        bondList1.set(atom1, 1);
+                    } else if (bondList1.size()< atom2) {
+                        bondList1.set(atom2, 1);
+                    }else if (bondList1.size()< atom3) {
+                        bondList1.set(atom3, 1);
+                    }
+                    int bondListValueOne = bondList1.get(atom1);
+                    int bondListValueTwo = bondList1.get(atom2);
+                    int bondListValueThree = bondList1.get(atom3);
+                    angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree,0);
+                }
+
                 int caseNum =1;
-                angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree,0);
+               // angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree,0);
                 // System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
                 P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3],atomTwoPot[1], 0, caseNum);
                 bondingInfo1.setBondingPotentialTriplet(species1, p3Angle, angle);
@@ -640,13 +661,19 @@ public class VirialMultiUFF {
                 atomName2 = atomIdentifierMapModified1.get(atom2);
                 atomName3 = atomIdentifierMapModified1.get(atom3);
                 Vi = UFF.switchCaseTorsion(atomName2);
-                int bondListValueOne = bondList1.get(torsionIndividual[1]);
-                int bondListValueTwo = bondList1.get(torsionIndividual[2]);
-                p = p + bondListValueOne + bondListValueTwo;
+                if(ifMOPPresent){
+                    List<String> atomsBonded = Arrays.asList(atomName3,atomName2);
+                    bondOrder = pdbReaderMOP.getMOPBonds(atomsBonded);
+                    p = (int) (p + bondOrder );
+                } else {
+                    int bondListValueOne = bondList1.get(torsionIndividual[1]);
+                    int bondListValueTwo = bondList1.get(torsionIndividual[2]);
+                    p = p + bondListValueOne + bondListValueTwo;
+                }
                 Vj = UFF.switchCaseTorsion(atomName3);
                 V = Math.sqrt(Vi*Vj);
                 Vtrue = kcals.toSim(V);
-                double bondOrder = 1 ;
+                bondOrder = 1 ;
                 torsionParamsArray = UFF.torsionUFF(Vtrue, p, bondOrder);
                 p4BondTorsionArray2[i] = new P4BondTorsionUFF(torsionParamsArray[0], (int) torsionParamsArray[1], torsionParamsArray[2]);
                 double[] array = {torsionParamsArray[0], torsionParamsArray[1], torsionParamsArray[2]};
@@ -701,23 +728,23 @@ public class VirialMultiUFF {
     public static class VirialMixedSCParam extends ParameterBase {
         String confListName1 = "F://Avagadro//molecule//ethene";
         String confListName2 = "F://Avagadro//molecule//ethane";
-        String confListName3 = "F://Avagadro//molecule//ch4";
+        String confListName3 = "F://Avagadro//molecule//Ar";
         String confListName4 = "F://Avagadro//molecule//h2";
-        String confListName5 = "F://Avagadro//molecule//Ar";
+      //  String confListName5 = "F://Avagadro//molecule//ch4";
 
-        String confName1 = "F://Avagadro//MOP_new//icosahedron//propyl_Co_MOP";
+        String confName1 = "F://Avagadro//mop//mop3//verify//p4//MOP51";
        // String confName2 = "F://Avagadro//mop//tetra_cu";
         String confName3 = "F://Avagadro//mop//tetra_cu_3C";
         String confName4 = "F://Avagadro//MOP_new//rhombic//propyl_Co_MOP";
       //  String confName2 = "F://Avagadro//mop//tetra_cu";
         // don't change these
         public int[] nTypes = new int[]{1, 1};
-        public double temperature = 330;
+        public double temperature = 78;
         public  double truncLimit = 10.5;
         public double truncDiff = 5;
-        public double start = 10;
-        public long numSteps =100000;
-        public double tempStart = 270;
+        public double start = 20;
+        public long numSteps =1000;
+        public double tempStart = 78;
         public double tempDiff = 30;
         public double tempFinal = 365;
         public Vector centreMoleculeOne = new Vector3D(0.0,0.0,0.0);
