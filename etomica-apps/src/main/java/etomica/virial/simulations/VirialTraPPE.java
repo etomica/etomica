@@ -278,7 +278,7 @@ public class VirialTraPPE {
 
         P4BondTorsion p4 = null;
         if (nSpheres > 3) {
-            p4 = new P4BondTorsion(space, TPList[0].a[0], TPList[0].a[1], TPList[0].a[2], TPList[0].a[3]);
+            p4 = new P4BondTorsion(space, TPList[0].a[0][0], TPList[0].a[0][1], TPList[0].a[0][2], TPList[0].a[0][3]);
             List<int[]> quads = new ArrayList<>();
             for (int i=0; i<nSpheres-3; i++) {
                 quads.add(new int[]{i,i+1,i+2,i+3});
@@ -378,7 +378,7 @@ public class VirialTraPPE {
         }
 
         // Run with Graphics
-        if (true) {
+        if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -528,7 +528,7 @@ public class VirialTraPPE {
     }
 
     enum ChemForm {
-        N2, O2, CO2, NH3, CH4, CH3OH, ethanol, C6H6, ethane, propane, ethaneUA, propaneUA, butaneUA, methaneUA, ethene, propene, butadiene
+        N2, O2, CO2, NH3, CH4, CH3OH, ethanol, propan1ol, propan2ol, isobutanol, C6H6, ethane, propane, ethaneUA, propaneUA, butaneUA, methaneUA, ethene, propene, butadiene
     }
 
     /**
@@ -565,7 +565,7 @@ public class VirialTraPPE {
         public final double[] charge;
         public double[] k_theta;
         public double[] theta_eq;
-        public double[] a;
+        public double[][] a;
         public final ISpecies species;
         public PotentialMoleculePair potentialGroup;
         protected static Element elementM = new ElementSimple("M", 0.0);
@@ -858,7 +858,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3,qCH2, qO, qH};
                 theta_eq = new double[]{theta_CH3OH, theta_CCOH};
                 k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH};
-                a = new double[]{c0, c1, c2, c3};
+                a[0] = new double[]{c0, c1, c2, c3};
                 double x3 = bondLengthCC + bondLengthCH3OH * Math.cos(theta_CCOH);
                 double y3 = bondLengthCH3OH * Math.sin(theta_CCOH);
                 double xH = x3 + bondLengthOH * Math.cos(theta_CH3OH);
@@ -878,6 +878,250 @@ public class VirialTraPPE {
                         .addAtom(typeH, posH, "H")
                         .build();
             }
+            else if (chemForm == ChemForm.propan1ol) {
+                //TraPPE-UA
+                //Atom in Compound
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
+                AtomType typeCH2_2 = new AtomType(Carbon.INSTANCE);
+                AtomType typeCH2_3 = new AtomType(Carbon.INSTANCE);
+
+                AtomType typeO = new AtomType(Oxygen.INSTANCE);
+                AtomType typeH = new AtomType(Hydrogen.INSTANCE);
+
+                atomTypes = new AtomType[]{typeCH3, typeCH2_2, typeCH2_3, typeO, typeH};
+                polar = true;
+                //TraPPE Parameters
+                double bondLengthCC= 1.54; //Angstrom
+                double bondLengthCH3OH = 1.43; // Angstrom
+                double bondLengthOH = 0.945; //Angstrom
+                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
+                double theta_CCOH = Degree.UNIT.toSim(109.47) ;
+                double theta_CCC = Degree.UNIT.toSim(114) ;
+
+                double sigmaCH3 = 3.75; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(98);
+                double qCH3 = Electron.UNIT.toSim(0.0);
+                double sigmaCH2_2 = 3.95; // Angstrom
+                double epsilonCH2_2 = Kelvin.UNIT.toSim(46);
+                double qCH2_2 = Electron.UNIT.toSim(0);
+                double sigmaCH2_3 = 3.95; // Angstrom
+                double epsilonCH2_3 = Kelvin.UNIT.toSim(46);
+                double qCH2_3 = Electron.UNIT.toSim(0.265);
+
+                double sigmaO = 3.02; // Angstrom
+                double epsilonO = Kelvin.UNIT.toSim(93);
+                double qO = Electron.UNIT.toSim(-0.700);
+                double sigmaH = 0.0; // Angstrom
+                double epsilonH = Kelvin.UNIT.toSim(0.0);
+                double qH = Electron.UNIT.toSim(0.435);
+                double k_thetaCH3OH = Kelvin.UNIT.toSim(55400.0);
+                double k_thetaCCOH = Kelvin.UNIT.toSim(50400);
+                double k_thetaCCC = Kelvin.UNIT.toSim(62500);
+                double c00 = 0.00;
+                double c01 = 176.62;
+                double c02 = -53.34;
+                double c03 = 769.93;
+
+                double c10 = 0.00;
+                double c11 = 209.82;
+                double c12 = -29.17;
+                double c13 = 187.93;
+
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3,sigmaO, sigmaCH2_2, sigmaCH2_3, sigmaH};
+                epsilon = new double[] {epsilonCH3,epsilonCH2_2, epsilonCH2_3, epsilonO, epsilonH};
+                charge = new double[]{qCH3,qCH2_2, qCH2_3, qO, qH};
+                theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
+                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
+                a[0] = new double[]{c00, c01, c02, c03};
+
+                a[1] = new double[]{c10, c11, c12, c13};
+
+
+                double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
+                double y3 = bondLengthCC * Math.sin(theta_CCC);
+                double xO = x3 + bondLengthCH3OH * Math.cos(theta_CCOH);
+                double yO = y3 + bondLengthCH3OH * Math.sin(theta_CCOH);
+                double xH = xO + bondLengthOH * Math.cos(theta_CH3OH);
+                double yH = yO + bondLengthOH * Math.sin(theta_CH3OH);
+                //Get Coordinates
+                Vector3D posCH3 = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posCH2_2 = new Vector3D(new double[]{bondLengthCC, 0, 0});
+                Vector3D posCH2_3 = new Vector3D(new double[]{x3, y3, 0});
+
+                Vector3D posO = new Vector3D(new double[]{xO,yO, 0});
+
+                Vector3D posH = new Vector3D(new double[]{xH, yH,0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH3, posCH3, "CH3")
+                        .addAtom(typeCH2_2, posCH2_2, "CH2_2")
+                        .addAtom(typeCH2_3, posCH2_3, "CH2_3")
+                        .addAtom(typeO, posO, "O")
+                        .addAtom(typeH, posH, "H")
+                        .build();
+            }
+            else if (chemForm == ChemForm.propan2ol) {
+                //TraPPE-UA
+                //Atom in Compound
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
+                AtomType typeCH = new AtomType(Carbon.INSTANCE);
+
+                AtomType typeO = new AtomType(Oxygen.INSTANCE);
+                AtomType typeH = new AtomType(Hydrogen.INSTANCE);
+
+                atomTypes = new AtomType[]{typeCH3, typeCH, typeO, typeH};
+                polar = true;
+                //TraPPE Parameters
+                double bondLengthCC= 1.54; //Angstrom
+                double bondLengthCH3OH = 1.43; // Angstrom
+                double bondLengthOH = 0.945; //Angstrom
+                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
+                double theta_CCOH = Degree.UNIT.toSim(109.47) ;
+                double theta_CCC = Degree.UNIT.toSim(112) ;
+
+                double sigmaCH3 = 3.75; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(98);
+                double qCH3 = Electron.UNIT.toSim(0.0);
+                double sigmaCH = 4.33; // Angstrom
+                double epsilonCH = Kelvin.UNIT.toSim(10);
+                double qCH = Electron.UNIT.toSim(0.265);
+
+                double sigmaO = 3.02; // Angstrom
+                double epsilonO = Kelvin.UNIT.toSim(93);
+                double qO = Electron.UNIT.toSim(-0.700);
+                double sigmaH = 0.0; // Angstrom
+                double epsilonH = Kelvin.UNIT.toSim(0.0);
+                double qH = Electron.UNIT.toSim(0.435);
+                double k_thetaCH3OH = Kelvin.UNIT.toSim(55400.0);
+                double k_thetaCCOH = Kelvin.UNIT.toSim(50400);
+                double k_thetaCCC = Kelvin.UNIT.toSim(62500);
+                double c00 = 215.89;
+                double c01 = 197.33;
+                double c02 = 31.46;
+                double c03 = -173.92;
+
+
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3,sigmaO, sigmaCH, sigmaH};
+                epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonH};
+                charge = new double[]{qCH3,qCH, qO, qH};
+                theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
+                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
+                a[0] = new double[]{c00, c01, c02, c03}; //1-2-4-5, not 1-2-3-4, fix
+
+
+
+                double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
+                double y3 = bondLengthCC * Math.sin(theta_CCC);
+                double xO = bondLengthCC + bondLengthCH3OH * Math.cos(theta_CCOH);
+                double yO = bondLengthCH3OH * Math.sin(theta_CCOH);
+                double xH = xO + bondLengthOH * Math.cos(theta_CH3OH);
+                double yH = yO + bondLengthOH * Math.sin(theta_CH3OH);
+                //Get Coordinates
+                Vector3D posCH3 = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posCH = new Vector3D(new double[]{bondLengthCC, 0, 0});
+                Vector3D posCH3_3 = new Vector3D(new double[]{x3, y3, 0});
+
+                Vector3D posO = new Vector3D(new double[]{xO,yO, 0});
+
+                Vector3D posH = new Vector3D(new double[]{xH, yH,0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH3, posCH3, "CH3")
+                        .addAtom(typeCH, posCH, "CH")
+                        .addAtom(typeCH3, posCH3_3, "CH3_3")
+                        .addAtom(typeO, posO, "O")
+                        .addAtom(typeH, posH, "H")
+                        .build();
+            }
+            else if (chemForm == ChemForm.isobutanol) {
+                //TraPPE-UA
+                //built own compound via ChemDoodle
+                //Atom in Compound
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
+                AtomType typeCH = new AtomType(Carbon.INSTANCE);
+                AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
+
+                AtomType typeO = new AtomType(Oxygen.INSTANCE);
+                AtomType typeH = new AtomType(Hydrogen.INSTANCE);
+
+                atomTypes = new AtomType[]{typeCH3, typeCH, typeCH2, typeO, typeH};
+                polar = true;
+                //TraPPE Parameters
+                double bondLengthCC= 1.54; //Angstrom
+                double bondLengthCH3OH = 1.43; // Angstrom
+                double bondLengthOH = 0.945; //Angstrom
+                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
+                double theta_CCOH = Degree.UNIT.toSim(109.47) ;
+                double theta_CCC = Degree.UNIT.toSim(112) ;
+
+                double sigmaCH3 = 3.75; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(98);
+                double qCH3 = Electron.UNIT.toSim(0.0);
+                double sigmaCH = 4.68; // Angstrom
+                double epsilonCH = Kelvin.UNIT.toSim(10);
+                double qCH = Electron.UNIT.toSim(0);
+
+                double sigmaO = 3.02; // Angstrom
+                double epsilonO = Kelvin.UNIT.toSim(93);
+                double qO = Electron.UNIT.toSim(-0.700);
+                double sigmaH = 0.0; // Angstrom
+                double epsilonH = Kelvin.UNIT.toSim(0.0);
+                double qH = Electron.UNIT.toSim(0.435);
+                double sigmaCH2 = 3.95; // Angstrom
+                double epsilonCH2 = Kelvin.UNIT.toSim(46);
+                double qCH2 = Electron.UNIT.toSim(0.265);
+
+                double k_thetaCH3OH = Kelvin.UNIT.toSim(55400.0);
+                double k_thetaCCOH = Kelvin.UNIT.toSim(50400);
+                double k_thetaCCC = Kelvin.UNIT.toSim(62500);
+                double c00 = 0;
+                double c01 = 209.82	;
+                double c02 = -29.17;
+                double c03 = 187.93;
+
+
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3,sigmaO, sigmaCH, sigmaCH2, sigmaH};
+                epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonCH2, epsilonH};
+                charge = new double[]{qCH3,qCH, qO, qH, qCH2};
+                theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
+                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
+                a[0] = new double[]{c00, c01, c02, c03}; //1-2-4-5, not 1-2-3-4, fix
+
+
+
+//                double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
+//                double y3 = bondLengthCC * Math.sin(theta_CCC);
+//                double xO = bondLengthCC + bondLengthCH3OH * Math.cos(theta_CCOH);
+//                double yO = bondLengthCH3OH * Math.sin(theta_CCOH);
+//                double xH = xO + bondLengthOH * Math.cos(theta_CH3OH);
+//                double yH = yO + bondLengthOH * Math.sin(theta_CH3OH);
+                //Get Coordinates
+                //Hard Coded for now
+                Vector3D posC1 = new Vector3D(new double[]{0.3572,-0.2062,0.0000});
+                Vector3D posC2 = new Vector3D(new double[]{-0.3572,0.2062,0.0000});
+                Vector3D posC3 = new Vector3D(new double[]{-1.0717,-0.2063,0.0000});
+                Vector3D posC4 = new Vector3D(new double[]{-0.3572,1.0313,0.0000});
+
+                Vector3D posO = new Vector3D(new double[]{1.0717,0.2063,0.0000});
+
+                //CHECK types
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH3, posC1, "CH3")
+                        .addAtom(typeCH, posC2, "CH")
+                        .addAtom(typeCH3, posC3, "CH3_3")
+                        .addAtom(typeCH3, posC4, "CH3_3")
+
+                        .addAtom(typeO, posO, "O")
+                        .build();
+            }
+
+
 
             else if (chemForm == ChemForm.C6H6) {
                 //TraPPE-EH
@@ -1382,6 +1626,18 @@ public class VirialTraPPE {
                 potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
             }
             else if (chemForm == ChemForm.ethanol) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.propan1ol) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.propan2ol) {
+                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
+                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
+            }
+            else if (chemForm == ChemForm.isobutanol) {
                 P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
                 potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
             }
