@@ -60,14 +60,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.ethanol};
-            params.nPoints = 3;
-            params.nTypes = new int[]{3};
+            params.chemForm = new ChemForm[]{ChemForm.ethaneUA};
+            params.nPoints = 5; //B order
+            params.nTypes = new int[]{5};
             params.nDer = 0;
             params.temperature = 600;
             params.numSteps = 10000000;
             params.refFrac = -1;
-            params.sigmaHSRef = 5.26;
             params.seed = null;
             params.dorefpref = false;
             params.doChainRef = true;
@@ -212,7 +211,7 @@ public class VirialTraPPE {
         //flex moves
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
         int nSpheres = TPList[0].species.getAtomTypes().size();
-        boolean isFlex = nSpheres > 2 && nPoints > 2;
+        boolean isFlex = nSpheres > 2;
 
         System.out.println(isFlex);
         VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
@@ -806,6 +805,8 @@ public class VirialTraPPE {
                 Vector3D posO = new Vector3D(new double[]{0, 0, 0});
                 Vector3D posCH3 = new Vector3D(new double[]{-bondLengthCH3OH * Math.sin(thetaCH3OH), -bondLengthCH3OH * Math.cos(thetaCH3OH), 0});
                 Vector3D posH = new Vector3D(new double[]{bondLengthOH,0,0});
+                System.out.println("pos0: "+ posO + ", posCH3: "+ posCH3 + ", posH: "+ posH);
+
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -858,7 +859,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3,qCH2, qO, qH};
                 theta_eq = new double[]{theta_CH3OH, theta_CCOH};
                 k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH};
-                a[0] = new double[]{c0, c1, c2, c3};
+                a = new double[][]{{c0, c1, c2, c3}};
                 double x3 = bondLengthCC + bondLengthCH3OH * Math.cos(theta_CCOH);
                 double y3 = bondLengthCH3OH * Math.sin(theta_CCOH);
                 double xH = x3 + bondLengthOH * Math.cos(theta_CH3OH);
@@ -894,9 +895,9 @@ public class VirialTraPPE {
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
-                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
+                double theta_CH3OH = Degree.UNIT.toSim(18.5) ;
                 double theta_CCOH = Degree.UNIT.toSim(109.47) ;
-                double theta_CCC = Degree.UNIT.toSim(114) ;
+                double theta_CCC = Degree.UNIT.toSim(24) ;
 
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
@@ -933,9 +934,8 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3,qCH2_2, qCH2_3, qO, qH};
                 theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
                 k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
-                a[0] = new double[]{c00, c01, c02, c03};
+                a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}};
 
-                a[1] = new double[]{c10, c11, c12, c13};
 
 
                 double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
@@ -977,9 +977,9 @@ public class VirialTraPPE {
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
-                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
+                double theta_CH3OH = Degree.UNIT.toSim(18.5) ;
                 double theta_CCOH = Degree.UNIT.toSim(109.47) ;
-                double theta_CCC = Degree.UNIT.toSim(112) ;
+                double theta_CCC = Degree.UNIT.toSim(22) ;
 
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
@@ -1009,14 +1009,16 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3,qCH, qO, qH};
                 theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
                 k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
-                a[0] = new double[]{c00, c01, c02, c03}; //1-2-4-5, not 1-2-3-4, fix
+                a = new double[][]{{c00, c01, c02, c03}}; //1-2-4-5, not 1-2-3-4, fix
 
 
 
                 double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
                 double y3 = bondLengthCC * Math.sin(theta_CCC);
-                double xO = bondLengthCC + bondLengthCH3OH * Math.cos(theta_CCOH);
-                double yO = bondLengthCH3OH * Math.sin(theta_CCOH);
+
+                double xO = bondLengthCC + bondLengthCH3OH * Math.sin(theta_CCOH);
+                double yO = bondLengthCH3OH * Math.cos(theta_CCOH);
+
                 double xH = xO + bondLengthOH * Math.cos(theta_CH3OH);
                 double yH = yO + bondLengthOH * Math.sin(theta_CH3OH);
                 //Get Coordinates
@@ -1090,7 +1092,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3,qCH, qO, qH, qCH2};
                 theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
                 k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
-                a[0] = new double[]{c00, c01, c02, c03}; //1-2-4-5, not 1-2-3-4, fix
+                a = new double[][]{{c00, c01, c02, c03}}; //1-2-4-5, not 1-2-3-4, fix
 
 
 
@@ -1197,22 +1199,25 @@ public class VirialTraPPE {
                 //TraPPE Parameters
                 double bondLengthCM = 0.55; // Angstrom
                 double bondLengthCC = 1.5350; //Angstrom
-                double thetaHCH = Degree.UNIT.toSim(107.80);
                 double thetaCCH = Degree.UNIT.toSim(110.70);
                 double a120 = Degree.UNIT.toSim(120);
                 double a240 = Degree.UNIT.toSim(240);
-
                 double sigmaC = 3.30; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(4.00);
                 double qC = Electron.UNIT.toSim(0.0);
                 double sigmaM = 3.31; // Angstrom
                 double epsilonM = Kelvin.UNIT.toSim(15.30);
                 double qM = Electron.UNIT.toSim(0.000);
-
+                double k = 0; //rigid
+                double a01 = Kelvin.UNIT.toSim(717);
                 //Construct Arrays
                 sigma = new double[] {sigmaC,sigmaM};
                 epsilon = new double[] {epsilonC,epsilonM};
                 charge = new double[]{qC, qM};
+                k_theta = new double[]{k};
+                a = new double[][]{{0, a01, 0, 0}};
+                theta_eq = new double[]{thetaCCH};
+
 
                 //Get Coordinates
                 Vector3D posC1 = new Vector3D(new double[]{0, 0, 0});
@@ -1264,14 +1269,18 @@ public class VirialTraPPE {
                 double sigmaM = 3.31; // Angstrom
                 double epsilonM = Kelvin.UNIT.toSim(15.30);
                 double qM = Electron.UNIT.toSim(0.000);
-
+                double k = Kelvin.UNIT.toSim(58765);
+                double a01 = Kelvin.UNIT.toSim(854);
                 //Construct Arrays
                 sigma = new double[] {sigmaC,sigmamidC, sigmaM};
                 epsilon = new double[] {epsilonC,epsilonmidC, epsilonM};
                 charge = new double[]{qC, qmidC, qM};
+                k_theta = new double[]{k};
+                theta_eq = new double[]{thetaCCC};
+                a = new double[][]{{0, a01, 0, 0}};
 
 
-                double x3 = bondLengthCC + bondLengthCC * Math.cos(thetaCCC);
+                double x3 = bondLengthCC - bondLengthCC * Math.cos(thetaCCC);
                 double y3 = bondLengthCC * Math.sin(thetaCCC);
 
                 //Get Coordinates
@@ -1301,10 +1310,13 @@ public class VirialTraPPE {
                         .addAtom(typeM, posM7, "M7")
                         .addAtom(typeM, posM8, "M8")
                         .build();
+                System.out.println("Carbon Positions: " + Arrays.toString(new Vector3D[]{posC1, posC2, posC3}));
+                System.out.println("Hydrogen Positions: " + Arrays.toString(new Vector3D[]{posM1, posM2, posM3, posM4, posM5, posM6, posM7, posM8}));
             }
             else if (chemForm == ChemForm.ethaneUA) {
                 //TraPPE-UA
                 //Atom in Compound
+                //QC checked
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH3};
@@ -1334,6 +1346,7 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.propaneUA) {
                 //TraPPE-UA
                 //Atom in Compound
+                //Coordinates QC checked
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
 
@@ -1348,16 +1361,17 @@ public class VirialTraPPE {
                 double sigmaCH2 = 3.95; // Angstrom
                 double epsilonCH2 = Kelvin.UNIT.toSim(46);
                 double qCH2 = Electron.UNIT.toSim(0.0);
-
+                double kCCC = Kelvin.UNIT.toSim(62500);
                 //Construct Arrays
                 sigma = new double[] {sigmaCH2, sigmaCH3};
                 epsilon = new double[] {epsilonCH2, epsilonCH3};
                 charge = new double[]{qCH2, qCH3};
-
+                k_theta = new double[]{kCCC};
+                theta_eq = new double[]{thetaCCH};
                 //Get Coordinates
                 Vector3D posC1 = new Vector3D(new double[]{0, 0, 0});
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy, 0, 0});
-                Vector3D posC3 = new Vector3D(new double[]{bondLengthCHxCHy + bondLengthCHxCHy * Math.cos(thetaCCH), bondLengthCHxCHy * Math.sin(thetaCCH),0});
+                Vector3D posC3 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH), bondLengthCHxCHy * Math.sin(thetaCCH),0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -1365,10 +1379,13 @@ public class VirialTraPPE {
                         .addAtom(typeCH2, posC2, "C2")
                         .addAtom(typeCH3, posC3, "C3")
                         .build();
+                System.out.println("Positions:"+ posC1+ ',' +posC2+ ','+ posC3);
+
             }
             else if (chemForm == ChemForm.butaneUA) {
                 //TraPPE-UA
                 //Atom in Compound
+                //coordinates QC checked
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
 
@@ -1377,23 +1394,34 @@ public class VirialTraPPE {
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.54; // Angstrom
                 double thetaCCH = Degree.UNIT.toSim(114);
+
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
                 double qCH3 = Electron.UNIT.toSim(0.0);
                 double sigmaCH2 = 3.95; // Angstrom
                 double epsilonCH2 = Kelvin.UNIT.toSim(46);
                 double qCH2 = Electron.UNIT.toSim(0.0);
-
+                double k = Kelvin.UNIT.toSim(62500);
+                double a00 = 0;
+                double a01 = 355.03;
+                double a02 = -68.19;
+                double a03 = 791.32;
                 //Construct Arrays
                 sigma = new double[] {sigmaCH2, sigmaCH3};
                 epsilon = new double[] {epsilonCH2, epsilonCH3};
                 charge = new double[]{qCH2, qCH3};
+                k_theta = new double[]{k};
+                theta_eq = new double[]{thetaCCH};
+                a = new double[][]{{a00, a01, a02, a03}};
 
+                double x3 = bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH);
+                double y3 = bondLengthCHxCHy * Math.sin(thetaCCH);
                 //Get Coordinates
                 Vector3D posC1 = new Vector3D(new double[]{0, 0, 0});
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy, 0, 0});
-                Vector3D posC3 = new Vector3D(new double[]{bondLengthCHxCHy + bondLengthCHxCHy * Math.cos(thetaCCH), bondLengthCHxCHy * Math.sin(thetaCCH),0});
-                Vector3D posC4 = new Vector3D(new double[]{bondLengthCHxCHy + 2 * bondLengthCHxCHy * Math.cos(thetaCCH), 2 * bondLengthCHxCHy * Math.sin(thetaCCH),0});
+                Vector3D posC3 = new Vector3D(new double[]{x3,y3,0});
+                Vector3D posC4 = new Vector3D(new double[]{x3 + bondLengthCHxCHy, y3, 0});
+
                 System.out.println("Carbon Positions: " + Arrays.toString(new Vector3D[]{posC1, posC2, posC3, posC4}));
 
                 //Set Geometry
