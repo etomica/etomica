@@ -21,6 +21,7 @@ public class P3BondAngle implements IPotentialBondAngle {
         setEpsilon(epsilon);
     }
 
+
     public double u(double costheta) {
         double theta;
         if (costheta > 1) {
