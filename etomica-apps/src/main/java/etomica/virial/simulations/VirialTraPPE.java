@@ -733,13 +733,14 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.CH4) {
                 //TraPPE-EH
                 //Atom in Compound
+                //Avogadro 3D checked
                 AtomType typeC = new AtomType(Carbon.INSTANCE);
                 AtomType typeM = new AtomType(elementM);
 
                 atomTypes = new AtomType[]{typeC,typeM};
 
                 //TraPPE Parameters
-                double bondLengthCM = 0.55; // Angstrom
+//                double bondLengthCM = 0.55; // Angstrom
                 double sigmaC = 3.31; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(0.01);
                 double qC = Electron.UNIT.toSim(0.0);
@@ -754,10 +755,10 @@ public class VirialTraPPE {
 
                 //Get Coordinates
                 Vector3D posC = new Vector3D(new double[]{0, 0, 0});
-                Vector3D posM1 = new Vector3D(new double[]{bondLengthCM * 0.577,  bondLengthCM * 0.577, bondLengthCM * 0.577});
-                Vector3D posM2 = new Vector3D(new double[]{-bondLengthCM * 0.577, -bondLengthCM * 0.577, bondLengthCM * 0.577});
-                Vector3D posM3 = new Vector3D(new double[]{-bondLengthCM * 0.577,  bondLengthCM * 0.577, -bondLengthCM * 0.577});
-                Vector3D posM4 = new Vector3D(new double[]{bondLengthCM * 0.577,  -bondLengthCM * 0.577, -bondLengthCM * 0.577});
+                Vector3D posM1 = new Vector3D(new double[]{0.0000000000, -0.4490790744,     -0.3175342264});
+                Vector3D posM2 = new Vector3D(new double[]{0.0000000000,      0.4490790744,     -0.3175342264});
+                Vector3D posM3 = new Vector3D(new double[]{-0.4490790744,      0.0000000000,      0.3175342264});
+                Vector3D posM4 = new Vector3D(new double[]{0.4490790744,      0.0000000000,      0.3175342264  });
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -771,6 +772,7 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.CH3OH) {
                 //TraPPE-UA
                 //Atom in Compound
+                //Avogadro 3D coordinates
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
                 AtomType typeH = new AtomType(Hydrogen.INSTANCE);
@@ -778,9 +780,9 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeCH3,typeO, typeH};
                 polar = true;
                 //TraPPE Parameters
-                double bondLengthCH3OH = 1.43; // Angstrom
-                double bondLengthOH = 0.945; //Angstrom
-                double thetaCH3OH = Degree.UNIT.toSim(18.5) ;
+//                double bondLengthCH3OH = 1.43; // Angstrom
+//                double bondLengthOH = 0.945; //Angstrom
+//                double thetaCH3OH = Degree.UNIT.toSim(18.5) ;
                 double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
@@ -802,9 +804,9 @@ public class VirialTraPPE {
                 k_theta = new double[]{k_thetaCH3OH};
 
                 //Get Coordinates
-                Vector3D posO = new Vector3D(new double[]{0, 0, 0});
-                Vector3D posCH3 = new Vector3D(new double[]{-bondLengthCH3OH * Math.sin(thetaCH3OH), -bondLengthCH3OH * Math.cos(thetaCH3OH), 0});
-                Vector3D posH = new Vector3D(new double[]{bondLengthOH,0,0});
+                Vector3D posO = new Vector3D(new double[]{-0.6997355929,      0.0480707122,      0.0000000000 });
+                Vector3D posCH3 = new Vector3D(new double[]{ 0.7278849876,     -0.0343882362,      0.0000000000});
+                Vector3D posH = new Vector3D(new double[]{ -1.0507657087,     -0.8293133872,      0.0000000000   });
                 System.out.println("pos0: "+ posO + ", posCH3: "+ posCH3 + ", posH: "+ posH);
 
 
@@ -818,6 +820,7 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.ethanol) {
                 //TraPPE-UA
                 //Atom in Compound
+                //Avogadro 3d coordinates
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
@@ -865,11 +868,11 @@ public class VirialTraPPE {
                 double xH = x3 + bondLengthOH * Math.cos(theta_CH3OH);
                 double yH = y3 + bondLengthOH * Math.sin(theta_CH3OH);
                 //Get Coordinates
-                Vector3D posCH3 = new Vector3D(new double[]{0, 0, 0});
-                Vector3D posCH2 = new Vector3D(new double[]{bondLengthCC, 0, 0});
-                Vector3D posO = new Vector3D(new double[]{x3,y3, 0});
+                Vector3D posCH2 = new Vector3D(new double[]{0.0343104921,     -0.5849517688,      0.0000000000 });
+                Vector3D posCH3 = new Vector3D(new double[]{-1.2667321160 ,     0.2389949115,      0.0000000000});
+                Vector3D posO = new Vector3D(new double[]{1.1583322479,      0.2990590299,      0.0000000000});
 
-                Vector3D posH = new Vector3D(new double[]{xH, yH,0});
+                Vector3D posH = new Vector3D(new double[]{1.9480255878,     -0.2199876240,      0.0000000000});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -882,6 +885,8 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.propan1ol) {
                 //TraPPE-UA
                 //Atom in Compound
+                //Avogadro 3D for dihedral combo (180, -60)
+                //https://publications.lib.chalmers.se/records/fulltext/180137/local_180137.pdf
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
                 AtomType typeCH2_2 = new AtomType(Carbon.INSTANCE);
                 AtomType typeCH2_3 = new AtomType(Carbon.INSTANCE);
@@ -945,13 +950,13 @@ public class VirialTraPPE {
                 double xH = xO + bondLengthOH * Math.cos(theta_CH3OH);
                 double yH = yO + bondLengthOH * Math.sin(theta_CH3OH);
                 //Get Coordinates
-                Vector3D posCH3 = new Vector3D(new double[]{0, 0, 0});
-                Vector3D posCH2_2 = new Vector3D(new double[]{bondLengthCC, 0, 0});
-                Vector3D posCH2_3 = new Vector3D(new double[]{x3, y3, 0});
+                Vector3D posCH3 = new Vector3D(new double[]{-0.5506818169,      1.4780955839,     -1.2182943870});
+                Vector3D posCH2_2 = new Vector3D(new double[]{-0.5697691905,      0.5363897718,      0.0000757684});
+                Vector3D posCH2_3 = new Vector3D(new double[]{0.5592739627,     -0.5109218115,      0.0000000000});
 
-                Vector3D posO = new Vector3D(new double[]{xO,yO, 0});
+                Vector3D posO = new Vector3D(new double[]{0.4503423313,     -1.3293023461,      1.1675989038});
 
-                Vector3D posH = new Vector3D(new double[]{xH, yH,0});
+                Vector3D posH = new Vector3D(new double[]{0.5241155912,     -0.7755909625,      1.9298234179});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
