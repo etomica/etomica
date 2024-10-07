@@ -13,6 +13,7 @@ import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.mcmove.MCMove;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -60,11 +61,11 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.ethaneUA};
-            params.nPoints = 5; //B order
-            params.nTypes = new int[]{5};
+            params.chemForm = new ChemForm[]{ChemForm.butadiene};
+            params.nPoints = 3; //B order
+            params.nTypes = new int[]{3};
             params.nDer = 0;
-            params.temperature = 600;
+            params.temperature = 800;
             params.numSteps = 10000000;
             params.refFrac = -1;
             params.seed = null;
@@ -350,7 +351,8 @@ public class VirialTraPPE {
 //        System.exit(0);
         // Setting Chain Ref Moves
         int[] constraintMap = new int[nPoints+1];
-
+        MCMoveClusterAngleBend mcMoveAngle = null;
+        MCMoveClusterAngleBend mcMoveAngle1 = null;
         if (isFlex) {
             for (int i=0; i<nPoints; i++) {
                 constraintMap[i] = i;
@@ -359,9 +361,8 @@ public class VirialTraPPE {
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
-            MCMoveClusterAngleBend mcMoveAngle = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
+            mcMoveAngle = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
-
         }
         if (doChainRef) {
                 sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
@@ -369,7 +370,7 @@ public class VirialTraPPE {
                 if(isFlex) {
                     mcMoveHSC.setConstraintMap(constraintMap);
                 }
-                MCMoveClusterAngleBend mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
+                mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle1);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
                 sim.accumulators[0].setBlockSize(1);
@@ -475,6 +476,7 @@ public class VirialTraPPE {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println();
+        System.out.println(sim.integrators[0].getMoveManager().getMCMoves().get(2).getChi(150));
 
 
         // Print BD and Flip Stats
@@ -500,6 +502,7 @@ public class VirialTraPPE {
         long t2 = System.currentTimeMillis();
         System.out.println("time: " + (t2 - t1) / 1000.0);
         if(isFlex){
+            System.out.println("Angle move acceptance "+ mcMoveAngle1.getTracker().acceptanceRatio() + " " + mcMoveAngle.getTracker().acceptanceRatio());
             if (nSpheres > 3) {
                 System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
                         torsionMoves[1].getTracker().acceptanceRatio());
@@ -1127,7 +1130,7 @@ public class VirialTraPPE {
                         .addAtom(typeCH3, posC1, "CH3")
                         .addAtom(typeCH, posCH, "CH")
                         .addAtom(typeCH2, posCH2, "CH3_3")
-                        .addAtom(typeCH3, posC4, "CH3_3")
+                        .addAtom(typeCH3, posC4, "CH3_")
 
                         .addAtom(typeO, posO, "O")
                         .addAtom(typeH, posH, "H")
@@ -1574,13 +1577,18 @@ public class VirialTraPPE {
                 double epsilonCH2 = Kelvin.UNIT.toSim(85.00);
                 double qCH2 = Electron.UNIT.toSim(0.000);
                 double k = Kelvin.UNIT.toSim(70420);
-
+                double a0prime = Kelvin.UNIT.toSim(2034.58);
+                double a1prime = Kelvin.UNIT.toSim(531.57);
+                double a2prime = Kelvin.UNIT.toSim(-1239.35);
+                double a3prime = Kelvin.UNIT.toSim(460.04);
+                double a00 = a0prime - a1prime + a2prime - a3prime;
                 //Construct Arrays
                 sigma = new double[] {sigmaCH, sigmaCH2};
                 epsilon = new double[] {epsilonCH, epsilonCH2};
                 charge = new double[]{qCH, qCH2};
                 theta_eq = new double[]{thetaeq};
                 k_theta = new double[]{k};
+                a = new double[][]{{a00, a1prime, -a2prime, a3prime}};
                 double x3 = bondLengthCHxCHy * Math.sin(thetaCCC) + bondLengthCHxChy_double;
                 double y3 = bondLengthCHxCHy * Math.cos(thetaCCC);
 
