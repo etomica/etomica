@@ -61,7 +61,7 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.butadiene};
+            params.chemForm = new ChemForm[]{ChemForm.propan1ol};
             params.nPoints = 3; //B order
             params.nTypes = new int[]{3};
             params.nDer = 0;
@@ -267,23 +267,35 @@ public class VirialTraPPE {
         //P3 bond angle
 
         if (nSpheres > 2) {
-            P3BondAngle p3 = new P3BondAngle(TPList[0].theta_eq[0], TPList[0].k_theta[0]);
-            java.util.List<int[]> triplets = new ArrayList<>();
-            for (int i=0; i<nSpheres-2; i++) {
-                  triplets.add(new int[]{i,i+1,i+2});
-                }
-            bondingInfo.setBondingPotentialTriplet(TPList[0].species, p3, triplets);
+            P3BondAngle[] p3 = new P3BondAngle[TPList[0].theta_eq.length]; //declaration, instatation
+
+            List<int[]> triplets = new ArrayList<>();
+            for (int i = 0; i < nSpheres - 2; i++) {
+                triplets.add(new int[]{i, i + 1, i + 2});
             }
+            for (int j = 0; j < TPList[0].theta_eq.length; j++) {
+                p3[j] = new P3BondAngle(TPList[0].theta_eq[j], TPList[0].k_theta[j]);
+                bondingInfo.setBondingPotentialTriplet(TPList[0].species, p3[j], Collections.singletonList(triplets.get(j)));
+
+            }
+
+        }
         //dihedral stuff
 
-        P4BondTorsion p4 = null;
+        P4BondTorsion[] p4 = new P4BondTorsion[TPList[0].a.length];
         if (nSpheres > 3) {
-            p4 = new P4BondTorsion(space, TPList[0].a[0][0], TPList[0].a[0][1], TPList[0].a[0][2], TPList[0].a[0][3]);
             List<int[]> quads = new ArrayList<>();
             for (int i=0; i<nSpheres-3; i++) {
                 quads.add(new int[]{i,i+1,i+2,i+3});
             }
-            bondingInfo.setBondingPotentialQuad(TPList[0].species, p4, quads);
+            for (int i=0; i < TPList[0].a.length; i++) {
+                p4[i] = new P4BondTorsion(space, TPList[0].a[i][0], TPList[0].a[i][1], TPList[0].a[i][2], TPList[0].a[i][3]);
+                bondingInfo.setBondingPotentialQuad(TPList[0].species, p4[i], Collections.singletonList(quads.get(i)));
+
+            }
+            System.out.println(Arrays.toString(bondingInfo.bondedQuadPartners));
+
+
         }
 
 
@@ -414,15 +426,17 @@ public class VirialTraPPE {
         MCMoveClusterTorsionMulti[] torsionMoves = null;
 
         if (nSpheres > 3) {
-            torsionMoves = new MCMoveClusterTorsionMulti[2];
-            torsionMoves[0] = new MCMoveClusterTorsionMulti(sim.integrators[0].getPotentialCompute(), space, sim.getRandom(), p4, 40);
-            torsionMoves[0].setBox(sim.box[0]);
-            torsionMoves[0].setTemperature(temperature);
-            sim.integrators[0].getMoveManager().addMCMove(torsionMoves[0]);
-            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialCompute(), space, sim.getRandom(), p4, 40);
-            torsionMoves[1].setBox(sim.box[1]);
-            torsionMoves[1].setTemperature(temperature);
-            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
+            torsionMoves = new MCMoveClusterTorsionMulti[TPList[0].a.length];
+            for (int i=0; i<TPList[0].a.length; i++) {
+                torsionMoves[i] = new MCMoveClusterTorsionMulti(sim.integrators[0].getPotentialCompute(), space, sim.getRandom(), p4[i], 40);
+                torsionMoves[i].setBox(sim.box[0]);
+                torsionMoves[i].setTemperature(temperature);
+                sim.integrators[0].getMoveManager().addMCMove(torsionMoves[i]);
+            }
+//            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialCompute(), space, sim.getRandom(), p4[0], 40);
+//            torsionMoves[1].setBox(sim.box[1]);
+//            torsionMoves[1].setTemperature(temperature);
+//            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
         }
 
         // Setting up Equilibration
@@ -504,8 +518,8 @@ public class VirialTraPPE {
         if(isFlex){
             System.out.println("Angle move acceptance "+ mcMoveAngle1.getTracker().acceptanceRatio() + " " + mcMoveAngle.getTracker().acceptanceRatio());
             if (nSpheres > 3) {
-                System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
-                        torsionMoves[1].getTracker().acceptanceRatio());
+                for (int i=0; i<TPList[0].a.length; i++) {
+                System.out.println("Torsion move acceptance "+torsionMoves[i].getTracker().acceptanceRatio());}
             }
 
             System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
@@ -903,9 +917,9 @@ public class VirialTraPPE {
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
-                double theta_CH3OH = Degree.UNIT.toSim(18.5) ;
+                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
                 double theta_CCOH = Degree.UNIT.toSim(109.47) ;
-                double theta_CCC = Degree.UNIT.toSim(24) ;
+                double theta_CCC = Degree.UNIT.toSim(114) ;
 
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
@@ -940,8 +954,8 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3,sigmaO, sigmaCH2_2, sigmaCH2_3, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH2_2, epsilonCH2_3, epsilonO, epsilonH};
                 charge = new double[]{qCH3,qCH2_2, qCH2_3, qO, qH};
-                theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
-                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
+                theta_eq = new double[]{theta_CCC, theta_CCOH, theta_CH3OH};
+                k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}};
 
 
@@ -1586,8 +1600,8 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH, sigmaCH2};
                 epsilon = new double[] {epsilonCH, epsilonCH2};
                 charge = new double[]{qCH, qCH2};
-                theta_eq = new double[]{thetaeq};
-                k_theta = new double[]{k};
+                theta_eq = new double[]{thetaeq, thetaeq}; //123, 234
+                k_theta = new double[]{k, k}; //123, 234
                 a = new double[][]{{a00, a1prime, -a2prime, a3prime}};
                 double x3 = bondLengthCHxCHy * Math.sin(thetaCCC) + bondLengthCHxChy_double;
                 double y3 = bondLengthCHxCHy * Math.cos(thetaCCC);
