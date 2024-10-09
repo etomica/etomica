@@ -61,7 +61,7 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propan1ol};
+            params.chemForm = new ChemForm[]{ChemForm.N2};
             params.nPoints = 3; //B order
             params.nTypes = new int[]{3};
             params.nDer = 0;
@@ -212,9 +212,9 @@ public class VirialTraPPE {
         //flex moves
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
         int nSpheres = TPList[0].species.getAtomTypes().size();
-        boolean isFlex = nSpheres > 2;
+        boolean isFlex = TPList[0].isFlex;
 
-        System.out.println(isFlex);
+        System.out.println("isFlex = " + isFlex);
         VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
         Diagrams.setDoReeHoover(false);
         ClusterSum targetCluster = Diagrams.makeVirialCluster(fAll[0][0]);
@@ -265,8 +265,7 @@ public class VirialTraPPE {
 
 
         //P3 bond angle
-
-        if (nSpheres > 2) {
+        if (isFlex) {
             P3BondAngle[] p3 = new P3BondAngle[TPList[0].theta_eq.length]; //declaration, instatation
 
             List<int[]> triplets = new ArrayList<>();
@@ -281,9 +280,10 @@ public class VirialTraPPE {
 
         }
         //dihedral stuff
+        P4BondTorsion[] p4 = null;
+        if (nSpheres > 3 && isFlex) {
+            p4 = new P4BondTorsion[TPList[0].a.length];
 
-        P4BondTorsion[] p4 = new P4BondTorsion[TPList[0].a.length];
-        if (nSpheres > 3) {
             List<int[]> quads = new ArrayList<>();
             for (int i=0; i<nSpheres-3; i++) {
                 quads.add(new int[]{i,i+1,i+2,i+3});
@@ -294,7 +294,7 @@ public class VirialTraPPE {
 
             }
             System.out.println(Arrays.toString(bondingInfo.bondedQuadPartners));
-
+//            System.exit(0);
 
         }
 
@@ -381,9 +381,10 @@ public class VirialTraPPE {
                 MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
                 if(isFlex) {
                     mcMoveHSC.setConstraintMap(constraintMap);
+                    mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
+                    sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle1);
+
                 }
-                mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
-                sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle1);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
                 sim.accumulators[0].setBlockSize(1);
 
@@ -424,8 +425,8 @@ public class VirialTraPPE {
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
         MCMoveClusterTorsionMulti[] torsionMoves = null;
+        if (nSpheres > 3 && isFlex) {
 
-        if (nSpheres > 3) {
             torsionMoves = new MCMoveClusterTorsionMulti[TPList[0].a.length];
             for (int i=0; i<TPList[0].a.length; i++) {
                 torsionMoves[i] = new MCMoveClusterTorsionMulti(sim.integrators[0].getPotentialCompute(), space, sim.getRandom(), p4[i], 40);
@@ -490,7 +491,7 @@ public class VirialTraPPE {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println();
-        System.out.println(sim.integrators[0].getMoveManager().getMCMoves().get(2).getChi(150));
+//        System.out.println(sim.integrators[0].getMoveManager().getMCMoves().get(2).getChi(150));
 
 
         // Print BD and Flip Stats
@@ -585,6 +586,7 @@ public class VirialTraPPE {
         public final ISpecies species;
         public PotentialMoleculePair potentialGroup;
         protected static Element elementM = new ElementSimple("M", 0.0);
+        protected boolean isFlex;
         protected boolean polar;
         protected final ChemForm chemForm;
         protected final Space space;
@@ -611,7 +613,7 @@ public class VirialTraPPE {
                 double sigmaM = 0.0; // Angstrom
                 double epsilonM = Kelvin.UNIT.toSim(0.0);
                 double qM = Electron.UNIT.toSim(0.964);
-
+                isFlex = false; //rigid
                 //Construct Arrays
                 sigma = new double[]{sigmaM, sigmaN};
                 epsilon = new double[]{epsilonM, epsilonN};
@@ -637,7 +639,7 @@ public class VirialTraPPE {
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
 
                 atomTypes = new AtomType[]{typeM,typeO};
-
+                isFlex = false;
                 //TraPPE Parameters
                 double bondLength = 1.210; // Angstrom
                 double sigmaO = 3.020; // Angstrom
@@ -672,7 +674,7 @@ public class VirialTraPPE {
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
 
                 atomTypes = new AtomType[]{typeC,typeO};
-
+                isFlex = false;
                 //TraPPE Parameters
                 double bondLengthCO = 1.160; // Angstrom
                 double sigmaC = 2.800; // Angstrom
@@ -709,7 +711,7 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeN,typeH,typeM};
 
                 polar = true;
-
+                isFlex = false;
                 //TraPPE Parameters
                 double bondLengthNH = 1.012; // Angstrom
                 double bondLengthNM = 0.080; // Angstrom
@@ -753,7 +755,7 @@ public class VirialTraPPE {
                 //Avogadro 3D checked
                 AtomType typeC = new AtomType(Carbon.INSTANCE);
                 AtomType typeM = new AtomType(elementM);
-
+                isFlex = false;
                 atomTypes = new AtomType[]{typeC,typeM};
 
                 //TraPPE Parameters
@@ -796,6 +798,7 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeCH3,typeO, typeH};
                 polar = true;
+                isFlex = true;
                 //TraPPE Parameters
 //                double bondLengthCH3OH = 1.43; // Angstrom
 //                double bondLengthOH = 0.945; //Angstrom
@@ -845,6 +848,7 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2, typeO, typeH};
                 polar = true;
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
@@ -877,8 +881,8 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3,sigmaO, sigmaCH2, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH2, epsilonO, epsilonH};
                 charge = new double[]{qCH3,qCH2, qO, qH};
-                theta_eq = new double[]{theta_CH3OH, theta_CCOH};
-                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH};
+                theta_eq = new double[]{theta_CCOH, theta_CH3OH};
+                k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c0, c1, c2, c3}};
                 double x3 = bondLengthCC + bondLengthCH3OH * Math.cos(theta_CCOH);
                 double y3 = bondLengthCH3OH * Math.sin(theta_CCOH);
@@ -913,6 +917,7 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2_2, typeCH2_3, typeO, typeH};
                 polar = true;
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
@@ -996,13 +1001,14 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeCH3, typeCH, typeO, typeH};
                 polar = true;
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
-                double theta_CH3OH = Degree.UNIT.toSim(18.5) ;
+                double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
                 double theta_CCOH = Degree.UNIT.toSim(109.47) ;
-                double theta_CCC = Degree.UNIT.toSim(22) ;
+                double theta_CCC = Degree.UNIT.toSim(112) ;
 
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
@@ -1030,8 +1036,8 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3,sigmaO, sigmaCH, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonH};
                 charge = new double[]{qCH3,qCH, qO, qH};
-                theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
-                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
+                theta_eq = new double[]{theta_CCC};
+                k_theta = new double[]{k_thetaCCC};
                 a = new double[][]{{c00, c01, c02, c03}}; //1-2-4-5, not 1-2-3-4, fix
 
 
@@ -1079,6 +1085,7 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeCH3, typeCH, typeCH2, typeO, typeH};
                 polar = true;
+                isFlex = true;
                 //TraPPE Parameters
 //                double bondLengthCC= 1.54; //Angstrom
 //                double bondLengthCH3OH = 1.43; // Angstrom
@@ -1117,8 +1124,8 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3,sigmaO, sigmaCH, sigmaCH2, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonCH2, epsilonH};
                 charge = new double[]{qCH3,qCH, qO, qH, qCH2};
-                theta_eq = new double[]{theta_CH3OH, theta_CCOH, theta_CCC};
-                k_theta = new double[]{k_thetaCH3OH, k_thetaCCOH, k_thetaCCC};
+                theta_eq = new double[]{theta_CCC};
+                k_theta = new double[]{k_thetaCCC};
                 a = new double[][]{{c00, c01, c02, c03}}; //1-2-4-5, not 1-2-3-4, fix
 
 
@@ -1161,7 +1168,7 @@ public class VirialTraPPE {
                 AtomType typeH = new AtomType(Hydrogen.INSTANCE);
 
                 atomTypes = new AtomType[]{typeC, typeH};
-
+                isFlex = false;
                 //TraPPE Parameters
                 double bondLengthCC = 1.392; // Angstrom
                 double bondLengthCH = 1.08; //Angstrom
@@ -1225,7 +1232,7 @@ public class VirialTraPPE {
                 AtomType typeM = new AtomType(elementM);
 
                 atomTypes = new AtomType[]{typeC,typeM};
-
+                isFlex = false;
                 //TraPPE Parameters
                 double bondLengthCM = 0.55; // Angstrom
                 double bondLengthCC = 1.5350; //Angstrom
@@ -1238,15 +1245,12 @@ public class VirialTraPPE {
                 double sigmaM = 3.31; // Angstrom
                 double epsilonM = Kelvin.UNIT.toSim(15.30);
                 double qM = Electron.UNIT.toSim(0.000);
-                double k = 0; //rigid
                 double a01 = Kelvin.UNIT.toSim(717);
                 //Construct Arrays
                 sigma = new double[] {sigmaC,sigmaM};
                 epsilon = new double[] {epsilonC,epsilonM};
                 charge = new double[]{qC, qM};
-                k_theta = new double[]{k};
                 a = new double[][]{{0, a01, 0, 0}};
-                theta_eq = new double[]{thetaCCH};
 
 
                 //Get Coordinates
@@ -1281,7 +1285,7 @@ public class VirialTraPPE {
                 AtomType typeM = new AtomType(elementM);
 
                 atomTypes = new AtomType[]{typeC, typemidC, typeM};
-
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCM = 0.55; // Angstrom
                 double bondLengthCC = 1.5350; //Angstrom
@@ -1308,7 +1312,7 @@ public class VirialTraPPE {
                 charge = new double[]{qC, qmidC, qM};
                 k_theta = new double[]{k};
                 theta_eq = new double[]{thetaCCC};
-                a = new double[][]{{0, a01, 0, 0}};
+                a = new double[][]{{0, a01, 0, 0}}; //fix, 3-1-2-4
 
 
                 double x3 = bondLengthCC - bondLengthCC * Math.cos(thetaCCC);
@@ -1350,7 +1354,7 @@ public class VirialTraPPE {
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH3};
-
+                isFlex = false;
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.54; // Angstrom
 
@@ -1381,7 +1385,7 @@ public class VirialTraPPE {
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2};
-
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.54; // Angstrom
                 double thetaCCH = Degree.UNIT.toSim(114);
@@ -1420,7 +1424,7 @@ public class VirialTraPPE {
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2};
-
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.54; // Angstrom
                 double thetaCCH = Degree.UNIT.toSim(114);
@@ -1440,8 +1444,8 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH2, sigmaCH3};
                 epsilon = new double[] {epsilonCH2, epsilonCH3};
                 charge = new double[]{qCH2, qCH3};
-                k_theta = new double[]{k};
-                theta_eq = new double[]{thetaCCH};
+                k_theta = new double[]{k, k};
+                theta_eq = new double[]{thetaCCH, thetaCCH};
                 a = new double[][]{{a00, a01, a02, a03}};
 
                 double x3 = bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH);
@@ -1472,7 +1476,7 @@ public class VirialTraPPE {
                 AtomType typeCH4 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH4};
-
+                isFlex = false;
                 //TraPPE Parameters
                 double sigmaCH4 = 3.73; // Angstrom
                 double epsilonCH4 = Kelvin.UNIT.toSim(148);
@@ -1497,7 +1501,7 @@ public class VirialTraPPE {
                 //Atom in Compound
                 //avogadro not needed
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
-
+                isFlex = false;
                 atomTypes = new AtomType[]{typeCH2};
 
                 //TraPPE Parameters
@@ -1532,7 +1536,7 @@ public class VirialTraPPE {
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH3, typeCH, typeCH2};
-
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.54; // Angstrom
                 double bondLengthCHxChy_double = 1.33; //Angstrom
@@ -1577,7 +1581,7 @@ public class VirialTraPPE {
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
 
                 atomTypes = new AtomType[]{typeCH, typeCH2};
-
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.54; // Angstrom
                 double bondLengthCHxChy_double = 1.33; //Angstrom
