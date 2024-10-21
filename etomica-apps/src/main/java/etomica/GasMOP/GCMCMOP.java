@@ -5,9 +5,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
-import etomica.chem.elements.Argon;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
@@ -45,10 +42,8 @@ import etomica.units.*;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.CoordinatePairSet;
-
 import java.awt.*;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -76,7 +71,7 @@ public class GCMCMOP extends Simulation {
     public static List<List<AtomType>> listGrapheneGasMixed = new ArrayList<>();
     public static double massMembrane;
     public static HistogramVectorSimple targHist;
-    public GCMCMOP(String confNameOne, String confNameGasOne, String confNameGasTwo, String confNameGraphene, Vector centreMOP, Vector centreMOPTwo, Vector centreMOPThree,  Vector centreMOPFour, Vector grapheneOne, Vector grapheneTwo,Vector grapheneThree,Vector grapheneFour,Vector grapheneFive,Vector grapheneSix,Vector grapheneSeven,Vector grapheneEight,Vector grapheneNine, Vector grapheneTen, Vector grapheneEleven, Vector grapheneTwelve, Vector grapheneThirteen, int numMolOne, int numMolTwo, double temperature, double truncatedRadius, double truncatedRadiusLJ, double sigma, double mu1, double mu2, boolean ifGraphenePresent, boolean ifSecondGasPresent, boolean ifMultipleGraphenePresent, boolean ifMoveRotateMoves, Vector boxSize, boolean makeAllMove, boolean doElectrostatics, double multiplier, boolean isGasCOMPASS, boolean isGasTraPPE, boolean ifMOPPresent, boolean ifCOFPesent) {
+    public GCMCMOP(String confNameOne, String confNameGasOne, String confNameGasTwo, String confNameGraphene, Vector centreMOP, Vector centreMOPTwo, Vector centreMOPThree,  Vector centreMOPFour, Vector grapheneOne, Vector grapheneTwo,Vector grapheneThree,Vector grapheneFour,Vector grapheneFive,Vector grapheneSix,Vector grapheneSeven,Vector grapheneEight,Vector grapheneNine, Vector grapheneTen, Vector grapheneEleven, Vector grapheneTwelve, Vector grapheneThirteen, int numMolOne, int numMolTwo, double temperature, double truncatedRadius, double truncatedRadiusLJ, double sigma, double mu1, double mu2, boolean ifGraphenePresent, boolean ifSecondGasPresent, boolean ifMultipleGraphenePresent, boolean ifMoveRotateMoves, Vector boxSize, boolean makeAllMove, boolean doElectrostatics, double multiplier, boolean isGasCOMPASS, boolean isGasTraPPE, boolean ifMOPPresent, boolean ifCOFPesent, String automMOPGeom, boolean ifautoMOP) {
         super(Space3D.getInstance());
 
         //Make Species
@@ -168,17 +163,76 @@ public class GCMCMOP extends Simulation {
         }
 
       box = this.makeBox();
+      double truncCal =0;
+      if(ifMOPPresent){
+          Map<Integer, Vector> listPositions = pdbReaderMOP.getPositions();
+          distCalc distCalc = new distCalc();
+          Vector boxSizeCalc = distCalc.boxSizeVector(listPositions);
+        //  System.out.println(boxSizeCalc + " " + speciesMOP.getMass());
+           truncCal = distCalc.truncRad(boxSizeCalc);
+          //System.out.println(boxSizeCalc + " " + truncCal);
+          box.getBoundary().setBoxSize(new Vector3D(50,50,50));
+      } else {
+          box.getBoundary().setBoxSize(boxSize);
+      }
+      Map<Double, List<Integer[]> >distMap = new HashMap<>();
+      //tetra= 6, cube = 12 octahedron = 12, dodecahedron = 30, icosahedron = 30;
+      if(ifautoMOP){
+          List<Vector> oldPositions = new ArrayList<>();
+          List<Double> slopeXY = new ArrayList<>();
+          List<Double> angleZ = new ArrayList<>();
+          getPolyhedra(distMap,slopeXY, angleZ, automMOPGeom );
+          if(automMOPGeom.equals("tetra")){
+              box.setNMolecules(speciesMOP, 2);
+              //second Strand
+              IMolecule moleculeMOPZero = box.getMoleculeList().get(0);
+              IMolecule moleculeMOPOne = box.getMoleculeList().get(1);
+              IMolecule moleculeMOPTwo = box.getMoleculeList().get(2);
+              IMolecule moleculeMOPThree = box.getMoleculeList().get(3);
+              IMolecule moleculeMOPFour = box.getMoleculeList().get(4);
+              IMolecule moleculeMOPFive = box.getMoleculeList().get(5);
+              while (oldPositions.size() < moleculeMOPZero.getChildList().size()) {
+                  oldPositions.add(space.makeVector());
+              }
+              int num = leftSideMost(moleculeMOPOne);
+              Vector diffOne = new Vector3D(30,30,30);
+              System.out.println(moleculeMOPZero.getChildList().get(num).getPosition() + " "+ moleculeMOPOne.getChildList().get(moleculeMOPOne.getChildList().size()-1).getPosition());
+              diffOne.Ev1Mv2(moleculeMOPZero.getChildList().get(num).getPosition(), moleculeMOPOne.getChildList().get(moleculeMOPOne.getChildList().size()-1).getPosition());
+              System.out.println(diffOne);
+              moleculeMOPOne.getChildList().forEach(atom -> {
+                  oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                  atom.getPosition().PE(diffOne);
+               //   System.out.println(diffOne);
+                  Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                  atom.getPosition().PE(shift);
+              });
+              for(int u=0; u<moleculeMOPOne.getChildList().size(); u++){
+                  System.out.println(moleculeMOPOne.getChildList().get(u).getPosition());
+              }
 
-      box.getBoundary().setBoxSize(boxSize);
-      List<Vector> oldPositions = new ArrayList<>();
+          //    System.exit(1);
+          } else if (automMOPGeom.equals("rhombic")) {
+              box.setNMolecules(speciesMOP, 12);
+          }else if (automMOPGeom.equals("cubic")) {
+              box.setNMolecules(speciesMOP, 12);
+          }else if (automMOPGeom.equals("octa")) {
+              box.setNMolecules(speciesMOP, 30);
+          }else if (automMOPGeom.equals("icosa")) {
+              box.setNMolecules(speciesMOP, 30);
+          }else if (automMOPGeom.equals("dodeca")) {
+
+          }
+
+      }
+
+     /* List<Vector> oldPositions = new ArrayList<>();
       List<Vector> oldPositionsTwo = new ArrayList<>();
-    /*  box.setNMolecules(speciesMOP, 5);
-      List<Vector> oldPositions = new ArrayList<>();
+      box.setNMolecules(speciesMOP, 4);
         IMolecule moleculeMOPOne = box.getMoleculeList().get(0);
       while (oldPositions.size() < moleculeMOPOne.getChildList().size()) {
           oldPositions.add(space.makeVector());
       }
-        Vector originTwo = new Vector3D(0,0, 50);
+        Vector originTwo = new Vector3D(0,0,0);
         IMolecule moleculeMOPTwo = box.getMoleculeList().get(1);
       moleculeMOPTwo.getChildList().forEach(atom -> {
           oldPositions.get(atom.getIndex()).E(atom.getPosition());
@@ -186,7 +240,7 @@ public class GCMCMOP extends Simulation {
           Vector shift = box.getBoundary().centralImage(atom.getPosition());
           atom.getPosition().PE(shift);
       });
-      Vector originOne = new Vector3D(0,0, 20);
+      Vector originOne = new Vector3D(0,0, 0);
         moleculeMOPOne.getChildList().forEach(atom -> {
             oldPositions.get(atom.getIndex()).E(atom.getPosition());
             atom.getPosition().PE(originOne);
@@ -202,14 +256,14 @@ public class GCMCMOP extends Simulation {
             atom.getPosition().PE(shift);
         });
         IMolecule moleculeMOPFour = box.getMoleculeList().get(3);
-        Vector originFour = new Vector3D(0,0,-20 );
+        Vector originFour = new Vector3D(0,0,0 );
         moleculeMOPFour.getChildList().forEach(atom -> {
             oldPositions.get(atom.getIndex()).E(atom.getPosition());
             atom.getPosition().PE(originFour);
             Vector shift = box.getBoundary().centralImage(atom.getPosition());
             atom.getPosition().PE(shift);
-        });
-        IMolecule moleculeMOPFive = box.getMoleculeList().get(4);
+        });*/
+     /*   IMolecule moleculeMOPFive = box.getMoleculeList().get(4);
         Vector originFive = new Vector3D(0,0,-50 );
         moleculeMOPFive.getChildList().forEach(atom -> {
             oldPositions.get(atom.getIndex()).E(atom.getPosition());
@@ -219,8 +273,9 @@ public class GCMCMOP extends Simulation {
         });*/
         if(ifGraphenePresent ){
             if(!ifMultipleGraphenePresent ){
+                List<Vector> oldPositions = new ArrayList<>();
                 massMembrane = speciesGrapheneOne.getMass()*numMolOne;
-                box.setNMolecules(speciesGrapheneOne, numMolOne);
+                box.setNMolecules(speciesGrapheneOne, 2);
                 IMolecule moleculeMOPZero = box.getMoleculeList().get(0);
                 while (oldPositions.size() < moleculeMOPZero.getChildList().size()) {
                     oldPositions.add(space.makeVector());
@@ -232,14 +287,13 @@ public class GCMCMOP extends Simulation {
                     atom.getPosition().PE(shift);
                 });
                 IMolecule moleculeMOPOne = box.getMoleculeList().get(1);
-
                 moleculeMOPOne.getChildList().forEach(atom -> {
                     oldPositions.get(atom.getIndex()).E(atom.getPosition());
                     atom.getPosition().PE(grapheneSix);
                     Vector shift = box.getBoundary().centralImage(atom.getPosition());
                     atom.getPosition().PE(shift);
                 });
-                IMolecule moleculeMOPThree = box.getMoleculeList().get(2);
+             /*   IMolecule moleculeMOPThree = box.getMoleculeList().get(2);
                 moleculeMOPThree.getChildList().forEach(atom -> {
                     oldPositions.get(atom.getIndex()).E(atom.getPosition());
                     atom.getPosition().PE(grapheneThree);
@@ -254,7 +308,7 @@ public class GCMCMOP extends Simulation {
                     atom.getPosition().PE(shift);
                 });
 
-           /*     IMolecule moleculeMOPFive = box.getMoleculeList().get(0);
+                IMolecule moleculeMOPFive = box.getMoleculeList().get(0);
                 moleculeMOPFive.getChildList().forEach(atom -> {
                     oldPositions.get(atom.getIndex()).E(atom.getPosition());
                     atom.getPosition().PE(grapheneTwo);
@@ -548,9 +602,9 @@ public class GCMCMOP extends Simulation {
         IPotential2[] p2mopgas = new IPotential2[listMOPGasPairs.size()];
         //   LJCOMPASS[] p2LJMOPGasCOMPASS = new LJCOMPASS[listMOPGasPairs.size()];
         if (isGasTraPPE) {
-            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, true);
+            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncCal, doElectrostatics, true);
         } else {
-            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, p2mopgas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics);
+            SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, p2mopgas, listMOPGasPairs.size(), truncCal, doElectrostatics);
         }
 
         if (ifMOPPresent) {
@@ -560,7 +614,7 @@ public class GCMCMOP extends Simulation {
             P2Electrostatic[] p2ElectroGas = new P2Electrostatic[listGasGas.size()];
             //   LJCOMPASS[] p2LJGasCOMPASS = new LJCOMPASS[listGasGas.size()];
             if (isGasTraPPE) {
-                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, listGasGas.size(), truncatedRadiusLJ, false, true);
+                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, listGasGas.size(), truncatedRadius, false, true);
             } else {
                 SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, p2ljGas, listGasGas.size(), truncatedRadiusLJ, doElectrostatics);
             }
@@ -577,16 +631,16 @@ public class GCMCMOP extends Simulation {
         potentialMasterCell.doOneTruncationCorrection = true;
         potentialMasterCell.init();
         if (ifMoveRotateMoves) {
-           // mcMoveMolecule = new MCMoveMolecule(random, potentialMasterCell, box);
-           // mcMoveMolecule.setStepSize( sigma);
-           // ((MCMoveStepTracker) mcMoveMolecule.getTracker()).setTunable(false);
+            mcMoveMolecule = new MCMoveMolecule(random, potentialMasterCell, box);
+            mcMoveMolecule.setStepSize( sigma);
+            ((MCMoveStepTracker) mcMoveMolecule.getTracker()).setTunable(false);
             mcMoveMoleculeRotate = new MCMoveMoleculeRotate(random, potentialMasterCell, box);
             mcMoveMoleculeRotate.setStepSize( sigma);
             ((MCMoveStepTracker) mcMoveMoleculeRotate.getTracker()).setTunable(false);
-           // ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
+            ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
             ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);
             integrator.getMoveManager().addMCMove(mcMoveMoleculeRotate);
-          //  integrator.getMoveManager().addMCMove(mcMoveMolecule);
+            integrator.getMoveManager().addMCMove(mcMoveMolecule);
             if (makeAllMove) {
                 ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesMOP);
                 ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesMOP);
@@ -596,8 +650,9 @@ public class GCMCMOP extends Simulation {
             // ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesMOP);
 
             //  }
-            //  ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
-            //   }
+              ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
+            ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);
+           //    }
         }
             BoxInflate inflater = new BoxInflate(box, space);
             inflater.actionPerformed();
@@ -619,9 +674,18 @@ public class GCMCMOP extends Simulation {
 
             //potential = new P2LennardJones(sigma, 1.0);
             //
-            if (truncatedRadius > 0.5 * box.getBoundary().getBoxSize().getX(2)) {
-                throw new RuntimeException("Truncation radius too large.  Max allowed is " + 0.5 * box.getBoundary().getBoxSize().getX(0));
+           /* if (truncCal > 0.5 * box.getBoundary().getBoxSize().getX(0) || truncCal > 0.5 * box.getBoundary().getBoxSize().getX(1) || truncCal > 0.5 * box.getBoundary().getBoxSize().getX(2)) {
+                double valX = 0.5 * box.getBoundary().getBoxSize().getX(0);
+                double valY = 0.5 * box.getBoundary().getBoxSize().getX(1);
+                double valZ =0.5 * box.getBoundary().getBoxSize().getX(2);
+                throw new RuntimeException("Truncation radius too large.  Max allowed is " + 0.5 * box.getBoundary().getBoxSize().getX(0) + " " + valX + " "+ valY + " " + valZ +" "  +truncCal);
+
             }
+        double valX = 0.5 * box.getBoundary().getBoxSize().getX(0);
+        double valY = 0.5 * box.getBoundary().getBoxSize().getX(1);
+        double valZ =0.5 * box.getBoundary().getBoxSize().getX(2);
+        System.out.println(0.5 * box.getBoundary().getBoxSize().getX(0) + " " + valX + " "+ valY + " " + valZ +" "  +truncCal);
+            System.exit(1);*/
 
     }
 
@@ -630,9 +694,11 @@ public class GCMCMOP extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int numAtomOne = params.numAtomOne;
         int numAtomTwo = params.numAtomTwo;
+        boolean ifautoMOP = params.ifautoMOP;
+        String autoMOPGeom = params.autoMOPGeom;
       //  String confNameOne = params.confNameOne;
        // String confNameGasOne = params.confNameGasOne;
-        String confNameGasTwo = params.confNameGasTwo;
+      //  String confNameGasTwo = params.confNameGasTwo;
         String confNameGraphene = params.confNameGraphene;
         Vector boxSize = params.boxSize;
         double truncatedRadius = params.truncatedRadius;
@@ -676,32 +742,21 @@ public class GCMCMOP extends Simulation {
        // System.out.println(mu1 + " mu1");
         List<Integer> muValues = new ArrayList<>();
         List<Integer> temperatureList = new ArrayList<>();
-      //  System.out.println(confNameOne);
-       // System.out.println(confNameGasOne);
-       // muValues.add((int) mu1);
+
         List<String> mopNames = new ArrayList<>();
         List<String> gasNames = new ArrayList<>();
-       // mopNames.add(270);
-      //  mopNames.add(300);
-       // mopNames.add(330);
-        //mopNames.add(360);
+
 
         List<Double> mopTemp = new ArrayList<>();
-       // mopNames.add(params.confNameGasOne);
-      // mopNames.add(params.confNamegas);
-      // mopNames.add(params.confNamegasOne);
-       // mopNames.add(params.confNamegasTwo);
-        mopNames.add(params.confNameOne);
-       // mopNames.add(params.confNameTwo);
-      //  mopNames.add(params.confNameThree);
-    //    mopNames.add(params.confNameFour);
-     //   mopNames.add(params.confNameFive);
-     //   mopNames.add(params.confNameSix);
-    //    mopNames.add(params.confNameSeven);
-   //    mopNames.add(params.confNameEight);
+
+       mopNames.add(params.confNameEight);
+
+
        // gasNames.add(params.confNamegasThree);
         gasNames.add(params.confNameGasTwo);
+        gasNames.add(params.confNamegas);
         gasNames.add(params.confNamegasOne);
+
       //  temperatureList.add(77);
        // temperatureList.add(77);
         double t1Start = System.nanoTime();
@@ -723,8 +778,8 @@ public class GCMCMOP extends Simulation {
              for(int i=0; i<muValues.size(); i++) {
                  int numSteps = params.numSteps;
                  int mu = muValues.get(i);
-                 System.out.println(mu);
-                 GCMCMOP sim = new GCMCMOP(confNameMOPOne, confNamegas, confNamegas, confNameGraphene, centreMOP, centreMOPTwo, centreMOPThree, centreMOPFour, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, grapheneFive, grapheneSix, grapheneSeven, grapheneEight, grapheneNine, grapheneTen, grapheneEleven, grapheneTwelve, grapheneThirteen, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSize, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent);
+              //   System.out.println(mu);
+                 GCMCMOP sim = new GCMCMOP(confNameMOPOne, confNamegas, confNamegas, confNameGraphene, centreMOP, centreMOPTwo, centreMOPThree, centreMOPFour, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, grapheneFive, grapheneSix, grapheneSeven, grapheneEight, grapheneNine, grapheneTen, grapheneEleven, grapheneTwelve, grapheneThirteen, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSize, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent, autoMOPGeom, ifautoMOP);
                  if (massMembrane < 1) {
                      massMembrane = 1;
                  }
@@ -915,15 +970,15 @@ public class GCMCMOP extends Simulation {
                  long t2 = System.currentTimeMillis();
                  //System.out.println("mu1 " + mu1);
                  System.out.println("runtime: " + (t2 - t1) * 0.001);
-            //   Unit pUnit = Bar.UNIT;
+          /*     Unit pUnit = Bar.UNIT;
            //     Unit MegaPascal = new PrefixedUnit(Prefix.MEGA, Pascal.UNIT);
-         /*      Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
+               Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
                 double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
                 double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
                 double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
              //   System.out.println("P (MPa) " + MegaPascal.fromSim(avgP) + " MPa " + MegaPascal.fromSim(errP) + " " + corP);
-                 System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);*/
-               // System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);
+                 System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);
+                System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);*/
                  //double muR = Constants.BOLTZMANN_K * temperature * Math.log(avgP/temperature);
                  //System.out.println("muR: " + muR);
 
@@ -947,7 +1002,7 @@ public class GCMCMOP extends Simulation {
                  double cornum = corRho;
                  //  System.out.println("Actual "+ avgRho);
                  //System.out.println("nm " + nm3.fromSim(sim.box.getBoundary().volume()));
-                 System.out.println("Num atoms : " + numAtomsAvg + " " + errnum + " " + cornum);
+                System.out.println("Num atoms : " + numAtomsAvg + " " + errnum + " " + cornum + " " + (sim.speciesGas.getMass()*numAtomsAvg*1000/sim.speciesMOP.getMass()));
                  // System.out.println("num atoms (/cm3) "+cm3.fromSim( sim.box.getBoundary().volume())*errRho + " " + cm3.fromSim( sim.box.getBoundary().volume())*errRho);
                  // System.out.println("num atoms (/m3) " +m3.fromSim( sim.box.getBoundary().volume())*errRho + " " + m3.fromSim( sim.box.getBoundary().volume())*errRho);
                  // System.out.println("num atoms (/nm3) " +nm3.fromSim( sim.box.getBoundary().volume())*errRho + " " + nm3.fromSim( sim.box.getBoundary().volume())*errRho);
@@ -1027,14 +1082,397 @@ public class GCMCMOP extends Simulation {
 
 
     }
+
+    public void getPolyhedra(Map<Double, List<Integer[]>> distMap,List<Double> slopeXY, List<Double> angleZ, String geometry){
+        List<Vector> listPositionsUnitPoly = new ArrayList<>();
+        switch (geometry){
+            case "tetra":
+                listPositionsUnitPoly = getTetrahedron();
+                break;
+            case "rhombic":
+                listPositionsUnitPoly = getRhombic();
+                break;
+            case "cubic":
+                listPositionsUnitPoly = getCubic();
+                break;
+            case "icosa":
+                listPositionsUnitPoly = getIcosahedron();
+                break;
+            case "dodeca":
+                listPositionsUnitPoly =getDodecahedron();
+                break;
+        }
+        edgesPolyhedra(distMap, listPositionsUnitPoly);
+        printResults(distMap, listPositionsUnitPoly,  slopeXY, angleZ);
+    }
+
+    public List<Vector> getTetrahedron(){
+        List<Vector> listVectorTetra = new ArrayList<>();
+        Vector vec1 = Vector.of(1, 1, 1);
+        Vector vec2 = Vector.of(-1, -1, 1);
+        Vector vec3 = Vector.of(-1, 1, -1);
+        Vector vec4 = Vector.of(1, -1, -1);
+        listVectorTetra.add(vec1);
+        listVectorTetra.add(vec2);
+        listVectorTetra.add(vec3);
+        listVectorTetra.add(vec4);
+        return listVectorTetra;
+    }
+
+    public List<Vector> getRhombic(){
+        List<Vector> listVecRhombic = new ArrayList<>();
+        Vector vec1 = Vector.of(1,0 , 0);
+        Vector vec2 = Vector.of(-1,0 ,0 );
+        Vector vec3 = Vector.of(0,1 , 0);
+        Vector vec4 = Vector.of(0, -1, 0);
+        Vector vec5 = Vector.of(0,0 , 1);
+        Vector vec6 = Vector.of(0,0 , -1);
+        listVecRhombic.add(vec1);
+        listVecRhombic.add(vec2);
+        listVecRhombic.add(vec3);
+        listVecRhombic.add(vec4);
+        listVecRhombic.add(vec5);
+        listVecRhombic.add(vec6);
+        return listVecRhombic;
+    }
+
+    public List<Vector> getCubic(){
+        List<Vector> listVecCubic = new ArrayList<>();
+        Vector vec1 = Vector.of(1, 1, 1);
+        Vector vec2 = Vector.of(-1, -1, -1);
+        Vector vec3 = Vector.of(-1, 1, 1);
+        Vector vec4 = Vector.of(1, -1, 1);
+        Vector vec5 = Vector.of(1, 1, -1);
+        Vector vec6 = Vector.of(-1, -1, 1);
+        Vector vec7 = Vector.of(1, -1, -1);
+        Vector vec8 = Vector.of(-1, 1, -1);
+        listVecCubic.add(vec1);
+        listVecCubic.add(vec2);
+        listVecCubic.add(vec3);
+        listVecCubic.add(vec4);
+        listVecCubic.add(vec5);
+        listVecCubic.add(vec6);
+        listVecCubic.add(vec7);
+        listVecCubic.add(vec8);
+        return listVecCubic;
+    }
+
+    public List<Vector> getIcosahedron(){
+        double phi = (1+ Math.sqrt(5))/2;
+        double phi2 = phi*phi;
+        List<Vector> listVecIcosa = new ArrayList<>();
+        Vector vec1 = Vector.of(0,1 , phi);
+        Vector vec2 = Vector.of(0, 1, -phi);
+        Vector vec3 = Vector.of(0, -1, phi);
+        Vector vec4 = Vector.of(0, -1, -phi);
+        Vector vec5 = Vector.of(1,phi ,0 );
+        Vector vec6 = Vector.of(1,-phi,0 );
+        Vector vec7 = Vector.of(-1, phi,0 );
+        Vector vec8 = Vector.of(-1,-phi,0 );
+        Vector vec9 = Vector.of(phi, 0,1 );
+        Vector vec10 = Vector.of(-phi,0 ,1 );
+        Vector vec11 = Vector.of(phi,0 ,-1 );
+        Vector vec12 = Vector.of(-phi, 0, -1);
+        listVecIcosa.add(vec1);
+        listVecIcosa.add(vec2);
+        listVecIcosa.add(vec3);
+        listVecIcosa.add(vec4);
+        listVecIcosa.add(vec5);
+        listVecIcosa.add(vec6);
+        listVecIcosa.add(vec7);
+        listVecIcosa.add(vec8);
+        listVecIcosa.add(vec9);
+        listVecIcosa.add(vec10);
+        listVecIcosa.add(vec11);
+        listVecIcosa.add(vec12);
+        return listVecIcosa;
+    }
+
+    public List<Vector> getDodecahedron(){
+        double phi = (1+ Math.sqrt(5))/2;
+        double phi2 = phi*phi;
+        List<Vector> listVecDodeca = new ArrayList<>();
+        Vector vec1 = Vector.of(1, 0, phi2);
+        Vector vec2 = Vector.of(1, 0, -phi2);
+        Vector vec3 = Vector.of(-1, 0, phi2);
+        Vector vec4 = Vector.of(-1, 0, -phi2);
+        Vector vec5 = Vector.of(phi, phi,phi );
+        Vector vec6 = Vector.of(-phi, -phi,-phi );
+        Vector vec7 = Vector.of(phi, -phi, -phi);
+        Vector vec8 = Vector.of(phi, phi, -phi);
+        Vector vec9 = Vector.of(-phi, phi,-phi );
+        Vector vec10 = Vector.of(-phi,phi ,phi );
+        Vector vec11 = Vector.of(-phi,-phi , phi);
+        Vector vec12 = Vector.of(phi,-phi ,phi);
+        Vector vec13 = Vector.of(0, phi2,1 );
+        Vector vec14 = Vector.of(0, phi2, -1);
+        Vector vec15 = Vector.of(0,-phi2 ,1 );
+        Vector vec16 = Vector.of(0, -phi2, -1);
+        Vector vec17 = Vector.of(phi2, 1, 0);
+        Vector vec18 = Vector.of(phi2, -1, 0);
+        Vector vec19 = Vector.of(-phi2, 1, 0);
+        Vector vec20 = Vector.of(-phi2, -1, 0);
+        listVecDodeca.add(vec1);
+        listVecDodeca.add(vec2);
+        listVecDodeca.add(vec3);
+        listVecDodeca.add(vec4);
+        listVecDodeca.add(vec5);
+        listVecDodeca.add(vec6);
+        listVecDodeca.add(vec7);
+        listVecDodeca.add(vec8);
+        listVecDodeca.add(vec9);
+        listVecDodeca.add(vec10);
+        listVecDodeca.add(vec11);
+        listVecDodeca.add(vec12);
+        listVecDodeca.add(vec13);
+        listVecDodeca.add(vec14);
+        listVecDodeca.add(vec15);
+        listVecDodeca.add(vec16);
+        listVecDodeca.add(vec17);
+        listVecDodeca.add(vec18);
+        listVecDodeca.add(vec19);
+        listVecDodeca.add(vec20);
+        return listVecDodeca;
+    }
+
+    public Map<Double, List<Integer[]>> edgesPolyhedra ( Map<Double, List<Integer[]>> distMap, List<Vector> listVect){
+        List<Integer[]> doubleList = new ArrayList<>();
+        Integer[] points = new Integer[2];
+        for (int i = 0; i < listVect.size(); i++) {
+            Vector pointA = listVect.get(i);
+            for (int j = i + 1; j < listVect.size(); j++) { // Start from i + 1 to avoid duplicates
+                Vector pointB = listVect.get(j);
+
+                double distance = calculateDistance(pointA, pointB);
+                doubleList = distMap.get(distance);
+                if(doubleList == null){
+                    doubleList = new ArrayList<>();
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }else {
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }
+                //   System.out.println("Distance between point " + i + " and point " + j + ": " + distance);
+            }
+        }
+        return distMap;
+    }
+    public double calculateDistance(Vector pointA, Vector pointB){
+        return pointA.Mv1Squared(pointB);
+    }
+
+    public void printResults(Map<Double, List<Integer[]>> distMap,  List<Vector> listVecRhombic,  List<Double> slopeXY, List<Double> angleZ){
+        Double smallestKey = null;
+        System.out.println(  distMap.keySet() );
+        //  System.exit(1);
+        double smallestSize = Integer.MAX_VALUE;
+
+        for (Map.Entry<Double, List<Integer[]>> entry : distMap.entrySet()) {
+            double currentSize = entry.getKey();
+            // Check for smaller size or the same size with a smaller key
+            if (currentSize < smallestSize || (currentSize == smallestSize && (smallestKey == null || entry.getKey() < smallestKey))) {
+                smallestSize = currentSize;
+                smallestKey = entry.getKey();
+            }
+        }
+
+        if (smallestKey != null) {
+            System.out.println("Key with the smallest list size: " + smallestKey);
+        } else {
+            System.out.println("Map is empty.");
+        }
+        // System.out.println(distMap.entrySet());
+        List<Integer[]> valueList = distMap.get(smallestKey);
+        printVal(valueList, listVecRhombic, slopeXY, angleZ);
+
+       /* for (Map.Entry<Double, List<Integer[]>> entry : distMap.entrySet()) {
+            Double key = entry.getKey();
+            List<Integer[]> valueList = entry.getValue();
+            if (valueList.size() > 28) {
+            //    System.out.println(key + " : " + Arrays.deepToString(valueList.toArray()) + " Size " + valueList.size());
+                printVal(valueList, listVecRhombic, slopeXY, angleZ);
+            }
+        }*/
+    }
+    public void printVal( List<Integer[]> valueList,  List<Vector> listVecRhombic, List<Double> slopeXY, List<Double> angleZ){
+        for(int i=0; i<valueList.size(); i++){
+            System.out.println(Arrays.toString(valueList.get(i)) + " " + valueList.get(i)[0] + " "+ valueList.get(i)[1]   +" " + listVecRhombic.get(valueList.get(i)[0]) + " "+ listVecRhombic.get(valueList.get(i)[1]));
+            double slope = slopeCalc(listVecRhombic.get(valueList.get(i)[0]), listVecRhombic.get(valueList.get(i)[1]));
+            double zAngle = angleZCalc(listVecRhombic.get(valueList.get(i)[0]), listVecRhombic.get(valueList.get(i)[1]));
+            slopeXY.add(slope);
+            angleZ.add(zAngle);
+        }
+        // System.exit(1);
+    }
+    public double angleZCalc(Vector v1, Vector v2){
+        double slope =0;
+        double x1= v1.getX(0), x2 = v2.getX(0), y1 = v1.getX(1), y2 = v2.getX(1), z1 = v1.getX(2), z2 = v2.getX(2);
+        Vector xNew = new Vector3D(x1, y1, z2);
+        Vector y = new Vector3D(x2, y2, z2);
+        Vector x = new Vector3D(x1, y1, z1);
+        Vector xSub = new Vector3D();
+        Vector ySub = new Vector3D();
+        xSub.Ev1Mv2(xNew, x);
+        ySub.Ev1Mv2(x, y);
+        double dotVal = xSub.dot(ySub);
+        double mag = Math.sqrt(xSub.squared() * ySub.squared());
+        slope = Math.acos(dotVal/mag);
+        Degree.UNIT.fromSim(slope);
+        System.out.println(Degree.UNIT.fromSim(slope));
+        return slope;
+    }
+   /* public double slp(double x1, double y1, double x2, double y2){
+        return (y2-y1)/(x2-x1);
+    }*/
+
+    public double  slopeCalc(Vector v1, Vector v2){
+        double slope =0;
+        double x1= v1.getX(0), x2 = v2.getX(0), y1 = v1.getX(1), y2 = v2.getX(1);
+        slope = (y2-y1)/(x2-x1);
+        return slope;
+    }
+    // new Coordinates in XY plane
+    public List<Vector> rotatePoint(Vector vectorA, IMolecule molecule, List<Double> theta) {
+        List<Vector> newPosn = new ArrayList<>();
+        for(int i=1; i<molecule.getChildList().size(); i++ ){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            double thetaNew = theta.get(i);
+            double xB = vec.getX(0) - vectorA.getX(0);
+            double yB = vec.getX(1) - vectorA.getX(1);
+
+            double xBrot = xB * Math.cos(thetaNew) - yB * Math.sin(thetaNew);
+            double yBrot = xB * Math.sin(thetaNew) + yB * Math.cos(thetaNew);
+            newPosn.add(new  Vector3D(vectorA.getX(0) + xBrot, vectorA.getX(1) + yBrot, 0));
+        }
+        return newPosn;
+    }
+
+    // new Z coordinate
+    public List<Vector> calculateZ(List<Vector> newPosn, List<Double> thetaZ) {
+        List<Vector> finalPosn = new ArrayList<>();
+        for(int i=0; i<thetaZ.size(); i++){
+            double x = newPosn.get(i).getX(0);
+            double y = newPosn.get(i).getX(0);
+            finalPosn.add(new Vector3D(x, y, Math.sqrt(x * x + y * y) * Math.tan(thetaZ.get(i))));
+        }
+       return finalPosn;
+    }
+
+    //left most atom in Box
+    public int leftSideMost(IMolecule molecule){
+        double minX = Double.POSITIVE_INFINITY;
+        int iNum = 0;
+        for (int i=0; i<molecule.getChildList().size(); i++){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            if (vec.getX(0) < minX){
+                minX = vec.getX(0) ;
+                iNum = i;
+            }
+        }
+        return iNum;
+    }
+
+    //right most atom in Box
+    public int rightSideMost(IMolecule molecule){
+        double maxX = Double.POSITIVE_INFINITY;
+        int iNum = 0;
+        for (int i=0; i<molecule.getChildList().size(); i++){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            if ((vec.getX(0)  > maxX)){
+                maxX = vec.getX(0) ;
+                iNum = i;
+            }
+        }
+        return iNum;
+    }
+
+    //back most atom in Box
+    public int backSideMost(IMolecule molecule){
+        double minY = Double.POSITIVE_INFINITY;
+        int iNum = 0;
+        for (int i=0; i<molecule.getChildList().size(); i++){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            if (vec.getX(1) < minY){
+                minY = vec.getX(1) ;
+                iNum = i;
+            }
+        }
+        return iNum;
+    }
+
+    //front most atom in Box
+    public int frontSideMost(IMolecule molecule){
+        double maxY = Double.POSITIVE_INFINITY;
+        int iNum = 0;
+        for (int i=0; i<molecule.getChildList().size(); i++){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            if ((vec.getX(1)  > maxY)){
+                maxY = vec.getX(1) ;
+                iNum = i;
+            }
+        }
+        return iNum;
+    }
+
+    //bottom most atom in Box
+    public int bottomSideMost(IMolecule molecule){
+        double minZ = Double.POSITIVE_INFINITY;
+        int iNum = 0;
+        for (int i=0; i<molecule.getChildList().size(); i++){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            if (vec.getX(2) < minZ){
+                minZ = vec.getX(2) ;
+                iNum = i;
+            }
+        }
+        return iNum;
+    }
+    //top most atom in Box
+    public int topSideMost(IMolecule molecule){
+        double maxZ = Double.POSITIVE_INFINITY;
+        int iNum = 0;
+        for (int i=0; i<molecule.getChildList().size(); i++){
+            Vector vec = molecule.getChildList().get(i).getPosition();
+            if ((vec.getX(2)  > maxZ)){
+                maxZ = vec.getX(2) ;
+                iNum = i;
+            }
+        }
+        return iNum;
+    }
+    public Vector boxSizeVector (Map<Integer, Vector> positions){
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+        double minZ = Double.POSITIVE_INFINITY;
+        double maxZ = Double.NEGATIVE_INFINITY;
+        Vector boxSize = new Vector3D();
+        for (Vector vec : positions.values()) {
+
+            if (vec.getX(0) < minX) minX = vec.getX(0) ;
+            if (vec.getX(0)  > maxX) maxX = vec.getX(0) ;
+            if (vec.getX(1) < minY) minY = vec.getX(1);
+            if (vec.getX(1) > maxY) maxY = vec.getX(1);
+            if (vec.getX(2) < minZ) minZ = vec.getX(2);
+            if (vec.getX(2) > maxZ) maxZ = vec.getX(2);
+        }
+        //   System.out.println(minX + " " + minY + " " + minZ);
+        //  System.out.println(maxX + " " + maxY + " " + maxZ);
+        double valX = (maxX - minX) * 1.1;
+        double valY = (maxY - minY) * 1.1;
+        double valZ = (maxZ - minZ) * 1.1;
+        boxSize = Vector.of(valX, valY, valZ);
+        return boxSize;
+    }
+
    public Integrator getIntegrator(){
        return integrator;
    }
     public static class GCMCMOPParams extends ParameterBase {
-      //  public Vector centreMOP = new Vector3D(0.0,0.0, 0.0);
-       // public Vector boxSize = new Vector3D(35,35,10);
-        //public Vector boxSize = new Vector3D(100,100,100);
-
         public Vector grapheneThirteen = new Vector3D(15.0,15.0, 60.0);
         public Vector grapheneOne = new Vector3D(15.0,15.0, 0.0);
         public Vector grapheneTwo = new Vector3D(0,0, -38.5);
@@ -1053,36 +1491,40 @@ public class GCMCMOP extends Simulation {
         public Vector centreMOP = new Vector3D(0.0,0.0,-30);
         public Vector centreMOPThree = new Vector3D(0.0,0.0,-50);
         public Vector centreMOPFour = new Vector3D(0.0,0.0,50);
-        public String confNameGasTwo ="F://Avagadro//molecule//ethane";
+
         public int numAtomOne = 1;
         public int numAtomTwo = 1;
 
         public double sigma =2.7;
-        public int numSteps = 50000;
+        public int numSteps = 10000000;
         public boolean makeAllMove = false;
         public boolean doHistogram = false;
         //public double partial = -82.2479;
-        public double temperature = 298;
+        public double temperature = 330;
         public String confNameGasOne = "F://Avagadro//molecule//ethane" ;
-      //  public String confNamegas = "F://Avagadro//molecule//ethene" ;
-      //  public String confNamegasOne = "F://Avagadro//molecule//ch4" ;
-       // public String confNamegasTwo = "F://Avagadro//molecule//h2" ;
-        public String confNamegasThree = "F://Avagadro//molecule//n2" ;
-        public String confNamegasOne = "F://Avagadro//molecule//ch4" ;
-        public double mu1 = -2600;
-        public double muDecrease = -20;
-        public int muLimit = -3100;
+        public String confNamegas = "F://Avagadro//molecule//ethane" ;
+        public String confNamegasOne = "F://Avagadro//molecule//ethene" ;
+        public String confNameGasTwo ="F://Avagadro//molecule//ch4";
+
+        public String confNamegasThree = "F://Avagadro//molecule//ethane" ;
+
+        public double mu1 = -2400;
+        public double muDecrease = -50;
+        public int muLimit = -2440;
         public boolean ifCOF = false;
         public String confNameCOF = "F://Avagadro//mop//tetra_CuCOOCH3";
         public String confNameGraphene = "F://Avagadro//holeGO60";
         public String confNamemopFive = "F://Avagadro//mop//tetra_cu_8C";
         public String confNamemopSix = "F://Avagadro//MOP_new//icosahedron//propyl_Co_MOP";
-        public Vector boxSize = new Vector3D(36, 34, 42);
-        public double truncatedRadiusLJ = boxSize.getX(2)/2;
-        public double truncatedRadius = boxSize.getX(2)/2;
+        public Vector boxSize = new Vector3D(40, 35, 42);
+     //   public Vector boxSize = new Vector3D(16, 16, 16);
+        public double truncatedRadiusLJ = boxSize.getX(0)/2;
+        public double truncatedRadius = boxSize.getX(0)/2;
         public int numBins = 6;
-        public String confNameOne = "F://Avagadro//mop//mop3//verify//p1//cif//02";
-        public boolean doGraphics =false;
+        public String confNameEight = "F://Avagadro//mop//newMOPs//tetra_cu_(C6H5)2(CO2)2";
+        public boolean doGraphics = true;
+        public boolean ifautoMOP = true;
+        public String autoMOPGeom ="tetra";
         public boolean isGasCOMPASS = false;
         public boolean isGasTraPPE = true;
         public boolean ifGraphenePresent = false;
