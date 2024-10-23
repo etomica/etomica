@@ -205,8 +205,6 @@ public class MeterPIHMAReal2 implements IDataSource, PotentialCallback {
         x[0] = En0 + x[0]/ns - EnShift;
         x[1] = Cvn0 + x[1]/ns;
 
-        System.out.println("sg: " + x[0]);
-
         return data;
     }
 

@@ -101,8 +101,6 @@ public class MeterPIHMAc implements IDataSource, PotentialCallback {
             x[1] = -dim/2.0/beta/beta + dim*numAtoms/beta/beta + 1.0/4.0/beta*(-3.0*vir - 2.0*virc - rHr)  + x[0]*x[0];
         }
 
-        System.out.println("hmac: " + x[0]);
-
         return data;
     }
 

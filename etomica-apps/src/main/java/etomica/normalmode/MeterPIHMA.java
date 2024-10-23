@@ -108,8 +108,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
                 Cvn_ho_nm += dim*gk2[k];
             }
             Cvn_ho_nm *= beta * beta;
-            System.out.println(" En_ho_nm_:  " + En_ho_nm);
-            System.out.println(" Cvn_ho_nm: " + Cvn_ho_nm);
         }
 
 
@@ -188,7 +186,6 @@ public class MeterPIHMA implements IDataSource, PotentialCallback {
         x[0] = En - EnShift;
         x[1] = Cvn + (En - EnShift)*(En - EnShift);
 
-        System.out.println("nm: " + x[0]);
 
         return data;
     }

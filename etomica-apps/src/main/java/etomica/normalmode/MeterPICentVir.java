@@ -65,6 +65,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         rHr = 0;
         double vir = 0;
         pcP1.computeAll(true, this); //with Cv
+
         Vector[] forces = pcP1.getForces();
         for (IMolecule molecule : box.getMoleculeList()) {
             for (IAtom atom : molecule.getChildList()) {
@@ -77,7 +78,7 @@ public class MeterPICentVir implements IDataSource, PotentialCallback {
         // same for both bound and unbound systems
         x[0] = dim*numAtoms/2.0/beta + pcP1.getLastEnergy() + 1.0 / 2.0 * vir - EnShift;
         x[1] = dim*numAtoms/2.0/beta/beta + 1.0/4.0/beta*(-3.0*vir - rHr) +  x[0]*x[0];
-        System.out.println("cv: " + x[0]);
+//        System.out.println("cv: " + x[0]);
 //        x[2] = numAtoms/volume/beta - pcP1.getLastVirial()/dim/volume + vir/dim/volume; //Pressure
         return data;
     }

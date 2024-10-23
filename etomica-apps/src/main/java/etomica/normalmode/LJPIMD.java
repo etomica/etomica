@@ -143,7 +143,7 @@ public class LJPIMD extends Simulation {
             params.steps = 10000;
             params.hbar = 0.1;
             params.temperature = 0.5;
-            params.numAtoms = 256;
+            params.numAtoms = 32;
             params.rc = 3;
             params.isGraphic = false;
             params.onlyCentroid = false;
@@ -153,6 +153,9 @@ public class LJPIMD extends Simulation {
 //            params.coordType = MoveChoice.NMEC;
             params.coordType = LJPIMD.MoveChoice.StageEC;
             params.timeStep = 0.01;
+
+            params.nBeads = 1;
+
 
         }
         double facTimestep = params.facTimestep;
@@ -322,7 +325,11 @@ public class LJPIMD extends Simulation {
         System.out.println(" pLat: " + pLat);
 
         // equilibration
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 1));
+
+
+
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsEq));
         System.out.println(" equilibration finished");
 
 //        configStorage.setEnabled(true);
@@ -339,14 +346,12 @@ public class LJPIMD extends Simulation {
         double EnShift = 0, errEnShift = 0;
         long numStepsShort = steps/10;
         System.out.println(" Short sim for Covariance: " + numStepsShort + " numSteps");
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 1));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
         System.out.println(" Done with "+ numStepsShort +" steps of short run");
         IData dataAvgShort = accumulatorCentVir.getData(accumulatorCentVir.AVERAGE);
         IData dataErrShort = accumulatorCentVir.getData(accumulatorCentVir.ERROR);
         EnShift = dataAvgShort.getValue(0);
 
-
-        EnShift =  0;
 
 
 

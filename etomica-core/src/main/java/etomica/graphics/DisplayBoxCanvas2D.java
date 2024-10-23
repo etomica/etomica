@@ -162,11 +162,6 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
 
 //        if(displayBox.getDrawBoundary()) {displayBox.getBox().boundary().draw(g, displayBox.getOrigin(), displayBox.getScale());}
 
-        //do drawing of all drawing objects that have been added to the display
-        for(Iterator iter=displayBox.getDrawables().iterator(); iter.hasNext(); ) {
-            Drawable obj = (Drawable)iter.next();
-            obj.draw(g, origin, toPixels);
-        }
 
         //Color all atoms according to colorScheme in DisplayBox
 //        displayBox.getColorScheme().colorAllAtoms();
@@ -196,6 +191,13 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             if (atomTest != null && !atomTest.test(a)) continue;
             drawAtom(g, atomOrigin, a);
         }
+
+        //do drawing of all drawing objects that have been added to the display
+        for(Iterator iter=displayBox.getDrawables().iterator(); iter.hasNext(); ) {
+            Drawable obj = (Drawable)iter.next();
+            obj.draw(g, origin, toPixels);
+        }
+
 
         //Draw overflow images if so indicated
         if(displayBox.getDrawOverflow()) {
