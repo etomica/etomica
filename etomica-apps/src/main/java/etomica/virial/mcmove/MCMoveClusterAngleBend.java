@@ -112,12 +112,15 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
         double cdt = Math.cos(dt);
         double sdt = Math.sin(dt);
-        
-        work3.E(pos0);
+        double m0 = childList.get(0).getType().getMass();
+        double m1 = childList.get(1).getType().getMass();
+        double m2 = childList.get(2).getType().getMass();
+
+        work3.PEa1Tv1(m0, pos0);
         pos0.E(pos1);
         pos0.PEa1Tv1(bondLength01*cdt, work1);
         pos0.PEa1Tv1(bondLength01*sdt, work2);
-        work3.ME(pos0);
+        work3.PEa1Tv1(-m0, pos0);
 
         // normalize bond lengths -- we'll scaled our vectors back up later
         work2.Ev1Mv2(pos2, pos1);
@@ -126,14 +129,14 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         work1.PEa1Tv1(-dot, work2);
         work1.TE(1.0/Math.sqrt(work1.squared()));
 
-        work3.PE(pos2);
+        work3.PEa1Tv1(m2, pos2);
         pos2.E(pos1);
         pos2.PEa1Tv1(bondLength12*cdt, work2);
         pos2.PEa1Tv1(bondLength12*sdt, work1);
-        work3.ME(pos2);
+        work3.PEa1Tv1(-m2, pos2);
         
         // translate COM back to its original position
-        work3.TE(1.0/3.0);
+        work3.TE(1/(m0+m1+m2));
         pos0.PE(work3);
         pos1.PE(work3);
         pos2.PE(work3);

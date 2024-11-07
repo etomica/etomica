@@ -29,6 +29,7 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
@@ -61,11 +62,11 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.CH4};
+                params.chemForm = new ChemForm[]{ChemForm.CH3OH};
             params.nPoints = 4; //B order
             params.nTypes = new int[]{4};
             params.nDer = 2;
-            params.temperature = 350;
+            params.temperature = 1000;
             params.numSteps = 10000000;
             params.refFrac = -1;
             params.seed = null;
@@ -322,6 +323,7 @@ public class VirialTraPPE {
             targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
         }
 
+
         // Setting up Simulation
         SimulationVirialOverlap2 sim = null;
 
@@ -362,6 +364,13 @@ public class VirialTraPPE {
 //        System.out.println(targetCluster.value(sim.box[1]));
 //        System.exit(0);
         // Setting Chain Ref Moves
+        IntArrayList[] bonding = new IntArrayList[3];
+        bonding[0] = new IntArrayList(new int[]{1});
+        for (int i=1; i<2; i++) {
+            bonding[i] = new IntArrayList(new int[]{i-1,i+1});
+        }
+        bonding[2] = new IntArrayList(new int[]{1});
+
         int[] constraintMap = new int[nPoints+1];
         MCMoveClusterAngleBend mcMoveAngle = null;
         MCMoveClusterAngleBend mcMoveAngle1 = null;
@@ -372,17 +381,23 @@ public class VirialTraPPE {
             constraintMap[nPoints] = 0;
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
+
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
+
             mcMoveAngle = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
+
         }
         if (doChainRef) {
                 sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-                MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
+//                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+//                sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+
+            MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
                 if(isFlex) {
                     mcMoveHSC.setConstraintMap(constraintMap);
-                    mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
-                    sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle1);
+                    mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[1].getPotentialCompute(), space);
+                    sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
 
                 }
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
@@ -391,7 +406,7 @@ public class VirialTraPPE {
         }
 
         // Run with Graphics
-        if (false) {
+        if (true) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
