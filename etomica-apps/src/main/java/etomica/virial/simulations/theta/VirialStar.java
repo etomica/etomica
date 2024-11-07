@@ -11,7 +11,6 @@ import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.config.ConformationLinear;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IDataInfo;
@@ -21,13 +20,18 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.*;
+import etomica.potential.IPotential2;
+import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.PotentialMoleculePair;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesManager;
+import etomica.starpolymer.ConformationStarPolymerGraft;
 import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
@@ -40,7 +44,6 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.*;
 import etomica.virial.simulations.SimulationVirialOverlap2;
-import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,74 +58,49 @@ import java.util.List;
  *   M.G. Martin and J.I. Siepmann, "Transferable Potentials for Phase
  *   Equilibria. 1. United-Atom Description of n-Alkanes," J. Phys. Chem. B
  *   102, 2569-2577 (1998)
- *   
- *   
+ *
  *   modified from VirialAlkaneFlex2 so that eovererr can be used
  *   March 2013
  */
-public class VirialChain {
+public class VirialStar {
 
     public static ClusterSum makeB2Cluster(MayerFunction f) {
         return new ClusterSum(new ClusterBonds[]{new ClusterBonds(2, new int[][][]{{{0,1}}})}, new double[]{1}, new MayerFunction[]{f});
     }
 
     public static void main(String[] args) {
-        VirialChainParams params = new VirialChainParams();
+        VirialStarParams params = new VirialStarParams();
         boolean isCommandline = args.length > 0;
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 3;
-            params.nSpheres = 8;
-            params.temperature = 5;
-            params.kBend = 0;
+            params.nPoints = 2;
+            params.armLength = 1;
+            params.numArms = 4;
+            params.temperature = 4.6;
             params.numSteps = 10000000;
         }
         final int nPoints = params.nPoints;
-        int nSpheres = params.nSpheres;
+        int numArms = params.numArms;
+        int armLength = params.armLength;
         double temperature = params.temperature;
         long steps = params.numSteps;
         double refFreq = params.refFreq;
-        double sigmaHSRef = 1.5 + 0.15*nSpheres;
-        double eFENE = params.eFENE;
-        double rc = params.rc;
-        double bondLength = params.bondLength;
-        double kBend = params.kBend;
-        int nDer = params.nDer;
-        TargetChoice targetChoice = params.targetChoice;
-        if (targetChoice != TargetChoice.NORMAL && nDer > 0) {
-            throw new RuntimeException("Arbitrary derivatives only available for NORMAL");
-        }
+        double sigmaHSRef = 1.5 + 0.15*(2*armLength);
 
         Space space = Space3D.getInstance();
 
-        ConformationLinear conf = new ConformationLinear(Space3D.getInstance(), bondLength, new double[]{0,Math.PI/2});
+        ConformationStarPolymerGraft conf = new ConformationStarPolymerGraft(Space3D.getInstance(), numArms, armLength);
+        conf.setSigma0(1);
         AtomType type = AtomType.simple("A");
         ISpecies species = new SpeciesBuilder(Space3D.getInstance())
-                .addCount(type, nSpheres)
+                .addCount(type, 1+numArms*armLength)
                 .withConformation(conf).build();
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
-        System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
-        System.out.println("Bond length: "+bondLength+"  with eFENE "+eFENE);
-        if (kBend == Double.POSITIVE_INFINITY) System.out.println("Rigid bond angles");
-        else if (kBend == 0) System.out.println("Flexible bond angles");
-        else System.out.println("Bond angle bend constant: "+kBend);
-        if (rc>0 && rc<Double.POSITIVE_INFINITY) System.out.println("LJ truncated at "+rc+" with "+params.truncation);
-        else System.out.println("LJ untruncated");
+        System.out.println(numArms+" arms of length "+armLength+" B"+nPoints+" at T = "+temperature);
         IPotential2 p2 = new P2LennardJones(1, 1);
-        if (rc > 0 && rc < Double.POSITIVE_INFINITY) {
-            if (params.truncation == TruncationChoice.SIMPLE) {
-                p2 = new P2SoftSphericalTruncated(p2, rc);
-            }
-            else if (params.truncation == TruncationChoice.SHIFT){
-                p2 = new P2SoftSphericalTruncatedShifted(p2, rc);
-            }
-            else if (params.truncation == TruncationChoice.FORCESHIFT) {
-                p2 = new P2SoftSphericalTruncatedForceShifted(p2, rc);
-            }
-        }
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         MayerFunction fRefPos = new MayerFunction() {
@@ -134,41 +112,18 @@ public class VirialChain {
             }
         };
 
-        boolean flex = nSpheres > 2 && nPoints > 2;
+        boolean flex = nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, flex);
         alkaneDiagrams.setDoReeHoover(false);
         ClusterAbstract targetCluster = null;
-        ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
-        MayerTheta fThetadk = new MayerTheta(pTarget, false);
-        MayerTheta fThetadBeta = new MayerTheta(pTarget, true);
 
-        if (targetChoice == TargetChoice.NORMAL) {
-            if (nDer == 0) {
-                targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
-            } else if (flex) {
-                throw new RuntimeException("Cannot compute derivatives for flex diagrams");
-            } else {
-                targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
-                targetDiagrams = new ClusterAbstract[nDer];
-                for(int m=1;m<=nDer;m++){
-                    targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes((ClusterWheatleySoftDerivatives) targetCluster,m);
-                }
-            }
-        }
-        else if (targetChoice == TargetChoice.DBETADK) {
-            targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, 1);
-            targetDiagrams = new ClusterAbstract[]{makeB2Cluster(fThetadk),makeB2Cluster(fThetadBeta),
-                    new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes((ClusterWheatleySoftDerivatives) targetCluster,1)};
-        }
+        targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
         ClusterChainHS refCluster = new ClusterChainHS(nPoints, fRefPos);
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double refIntegral = SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1);
 
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
-        for (int i=0; i<targetDiagrams.length; i++) {
-            targetDiagrams[i].setTemperature(temperature);
-        }
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         // eovererr expects this string, BnHS
@@ -181,39 +136,25 @@ public class VirialChain {
             }
         };
 
-        if (nSpheres > 1 && (kBend == 0 || eFENE > 0)) {
-            IPotential2 pBonding;
-            if (eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
-                pBonding = new P2Fene(2, eFENE);
+        // we need to do this to convince the system that the molecules are not rigid
+        // if bondingInfo thinks molecules are rigid then intramolecular LJ will not be computed
+        IPotential2 pBonding = new IPotential2() {
+            @Override
+            public double getRange() { return 2; }
+            @Override
+            public void u012add(double r2, double[] u012) { }
+        };
+        List<int[]> pairs = new ArrayList<>();
+        for (int i=0; i<numArms; i++) {
+            pairs.add(new int[]{0,1+armLength*i});
+            for (int j = 0; j < armLength-1; j++) {
+                pairs.add(new int[]{1+armLength*i+j, 1+armLength*i+j+1});
             }
-            else {
-                // we need to do this to convince the system that the molecules are not rigid
-                // if bondingInfo thinks molecules are rigid then intramolecular LJ will not be computed
-                pBonding = new IPotential2() {
-                    @Override
-                    public double getRange() { return 2; }
-                    @Override
-                    public void u012add(double r2, double[] u012) { }
-                };
-            }
-            List<int[]> pairs = new ArrayList<>();
-            for (int i=0; i<nSpheres-1; i++) {
-                pairs.add(new int[]{i,i+1});
-            }
-            bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
         }
-        List<int[]> triplets = new ArrayList<>();
-        for (int i=0; i<nSpheres-2; i++) {
-            triplets.add(new int[]{i,i+1,i+2});
-        }
-        if (nSpheres > 2 && kBend < Double.POSITIVE_INFINITY) {
-            P3BondAngleStiffChain p3 = new P3BondAngleStiffChain(kBend);
-            bondingInfo.setBondingPotentialTriplet(species, p3, triplets);
-        }
+        bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm,
                 new int[]{flex ? (nPoints+1) : nPoints},temperature, refCluster, targetCluster);
-        sim.setExtraTargetClusters(targetDiagrams);
         sim.setDoWiggle(false);
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTarget.getAtomPotentials());
@@ -222,23 +163,16 @@ public class VirialChain {
 
         PotentialMasterBonding.FullBondingInfo bondingInfodk = new PotentialMasterBonding.FullBondingInfo(sm);
 
-        PotentialMasterBonding pmBondingdk = new PotentialMasterBonding(sm, sim.box[1], bondingInfodk);
-        P3BondAngleStiffChain p3dk = new P3BondAngleStiffChain(1);
-        bondingInfodk.setBondingPotentialTriplet(species, p3dk, triplets);
-        fThetadk.setPotentialDK(pmBondingdk);
-
-        fThetadBeta.setPotentialDK(sim.integrators[1].getPotentialCompute());
-
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
         MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
 
         int[] constraintMap = new int[nPoints+1];
+        for (int i=0; i<nPoints; i++) {
+            constraintMap[i] = i;
+        }
         if (flex) {
-            for (int i=0; i<nPoints; i++) {
-                constraintMap[i] = i;
-            }
             constraintMap[nPoints] = 0;
             mcMoveHSC.setConstraintMap(constraintMap);
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
@@ -263,62 +197,59 @@ public class VirialChain {
 
         MCMoveClusterAngle[] angleMoves = null;
         MCMoveClusterStretch[] stretchMoves = null;
-        MCMoveClusterShuffle[] shuffleMoves = null;
-        MCMoveClusterReptate[] reptateMoves = null;
 
-        IntArrayList[] bonding = new IntArrayList[nSpheres];
-        bonding[0] = new IntArrayList(new int[]{1});
-        for (int i=1; i<nSpheres-1; i++) {
-            bonding[i] = new IntArrayList(new int[]{i-1,i+1});
+        IntArrayList[] bonding = new IntArrayList[1+numArms*armLength];
+        bonding[0] = new IntArrayList(numArms);
+
+        for (int i=0; i<numArms; i++) {
+            bonding[0].add(1+i*armLength);
+            if (armLength > 1) {
+                bonding[1 + i * armLength] = new IntArrayList(new int[]{0, 1 + i * armLength + 1});
+            }
+            else {
+                bonding[1 + i * armLength] = new IntArrayList(new int[]{0});
+            }
+            for (int j = 1; j < armLength-1; j++) {
+                bonding[1+armLength*i+j] = new IntArrayList(new int []{1+armLength*i+j-1, 1+armLength*i+j+1});
+            }
+            if (armLength > 1) {
+                bonding[1 + (i+1) * armLength - 1] = new IntArrayList(new int[]{1 + (i+1) * armLength - 2});
+            }
         }
-        bonding[nSpheres-1] = new IntArrayList(new int[]{nSpheres-2});
 
-        if (nSpheres > 1 && eFENE > 0 && eFENE < Double.POSITIVE_INFINITY) {
-            stretchMoves = new MCMoveClusterStretch[2];
-            stretchMoves[0] = new MCMoveClusterStretch(sim.integrators[0].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
-            stretchMoves[0].setBox(sim.box[0]);
-            sim.integrators[0].getMoveManager().addMCMove(stretchMoves[0]);
-            stretchMoves[1] = new MCMoveClusterStretch(sim.integrators[1].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
-            stretchMoves[1].setBox(sim.box[1]);
-            sim.integrators[1].getMoveManager().addMCMove(stretchMoves[1]);
-        }
+        PotentialCompute pc0 = sim.integrators[0].getPotentialCompute();
+        PotentialCompute pc1 = sim.integrators[1].getPotentialCompute();
 
-        if (nSpheres > 2 && kBend < Double.POSITIVE_INFINITY) {
-            angleMoves = new MCMoveClusterAngle[2];
-            angleMoves[0] = new MCMoveClusterAngle(sim.integrators[0].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
-            angleMoves[0].setBox(sim.box[0]);
-            angleMoves[0].setConstraintMap(constraintMap);
-            sim.integrators[0].getMoveManager().addMCMove(angleMoves[0]);
-            angleMoves[1] = new MCMoveClusterAngle(sim.integrators[1].getPotentialCompute(), space, bonding, sim.getRandom(), 1);
-            angleMoves[1].setBox(sim.box[1]);
-            angleMoves[1].setConstraintMap(constraintMap);
-            sim.integrators[1].getMoveManager().addMCMove(angleMoves[1]);
+        angleMoves = new MCMoveClusterAngle[2];
+        angleMoves[0] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1);
+        angleMoves[0].setBox(sim.box[0]);
+        angleMoves[0].setConstraintMap(constraintMap);
+        sim.integrators[0].getMoveManager().addMCMove(angleMoves[0]);
+        angleMoves[1] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1);
+        angleMoves[1].setBox(sim.box[1]);
+        angleMoves[1].setConstraintMap(constraintMap);
+        sim.integrators[1].getMoveManager().addMCMove(angleMoves[1]);
 
-            reptateMoves = new MCMoveClusterReptate[2];
-            reptateMoves[0] = new MCMoveClusterReptate(sim.integrators[0].getPotentialCompute(), space, sim.getRandom());
-            reptateMoves[0].setConstraintMap(constraintMap);
-            reptateMoves[0].setBox(sim.box[0]);
-            sim.integrators[0].getMoveManager().addMCMove(reptateMoves[0]);
-            reptateMoves[1] = new MCMoveClusterReptate(sim.integrators[1].getPotentialCompute(), space, sim.getRandom());
-            reptateMoves[1].setConstraintMap(constraintMap);
-            reptateMoves[1].setBox(sim.box[1]);
-            sim.integrators[1].getMoveManager().addMCMove(reptateMoves[1]);
-
-            shuffleMoves = new MCMoveClusterShuffle[2];
-            shuffleMoves[0] = new MCMoveClusterShuffle(sim.integrators[0].getPotentialCompute(), space, sim.getRandom());
-            shuffleMoves[0].setConstraintMap(constraintMap);
-            shuffleMoves[0].setBox(sim.box[0]);
-            sim.integrators[0].getMoveManager().addMCMove(shuffleMoves[0]);
-            ((MCMoveStepTracker) shuffleMoves[0].getTracker()).setAcceptanceTarget(0.3);
-            shuffleMoves[1] = new MCMoveClusterShuffle(sim.integrators[1].getPotentialCompute(), space, sim.getRandom());
-            shuffleMoves[1].setConstraintMap(constraintMap);
-            shuffleMoves[1].setBox(sim.box[1]);
-            sim.integrators[1].getMoveManager().addMCMove(shuffleMoves[1]);
-            ((MCMoveStepTracker) shuffleMoves[1].getTracker()).setAcceptanceTarget(0.3);
+        MCMoveClusterShuffle shuffleMove0 = null, shuffleMove1 = null;
+        if (armLength > 5) {
+            shuffleMove0 = new MCMoveClusterShuffle(pc0, space, sim.getRandom());
+            shuffleMove0.setBox(sim.box[0]);
+            shuffleMove0.setBonding(bonding);
+            shuffleMove0.setStepSizeMax(armLength - 2);
+            shuffleMove0.setConstraintMap(constraintMap);
+            sim.integrators[0].getMoveManager().addMCMove(shuffleMove0);
+            ((MCMoveStepTracker) shuffleMove0.getTracker()).setAcceptanceTarget(0.3);
+            shuffleMove1 = new MCMoveClusterShuffle(pc1, space, sim.getRandom());
+            shuffleMove1.setBonding(bonding);
+            shuffleMove1.setBox(sim.box[1]);
+            shuffleMove1.setStepSizeMax(armLength - 2);
+            shuffleMove1.setConstraintMap(constraintMap);
+            sim.integrators[1].getMoveManager().addMCMove(shuffleMove1);
+            ((MCMoveStepTracker) shuffleMove1.getTracker()).setAcceptanceTarget(0.3);
         }
 
         if (false) {
-            double size = (nSpheres + 5) * 1.5;
+            double size = (2*armLength + 5) * 1.5;
             sim.box[0].getBoundary().setBoxSize(Vector.of(size, size, size));
             sim.box[1].getBoundary().setBoxSize(Vector.of(size, size, size));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -330,7 +261,6 @@ public class VirialChain {
             displayBox1.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
-
 
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
@@ -497,45 +427,20 @@ public class VirialChain {
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
-        String[] extraNames = new String[targetDiagrams.length];
-        if (nDer > 0) {
-            for (int i = 1; i <= nDer; i++) {
-                extraNames[i - 1] = "derivative " + i;
-            }
-        }
-        else if (targetChoice == TargetChoice.DBETADK) {
-            extraNames[0] = "dB2dk";
-            extraNames[1] = "dB2dbeta";
-            extraNames[2] = "CWSD dB2dbeta";
-        }
-        sim.printResults(refIntegral, extraNames);
+        sim.printResults(refIntegral);
         System.out.println("time: "+(t2-t1)/1e9);
-    }
-
-    public enum TruncationChoice {
-        SIMPLE, SHIFT, FORCESHIFT
-    }
-
-    public enum TargetChoice {
-        NORMAL, DBETADK
     }
 
     /**
      * Inner class for parameters
      */
-    public static class VirialChainParams extends ParameterBase {
+    public static class VirialStarParams extends ParameterBase {
         public int nPoints = 2;
-        public int nSpheres = 3;
+        public int armLength = 3;
         public double temperature = 1;
         public long numSteps = 1000000;
         public double refFreq = -1;
-        public double eFENE = 0;
-        public double rc = 0;
-        public double bondLength = 1;
-        public TruncationChoice truncation = TruncationChoice.SHIFT;
-        public double kBend = 0;
-        public int nDer = 0;
-        public TargetChoice targetChoice = TargetChoice.NORMAL;
         public String fFile = null;
+        public int numArms = 2;
     }
 }
