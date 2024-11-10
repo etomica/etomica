@@ -11,26 +11,19 @@ import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.meter.MeterEnergyFromIntegrator;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.compute.NeighborManager;
-import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -45,61 +38,31 @@ import java.awt.*;
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
  */
 public class LJMC3DFM extends Simulation {
-
     public IntegratorMC integrator;
+//    public MCMoveAtomCoupled mcMoveAtom;
     public MCMoveAtom mcMoveAtom;
     public SpeciesGeneral species;
     public Box box;
     public PotentialComputePair potentialMaster;
-    //    public PotentialMasterList potentialMaster;
     public P2LennardJones potential;
     public double temperature;
 
     public LJMC3DFM(int numAtoms, double rho, double temperature, double rc) {
         super(Space3D.getInstance());
-
-
-
-
-
-
-
-
-        setRandom(new RandomMersenneTwister(10));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         box = this.makeBox();
         int cellRange = 2;
         NeighborCellManager neighborManager = new NeighborCellManager(getSpeciesManager(), box, cellRange, BondingInfo.noBonding());
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
-
         double sigma = 1.0;
         double eps = 1.0;
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
+//        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
+
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         box.setNMolecules(species, numAtoms);
-
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(rho);
         inflater.actionPerformed();
@@ -107,7 +70,7 @@ public class LJMC3DFM extends Simulation {
         P2SoftSphericalTruncatedForceShifted potentialTruncated = new P2SoftSphericalTruncatedForceShifted(potential, rc);
         AtomType leafType = species.getLeafType();
         potentialMaster.setPairPotential(leafType, leafType, potentialTruncated);
-
+        potentialMaster.doAllTruncationCorrection = false;
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
     }
@@ -119,9 +82,11 @@ public class LJMC3DFM extends Simulation {
         int numAtoms = params.numAtoms;
         int numSteps = params.numSteps;
         double alpha = params.alpha;
+        double dbeta = params.dbeta;
         double temperature = params.temperature;
         double rho = params.rho;
         double rc = params.rc;
+        boolean isGraphic = params.isGraphic;
 
         LJMC3DFM sim = new LJMC3DFM(numAtoms, rho, temperature, rc);
         System.out.println(" LJ");
@@ -131,58 +96,95 @@ public class LJMC3DFM extends Simulation {
         System.out.println(" rc: " + rc);
         System.out.println(" steps: " +  numSteps);
         System.out.println(" alpha: " + alpha);
+        System.out.println(" dbeta: " + dbeta);
 
-        boolean isGraphic = !true;
+
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY);
-            simGraphic.setPaintInterval(sim.box, 1);
-
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
 
                 public Color getAtomColor(IAtom a) {
-                    if (allColors == null) {
+                    if (allColors==null) {
                         allColors = new Color[768];
-                        for (int i = 0; i < 256; i++) {
-                            allColors[i] = new Color(255 - i, i, 0);
+                        for (int i=0; i<256; i++) {
+                            allColors[i] = new Color(255-i,i,0);
                         }
-                        for (int i = 0; i < 256; i++) {
-                            allColors[i + 256] = new Color(0, 255 - i, i);
+                        for (int i=0; i<256; i++) {
+                            allColors[i+256] = new Color(0,255-i,i);
                         }
-                        for (int i = 0; i < 256; i++) {
-                            allColors[i + 512] = new Color(i, 0, 255 - i);
+                        for (int i=0; i<256; i++) {
+                            allColors[i+512] = new Color(i,0,255-i);
                         }
                     }
-                    return allColors[(768 * a.getIndex())];
+                    return allColors[(2*a.getLeafIndex()) % 768];
                 }
             };
-
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 1);
-            simGraphic.makeAndDisplayFrame("LJMCFM");
 
+
+            ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0),1.0);
+
+
+            DisplayTextBox timer = new DisplayTextBox();
+            DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
+            DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
+            sim.integrator.getEventManager().addListener(counterPump);
+            simGraphic.getPanel().controlPanel.add(timer.graphic());
+
+            DisplayPlot pePlot = new DisplayPlot();
+            simGraphic.add(pePlot);
+
+            simGraphic.makeAndDisplayFrame();
             return;
         }
         System.out.flush();
 
+
+        MeterFM meterFM = new MeterFM(sim.potentialMaster, temperature, sim.box, alpha, dbeta);
+        sim.integrator.reset();
+        System.out.println(" uLat: "+sim.integrator.getPotentialEnergy()/numAtoms);
+
+
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
+        System.out.println(" Done with equilibration ...");
 
         int interval = numAtoms;
         int blocks = 100;
         long blockSize = params.numSteps / (interval * blocks);
         System.out.println(" numBlocks: " + blocks + " blocksize: " + blockSize + " interval: " + interval);
+        System.out.println();
 
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(blockSize);
+        AccumulatorAverageFixed energyAccumulator = new AccumulatorAverageFixed(blockSize);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, interval);
         sim.integrator.getEventManager().addListener(energyPump);
 
-        MeterFM energyFM = new MeterFM(sim.potentialMaster, temperature, sim.box, alpha);
-        AccumulatorAverage energyFMAccumulator = new AccumulatorAverageFixed(blockSize);
-
-        DataPumpListener energyFMPump = new DataPumpListener(energyFM, energyFMAccumulator, interval);
+        AccumulatorAverageCovariance energyFMAccumulator = new AccumulatorAverageCovariance(blockSize);
+        DataPumpListener energyFMPump = new DataPumpListener(meterFM, energyFMAccumulator, interval);
         sim.integrator.getEventManager().addListener(energyFMPump);
+
+
+
+
+        // Short sim
+//        double EnShift = 0, errEnShift = 0;
+//        long numStepsShort = numSteps/10;
+//        System.out.println(" Short sim for Covariance: " + numStepsShort + " steps");
+//        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
+//        System.out.println(" Done with "+ numStepsShort +" steps of short run");
+//        double avg_u_short = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(0);
+//        double avg_bf2_short = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(1);
+////        double avg_h_short = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(2);
+////        double avg4 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(3);
+//        System.out.println(" avg_u_short: " + avg_u_short + " avg_bf2_short: " + avg_bf2_short);
+//        meterFM.setAvgs(avg_u_short, avg_bf2_short, 0, 0);
+//        energyFMAccumulator.reset();
+//
+//
+
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
@@ -202,58 +204,185 @@ public class LJMC3DFM extends Simulation {
 //        double err_fm = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(1);
 //        double cor_fm = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(1);
 //        System.out.println("e_fm: " + avg_fm + " " + err_fm + " " + cor_fm);
-
+//
 //        double avg_fm2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(2);
 //        double err_fm2 = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(2);
 //        double cor_fm2 = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(2);
 //        System.out.println("diff: " + avg_fm2 + " " + err_fm2 + " " + cor_fm2);
 
 
-        double sumF2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(0);
-        double sumLambda = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(1);
-        double sumLambda2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(2);
-        double sumFHF = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(3);
-        System.out.println("sumF2  +  sumLambda  +  sumLambda2  +  sumFHF");
-        System.out.println(sumF2 +" "+ sumLambda +" "+ sumLambda2 +" "+ sumFHF);
+//        double sumF2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(0);
+//        double sumLambda = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(1);
+//        double sumLambda2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(2);
+//        double sumFHF = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(3);
+//        System.out.println("sumF2  +  sumLambda  +  sumLambda2  +  sumFHF");
+//        System.out.println(sumF2 +" "+ sumLambda +" "+ sumLambda2 +" "+ sumFHF);
+//
+//        double beta1 = 1.0/temperature + dbeta;
+//        double alphaOpt = (beta1*sumF2-sumLambda)/(beta1*sumFHF+sumLambda2);
+//        double beta0 = 1.0/temperature;
+//        double dAlphaOpt = sumF2/(beta0*sumFHF+sumLambda2);
+//        System.out.println("alphaOpt: " + alphaOpt);
+//        System.out.println("dAlphaOpt: " + dAlphaOpt);
+//
+//
+//
+//        double avg_dphi = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(6);
+//        double err_dphi = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(6);
+//        double cor_dphi = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(6);
+//        System.out.println("<dphi>/dalpha: " + avg_dphi + " " + err_dphi + " " + cor_dphi);
+//        System.out.println();
+//
+//        x[0] = U0/numAtoms; // <U/N>
+//        x[1] = sumF2/numAtoms; // <F2/N>
+//        x[2] = sumHxx/numAtoms; // <trH/N>
+//        x[3] = sumHxx/sumF2; //<trH/F2>
 
-        double beta1 = 1.0/temperature + 0.01;
-        double alphaOpt = (beta1*sumF2-sumLambda)/(beta1*sumFHF+sumLambda2);
-        double beta0 = 1.0/temperature;
-        double dAlphaOpt = sumF2/(beta0*sumFHF+sumLambda2);
-        System.out.println("alphaOpt: " + alphaOpt);
-        System.out.println("dAlphaOpt: " + dAlphaOpt);
+        double avg_u = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(0);
+        double err_u = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(0);
+        double cor_u = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(0);
 
-        double avg_conv = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(4);
-        double err_conv = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(4);
-        double cor_conv = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(4);
-        System.out.println("<du>: " + avg_conv + " " + err_conv + " " + cor_conv);
+        double avg_F2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(1);
+        double err_F2 = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(1);
+        double cor_F2 = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(1);
+        System.out.println();
 
-        double avg_fm = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(5);
-        double err_fm = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(5);
-        double cor_fm = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(5);
-        System.out.println("<phi>: " + avg_fm + " " + err_fm + " " + cor_fm);
+        double avg_fb = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(2);
+        double err_fb = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(2);
+        double cor_fb = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(2);
 
-        double avg_dphi = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(6);
-        double err_dphi = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(6);
-        double cor_dphi = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(6);
-        System.out.println("d<phi>/dalpha: " + avg_dphi + " " + err_dphi + " " + cor_dphi);
+        System.out.println(" u_conv: " + (avg_u) + " " + err_u + " " + cor_u);
+        System.out.println("   u_fb: " + avg_F2 + " " + err_F2 + " " + cor_F2);
+        System.out.println("  u_hma: " + avg_fb + " " + err_fb + " " + cor_fb);
 
-        double avg = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(7);
-        double err = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(7);
-        double cor = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(7);
-        System.out.println("U0: " + avg + " " + err + " " + cor);
+//        double varU = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(0);
+//        double varF2H = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(4);
+//
+//        double covU_F2H = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(1);
+//        double corU_F2H = covU_F2H/Math.sqrt(varU*varF2H);
+//        System.out.println();
+//        System.out.println(" corU_F2H: " + corU_F2H);
+//
+//        System.out.println(err_u +" "+ err_F2 +" "+  corU_F2H);
+//        System.out.println(" opt: " + err_u/err_F2*corU_F2H);
+
+
+
+//        //www
+//        double avg_h = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(2);
+//        double err_h = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(2);
+//        double cor_h = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(2);
+//        System.out.println(" avg_h: " + avg_h + " " + err_h + " " + cor_h);
+//
+//        double avg_h_F2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(3);
+//        double err_h_F2 = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(3);
+//        double cor_h_F2 = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(3);
+//        System.out.println(" avg_h_F2: " + avg_h + " " + err_h_F2 + " " + cor_h_F2);
+//
+//        double f1 = avg_F2/avg_h;
+//        double f2 = 1/avg_h_F2;
+//        System.out.println();
+//        System.out.println("f1: " + f1);
+//        System.out.println("f2: " + f2);
+//        System.out.println();
+//
+//        double err_f2 = err_h_F2/avg_h_F2/avg_h_F2;
+//        System.out.println(" alpha=sd_u/sd_f1: " + err_u/err_f2);
+//        System.out.println();
+//
+//        double u_fb1 = avg_u - alpha*(f1 - temperature);
+//        double u_fb2 = avg_u - alpha*(f2 - temperature);
+//        System.out.println(" u_conv: " + avg_u + "  " + err_u + "  " + cor_u);
+//        System.out.println("  u_fb1: " + u_fb1);
+//        System.out.println("  u_fb2: " + u_fb2);
+//
+//        System.out.println();
+//        double varU = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(0);
+//        double varF = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(5);
+//        double varH  = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(10);
+//        double varHF  = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(15);
+//
+//        double covUF = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(1);
+//        double covUH = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(2);
+//        double covU_HF = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(3);
+//        double covFH = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(6);
+//        double covF_HF = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(7);
+//        double covH_HF = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(11);
+//
+//        double corUF = covUF/Math.sqrt(varU*varF);
+//        double corUH = covUH/Math.sqrt(varU*varH);
+//        double corU_HF = covU_HF/Math.sqrt(varU*varHF);
+//        double corFH = covFH/Math.sqrt(varF*varH);
+//        double corF_HF = covF_HF/Math.sqrt(varF*varHF);
+//        double corH_HF = covH_HF/Math.sqrt(varH*varHF);
+//
+//        System.out.println(" corUF: " + corUF);
+//        System.out.println(" corUH: " + corUH);
+//        System.out.println(" corU_HF: " + corU_HF);
+//        System.out.println(" corFH: " + corFH);
+//        System.out.println(" corF_HF: " + corF_HF);
+//        System.out.println(" corH_HF: " + corH_HF);
+//        www
+
+
+
+//        double e_f = avg_conv - 1.0/2.0/alpha*temperature*avg_h + 1.0/2.0/alpha*avg_h_f2*avg_f2;
+//        double avg_hma = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(8);
+//        double err_hma = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(8);
+//        double cor_hma = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(8);
+//        System.out.println("  hma: " + avg_hma + " " + err_hma + " " + cor_hma);
+//        System.out.println();
+//
+//        double avg = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(7);
+//        double err = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(7);
+//        double cor = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(7);
+//        System.out.println("U0: " + avg + " " + err + " " + cor);
+
+//        System.out.println();
+//        double avg_u = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(0);
+//        double err_u = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(0);
+//        double cor_u = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(0);
+//        System.out.println(" u_conv: " + avg_u + " " + err_u + " " + cor_u);
+//
+//        double avg_bf2 = energyFMAccumulator.getData(energyFMAccumulator.AVERAGE).getValue(1);
+//        double err_bf2 = energyFMAccumulator.getData(energyFMAccumulator.ERROR).getValue(1);
+//        double cor_bf2 = energyFMAccumulator.getData(energyFMAccumulator.BLOCK_CORRELATION).getValue(1);
+//        System.out.println("   bF2: " + avg_bf2 + " " + err_bf2 + " " + cor_bf2);
+
+
+
+//        double var_U = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(0);
+//        double var_bF2 = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(4);
+//        double var_H  = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(8);
+//
+//        double covUbF2 = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(1);
+//        double covUH = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(2);
+//        System.out.println();
+//        System.out.println(" cor_ubf2: " + covUbF2/Math.sqrt(var_U*var_bF2));
+//        System.out.println(" cor_uh: " + covUH/Math.sqrt(var_U*var_H));
+//
+//        double zeroTest = covUH - covUbF2 + (avg_bf2+avg_bf2_short)*temperature/numAtoms;
+//        System.out.println("covUH - covUbF2 + (avg_bf2+avg_bf2_short)*temperature/numAtoms");
+//        System.out.println(covUH + "  " + covUbF2 + "  " + (avg_bf2+avg_bf2_short)*temperature/numAtoms + " ||| " + (covUbF2-(avg_bf2+avg_bf2_short)*temperature/numAtoms));
+//        System.out.println("zeroTest: " + zeroTest);
+
+
+
 
         long t2 = System.nanoTime();
-
         System.out.println("\ntime: " + (t2 - t1)/1.0e9/60.0 + " min");
     }
 
     public static class SimParams extends ParameterBase {
-        public int numAtoms = 256;
-        public int numSteps = 200000;
-        public double temperature = 0.4;
-        public double rho = 0.9;
+        public int numAtoms = 108;
+        public int numSteps = 5000000;
+        public double temperature = 1.0;
+        public double rho = 0.85;
         public double rc = 2.5;
-        public double alpha = 1e-5;
+        public double dbeta = 1.0;
+        public boolean isGraphic = !true;
+
+        public double alpha = 1;
+
     }
 }
