@@ -7,21 +7,25 @@ package etomica.virial;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.util.random.IRandom;
+import etomica.molecule.CenterOfMass;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
-public class ConfigurationClusterMove extends ConfigurationCluster {
+public class ConfigurationClusterMoveMolecule extends ConfigurationCluster {
 	protected final IRandom random;
 	protected final double distance;
 	protected final MCMoveBox[] moves;
-    public ConfigurationClusterMove(Space _space, IRandom random) {
+    public ConfigurationClusterMoveMolecule(Space _space, IRandom random) {
         this(_space, random, 2);
     }
-    
-	public ConfigurationClusterMove(Space _space, IRandom random, double distance) {
+
+	public ConfigurationClusterMoveMolecule(Space _space, IRandom random, double distance) {
 		this(_space, random, distance, new MCMoveBox[0]);
 	}
-	public ConfigurationClusterMove(Space _space, IRandom random, double distance, MCMoveBox[] moves){
+	public ConfigurationClusterMoveMolecule(Space _space, IRandom random, double distance, MCMoveBox[] moves){
 		super(_space);
 		this.random = random;
 		this.distance = distance;
@@ -31,11 +35,19 @@ public class ConfigurationClusterMove extends ConfigurationCluster {
 	public void initializeCoordinates(Box box) {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
+		Vector translationVector = clusterBox.getSpace().makeVector();
 		while (clusterBox.getSampleCluster().value(clusterBox) == 0) {
-    		IAtomList list = box.getLeafList();
-    		for (int i = 1; i<list.size(); i++){
-    			list.get(i).getPosition().setRandomInSphere(random);
-    			list.get(i).getPosition().TE(distance);
+    		IMoleculeList list = box.getMoleculeList();
+    		for (int i = 1; i<list.size() - 1; i++){
+				IMolecule molecule = list.get(i);
+				Vector com = CenterOfMass.position(clusterBox, molecule);
+				translationVector.setRandomInSphere(random);
+				translationVector.TE(distance);
+				translationVector.ME(com);
+				molecule.getChildList().forEach(atom -> {
+
+					atom.getPosition().PE(translationVector);
+				});
     		}
             clusterBox.trialNotify();
             clusterBox.acceptNotify();

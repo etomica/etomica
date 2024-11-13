@@ -373,7 +373,29 @@ public class VirialDiagrams {
         }
         return new ClusterSumMultibody(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}, new MayerFunctionNonAdditive[]{fMulti});
     }
+    public ClusterSum makeVirialCluster(Graph g, MayerFunction f){
+        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
+        ArrayList<Double> weights = new ArrayList<Double>();
 
+        int nDiagrams = populateEFBonds(g, allBonds, weights, false);
+        if (nDiagrams > 0 && flex) {
+            populateEFBonds(g, allBonds, weights, true);
+        }
+        if (flex && cancelMap.get(g) != null) {
+            Graph cg = cancelMap.get(g);
+            populateEFBonds(cg, allBonds, weights, false);
+            populateEFBonds(cg, allBonds, weights, true);
+        }
+        double gCoef = g.coefficient().getValue();
+
+
+        double[] w = new double[weights.size()];
+        for (int i=0; i<w.length; i++) {
+            w[i] = weights.get(i)/gCoef;
+        }
+        return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f});
+
+    }
     public ClusterSum makeVirialClusterTempDeriv(MayerFunction f, MayerFunction e, MayerFunction dfdT) {
         if (p == null) {
             makeVirialDiagrams();

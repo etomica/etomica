@@ -14,6 +14,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -31,9 +32,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.*;
 import etomica.virial.wheatley.ClusterWheatleyHS;
@@ -62,11 +61,12 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-                params.chemForm = new ChemForm[]{ChemForm.CH3OH};
-            params.nPoints = 4; //B order
-            params.nTypes = new int[]{4};
+            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
+            params.nPoints = 3; //B order
+            params.nTypes = new int[]{3};
             params.nDer = 2;
-            params.temperature = 1000;
+            params.temperature = 300;
+            params.diagram = null;
             params.numSteps = 10000000;
             params.refFrac = -1;
             params.seed = null;
@@ -213,10 +213,11 @@ public class VirialTraPPE {
         //flex moves
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
         int nSpheres = TPList[0].species.getAtomTypes().size();
-        boolean isFlex = TPList[0].isFlex;
+        boolean isFlex = TPList[0].isFlex && (params.diagram == null|| !params.diagram.equals("BC"));
 
         System.out.println("isFlex = " + isFlex);
         VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
+
         Diagrams.setDoReeHoover(false);
         ClusterSum targetCluster = Diagrams.makeVirialCluster(fAll[0][0]);
         ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
@@ -225,26 +226,44 @@ public class VirialTraPPE {
 
         if (nSpheres > 2) {
             targetDiagrams = Diagrams.makeSingleVirialClusters(targetCluster, null, fAll[0][0]);
-            targetDiagramNumbers = new int[targetDiagrams.length];
-            System.out.println("individual clusters:");
             Set<Graph> singleGraphs = Diagrams.getMSMCGraphs(true, false);
             Map<Graph,Graph> cancelMap = Diagrams.getCancelMap();
-            int iGraph = 0;
-            diagramFlexCorrection = new boolean[targetDiagrams.length];
-            for (Graph g : singleGraphs) {
-                System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
-                targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+            if(params.diagram != null && !params.diagram.equals("BC")) {
+                int iGraph = 0;
+                for (Graph g : singleGraphs) {
+                    if(params.diagram.equals(g.getStore().toNumberString() + "c")) {
+                        targetCluster = Diagrams.makeVirialCluster(g, fAll[0][0]);
+                        targetDiagrams = new ClusterSumShell[0];
+                        System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
+                        Graph cancelGraph = cancelMap.get(g);
+                        Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
 
-                Graph cancelGraph = cancelMap.get(g);
-                if (cancelGraph != null) {
-                    diagramFlexCorrection[iGraph] = true;
-                    Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
+                        System.out.print(" - "+alkane.getSplitGraphString(gSplit, Diagrams, false));
 
-                    System.out.print(" - "+alkane.getSplitGraphString(gSplit, Diagrams, false));
-
+                    }
+                    iGraph++;
                 }
-                System.out.println();
-                iGraph++;
+            }
+            else {
+                targetDiagramNumbers = new int[targetDiagrams.length];
+                System.out.println("individual clusters:");
+                int iGraph = 0;
+                diagramFlexCorrection = new boolean[targetDiagrams.length];
+                for (Graph g : singleGraphs) {
+                    System.out.print(iGraph + " (" + g.coefficient() + ") " + g.getStore().toNumberString()); // toNumberString: its corresponding number
+                    targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+
+                    Graph cancelGraph = cancelMap.get(g);
+                    if (cancelGraph != null) {
+                        diagramFlexCorrection[iGraph] = true;
+                        Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
+
+                        System.out.print(" - " + alkane.getSplitGraphString(gSplit, Diagrams, false));
+
+                    }
+                    System.out.println();
+                    iGraph++;
+                }
             }
             System.out.println();
             Set<Graph> disconnectedGraphs = Diagrams.getExtraDisconnectedVirialGraphs();
@@ -266,7 +285,7 @@ public class VirialTraPPE {
 
 
         //P3 bond angle
-        if (isFlex) {
+        if (TPList[0].theta_eq != null) {
             P3BondAngle[] p3 = new P3BondAngle[TPList[0].theta_eq.length]; //declaration, instatation
 
             List<int[]> triplets = new ArrayList<>();
@@ -282,7 +301,7 @@ public class VirialTraPPE {
         }
         //dihedral stuff
         P4BondTorsion[] p4 = null;
-        if (nSpheres > 3 && isFlex) {
+        if (TPList[0].a != null) {
             p4 = new P4BondTorsion[TPList[0].a.length];
 
             List<int[]> quads = new ArrayList<>();
@@ -384,8 +403,13 @@ public class VirialTraPPE {
 
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
 
+
+        }
+        if(TPList[0].theta_eq != null) {
             mcMoveAngle = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
+            mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[1].getPotentialCompute(), space);
+            sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
 
         }
         if (doChainRef) {
@@ -396,8 +420,6 @@ public class VirialTraPPE {
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
                 if(isFlex) {
                     mcMoveHSC.setConstraintMap(constraintMap);
-                    mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[1].getPotentialCompute(), space);
-                    sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
 
                 }
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
@@ -405,8 +427,32 @@ public class VirialTraPPE {
 
         }
 
-        // Run with Graphics
-        if (true) {
+
+        // create the intramolecular potential here, add to it and add it to
+        // the potential master if needed
+        MCMoveClusterTorsionMulti[] torsionMoves = null;
+        if (TPList[0].a != null) {
+
+            torsionMoves = new MCMoveClusterTorsionMulti[TPList[0].a.length];
+            for (int i=0; i<TPList[0].a.length; i++) {
+                torsionMoves[i] = new MCMoveClusterTorsionMulti(sim.integrators[0].getPotentialCompute(), space, sim.getRandom(), p4[i], 40);
+                torsionMoves[i].setBox(sim.box[0]);
+                torsionMoves[i].setTemperature(temperature);
+                sim.integrators[0].getMoveManager().addMCMove(torsionMoves[i]);
+            }
+//            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialCompute(), space, sim.getRandom(), p4[0], 40);
+//            torsionMoves[1].setBox(sim.box[1]);
+//            torsionMoves[1].setTemperature(temperature);
+//            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
+        }
+        if(params.diagram != null && !params.diagram.equals("BC") && TPList[0].theta_eq != null) {
+
+            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 10, new MCMoveBox[]{mcMoveAngle1});
+            move.initializeCoordinates(sim.box[1]);
+        }
+
+            // Run with Graphics
+        if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -431,28 +477,10 @@ public class VirialTraPPE {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20, false);
+            sim.initRefPref(null, 100, false);
+            sim.equilibrate(null, 200, false);
             sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             return;
-        }
-
-        // create the intramolecular potential here, add to it and add it to
-        // the potential master if needed
-        MCMoveClusterTorsionMulti[] torsionMoves = null;
-        if (nSpheres > 3 && isFlex) {
-
-            torsionMoves = new MCMoveClusterTorsionMulti[TPList[0].a.length];
-            for (int i=0; i<TPList[0].a.length; i++) {
-                torsionMoves[i] = new MCMoveClusterTorsionMulti(sim.integrators[0].getPotentialCompute(), space, sim.getRandom(), p4[i], 40);
-                torsionMoves[i].setBox(sim.box[0]);
-                torsionMoves[i].setTemperature(temperature);
-                sim.integrators[0].getMoveManager().addMCMove(torsionMoves[i]);
-            }
-//            torsionMoves[1] = new MCMoveClusterTorsionMulti(sim.integrators[1].getPotentialCompute(), space, sim.getRandom(), p4[0], 40);
-//            torsionMoves[1].setBox(sim.box[1]);
-//            torsionMoves[1].setTemperature(temperature);
-//            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
         }
 
         // Setting up Equilibration
@@ -581,7 +609,7 @@ public class VirialTraPPE {
 
         public boolean dorefpref = true;
         public boolean doChainRef = true;
-
+        public String diagram = null;
         public double BDtol = 1e-12;
 
     }
