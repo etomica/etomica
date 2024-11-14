@@ -373,6 +373,24 @@ public class VirialDiagrams {
         }
         return new ClusterSumMultibody(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}, new MayerFunctionNonAdditive[]{fMulti});
     }
+    public int[][] getFlipPointsforDiagram(String diagram) {
+        if(diagram.equals("5c")){
+            return new int[][]{{0, 1}, {0, 2}};
+
+        }
+        else if(diagram.equals("54c")){
+            return new int[][]{{0, 3}};
+        }
+        else if(diagram.equals("52c")){
+            return new int[][]{{0, 3}, {1, 2}, {0, 1, 2}};
+        }
+        else if(diagram.equals("38c")){
+            return new int[][]{{0, 1}, {0, 3}, {0, 2}};
+        }
+        else{
+            throw new RuntimeException("unknown diagram " + diagram);
+        }
+    }
     public ClusterSum makeVirialCluster(Graph g, MayerFunction f){
         ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
         ArrayList<Double> weights = new ArrayList<Double>();

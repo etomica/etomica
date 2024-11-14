@@ -62,12 +62,12 @@ public class VirialTraPPE {
         } else {
             // Customize Interactive Parameters Here
             params.chemForm = new ChemForm[]{ChemForm.CH3OH};
-            params.nPoints = 3; //B order
-            params.nTypes = new int[]{3};
+            params.nPoints = 4; //B order
+            params.nTypes = new int[]{4};
             params.nDer = 2;
-            params.temperature = 300;
-            params.diagram = null;
-            params.numSteps = 10000000;
+            params.temperature = 1000;
+            params.diagram = "38c";
+            params.numSteps = 100000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
@@ -219,13 +219,13 @@ public class VirialTraPPE {
         VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
 
         Diagrams.setDoReeHoover(false);
-        ClusterSum targetCluster = Diagrams.makeVirialCluster(fAll[0][0]);
+        ClusterAbstract targetCluster = Diagrams.makeVirialCluster(fAll[0][0]);
         ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
         int[] targetDiagramNumbers = new int[0];
         boolean[] diagramFlexCorrection = null;
 
         if (nSpheres > 2) {
-            targetDiagrams = Diagrams.makeSingleVirialClusters(targetCluster, null, fAll[0][0]);
+            targetDiagrams = Diagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fAll[0][0]);
             Set<Graph> singleGraphs = Diagrams.getMSMCGraphs(true, false);
             Map<Graph,Graph> cancelMap = Diagrams.getCancelMap();
             if(params.diagram != null && !params.diagram.equals("BC")) {
@@ -330,8 +330,8 @@ public class VirialTraPPE {
         System.out.println(steps + " steps (" + numBlocks + " blocks of " + blockSize + ")");
         System.out.println("BD_Tol: " + BDtol + " BDAccFrac: " + BDAccFrac);
 
-        // Setting up Flipping
-        if(anyPolar && (isFlex || nPoints==2) && true) {
+        // Setting up Flipping rigid, polar
+        if(anyPolar && !isFlex && nPoints==2) {
             System.out.println("Performing Flipping");
             ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
@@ -341,6 +341,17 @@ public class VirialTraPPE {
             targetClusterBDRigid.setDoCaching(false);
             targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
         }
+        //flipping for flexible polar B2
+        else if(isFlex && nPoints==2 && anyPolar){
+            targetCluster = new ClusterCoupledFlipped(targetCluster, space);
+
+        }
+        else if(anyPolar && isFlex && nPoints > 2 && params.diagram != null && !params.diagram.equals("BC")){
+            int[][] flipPoints = Diagrams.getFlipPointsforDiagram(params.diagram);
+            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints);
+
+        }
+
 
 
         // Setting up Simulation
@@ -447,7 +458,7 @@ public class VirialTraPPE {
         }
         if(params.diagram != null && !params.diagram.equals("BC") && TPList[0].theta_eq != null) {
 
-            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 10, new MCMoveBox[]{mcMoveAngle1});
+            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 5, new MCMoveBox[]{mcMoveAngle1});
             move.initializeCoordinates(sim.box[1]);
         }
 
