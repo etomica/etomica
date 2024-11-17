@@ -66,7 +66,7 @@ public class VirialTraPPE {
             params.nTypes = new int[]{5};
             params.nDer = 2;
             params.temperature = 1000;
-            params.diagram = "944c";
+            params.diagram = "808c";
             params.numSteps = 100000000;
             params.refFrac = -1;
             params.seed = null;

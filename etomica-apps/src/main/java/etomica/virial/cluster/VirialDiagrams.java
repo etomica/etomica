@@ -424,7 +424,7 @@ public class VirialDiagrams {
 
         }
         else if(diagram.equals("808c")){
-            return new int[][]{{1, 3}, {1, 2}, {1, 0, 4}};
+            return new int[][]{{1, 3}, {1, 2}, {0, 4}, {1, 0, 4}};
 
         }
         else if(diagram.equals("562c")){

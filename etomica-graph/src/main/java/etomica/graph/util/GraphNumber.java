@@ -16,7 +16,7 @@ public class GraphNumber {
 
   public static void main(String[] args) {
 
-      args = new String[]{"-display", "562"};
+      args = new String[]{"-display", "808"};
 
     String usage = "usage: GraphNumber [-display] num [nodeCount]";
     if (args.length == 0) {
