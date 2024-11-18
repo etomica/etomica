@@ -67,7 +67,7 @@ public class VirialTraPPE {
             params.nDer = 2;
             params.temperature = 1000;
             params.diagram = "808c";
-            params.numSteps = 100000000;
+            params.numSteps = 10000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
@@ -216,6 +216,7 @@ public class VirialTraPPE {
         boolean isFlex = TPList[0].isFlex && (params.diagram == null|| !params.diagram.equals("BC"));
 
         System.out.println("isFlex = " + isFlex);
+        System.out.println("Diagram " + params.diagram);
         VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
 
         Diagrams.setDoReeHoover(false);
