@@ -35,7 +35,7 @@ public class NeighborListManagerHard extends NeighborListManager implements Neig
     @Override
     protected void realloc() {
         super.realloc();
-        nbrState = new int[box.getLeafList().size()][maxNab];
+        nbrState = new int[nbrs.length][maxNab];
     }
 
     @Override
