@@ -15,6 +15,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -62,12 +63,12 @@ public class VirialTraPPE {
         } else {
             // Customize Interactive Parameters Here
             params.chemForm = new ChemForm[]{ChemForm.CH3OH};
-            params.nPoints = 5; //B order
-            params.nTypes = new int[]{5};
+            params.nPoints = 3; //B order
+            params.nTypes = new int[]{3};
             params.nDer = 2;
-            params.temperature = 1000;
-            params.diagram = "808c";
-            params.numSteps = 10000000;
+            params.temperature = 300;
+            params.diagram = "BC";
+            params.numSteps = 100000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
@@ -362,7 +363,10 @@ public class VirialTraPPE {
             sim = new SimulationVirialOverlap2(space, sm, nTypes, temperature, refCluster, targetClusterRigid);
             if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
             System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
-
+            if(TPList[0].isFlex){
+                sim.setBondingInfo(bondingInfo);
+                sim.setIntraPairPotentials(TPList[0].potentialGroup.getAtomPotentials());
+            }
             if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
                 ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
             } else {
@@ -381,6 +385,7 @@ public class VirialTraPPE {
             sim = new SimulationVirialOverlap2(space, sm, new int[]{(nPoints+1)}, temperature, refCluster, targetCluster);
             sim.setExtraTargetClusters(targetDiagrams);
 //            sim.setDoWiggle(nSpheres > 2);
+
             sim.setBondingInfo(bondingInfo);
             sim.setIntraPairPotentials(TPList[0].potentialGroup.getAtomPotentials());
             sim.setRandom(new RandomMersenneTwister(2));
@@ -422,6 +427,7 @@ public class VirialTraPPE {
             sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
             mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[1].getPotentialCompute(), space);
             sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
+            ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
 
         }
         if (doChainRef) {
@@ -438,7 +444,7 @@ public class VirialTraPPE {
                 sim.accumulators[0].setBlockSize(1);
 
         }
-
+        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
@@ -518,6 +524,9 @@ public class VirialTraPPE {
                 tempString = ""+(int)temperatureK;
             }
             refFileName = "refpref_"+"_"+nPoints+"_"+tempString+"K";
+            if(params.diagram != null){
+                refFileName += "_"+params.diagram;
+            }
         }
 
         // Equilibrate

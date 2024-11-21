@@ -143,7 +143,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     }
     
     public void acceptNotify() {
-//        System.out.println("accepted wiggle");
+//        System.out.println("accepted angle");
         ((BoxCluster)box).acceptNotify();
     }
 
