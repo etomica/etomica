@@ -93,10 +93,10 @@ public class VirialAlkane {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 5; // B order
+            params.nPoints = 3; // B order
             params.nSpheres = 3; // length of alkane
-            params.temperature = 600;
-            params.numSteps = 10000000;
+            params.temperature = 300;
+            params.numSteps = 100000000;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;

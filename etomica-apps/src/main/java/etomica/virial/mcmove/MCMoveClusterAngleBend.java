@@ -76,17 +76,21 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
             if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IMolecule molecule = moleculeList.get(i);
-            IAtomList childList = molecule.getChildList();
-            int numChildren = childList.size();
-            if (numChildren != 3) continue;
-            double dt = stepSize * (random.nextDouble() - 0.5);
-            dTheta[i] = dt;
-            transform(molecule, dt);
+            //hack for angle bend of root molecules only
+            if(i ==0) {
+                IMolecule molecule = moleculeList.get(i);
+                IAtomList childList = molecule.getChildList();
+                int numChildren = childList.size();
+                if (numChildren != 3) continue;
+                double dt = stepSize * (random.nextDouble() - 0.5);
+                dTheta[i] = dt;
+                transform(molecule, dt);
+            }
         }
         ((BoxCluster)box).trialNotify();
         wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         uNew = pc.computeAll(false);
+
         return true;
     }
     
@@ -116,13 +120,13 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         double m1 = childList.get(1).getType().getMass();
         double m2 = childList.get(2).getType().getMass();
 
-        work3.PEa1Tv1(m0, pos0);
-        pos0.E(pos1);
-        pos0.PEa1Tv1(bondLength01*cdt, work1);
-        pos0.PEa1Tv1(bondLength01*sdt, work2);
-        work3.PEa1Tv1(-m0, pos0);
+//        work3.Ea1Tv1(m0, pos0);
+//        pos0.E(pos1);
+//        pos0.PEa1Tv1(bondLength01*cdt, work1);
+//        pos0.PEa1Tv1(bondLength01*sdt, work2);
+//        work3.PEa1Tv1(-m0, pos0);
 
-        // normalize bond lengths -- we'll scaled our vectors back up later
+        // normalize bond lengths -- we'll scale our vectors back up later
         work2.Ev1Mv2(pos2, pos1);
         work2.TE(1.0/bondLength12);
         dot = work1.dot(work2);
@@ -136,10 +140,10 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         work3.PEa1Tv1(-m2, pos2);
         
         // translate COM back to its original position
-        work3.TE(1/(m0+m1+m2));
-        pos0.PE(work3);
-        pos1.PE(work3);
-        pos2.PE(work3);
+//        work3.TE(1/(m0+m1+m2));
+//        pos0.PE(work3);
+//        pos1.PE(work3);
+//        pos2.PE(work3);
     }
     
     public void acceptNotify() {
