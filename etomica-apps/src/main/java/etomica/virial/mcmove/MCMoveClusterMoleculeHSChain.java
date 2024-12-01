@@ -96,7 +96,7 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
 
         for (int i = start; i<n; i++) {
             if (constraintMap[seq[i]] != seq[i]) continue;
-            translationVector.setRandomInSphere(random);
+            translationVector.setRandomCube(random);
             translationVector.setX(1, 0);
             translationVector.setX(2, 0);
 

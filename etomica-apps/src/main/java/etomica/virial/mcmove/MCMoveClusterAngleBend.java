@@ -77,7 +77,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
                 continue;
             }
             //hack for angle bend of root molecules only
-            if(i ==0) {
+            if(i ==3) {
                 IMolecule molecule = moleculeList.get(i);
                 IAtomList childList = molecule.getChildList();
                 int numChildren = childList.size();

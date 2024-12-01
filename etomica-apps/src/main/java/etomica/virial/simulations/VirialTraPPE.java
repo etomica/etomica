@@ -434,11 +434,11 @@ public class VirialTraPPE {
         }
         if(TPList[0].theta_eq != null) {
             mcMoveAngle = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[0].getPotentialCompute(), space);
-            mcMoveAngle.setStepSizeMax(0.02);
+            mcMoveAngle.setStepSizeMax(0.6);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
             mcMoveAngle1 = new MCMoveClusterAngleBend(sim.getRandom(), sim.integrators[1].getPotentialCompute(), space);
             sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
-            mcMoveAngle1.setStepSizeMax(0.02);
+            mcMoveAngle1.setStepSizeMax(0.6);
             MCMoveClusterMoleculeFlipSide mcMove = new MCMoveClusterMoleculeFlipSide(sim.getRandom(), sim.box[1]);
             sim.integrators[1].getMoveManager().addMCMove(mcMove);
 
@@ -1677,6 +1677,10 @@ public class VirialTraPPE {
                 Vector3D posC1 = new Vector3D(new double[]{0, -yy/3, 0});
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy, -yy/3, 0});
                 Vector3D posC3 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH), 2*yy/3, 0});
+                double posCavg = (2 * bondLengthCHxCHy  - bondLengthCHxCHy * Math.cos(thetaCCH))/3;
+                posC1 = new Vector3D(new double[]{0 - posCavg, -yy / 3, 0});
+                posC2 = new Vector3D(new double[]{bondLengthCHxCHy - posCavg, -yy / 3, 0});
+                posC3 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH) - posCavg, 2 * yy / 3, 0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
