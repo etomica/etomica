@@ -84,7 +84,10 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
                 if (numChildren != 3) continue;
                 double dt = stepSize * (random.nextDouble() - 0.5);
                 dTheta[i] = dt;
-                transform(molecule, dt);
+                boolean success = transform(molecule, dt);
+                if (!success) {
+                    dTheta[i] = 0;
+                }
             }
         }
         ((BoxCluster)box).trialNotify();
@@ -94,11 +97,11 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         return true;
     }
     
-    protected void transform(IMolecule molecule, double dt) {
+    protected boolean transform(IMolecule molecule, double dt) {
         IAtomList childList = molecule.getChildList();
         int numChildren = childList.size();
-        if (numChildren != 3) return;
-        
+        if (numChildren != 3) return false;
+
         Vector pos0 = childList.get(0).getPosition();
         Vector pos1 = childList.get(1).getPosition();
         Vector pos2 = childList.get(2).getPosition();
@@ -111,6 +114,9 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         double bondLength12 = Math.sqrt(work2.squared());
         work2.TE(1.0/bondLength12);
         double dot = work1.dot(work2);
+        double theta0 = Math.acos(dot);
+        // positive dt means bend to smaller angle
+        if (theta0 - dt < 0 || theta0 - dt > Math.PI) return false;
         work2.PEa1Tv1(-dot, work1);
         work2.TE(1.0/Math.sqrt(work2.squared()));
 
@@ -144,6 +150,8 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 //        pos0.PE(work3);
 //        pos1.PE(work3);
 //        pos2.PE(work3);
+
+        return true;
     }
     
     public void acceptNotify() {
