@@ -448,8 +448,8 @@ public class VirialTraPPE {
         if (doChainRef) {
                 sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
 //                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
-                sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+//                sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+//                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 
 
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
@@ -483,7 +483,7 @@ public class VirialTraPPE {
 //        if(params.diagram != null && !params.diagram.equals("BC") && TPList[0].theta_eq != null) {
 //
 //            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 5, new MCMoveBox[]{mcMoveAngle1});
-//            move.initializeCoordinates(sim.box[1]);
+//            move.initializeCoordinates(sim.box[1]);}
 //            BoxCluster clusterBox = sim.box[1];
 //            Vector translationVector = clusterBox.getSpace().makeVector();
 //            IMoleculeList list = sim.box[1].getMoleculeList();

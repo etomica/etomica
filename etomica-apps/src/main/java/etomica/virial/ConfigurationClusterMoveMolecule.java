@@ -42,8 +42,8 @@ public class ConfigurationClusterMoveMolecule extends ConfigurationCluster {
 				IMolecule molecule = list.get(i);
 				Vector com = CenterOfMass.position(clusterBox, molecule);
 				translationVector.setRandomInSphere(random);
-				translationVector.setX(1, 0);
-				translationVector.setX(2, 0);
+//				translationVector.setX(1, 0);
+//				translationVector.setX(2, 0);
 				translationVector.TE(distance);
 				translationVector.ME(com);
 				molecule.getChildList().forEach(atom -> {

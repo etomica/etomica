@@ -62,8 +62,8 @@ public class MCMoveClusterMoleculeFlipSide extends MCMoveBoxStep {
             molecule = moleculeList.get(1);
         }
         translationVector.Ea1Tv1(-2, CenterOfMass.position(box, molecule));
-        translationVector.setX(1, 0);
-        translationVector.setX(2, 0);
+//        translationVector.setX(1, 0);
+//        translationVector.setX(2, 0);
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().PE(translationVector);
         });

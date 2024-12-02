@@ -92,8 +92,8 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 }
                 else {
                     translationVectors[tv].setRandomCube(random);
-                    translationVectors[tv].setX(1, 0);
-                    translationVectors[tv].setX(2, 0);
+//                    translationVectors[tv].setX(1, 0);
+//                    translationVectors[tv].setX(2, 0);
 
                     translationVectors[tv].TE(stepSize);
                 }
