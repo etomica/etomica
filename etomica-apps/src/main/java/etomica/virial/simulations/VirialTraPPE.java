@@ -73,7 +73,7 @@ public class VirialTraPPE {
             params.nDer = 0;
             params.temperature = 300;
             params.diagram = "5c";
-            params.numSteps = 10000000;
+            params.numSteps = 100000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
@@ -403,7 +403,7 @@ public class VirialTraPPE {
         }
         // Initialize Simulation
         sim.init();
-
+        ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(1e-30);
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
@@ -480,64 +480,67 @@ public class VirialTraPPE {
 //            torsionMoves[1].setTemperature(temperature);
 //            sim.integrators[1].getMoveManager().addMCMove(torsionMoves[1]);
         }
-        if(params.diagram != null && !params.diagram.equals("BC") && TPList[0].theta_eq != null) {
-
-            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 5, new MCMoveBox[]{mcMoveAngle1});
+//        if(params.diagram != null && !params.diagram.equals("BC") && TPList[0].theta_eq != null) {
+//
+//            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 5, new MCMoveBox[]{mcMoveAngle1});
 //            move.initializeCoordinates(sim.box[1]);
-            BoxCluster clusterBox = sim.box[1];
-            Vector translationVector = clusterBox.getSpace().makeVector();
-            IMoleculeList list = sim.box[1].getMoleculeList();
-            PotentialMoleculePair U_x = null;
-            for (int i = 0; i < chemForm.length; i++) {
-                TraPPEParams TPi = TPList[i];
-                TPi.buildPotentials(sm);
+//            BoxCluster clusterBox = sim.box[1];
+//            Vector translationVector = clusterBox.getSpace().makeVector();
+//            IMoleculeList list = sim.box[1].getMoleculeList();
+//            PotentialMoleculePair U_x = null;
+//            for (int i = 0; i < chemForm.length; i++) {
+//                TraPPEParams TPi = TPList[i];
+//                TPi.buildPotentials(sm);
+//
+//                P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge);
+//
+//                U_x = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, MPi);
+//            }
+//            translationVector.setX(0, 7);
+//            translationVector.setX(1, 0);
+//            translationVector.setX(2, 0);
+//            System.out.println(list.get(3));
 
-                P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge);
-
-                U_x = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, MPi);
-            }
-            translationVector.setX(0, 7);
-            translationVector.setX(1, 0);
-            translationVector.setX(2, 0);
-            System.out.println(list.size());
-
-            for (int j = 1; j < list.size(); j++) {
-                Vector com = CenterOfMass.position(clusterBox, list.get(j));
-//                translationVector.ME(com);
-                list.get(j).getChildList().forEach(atom -> {
-
-                    atom.getPosition().PE(translationVector);
-                });
-
-            }
-            IAtomList atoms1 = list.get(0).getChildList();
-            IAtomList atoms2 = list.get(1).getChildList();
-            IPotential2[][] atomPotentials;
-            atomPotentials = TPList[0].potentialGroup.getAtomPotentials();
-            double u = 0;
-
-            for (IAtom a0 : atoms1) {
-                IPotential2[] p0 = atomPotentials[a0.getType().getIndex()];
-
-                for (IAtom a1 : atoms2) {
-
-                    IPotential2 p2 = p0[a1.getType().getIndex()];
-                    if (p2 == null) continue;
-                    Vector dr = space.makeVector();
-                    dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
-                    u += p2.u(dr.squared());
-
-                    System.out.println(" a0.getIndex()= "+a0.getIndex()+" a1.getIndex()="+a1.getIndex()+" Math.sqrt(dr.squared()= "+Math.sqrt(dr.squared())+" U(dr.squared())= "+p2.u(dr.squared()));
-
-
-                }
-            }
-            System.out.println("Total u= "+u);
+//            for (int j = 1; j < list.size(); j++) {
+//                Vector com = CenterOfMass.position(clusterBox, list.get(j));
+////                translationVector.ME(com);
+//                if(j != 3){
+//                    list.get(j).getChildList().forEach(atom -> {
+//
+//                        atom.getPosition().PE(translationVector);
+//                    });
+//
+//                }
+//
+//            }
+//            IAtomList atoms1 = list.get(0).getChildList();
+//            IAtomList atoms2 = list.get(1).getChildList();
+//            IPotential2[][] atomPotentials;
+//            atomPotentials = TPList[0].potentialGroup.getAtomPotentials();
+//            double u = 0;
+//
+//            for (IAtom a0 : atoms1) {
+//                IPotential2[] p0 = atomPotentials[a0.getType().getIndex()];
+//
+//                for (IAtom a1 : atoms2) {
+//
+//                    IPotential2 p2 = p0[a1.getType().getIndex()];
+//                    if (p2 == null) continue;
+//                    Vector dr = space.makeVector();
+//                    dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
+//                    u += p2.u(dr.squared());
+//
+//                    System.out.println(" a0.getIndex()= "+a0.getIndex()+" a1.getIndex()="+a1.getIndex()+" Math.sqrt(dr.squared()= "+Math.sqrt(dr.squared())+" U(dr.squared())= "+p2.u(dr.squared()));
+//
+//
+//                }
+//            }
+//            System.out.println("Total u= "+u);}
 
 
 
 
-            }
+
 //            for(double d = 1; d < 11; d+=0.5) {
 //                translationVector.setX(0, 1);
 //                for (int i = 1; i < list.size() - 1; i++) {

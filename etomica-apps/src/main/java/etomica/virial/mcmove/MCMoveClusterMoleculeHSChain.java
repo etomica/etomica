@@ -101,7 +101,7 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
             translationVector.setX(2, 0);
 
             double sig = getSigma(prev, seq[i]);
-            translationVector.TE(sig);
+            translationVector.TE(2*sig);
             translateFrom(prev, seq[i]);
 
             for (int j=0; j<n; j++) {
