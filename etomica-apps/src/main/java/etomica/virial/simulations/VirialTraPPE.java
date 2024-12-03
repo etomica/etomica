@@ -67,7 +67,7 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propaneUA};
+            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
             params.nPoints = 3; //B order
             params.nTypes = new int[]{3};
             params.nDer = 0;
@@ -126,7 +126,7 @@ public class VirialTraPPE {
 
         // Evaluate Hard Sphere Coefficient
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
-        vhs = 2 * sigmaHSRef;
+//        vhs = 2 * sigmaHSRef; //1-D vhs
         final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
         System.out.println("Chemform Length:" + chemForm.length);
         System.out.println(Kelvin.UNIT.toSim(98));
@@ -357,13 +357,13 @@ public class VirialTraPPE {
             targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 
         }
-//        else if(anyPolar && isFlex && nPoints > 2 && params.diagram != null && !params.diagram.equals("BC") ){
-//            int[][] flipPoints = Diagrams.getFlipPointsforDiagram(params.diagram);
-//            ((ClusterSum)targetCluster).setCaching(false);
-//
-//            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints);
-//
-//        }
+        else if(anyPolar && isFlex && nPoints > 2 && params.diagram != null && !params.diagram.equals("BC") ){
+            int[][] flipPoints = Diagrams.getFlipPointsforDiagram(params.diagram);
+            ((ClusterSum)targetCluster).setCaching(false);
+
+            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints);
+
+        }
 
 
 
@@ -440,7 +440,7 @@ public class VirialTraPPE {
             sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
             mcMoveAngle1.setStepSizeMax(0.6);
             MCMoveClusterMoleculeFlipSide mcMove = new MCMoveClusterMoleculeFlipSide(sim.getRandom(), sim.box[1]);
-            sim.integrators[1].getMoveManager().addMCMove(mcMove);
+//            sim.integrators[1].getMoveManager().addMCMove(mcMove);
 
             ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
 
