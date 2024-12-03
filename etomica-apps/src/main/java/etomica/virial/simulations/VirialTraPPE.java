@@ -620,7 +620,7 @@ public class VirialTraPPE {
                 // temperature is an integer, use "200" instead of "200.0"
                 tempString = ""+(int)temperatureK;
             }
-            refFileName = "refpref_"+"_"+nPoints+"_"+tempString+"K";
+            refFileName = "refpref_"+"_"+nPoints+"_"+tempString+"K"+ Arrays.toString(params.chemForm);
             if(params.diagram != null){
                 refFileName += "_"+params.diagram;
             }
