@@ -124,7 +124,7 @@ public class ClusterCoupledFlippedPoints implements ClusterAbstract {
     protected void flip(IMoleculeList molecules, int[] myflipPoints) {
         Vector COM = positionDefinition.position(molecules.get(myflipPoints[1]));
         for (int j=1; j<myflipPoints.length; j++) {
-            IAtomList childAtoms = molecules.get(j).getChildList();
+            IAtomList childAtoms = molecules.get(myflipPoints[j]).getChildList();
             for (int i = 0; i < childAtoms.size(); i++) {
                 childAtomVector.Ea1Tv1(2,COM);
                 childAtomVector.ME(childAtoms.get(i).getPosition());
