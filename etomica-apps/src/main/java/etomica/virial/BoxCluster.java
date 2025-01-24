@@ -15,8 +15,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.virial.cluster.ClusterWeight;
 
-import java.util.Map;
-
 /**
  * @author kofke
  *
@@ -51,7 +49,7 @@ public class BoxCluster extends Box {
      *   all permutations, but can be useful for handling flexible correction
      *   diagrams.
      */
-    public void setMoleculeMap(Map<Integer,Integer> idMap) {
+    public void setMoleculeMap(int[] idMap) {
         this.idMap = idMap;
     }
 
@@ -104,7 +102,7 @@ public class BoxCluster extends Box {
                 MoleculeArrayList mNew = new MoleculeArrayList();
                 AtomArrayList aNew = new AtomArrayList();
                 for (int i=0; i<molecules.size(); i++) {
-                    int j = idMap.get(i);
+                    int j = idMap[i];
                     mNew.add(molecules.get(j));
                     if (doAtoms) {
                         aNew.add(leafAtoms.get(j));
@@ -165,5 +163,5 @@ public class BoxCluster extends Box {
 	protected final ClusterWeight sampleCluster;
 	protected final Space space;
 	protected IMoleculePositionDefinition positionDefinition;
-    protected Map<Integer,Integer> idMap;
+    protected int[] idMap;
 }
