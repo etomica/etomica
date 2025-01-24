@@ -963,9 +963,8 @@ public class VirialTraPPE {
                 polar = true;
                 isFlex = true;
                 //TraPPE Parameters
-//                double bondLengthCH3OH = 1.43; // Angstrom
-//                double bondLengthOH = 0.945; //Angstrom
-//                double thetaCH3OH = Degree.UNIT.toSim(18.5) ;
+                double bondLengthCH3OH = 1.43; // Angstrom
+                double bondLengthOH = 0.945; //Angstrom
                 double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
                 double sigmaCH3 = 3.75; // Angstrom
                 double epsilonCH3 = Kelvin.UNIT.toSim(98);
@@ -978,6 +977,11 @@ public class VirialTraPPE {
                 double qH = Electron.UNIT.toSim(0.435);
                 double k_thetaCH3OH = Kelvin.UNIT.toSim(55400.0);
 
+                double xCH3 = -bondLengthCH3OH, xH = -bondLengthOH*Math.cos(theta_CH3OH);
+                double yH = bondLengthOH*Math.sin(theta_CH3OH);
+                double mm = typeCH3.getMass() + typeO.getMass() + typeH.getMass();
+                double xCOM = (xCH3*typeCH3.getMass() + xH * typeH.getMass()) / mm;
+                double yCOM = yH*typeH.getMass() / mm;
 
                 //Construct Arrays
                 sigma = new double[] {sigmaCH3,sigmaO, sigmaH};
@@ -987,11 +991,10 @@ public class VirialTraPPE {
                 k_theta = new double[]{k_thetaCH3OH};
 
                 //Get Coordinates
-                Vector3D posO = new Vector3D(new double[]{-0.6997355929,      0.0480707122,      0.0000000000 });
-                Vector3D posCH3 = new Vector3D(new double[]{ 0.7278849876,     -0.0343882362,      0.0000000000});
-                Vector3D posH = new Vector3D(new double[]{ -1.0507657087,     -0.8293133872,      0.0000000000   });
+                Vector posCH3 = Vector.of(xCH3-xCOM, -yCOM, 0);
+                Vector posO = Vector.of(-xCOM, -yCOM, 0);
+                Vector posH = Vector.of(xH-xCOM, yH-yCOM, 0);
                 System.out.println("pos0: "+ posO + ", posCH3: "+ posCH3 + ", posH: "+ posH);
-
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
