@@ -4,14 +4,18 @@
 
 package etomica.virial;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
+import etomica.molecule.MoleculeArrayList;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.virial.cluster.ClusterWeight;
+
+import java.util.Map;
 
 /**
  * @author kofke
@@ -33,6 +37,23 @@ public class BoxCluster extends Box {
         sampleCluster = cluster;
         this.space = _space;
 	}
+
+    /**
+     * Set the mapping from molecule order in the box to molecule order in the diagram.
+     * If you have species A and species B with diagram AABBA then the map should be
+     *   0 => 0
+     *   1 => 1
+     *   2 => 3
+     *   3 => 4
+     *   4 => 2
+     *
+     *   This shouldn't be necessary for biconnected diagrams because we include
+     *   all permutations, but can be useful for handling flexible correction
+     *   diagrams.
+     */
+    public void setMoleculeMap(Map<Integer,Integer> idMap) {
+        this.idMap = idMap;
+    }
 
 	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition){
 	    this.positionDefinition = positionDefinition;
@@ -78,7 +99,21 @@ public class BoxCluster extends Box {
             // assume 1 species
             IMoleculeList molecules = getMoleculeList();
             IAtomList leafAtoms = getLeafList();
-            if (molecules.size() == leafAtoms.size()) {
+            boolean doAtoms = molecules.size() == leafAtoms.size();
+            if (idMap != null) {
+                MoleculeArrayList mNew = new MoleculeArrayList();
+                AtomArrayList aNew = new AtomArrayList();
+                for (int i=0; i<molecules.size(); i++) {
+                    int j = idMap.get(i);
+                    mNew.add(molecules.get(j));
+                    if (doAtoms) {
+                        aNew.add(leafAtoms.get(j));
+                    }
+                }
+                molecules = mNew;
+                leafAtoms = aNew;
+            }
+            if (doAtoms) {
                 cPairSet = new CoordinatePairLeafSet(leafAtoms,space);
                 cPairTrialSet = new CoordinatePairLeafSet(leafAtoms,space);
             }
@@ -130,4 +165,5 @@ public class BoxCluster extends Box {
 	protected final ClusterWeight sampleCluster;
 	protected final Space space;
 	protected IMoleculePositionDefinition positionDefinition;
+    protected Map<Integer,Integer> idMap;
 }
