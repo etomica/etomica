@@ -32,7 +32,7 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
         numAtoms = list.size();
         atoms = new IMolecule[numAtoms];
         r2 = new double[numAtoms*numAtoms];
-        setAtoms(list);
+        setMolecules(list);
         dr = space.makeVector();
         iPosition = space.makeVector();
         positionDefinition = new MoleculePositionCOM(space);
@@ -48,7 +48,6 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
 		this.positionDefinition = positionDefinition;
 	}
 
-
 	/**
      * Returns atom pair for ith and jth atoms in set.
      */
@@ -57,7 +56,7 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
         return r2[i*numAtoms+j];
     }
 
-    private void setAtoms(IMoleculeList list) {
+    private void setMolecules(IMoleculeList list) {
         for (int i = 0; i<list.size(); i++) {
             atoms[i] = list.get(i);
         }
