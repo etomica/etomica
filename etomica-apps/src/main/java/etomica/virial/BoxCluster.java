@@ -15,6 +15,8 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.virial.cluster.ClusterWeight;
 
+import java.util.Arrays;
+
 /**
  * @author kofke
  *
@@ -23,7 +25,18 @@ import etomica.virial.cluster.ClusterWeight;
  */
 public class BoxCluster extends Box {
 
-	/**
+    protected boolean isTrial;
+    protected CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
+    protected AtomPairSet aPairSet;
+    protected long cPairID;
+    protected final ClusterWeight sampleCluster;
+    protected final Space space;
+    protected IMoleculePositionDefinition positionDefinition;
+    protected int[] types, idMap;
+    protected MoleculeArrayList moleculesCluster;
+    protected AtomArrayList atomsCluster;
+
+    /**
 	 * Constructor for BoxCluster.
 	 */
 	public BoxCluster(ClusterWeight cluster, Space _space) {
@@ -36,21 +49,61 @@ public class BoxCluster extends Box {
         this.space = _space;
 	}
 
+    public IMoleculeList getMoleculeList() {
+        // if we have an out-of-order mixture, return the molecules in the appropriate
+        // order according to the diagram
+        if (idMap == null) return super.getMoleculeList();
+        if (moleculesCluster != null) return moleculesCluster;
+        IMoleculeList simpleList = super.getMoleculeList();
+        moleculesCluster = new MoleculeArrayList(simpleList.size());
+        for (int i : idMap) {
+            moleculesCluster.add(simpleList.get(i));
+        }
+        return moleculesCluster;
+    }
+
+    public IAtomList getLeafList() {
+        // if we have an out-of-order mixture, return the atoms in the appropriate
+        // order according to the diagram
+        if (idMap == null) return super.getLeafList();
+        if (atomsCluster != null) return atomsCluster;
+        IAtomList simpleList = super.getLeafList();
+        atomsCluster = new AtomArrayList(simpleList.size());
+        for (int i : idMap) {
+            atomsCluster.add(simpleList.get(i));
+        }
+        return atomsCluster;
+    }
+
     /**
-     * Set the mapping from molecule order in the box to molecule order in the diagram.
-     * If you have species A and species B with diagram AABBA then the map should be
-     *   0 => 0
-     *   1 => 1
-     *   2 => 3
-     *   3 => 4
-     *   4 => 2
-     *
-     *   This shouldn't be necessary for biconnected diagrams because we include
-     *   all permutations, but can be useful for handling flexible correction
-     *   diagrams.
+     * Sets the type (species) index of each point in our diagram.
+     * The alternate root point is not included, but is assumed to be
+     * the same type as point 0.
      */
-    public void setMoleculeMap(int[] idMap) {
-        this.idMap = idMap;
+    public void setTypes(int[] types) {
+        int nSpecies = moleculeLists.length;
+        int nPoints = getMoleculeList().size()-1;
+        // maps point index in the diagram to molecule index in box
+        idMap = new int[nPoints+1];
+        // maps given molecule from a given species to global index
+        int[][] idMap1 = new int[nSpecies][nPoints+1];
+        int k = 0;
+        for (int i=0; i<nSpecies; i++) {
+            int nti = moleculeLists[i].size();
+            for (int j=0; j<nti; j++) {
+                idMap1[i][j] = k;
+                k++;
+            }
+        }
+        int[] speciesUsed = new int[nSpecies];
+        for (int i=0; i<nPoints; i++) {
+            int ti = types[i];
+            idMap[i] = idMap1[ti][speciesUsed[ti]];
+            speciesUsed[ti]++;
+        }
+        // last diagram point is our alternate root
+        idMap[nPoints] = idMap1[types[0]][speciesUsed[types[0]]];
+        System.out.println("idMap: "+ Arrays.toString(idMap));
     }
 
 	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition){
@@ -98,19 +151,6 @@ public class BoxCluster extends Box {
             IMoleculeList molecules = getMoleculeList();
             IAtomList leafAtoms = getLeafList();
             boolean doAtoms = molecules.size() == leafAtoms.size();
-            if (idMap != null) {
-                MoleculeArrayList mNew = new MoleculeArrayList();
-                AtomArrayList aNew = new AtomArrayList();
-                for (int i=0; i<molecules.size(); i++) {
-                    int j = idMap[i];
-                    mNew.add(molecules.get(j));
-                    if (doAtoms) {
-                        aNew.add(leafAtoms.get(j));
-                    }
-                }
-                molecules = mNew;
-                leafAtoms = aNew;
-            }
             if (doAtoms) {
                 cPairSet = new CoordinatePairLeafSet(leafAtoms,space);
                 cPairTrialSet = new CoordinatePairLeafSet(leafAtoms,space);
@@ -155,13 +195,4 @@ public class BoxCluster extends Box {
 		// move was rejected.  stop using cPairTrialSet.
 		isTrial = false;
 	}
-
- 	protected boolean isTrial;
-	protected CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
-    protected AtomPairSet aPairSet;
-    protected long cPairID;
-	protected final ClusterWeight sampleCluster;
-	protected final Space space;
-	protected IMoleculePositionDefinition positionDefinition;
-    protected int[] idMap;
 }
