@@ -68,6 +68,10 @@ public class BoxCluster extends Box {
         if (idMap == null) return super.getLeafList();
         if (atomsCluster != null) return atomsCluster;
         IAtomList simpleList = super.getLeafList();
+        if (simpleList.size() != getMoleculeList().size()) {
+            atomsCluster = new AtomArrayList(0);
+            return atomsCluster;
+        }
         atomsCluster = new AtomArrayList(simpleList.size());
         for (int i : idMap) {
             atomsCluster.add(simpleList.get(i));
@@ -104,6 +108,10 @@ public class BoxCluster extends Box {
         // last diagram point is our alternate root
         idMap[nPoints] = idMap1[types[0]][speciesUsed[types[0]]];
         System.out.println("idMap: "+ Arrays.toString(idMap));
+        // ensure we reconstruct our lists
+        cPairSet = null;
+        trialNotify();
+        acceptNotify();
     }
 
 	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition){
