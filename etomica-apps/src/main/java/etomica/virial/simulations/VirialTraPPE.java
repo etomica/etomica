@@ -6,8 +6,6 @@ package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.*;
 import etomica.graph.model.Graph;
@@ -15,12 +13,8 @@ import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
-import etomica.molecule.CenterOfMass;
-import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.*;
@@ -38,17 +32,18 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.*;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.MayerMix;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.*;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
-import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMix;
-import etomica.virial.wheatley.ClusterWheatleySoftDerivativesMixBD;
+import etomica.virial.wheatley.ClusterWheatleySoftDerivativesBD;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * Compute pure, binary, ternary and quaternary mixture virial coefficients using overlap sampling simulations
@@ -60,8 +55,6 @@ public class VirialTraPPE {
 
     public static void main(String[] args) {
         VirialParam params = new VirialParam();
-        VirialAlkane alkane = new VirialAlkane();
-//        alkane.main(args);
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
             ParseArgs.doParseArgs(params, args);
@@ -69,7 +62,6 @@ public class VirialTraPPE {
             // Customize Interactive Parameters Here
             params.chemForm = new ChemForm[]{ChemForm.toluene};
             params.nPoints = 4; //B order
-            params.nTypes = new int[]{4, 0};
             params.nDer = 2;
             params.temperature = 300;
             params.diagram = "BC";
@@ -85,7 +77,22 @@ public class VirialTraPPE {
         // Import Params
         final ChemForm[] chemForm = params.chemForm;
         final int nPoints = params.nPoints;
-        final int[] nTypes = params.nTypes;
+        int[] t = params.types;
+        if (t == null) {
+            if (chemForm.length > 1) {
+                throw new RuntimeException("If you have a mixtures, you must specify types");
+            }
+            t = new int[nPoints];
+        }
+        else if (t.length != nPoints) {
+            throw new RuntimeException("types must by of length nPoints");
+        }
+
+        final int[] nTypes = new int[chemForm.length];
+        final int[] types = t;
+        for (int i=0; i<t.length; i++) {
+            nTypes[t[i]]++;
+        }
         final int nDer = params.nDer;
         final double temperatureK = params.temperature;
         final long steps = params.numSteps;
@@ -180,11 +187,10 @@ public class VirialTraPPE {
         // Setting up Target Cluster Mayer Function
         ClusterAbstractMultivalue targetClusterRigid = null;
 
-        ClusterWheatleySoftDerivativesMixBD targetClusterBDRigid = null;
+        ClusterWheatleySoftDerivativesBD targetClusterBDRigid = null;
         SpeciesManager.Builder sb = SpeciesManager.builder();
 
         boolean anyPolar = false;
-        MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
         TraPPEParams[] TPList = new TraPPEParams[chemForm.length];
         for (int i = 0; i < TPList.length; i++) {
             TPList[i] = new TraPPEParams(space, chemForm[i]);
@@ -195,13 +201,14 @@ public class VirialTraPPE {
         }
         SpeciesManager sm = sb.build();
 
+        IPotentialMolecular[][] potentials = new IPotentialMolecular[nTypes.length][nTypes.length];
         for (int i = 0; i < chemForm.length; i++) {
             TraPPEParams TPi = TPList[i];
             TPi.buildPotentials(sm);
             PotentialMoleculePair PGii = TPi.potentialGroup;
 
             P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge);
-            fAll[i][i] = new MayerGeneral(PGii);
+            potentials[i][i] = PGii;
 
             anyPolar = (anyPolar || TPi.polar);
 
@@ -213,10 +220,12 @@ public class VirialTraPPE {
 
                 PotentialMoleculePair PGij = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, MPj);
 
-                fAll[i][j] = fAll[j][i] = new MayerGeneral(PGij);
+                potentials[i][j] = potentials[j][i] = PGij;
 
             }
         }
+
+        MayerMix fTarget = new MayerMix(potentials);
 
         //flex moves
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
@@ -228,26 +237,24 @@ public class VirialTraPPE {
         VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
 
         Diagrams.setDoReeHoover(false);
-        ClusterAbstract targetCluster = Diagrams.makeVirialCluster(fAll[0][0]);
+        ClusterAbstract targetCluster = Diagrams.makeVirialCluster(fTarget);
         ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
         int[] targetDiagramNumbers = new int[0];
         boolean[] diagramFlexCorrection = null;
 
         if (nSpheres > 2) {
-            targetDiagrams = Diagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fAll[0][0]);
             Set<Graph> singleGraphs = Diagrams.getMSMCGraphs(true, false);
             Map<Graph,Graph> cancelMap = Diagrams.getCancelMap();
             if(params.diagram != null && !params.diagram.equals("BC")) {
                 int iGraph = 0;
                 for (Graph g : singleGraphs) {
                     if(params.diagram.equals(g.getStore().toNumberString() + "c")) {
-                        targetCluster = Diagrams.makeVirialCluster(g, fAll[0][0]);
-                        targetDiagrams = new ClusterSumShell[0];
+                        targetCluster = Diagrams.makeVirialCluster(g, fTarget);
                         System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
                         Graph cancelGraph = cancelMap.get(g);
                         Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
 
-                        System.out.print(" - "+alkane.getSplitGraphString(gSplit, Diagrams, false));
+                        System.out.print(" - "+VirialAlkane.getSplitGraphString(gSplit, Diagrams, false));
 
                     }
                     iGraph++;
@@ -267,7 +274,7 @@ public class VirialTraPPE {
                         diagramFlexCorrection[iGraph] = true;
                         Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
 
-                        System.out.print(" - " + alkane.getSplitGraphString(gSplit, Diagrams, false));
+                        System.out.print(" - " + VirialAlkane.getSplitGraphString(gSplit, Diagrams, false));
 
                     }
                     System.out.println();
@@ -281,7 +288,7 @@ public class VirialTraPPE {
 
                 for (Graph g : disconnectedGraphs) {
                     Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(g);
-                    System.out.println(g.coefficient()+" "+alkane.getSplitGraphString(gSplit, Diagrams, true));
+                    System.out.println(g.coefficient()+" "+VirialAlkane.getSplitGraphString(gSplit, Diagrams, true));
                 }
                 System.out.println();
             }
@@ -329,7 +336,13 @@ public class VirialTraPPE {
 
 
         // Setting up Target Cluster for Rigid
-        targetClusterRigid = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes, fAll, BDtol, nDer);
+        MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
+        for (int i=0; i<fAll.length; i++) {
+            for (int j=0; j<fAll.length; j++) {
+                fAll[i][j] = fTarget;
+            }
+        }
+        targetClusterRigid = new ClusterWheatleySoftDerivatives(nPoints, fTarget, BDtol, nDer);
         targetClusterRigid.setTemperature(temperature);
 
         // Setting BlockSize
@@ -342,11 +355,11 @@ public class VirialTraPPE {
         // Setting up Flipping rigid, polar
         if(anyPolar && !isFlex && nPoints==2) {
             System.out.println("Performing Flipping");
-            ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setTolerance(0);
+            ((ClusterWheatleySoftDerivatives) targetClusterRigid).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
-            targetClusterBDRigid = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
+            targetClusterBDRigid = new ClusterWheatleySoftDerivativesBD(nPoints,fTarget,precision,nDer);
             targetClusterBDRigid.setTemperature(temperature);
-            ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setDoCaching(false);
+            ((ClusterWheatleySoftDerivatives) targetClusterRigid).setDoCaching(false);
             targetClusterBDRigid.setDoCaching(false);
             targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
         }
@@ -381,8 +394,8 @@ public class VirialTraPPE {
             if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
                 ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
             } else {
-                ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
-                ((ClusterWheatleySoftDerivativesMix) targetClusterRigid).setNumBDCheckBins(8);
+                ((ClusterWheatleySoftDerivatives) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
+                ((ClusterWheatleySoftDerivatives) targetClusterRigid).setNumBDCheckBins(8);
             }
             // Adding derivative clusters to simulation
             ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
@@ -393,16 +406,27 @@ public class VirialTraPPE {
 
         }
         else{
-            sim = new SimulationVirialOverlap2(space, sm, new int[]{(nPoints+1)}, temperature, refCluster, targetCluster);
+            int[] myNTypes = nTypes.clone();
+            myNTypes[types[0]]++;
+            sim = new SimulationVirialOverlap2(space, sm, myNTypes, temperature, refCluster, targetCluster);
             sim.setExtraTargetClusters(targetDiagrams);
 //            sim.setDoWiggle(nSpheres > 2);
 
             sim.setBondingInfo(bondingInfo);
             sim.setIntraPairPotentials(TPList[0].potentialGroup.getAtomPotentials());
-            sim.setRandom(new RandomMersenneTwister(2));
+            sim.setRandom(new RandomMersenneTwister(1));
         }
+        sim.setRandom(new RandomMersenneTwister(5));
         // Initialize Simulation
         sim.init();
+
+        if (isFlex && isMixture) {
+            // we always need to do this because (if nothing else) our
+            // alternate root will be out of order
+            sim.box[0].setTypes(types);
+            sim.box[1].setTypes(types);
+        }
+
         ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(1e-30);
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
@@ -718,7 +742,7 @@ public class VirialTraPPE {
         // don't change these
         public ChemForm[] chemForm = {ChemForm.N2};
         public int nPoints = 2;
-        public int[] nTypes = {2};
+        public int[] types = null;  // null works for pure component
         public int nDer = 3;
         public double temperature = 400;
         public long numSteps = 1000000;
@@ -1859,15 +1883,21 @@ public class VirialTraPPE {
                 theta_eq = new double[]{thetaCCH, thetaCCH};
                 a = new double[][]{{a00, a01, a02, a03}};
 
-                double x3 = bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH);
-                double y3 = bondLengthCHxCHy * Math.sin(thetaCCH);
                 //Get Coordinates
 
+                double m3 = typeCH3.getMass(), m2 = typeCH2.getMass();
+                double x1 = -bondLengthCHxCHy, x2 = 0, x3 = -bondLengthCHxCHy*Math.cos(thetaCCH);
+                double x4 = x3 + bondLengthCHxCHy;
+                double y1 = 0, y2 = 0, y3 = bondLengthCHxCHy*Math.sin(thetaCCH);
+                double y4 = y3;
+                double mm = 2 * m3 + 2 * m2;
+                double xCOM = (m3*x1 + m2*x2 + m2*x3 + m3*x4) / mm;
+                double yCOM = (m3*y1 + m2*y2 + m2*y3 + m3*y4) / mm;
 
-                Vector3D posC1 = new Vector3D(new double[]{1.9453970388,     -0.1390603157,      0.0000000000});
-                Vector3D posC2 = new Vector3D(new double[]{0.5623293516,      0.5382311818,      0.0000000000});
-                Vector3D posC3 = new Vector3D(new double[]{-0.6189515277,     -0.4497847514,      0.0000000000});
-                Vector3D posC4 = new Vector3D(new double[]{-2.0020192149,      0.2275067461,      0.0000000000});
+                Vector3D posC1 = new Vector3D(new double[]{x1-xCOM, y1-yCOM, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x2-xCOM, y2-yCOM, 0});
+                Vector3D posC3 = new Vector3D(new double[]{x3-xCOM, y3-yCOM, 0});
+                Vector3D posC4 = new Vector3D(new double[]{x4-xCOM, y4-yCOM, 0});
 
                 System.out.println("Carbon Positions: " + Arrays.toString(new Vector3D[]{posC1, posC2, posC3, posC4}));
 
