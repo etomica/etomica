@@ -1647,13 +1647,13 @@ public class VirialTraPPE {
 
                 //Get Coordinates
                 Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
-                Vector3D posC2 = new Vector3D(new double[]{x1, -y1, 0});
-                Vector3D posC3 = new Vector3D(new double[]{0, -r, 0});
-                Vector3D posC4 = new Vector3D(new double[]{-x1, -y1, 0});
-                Vector3D posC5 = new Vector3D(new double[]{-x1, y1, 0});
-                Vector3D posC6 = new Vector3D(new double[]{0, r, 0});
-                Vector3D posC7 = new Vector3D(new double[]{x7, y7, 0});
-                Vector3D posC8 = new Vector3D(new double[]{x7 + b * Math.cos(36), y7 - b * Math.sin(36), 0});
+                Vector3D posC4 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC6 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC7 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC8 = new Vector3D(new double[]{0, r, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x7, y7, 0});
+                Vector3D posC3 = new Vector3D(new double[]{x7 + b * Math.cos(36), y7 - b * Math.sin(36), 0});
 
 
                 //Set Geometry
