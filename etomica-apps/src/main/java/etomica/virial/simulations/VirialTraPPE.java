@@ -60,12 +60,12 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propane, ChemForm.CH3OH};
-            params.nPoints = 4; //B order
-            params.types = new int[]{1, 1, 1, 1};
-            params.nDer = 0;
-            params.temperature = 300;
-            params.diagram = "BC";
+            params.chemForm = new ChemForm[]{ChemForm.CH3OH, ChemForm.CH3OH};
+            params.nPoints = 3; //B order
+            params.types = new int[]{0,1,1};
+            params.nDer = 3;
+            params.temperature = 700;
+            params.diagram = "5c";
             params.numSteps = 1000000;
             params.refFrac = -1;
             params.seed = null;
@@ -268,7 +268,7 @@ public class VirialTraPPE {
                 diagramFlexCorrection = new boolean[targetDiagrams.length];
                 for (Graph g : singleGraphs) {
                     System.out.print(iGraph + " (" + g.coefficient() + ") " + g.getStore().toNumberString()); // toNumberString: its corresponding number
-                    targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+//                    targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
 
                     Graph cancelGraph = cancelMap.get(g);
                     if (cancelGraph != null) {
