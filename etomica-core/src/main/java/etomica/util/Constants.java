@@ -42,7 +42,8 @@ public final class Constants {
     //  Boltzmann's constant, converted from J/K to D-A^2/ps^2/K (where it equals ~0.8314)
     // (~1.38e-23 kg-m^2/s^2/K/molecule)(1000 g/kg)(N_avo D/g)(10^10 A/m)^2 (10^-12 s/ps)^2
     // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?k
-    public static final double BOLTZMANN_K = 1.380649e-23 * 1000 * AVOGADRO * 1e20 * 1e-24;
+    public static final double
+            BOLTZMANN_K = 1.380649e-23 * 1000 * AVOGADRO * 1e20 * 1e-24;
     /**
      * Planck's constant, in simulation units.  Specifically, equal to approximately 39.903127 D-A^2/ps.
      */

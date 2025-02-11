@@ -16,6 +16,7 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 	
     protected final ClusterAbstract weightCluster;
     protected boolean doAbs = true;
+	protected double minValue = 0;
 	
 	public ClusterWeightAbs(ClusterAbstract cluster) {
 		weightCluster = cluster;
@@ -27,7 +28,15 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
     public void setDoAbs(boolean doAbs) {
         this.doAbs = doAbs;
     }
-	
+
+	/**
+	 * Sets a minimum return value (for use with abs).  This can help find an
+	 * initial configuration at the start of a sim.
+	 */
+	public void setMinValue(double minValue) {
+		this.minValue = minValue;
+	}
+
 	public static ClusterWeight makeWeightCluster(ClusterAbstract cluster) {
 		if (cluster instanceof ClusterWeight) {
 			return (ClusterWeight)cluster;
@@ -57,7 +66,7 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 	
 	public double value(BoxCluster box) {
 		double v = weightCluster.value(box);
-		return doAbs ? Math.abs(v) : v;
+		return doAbs ? Math.max(minValue, Math.abs(v)) : v;
 	}
     
     public void setTemperature(double temp) {

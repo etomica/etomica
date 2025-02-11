@@ -14,6 +14,7 @@ import etomica.data.types.DataDouble;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
+import etomica.graph.util.GraphNumber;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
@@ -52,6 +53,7 @@ import java.util.Set;
 
 /**
  * Mayer sampling simulation for alkanes using the TraPPE-United Atoms force field.
+ *
  *   M.G. Martin and J.I. Siepmann, "Transferable Potentials for Phase
  *   Equilibria. 1. United-Atom Description of n-Alkanes," J. Phys. Chem. B
  *   102, 2569-2577 (1998)
@@ -60,6 +62,8 @@ import java.util.Set;
  *   modified from VirialAlkaneFlex2 so that eovererr can be used
  *   March 2013
  */
+
+
 public class VirialAlkane {
 
     public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
@@ -89,7 +93,10 @@ public class VirialAlkane {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-
+            params.nPoints = 3; // B order
+            params.nSpheres = 3; // length of alkane
+            params.temperature = 300;
+            params.numSteps = 100000000;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -213,7 +220,8 @@ public class VirialAlkane {
         sim.setRandom(new RandomMersenneTwister(2));
         sim.init();
 
-        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+//        sim.integrators[0].getMoveManager().remove
+//        MCMove(sim.mcMoveTranslate[0]);
         MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
@@ -279,7 +287,7 @@ public class VirialAlkane {
             displayBox1.setShowBoundary(false);
             ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
             ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
-
+            System.out.println("Flag");
 
             DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
             if (nSpheres>2) diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
