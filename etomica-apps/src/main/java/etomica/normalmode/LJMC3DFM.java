@@ -18,22 +18,29 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterStructureFactor;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 
@@ -46,13 +53,13 @@ public class LJMC3DFM extends Simulation {
     public MCMoveAtom mcMoveAtom;
     public SpeciesGeneral species;
     public Box box;
-    public PotentialComputePair potentialMaster;
+    public PotentialComputePair potentialMaster, potentialMasterMeter;
     public PotentialComputePair potentialMasterSS;
-    public PotentialComputeField pc1Meter;
+    public PotentialComputeField pc1Meter, pc1;
     public P2LennardJones potential;
     public double temperature;
 
-    public LJMC3DFM(int numAtoms, double rho, double temperature, double rc, double kSine, double lambda, boolean isBCC) {
+    public LJMC3DFM(int numAtoms, double rho, double temperature, double rc, double kSine, double lambda, Structure strc) {
         super(Space3D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
 //        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
@@ -61,8 +68,9 @@ public class LJMC3DFM extends Simulation {
         int cellRange = 2;
         NeighborCellManager neighborManager = new NeighborCellManager(getSpeciesManager(), box, cellRange, BondingInfo.noBonding());
 //        NeighborListManager neighborManager = new NeighborListManager(getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
+//        potentialMasterSS = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
-        potentialMasterSS = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        potentialMasterMeter = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -70,39 +78,49 @@ public class LJMC3DFM extends Simulation {
         inflater.actionPerformed();
 
         ConfigurationLattice config;
-        if (isBCC) {
+        String strcString;
+        if (strc == Structure.SC) {
+            config = new ConfigurationLattice(new LatticeCubicSimple(space), space);
+            strcString = "SC";
+        } else if (strc == Structure.BCC) {
             config = new ConfigurationLattice(new LatticeCubicBcc(space), space);
-        } else {
+            strcString = "BCC";
+        } else { //FCC
             config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+            strcString = "FCC";
         }
+
         config.initializeCoordinates(box);
         System.out.println(" L/2: " + box.getBoundary().getBoxSize().getX(0)/2.0);
 
-        double sigma = 1.0, eps = 1.0;
+        double sigma = 1.0;
+        double eps = 1.0*lambda;
         potential = new P2LennardJones(sigma, eps);
         P2SoftSphericalTruncatedForceShifted potentialTruncated = new P2SoftSphericalTruncatedForceShifted(potential, rc);
         AtomType leafType = species.getLeafType();
         potentialMaster.setPairPotential(leafType, leafType, potentialTruncated);
         potentialMaster.doAllTruncationCorrection = false;
 
-//        int nn = 12;
-//        P2SoftSphere potentialSS = new P2SoftSphere(sigma, eps, nn);
-//        P2SoftSphericalTruncatedForceShifted potentialTruncatedSS = new P2SoftSphericalTruncatedForceShifted(potentialSS, rc);
-//        potentialMasterSS.setPairPotential(leafType, leafType, potentialTruncatedSS);
-//        potentialMasterSS.doAllTruncationCorrection = false;
-
-
-        Vector shift = box.getLeafList().get(0).getPosition();
+        P2LennardJones potentialMeter = new P2LennardJones(1,1);
+        P2SoftSphericalTruncatedForceShifted potentialTruncatedMeter = new P2SoftSphericalTruncatedForceShifted(potentialMeter, rc);
+        potentialMasterMeter.setPairPotential(leafType, leafType, potentialTruncatedMeter);
+        potentialMasterMeter.doAllTruncationCorrection = false;
 
         double a;
-        if (isBCC) {
+        if (strc == Structure.SC) {
+            a = Math.pow(1.0/rho, 1.0/3.0);
+        } else if (strc == Structure.BCC) {
             a = Math.pow(2.0/rho, 1.0/3.0);
         } else {
             a = Math.pow(4.0/rho, 1.0/3.0);
         }
 
-        P1Sinusoidal p1Sinusoidal = new P1Sinusoidal(getSpace(), a, lambda*kSine, isBCC, shift);
-        PotentialComputeField pc1 = new PotentialComputeField(getSpeciesManager(), box);
+        Vector shift = space.makeVector();
+        shift.E(box.getLeafList().get(0).getPosition());
+
+//        P1Sinusoidal p1Sinusoidal = new P1Sinusoidal(getSpace(), a, lambda*kSine, strcString, shift);
+        P1Sinusoidal p1Sinusoidal = new P1Sinusoidal(getSpace(), a, (1-lambda)*kSine, strcString, shift);
+        pc1 = new PotentialComputeField(getSpeciesManager(), box);
         pc1.setFieldPotential(leafType, p1Sinusoidal);
 
         PotentialComputeAggregate.localStorageDefault = true;
@@ -112,16 +130,29 @@ public class LJMC3DFM extends Simulation {
         mcMoveAtom = new MCMoveAtom(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-
-        P1Sinusoidal p1SinusoidalMeter = new P1Sinusoidal(getSpace(), a, kSine, isBCC, shift);
+        P1Sinusoidal p1SinusoidalMeter = new P1Sinusoidal(getSpace(), a, kSine, strcString, shift);
         pc1Meter = new PotentialComputeField(getSpeciesManager(), box);
         pc1Meter.setFieldPotential(species.getLeafType(), p1SinusoidalMeter);
 
-//        integrator.setThermostatNoDrift(false);
-//        integrator.setIsothermal(true);
-//        integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);
-//        int hybridInterval = 100*numAtoms;
-//        integrator.setThermostatInterval(hybridInterval);
+//        double r_nn = Double.NaN;
+//        if (strc == Structure.SC ) r_nn = a;
+//        if (strc == Structure.BCC) r_nn = a/Math.sqrt(2);
+//        if (strc == Structure.FCC) r_nn = a/Math.sqrt(3);
+//        double k1 = 2*Math.PI/r_nn;
+//
+//        MeterStructureFactor mSF = new MeterStructureFactor(box, k1*1.001);
+//        mSF.getData();
+//
+//        for (int i=0;i<mSF.getPhaseAngles().length; i++) {
+//            if(mSF.getWaveVectors()[i].squared() == k1*k1) {
+//                double kx = mSF.getWaveVectors()[i].getX(0);
+//                double ky = mSF.getWaveVectors()[i].getX(1);
+//                double kz = mSF.getWaveVectors()[i].getX(2);
+//                double k = Math.sqrt(mSF.getWaveVectors()[i].squared());
+//                System.out.println(mSF.getPhaseAngles()[i] + " [ " + kx + " " + ky + " " + kz + " ]" + " " + k);
+//            }
+//        }
+//        System.exit(0);
     }
 
     public static void main(String[] args) {
@@ -134,13 +165,13 @@ public class LJMC3DFM extends Simulation {
         double rho = params.rho;
         double rc = params.rc;
         boolean isGraphic = params.isGraphic;
-        boolean isBCC = params.isBCC;
+        Structure strc = params.strc;
         double alpha = params.alpha;
         double lambda = params.lambda;
         double kSine = params.kSine;
         double dbeta = params.dbeta;
 
-        LJMC3DFM sim = new LJMC3DFM(numAtoms, rho, temperature, rc, kSine, lambda, isBCC);
+        LJMC3DFM sim = new LJMC3DFM(numAtoms, rho, temperature, rc, kSine, lambda, strc);
         System.out.println(" LJ");
         System.out.println(" N: " + numAtoms);
         System.out.println(" density: " + rho);
@@ -149,7 +180,7 @@ public class LJMC3DFM extends Simulation {
         System.out.println(" steps: " +  numSteps);
         System.out.println(" kSine: " + kSine);
         System.out.println(" lambda: " + lambda);
-        System.out.println(" isBCC: " + isBCC);
+        System.out.println(" Structure: " + strc);
 
         if (isGraphic) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
@@ -176,9 +207,7 @@ public class LJMC3DFM extends Simulation {
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
-
             ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0),1.0);
-
 
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
@@ -197,17 +226,22 @@ public class LJMC3DFM extends Simulation {
 //        MeterFM meterFM = new MeterFM(sim.potentialMaster, temperature, sim.box, dbeta);
 //        MeterFM meterFM = new MeterFM(sim.potentialMaster, sim.potentialMasterSS, temperature, sim.box, alpha, dbeta);
 
-        MeterPotentialEnergy meterPESinusoidal = new MeterPotentialEnergy(sim.pc1Meter);
-        MeterPotentialEnergy meterPELJ = new MeterPotentialEnergy(sim.potentialMaster);
-        MeterFEP meterFEP = new MeterFEP(sim.potentialMaster, 1.0/temperature);
+//        MeterPotentialEnergy meterPESinusoidal = new MeterPotentialEnergy(sim.pc1Meter);
+//        MeterPotentialEnergy meterPELJ = new MeterPotentialEnergy(sim.potentialMaster);
+//        MeterFEP meterFEP = new MeterFEP(sim.potentialMaster, 1.0/temperature);
+        MeterdUdlambda meterDUdlambda = new MeterdUdlambda(sim.potentialMasterMeter, sim.pc1Meter);
 
-        sim.integrator.reset();
-        System.out.println(" uLat: "+sim.integrator.getPotentialEnergy()/numAtoms);
+//        sim.integrator.reset();
+//        System.out.println(" uLat: "+sim.integrator.getPotentialEnergy()/numAtoms);
 //        meterFM.setUlat(sim.integrator.getPotentialEnergy());
+
+
 
         // Equilibaration
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         System.out.println(" Done with equilibration ...");
+
+
 
         int interval = numAtoms;
         int blocks = 100;
@@ -215,82 +249,77 @@ public class LJMC3DFM extends Simulation {
         System.out.println(" numBlocks: " + blocks + " blocksize: " + blockSize + " interval: " + interval);
         System.out.println();
 
-        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverageFixed energyAccumulator = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, interval);
-        sim.integrator.getEventManager().addListener(energyPump);
+//        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+//        AccumulatorAverageFixed energyAccumulator = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, interval);
+//        sim.integrator.getEventManager().addListener(energyPump);
 
 //        AccumulatorAverageCovariance energyFMAccumulator = new AccumulatorAverageCovariance(blockSize);
 //        DataPumpListener energyFMPump = new DataPumpListener(meterFM, energyFMAccumulator, interval);
 //        sim.integrator.getEventManager().addListener(energyFMPump);
 
-        AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorPump = new DataPumpListener(meterPESinusoidal, accumulator, interval);
-        sim.integrator.getEventManager().addListener(accumulatorPump);
+//        AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener accumulatorPump = new DataPumpListener(meterPESinusoidal, accumulator, interval);
+//        sim.integrator.getEventManager().addListener(accumulatorPump);
 
 
-        AccumulatorAverageFixed accumulatorLJ = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorPumpLJ = new DataPumpListener(meterPELJ, accumulatorLJ, interval);
+//        AccumulatorAverageFixed accumulatorLJ = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener accumulatorPumpLJ = new DataPumpListener(meterPELJ, accumulatorLJ, interval);
 
 
-        if (lambda == 1) {
-            sim.integrator.getEventManager().addListener(accumulatorPumpLJ);
-        }
+//        if (lambda == 1) {
+//            sim.integrator.getEventManager().addListener(accumulatorPumpLJ);
+//        }
 
 // Short sim
-        AccumulatorAverageFixed accumulatorFEP = new AccumulatorAverageFixed(blockSize);
+//        AccumulatorAverageFixed accumulatorFEP = new AccumulatorAverageFixed(blockSize);
 
-        if (lambda == 1) {
-            double EnShift = 0, errEnShift = 0;
-            long numStepsShort = numSteps / 10;
-            System.out.println(" Short sim for Covariance: " + numStepsShort + " steps");
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
-            System.out.println(" Done with " + numStepsShort + " steps of short run-1");
-
-            double U0 = accumulatorLJ.getData(accumulatorLJ.AVERAGE).getValue(0);
-            double errU0 = accumulatorLJ.getData(accumulatorLJ.ERROR).getValue(0);
-            double corU0 = accumulatorLJ.getData(accumulatorLJ.BLOCK_CORRELATION).getValue(0);
-            System.out.println(" U0:  " + U0 + " " + errU0 + " " + corU0);
-            meterFEP.setU0(U0);
-
-            DataPumpListener accumulatorPumpFEP = new DataPumpListener(meterFEP, accumulatorFEP, interval);
-            sim.integrator.getEventManager().addListener(accumulatorPumpFEP);
-        }
-
+//        if (lambda == 1) {
+//            double EnShift = 0, errEnShift = 0;
+//            long numStepsShort = numSteps / 10;
+//            System.out.println(" Short sim for Covariance: " + numStepsShort + " steps");
+//            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
+//            System.out.println(" Done with " + numStepsShort + " steps of short run-1");
 //
-//        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numStepsShort));
-//        System.out.println(" Done with "+ numStepsShort +" steps of short run-2");
-//        double var1 = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(0);
-//        double var2 = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(4);
-//        double cov12 = energyFMAccumulator.getData(energyFMAccumulator.COVARIANCE).getValue(1);
-//        double cor12 = cov12/Math.sqrt(var1*var2);
-//        double alpha_opt = -Math.sqrt(var1/var2)*cor12;
-//        System.out.println(" cor_short: " + cor12);
-//        System.out.println(" alpha_opt_short: " + alpha_opt);
-//        System.out.println(" errRatio_theory: " + "  " + 1/Math.sqrt(1-cor12*cor12));
-//        System.out.println();
+//            double U0 = accumulatorLJ.getData(accumulatorLJ.AVERAGE).getValue(0);
+//            double errU0 = accumulatorLJ.getData(accumulatorLJ.ERROR).getValue(0);
+//            double corU0 = accumulatorLJ.getData(accumulatorLJ.BLOCK_CORRELATION).getValue(0);
+//            System.out.println(" U0:  " + U0 + " " + errU0 + " " + corU0);
+//            meterFEP.setU0(U0);
 //
-//        meterFM.setAlpha(alpha_opt);
-//        meterFM.setAvgs(0,0,0,0 );
-//        energyFMAccumulator.reset();
+//            DataPumpListener accumulatorPumpFEP = new DataPumpListener(meterFEP, accumulatorFEP, interval);
+//            sim.integrator.getEventManager().addListener(accumulatorPumpFEP);
+//        }
+
+        AccumulatorAverageFixed accumulatorDUdlambda = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener accumulatorPumpDUdlambda = new DataPumpListener(meterDUdlambda, accumulatorDUdlambda, interval);
+        sim.integrator.getEventManager().addListener(accumulatorPumpDUdlambda);
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
-        if (lambda == 1) {
-            double avgFEP = accumulatorFEP.getData(accumulatorFEP.AVERAGE).getValue(0);
-            double errFEP = accumulatorFEP.getData(accumulatorFEP.ERROR).getValue(0);
-            double corFEP = accumulatorFEP.getData(accumulatorFEP.BLOCK_CORRELATION).getValue(0);
-            System.out.println();
-            System.out.println(" Step1: LS+S -> S");
-            System.out.println(" dA1: " + avgFEP + "  " + errFEP + "    " + corFEP);
-        }
+//        if (lambda == 1) {
+//            double avgFEP = accumulatorFEP.getData(accumulatorFEP.AVERAGE).getValue(0);
+//            double errFEP = accumulatorFEP.getData(accumulatorFEP.ERROR).getValue(0);
+//            double corFEP = accumulatorFEP.getData(accumulatorFEP.BLOCK_CORRELATION).getValue(0);
+//            System.out.println();
+//            System.out.println(" Step1: LS+S -> S");
+//            System.out.println(" dA1: " + -temperature*Math.log(avgFEP)/numAtoms + "  " + errFEP/avgFEP/numAtoms + "    " + corFEP);
+//        }
 
-        double avg = accumulator.getData(accumulator.AVERAGE).getValue(0);
-        double err = accumulator.getData(accumulator.ERROR).getValue(0);
-        double cor = accumulator.getData(accumulator.BLOCK_CORRELATION).getValue(0);
+//        double avg = accumulator.getData(accumulator.AVERAGE).getValue(0);
+//        double err = accumulator.getData(accumulator.ERROR).getValue(0);
+//        double cor = accumulator.getData(accumulator.BLOCK_CORRELATION).getValue(0);
+//        System.out.println();
+//        System.out.println(" Step2: LJ -> LS+S");
+//        System.out.println(" dA2: " + avg/numAtoms + "  " + err/numAtoms + "    " + cor);
+
+
+
+        double avg = accumulatorDUdlambda.getData(accumulatorDUdlambda.AVERAGE).getValue(0);
+        double err = accumulatorDUdlambda.getData(accumulatorDUdlambda.ERROR).getValue(0);
+        double cor = accumulatorDUdlambda.getData(accumulatorDUdlambda.BLOCK_CORRELATION).getValue(0);
         System.out.println();
-        System.out.println(" Step2: LJ -> LS+S");
-        System.out.println(" dA2: " + avg + "  " + err + "    " + cor);
+        System.out.println(" dUdl: " + avg/numAtoms + "  " + err/numAtoms + "    " + cor);
 
 
 
@@ -309,7 +338,6 @@ public class LJMC3DFM extends Simulation {
 
 
 
-        System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
 //        double avg = energyAccumulator.getData(energyAccumulator.AVERAGE).getValue(0)/numAtoms;
 //        double err = energyAccumulator.getData(energyAccumulator.ERROR).getValue(0)/numAtoms;
@@ -482,17 +510,20 @@ public class LJMC3DFM extends Simulation {
 //        System.out.println(covUH + "  " + covUbF2 + "  " + (avg_bf2+avg_bf2_short)*temperature/numAtoms + " ||| " + (covUbF2-(avg_bf2+avg_bf2_short)*temperature/numAtoms));
 //        System.out.println("zeroTest: " + zeroTest);
 
+        System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
         long t2 = System.nanoTime();
         System.out.println("\ntime: " + (t2 - t1)/1.0e9/60.0 + " min");
     }
 
+    public enum Structure {SC, BCC, FCC};
+
     public static class SimParams extends ParameterBase {
         //FCC: n=4-8: 256 500 864 1372 2048
         //FCC: n=5-10: 250 432 686 1024 1458 2000
-        public boolean isBCC = false;
-        int n = 4;
-        public int numAtoms = 4*n*n*n;
-        public int numSteps = 10000000;
+        public Structure strc = Structure.SC;
+        int n = 6;
+        public int numAtoms = 1*n*n*n;
+        public int numSteps = 1000000;
         public double temperature = 1;
         public double rho = 0.8;
         public double rc = 2.5;
@@ -500,8 +531,7 @@ public class LJMC3DFM extends Simulation {
         public double dbeta = 0.1;
         public double alpha = 1;
 
-        public double kSine = 100;
-        public double lambda = 1;
-
+        public double kSine = 2110;
+        public double lambda = 0.9998;
     }
 }
