@@ -93,11 +93,13 @@ public class SimLJLiquidTI extends Simulation {
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, rc);
         PotentialComputePair pm = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         pm.setPairPotential(leafType, leafType, potentialTruncated);
+        pm.doAllTruncationCorrection = false;
 
         P2LennardJones potentialMeter = new P2LennardJones(sigma, eps);
         P2SoftSphericalTruncated potentialTruncatedMeter = new P2SoftSphericalTruncated(potentialMeter, rc);
         pmMeter = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
         pmMeter.setPairPotential(leafType, leafType, potentialTruncatedMeter);
+        pmMeter.doAllTruncationCorrection = false;
 
         double a;
         if (strc == Structure.SC) {
@@ -129,7 +131,7 @@ public class SimLJLiquidTI extends Simulation {
 
         P1Sinusoidal p1SinusoidalMeter = new P1Sinusoidal(getSpace(), a, kSine, strcString, shift);
         pc1Meter = new PotentialComputeField(getSpeciesManager(), box);
-        pc1Meter.setFieldPotential(species.getLeafType(), p1SinusoidalMeter);
+        pc1Meter.setFieldPotential(leafType, p1SinusoidalMeter);
     }
 
     public static void main(String[] args) {
@@ -183,7 +185,7 @@ public class SimLJLiquidTI extends Simulation {
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
-            ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0),0.5);
+            ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species().getAtomType(0),1);
 
             DisplayTextBox timer = new DisplayTextBox();
             DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
@@ -222,8 +224,7 @@ public class SimLJLiquidTI extends Simulation {
 
         // Production
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.nSteps));
-
-//        System.out.println(" Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
+        System.out.println(" Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
         double avg = accumulatorDUdlambda.getData(accumulatorDUdlambda.AVERAGE).getValue(0);
         double err = accumulatorDUdlambda.getData(accumulatorDUdlambda.ERROR).getValue(0);
@@ -250,13 +251,13 @@ public class SimLJLiquidTI extends Simulation {
     public static class SimParams extends ParameterBase {
         public Structure strc = Structure.SC;
         public boolean isGraphic = !true;
-        int n = 5;
+        int n = 7;
         public int nAtoms = 1*n*n*n;
-        public int nSteps = 1000000;
-        public double temperature = 10000.0;
+        public int nSteps = 2000000;
+        public double temperature = 1;
         public double rho = 0.8;
         public double rc = 2.5;
-        public double kSine = 0;
-        public double lambda = 1;
+        public double kSine = 20;
+        public double lambda = 1.0;
     }
 }
