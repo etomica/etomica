@@ -14,27 +14,24 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
-import etomica.data.meter.MeterPressure;
-import etomica.data.meter.MeterPressureFromIntegrator;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.nbr.cell.NeighborCellManager;
-import etomica.potential.*;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
+import etomica.potential.P1Sinusoidal;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.potential.compute.PotentialComputeField;
-import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.units.Calorie;
-import etomica.units.Dalton;
-import etomica.units.Kelvin;
-import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -49,24 +46,20 @@ public class SimLJLiquidTI extends Simulation {
     public MCMoveAtom mcMoveAtom;
     public SpeciesGeneral species;
     public Box box;
-    public PotentialComputePair pmMeter;
+    public PotentialMasterCell pmMeter;
     public PotentialComputeField pc1Meter;
     public P2LennardJones potential;
     public double temperature;
 
-    public SimLJLiquidTI(int nAtoms, double rho, double temperature, double rc, double kSine, double lambda, Structure strc) {
+    public SimLJLiquidTI(int nAtoms, double rho, double temperature, double rc, double kSine, double lambda, Structure strc, boolean isLRC) {
         super(Space3D.getInstance());
 //        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         AtomType leafType = species.getLeafType();
         addSpecies(species);
-
         box = this.makeBox();
-        int cellRange = 2;
-        NeighborCellManager neighborManager = new NeighborCellManager(getSpeciesManager(), box, cellRange, BondingInfo.noBonding());
-//        NeighborListManager neighborManager = new NeighborListManager(getSpeciesManager(), box, 2, 4, BondingInfo.noBonding());
-
         box.setNMolecules(species, nAtoms);
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(rho);
         inflater.actionPerformed();
@@ -91,15 +84,18 @@ public class SimLJLiquidTI extends Simulation {
 
         potential = new P2LennardJones(sigma, eps*lambda);
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, rc);
-        PotentialComputePair pm = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        PotentialMasterCell  pm = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
         pm.setPairPotential(leafType, leafType, potentialTruncated);
-        pm.doAllTruncationCorrection = false;
 
         P2LennardJones potentialMeter = new P2LennardJones(sigma, eps);
         P2SoftSphericalTruncated potentialTruncatedMeter = new P2SoftSphericalTruncated(potentialMeter, rc);
-        pmMeter = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
+        pmMeter = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
         pmMeter.setPairPotential(leafType, leafType, potentialTruncatedMeter);
-        pmMeter.doAllTruncationCorrection = false;
+
+        if (!isLRC) {
+            pm.doAllTruncationCorrection = false;
+            pmMeter.doAllTruncationCorrection = false;
+        }
 
         double a;
         if (strc == Structure.SC) {
@@ -132,6 +128,10 @@ public class SimLJLiquidTI extends Simulation {
         P1Sinusoidal p1SinusoidalMeter = new P1Sinusoidal(getSpace(), a, kSine, strcString, shift);
         pc1Meter = new PotentialComputeField(getSpeciesManager(), box);
         pc1Meter.setFieldPotential(leafType, p1SinusoidalMeter);
+
+        // init() are required. Note needed for pm and pc1 because the integrator calls it.
+//        pmMeter.init();
+//        pc1Meter.init();
     }
 
     public static void main(String[] args) {
@@ -140,21 +140,23 @@ public class SimLJLiquidTI extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int nAtoms = params.nAtoms;
         int nSteps = params.nSteps;
-        int nStepsEq = nSteps/10;
+        int nStepsEq = params.nSteps/10;
         double temperature = params.temperature;
         double rho = params.rho;
         double rc = params.rc;
-        boolean isGraphic = params.isGraphic;
         Structure strc = params.strc;
         double lambda = params.lambda;
         double kSine = params.kSine;
+        boolean isGraphic = params.isGraphic;
+        boolean isLRC = params.isLRC;
 
-        SimLJLiquidTI sim = new SimLJLiquidTI(nAtoms, rho, temperature, rc, kSine, lambda, strc);
+        SimLJLiquidTI sim = new SimLJLiquidTI(nAtoms, rho, temperature, rc, kSine, lambda, strc, isLRC);
         System.out.println(" LJ");
         System.out.println(" N: " + nAtoms);
         System.out.println(" density: " + rho);
         System.out.println(" T: " + temperature);
         System.out.println(" rc: " + rc);
+        System.out.println(" isLRC: " + isLRC);
         System.out.println(" steps: " +  nSteps);
         System.out.println(" kSine: " + kSine);
         System.out.println(" lambda: " + lambda);
@@ -202,7 +204,7 @@ public class SimLJLiquidTI extends Simulation {
         System.out.flush();
 
         // Equilibaration
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.nSteps / 10));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nStepsEq));
         System.out.println(" Done with " + nStepsEq + " steps equilibration.");
 
         int interval = nAtoms;
@@ -211,19 +213,17 @@ public class SimLJLiquidTI extends Simulation {
         System.out.println(" nBlocks: " + blocks + " blocksize: " + blockSize + " interval: " + interval);
         System.out.println();
 
+        sim.pmMeter.init();
+        sim.pc1Meter.init();
+//        MeterPotentialEnergyFromIntegrator meterDUdlambda = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         MeterdUdlambda meterDUdlambda = new MeterdUdlambda(sim.pmMeter, sim.pc1Meter);
         AccumulatorAverageFixed accumulatorDUdlambda = new AccumulatorAverageFixed(blockSize);
         DataPumpListener accumulatorPumpDUdlambda = new DataPumpListener(meterDUdlambda, accumulatorDUdlambda, interval);
         sim.integrator.getEventManager().addListener(accumulatorPumpDUdlambda);
 
-//        MeterPressure meterP = new MeterPressure(sim.box, sim.pmMeter);
-//        meterP.setTemperature(temperature);
-//        AccumulatorAverageFixed accumulatorP = new AccumulatorAverageFixed(blockSize);
-//        DataPumpListener accumulatorPumpP = new DataPumpListener(meterP, accumulatorP, interval);
-//        sim.integrator.getEventManager().addListener(accumulatorPumpP);
 
         // Production
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.nSteps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
         System.out.println(" Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
         double avg = accumulatorDUdlambda.getData(accumulatorDUdlambda.AVERAGE).getValue(0);
@@ -231,15 +231,6 @@ public class SimLJLiquidTI extends Simulation {
         double cor = accumulatorDUdlambda.getData(accumulatorDUdlambda.BLOCK_CORRELATION).getValue(0);
         System.out.println();
         System.out.println(" dUdl: " + avg/nAtoms + "  " + err/nAtoms + "    " + cor);
-
-
-//        double avgP = accumulatorP.getData(accumulatorP.AVERAGE).getValue(0);
-//        double errP = accumulatorP.getData(accumulatorP.ERROR).getValue(0);
-//        double corP = accumulatorP.getData(accumulatorP.BLOCK_CORRELATION).getValue(0);
-//        double Z = avgP/rho/temperature;
-//        double errZ_rho = errP/rho/temperature;
-//        System.out.println();
-//        System.out.println(" (Z-1)/rho: " + (Z-1)/rho + "  " + errP + "    " + corP);
 
         long t2 = System.nanoTime();
         System.out.println("\n time: " + (t2 - t1)/1.0e9/60.0 + " min");
@@ -250,14 +241,15 @@ public class SimLJLiquidTI extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public Structure strc = Structure.SC;
-        public boolean isGraphic = !true;
+        public boolean isGraphic = false;
+        public boolean isLRC = !false;
         int n = 7;
         public int nAtoms = 1*n*n*n;
-        public int nSteps = 2000000;
+        public int nSteps = 1000000;
         public double temperature = 1;
         public double rho = 0.8;
-        public double rc = 2.5;
-        public double kSine = 20;
-        public double lambda = 1.0;
+        public double rc = 3;
+        public double kSine = 0;
+        public double lambda = 1;
     }
 }

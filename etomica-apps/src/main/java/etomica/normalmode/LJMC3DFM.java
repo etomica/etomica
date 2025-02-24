@@ -229,7 +229,7 @@ public class LJMC3DFM extends Simulation {
 //        MeterPotentialEnergy meterPESinusoidal = new MeterPotentialEnergy(sim.pc1Meter);
 //        MeterPotentialEnergy meterPELJ = new MeterPotentialEnergy(sim.potentialMaster);
 //        MeterFEP meterFEP = new MeterFEP(sim.potentialMaster, 1.0/temperature);
-        MeterdUdlambda meterDUdlambda = new MeterdUdlambda(sim.potentialMasterMeter, sim.pc1Meter);
+//        MeterdUdlambda meterDUdlambda = new MeterdUdlambda(sim.potentialMasterMeter, sim.pc1Meter);
 
 //        sim.integrator.reset();
 //        System.out.println(" uLat: "+sim.integrator.getPotentialEnergy()/numAtoms);
@@ -291,10 +291,10 @@ public class LJMC3DFM extends Simulation {
 //            sim.integrator.getEventManager().addListener(accumulatorPumpFEP);
 //        }
 
-        AccumulatorAverageFixed accumulatorDUdlambda = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener accumulatorPumpDUdlambda = new DataPumpListener(meterDUdlambda, accumulatorDUdlambda, interval);
-        sim.integrator.getEventManager().addListener(accumulatorPumpDUdlambda);
-
+//        AccumulatorAverageFixed accumulatorDUdlambda = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener accumulatorPumpDUdlambda = new DataPumpListener(meterDUdlambda, accumulatorDUdlambda, interval);
+//        sim.integrator.getEventManager().addListener(accumulatorPumpDUdlambda);
+//
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
 //        if (lambda == 1) {
@@ -315,11 +315,11 @@ public class LJMC3DFM extends Simulation {
 
 
 
-        double avg = accumulatorDUdlambda.getData(accumulatorDUdlambda.AVERAGE).getValue(0);
-        double err = accumulatorDUdlambda.getData(accumulatorDUdlambda.ERROR).getValue(0);
-        double cor = accumulatorDUdlambda.getData(accumulatorDUdlambda.BLOCK_CORRELATION).getValue(0);
-        System.out.println();
-        System.out.println(" dUdl: " + avg/numAtoms + "  " + err/numAtoms + "    " + cor);
+//        double avg = accumulatorDUdlambda.getData(accumulatorDUdlambda.AVERAGE).getValue(0);
+//        double err = accumulatorDUdlambda.getData(accumulatorDUdlambda.ERROR).getValue(0);
+//        double cor = accumulatorDUdlambda.getData(accumulatorDUdlambda.BLOCK_CORRELATION).getValue(0);
+//        System.out.println();
+//        System.out.println(" dUdl: " + avg/numAtoms + "  " + err/numAtoms + "    " + cor);
 
 
 

@@ -6,33 +6,24 @@ package etomica.normalmode;
 
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.data.IDataSourcePotential;
 import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Energy;
 
-public class MeterdUdlambda extends DataSourceScalar implements IDataSourcePotential {
+public class MeterdUdlambda extends DataSourceScalar {
 
     protected Box box;
-    protected final PotentialCompute pm1, pm2;
-    protected boolean callComputeAll;
-    public MeterdUdlambda(PotentialCompute pm1, PotentialCompute pm2) {
+    protected final PotentialCompute pmModel, pmField;
+
+    public MeterdUdlambda(PotentialCompute pmModel, PotentialCompute pmField) {
         super("dU/dlambda", Energy.DIMENSION);
-        this.pm1 = pm1;
-        this.pm2 = pm2;
-        callComputeAll = true;
+        this.pmModel = pmModel;
+        this.pmField = pmField;
     }
 
     public double getDataAsScalar() {
-        if (callComputeAll) {
-            pm1.computeAll(false);
-            pm2.computeAll(false);
-        }
-        double dUdl = pm1.getLastEnergy() - pm2.getLastEnergy();
-        return dUdl;
+        double uModel = pmModel.computeAll(false);
+        double uField = pmField.computeAll(false);
+        return uModel - uField;
     }
 
-    @Override
-    public void doCallComputeAll(boolean callComputeAll) {
-        this.callComputeAll = callComputeAll;
-    }
 }
