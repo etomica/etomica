@@ -47,6 +47,9 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
     int precision;
     private LabelType labelType;
     private boolean integerDisplay;
+    protected String rootLabel = "";
+
+    protected boolean showUnit;
     
     /**
      * Physical units associated with the displayed value.
@@ -57,6 +60,7 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
     public DisplayTextBox() {
         super();
         this.unit = Null.UNIT;
+        showUnit = true;
         jLabel = new JLabel();
         value = new JTextField("");
         value.setEditable(false);
@@ -105,7 +109,9 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
      */
     public void setUnit(etomica.units.Unit u) {
         unit = u;
+        setLabel(rootLabel);
     }
+
     /**
      * Returns the physical units of the displayed value.
      */
@@ -130,6 +136,20 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
     public void setIntegerDisplay(boolean integerDisplay) {
         this.integerDisplay = integerDisplay;
     }
+
+
+    public boolean isShowUnit() {
+        return showUnit;
+    }
+
+    /**
+     * Sets whether units are shown in label
+     * @param showUnit
+     */
+    public void setShowUnit(boolean showUnit) {
+        this.showUnit = showUnit;
+        setLabel(rootLabel);
+    }
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
@@ -148,7 +168,8 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
      * Sets the value of a descriptive label using the given string.
      */
     public void setLabel(String s) {
-        String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
+        rootLabel = s;
+        String suffix = (showUnit && unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
         super.setLabel(s+suffix);
         jLabel.setText(s+suffix);
         if(labelType == LabelType.BORDER) {
