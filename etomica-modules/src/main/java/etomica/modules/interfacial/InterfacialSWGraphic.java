@@ -36,6 +36,7 @@ import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
@@ -267,6 +268,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
+        displayTimer.setShowUnit(false);
         add(displayTimer);
 
         //add meter and display for current kinetic temperature
@@ -281,7 +283,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         temperatureHistory.setTimeDataSource(timeCounter);
         final DisplayTextBox tBox = new DisplayTextBox();
         temperatureFork.setDataSinks(new IDataSink[]{tBox, temperatureHistory});
-        tBox.setLabel("Measured Temperature");
+        tBox.setShowUnit(false);
         tBox.setLabelPosition(CompassDirection.NORTH);
 
         dataStreamPumps.add(temperaturePump);
@@ -296,6 +298,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(densityPumpListener);
         densityPumpListener.setInterval(10);
         dataStreamPumps.add(densityPump);
+        densityBox.setShowUnit(false);
         densityBox.setLabel("Number Density");
 
 //	      MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
@@ -813,7 +816,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         public Dimension getDimension() {
-            return Length.DIMENSION;
+            return Null.DIMENSION;
         }
 
         public String getLabel() {
