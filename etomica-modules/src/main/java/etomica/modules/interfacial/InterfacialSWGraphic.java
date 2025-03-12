@@ -40,6 +40,7 @@ import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -530,7 +531,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
         nSlider.setMaximum(space.D() == 3 ? 2048 : 500);
-        nSlider.setLabel("Number of Atoms");
+        nSlider.setLabel("Number of Solvent Molecules");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
         // add a listener to adjust the thermostat interval for different
@@ -569,7 +570,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         nSurfactantSlider.setMinimum(0);
         nSurfactantSlider.setMaximum(50);
         nSurfactantSlider.setValue(0);
-        nSurfactantSlider.setLabel("Number of Surfactants");
+        nSurfactantSlider.setLabel("Number of Surfactant Molecules");
         nSurfactantSlider.setShowBorder(true);
         nSurfactantSlider.setShowValues(true);
 
@@ -605,7 +606,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         });
         surfactantEpsilon.setMaximum(5);
         surfactantEpsilon.setShowValues(true);
-        surfactantEpsilon.setLabel("head epsilon");
+        surfactantEpsilon.setLabel("Surfactant-head Epsilon");
 
         DeviceSlider surfactantSigma = new DeviceSlider(sim.getController());
         surfactantSigma.setShowBorder(true);
@@ -645,7 +646,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 getDisplayBox(sim.box).repaint();
             }
         });
-        surfactantSigma.setLabel("tail diameter");
+        surfactantSigma.setLabel("Surfactant-tail Diameter");
         surfactantSigma.setPrecision(1);
         surfactantSigma.setMinimum(1);
         surfactantSigma.setMaximum(1.6);
@@ -670,6 +671,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         };
         xSlider = new DeviceSlider(sim.getController());
         xSlider.setShowValues(true);
+        xSlider.setShowUnits(false);
         xSlider.setLabel("Box length");
         xSlider.setShowBorder(true);
         xSlider.setMinimum(6);
@@ -685,6 +687,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         //temperature selector
         temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
+        ((javax.swing.border.TitledBorder)((JPanel)temperatureSelect.graphic()).getBorder()).setTitleJustification(TitledBorder.LEFT);
         temperatureSelect.setPrecision(2);
         temperatureSelect.setMinimum(0.0);
         if (space.D() == 3) {
@@ -738,6 +741,16 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         potentialPanel.add(surfactantEpsilon.graphic(), vertGBC);
         potentialPanel.add(surfactantSigma.graphic(), vertGBC);
         tabbedPane.add("Surfactant potential", potentialPanel);
+        JTextArea infoBox = new JTextArea("Solvent (red) molecules interact with each other as square well of unit diameter (\u03C3) and unit well depth (\u03B5), " +
+                "with well-extent \u03BB = 1.5\u03C3. All other parameters and properties are made dimensonless with \u03C3 and \u03B5.\n" +
+                "The surfactant head atoms (blue) are hard spheres with adjustable diameter, and the tail atoms (purple) are square well" +
+                " of unit diameter and adjustable well depth\n" +
+                "Hit \"h\" key to re-center display at any time (e.g., after Expand). " +
+                "Be sure cursor focus is on the configuration display when doing so.");
+        infoBox.setLineWrap(true);
+        infoBox.setWrapStyleWord(true);
+        infoBox.setEditable(false);
+        tabbedPane.add("Info",infoBox);
 
         add(ePlot);
         add(densityBox);
@@ -816,11 +829,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         public Dimension getDimension() {
-            return Null.DIMENSION;
+            return Length.DIMENSION;
         }
 
         public String getLabel() {
-            return "Box size";
+            return "Box Size";
         }
 
         public double getValue() {
