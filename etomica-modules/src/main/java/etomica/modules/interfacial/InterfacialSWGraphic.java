@@ -359,6 +359,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         DataProcessorInterfacialTension interfacialTension = new DataProcessorInterfacialTension(space);
         interfacialTension.setBox(sim.box);
+        interfacialTension.setSurfaceDimension(0);
         virialFork.addDataSink(interfacialTension);
         final AccumulatorAverageCollapsing tensionAvg = new AccumulatorAverageCollapsing();
         interfacialTension.setDataSink(tensionAvg);
@@ -389,6 +390,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         DataProcessorInterfacialTensionProfile interfacialTensionProfile = new DataProcessorInterfacialTensionProfile(space);
         interfacialTensionProfile.setBox(sim.box);
+        interfacialTensionProfile.setSurfaceDim(0);
         virialProfileFork.addDataSink(interfacialTensionProfile);
         AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(10);
         interfacialTensionProfile.setDataSink(tensionProfileAvg);
