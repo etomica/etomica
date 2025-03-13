@@ -860,6 +860,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 box.getBoundary().setBoxSize(size);
                 // and reconfig.  this shouldn't throw.
                 reconfig.actionPerformed();
+                throw new IllegalArgumentException("too small");
             }
         }
     }
