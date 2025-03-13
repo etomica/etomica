@@ -7,6 +7,7 @@ package etomica.modules.interfacial;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -552,6 +553,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 }
 
                 config.initializeCoordinates(sim.box);
+                Vector dr = space.makeVector();
+                for (IAtom a : sim.box.getLeafList()) {
+                    dr.setRandomInSphere(sim.getRandom());
+                    a.getPosition().PEa1Tv1(0.01, dr);
+                }
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
@@ -564,6 +570,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 oldN = n;
 
                 getController().getSimRestart().actionPerformed();
+                // our restart happily re-initializes the config for us, so re-perturb
+                for (IAtom a : sim.box.getLeafList()) {
+                    dr.setRandomInSphere(sim.getRandom());
+                    a.getPosition().PEa1Tv1(0.01, dr);
+                }
                 getDisplayBox(sim.box).repaint();
             }
         });
@@ -658,12 +669,21 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         IAction reconfig = new IAction() {
             public void actionPerformed() {
                 config.initializeCoordinates(sim.box);
+                Vector dr = space.makeVector();
+                for (IAtom a : sim.box.getLeafList()) {
+                    dr.setRandomInSphere(sim.getRandom());
+                    a.getPosition().PEa1Tv1(0.01, dr);
+                }
                 try {
                     sim.integrator.reset();
                 } catch (ConfigurationOverlapException e) {
                     throw new RuntimeException(e);
                 }
                 getController().getSimRestart().actionPerformed();
+                for (IAtom a : sim.box.getLeafList()) {
+                    dr.setRandomInSphere(sim.getRandom());
+                    a.getPosition().PEa1Tv1(0.01, dr);
+                }
                 getDisplayBox(sim.box).repaint();
                 densityProfileMeter.reset();
                 surfactantProfileMeter.reset();

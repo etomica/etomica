@@ -80,11 +80,11 @@ public class InterfacialSW extends Simulation {
         ghostType = speciesGhost.getAtomType(0);
 
         //instantiate several potentials for selection in combo-box
-        P2HardGeneric p2SW = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        P2HardGeneric p2SW = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, false);
         potentialMaster.setPairPotential(leafType, leafType, p2SW);
-        p2Head = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        p2Head = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, false);
         potentialMaster.setPairPotential(leafType, headType, p2Head);
-        p2HeadHead = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        p2HeadHead = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, false);
         potentialMaster.setPairPotential(headType, headType, p2HeadHead);
 
         p2TailTail = new P2HardGeneric(new double[]{1.0}, new double[]{Double.POSITIVE_INFINITY}, true);
