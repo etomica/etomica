@@ -533,6 +533,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
         nSlider.setMaximum(space.D() == 3 ? 2048 : 500);
+        nSlider.setNMajor(4);
         nSlider.setLabel("Number of Solvent Molecules");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
@@ -569,7 +570,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
         nSurfactantSlider = new DeviceSlider(sim.getController());
         nSurfactantSlider.setMinimum(0);
-        nSurfactantSlider.setMaximum(50);
+        nSurfactantSlider.setMaximum(60);
+        nSurfactantSlider.setNMajor(4);
         nSurfactantSlider.setValue(0);
         nSurfactantSlider.setLabel("Number of Surfactant Molecules");
         nSurfactantSlider.setShowBorder(true);
@@ -741,10 +743,12 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         potentialPanel.add(surfactantEpsilon.graphic(), vertGBC);
         potentialPanel.add(surfactantSigma.graphic(), vertGBC);
         tabbedPane.add("Surfactant potential", potentialPanel);
-        JTextArea infoBox = new JTextArea("Solvent (red) molecules interact with each other as square well of unit diameter (\u03C3) and unit well depth (\u03B5), " +
+        JTextArea infoBox = new JTextArea(
+                "Solvent (red) molecules interact with each other as square well of unit diameter (\u03C3) and unit well depth (\u03B5), " +
                 "with well-extent \u03BB = 1.5\u03C3. All other parameters and properties are made dimensonless with \u03C3 and \u03B5.\n" +
                 "The surfactant head atoms (blue) are hard spheres with adjustable diameter, and the tail atoms (purple) are square well" +
-                " of unit diameter and adjustable well depth\n" +
+                " of unit diameter and adjustable well depth.\n" +
+                "The initial box size is 12x10x10.\n" +
                 "Hit \"h\" key to re-center display at any time (e.g., after Expand). " +
                 "Be sure cursor focus is on the configuration display when doing so.");
         infoBox.setLineWrap(true);
@@ -833,7 +837,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
 
         public String getLabel() {
-            return "Box Size";
+            return "Box Length";
         }
 
         public double getValue() {
