@@ -128,16 +128,17 @@ public class DataVirialOverlap implements ReferenceFracSource {
 	    // <v/|v|>, <v2/|v|>, <v3/|v|>... <o1/|v|>, <o2/|v|>, <o3/|v|>...
 	    // where v is the nominal target value, v2, v3... are extra target values
 	    // and o1, o2, o3... are overlap values
-        int nTargets = ((DataInfoGroup)targetAccumulator.getDataInfo()).getSubDataInfo(0).getLength() - alphaSource.getNumAlpha();
-	    if (numAlpha == 1) {
-	        return getOverlapAverage(0);
-	    }
+        if (numAlpha == 1) {
+            return getOverlapAverage(0);
+        }
+        int nTargets = getNumTargets();
+        int numReferenceValues = refAccumulator.getData().getLength() - numAlpha;
 
         double[] lnAlpha = new double[numAlpha];
         double[] lnAlphaDiff = new double[numAlpha];
 
         for (int j=0; j<numAlpha; j++) {
-            double refOverlap = refAccumulator.getData(avgStat).getValue(j+1);
+            double refOverlap = refAccumulator.getData(avgStat).getValue(j+numReferenceValues);
             double targetOverlap = targetAccumulator.getData(avgStat).getValue(j+nTargets);
             lnAlphaDiff[j] += Math.log(refOverlap/targetOverlap);
 
@@ -311,13 +312,14 @@ public class DataVirialOverlap implements ReferenceFracSource {
     public FullResult getFullRatioResultForAlpha(double alpha, int targetIndex) {
         int numAlpha = alphaSource.getNumAlpha();
         int nTargets = getNumTargets();
+        int numReferenceValues = refAccumulator.getData().getLength() - numAlpha;
         int nTotal = nTargets + alphaSource.getNumAlpha();
         if (numAlpha == 1) {
             // this gives us ratio of ref to refOverlap
-            fullRatioResult.refAvg = refAccumulator.getData(ratioStat).getValue(1);
+            fullRatioResult.refAvg = refAccumulator.getData(ratioStat).getValue(numReferenceValues);
             // this gives us ratio of targetIndex to targetOverlap
             fullRatioResult.targetAvg = targetAccumulator.getData(ratioStat).getValue(targetIndex*nTotal + nTargets);
-            fullRatioResult.refErr = refAccumulator.getData(ratioErrorStat).getValue(1);
+            fullRatioResult.refErr = refAccumulator.getData(ratioErrorStat).getValue(numReferenceValues);
             fullRatioResult.targetErr = targetAccumulator.getData(ratioErrorStat).getValue(targetIndex*nTotal + nTargets);
             return fullRatioResult;
         }
@@ -388,14 +390,15 @@ public class DataVirialOverlap implements ReferenceFracSource {
     public int minDiffLocation() {
         int nTargets = getNumTargets();
         int numAlpha = alphaSource.getNumAlpha();
+        int numReferenceValues = refAccumulator.getData().getLength() - numAlpha;
 		int minDiffLoc = 0;
 		IData refAvg = refAccumulator.getData(avgStat);
         IData targetAvg = targetAccumulator.getData(avgStat);
-        double ratio = refAvg.getValue(1)/targetAvg.getValue(nTargets);
+        double ratio = refAvg.getValue(numReferenceValues)/targetAvg.getValue(nTargets);
         double bias = alphaSource.getAlpha(0);
 		double minDiff = ratio/bias + bias/ratio - 2;
 		for (int i=1; i<numAlpha; i++) {
-            ratio = refAvg.getValue(i+1)/targetAvg.getValue(i+nTargets);
+            ratio = refAvg.getValue(i+numReferenceValues)/targetAvg.getValue(i+nTargets);
             bias = alphaSource.getAlpha(i);
             double newDiff = ratio/bias + bias/ratio - 2;
 			if (newDiff < minDiff) {
