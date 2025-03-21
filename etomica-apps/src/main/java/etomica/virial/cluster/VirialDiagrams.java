@@ -373,7 +373,92 @@ public class VirialDiagrams {
         }
         return new ClusterSumMultibody(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}, new MayerFunctionNonAdditive[]{fMulti});
     }
+    public int[][] getFlipPointsforDiagram(String diagram) {
+        if(diagram.equals("5c")){
+            return new int[][]{{0, 1}, {0, 2}};
 
+        }
+        else if(diagram.equals("54c")){
+            return new int[][]{{0, 3}};
+        }
+        else if(diagram.equals("52c")){
+            return new int[][]{{0, 3}, {1, 2}, {0, 1, 2}};
+        }
+        else if(diagram.equals("38c")){
+            return new int[][]{{0, 1}, {0, 3}, {0, 2}};
+        }
+        else if(diagram.equals("954c")){
+            return new int[][]{{0, 4}};
+        }
+        else if(diagram.equals("946c")){
+            return new int[][]{{0, 4}};
+
+        }
+        else if(diagram.equals("952c")){
+            return new int[][]{{0, 4}};
+
+        }
+        else if(diagram.equals("882c")){
+            return new int[][]{};
+
+        }
+        else if(diagram.equals("936c")){
+            return new int[][]{{0, 4}, {0, 1, 2, 3}};
+
+        }
+
+        else if(diagram.equals("944c")){
+            return new int[][]{{0, 4}, {2, 3}};
+
+        }
+        else if(diagram.equals("930c")){
+            return new int[][]{{0, 4}};
+
+        }
+        else if(diagram.equals("818c")){
+            return new int[][]{{0, 3}, {0, 4}};
+
+        }
+        else if(diagram.equals("928c")){
+            return new int[][]{{0, 4}, {2, 3}, {0, 1, 2, 3}, {1, 2, 3}};
+
+        }
+        else if(diagram.equals("808c")){
+            return new int[][]{{1, 3}, {1, 2}, {0, 4}, {1, 0, 4}};
+
+        }
+        else if(diagram.equals("562c")){
+            return new int[][]{{0, 1}, {0, 2}, {0, 3}, {0, 4}};
+
+        }
+
+        else{
+            throw new RuntimeException("unknown diagram " + diagram);
+        }
+    }
+    public ClusterSum makeVirialCluster(Graph g, MayerFunction f){
+        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
+        ArrayList<Double> weights = new ArrayList<Double>();
+
+        int nDiagrams = populateEFBonds(g, allBonds, weights, false);
+        if (nDiagrams > 0 && flex) {
+            populateEFBonds(g, allBonds, weights, true);
+        }
+        if (flex && cancelMap.get(g) != null) {
+            Graph cg = cancelMap.get(g);
+            populateEFBonds(cg, allBonds, weights, false);
+            populateEFBonds(cg, allBonds, weights, true);
+        }
+        double gCoef = g.coefficient().getValue();
+
+
+        double[] w = new double[weights.size()];
+        for (int i=0; i<w.length; i++) {
+            w[i] = weights.get(i)/gCoef;
+        }
+        return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f});
+
+    }
     public ClusterSum makeVirialClusterTempDeriv(MayerFunction f, MayerFunction e, MayerFunction dfdT) {
         if (p == null) {
             makeVirialDiagrams();
