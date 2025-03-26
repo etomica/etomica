@@ -4,6 +4,8 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.IConformation;
 import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculeArrayList;
 import etomica.potential.UFF.PDBReaderMOP;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -160,8 +162,6 @@ public class DistCalc {
             Vector carbBPosn = species.makeMolecule().getChildList().get(carbB).getPosition();
             Vector carbCPosn = species.makeMolecule().getChildList().get(carbC).getPosition();
             IMolecule molecule = species.makeMolecule();
-
-
             //rotateAB into same plane
              Vector vA = new Vector3D(), vB = new Vector3D(), vC = new Vector3D(), carbAB = new Vector3D(), vAB = new Vector3D(), vABCopy = new Vector3D(), carbABCopy = new Vector3D(), finalvecAB = new Vector3D(), finalcarbAB = new Vector3D(), vAC = new Vector3D();
              vA.E(carbAPosn);
@@ -430,6 +430,24 @@ public class DistCalc {
             throw new RuntimeException("Incorrect struct");
         }
         return vecReturn;
+    }
+    public void getSpecies(ISpecies speciesMOP, Space space,  String struc, String structName, ISpecies speciesLigand, Box box, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map){
+        Box box1 = new Box(space);
+        box1 = getAutoMOPBox(space, struc, structName, speciesLigand, box, connectivity, map);
+        IMoleculeList molecules = new MoleculeArrayList();
+        molecules = box.getMoleculeList(speciesLigand);
+        for (int i =0; i< molecules.size(); i++){
+            System.out.println(molecules.get(i));
+        }
+        System.exit(1);
+
+    }
+    public void makespeciesMOP(Space space, String struc, String structName, ISpecies speciesLigand, ISpecies speciesMOP, Box box, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map, ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String> mapMOP){
+        DistCalc distCalc = new DistCalc();
+        box= distCalc.getAutoMOPBox(space, struc, structName, speciesLigand, box, connectivity, map);
+        System.out.println(box.getMoleculeList());
+        System.exit(1);
+
     }
 
     public Box getAutoMOPBox(Space space, String struc, String structName, ISpecies species, Box box, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map){

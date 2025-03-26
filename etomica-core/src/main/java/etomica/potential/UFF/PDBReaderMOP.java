@@ -5,6 +5,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.*;
+import etomica.graph.operations.Int;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -66,6 +67,7 @@ public class PDBReaderMOP {
             atomMap.clear();
             while ((line = bufReader.readLine()) != null) {
                 parseLineReader(line, typeMap, atomMap, positions);
+                m++;
                 if (line.startsWith("CONECT")) {
                     String[] parts = line.trim().split("\\s+");
                     int atomNumber = Integer.parseInt(parts[1]);
@@ -80,7 +82,6 @@ public class PDBReaderMOP {
                     }
                     connect++;
                 }
-                m++;
             }
             fileReader.close();
         } catch(IOException e) {
@@ -126,11 +127,12 @@ public class PDBReaderMOP {
         double massSum = 0;
         SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
         SpeciesBuilder speciesBuilderNewMod =  new SpeciesBuilder(Space3D.getInstance());
+        ArrayList<Integer> bondList = new ArrayList<>();
         AtomType typeNew;
         readPDBFile(confName);
         if(connect !=0){
             if(!isMOPVirialAbsent) {
-                ArrayList<Integer> bondList = setBondList(connectivity, atomMap);
+               bondList = setBondList(connectivity, atomMap);
             }
            // System.out.println(bondList + " bondList");
            // System.out.println(connectivity);
@@ -141,6 +143,8 @@ public class PDBReaderMOP {
        // System.out.println(atomMap+ "  " + atomMap.size());
         // System.out.println(atomIdentifierMapModified + "atomIdentifierMapModified");
         ArrayList<ArrayList<Integer>> connectedAtoms =getConnectivity();
+        connectChecker(connectedAtoms);
+        //System.exit(1);
         //System.out.println(connectedAtoms+ ": connectedAtom");
         ArrayList<ArrayList<Integer>> connectivityTemp = getConnectivityTemp(connectedAtoms);
         Map<Integer, String> atomIdentifierMapMod = atomIdentifierMapModified(connectivityTemp, atomMap);
@@ -161,7 +165,9 @@ public class PDBReaderMOP {
        // System.out.println(atomMapModified+" O");
        // System.out.println(atomIdentifierMapMod+" O");
         if(connect !=0){
+            setBondList(bondList);
             bondsNum = bondsAmongAtoms();
+          //  checkConnectivityAtomMap(connectivityModified, atomMapModified);
            // eachBondValue = eachBondValue(connectivityModified, modifiedAtomIdentifierMap);
          //  System.out.println(bondsNum + " bond Amongatoms");
            List<int[]> duplets = getBondedAtomList(connectivityModified);
@@ -239,6 +245,15 @@ public class PDBReaderMOP {
         }
         return species;
     }
+    public void connectChecker(ArrayList<ArrayList<Integer>> connectivity){
+        for (int i=0; i< connectivity.size(); i++){
+            int num = connectivity.get(i).get(0);
+            if(  num-1 != i){
+                throw new RuntimeException(num + " " +i);
+            }
+          //  System.out.println(connectivity.get(i).get(0));
+        }
+    }
 
     public ISpecies moleculeBuilder(List<List<Vector3D>> listpositions,  boolean setMOPmassInfinite, boolean isDynamic){
         AtomType typeNew;
@@ -272,6 +287,7 @@ public class PDBReaderMOP {
         SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
         SpeciesBuilder speciesBuilderNewMod =  new SpeciesBuilder(Space3D.getInstance());
         AtomType typeNew;
+
         readPDBFile(confName);
        // System.out.println(atomMap);
       //  System.exit(1);
@@ -296,6 +312,29 @@ public class PDBReaderMOP {
             }
             Vector position = positions.get(i+1);
             speciesBuilderNew.addAtom(typeNew, position,  "");
+        }
+
+        if(connect !=0){
+            bondsNum = bondsAmongAtoms();
+            setBondsNum(bondsNum);
+            //eachBondValue = eachBondValue(connectivityModified, modifiedAtomIdentifierMap);
+            //   System.out.println(bondsNum + " bond Amongatoms");
+            List<int[]> duplets = getBondedAtomList(connectivityModified);
+            List<int[]> listOfAngleModified = getAngleList(connectivityModified);
+            //  System.out.println(duplets);
+            dupletsSorted= bondSorter(duplets, atomIdentifierMapMod);
+            //System.out.println(Arrays.deepToString(dupletsSorted.toArray()) + " duplets Sorted");
+            //System.out.println(Arrays.deepToString(duplets.toArray())+ ": listOfBonds");
+            tripletsSorted=angleSorter(listOfAngleModified, atomIdentifierMapMod);
+            List<int[]> listOfTorsionModified = getTorsionList(connectivity);
+            //System.out.println( Arrays.deepToString(listOfTorsionModified.toArray()) + "torsionModified");
+            quadrupletsSorted=torsionSorter(listOfTorsionModified, atomIdentifierMapMod);
+            // System.out.println(Arrays.deepToString(quadrupletsSorted.toArray()) + "quadrupletsSorted");
+            Map<String[],List<int[]>> torsionTypesMap= idenTorsionTypes(quadrupletsSorted, atomIdentifierMapMod);
+            aromaticIdentifier(torsionTypesMap);
+            aromaticOtherElementFormer(connectivityModified, modifiedAtomIdentifierMap);
+            listOfInversions = idenInversions(tripletsSorted);
+            //System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
         }
         species= speciesBuilderNew.setDynamic(isDynamic).build();
         if(!setMOPmassInfinite){
@@ -551,16 +590,47 @@ public class PDBReaderMOP {
         List<String> key35 = Arrays.asList("N_3", "N_1");
         List<String> key36 = Arrays.asList("O_2", "Co");
         List<String> key37 = Arrays.asList("null", "O_3");
-        List<String> key38 = Arrays.asList("", "");
-        List<String> key39 = Arrays.asList("", "");
-        List<String> key40 = Arrays.asList("", "");
-        List<String> key41 = Arrays.asList("", "");
-        List<String> key42 = Arrays.asList("", "");
-        List<String> key43 = Arrays.asList("", "");
-        List<String> key44 = Arrays.asList("", "");
-        List<String> key45 = Arrays.asList("", "");
-        List<String> key46 = Arrays.asList("", "");
-        List<String> key47 = Arrays.asList("", "");
+        List<String> key38 = Arrays.asList("H", "O_2");
+        List<String> key39 = Arrays.asList("H", "N_3");
+        List<String> key40 = Arrays.asList("null", "O_Ar");
+        List<String> key41 = Arrays.asList("O_3", "Co");
+        List<String> key42 = Arrays.asList("N_3", "Co");
+        List<String> key43 = Arrays.asList("O_Ar", "O_Ar");
+        List<String> key44 = Arrays.asList("H", "O_3");
+        List<String> key45 = Arrays.asList("S_3", "Co");
+        List<String> key46 = Arrays.asList("O_Ar", "Co");
+        List<String> key47 = Arrays.asList("C_3", "S_3");
+        List<String> key48 = Arrays.asList("Cl", "Co");
+        List<String> key49 = Arrays.asList("Cl", "Cl");
+        List<String> key50 = Arrays.asList("Co", "O_2");
+        List<String> key51 = Arrays.asList("Co", "O_3");
+        List<String> key52 = Arrays.asList("Co", "Cl");
+        List<String> key53 = Arrays.asList("Co", "O_Ar");
+        List<String> key54 = Arrays.asList("S_3", "C_3");
+        List<String> key55 = Arrays.asList("Co", "N_3");
+        List<String> key56 = Arrays.asList("N_3", "N_3");
+        List<String> key57 = Arrays.asList("N_3", "H");
+        List<String> key58 = Arrays.asList("C_3", "Br");
+        List<String> key59 = Arrays.asList("N_3", "Cu");
+        List<String> key60 = Arrays.asList("Cl", "Cu");
+        List<String> key61 = Arrays.asList("Cu", "N_3");
+        List<String> key62 = Arrays.asList("Cu", "Cl");
+        List<String> key63 = Arrays.asList("Cl", "Pd");
+        List<String> key64 = Arrays.asList("Pd", "Cl");
+        List<String> key65 = Arrays.asList("O_3", "Mn");
+        List<String> key66 = Arrays.asList("Mn", "O_3");
+        List<String> key67 = Arrays.asList("N_3", "Mn");
+        List<String> key68 = Arrays.asList("Mn", "N_3");
+        List<String> key69 = Arrays.asList("O_3", "Cr");
+        List<String> key70 = Arrays.asList("Cr", "O_3");
+        List<String> key71 = Arrays.asList("N_3", "Cr");
+        List<String> key72 = Arrays.asList("Cr", "N_3");
+        List<String> key73 = Arrays.asList("N_3", "N_1");
+        List<String> key74 = Arrays.asList("N_1", "N_3");
+        List<String> key75 = Arrays.asList("C_3", "C_1");
+        List<String> key76 = Arrays.asList("C_1", "C_3");
+        List<String> key77 = Arrays.asList("C_1", "C_1");
+        List<String> key78 = Arrays.asList("C_1", "C_1");
         map.put(key1, 1.0);
         map.put(key2, 1.0);
         map.put(key3, 1.0);
@@ -605,6 +675,40 @@ public class PDBReaderMOP {
         map.put(key42, 1.0);
         map.put(key43, 1.0);
         map.put(key44, 1.0);
+        map.put(key45, 1.0);
+        map.put(key46, 1.0);
+        map.put(key47, 1.0);
+        map.put(key48, 1.0);
+        map.put(key49, 1.0);
+        map.put(key50, 1.0);
+        map.put(key51, 1.0);
+        map.put(key52, 1.0);
+        map.put(key53, 1.0);
+        map.put(key54, 1.0);
+        map.put(key55, 2.0);
+        map.put(key56, 3.0);
+        map.put(key57, 1.0);
+        map.put(key58, 1.0);
+        map.put(key59, 1.0);
+        map.put(key60, 1.0);
+        map.put(key61, 1.0);
+        map.put(key62, 1.0);
+        map.put(key63, 1.0);
+        map.put(key64, 1.0);
+        map.put(key65, 1.0);
+        map.put(key66, 1.0);
+        map.put(key67, 1.0);
+        map.put(key68, 1.0);
+        map.put(key69, 1.0);
+        map.put(key70, 1.0);
+        map.put(key71, 1.0);
+        map.put(key72, 1.0);
+        map.put(key73, 1.0);
+        map.put(key74, 1.0);
+        map.put(key75, 1.0);
+        map.put(key76,1.0);
+        map.put(key77, 3.0);
+        map.put(key78, 3.0);
         Double value = map.get(bondedAtoms);
         if(value == null){
             throw new RuntimeException("Atoms " + bondedAtoms);
@@ -872,7 +976,14 @@ public class PDBReaderMOP {
 
     public Map<Integer,String> atomIdentifierMapModified (ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified) {
         Map<Integer, AtomType> atomIdentifierMap = atomIdentifier(connectivityModified, atomMapModified);
-
+     /*   for(int i=0; i<atomIdentifierMap.size(); i++){
+            String atomType = String.valueOf(atomIdentifierMap.get(i));
+            String value = atomType.replace("AtomType[", "").replace("]", "");
+            if(value.equals("null")){
+                System.out.println(i + " " + atomType);
+            }
+        }*/
+       // System.exit(1);
         for (Map.Entry<Integer, AtomType> entry : atomIdentifierMap.entrySet()) {
             String value = entry.getValue().toString();
 
@@ -1231,14 +1342,17 @@ public class PDBReaderMOP {
             elementReceiverMap.put("Br", new AtomType(Bromine.INSTANCE, "Br"));
             elementReceiverMap.put("Cr", new AtomType(Chromium.INSTANCE, "Cr"));
             elementReceiverMap.put("Mn", new AtomType(Manganese.INSTANCE, "Mn"));
+            elementReceiverMap.put("W", new AtomType(Tungsten.INSTANCE, "W"));
             elementReceiverMap.put("Cu", new AtomType(Copper.INSTANCE, "Cu"));
             elementReceiverMap.put("Pd", new AtomType(Palladium.INSTANCE, "Pd"));
             elementReceiverMap.put("Ar", new AtomType(Argon.INSTANCE,"Ar"));
             elementReceiverMap.put("He", new AtomType(Helium.INSTANCE,"He"));
             elementReceiverMap.put("B", new AtomType(Boron.INSTANCE,"B"));
             elementReceiverMap.put("Fe_3", new AtomType(Iron.INSTANCE,"Fe_3"));
+            elementReceiverMap.put("F", new AtomType(Fluorine.INSTANCE,"F"));
+            elementReceiverMap.put("P_3", new AtomType(Phosphorus.INSTANCE, "P_3"));
         }
-
+       // System.out.println(elementReceiverMap.get(elementName));
         return elementReceiverMap.get(elementName);
     }
     public Map<String, Double> getAtomRequirement(){
@@ -1291,6 +1405,21 @@ public class PDBReaderMOP {
         chargeMap.put("Pd", 1.95);
       // System.out.println(element + " " +chargeMap.get(element));
         return chargeMap.get(element);
+    }
+
+    public ArrayList<Integer> checkConnectivityAtomMap(ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified){
+        ArrayList<Integer> absentConnectivity = new ArrayList<>();
+        for (Map.Entry<Integer, String> entry : atomMapModified.entrySet()) {
+            Integer key = entry.getKey();
+            ArrayList<Integer> connectArray = connectivityModified.get(entry.getKey());
+            int connectVal = connectArray.get(0);
+            if(key != connectVal){
+                throw  new RuntimeException(" connect != key");
+            }
+            System.out.println(key + " " +  connectArray + " " + connectVal);
+        }
+     //   System.exit(1);
+        return absentConnectivity;
     }
 
   /*  public AtomType returnElementSimple(String elementName){
@@ -1616,11 +1745,11 @@ public class PDBReaderMOP {
            // }
             atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
             atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
-            if(atomTwo == "null"){
+           /* if(atomTwo == "null"){
                 atomTwo = "H";
             } else if (atomOne == "null") {
                 atomOne ="H";
-            }
+            }*/
             //  System.out.println(atomOne + " "+atomTwo);
                // System.out.println("Both atoms are not null");
                 int numOne = priorityMapGenerator(atomOne);
@@ -1660,7 +1789,7 @@ public class PDBReaderMOP {
             String atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
             String atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
             String atomThree = String.valueOf(atomIdentifierMapModified.get(thirdElement));
-            System.out.println(i + " " + atomOne + " " +atomThree);
+         //   System.out.println(i + " " + atomOne + " " +atomThree);
             if(atomThree == "null"){
                 atomThree = "H";
             }
@@ -1732,6 +1861,12 @@ public class PDBReaderMOP {
             // System.out.println(bondValue);
             String atomOne = String.valueOf(atomIdentifierMapModified.get(firstElement));
             String atomTwo = String.valueOf(atomIdentifierMapModified.get(secondElement));
+            if(atomOne.equals("null")){
+                atomIdentifierMapModified.put(firstElement, "H");
+            }
+            if(atomTwo.equals("null")){
+                atomIdentifierMapModified.put(secondElement,"H");
+            }
             String[] newBond = {atomOne, atomTwo};
             //Arrays.sort(newBond); // Sort the elements
             boolean isPresent = false;
@@ -2315,7 +2450,6 @@ public class PDBReaderMOP {
         double [] sample = electronicConstant.get(atomtype);
         return sample;
     }
-
 
 
     public ArrayList<ArrayList<Integer>> getConnectivityModifiedWithoutRunning(){

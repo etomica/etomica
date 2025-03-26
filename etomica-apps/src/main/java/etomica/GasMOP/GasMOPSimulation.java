@@ -263,23 +263,23 @@ public class GasMOPSimulation extends Simulation{
         integratorMC = new IntegratorMC(pcAgg, random, temperature, box);
         getController().addActivity(new ActivityIntegrate(integratorMC));
 
-       /* MCMoveAtom mcMoveAtom = new MCMoveAtom(random, pcAgg, box);
-        integratorMC.getMoveManager().addMCMove(mcMoveAtom);*/
-
-        mcMoveMolecule = new MCMoveMolecule(random, pcAgg, box);
+        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, pcAgg, box);
+        integratorMC.getMoveManager().addMCMove(mcMoveAtom);
+        //((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesMOP);
+        /*mcMoveMolecule = new MCMoveMolecule(random, pcAgg, box);
         integratorMC.getMoveManager().addMCMove(mcMoveMolecule);
         ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
 
         mcMoveMoleculeRotate = new MCMoveMoleculeRotate(random, pcAgg, box);
         integratorMC.getMoveManager().addMCMove(mcMoveMoleculeRotate);
-        ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);
+        ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);*/
 
         potentialMasterCell.init();
      //   double u0 = potentialMasterCell.computeAll(true);
       //  System.out.println(kcals.fromSim(u0) + " " + u0);
+/*
 
-
-    /*    if (configFileName != null) {
+        if (configFileName != null) {
             ConfigurationFile config = new ConfigurationFile(configFileName);
             config.initializeCoordinates(box);
             BoxImposePbc.imposePBC(box);
@@ -314,18 +314,9 @@ public class GasMOPSimulation extends Simulation{
                     }
                 }
             }
-                      /*  if(percDiff >1){
-                            System.out.println(percDiff);
-                            System.out.println("\n");
-                        }
-        }
-                //System.out.println( u0 + " inMain afterwards " +kcals.fromSim(u0));
-            }
-            integratorMC.reset();
 
-            energyList.clear();
-            k=0;
-     /*   while (u0 > 1e5*numMol) {
+            integratorMC.reset();
+            while (u0 > 1e5 * numMol) {
                 while (u0 > 1e5 * numMol) {
 
                     integratorMC.doStep();
@@ -336,13 +327,13 @@ public class GasMOPSimulation extends Simulation{
                     // System.out.println("Inside Loop Two - 1");
                 }
                 while (x < 1 && u0 <= 1e5 * numMol) {
-                   //  System.out.println("Inside Loop Two - 2");
+                    //  System.out.println("Inside Loop Two - 2");
                     x /= 0.99;
                     if (x > 1) x = 1;
-                    for( j = 0; j< pairAtomSize; j++){
-                         // System.out.println("Inside Loop Two - 3");
-                        p2LJ1[j].setSigmaNew(x*sigmaIJ1[j]);
-                        ((P2SoftSphericalSumTruncatedForceShifted)p2lj1[j]).setTruncationRadius(rc);
+                    for (j = 0; j < pairAtomSize; j++) {
+                        // System.out.println("Inside Loop Two - 3");
+                        p2LJ1[j].setSigmaNew(x * sigmaIJ1[j]);
+                        ((P2SoftSphericalSumTruncatedForceShifted) p2lj1[j]).setTruncationRadius(rc);
                     }
                     u0 = potentialMasterCell.computeAll(false);
                     //System.out.println(u0 +" inside Array @");
@@ -350,11 +341,8 @@ public class GasMOPSimulation extends Simulation{
                 integratorMC.reset();
             }
         }
-    }
-    }
 
-
-        }*/
+*/
     }
 
 
@@ -621,14 +609,14 @@ public class GasMOPSimulation extends Simulation{
 
 
     public static class GasMOPSimulationParams extends ParameterBase {
-        public String speciesMOPName = "F://Avagadro//mop//tetra_cu";
+        public String speciesMOPName = "F://Avagadro//molecule//co2";
         public String speciesGasName = "F://Avagadro//molecule//Ar" ;
         public double temperatureK = 330;
         public int numMoleculesGas = 1;
         public int NumMoleculesMOP = 1;
         //public int pressure = 10;
         public double density = 1e-9;
-        public boolean graphics = false;
+        public boolean graphics = true;
         public long numSteps = 1000000;
         public Vector boxSize = new Vector3D(14,14,14);
         public String configFilename = null;

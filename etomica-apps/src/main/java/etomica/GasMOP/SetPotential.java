@@ -5,6 +5,8 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
+import etomica.potential.GAFF.GAFFSimulation;
+import etomica.potential.OPLS_AA.PDBDataExtracterOPLS;
 import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.UFF.*;
 import etomica.species.ISpecies;
@@ -77,9 +79,9 @@ public class SetPotential {
                 atomName1 = atomIdentifierMapModified1.get(atom1);
                 atomName2 = atomIdentifierMapModified1.get(atom2);
                 atomName3 = atomIdentifierMapModified1.get(atom3);
-                int bondListValueOne = bondList1.get(atom1);
-                int bondListValueTwo = bondList1.get(atom2);
-                int bondListValueThree = bondList1.get(atom3);
+                int bondListValueOne = 1;
+                int bondListValueTwo = 1;
+                int bondListValueThree = 1;
                 double[] atomOnePot = atomicPotMap1.get(atomName1);
                 double[] atomTwoPot = atomicPotMap1.get(atomName2);
                 double[] atomThreePot = atomicPotMap1.get(atomName3);
@@ -142,6 +144,11 @@ public class SetPotential {
             bond.add(bondArr);
             bondArr = new int[]{2,1};
             bond.add(bondArr);
+        } else if (name.equals("propane")){
+            bondArr = new int[]{0,1};
+            bond.add(bondArr);
+            bondArr = new int[]{2,1};
+            bond.add(bondArr);
         }else if( name.equals("co2")){
             bondArr = new int[]{0,1};
             bond.add(bondArr);
@@ -150,6 +157,7 @@ public class SetPotential {
         } else if (name.equals("ch4")) {
             
         } else {
+            System.out.println(name);
             throw new RuntimeException("TraPPE gas unknown");
         }
 
@@ -639,6 +647,8 @@ public class SetPotential {
     }
 
 
+    public void setupBondStrechOPLS(ISpecies species){}
+
     public void setupBondStrech(ISpecies species1,Map<String[],List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1,Map<String[],List<int[]>> torsionTypesMap1,ArrayList<Integer> bondsNum1,ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1,Map<String, double[]> atomicPotMap1, PotentialMasterBonding.FullBondingInfo bondingInfo1, PotentialMasterBonding pmBonding  ){
         double Vi =0, Vj =0, V=0, Vtrue=0,  type;
         int p;
@@ -762,6 +772,28 @@ public class SetPotential {
                 //System.out.println(Arrays.toString(array));
                 pmBonding.setBondingPotentialQuad(species1, p4BondTorsionArray2[i], torsion);
                 i++;
+            }
+        }
+    }
+
+    public void setupBondStretchOPLS(ISpecies species1,Map<String[],List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1,Map<String[],List<int[]>> torsionTypesMap1,ArrayList<Integer> bondsNum1,ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1,Map<String, double[]> atomicPotMap1, PotentialMasterBonding.FullBondingInfo bondingInfo1, PotentialMasterBonding pmBonding  ){
+        double Vi =0, Vj =0, V=0, Vtrue=0,  type;
+        int p;
+        int i =0;
+        double bondOrder;
+        PDBDataExtracterOPLS pdbDataExtracterOPLS = new PDBDataExtracterOPLS();
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
+        for (Map.Entry<String[], List<int[]>> entry : bondTypesMap1.entrySet()){
+            String[] bondType = entry.getKey();
+            List<int[]> bonds = entry.getValue();
+            for(int[]bondIndividual: bonds){
+                double[] bondParamsArray = new double[2];
+                double[] bondConstant = new double[2];
+                atom1 = bondIndividual[0];
+                atom2 = bondIndividual[1];
+                atomName1 = atomIdentifierMapModified1.get(atom1);
+                atomName2 = atomIdentifierMapModified1.get(atom2);
+                bondParamsArray = pdbDataExtracterOPLS.bondValueSender(atomName1, atomName2);
             }
         }
     }

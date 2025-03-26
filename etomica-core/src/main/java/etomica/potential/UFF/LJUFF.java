@@ -28,15 +28,7 @@ public class LJUFF implements IPotential2 {
             return Double.POSITIVE_INFINITY;
         }
         s6 = s2*s2*s2;
-       // System.out.println("in uff" +epsilon*(s6*s6 - (2*s6)));
         return epsilon*(s6*s6 - (2*s6));
-        /*System.out.println(" sigma : " + sigma + " epsilon: " +epsilon + " sci " + scale);
-        //System.out.println( r + " " + r6 + " " + sigma6 + " " + scale_6 + " " + expo + " " + epsilon +  " " + scale + " ");
-       // double u =  epsilon * (6 / scale_6) * expo - epsilon * ( scale / scale_6) * sigma6 / r6;
-       //System.out.println(" u " +  u  );
-
-       // return  epsilon * (6 / scale_6) * expo - epsilon * ( scale / scale_6) * sigma6 / r6;*/
-
     }
     /**
      * The derivative r*du/dr.

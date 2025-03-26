@@ -31,7 +31,6 @@ public class P4BondTorsionUFF implements IPotentialBondTorsion {
         }
 
         u[0] = 0.5* vphi * ( 1 - ( Math. cos(n * phi0) * Math.cos(n * phi) ));
-        double multiplier=0;
         //System.out.println("Energy Torsion: "+u[0] );
         //du[0] = (vphi * n * Math.cos(n * phi) * Math.sin(n * phi)) / ( Math.sin(phi));
         //du[0] = -vphi * Math.cos(n * phi0);
