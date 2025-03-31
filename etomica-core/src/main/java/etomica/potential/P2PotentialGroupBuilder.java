@@ -18,7 +18,7 @@ public class P2PotentialGroupBuilder {
         boolean debug = false;
 
         PotentialMoleculePair potentialGroup = new PotentialMoleculePair(space, sm);
-        double sigmaHC = 0.1;
+        double sigmaHC = 0.3;
         if(MP2 == null) MP2 = MP1;
 
         for(int i = 0; i < MP1.atomTypes.length; i++){
