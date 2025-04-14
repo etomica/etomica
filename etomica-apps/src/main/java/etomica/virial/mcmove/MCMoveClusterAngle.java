@@ -157,6 +157,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
                 aa.getPosition().PE(shift);
             }
         }
+
         if (box instanceof BoxCluster) {
             ((BoxCluster)box).trialNotify();
             wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
