@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 
-public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceIndependent, DataSourceMSD.MSDSink, Statefull {
+public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceIndependent, IDataSinkBlockAvg, Statefull {
 
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
@@ -172,7 +172,7 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
         return tTag;
     }
 
-    public void putMSD(int log2interval, long step, double msd) {
+    public void putBlock(int log2interval, long step, double msd) {
         if (log2interval < xlog2Interval) return;
         log2interval -= xlog2Interval;
         if (lastSampleMSD.length <= log2interval) reallocate(log2interval + 1);

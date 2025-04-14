@@ -21,6 +21,12 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
         super(_box, controller);
         spinWidth = 5;
     }
+
+    protected DisplayBoxCanvas2D makeCopy(DisplayBox db) {
+        DisplayBoxSpin2D canvas = new DisplayBoxSpin2D(db, controller);
+        canvas.setPixelUnit(pixel);
+        return canvas;
+    }
     
     protected void drawAtom(Graphics g, int origin[], IAtom atom) {
         Vector L = displayBox.getBox().getBoundary().getBoxSize();

@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.AccumulatorAverageBlockless;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
@@ -34,7 +34,7 @@ public class DataSourceAvgPressure extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        if (pSplitter.getNumDataSinks() == 0 || pSplitter.getDataSink(0) == null || ((AccumulatorAverageBlockless)pSplitter.getDataSink(0)).getSampleCount() == 0) return Double.NaN;
+        if (pSplitter.getNumDataSinks() == 0 || pSplitter.getDataSink(0) == null || ((AccumulatorAverageCollapsing)pSplitter.getDataSink(0)).getSampleCount() == 0) return Double.NaN;
         double[] ratios = mcMoveOverlapMeter.getRatios();
         if (ratios == null) return Double.NaN;
         double p = 1;
@@ -51,7 +51,7 @@ public class DataSourceAvgPressure extends DataSourceScalar {
         double pressure = 0;
         for (int i=0; i<pSplitter.getNumDataSinks() && i<=ratios.length; i++) {
             double pi = p2/tot;
-            AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+            AccumulatorAverageCollapsing acc = (AccumulatorAverageCollapsing)pSplitter.getDataSink(i);
             if (acc == null || acc.getSampleCount() == 0) {
                 break;
             }

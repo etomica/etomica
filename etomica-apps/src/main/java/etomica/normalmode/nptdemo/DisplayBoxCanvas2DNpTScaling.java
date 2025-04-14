@@ -15,6 +15,7 @@ import etomica.space2d.Space2D;
 
 import java.awt.*;
 
+
 public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
 
     public DisplayBoxCanvas2DNpTScaling(DisplayBox _box,
@@ -23,7 +24,15 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
         p = Space2D.getInstance().makeVector();
         this.coordinateDefinition = coordinateDefinition;
     }
-    
+
+    protected DisplayBoxCanvas2D makeCopy(DisplayBox db) {
+        DisplayBoxCanvas2DNpTScaling canvas = new DisplayBoxCanvas2DNpTScaling(db, controller, coordinateDefinition);
+        canvas.setPixelUnit(pixel);
+        canvas.setPressure(pressure);
+        canvas.setDisplayDensity(displayDensity);
+        return canvas;
+    }
+
     public void setPressure(double newPressure) {
         pressure = newPressure;
     }

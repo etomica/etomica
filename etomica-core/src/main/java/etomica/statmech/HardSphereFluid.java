@@ -51,8 +51,8 @@ public class HardSphereFluid {
      * @param rho Density
      * @return Absolute free energy difference
      */
-    public static double Asolid(double rho){
-        return Asolid(rho, 10000);
+    public static double Afluid(double rho){
+        return Afluid(rho, 10000);
     }
 
     /**
@@ -63,7 +63,7 @@ public class HardSphereFluid {
      * @param n number of points
      * @return Absolute free energy difference
      */
-    public static double Asolid(double rho, int n) {
+    public static double Afluid(double rho, int n) {
         // use trapezoid rule to integrate the correction
         double h = rho/n;
         double sum = 0.0;
