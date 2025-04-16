@@ -17,7 +17,9 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.P2LatticeSum;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -28,6 +30,7 @@ import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralAtomic;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MeterVirial;
 import etomica.virial.cluster.*;
@@ -78,7 +81,15 @@ public class VirialLJV {
 
         Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : new BoundaryRectangularNonperiodic(space);
 
-        MayerVDependent fTarget = new MayerVDependent(new MayerGeneralSpherical(new P2LennardJones()), b);
+        P2SoftSphericalTruncated p2cut = new P2SoftSphericalTruncated(new P2LennardJones(), params.rc);
+        P2LatticeSum p2latsum = new P2LatticeSum(p2cut);
+        MayerVDependent fTarget;
+        if (params.rc > L/2) {
+            fTarget = new MayerVDependent(new MayerGeneralAtomic(space, p2latsum), b);
+        }
+        else {
+            fTarget = new MayerVDependent(new MayerGeneralSpherical(p2cut), b);
+        }
         MayerVDependent fRefPos = new MayerVDependent(new MayerFunction() {
             @Override
             public double f(IMoleculeList pair, double r2, double beta) {
@@ -128,6 +139,7 @@ public class VirialLJV {
         final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
         if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
         sim.init();
+        p2latsum.setBoundary(sim.box.getBoundary());
         MeterVirial meter = new MeterVirial(sim.allValueClusters);
         meter.setBox(sim.box);
         sim.setMeter(meter);
@@ -265,6 +277,7 @@ public class VirialLJV {
         // set L to 0 or infinity to get a coefficient without PBC
         public double L = 0;
         public double T = 1;
+        public double rc = 3;
     }
 
 }
