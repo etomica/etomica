@@ -17,15 +17,17 @@ public class RandomPositionLattice implements MCMoveClusterAtomHSChain.Insertion
     public final Vector v;
     public final IRandom random;
     public final int n2max;
+    public final double L;
 
-    public RandomPositionLattice(Space space, IRandom random) {
-        this(space, random, 1);
+    public RandomPositionLattice(Space space, IRandom random, double L) {
+        this(space, random, L, 1);
     }
 
-    public RandomPositionLattice(Space space, IRandom random, int n2max) {
+    public RandomPositionLattice(Space space, IRandom random, double L, int n2max) {
         v = space.makeVector();
         this.random = random;
         this.n2max = 1;
+        this.L = L;
     }
 
     public Vector position(double scale) {
@@ -33,7 +35,7 @@ public class RandomPositionLattice implements MCMoveClusterAtomHSChain.Insertion
         do {
             n2 = 0;
             for (int i=0; i<v.getD() && n2 <= n2max; i++) {
-                int j = random.nextInt(3) - 1;
+                int j = random.nextInt(L==2?2:3) - 1;
                 v.setX(i, j);
                 n2 += Math.abs(j);
             }

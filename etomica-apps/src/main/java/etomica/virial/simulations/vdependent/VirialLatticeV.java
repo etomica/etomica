@@ -134,7 +134,7 @@ public class VirialLatticeV {
         accumulator.setPushInterval(1000000);
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
-        RandomPositionLattice positionSource = new RandomPositionLattice(space, sim.getRandom(), 1);
+        RandomPositionLattice positionSource = new RandomPositionLattice(space, sim.getRandom(), L, 1);
         if (ref == ReferenceChoice.TREE) {
             MCMoveClusterAtomHSTree mcMoveHS = new MCMoveClusterAtomHSTree(sim.getRandom(), sim.box, 1);
             mcMoveHS.setPositionSource(positionSource);
