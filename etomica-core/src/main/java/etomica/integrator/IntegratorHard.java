@@ -782,7 +782,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListener {
      * as part of the Andersen thermostat.
      */
     protected void randomizeMomenta() {
-        super.randomizeMomenta();
+        super.randomizeMomenta(1);
         // super.randomizeMomenta alters the velocities, so we need to
         // recalculate collision times
         computeAllCollisions();

@@ -89,7 +89,7 @@ public class IntegratorEventManager {
         eventing = false;
     }
 
-    public void preThermostat() {
+    public void finalizeStep() {
         eventing = true;
         for (IntegratorListener l : listeners) {
             if (l instanceof IntegratorListenerMD) {
@@ -100,4 +100,3 @@ public class IntegratorEventManager {
     }
 
 }
-

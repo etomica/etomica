@@ -38,6 +38,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     protected double currentKineticEnergy;
     protected ThermostatType thermostat;
     protected int thermostatCount, thermostatInterval;
+    protected double cdf_andersen;
     protected DataSourceScalar meterKE;
     protected AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     protected MeterTemperature meterTemperature;
@@ -65,6 +66,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
         setThermostatInterval(100);
+
         meterKE = new MeterKineticEnergy(box);
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
         momentum = this.space.makeVector();
@@ -284,6 +286,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         thermostatCount = interval;
     }
 
+    public void setCdf_andersen(double cdf) {
+        if (cdf < 0) throw new IllegalArgumentException("Thermostat CDF must be positive");
+        cdf_andersen = cdf; //
+    }
+
     /**
      * Fires the thermostat if the appropriate interval has been reached.
      */
@@ -363,7 +370,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                         oldPositionAgentManager.getAgent(a).E(a.getPosition());
                     }
                     reset();
-                    randomizeMomenta();
+                    randomizeMomenta(1);
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
@@ -372,13 +379,13 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                     oldEnergy = oldPotentialEnergy;
                 } else if (rejected) {
                     // we've put the atoms back, need to reset (force recalc)
-                    randomizeMomenta();
+                    randomizeMomenta(1);
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
                     reset();
                 } else {
-                    randomizeMomenta();
+                    randomizeMomenta(1);
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
@@ -388,7 +395,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                 oldEnergy += currentKineticEnergy;
 //                System.out.println(" ===> "+oldEnergy);
             } else if (thermostat == ThermostatType.ANDERSEN || !initialized) {
-                randomizeMomenta();
+                randomizeMomenta(cdf_andersen);
                 if (thermostatNoDrift) {
                     shiftMomenta();
                 }
@@ -493,12 +500,14 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * new velocities (some integrators, e.g. IntegratorHard, will need to be
      * reset after calling this method).
      */
-    protected void randomizeMomenta() {
+    protected void randomizeMomenta(double cdf_andersen) {
         atomActionRandomizeVelocity.setTemperature(temperature);
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
+            if (random.nextDouble() < cdf_andersen) {
+                atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
+            }
         }
         if (alwaysScaleMomenta) {
             if (thermostatNoDrift) {
@@ -572,7 +581,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
                     // deserve this.
                     throw new RuntimeException("atoms have no velocity component in " + i + " dimension");
                 }
-                randomizeMomenta();
+                randomizeMomenta(1);
                 i--;
                 // try again, we could infinite loop in theory
                 continue;
