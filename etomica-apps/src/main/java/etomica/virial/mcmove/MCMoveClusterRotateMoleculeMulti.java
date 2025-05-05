@@ -35,6 +35,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     protected final RotationTensor rotationTensor;
     protected boolean doLattice;
     protected int[] rotationCenters;
+    public int startMolecule;
 
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Box box) {
         super();
@@ -95,7 +96,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             trialCount = relaxInterval;
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        for (int i = 0; i<moleculeList.size(); i++) {
+        for (int i = startMolecule; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
             if (doLattice) {
                 if (i==0) continue;
