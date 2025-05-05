@@ -60,9 +60,10 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.toluene};
+            params.chemForm = new ChemForm[]{ChemForm.propane, ChemForm.CH3OH};
             params.nPoints = 4; //B order
-            params.nDer = 2;
+            params.types = new int[]{1, 1, 1, 1};
+            params.nDer = 0;
             params.temperature = 300;
             params.diagram = "BC";
             params.numSteps = 1000000;
@@ -1030,7 +1031,6 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.ethanol) {
                 //TraPPE-UA
                 //Atom in Compound
-                //Avogadro 3d coordinates
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
@@ -1043,7 +1043,6 @@ public class VirialTraPPE {
                 double bondLengthCC= 1.54; //Angstrom
                 double bondLengthCH3OH = 1.43; // Angstrom
                 double bondLengthOH = 0.945; //Angstrom
-                double thetaCH3OH = Degree.UNIT.toSim(18.5) ;
                 double theta_CH3OH = Degree.UNIT.toSim(108.5) ;
                 double theta_CCOH = Degree.UNIT.toSim(109.47) ;
 
@@ -1361,21 +1360,23 @@ public class VirialTraPPE {
                 double sigmaCH = 3.695; // Angstrom
                 double epsilonCH = Kelvin.UNIT.toSim(50.5);
                 double qCH = Electron.UNIT.toSim(0.0);
-
+                double r = 1.40; //Angstrom
 
                 //Construct Arrays
                 sigma = new double[] {sigmaCH};
                 epsilon = new double[] {epsilonCH};
                 charge = new double[]{qCH};
+                double x1 = Math.sqrt(3) * r / 2;
+                double y1 = r/2;
 
                 //Get Coordinates
-                Vector3D posC1 = new Vector3D(new double[]{ 0.1902323442  ,   -1.3999863674  ,   -0.0002031309});
-                Vector3D posC2 = new Vector3D(new double[]{-1.1020082177  ,   -0.8613638309  ,    0.0001024287});
-                Vector3D posC3 = new Vector3D(new double[]{-1.2951599094  ,    0.5252480158  ,    0.0000002678});
-                Vector3D posC4 = new Vector3D(new double[]{-0.1884814542  ,    1.3827226782  ,   -0.0000118500});
-                Vector3D posC5 = new Vector3D(new double[]{ 1.1045077853  ,    0.8459001455  ,    0.0006165745});
-                Vector3D posC6 = new Vector3D(new double[]{ 1.2707000000  ,   -0.5442000000  ,   -0.0007000000});
-                
+                Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC3 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC4 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC6 = new Vector3D(new double[]{0, r, 0});
+
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -1398,8 +1399,8 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeC, typeCH, typeCH3};
                 isFlex = false;
                 //TraPPE Parameters
-                double bondLengthCC = 1.40; // Angstrom
-                double bondLengthCCH3 = 1.54; //Angstrom
+                double r = 1.40; // Angstrom
+                double branch = 1.54; //Angstrom
                 double theta = Degree.UNIT.toSim(120);
                 double sigmaC = 3.88; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(21.0);
@@ -1417,14 +1418,17 @@ public class VirialTraPPE {
                 epsilon = new double[] {epsilonC, epsilonCH, epsilonCH3};
                 charge = new double[]{qC, qCH, qCH3};
 
-                //Get Coordinates
-                Vector3D posC1 = new Vector3D(new double[]{-0.9411366417,      0.0084004716    ,  0.0025615674});
-                Vector3D posC2 = new Vector3D(new double[]{-0.2346309280,     -1.1969803894  ,    0.0013385959});
-                Vector3D posC3 = new Vector3D(new double[]{1.1651137010 ,    -1.2236763885   ,  -0.0001770470});
-                Vector3D posC4 = new Vector3D(new double[]{1.8848877200 ,    -0.0228747777   ,  -0.0011006831});
-                Vector3D posC5 = new Vector3D(new double[]{1.1982892133  ,    1.1972000000   ,  -0.0009355107});
-                Vector3D posC6 = new Vector3D(new double[]{-0.2017074896 ,     1.1972000000  ,    0.0021028963});
-                Vector3D posC7 = new Vector3D(new double[]{-2.4802994605  ,    0.0589554261   ,  -0.0021303155});
+                double x1 = Math.sqrt(3) * r / 2;
+                double y1 = r/2;
+
+                        //Get Coordinates
+                Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC3 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC4 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC6 = new Vector3D(new double[]{0, r, 0});
+                Vector3D posC7 = new Vector3D(new double[]{x1 + branch * Math.cos(30), y1 + branch * Math.sin(30), 0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -1448,9 +1452,8 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeC, typeCH, typeCH3};
                 isFlex = false;
                 //TraPPE Parameters
-                double bondLengthCC = 1.40; // Angstrom
-                double bondLengthCCH3 = 1.54; //Angstrom
-                double theta = Degree.UNIT.toSim(120);
+                double r = 1.40; // Angstrom
+                double b = 1.54; //Angstrom
                 double sigmaC = 3.88; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(21.0);
                 double qC = Electron.UNIT.toSim(0);
@@ -1467,15 +1470,19 @@ public class VirialTraPPE {
                 epsilon = new double[] {epsilonC, epsilonCH, epsilonCH3};
                 charge = new double[]{qC, qCH, qCH3};
 
+                double x1 = Math.sqrt(3) * r / 2;
+                double y1 = r/2;
+
                 //Get Coordinates
-                Vector3D posC1 = new Vector3D(new double[]{-0.4769750071  ,    0.7175698421  ,    0.0022335714});
-                Vector3D posC2 = new Vector3D(new double[]{-0.4692475511  ,   -0.6824080066  ,    0.0007138044});
-                Vector3D posC3 = new Vector3D(new double[]{ 0.7280635220  ,   -1.3910938244  ,   -0.0008017869});
-                Vector3D posC4 = new Vector3D(new double[]{ 1.9405247276  ,   -0.7089403977  ,   -0.0011133128});
-                Vector3D posC5 = new Vector3D(new double[]{ 1.9557111810  ,    0.6823515442  ,   -0.0005421210});
-                Vector3D posC6 = new Vector3D(new double[]{ 0.7432260154  ,    1.3822594667  ,    0.0023944140});
-                Vector3D posC7 = new Vector3D(new double[]{-1.8029265536  ,   -1.4524081049  ,    0.0011225636});
-                Vector3D posC8 = new Vector3D(new double[]{-1.8106220200  ,    1.4876104737  ,   -0.0025696018});
+                Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC3 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC4 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC6 = new Vector3D(new double[]{0, r, 0});
+                Vector3D posC7 = new Vector3D(new double[]{x1 + b * Math.cos(30), y1 + b * Math.sin(30), 0});
+                Vector3D posC8 = new Vector3D(new double[]{x1 + b * Math.cos(30), -y1 - b * Math.sin(30), 0});
+
                 //Set Geometry
                 species = new SpeciesBuilder(space)
                         .addAtom(typeC, posC1, "C1")
@@ -1499,9 +1506,8 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeC, typeCH, typeCH3};
                 isFlex = false;
                 //TraPPE Parameters
-                double bondLengthCC = 1.40; // Angstrom
-                double bondLengthCCH3 = 1.54; //Angstrom
-                double theta = Degree.UNIT.toSim(120);
+                double r = 1.40; // Angstrom
+                double b = 1.54; //Angstrom
                 double sigmaC = 3.88; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(21.0);
                 double qC = Electron.UNIT.toSim(0);
@@ -1518,15 +1524,18 @@ public class VirialTraPPE {
                 epsilon = new double[] {epsilonC, epsilonCH, epsilonCH3};
                 charge = new double[]{qC, qCH, qCH3};
 
+                double x1 = Math.sqrt(3) * r / 2;
+                double y1 = r/2;
+
                 //Get Coordinates
-                Vector3D posC1 = new Vector3D(new double[]{ -1.4125451173  ,    0.0226633976   ,   0.0024498619});
-                Vector3D posC2 = new Vector3D(new double[]{ -0.7244294029  ,   -1.1965559237   ,   0.0014448195});
-                Vector3D posC3 = new Vector3D(new double[]{  0.6753070291  ,   -1.2236935239   ,   0.0002318091});
-                Vector3D posC4 = new Vector3D(new double[]{  1.3952147524  ,   -0.0229719248   ,  -0.0004833102});
-                Vector3D posC5 = new Vector3D(new double[]{  0.7087888840  ,    1.1972000000   ,  -0.0005183395});
-                Vector3D posC6 = new Vector3D(new double[]{ -0.6912084457  ,    1.1972000000   ,   0.0022160303});
-                Vector3D posC7 = new Vector3D(new double[]{  2.9352147219  ,   -0.0229719248   ,  -0.0007898796});
-                Vector3D posC8 = new Vector3D(new double[]{ -2.9525366411  ,    0.0226633976   ,  -0.0026595990});
+                Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC3 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC4 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC6 = new Vector3D(new double[]{0, r, 0});
+                Vector3D posC7 = new Vector3D(new double[]{x1 + b * Math.cos(30), y1 + b * Math.sin(30), 0});
+                Vector3D posC8 = new Vector3D(new double[]{-x1 - b * Math.cos(30), -y1 - b * Math.sin(30), 0});
                 //Set Geometry
                 species = new SpeciesBuilder(space)
                         .addAtom(typeC, posC1, "C1")
@@ -1550,9 +1559,8 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeC, typeCH, typeCH3};
                 isFlex = false;
                 //TraPPE Parameters
-                double bondLengthCC = 1.40; // Angstrom
-                double bondLengthCCH3 = 1.54; //Angstrom
-                double theta = Degree.UNIT.toSim(120);
+                double r = 1.40; // Angstrom
+                double b = 1.54; //Angstrom
                 double sigmaC = 3.88; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(21.0);
                 double qC = Electron.UNIT.toSim(0);
@@ -1569,15 +1577,18 @@ public class VirialTraPPE {
                 epsilon = new double[] {epsilonC, epsilonCH, epsilonCH3};
                 charge = new double[]{qC, qCH, qCH3};
 
+                double x1 = Math.sqrt(3) * r / 2;
+                double y1 = r/2;
+
                 //Get Coordinates
-                Vector3D posC1 = new Vector3D(new double[]{  1.2127129630  ,   -0.2796164088  ,   -0.0025277542});
-                Vector3D posC2 = new Vector3D(new double[]{  0.0153176554  ,   -0.9620440956  ,   -0.0015242723});
-                Vector3D posC3 = new Vector3D(new double[]{ -1.1970935168  ,   -0.2797031292  ,   -0.0000178914});
-                Vector3D posC4 = new Vector3D(new double[]{ -1.2124053996  ,    1.1114554941  ,    0.0009961922});
-                Vector3D posC5 = new Vector3D(new double[]{ -0.0153027347  ,    1.8203359760  ,    0.0009320000});
-                Vector3D posC6 = new Vector3D(new double[]{  1.1971064832  ,    1.1202965044  ,   -0.0020050869});
-                Vector3D posC7 = new Vector3D(new double[]{ -2.5307725632  ,   -1.0497032530  ,    0.0000842984});
-                Vector3D posC8 = new Vector3D(new double[]{  2.5463855263  ,   -1.0496127895  ,    0.0022751430});
+                Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC3 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC4 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC6 = new Vector3D(new double[]{0, r, 0});
+                Vector3D posC7 = new Vector3D(new double[]{x1 + b * Math.cos(30), y1 + b * Math.sin(30), 0});
+                Vector3D posC8 = new Vector3D(new double[]{0, -r - b, 0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -1604,8 +1615,8 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeC, typeCH, typeCH2, typeCH3};
                 isFlex = true;
                 //TraPPE Parameters
-                double bondLengthCC = 1.40; // Angstrom
-                double bondLengthCCH3 = 1.54; //Angstrom
+                double r = 1.40; // Angstrom
+                double b = 1.54; //Angstrom
                 double thetaCCCy = Degree.UNIT.toSim(114);
                 double sigmaC = 3.88; // Angstrom
                 double epsilonC = Kelvin.UNIT.toSim(21.0);
@@ -1629,15 +1640,20 @@ public class VirialTraPPE {
                 theta_eq = new double[]{thetaCCCy};
                 k_theta = new double[]{k_thetaCCCy};
 
+                double x1 = Math.sqrt(3) * r / 2;
+                double y1 = r/2;
+                double x7 = x1 + b * Math.cos(30);
+                double y7 = y1 + b * Math.sin(30);
+
                 //Get Coordinates
-                Vector3D posC1 = new Vector3D(new double[]{-0.4973593239,      0.0032034277 ,    -0.4380957857});
-                Vector3D posC2 = new Vector3D(new double[]{-2.0264899006,     -0.0450585526  ,   -0.6142504350});
-                Vector3D posC3 = new Vector3D(new double[]{-2.8093704623,     -0.0671601874 ,     0.7117245059});
-                Vector3D posC4 = new Vector3D(new double[]{0.2675089433,     -1.1549379141  ,   -0.3522970256});
-                Vector3D posC5 = new Vector3D(new double[]{1.6529152719 ,    -1.0995574021  ,   -0.1929765687});
-                Vector3D posC6 = new Vector3D(new double[]{2.2930840943,      0.1432290204  ,   -0.1177051484});
-                Vector3D posC7 = new Vector3D(new double[]{1.5485463491,      1.3154850112  ,   -0.2022857283});
-                Vector3D posC8 = new Vector3D(new double[]{0.1604182419 ,     1.2369739263  ,   -0.3664087536});
+                Vector3D posC1 = new Vector3D(new double[]{x1, y1, 0});
+                Vector3D posC4 = new Vector3D(new double[]{x1, -y1, 0});
+                Vector3D posC5 = new Vector3D(new double[]{0, -r, 0});
+                Vector3D posC6 = new Vector3D(new double[]{-x1, -y1, 0});
+                Vector3D posC7 = new Vector3D(new double[]{-x1, y1, 0});
+                Vector3D posC8 = new Vector3D(new double[]{0, r, 0});
+                Vector3D posC2 = new Vector3D(new double[]{x7, y7, 0});
+                Vector3D posC3 = new Vector3D(new double[]{x7 + b * Math.cos(36), y7 - b * Math.sin(36), 0});
 
 
                 //Set Geometry
