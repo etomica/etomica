@@ -8,6 +8,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.data.AccumulatorHistogram;
+import etomica.data.DataTag;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
@@ -146,8 +147,6 @@ public class VirialFlipDemo {
         BoxCluster box1 = sim.box[1];
         IntegratorListener histListenerTarget = new IntegratorListener() {
 
-            public void integratorStepStarted(IntegratorEvent e) {}
-
             public void integratorStepFinished(IntegratorEvent e) {
                 CoordinatePairSet cPairs = box1.getCPairSet();
 
@@ -159,16 +158,18 @@ public class VirialFlipDemo {
                 d.x = r02;
                 accHist02.putData(d);
             }
-
-            public void integratorInitialized(IntegratorEvent e) {
-            }
         };
         sim.integrators[1].getEventManager().addListener(histListenerTarget);
         DisplayPlotXChart plotHist = new DisplayPlotXChart();
         accHist01.addDataSink(plotHist.makeSink("histogram 01"));
         accHist02.addDataSink(plotHist.makeSink("histogram 02"));
+        plotHist.setColors(new Color[]{Color.BLUE, Color.GREEN});
+        plotHist.setLegend(new DataTag[]{accHist01.getTag()}, "flipping");
+        plotHist.setLegend(new DataTag[]{accHist02.getTag()}, "no flipping");
         plotHist.setLabel("histograms");
         plotHist.setYLog(true);
+        plotHist.setXLabel("distance");
+        plotHist.setYLabel("histogram");
         simGraphic.add(plotHist);
 
 
