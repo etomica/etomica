@@ -370,6 +370,9 @@ public class PotentialMasterBonding implements PotentialCompute {
         }
         double vji_vkl = 1 / Math.sqrt(vji2vkl2);
         double costheta = vji.dot(vkl) * vji_vkl;
+        if(Double.isNaN(costheta)){
+            throw new RuntimeException();
+        }
         double[] u = {0}, du = {0};
         potential.udu(costheta, u, du);
 //        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);

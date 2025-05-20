@@ -67,6 +67,7 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 	public double value(BoxCluster box) {
 		double v = weightCluster.value(box);
 		return doAbs ? Math.max(minValue, Math.abs(v)) : v;
+
 	}
     
     public void setTemperature(double temp) {
