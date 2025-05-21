@@ -61,11 +61,11 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
+            params.chemForm = new ChemForm[]{ChemForm.isobutanol};
             params.nPoints = 3; //B order
             params.temperature = 300;
             params.diagram = "5c";
-            params.numSteps = 100000000;
+            params.numSteps = 1000000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;

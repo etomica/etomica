@@ -109,6 +109,9 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         RotationTensor3D rotationTensor = new RotationTensor3D();
         rotationTensor.setRotationAxis(axis, dt);
         Vector shift = space.makeVector();
+        transform(rotationTensor, triplets[d][0], atoms, shift);
+        transform(rotationTensor, triplets[d][2], atoms, shift);
+
         transformBondedAtoms(rotationTensor, triplets[d][0], atoms, shift);
         rotationTensor.setRotationAxis(axis, -dt);
 
@@ -145,8 +148,6 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
             }
             if (!rotated) {
                 transform(rotationTensor3D, bonding[index].getInt(k), atoms, shift);
-                modified[modifiedIndex] = bonding[index].getInt(k);
-                ++modifiedIndex;
                 transformBondedAtoms(rotationTensor3D, bonding[index].getInt(k), atoms, shift);
             }
         }
@@ -163,6 +164,8 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         r.PE(atoms.get(b).getPosition());
         p.E(r);
         shift.PEa1Tv1(+m, p);
+        modified[modifiedIndex] = index;
+        modifiedIndex++;
     }
 
     @Override
