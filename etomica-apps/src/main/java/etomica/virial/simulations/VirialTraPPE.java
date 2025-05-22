@@ -470,6 +470,9 @@ public class VirialTraPPE {
         int[] constraintMap = new int[nPoints+1];
         MCMoveClusterAngleGeneral mcMoveAngle = null;
         MCMoveClusterAngleGeneral mcMoveAngle1 = null;
+        MCMoveClusterAngleGeneral mcMoveAngle_oneSide = null;
+        MCMoveClusterAngleGeneral mcMoveAngle1_oneSide = null;
+
         if (isFlex) {
             for (int i=0; i<nPoints; i++) {
                 constraintMap[i] = i;
@@ -484,14 +487,23 @@ public class VirialTraPPE {
         for (TraPPEParams TP : TPList) {
 
             if(TP.theta_eq != null) {
-                mcMoveAngle = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, TP.triplets, sim.getRandom(), 0.1);
+                mcMoveAngle = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
                 mcMoveAngle.setStepSizeMax(0.6);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
-                mcMoveAngle1 = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.triplets, sim.getRandom(), 0.1);
+                mcMoveAngle1 = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
+                if (TP.bonding.length > 3) {
+                    mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
+                    mcMoveAngle_oneSide.setStepSizeMax(0.6);
+                    sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle_oneSide);
+                    mcMoveAngle1_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
+                    sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
+                    mcMoveAngle1_oneSide.setStepSizeMax(0.6);
+                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
 
-                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
+                }
+
 
         }}
         if (doChainRef) {
@@ -614,7 +626,7 @@ public class VirialTraPPE {
 
 
             // Run with Graphics
-        if (false) {
+        if (true) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -1324,7 +1336,7 @@ public class VirialTraPPE {
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
                 AtomType typeH = new AtomType(Hydrogen.INSTANCE);
 
-                atomTypes = new AtomType[]{typeCH3, typeCH, typeCH2, typeO, typeH};
+                atomTypes = new AtomType[]{typeCH3, typeCH, typeO, typeCH2, typeH};
                 polar = true;
                 isFlex = true;
                 //TraPPE Parameters
@@ -1359,17 +1371,21 @@ public class VirialTraPPE {
                 double c01 = 209.82	;
                 double c02 = -29.17;
                 double c03 = 187.93;
+                double c10 = 0;
+                double c11 = 176.62	;
+                double c12 = -53.34;
+                double c13 = 769.93;
 
 
                 //Construct Arrays
                 sigma = new double[] {sigmaCH3,sigmaCH, sigmaO, sigmaCH2, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonCH2, epsilonH};
                 charge = new double[]{qCH3,qCH, qO, qCH2, qH};
-                theta_eq = new double[]{theta_CCOH, theta_CH3OH, theta_CCC, theta_CCC, theta_CCC};
-                k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH, k_thetaCCC, k_thetaCCC, k_thetaCCC};
-                a = new double[][]{{c00, c01, c02, c03}};
-                triplets = new int[][]{{4, 2, 1}, {2, 4, 5}, {2, 1, 3}, {2, 1, 0}, {3, 1, 0}};
-                quads = new int[][]{{1, 2, 4, 5}};
+                theta_eq = new double[]{theta_CCOH, theta_CH3OH, theta_CCC, theta_CCC};
+                k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH, k_thetaCCC, k_thetaCCC};
+                a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}, {c10, c11, c12, c13}};
+                triplets = new int[][]{{4, 2, 1}, {2, 4, 5}, {2, 1, 3}, {2, 1, 0}};
+                quads = new int[][]{{1, 2, 4, 5}, {0, 1, 2, 4}, {3, 1, 2, 4}};
                 bonding = new IntArrayList[6];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,3, 2});
@@ -1380,9 +1396,9 @@ public class VirialTraPPE {
 
 
 
-                double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
+                double x3 = bondLengthCC - bondLengthCC * Math.cos(theta_CCC);
                 double y3 = -bondLengthCC * Math.sin(theta_CCC);
-                double x4 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
+                double x4 = bondLengthCC - bondLengthCC * Math.cos(theta_CCC);
                 double y4 = bondLengthCC * Math.sin(theta_CCC);
                 double xO = x3 + bondLengthCH3OH * Math.sin(theta_CCOH);
                 double yO = y3 + bondLengthCH3OH * Math.cos(theta_CCOH);

@@ -37,6 +37,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     protected final int[][] triplets;
     protected int iMolecule;
     protected final IntArrayList[] bonding;
+    boolean oneSide;
     double uOld = 0;
     double uNew = 0;
     double wOld = 0;
@@ -46,7 +47,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     int b = 0;
     protected int[] constraintMap;
 
-    public MCMoveClusterAngleGeneral(PotentialCompute potentialCompute, Space space, ISpecies species, IntArrayList[] bonding, int[][] triplets, IRandom random, double stepSize) {
+    public MCMoveClusterAngleGeneral(PotentialCompute potentialCompute, Space space, ISpecies species, IntArrayList[] bonding, boolean oneSide, int[][] triplets, IRandom random, double stepSize) {
         super();
         this.potential = potentialCompute;
         this.space = space;
@@ -55,6 +56,8 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         this.stepSize = stepSize;
         this.species = species;
         this.bonding = bonding;
+        this.oneSide = oneSide;
+
         modified = new int[species.getLeafAtomCount()];
         setStepSizeMax(Math.PI/2);
     }
@@ -99,10 +102,16 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         ++modifiedIndex;
         Vector axis = space.makeVector();
         Vector temp = space.makeVector();
-        axis.Ev1Mv2(atoms.get(triplets[d][0]).getPosition(), atoms.get(b).getPosition());
-        temp.Ev1Mv2(atoms.get(triplets[d][2]).getPosition(), atoms.get(b).getPosition());
-        axis.XE(temp);
-        axis.normalize();
+        if (oneSide) {
+            axis.setRandomSphere(random);
+        }
+        else{
+            axis.Ev1Mv2(atoms.get(triplets[d][0]).getPosition(), atoms.get(b).getPosition());
+            temp.Ev1Mv2(atoms.get(triplets[d][2]).getPosition(), atoms.get(b).getPosition());
+            axis.XE(temp);
+            axis.normalize();
+        }
+
 
         dt = 2 * stepSize * (random.nextDouble() - 0.5);
 
@@ -110,12 +119,15 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         rotationTensor.setRotationAxis(axis, dt);
         Vector shift = space.makeVector();
         transform(rotationTensor, triplets[d][0], atoms, shift);
-        transform(rotationTensor, triplets[d][2], atoms, shift);
 
         transformBondedAtoms(rotationTensor, triplets[d][0], atoms, shift);
-        rotationTensor.setRotationAxis(axis, -dt);
+        if (!oneSide) {
+            rotationTensor.setRotationAxis(axis, -dt);
 
-        transformBondedAtoms(rotationTensor, triplets[d][2], atoms, shift);
+            transform(rotationTensor, triplets[d][2], atoms, shift);
+
+            transformBondedAtoms(rotationTensor, triplets[d][2], atoms, shift);
+        }
 
         if (iMolecule==0 || (constraintMap != null && constraintMap[iMolecule] == 0)) {
             double mt = 0;
