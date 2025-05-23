@@ -63,7 +63,7 @@ public class VirialTraPPE {
             // Customize Interactive Parameters Here
             params.chemForm = new ChemForm[]{ChemForm.isobutanol};
             params.nPoints = 3; //B order
-            params.temperature = 300;
+            params.temperature = 1000;
             params.diagram = "5c";
             params.numSteps = 1000000000;
             params.refFrac = -1;
@@ -489,17 +489,23 @@ public class VirialTraPPE {
             if(TP.theta_eq != null) {
                 mcMoveAngle = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
                 mcMoveAngle.setStepSizeMax(0.6);
+                mcMoveAngle.setConstraintMap(constraintMap);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
                 mcMoveAngle1 = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
+                mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
+                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
+
                 if (TP.bonding.length > 3) {
                     mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
                     mcMoveAngle_oneSide.setStepSizeMax(0.6);
+                    mcMoveAngle_oneSide.setConstraintMap(constraintMap);
                     sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle_oneSide);
                     mcMoveAngle1_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
                     sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
                     mcMoveAngle1_oneSide.setStepSizeMax(0.6);
+                    mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
                     ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
 
                 }
@@ -532,8 +538,10 @@ public class VirialTraPPE {
             if (TP.a != null) {
                 mcMoveTorsion = new MCMoveClusterTorsion(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
                 mcMoveTorsion.setStepSizeMax(2);
+                mcMoveTorsion.setConstraintMap(constraintMap);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveTorsion);
                 mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
+                mcMoveTorsion1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveTorsion1);
                 mcMoveTorsion1.setStepSizeMax(2);
             }
@@ -626,7 +634,7 @@ public class VirialTraPPE {
 
 
             // Run with Graphics
-        if (true) {
+        if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
