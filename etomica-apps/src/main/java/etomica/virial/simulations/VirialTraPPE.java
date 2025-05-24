@@ -386,14 +386,18 @@ public class VirialTraPPE {
 
 
         // Setting up Simulation
-        SimulationVirialOverlap2 sim = null;
         IPotential2[][] potential = new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()];
         boolean needIntraPotentials = false;
 
+        int[] myNTypes = nTypes.clone();
+        if (isFlex) {
+            myNTypes[types[0]]++;
+        }
+        SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, myNTypes, temperature, refCluster, isFlex ? targetCluster : targetClusterRigid);
+        if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
+        System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
+
         if(!isFlex) {
-            sim = new SimulationVirialOverlap2(space, sm, nTypes, temperature, refCluster, targetClusterRigid);
-            if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
-            System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
             for (TraPPEParams TP : TPList){
                 if(TP.isFlex){
                     sim.setBondingInfo(bondingInfo);
@@ -418,9 +422,6 @@ public class VirialTraPPE {
 
         }
         else{
-            int[] myNTypes = nTypes.clone();
-            myNTypes[types[0]]++;
-            sim = new SimulationVirialOverlap2(space, sm, myNTypes, temperature, refCluster, targetCluster);
             sim.setExtraTargetClusters(targetDiagrams);
 //            sim.setDoWiggle(nSpheres > 2);
 
@@ -456,16 +457,6 @@ public class VirialTraPPE {
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
-//        sim.integrators[1].dodebug = true;
-//        System.out.println(targetCluster.value(sim.box[1]));
-//        System.exit(0);
-        // Setting Chain Ref Moves
-//        IntArrayList[] bonding = new IntArrayList[3];
-//        bonding[0] = new IntArrayList(new int[]{1});
-//        for (int i=1; i<2; i++) {
-//            bonding[i] = new IntArrayList(new int[]{i-1,i+1});
-//        }
-//        bonding[2] = new IntArrayList(new int[]{1});
 
         int[] constraintMap = new int[nPoints+1];
         MCMoveClusterAngleGeneral mcMoveAngle = null;
@@ -513,20 +504,14 @@ public class VirialTraPPE {
 
         }}
         if (doChainRef) {
-                sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-//                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
-//                sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-//                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
-
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
 
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-                if(isFlex) {
-                    mcMoveHSC.setConstraintMap(constraintMap);
-
-                }
-                sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
-                sim.accumulators[0].setBlockSize(1);
-
+            if(isFlex) {
+                mcMoveHSC.setConstraintMap(constraintMap);
+            }
+            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
+            sim.accumulators[0].setBlockSize(1);
         }
         ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
 
@@ -547,93 +532,7 @@ public class VirialTraPPE {
             }
         }
 
-//        if(params.diagram != null && !params.diagram.equals("BC") && TPList[0].theta_eq != null) {
-//
-//            ConfigurationClusterMoveMolecule move = new ConfigurationClusterMoveMolecule(space, sim.getRandom(), 5, new MCMoveBox[]{mcMoveAngle1});
-//            move.initializeCoordinates(sim.box[1]);}
-//            BoxCluster clusterBox = sim.box[1];
-//            Vector translationVector = clusterBox.getSpace().makeVector();
-//            IMoleculeList list = sim.box[1].getMoleculeList();
-//            PotentialMoleculePair U_x = null;
-//            for (int i = 0; i < chemForm.length; i++) {
-//                TraPPEParams TPi = TPList[i];
-//                TPi.buildPotentials(sm);
-//
-//                P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge);
-//
-//                U_x = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, MPi);
-//            }
-//            translationVector.setX(0, 7);
-//            translationVector.setX(1, 0);
-//            translationVector.setX(2, 0);
-//            System.out.println(list.get(3));
-
-//            for (int j = 1; j < list.size(); j++) {
-//                Vector com = CenterOfMass.position(clusterBox, list.get(j));
-////                translationVector.ME(com);
-//                if(j != 3){
-//                    list.get(j).getChildList().forEach(atom -> {
-//
-//                        atom.getPosition().PE(translationVector);
-//                    });
-//
-//                }
-//
-//            }
-//            IAtomList atoms1 = list.get(0).getChildList();
-//            IAtomList atoms2 = list.get(1).getChildList();
-//            IPotential2[][] atomPotentials;
-//            atomPotentials = TPList[0].potentialGroup.getAtomPotentials();
-//            double u = 0;
-//
-//            for (IAtom a0 : atoms1) {
-//                IPotential2[] p0 = atomPotentials[a0.getType().getIndex()];
-//
-//                for (IAtom a1 : atoms2) {
-//
-//                    IPotential2 p2 = p0[a1.getType().getIndex()];
-//                    if (p2 == null) continue;
-//                    Vector dr = space.makeVector();
-//                    dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
-//                    u += p2.u(dr.squared());
-//
-//                    System.out.println(" a0.getIndex()= "+a0.getIndex()+" a1.getIndex()="+a1.getIndex()+" Math.sqrt(dr.squared()= "+Math.sqrt(dr.squared())+" U(dr.squared())= "+p2.u(dr.squared()));
-//
-//
-//                }
-//            }
-//            System.out.println("Total u= "+u);}
-
-
-
-
-
-//            for(double d = 1; d < 11; d+=0.5) {
-//                translationVector.setX(0, 1);
-//                for (int i = 1; i < list.size() - 1; i++) {
-//                    IMolecule molecule = list.get(i);
-//                    Vector com = CenterOfMass.position(clusterBox, molecule);
-//                    translationVector.setX(0, d);
-//                    translationVector.setX(1, 0);
-//                    translationVector.setX(2, 0);
-//                    translationVector.ME(com);
-//                    molecule.getChildList().forEach(atom -> {
-//
-//                        atom.getPosition().PE(translationVector);
-//                    });
-//
-//
-//                }
-////                System.out.println(" x = "+d+" fAll= "+fAll[0][0].f(list, 0, 1/params.temperature));
-//                  System.out.println(" x = "+d+" U(x)= "+U_x.energy(list));
-//
-//            }
-
-
-
-
-
-            // Run with Graphics
+        // Run with Graphics
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -720,7 +619,6 @@ public class VirialTraPPE {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println();
-//        System.out.println(sim.integrators[0].getMoveManager().getMCMoves().get(2).getChi(150));
 
 
         // Print BD and Flip Stats
