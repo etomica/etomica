@@ -61,11 +61,11 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.isobutanol};
+            params.chemForm = new ChemForm[]{ChemForm.butadiene};
             params.nPoints = 3; //B order
             params.temperature = 1000;
             params.diagram = "5c";
-            params.numSteps = 1000000000;
+            params.numSteps = 100000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
@@ -453,6 +453,7 @@ public class VirialTraPPE {
         }
 
         ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(1e-10);
+
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
@@ -695,6 +696,7 @@ public class VirialTraPPE {
 
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
+        ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(0);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
 
         System.out.println("equilibration finished");
@@ -1122,10 +1124,6 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCOH, theta_CH3OH};
                 k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c0, c1, c2, c3}};
-                double x3 = bondLengthCC - bondLengthCH3OH * Math.cos(theta_CCOH);
-                double y3 = - bondLengthCH3OH * Math.sin(theta_CCOH);
-                double xH = x3 + bondLengthOH * Math.cos(theta_CH3OH);
-                double yH = y3 + bondLengthOH * Math.sin(theta_CH3OH);
                 triplets = new int[][]{{0, 1, 2}, {1, 2, 3}};
                 quads = new int[][]{{0, 1, 2, 3}};
                 bonding = new IntArrayList[4];
@@ -1134,6 +1132,10 @@ public class VirialTraPPE {
                 bonding[2] = new IntArrayList(new int[]{1, 3});
                 bonding[3] = new IntArrayList(new int[]{2});
 
+                double x3 = bondLengthCC - bondLengthCH3OH * Math.cos(theta_CCOH);
+                double y3 = - bondLengthCH3OH * Math.sin(theta_CCOH);
+                double xH = x3 + bondLengthOH * Math.cos(theta_CH3OH);
+                double yH = y3 - bondLengthOH * Math.sin(theta_CH3OH);
 
                 //Get Coordinates
                 Vector3D posCH2 = new Vector3D(new double[]{0, 0,      0.0000000000 });
@@ -1141,6 +1143,8 @@ public class VirialTraPPE {
                 Vector3D posO = new Vector3D(new double[]{x3, y3,      0.0000000000});
 
                 Vector3D posH = new Vector3D(new double[]{xH, yH,      0.0000000000});
+
+                System.out.println("CH2:" + posCH2 + "CH3:" + posCH3 + "O:" + posO + "H:" + posH);
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -1220,7 +1224,7 @@ public class VirialTraPPE {
 
 
 
-                double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
+                double x3 = bondLengthCC - bondLengthCC * Math.cos(theta_CCC);
                 double y3 = bondLengthCC * Math.sin(theta_CCC);
                 double xO = x3 + bondLengthCH3OH * Math.cos(theta_CCOH);
                 double yO = y3 + bondLengthCH3OH * Math.sin(theta_CCOH);
@@ -1234,6 +1238,7 @@ public class VirialTraPPE {
                 Vector3D posO = new Vector3D(new double[]{xO, yO, 0});
 
                 Vector3D posH = new Vector3D(new double[]{xH, yH, 0});
+                System.out.println("CH3:" + posCH3 + "CH2_2:" + posCH2_2 + "CH2_3:" + posCH2_3 + "O:" + posO + "H:" + posH);
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -1293,7 +1298,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3,qCH, qO, qH};
                 theta_eq = new double[]{theta_CCC, theta_CCOH,  theta_CH3OH, theta_CCOH};
                 k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH, k_thetaCCOH};
-                a = new double[][]{{c00, c01, c02, c03}, {c00, c01, c02, c03}}; //1-2-4-5, not 1-2-3-4, fix
+                a = new double[][]{{c00, c01, c02, c03}, {c00, c01, c02, c03}};
                 triplets = new int[][]{{0, 1, 2}, {0, 1, 3}, {1, 3, 4}, {2, 1, 3}};
                 quads = new int[][]{{0, 1, 3, 4}, {2, 1, 3, 4}};
                 bonding = new IntArrayList[5];
@@ -1305,14 +1310,14 @@ public class VirialTraPPE {
 
 
 
-                double x3 = bondLengthCC + bondLengthCC * Math.cos(theta_CCC);
-                double y3 = - bondLengthCC * Math.sin(theta_CCC);
+                double x3 = bondLengthCC - bondLengthCC * Math.cos(theta_CCC);
+                double y3 = bondLengthCC * Math.sin(theta_CCC);
 
-                double xO = bondLengthCC + bondLengthCH3OH * Math.sin(theta_CCOH);
-                double yO = bondLengthCH3OH * Math.cos(theta_CCOH);
+                double xO = bondLengthCC - bondLengthCH3OH * Math.cos(theta_CCOH);
+                double yO = - bondLengthCH3OH * Math.sin(theta_CCOH);
 
-                double xH = xO + bondLengthOH * Math.sin(theta_CH3OH);
-                double yH = yO + bondLengthOH * Math.cos(theta_CH3OH);
+                double xH = xO + bondLengthOH * Math.cos(theta_CH3OH);
+                double yH = yO - bondLengthOH * Math.sin(theta_CH3OH);
 
 
                 //Get Coordinates
@@ -1323,6 +1328,7 @@ public class VirialTraPPE {
                 Vector3D posO = new Vector3D(new double[]{xO, yO, 0});
 
                 Vector3D posH = new Vector3D(new double[]{xH, yH, 0});
+                System.out.println("CH3:" + posCH3 + "CH:" + posCH + "CH3_3:" + posCH3_3 + "O:" + posO + "H:" + posH);
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -2150,6 +2156,8 @@ public class VirialTraPPE {
                 Vector3D posCH = new Vector3D(new double[]{bondLengthCHxCHy, 0, 0});
                 Vector3D posCH2 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy*Math.cos(thetaeq), bondLengthCHxCHy*Math.sin(thetaeq), 0});
 
+                System.out.println(posCH2);
+
                 //Set Geometry
                 species = new SpeciesBuilder(space)
                         .addAtom(typeCH3, posCH3, "CH3")
@@ -2206,6 +2214,8 @@ public class VirialTraPPE {
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxChy_double, 0, 0});
                 Vector3D posC3 = new Vector3D(new double[]{x3, y3,   0});
                 Vector3D posC4 = new Vector3D(new double[]{x3 + bondLengthCHxChy_double, y3, 0});
+
+                System.out.println("posC1: " + posC1 + "posC2:" + posC2 + "posC3:" + posC3 + "posC4:" + posC4);
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
