@@ -6,7 +6,6 @@ package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.*;
 import etomica.graph.model.Graph;
@@ -43,8 +42,10 @@ import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesBD;
 
 import java.awt.*;
-import java.util.List;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Compute pure, binary, ternary and quaternary mixture virial coefficients using overlap sampling simulations
@@ -453,8 +454,6 @@ public class VirialTraPPE {
             sim.box[1].setTypes(types);
         }
 
-        ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(1e-10);
-
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
@@ -533,6 +532,20 @@ public class VirialTraPPE {
             }
         }
 
+        if (isFlex) {
+            double minValue = 1e-10;
+            ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(minValue);
+
+            for (int i = 0; i < 100000 && sim.box[1].getSampleCluster().value(sim.box[1]) <= minValue; i++) {
+                sim.integrators[1].doStep();
+            }
+            if (sim.box[1].getSampleCluster().value(sim.box[1]) <= minValue) {
+                throw new RuntimeException("Could not find appropriate starting config");
+            }
+            System.out.println("It took " + sim.integrators[1].getStepCount() + " steps to find a starting config.");
+            ((ClusterWeightAbs) sim.getSampleClusters()[1]).setMinValue(0);
+        }
+
         // Run with Graphics
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -595,7 +608,6 @@ public class VirialTraPPE {
 
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
-        ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(0);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
 
         System.out.println("equilibration finished");
