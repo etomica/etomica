@@ -52,7 +52,7 @@ public class HistogramVectorSimple {
         this.box = box;
     }
 
-    private void setNumSteps(int steps){this.numsteps = numsteps;}
+    private void setNumSteps(int steps){this.numsteps = steps;}
 
     //set box length
     private void setL(Box box){
@@ -126,20 +126,23 @@ public class HistogramVectorSimple {
 
     // add value into the histogram
     public void addValue(double x, double y, double z) {
-        int i = (int) ((x + L / 2) / (deltaX));
-        int j = (int) ((y + L / 2) / (deltaY));
-        int k = (int) ((z + L / 2) / (deltaZ));
+     //   if( x > -3 && y > -3 && z > -3){
+            int i = (int) ((x + L / 2) / (deltaX));
+            int j = (int) ((y + L / 2) / (deltaY));
+            int k = (int) ((z + L / 2) / (deltaZ));
 
-        // Ensure indices are within bounds
-        if(i > nBinsX - 1 && i<0  ){
-            throw  new RuntimeException("error in i value");
-        }
+            // Ensure indices are within bounds
+            if(i > nBinsX - 1 && i<0  ){
+                throw  new RuntimeException("error in i value");
+            }
        /* i = Math.min(i, nBinsX - 1);
         j = Math.min(j, nBinsX - 1);
         k = Math.min(k, nBinsX - 1);*/
 
-        // Increment the count for the appropriate cube
-        counts[i][j][k]++;
+            // Increment the count for the appropriate cube
+            counts[i][j][k]++;
+       // }
+
     }
 
     //set range of histogram
@@ -168,7 +171,7 @@ public class HistogramVectorSimple {
             for (int i = 0; i < nBinsX; i++) {
                 for (int j = 0; j < nBinsY; j++) {
                     for (int k = 0; k < nBinsZ; k++) {
-                        histogram[i][j][k] = counts[i][j][k] / (  deltaX * deltaY * deltaZ *numsteps);
+                        histogram[i][j][k] = counts[i][j][k] / (  deltaX * deltaY * deltaZ );
                     }
                 }
             }
@@ -182,6 +185,7 @@ public class HistogramVectorSimple {
     public ISpecies getSpecies(){
         return species;
     }
+    public int getSteps(){return numsteps;}
 
     public long[][][] getCounts(){return counts;}
 
@@ -192,10 +196,12 @@ public class HistogramVectorSimple {
         IMoleculeList molecules = box.getMoleculeList(species);
         for(int i=0; i<molecules.size(); i++){
             IMolecule molecule = molecules.get(i);
-            for(int j=0; j<molecule.getChildList().size(); j++){
-                Vector vec = molecule.getChildList().get(j).getPosition();
+            //for(int j=0; j<molecule.getChildList().size(); j++){
+                Vector vec = molecule.getChildList().get(0).getPosition();
+           // System.out.println(vec);
+            //System.exit(1);
                 addValue(vec.getX(0),vec.getX(1), vec.getX(2) );
-            }
+          //  }
         }
     }
 

@@ -88,6 +88,7 @@ public class PDBReaderMOP {
             throw new RuntimeException("Problem reading from "+fileName+", caught IOException: " + e.getMessage());
         }
         setPositions(positions);
+        setConnectivity(connectivity);
     }
 
     private void setPositions(Map<Integer, Vector> positions) {
@@ -483,7 +484,6 @@ public class PDBReaderMOP {
      //   return speciesBuilder.setDynamic(isDynamic).build();
     }
 
-
     public void setConnectivity(ArrayList<ArrayList<Integer>>connectivity){
         this.connectivity = connectivity;
     }
@@ -631,6 +631,7 @@ public class PDBReaderMOP {
         List<String> key76 = Arrays.asList("C_1", "C_3");
         List<String> key77 = Arrays.asList("C_1", "C_1");
         List<String> key78 = Arrays.asList("C_1", "C_1");
+        List<String> key79 = Arrays.asList("C_1", "O_3");
         map.put(key1, 1.0);
         map.put(key2, 1.0);
         map.put(key3, 1.0);
@@ -709,9 +710,11 @@ public class PDBReaderMOP {
         map.put(key76,1.0);
         map.put(key77, 3.0);
         map.put(key78, 3.0);
+        map.put(key79, 2.0);
         Double value = map.get(bondedAtoms);
+
         if(value == null){
-            throw new RuntimeException("Atoms " + bondedAtoms);
+            value = Double.valueOf(1);
         }
         return value;
     }
@@ -1303,7 +1306,7 @@ public class PDBReaderMOP {
             elementReceiverMap.put("O_1", AtomType.simple(String.valueOf(new ElementSimple("O_1")), Double.POSITIVE_INFINITY));*/
         }else {
             elementReceiverMap.put("C_3", new AtomType(Carbon.INSTANCE, "C_3"));
-            elementReceiverMap.put("H", new AtomType(Carbon.INSTANCE, "H"));
+            elementReceiverMap.put("H", new AtomType(Hydrogen.INSTANCE, "H"));
             elementReceiverMap.put("C_2", new AtomType(Carbon.INSTANCE, "C_2"));
             elementReceiverMap.put("C_Ar", new AtomType(Carbon.INSTANCE, "C_Ar"));
             elementReceiverMap.put("C_1", new AtomType(Carbon.INSTANCE, "C_1"));
@@ -2426,6 +2429,7 @@ public class PDBReaderMOP {
         atomicConstant.put("F", new double[]{0.668,180,3.364,0.050,14.762,1.735,10.874,2.0});
         atomicConstant.put("He", new double[]{0.849, 90.0, 2.362,0.056,15.24,0.098});
         atomicConstant.put("Ne", new double[]{0.920, 90.0, 3.243, 0.042, 15.440, 0.194});
+        atomicConstant.put("Kr", new double[]{1.147, 90.0, 4.141,0.220,14,0.452});
         atomicConstant.put("Ar", new double[]{1.032, 90.0, 3.868,0.185,15.763, 0.300});
         atomicConstant.put("B", new double[]{0.828, 109.48, 4.083,0.180,12.052, 1.755, 4.528, 0});
         double [] sample = atomicConstant.get(atomtype);

@@ -89,7 +89,7 @@ public class SetPotential {
                 int caseNum =1;
                 angleParamsArray= UFF.angleUFF (atomOnePot[0], atomTwoPot[0], atomThreePot[0], atomOnePot[5], atomTwoPot[5], atomThreePot[5], atomOnePot[6], atomTwoPot[6],atomThreePot[6], atomTwoPot[1], bondListValueOne, bondListValueTwo, bondListValueThree,0);
                 // System.out.println(Arrays.toString(angleParamsArray) + " arrayAngle");
-                P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3],atomTwoPot[1], 0, caseNum);
+                P3BondAngleUFF p3Angle = new P3BondAngleUFF(angleParamsArray[0],  angleParamsArray[1], angleParamsArray[2], angleParamsArray[3],Degree.UNIT.toSim( atomTwoPot[1]), 0, caseNum);
                 pmBonding.setBondingPotentialTriplet(species1, p3Angle, angle);
                 break;
             }
@@ -112,9 +112,9 @@ public class SetPotential {
                 atomName2 = atomIdentifierMapModified1.get(atom2);
                 atomName3 = atomIdentifierMapModified1.get(atom3);
                 Vi = UFF.switchCaseTorsion(atomName2);
-                int bondListValueOne = bondList1.get(torsionIndividual[1]);
-                int bondListValueTwo = bondList1.get(torsionIndividual[2]);
-                p = p + bondListValueOne + bondListValueTwo;
+               // int bondListValueOne = bondList1.get(torsionIndividual[1]);
+               // int bondListValueTwo = bondList1.get(torsionIndividual[2]);
+                p = 1;
                 Vj = UFF.switchCaseTorsion(atomName3);
                 V = Math.sqrt(Vi*Vj);
                 Vtrue = kcals.toSim(V);
@@ -160,12 +160,52 @@ public class SetPotential {
             System.out.println(name);
             throw new RuntimeException("TraPPE gas unknown");
         }
-
-
-
         //bondParams.add(bondConstant);
         pmBonding.setBondingPotentialPair(species, p2Bond, bond );
     }
+
+    public void setBondStretchCOMPASS(ISpecies species, List<int[]> bond, PotentialMasterBonding pmBonding, String name){
+        int[] bondArr1 = null;
+        P2HarmonicUFF p2Bond = new P2HarmonicUFF(Double.POSITIVE_INFINITY,  1.0);
+        if(name.equals("methane")){
+            bondArr1 = new int[]{0,1};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,2};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,3};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,4};
+            bond.add(bondArr1);
+        } else if (name.equals("ethane")) {
+            bondArr1 = new int[]{0,2};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,3};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,4};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{1,5};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{1,6};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{1,7};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,1};
+            bond.add(bondArr1);
+        } else if(name.equals("ethene")){
+            bondArr1 = new int[]{0,2};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,3};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{1,4};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{1,5};
+            bond.add(bondArr1);
+            bondArr1 = new int[]{0,1};
+            bond.add(bondArr1);
+        }
+        pmBonding.setBondingPotentialPair(species, p2Bond, bond);
+    }
+
     void addUniqueElements(Set<AtomType> set, List<AtomType> list) {
         for (AtomType atomType : list) {
             if (!set.contains(atomType)) {
@@ -289,6 +329,7 @@ public class SetPotential {
         int i = 0;
         UFF uff = new UFF();
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
+        TruncationFactory tf = new TruncationFactoryForceShift(truncatedRadius);
         // System.out.println(pairsAtoms + " Pairs");
         P2SoftSphericalSumTruncated[] p2Trunc = new P2SoftSphericalSumTruncated[pairAtomSize];
         for(List<AtomType>individualPair: pairsAtoms){
@@ -333,10 +374,13 @@ public class SetPotential {
 
             if(doElectrostatics){
                 p2Trunc[i] = new P2SoftSphericalSumTruncatedForceShifted(truncatedRadius, p2LJ[i], P2Electrostatics[i]);
+                p2lj[i] = tf.make(p2Trunc[i]);
             }else {
-                TruncationFactory tf = new TruncationFactoryForceShift(truncatedRadius);
+               // potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1});
                 p2lj[i] = tf.make(p2LJ[i]);
+
             }
+
             //System.out.println(" \n");
             potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2lj[i], new double[]{1, 0, 0, 1});
             //potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);

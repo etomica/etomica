@@ -170,7 +170,6 @@ public class SpeciesGasTraPPE {
                     .setDynamic(isDynamic)
                     .build();
 
-
         } else if (chemForm == ChemForm.C2H6) {
 
             AtomType typeCH3 = AtomType.simple("ch3", cMass + 3*hMass);
@@ -211,9 +210,9 @@ public class SpeciesGasTraPPE {
             sigma = new double[]{sigmaCH3, sigmaCH2};
             epsilon = new double[]{epsilonCH3, epsilonCH2};
             charge = new double[]{0.0};
-            atomMap.put(0, typeCH3.getName());
-            atomMap.put(1, typeCH2.getName());
-            atomMap.put(2, typeCH2.getName());
+           // atomMap.put(0, typeCH3.getName());
+           // atomMap.put(1, typeCH2.getName());
+           // atomMap.put(2, typeCH2.getName());
 
             Vector3D posnC1 = new Vector3D(new double[]{bondLength, 0, 0});
             Vector3D posnC2 = new Vector3D(new double[]{0, 0, 0});
@@ -238,8 +237,8 @@ public class SpeciesGasTraPPE {
             sigma = new double[]{sigmaCH2};
             epsilon = new double[]{epsilonCH2};
             charge = new double[]{0.0};
-            atomMap.put(0, typeCH2ene.getName());
-            atomMap.put(1, typeCH2ene.getName());
+          //  atomMap.put(0, typeCH2ene.getName());
+          //  atomMap.put(1, typeCH2ene.getName());
 
             Vector3D posnC1 = new Vector3D(new double[]{0, 0, 0});
             Vector3D posnC2 = new Vector3D(new double[]{bondLength, 0, 0});
@@ -478,6 +477,13 @@ public class SpeciesGasTraPPE {
         atomicConstant.put("C", new double[]{2.80, 27});
         atomicConstant.put("N", new double[]{3.310, 36});
         atomicConstant.put("M", new double[]{0, 0});
+        // Check if the atomtype exists in the map
+        if (!atomicConstant.containsKey(atomtype)) {
+            // If atomtype doesn't exist, throw a RuntimeException with a custom message
+            throw new RuntimeException("Atom type '" + atomtype + "' does not exist in atomic constants.");
+        }
+
+        // If atomtype exists, return the corresponding values
         return atomicConstant.get(atomtype);
     }
 
