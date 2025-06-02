@@ -148,14 +148,20 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         return backgroundColor;
     }
 
+	@Override
+	public void setBackground(Color bg) {
+		super.setBackground(bg);
+		setBackgroundColor(bg);
+	}
+
 	/**
 	 * Sets the background color of the display box canvas.
 	 * @param color : color to set background to
 	 */
 	public void setBackgroundColor(Color color) {
 		backgroundColor = color;
-		gsys.setBGColor(color);
-		panel.setBackground(color);
+		if(gsys!=null) gsys.setBGColor(color);
+		if(panel!=null) panel.setBackground(color);
     }
 
     /**

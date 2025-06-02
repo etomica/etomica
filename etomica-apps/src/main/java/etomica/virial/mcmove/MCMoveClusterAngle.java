@@ -8,6 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.compute.PotentialCompute;
@@ -33,8 +34,9 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     protected final Space space;
     protected ISpecies species;
     protected double dt = 0;
-    protected Vector[][] position = null;
+    protected Vector[] position = null;
     protected final IntArrayList [] bonding;
+    protected int iMolecule;
     double uOld = 0;
     double uNew = 0;
     double wOld = 0;
@@ -42,6 +44,9 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
     int [] modified;
     int modifiedIndex = 0;
     int b = 0;
+    protected int start, stop;
+    protected boolean doLattice;
+    protected int[] constraintMap;
 
     public MCMoveClusterAngle(PotentialCompute potentialCompute, Space space, IntArrayList[] bonding, IRandom random, double stepSize) {
         super();
@@ -51,12 +56,27 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         this.bonding = bonding;
         this.stepSize = stepSize;
         modified = new int[bonding.length];
+        setStepSizeMax(Math.PI/2);
+        start = 0;
+        stop = Integer.MAX_VALUE;
+    }
+
+    public void setDoLattice(boolean doLattice) {
+        this.doLattice = doLattice;
     }
 
     public void setBox(Box p) {
         super.setBox(p);
-        int n = species == null ? p.getMoleculeList().get(0).getChildList().size() : species.getLeafAtomCount();
-        position = new Vector[p.getMoleculeList().size()][n];
+        position = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
+    }
+
+    public void setAtomRange(int start, int stop) {
+        this.start = start;
+        this.stop = stop;
+    }
+
+    public void setConstraintMap(int[] newConstraintMap) {
+        constraintMap = newConstraintMap;
     }
 
     @Override
@@ -64,62 +84,85 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         return 0;
     }
 
-    public void setSpecies(ISpecies s) {
-        species = s;
-    }
-
     @Override
     public boolean doTrial() {
         uOld = potential.computeAll(false);
-        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        wNew = wOld = 1;
+        if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i = 0; i<moleculeList.size(); i++) {
-            if (species != null && moleculeList.get(i).getType() != species) {
-                continue;
+        iMolecule = random.nextInt(moleculeList.size());
+        while (species != null && moleculeList.get(iMolecule).getType() != species) {
+            iMolecule = random.nextInt(moleculeList.size());
+        }
+
+        IMolecule molecule = moleculeList.get(iMolecule);
+        IAtomList atoms = molecule.getChildList();
+        for(int j = 0; j < molecule.getChildList().size(); j++) {
+            position[j].E(atoms.get(j).getPosition());
+        }
+        if (molecule.getChildList().size() < 3) return false;
+        modifiedIndex = 0;
+        int d = 0;
+        do{
+            b = random.nextInt(bonding.length);
+            d = Math.min(b, bonding.length-1-b);
+        }while (bonding[b].size() < 2 || (d < start || d >= stop));
+        modified[modifiedIndex]=b;
+        ++modifiedIndex;
+        int a = random.nextInt(bonding[b].size());
+        a = bonding[b].getInt(a);
+        modified[modifiedIndex] = a;
+        ++modifiedIndex;
+        Vector r = space.makeVector();
+        r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(a).getPosition());
+        Vector axis = space.makeVector();
+        if (doLattice) {
+            dt = Math.PI/2;
+            do {
+                axis.E(0);
+                axis.setX(random.nextInt(axis.getD()), random.nextInt(2) * 2 - 1);
             }
-            IMolecule molecule = moleculeList.get(i);
-            IAtomList atoms = molecule.getChildList();
-            for(int j = 0; j < molecule.getChildList().size(); j++) {
-                position[i][j] = space.makeVector();
-                position[i][j].E(atoms.get(j).getPosition());
-            }
-            if (molecule.getChildList().size() < 3) continue;
-            modifiedIndex = 0;
+            while (Math.abs(axis.dot(r))/Math.sqrt(r.squared()) > 0.9);
+        }
+        else {
             dt = 2 * stepSize * (random.nextDouble() - 0.5);
-            do{
-                b = random.nextInt(bonding.length);
-            }while (bonding[b].size() < 2);
-            modified[modifiedIndex]=b;
-            ++modifiedIndex;
-            int a = random.nextInt(bonding[b].size());
-            a = bonding[b].getInt(a);
-            modified[modifiedIndex] = a;
-            ++modifiedIndex;
-            Vector axis = space.makeVector();
             axis.setRandomSphere(random);
-            Vector r = space.makeVector();
-            r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(a).getPosition());
             Vector projection = space.makeVector();
             projection.Ea1Tv1(axis.dot(r)/r.squared(), r);
             axis.ME(projection);
             axis.normalize();
-            RotationTensor3D rotationTensor = new RotationTensor3D();
-            rotationTensor.setRotationAxis(axis, dt);
-            Vector shift = space.makeVector();
-            transform(rotationTensor, a, atoms, shift);
-            transformBondedAtoms(rotationTensor, a, atoms, shift);
-            double mt = 0;
-            for (IAtom aa : atoms) {
-                mt += aa.getType().getMass();
+        }
+        RotationTensor3D rotationTensor = new RotationTensor3D();
+        rotationTensor.setRotationAxis(axis, dt);
+        Vector shift = space.makeVector();
+        transform(rotationTensor, a, atoms, shift);
+        transformBondedAtoms(rotationTensor, a, atoms, shift);
+
+        if (iMolecule==0 || (constraintMap != null && constraintMap[iMolecule] == 0)) {
+            if (doLattice) {
+                shift.E(CenterOfMass.position(box, molecule));
+                shift.TE(-1);
+                for (int i=0; i<shift.getD(); i++) {
+                    shift.setX(i, Math.floor(shift.getX(i)));
+                }
             }
-            shift.TE(-1.0/mt);
+            else {
+                double mt = 0;
+                for (IAtom aa : atoms) {
+                    mt += aa.getType().getMass();
+                }
+                shift.TE(-1.0 / mt);
+            }
             for (IAtom aa : atoms) {
                 aa.getPosition().PE(shift);
             }
         }
-        ((BoxCluster)box).trialNotify();
+        if (box instanceof BoxCluster) {
+            ((BoxCluster)box).trialNotify();
+            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        }
         uNew = potential.computeAll(false);
-        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+
         return true;
     }
 
@@ -161,20 +204,15 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
 
     @Override
     public void acceptNotify() {
-        ((BoxCluster)box).acceptNotify();
+        if (box instanceof BoxCluster) ((BoxCluster)box).acceptNotify();
     }
 
     @Override
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i = 0; i<box.getMoleculeList().size(); i++) {
-            if (species != null && moleculeList.get(i).getType() != species) {
-                continue;
-            }
-            for(int j = 0; j < moleculeList.get(i).getChildList().size(); j++) {
-                moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
-            }
+        for(int j = 0; j < moleculeList.get(iMolecule).getChildList().size(); j++) {
+            moleculeList.get(iMolecule).getChildList().get(j).getPosition().E(position[j]);
         }
-        ((BoxCluster)box).rejectNotify();
+        if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }
 }

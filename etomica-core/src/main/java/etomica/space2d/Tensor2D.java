@@ -80,7 +80,14 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         xx = v3.x;
         yy = v3.y;
     }
-    
+
+    @Override
+    public void diagE(double a) {
+        this.E(0.0);
+        xx = a;
+        yy = a;
+    }
+
     public void assignTo(Vector[] v) {
         if(v.length != 2) {
             throw new IllegalArgumentException("Tensor requires 2 vectors for assignment");

@@ -13,8 +13,12 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.potential.IPotential2;
+import etomica.potential.PotentialMasterBonding;
+import etomica.potential.compute.NeighborManagerIntra;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -51,6 +55,9 @@ public class SimulationVirial extends Simulation {
     public int[] newSeeds;
     public int[] numMolecules;
     protected double boxLength;
+    protected PotentialMasterBonding.FullBondingInfo bondingInfo;
+    protected IPotential2[][] pairPotentials;
+    protected boolean initialized;
 
     public SimulationVirial(Space space, ISpecies[] species, int[] nMolecules, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
         super(space);
@@ -75,7 +82,21 @@ public class SimulationVirial extends Simulation {
         boxLength = length;
     }
 
+    public void setIntraPairPotentials(IPotential2[][] pairPotentials) {
+        if (initialized) throw new RuntimeException("too late");
+        this.pairPotentials = pairPotentials;
+    }
+
+    public void setBondingInfo(PotentialMasterBonding.FullBondingInfo bondingInfo) {
+        this.bondingInfo = bondingInfo;
+    }
+
     public void init() {
+        if (initialized) throw new RuntimeException("you can only call me once");
+        // we aren't actually initialized yet, but we will be unless we crash.
+        // if we crash, we shouldn't get called again!
+        initialized = true;
+
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
@@ -90,8 +111,18 @@ public class SimulationVirial extends Simulation {
             box.setNMolecules(species[i], numMolecules[i]);
         }
 
-        PotentialCompute pc = null;
-        pc = new PotentialComputeAggregate();
+        PotentialCompute pc;
+        if (pairPotentials != null) {
+            PotentialMasterBonding pmBonding = new PotentialMasterBonding(getSpeciesManager(), box, bondingInfo);
+            PotentialComputePair pcPair = new PotentialComputePair(getSpeciesManager(), box, new NeighborManagerIntra(box, bondingInfo), pairPotentials);
+            pc = new PotentialComputeAggregate(pmBonding, pcPair);
+        }
+        else if (bondingInfo != null){
+            pc = new PotentialMasterBonding(getSpeciesManager(), box, bondingInfo);
+        }
+        else {
+            pc = new PotentialComputeAggregate();
+        }
 
         // temperature isn't going to mean anything here, but pass it anyway
         integrator = new IntegratorMC(pc, random, temperature, box);
@@ -198,6 +229,10 @@ public class SimulationVirial extends Simulation {
 
 
     public void printResults(double refIntegral) {
+        printResults(refIntegral, null);
+    }
+
+    public void printResults(double refIntegral, String[] extraNames) {
         Unit cm =new PrefixedUnit(Prefix.CENTI, Meter.UNIT);
         Unit cm6 = new CompoundUnit(new Unit[]{cm}, new double[]{6});
         Unit mol2 = new CompoundUnit(new Unit[]{Mole.UNIT}, new double[]{2});
@@ -228,12 +263,40 @@ public class SimulationVirial extends Simulation {
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
 
         System.out.println();
-
-       // System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        //System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+        if (averageData.getValue(0) != 0) {
+           // System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+            //System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
 
         System.out.println("abs average: "+(ratioData.getValue(1)*refIntegral) + " std dev: "+ (ratioErrorData.getValue(1)*Math.abs(refIntegral)));
         System.out.println("abs average (cm3/mol): "+cm3mol.fromSim(ratioData.getValue(1)*refIntegral) + " std dev: "+ cm3mol.fromSim(ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+    }
+
+        int n = averageData.getLength();
+        double[] var = new double[n];
+        for (int i=0; i<n; i++) {
+            var[i] = covarianceData.getValue((i) * n + (i));
+        }
+
+        for (int i=2; i<averageData.getLength(); i++) {
+            String name = String.format("%d", i);
+            if (extraNames != null) {
+                name = extraNames[i-2];
+            }
+            System.out.print(String.format("target %s average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f tcor: ",
+                    name, averageData.getValue(i), stdevData.getValue(i), errorData.getValue(i), correlationData.getValue(i)));
+            for (int j=1; j<i; j++) {
+                double c = var[i]*var[j] == 0 ? 0 : covarianceData.getValue((i)*n+(j))/Math.sqrt(var[i]*var[j]);
+                System.out.print(String.format(" %20.18f", c));
+            }
+            System.out.println();
+            if (averageData.getValue(0) != 0) {
+                correlationCoef = covarianceData.getValue(i) / Math.sqrt(covarianceData.getValue(0) * covarianceData.getValue((i - 1) * nData + i));
+                correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+                System.out.print(String.format("ratio %s average: %20.15e  error: %9.4e  cor: %6.4f\n", name, ratioData.getValue(i), ratioErrorData.getValue(i), correlationCoef));
+                System.out.print(String.format("full %s average: %20.15e  error: %9.4e\n", name, ratioData.getValue(i) * refIntegral, ratioErrorData.getValue(i) * Math.abs(refIntegral)));
+                System.out.println();
+            }
+        }
     }
 
     @Override

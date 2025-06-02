@@ -135,7 +135,7 @@ public class WaterNPTMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.steps = 120 * 1000 * params.numMolecules;
+//            params.steps = 120 * 1000 * params.numMolecules;
         }
 
         double temperatureK = params.temperatureK;
@@ -150,8 +150,8 @@ public class WaterNPTMC extends Simulation {
 
         WaterNPTMC sim = new WaterNPTMC(params.numMolecules, temperature, density, pressure, rCutLJ);
 
-        if (true) {
-            sim.getController().addActivity(new ActivityIntegrate(sim.integrator, 5000000));
+        if (false) {
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator, params.equilibrationNVT));
             sim.getController().addActionSequential(new IAction() {
                 @Override
                 public void actionPerformed() {
@@ -214,11 +214,11 @@ public class WaterNPTMC extends Simulation {
         System.out.println();
 
         long t1 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 5000000));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.equilibrationNVT));
         long t2 = System.nanoTime();
         System.out.println("NVT equilibration finished");
         sim.integrator.getMoveManager().addMCMove(sim.volumeMove);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.steps/10));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.equilibration));
         long t3 = System.nanoTime();
         System.out.println("NPT equilibration finished");
 
@@ -283,15 +283,15 @@ public class WaterNPTMC extends Simulation {
         System.out.println("NVT time: " + (t2 - t1) * 1e-9);
         System.out.println("equilibration time: " + (t3 - t2) * 1e-9);
         System.out.println("production time: " + (t4 - t3) * 1e-9);
-
-
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 100000000;
-        public double density = 1;
+        public double density = 0.998;
         public double temperatureK = 300;
         public int numMolecules = 1100;
+        public long equilibrationNVT = numMolecules*1000*10;
+        public long equilibration = numMolecules*1000*40;
+        public long steps = numMolecules*1000*120;
         public double pressureKPa = 101;
         public double s = 3;
         public double rCutLJ = 14;

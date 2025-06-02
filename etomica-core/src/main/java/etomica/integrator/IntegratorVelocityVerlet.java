@@ -10,11 +10,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
-import etomica.space3d.Vector3D;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
-
-import java.util.ArrayList;
 
 public class IntegratorVelocityVerlet extends IntegratorMD {
 
@@ -29,7 +26,6 @@ public class IntegratorVelocityVerlet extends IntegratorMD {
     // assumes one box
     protected void doStepInternal() {
         super.doStepInternal();
-        double dotValF =0;
         if (Debug.ON && Debug.DEBUG_NOW) {
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
@@ -41,71 +37,56 @@ public class IntegratorVelocityVerlet extends IntegratorMD {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
         Vector[] forces = potentialCompute.getForces();
-        ArrayList<double[]> rFinal = new ArrayList<>();
-        ArrayList<double[]> rInitial = new ArrayList<>();
-        ArrayList<double[]> fFinal = new ArrayList<>();
-        ArrayList<double[]> rDiff = new ArrayList<>();
-        ArrayList<Double> rdotF = new ArrayList<>();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
             Vector force = forces[iLeaf];
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
-            if (Debug.ON && Debug.DEBUG_NOW ) {
-                rInitial.add(r.toArray());
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first " + a + " r=" + r + ", v=" + v + ", f=" + force);
             }
-            Vector rOld = a.getPosition();
             v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), force);  // p += f(old)*dt/2
-            r.PEa1Tv1(timeStep, v);         // r += p*dt/m
-         /*  System.out.println("rdiff  " + rdiff);
-           rdiff.dot(force);
-            System.out.println("prod " +rdiff );*/
+            r.PEa1Tv1(0.5 * timeStep, v);         // r += p*dt/m/2
+        }
+
+        if (isothermal) {
+            doThermostatInternal();
+        }
+
+        //Finish integration step
+        for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
+            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("second " + a + " v=" + v + ", f=" + forces[iLeaf]);
+            }
+            r.PEa1Tv1(0.5 * timeStep, v);         // r += p*dt/m/2
         }
 
         eventManager.forcePrecomputed();
 
         currentPotentialEnergy = potentialCompute.computeAll(true);
 
-
-
         eventManager.forceComputed();
 
-        //Finish integration step
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            Vector velocity = a.getVelocity();
-            Vector r = a.getPosition();
-            if (Debug.ON  && Debug.DEBUG_NOW ) {
-                rFinal.add(r.toArray());
-                fFinal.add(forces[iLeaf].toArray());
-                System.out.println("second " + a +" r=" + r + ", v=" + velocity + ", f=" + forces[iLeaf]);
+            Vector v = a.getVelocity();
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("third " + a + " v=" + v + ", f=" + forces[iLeaf]);
             }
-            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);  //p += f(new)*dt/2
+            v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);  //p += f(new)*dt/2
         }
-        eventManager.preThermostat();
+
+        eventManager.finalizeStep();
+
         currentKineticEnergy = 0;
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            Vector velocity = a.getVelocity();
-            currentKineticEnergy += 0.5 * a.getType().getMass() * velocity.squared();
+            currentKineticEnergy += 0.5 * a.getType().getMass() * a.getVelocity().squared();
         }
 
-        if (isothermal) {
-            doThermostatInternal();
-        }
-      /*  IAtomKinetic a = (IAtomKinetic) leafList.get(0);
-        for (int i=0; i<fFinal.size(); i++){
-            Vector v1 = Vector.of(rInitial.get(i));
-            Vector v2 = Vector.of(rFinal.get(i));
-            v1.ME(v2);
-            rDiff.add(v1.toArray());
-            Vector f1 = Vector.of(fFinal.get(i));
-            double dotVal = v1.dot(f1);
-            dotValF += dotVal;
-            rdotF.add(dotVal);
-        }*/
-      // System.out.println("Step: " + stepCount+" PE: "+ currentPotentialEnergy + " KE: " + currentKineticEnergy + " TE: "+ (currentKineticEnergy+currentPotentialEnergy)  +" "+ dotValF+ "\n");
     }
 
     public void reset() {
