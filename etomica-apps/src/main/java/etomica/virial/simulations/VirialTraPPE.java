@@ -62,17 +62,17 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.butadiene};
-            params.nPoints = 3; //B order
+            params.chemForm = new ChemForm[]{ChemForm.isobutanol};
+            params.nPoints = 4; //B order
             params.temperature = 1000;
-            params.diagram = "5c";
+            params.diagram = "BC";
             params.numSteps = 100000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
-            params.BDtol = 1e-12;
+            params.BDtol = 1e-11;
         }
 
         // Import Params
@@ -709,7 +709,7 @@ public class VirialTraPPE {
         public boolean dorefpref = true;
         public boolean doChainRef = true;
         public String diagram = null;
-        public double BDtol = 1e-12;
+        public double BDtol = 1e-11;
 
     }
 
