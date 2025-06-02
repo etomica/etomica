@@ -5,7 +5,6 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.*;
-import etomica.graph.operations.Int;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
