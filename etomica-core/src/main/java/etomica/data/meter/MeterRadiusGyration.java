@@ -10,7 +10,6 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.molecule.IMolecule;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Length;
 
@@ -21,11 +20,12 @@ import etomica.units.dimensions.Length;
  */
 public class MeterRadiusGyration extends DataSourceScalar {
 
-    public MeterRadiusGyration(Space space) {
+    public MeterRadiusGyration(Box box) {
         super("Radius of Gyration", Length.DIMENSION);
-        cm = space.makeVector();
-        realPos = space.makeVector();
-        dr = space.makeVector();
+        this.box = box;
+        cm = box.getSpace().makeVector();
+        realPos = box.getSpace().makeVector();
+        dr = box.getSpace().makeVector();
     }
 
     public double getDataAsScalar() {
@@ -88,22 +88,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         return r2Tot / nLeafAtomsTot;
     }
 
-    /**
-     * @return Returns the box.
-     */
-    public Box getBox() {
-        return box;
-    }
-
-    /**
-     * @param box
-     *            The box to set.
-     */
-    public void setBox(Box box) {
-        this.box = box;
-    }
-
-    private Box box;
+    private final Box box;
     private final Vector cm, realPos;
     private final Vector dr;
 

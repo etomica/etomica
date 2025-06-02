@@ -195,7 +195,7 @@ public class IntegratorPIMD extends IntegratorMD {
             }
         }
 
-        eventManager.preThermostat();
+        eventManager.finalizeStep();
 
         currentKineticEnergy = 0;
         for (IMolecule m : box.getMoleculeList()) {

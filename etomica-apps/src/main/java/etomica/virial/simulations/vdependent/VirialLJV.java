@@ -17,7 +17,9 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
+import etomica.potential.P2LatticeSum;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -28,6 +30,7 @@ import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralAtomic;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MeterVirial;
 import etomica.virial.cluster.*;
@@ -55,7 +58,7 @@ public class VirialLJV {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.nPoints = 2;
-            params.numSteps = 100000L;
+            params.numSteps = 10000000L;
             params.ref = ReferenceChoice.CHAIN_TREE;
             params.chainFrac = 0.5;
             params.D = 3;
@@ -77,7 +80,16 @@ public class VirialLJV {
         System.out.println("B" + nPoints);
 
         Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : new BoundaryRectangularNonperiodic(space);
-        MayerVDependent fTarget = new MayerVDependent(new MayerGeneralSpherical(new P2LennardJones()), b);
+
+        P2SoftSphericalTruncated p2cut = new P2SoftSphericalTruncated(new P2LennardJones(), params.rc);
+        P2LatticeSum p2latsum = new P2LatticeSum(p2cut);
+        MayerVDependent fTarget;
+        if (params.rc > L/2) {
+            fTarget = new MayerVDependent(new MayerGeneralAtomic(space, p2latsum), b);
+        }
+        else {
+            fTarget = new MayerVDependent(new MayerGeneralSpherical(p2cut), b);
+        }
         MayerVDependent fRefPos = new MayerVDependent(new MayerFunction() {
             @Override
             public double f(IMoleculeList pair, double r2, double beta) {
@@ -127,6 +139,7 @@ public class VirialLJV {
         final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
         if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
         sim.init();
+        p2latsum.setBoundary(sim.box.getBoundary());
         MeterVirial meter = new MeterVirial(sim.allValueClusters);
         meter.setBox(sim.box);
         sim.setMeter(meter);
@@ -163,7 +176,7 @@ public class VirialLJV {
             throw new RuntimeException("Unknown reference");
         }
 
-       /* if (false) {
+        if (false) {
             if (L == Double.POSITIVE_INFINITY || L == 0)
                 sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -227,7 +240,7 @@ public class VirialLJV {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer, 1000));
 
             return;
-        }*/
+        }
 
 
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
@@ -257,13 +270,14 @@ public class VirialLJV {
      */
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
-        public long numSteps = 100000;
+        public long numSteps = 100000000;
         public ReferenceChoice ref = ReferenceChoice.CHAIN_TREE;
         public double chainFrac = 0.5;
         public int D = 3;
         // set L to 0 or infinity to get a coefficient without PBC
         public double L = 0;
         public double T = 1;
+        public double rc = 3;
     }
 
 }

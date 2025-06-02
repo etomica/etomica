@@ -3,7 +3,6 @@ package etomica.potential.TraPPE;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
-import etomica.graph.operations.Int;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
 import etomica.space.Space;

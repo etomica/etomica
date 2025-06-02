@@ -75,6 +75,7 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         t0 = t;
 
         if (justVirial) {
+            returned = true;
             return data;
         }
 
@@ -122,7 +123,7 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
             returned = false;
         }
 
-        if (doNonEquilibrium) {
+        if (doNonEquilibrium && !justVirial) {
             // In getData, we'll estimate the kinetic contributions based on the velocities at the
             // end of the step. Right now, we need to compute a correction to that estimate based
             // on how much the velocities changed due to this collision.

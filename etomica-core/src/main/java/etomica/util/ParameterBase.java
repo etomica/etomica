@@ -57,7 +57,11 @@ public abstract class ParameterBase {
                 field.setFloat(this,Float.parseFloat(value));
             }
             else if (type == double.class) {
-                field.setDouble(this,Double.parseDouble(value));
+                double v;
+                if (value.equalsIgnoreCase("infinity")) v = Double.POSITIVE_INFINITY;
+                else if (value.equalsIgnoreCase("-infinity")) v = -Double.POSITIVE_INFINITY;
+                else v = Double.parseDouble(value);
+                field.setDouble(this, v);
             }
             else if (type == boolean.class) {
                 field.setBoolean(this, Boolean.parseBoolean(value));
