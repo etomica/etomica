@@ -62,11 +62,11 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.isobutanol};
-            params.nPoints = 4; //B order
-            params.temperature = 1000;
+            params.chemForm = new ChemForm[]{ChemForm.propan1ol};
+            params.nPoints = 2; //B order
+            params.temperature = 600;
             params.diagram = "BC";
-            params.numSteps = 100000000;
+            params.numSteps = 2000000;
             params.refFrac = -1;
             params.seed = null;
             params.dorefpref = false;
@@ -486,7 +486,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
-                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
+                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
 
                 if (TP.bonding.length > 3) {
                     mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
@@ -497,7 +497,7 @@ public class VirialTraPPE {
                     sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
                     mcMoveAngle1_oneSide.setStepSizeMax(0.6);
                     mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
-                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
+                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(false);
 
                 }
 
@@ -513,7 +513,7 @@ public class VirialTraPPE {
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
-        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(false);
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
