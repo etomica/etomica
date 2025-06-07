@@ -520,12 +520,12 @@ public class PotentialMasterBonding implements PotentialCompute {
             bondedQuads = new HashMap[sm.getSpeciesCount()];
             bondedQuadPartners = new HashMap[sm.getSpeciesCount()];
             for (int i = 0; i < sm.getSpeciesCount(); i++) {
-                bondedPairs[i] = new HashMap<>();
-                bondedPairPartners[i] = new HashMap<>();
-                bondedTriplets[i] = new HashMap<>();
-                bondedTripletPartners[i] = new HashMap<>();
-                bondedQuads[i] = new HashMap<>();
-                bondedQuadPartners[i] = new HashMap<>();
+                bondedPairs[i] = new LinkedHashMap<>();
+                bondedPairPartners[i] = new LinkedHashMap<>();
+                bondedTriplets[i] = new LinkedHashMap<>();
+                bondedTripletPartners[i] = new LinkedHashMap<>();
+                bondedQuads[i] = new LinkedHashMap<>();
+                bondedQuadPartners[i] = new LinkedHashMap<>();
             }
             n = new int[sm.getSpeciesCount()][][];
             for (int i=0; i<n.length; i++) {
