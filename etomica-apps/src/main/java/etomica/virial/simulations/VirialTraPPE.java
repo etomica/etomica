@@ -4,6 +4,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -13,6 +14,8 @@ import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
@@ -62,13 +65,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
-            params.nPoints = 3; //B order
-            params.temperature = 300;
-            params.diagram = "5c";
+            params.chemForm = new ChemForm[]{ChemForm.isobutanol};
+            params.nPoints = 2; //B order
+            params.temperature = 450;
+            params.diagram = "BC";
             params.numSteps = 2000000000;
             params.refFrac = -1;
-            params.seed = new int[]{-725397890, -1846209405, 1148021291, 731186597};
+            params.seed = new int[]{-997863083, -271031748, 477857854, 450871245};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
@@ -483,7 +486,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
-                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
+                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
 
                 if (TP.bonding.length > 3) {
                     mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
@@ -494,7 +497,7 @@ public class VirialTraPPE {
                     sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
                     mcMoveAngle1_oneSide.setStepSizeMax(0.6);
                     mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
-                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(false);
+                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
 
                 }
 
@@ -510,7 +513,8 @@ public class VirialTraPPE {
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
-        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(false);
+        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
@@ -524,6 +528,8 @@ public class VirialTraPPE {
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveTorsion);
                 mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
                 mcMoveTorsion1.setConstraintMap(constraintMap);
+                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(true);
+
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveTorsion1);
                 mcMoveTorsion1.setStepSizeMax(2);
             }
@@ -605,7 +611,17 @@ public class VirialTraPPE {
                 refFileName += "_"+params.diagram;
             }
         }
-
+        sim.integrators[1].getEventManager().addListener(new IntegratorListener() {
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+                if (sim.integrators[1].getStepCount() % 10000 != 0) return;
+                System.out.println(sim.integrators[1].getStepCount());
+                PDBWriter writer = new PDBWriter();
+                writer.setBox(sim.box[1]);
+                writer.setFileName(sim.integrators[1].getStepCount() + ".pdb");
+                writer.actionPerformed();
+            }
+        });
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
