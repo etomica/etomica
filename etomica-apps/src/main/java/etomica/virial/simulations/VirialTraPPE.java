@@ -62,19 +62,18 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propan1ol};
-            params.nPoints = 2; //B order
-            params.temperature = 600;
-            params.diagram = "BC";
-            params.numSteps = 2000000;
+            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
+            params.nPoints = 3; //B order
+            params.temperature = 300;
+            params.diagram = "5c";
+            params.numSteps = 2000000000;
             params.refFrac = -1;
-            params.seed = null;
+            params.seed = new int[]{-725397890, -1846209405, 1148021291, 731186597};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
-            params.BDtol = 1e-11;
+//            params.BDtol = 1e-11;
         }
-
         // Import Params
         final ChemForm[] chemForm = params.chemForm;
         final int nPoints = params.nPoints;
@@ -385,7 +384,6 @@ public class VirialTraPPE {
         }
 
 
-
         // Setting up Simulation
         IPotential2[][] potential = new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()];
         boolean needIntraPotentials = false;
@@ -457,7 +455,6 @@ public class VirialTraPPE {
         // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
-
         int[] constraintMap = new int[nPoints+1];
         MCMoveClusterAngleGeneral mcMoveAngle = null;
         MCMoveClusterAngleGeneral mcMoveAngle1 = null;
@@ -531,7 +528,6 @@ public class VirialTraPPE {
                 mcMoveTorsion1.setStepSizeMax(2);
             }
         }
-
         if (isFlex) {
             double minValue = 1e-10;
             ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(minValue);
@@ -545,6 +541,10 @@ public class VirialTraPPE {
             System.out.println("It took " + sim.integrators[1].getStepCount() + " steps to find a starting config.");
             ((ClusterWeightAbs) sim.getSampleClusters()[1]).setMinValue(0);
         }
+//        System.out.println("energy: "+sim.integrators[0].getPotentialCompute().computeAll(false));
+//        for (int i = 0; i < sim.box[0].getLeafList().size(); i++){
+//            System.out.println("position of " + i + ": " + sim.box[0].getLeafList().get(i).getPosition());
+//        }
 
         // Run with Graphics
         if (false) {

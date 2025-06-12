@@ -30,6 +30,7 @@ public class MayerMix implements MayerFunction {
         int idx0 = pair.get(0).getType().getIndex();
         int idx1 = pair.get(1).getType().getIndex();
         double x = -beta*potential[idx0][idx1].energy(pair);
+//        System.out.println("x =" + x);
         double f;
         if (Math.abs(x) < 0.01) {
             f = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;

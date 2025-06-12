@@ -170,6 +170,8 @@ public class MCMoveClusterTorsion extends MCMoveBoxStep {
 
     @Override
     public double getChi(double temperature) {
+//        System.out.println("uOld = " + uOld + ", uNew = " + uNew + ", wOld = " + wOld +  ", wNew = " + wNew);
+//        System.exit(0);
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 

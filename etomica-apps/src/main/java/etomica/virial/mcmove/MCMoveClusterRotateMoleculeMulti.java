@@ -118,7 +118,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
                 rotationAxis[j] = random.nextInt(3);
             }
             rotationTensor.setAxial(rotationAxis[j],theta[j]);
-
+//            System.out.println("rotationTensor: " + rotationTensor + "theta: " + theta[j] + "sin (theta):" + Math.sin(theta[j]) + "cos(theta):" + Math.cos(theta[j]));
             doTransform(molecule);
 
             if (doRelax && relaxAction != null) {
