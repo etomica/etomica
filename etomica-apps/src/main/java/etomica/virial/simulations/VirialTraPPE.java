@@ -411,6 +411,8 @@ public class VirialTraPPE {
             }
             if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
                 ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
+                ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 1;
+
             } else {
                 ((ClusterWheatleySoftDerivatives) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
                 ((ClusterWheatleySoftDerivatives) targetClusterRigid).setNumBDCheckBins(8);
@@ -611,11 +613,12 @@ public class VirialTraPPE {
                 refFileName += "_"+params.diagram;
             }
         }
+        ClusterAbstract finalTargetCluster = targetCluster;
         sim.integrators[1].getEventManager().addListener(new IntegratorListener() {
             @Override
             public void integratorStepFinished(IntegratorEvent e) {
-                if (sim.integrators[1].getStepCount() % 10000 != 0) return;
-                System.out.println(sim.integrators[1].getStepCount());
+                if (sim.integrators[1].getStepCount() % 100000 != 0) return;
+                System.out.println(sim.integrators[1].getStepCount() + " target cluster value: " + finalTargetCluster.value(sim.box[1]));
                 PDBWriter writer = new PDBWriter();
                 writer.setBox(sim.box[1]);
                 writer.setFileName(sim.integrators[1].getStepCount() + ".pdb");
@@ -625,7 +628,10 @@ public class VirialTraPPE {
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
+        if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
+            ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 0.5;
 
+        }
         System.out.println("equilibration finished");
 
         if(dorefpref){

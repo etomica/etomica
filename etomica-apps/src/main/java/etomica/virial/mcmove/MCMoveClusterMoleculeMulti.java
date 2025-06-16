@@ -102,8 +102,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 atom.getPosition().PE(translationVectors[tv]);
             });
         }
+
         ((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+
         return true;
     }
 	
@@ -119,6 +121,11 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
             throw new RuntimeException("oops oops, reverted to illegal configuration");
         }
+        if (Math.random() < 0.00001 && box.getIndex() == 1) {
+            System.out.println("uNew: " + uNew + " uOld: " + uOld);
+        }
+
+
     }
 
     public void acceptNotify() {
