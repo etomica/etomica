@@ -65,13 +65,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.isobutanol};
-            params.nPoints = 2; //B order
-            params.temperature = 450;
-            params.diagram = "BC";
+            params.chemForm = new ChemForm[]{ChemForm.CH3OH};
+            params.nPoints = 3; //B order
+            params.temperature = 400;
+            params.diagram = "5c";
             params.numSteps = 2000000000;
             params.refFrac = -1;
-            params.seed = new int[]{-997863083, -271031748, 477857854, 450871245};
+            params.seed = null;
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
@@ -369,20 +369,20 @@ public class VirialTraPPE {
             targetClusterBDRigid.setTemperature(temperature);
             ((ClusterWheatleySoftDerivatives) targetClusterRigid).setDoCaching(false);
             targetClusterBDRigid.setDoCaching(false);
-            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 3, nDer, BDtol);
+            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
         }
         //flipping for flexible polar B2
         else if(isFlex && nPoints==2 && anyPolar){
             ((ClusterSum)targetCluster).setCaching(false);
 
-            targetCluster = new ClusterCoupledFlipped(targetCluster, space, 3);
+            targetCluster = new ClusterCoupledFlipped(targetCluster, space, 20);
 
         }
         else if(anyPolar && isFlex && nPoints > 2 && params.diagram != null && !params.diagram.equals("BC") ){
             int[][] flipPoints = Diagrams.getFlipPointsforDiagram(params.diagram);
             ((ClusterSum)targetCluster).setCaching(false);
 
-            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 3);
+            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 20);
 
         }
 
@@ -488,7 +488,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
-                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
+                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
 
                 if (TP.bonding.length > 3) {
                     mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
@@ -499,7 +499,7 @@ public class VirialTraPPE {
                     sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
                     mcMoveAngle1_oneSide.setStepSizeMax(0.6);
                     mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
-                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
+                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(false);
 
                 }
 
@@ -515,8 +515,8 @@ public class VirialTraPPE {
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
-        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(false);
+        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(false);
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
@@ -530,7 +530,7 @@ public class VirialTraPPE {
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveTorsion);
                 mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
                 mcMoveTorsion1.setConstraintMap(constraintMap);
-                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(true);
+                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(false);
 
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveTorsion1);
                 mcMoveTorsion1.setStepSizeMax(2);
@@ -613,18 +613,18 @@ public class VirialTraPPE {
                 refFileName += "_"+params.diagram;
             }
         }
-        ClusterAbstract finalTargetCluster = targetCluster;
-        sim.integrators[1].getEventManager().addListener(new IntegratorListener() {
-            @Override
-            public void integratorStepFinished(IntegratorEvent e) {
-                if (sim.integrators[1].getStepCount() % 100000 != 0) return;
-                System.out.println(sim.integrators[1].getStepCount() + " target cluster value: " + finalTargetCluster.value(sim.box[1]));
-                PDBWriter writer = new PDBWriter();
-                writer.setBox(sim.box[1]);
-                writer.setFileName(sim.integrators[1].getStepCount() + ".pdb");
-                writer.actionPerformed();
-            }
-        });
+//        ClusterAbstract finalTargetCluster = targetCluster;
+//        sim.integrators[1].getEventManager().addListener(new IntegratorListener() {
+//            @Override
+//            public void integratorStepFinished(IntegratorEvent e) {
+//                if (sim.integrators[1].getStepCount() % 100000 != 0) return;
+//                System.out.println(sim.integrators[1].getStepCount() + " target cluster value: " + finalTargetCluster.value(sim.box[1]));
+//                PDBWriter writer = new PDBWriter();
+//                writer.setBox(sim.box[1]);
+//                writer.setFileName(sim.integrators[1].getStepCount() + ".pdb");
+//                writer.actionPerformed();
+//            }
+//        });
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
