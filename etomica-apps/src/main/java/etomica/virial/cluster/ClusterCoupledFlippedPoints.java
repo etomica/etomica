@@ -7,7 +7,7 @@ package etomica.virial.cluster;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
-import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.virial.BoxCluster;
@@ -36,7 +36,7 @@ public class ClusterCoupledFlippedPoints implements ClusterAbstract {
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
-        positionDefinition = new MoleculePositionGeometricCenter(space);
+        positionDefinition = new MoleculePositionCOM(space);
         this.minFlipDistance = minFlipDistance;
         this.flipPoints = flipPoints;
     }
