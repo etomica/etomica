@@ -4,7 +4,6 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -14,8 +13,6 @@ import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
@@ -193,7 +190,7 @@ public class VirialTraPPE {
         ClusterWheatleySoftDerivativesBD targetClusterBDRigid = null;
         SpeciesManager.Builder sb = SpeciesManager.builder();
 
-        boolean anyPolar = false;
+        boolean anyPolar = false, anyFlex = false;
         TraPPEParams[] TPList = new TraPPEParams[chemForm.length];
         for (int i = 0; i < TPList.length; i++) {
             TPList[i] = new TraPPEParams(space, chemForm[i]);
@@ -214,6 +211,7 @@ public class VirialTraPPE {
             potentials[i][i] = PGii;
 
             anyPolar = (anyPolar || TPi.polar);
+            anyFlex = anyFlex || TPi.isFlex;
 
             for (int j = i + 1; j < chemForm.length; j++) {
 
@@ -360,8 +358,8 @@ public class VirialTraPPE {
         System.out.println(steps + " steps (" + numBlocks + " blocks of " + blockSize + ")");
         System.out.println("BD_Tol: " + BDtol + " BDAccFrac: " + BDAccFrac);
 
-        // Setting up Flipping rigid, polar
-        if(anyPolar && !isFlex && nPoints==2) {
+        if(anyPolar && !anyFlex && nPoints==2) {
+            // Setting up Flipping rigid, polar
             System.out.println("Performing Flipping");
             ((ClusterWheatleySoftDerivatives) targetClusterRigid).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
@@ -371,18 +369,19 @@ public class VirialTraPPE {
             targetClusterBDRigid.setDoCaching(false);
             targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
         }
-        //flipping for flexible polar B2
-        else if(isFlex && nPoints==2 && anyPolar){
+        else if (anyFlex && nPoints==2 && anyPolar){
+            //flipping for flexible polar B2
             ((ClusterSum)targetCluster).setCaching(false);
+            int[][] flipPoints = Diagrams.getFlipPointsforDiagram("1");
 
-            targetCluster = new ClusterCoupledFlipped(targetCluster, space, 20);
+            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 4);
 
         }
         else if(anyPolar && isFlex && nPoints > 2 && params.diagram != null && !params.diagram.equals("BC") ){
             int[][] flipPoints = Diagrams.getFlipPointsforDiagram(params.diagram);
             ((ClusterSum)targetCluster).setCaching(false);
 
-            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 20);
+            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 3);
 
         }
 
@@ -395,11 +394,11 @@ public class VirialTraPPE {
         if (isFlex) {
             myNTypes[types[0]]++;
         }
-        SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, myNTypes, temperature, refCluster, isFlex ? targetCluster : targetClusterRigid);
+        SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm, myNTypes, temperature, refCluster, anyFlex ? targetCluster : targetClusterRigid);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
 
-        if(!isFlex) {
+        if(!anyFlex) {
             for (TraPPEParams TP : TPList){
                 if(TP.isFlex){
                     sim.setBondingInfo(bondingInfo);
@@ -474,9 +473,8 @@ public class VirialTraPPE {
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
             ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
-
-
         }
+
         for (TraPPEParams TP : TPList) {
 
             if(TP.theta_eq != null) {
