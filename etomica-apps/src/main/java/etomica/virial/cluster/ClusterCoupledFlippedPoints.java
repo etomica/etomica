@@ -52,7 +52,7 @@ public class ClusterCoupledFlippedPoints implements ClusterAbstract {
     public ClusterAbstract getSubCluster() {
         return wrappedCluster;
     }
-    
+
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         long thisCPairID = cPairs.getID();
@@ -82,17 +82,25 @@ public class ClusterCoupledFlippedPoints implements ClusterAbstract {
         ArrayList<int[]> myflipPoints = new ArrayList<>();
         for (int i=0; i<flipPoints.length; i++) {
             flippedAtoms[i] = false;
-            if (box.getCPairSet().getr2(flipPoints[i][0],flipPoints[i][1]) > minR2) {
+            int idx0 = flipPoints[i][0];
+            int idx1 = flipPoints[i][1];
+            if (idx0 > idx1) {
+                int t = idx0;
+                idx0 = idx1;
+                idx1 = t;
+            }
+            if (box.getCPairSet().getr2(idx0,idx1) > minR2) {
                 myflipPoints.add(flipPoints[i]);
             }
         }
-        
+
         double vsum = wrappedCluster.value(box);
         if (myflipPoints.size() == 0) {
             value = vsum;
+            if (debugme) System.out.print(String.format("CCFP %10.4e\n", vsum));
             return vsum;
         }
-        if (debugme) System.out.print(String.format("%10.4e ", vsum));
+        if (debugme) System.out.print(String.format("CCFP %10.4e ", vsum));
 
         IMoleculeList atomList = box.getMoleculeList();
         // loop through the atoms, toggling each one until we toggle one "on"
@@ -117,7 +125,7 @@ public class ClusterCoupledFlippedPoints implements ClusterAbstract {
         
         value = vsum / Math.pow(2, myflipPoints.size());
         if (debugme) System.out.print(String.format("%10.4e\n", value));
-        
+
         return value;
     }
     
