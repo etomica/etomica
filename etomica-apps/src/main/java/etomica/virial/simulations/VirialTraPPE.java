@@ -367,14 +367,14 @@ public class VirialTraPPE {
             targetClusterBDRigid.setTemperature(temperature);
             ((ClusterWheatleySoftDerivatives) targetClusterRigid).setDoCaching(false);
             targetClusterBDRigid.setDoCaching(false);
-            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 20, nDer, BDtol);
+            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 3, nDer, BDtol);
         }
         else if (anyFlex && nPoints==2 && anyPolar){
             //flipping for flexible polar B2
             ((ClusterSum)targetCluster).setCaching(false);
             int[][] flipPoints = Diagrams.getFlipPointsforDiagram("1");
 
-            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 4);
+            targetCluster = new ClusterCoupledFlippedPoints(targetCluster, space, flipPoints, 3);
 
         }
         else if(anyPolar && isFlex && nPoints > 2 && params.diagram != null && !params.diagram.equals("BC") ){
