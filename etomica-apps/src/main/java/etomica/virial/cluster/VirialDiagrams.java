@@ -374,65 +374,50 @@ public class VirialDiagrams {
         return new ClusterSumMultibody(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}, new MayerFunctionNonAdditive[]{fMulti});
     }
     public int[][] getFlipPointsforDiagram(String diagram) {
-        if(diagram.equals("5c")){
+        if (diagram.equals("1")) {
+            return new int[][]{{0, 1}};
+        } else if (diagram.equals("5c")) {
             return new int[][]{{0, 1}, {0, 2}};
 
-        }
-        else if(diagram.equals("54c")){
+        } else if (diagram.equals("54c")) {
             return new int[][]{{0, 3}};
-        }
-        else if(diagram.equals("52c")){
+        } else if (diagram.equals("52c")) {
             return new int[][]{{0, 3}, {1, 2}, {0, 1, 2}};
-        }
-        else if(diagram.equals("38c")){
+        } else if (diagram.equals("38c")) {
             return new int[][]{{0, 1}, {0, 3}, {0, 2}};
-        }
-        else if(diagram.equals("954c")){
+        } else if (diagram.equals("954c")) {
             return new int[][]{{0, 4}};
-        }
-        else if(diagram.equals("946c")){
+        } else if (diagram.equals("946c")) {
             return new int[][]{{0, 4}};
 
-        }
-        else if(diagram.equals("952c")){
+        } else if (diagram.equals("952c")) {
             return new int[][]{{0, 4}};
 
-        }
-        else if(diagram.equals("882c")){
+        } else if (diagram.equals("882c")) {
             return new int[][]{};
 
-        }
-        else if(diagram.equals("936c")){
+        } else if (diagram.equals("936c")) {
             return new int[][]{{0, 4}, {0, 1, 2, 3}};
 
-        }
-
-        else if(diagram.equals("944c")){
+        } else if (diagram.equals("944c")) {
             return new int[][]{{0, 4}, {2, 3}};
 
-        }
-        else if(diagram.equals("930c")){
+        } else if (diagram.equals("930c")) {
             return new int[][]{{0, 4}};
 
-        }
-        else if(diagram.equals("818c")){
+        } else if (diagram.equals("818c")) {
             return new int[][]{{0, 3}, {0, 4}};
 
-        }
-        else if(diagram.equals("928c")){
+        } else if (diagram.equals("928c")) {
             return new int[][]{{0, 4}, {2, 3}, {0, 1, 2, 3}, {1, 2, 3}};
 
-        }
-        else if(diagram.equals("808c")){
+        } else if (diagram.equals("808c")) {
             return new int[][]{{1, 3}, {1, 2}, {0, 4}, {1, 0, 4}};
 
-        }
-        else if(diagram.equals("562c")){
+        } else if (diagram.equals("562c")) {
             return new int[][]{{0, 1}, {0, 2}, {0, 3}, {0, 4}};
 
-        }
-
-        else{
+        } else {
             throw new RuntimeException("unknown diagram " + diagram);
         }
     }
