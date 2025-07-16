@@ -62,13 +62,14 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propene};
-            params.nPoints = 5; //B order
-            params.temperature = 700;
-            params.diagram = "946c";
-            params.numSteps = 2000000000;
+            params.chemForm = new ChemForm[]{ChemForm.butadiene, ChemForm.NH3};
+            params.nPoints = 3; //B order
+            params.types = new int[]{1, 0, 0};
+            params.temperature = 1000;
+            params.diagram = "5c";
+            params.numSteps = 200000000;
             params.refFrac = -1;
-            params.seed = new int[]{-1594838398, -152284899, -613985132, -1068113849};
+            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
@@ -536,7 +537,9 @@ public class VirialTraPPE {
         }
         if (isFlex) {
             double minValue = 1e-10;
+            double maxDist = 10;
             ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMinValue(minValue);
+            ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMaxDistance(maxDist);
 
             for (int i = 0; i < 100000 && sim.box[1].getSampleCluster().value(sim.box[1]) <= minValue; i++) {
                 sim.integrators[1].doStep();
@@ -546,6 +549,8 @@ public class VirialTraPPE {
             }
             System.out.println("It took " + sim.integrators[1].getStepCount() + " steps to find a starting config.");
             ((ClusterWeightAbs) sim.getSampleClusters()[1]).setMinValue(0);
+            ((ClusterWeightAbs)sim.getSampleClusters()[1]).setMaxDistance(-1);
+
         }
 //        System.out.println("energy: "+sim.integrators[0].getPotentialCompute().computeAll(false));
 //        for (int i = 0; i < sim.box[0].getLeafList().size(); i++){

@@ -95,7 +95,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
             position[j].E(atoms.get(j).getPosition());
         }
         modifiedIndex = 0;
-
+//        System.out.println("Molecule = " + molecule);
         int d = random.nextInt(triplets.length);
         b = triplets[d][1];
         modified[modifiedIndex]=b;
