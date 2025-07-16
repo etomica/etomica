@@ -62,13 +62,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propan2ol};
-            params.nPoints = 2; //B order
-            params.temperature = 950;
-            params.diagram = "BC";
-            params.numSteps = 20000000;
+            params.chemForm = new ChemForm[]{ChemForm.propene};
+            params.nPoints = 5; //B order
+            params.temperature = 700;
+            params.diagram = "946c";
+            params.numSteps = 2000000000;
             params.refFrac = -1;
-            params.seed = null;
+            params.seed = new int[]{-1594838398, -152284899, -613985132, -1068113849};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
@@ -159,7 +159,7 @@ public class VirialTraPPE {
                 if (nTypes[i] != 0) CFstr += chemForm[i] + " ";
             }
 
-            System.out.println("Overlap sampling for TraPPE " + CFstr + " " + nTstr + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
+            System.out.println("Overlap sampling for TraPPE " + CFstr + " " + nTstr + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives of types:" + Arrays.toString(types));
         }
 
         System.out.println("Reference diagram: B" + nPoints + " for hard spheres with diameter " + sigmaHSRef + " Angstroms");
@@ -486,7 +486,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
-                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
+                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
 
                 if (TP.bonding.length > 3) {
                     mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
@@ -497,7 +497,7 @@ public class VirialTraPPE {
                     sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
                     mcMoveAngle1_oneSide.setStepSizeMax(0.6);
                     mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
-                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(false);
+                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
 
                 }
 
@@ -513,8 +513,8 @@ public class VirialTraPPE {
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
-        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(false);
-        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(false);
+        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
@@ -528,7 +528,7 @@ public class VirialTraPPE {
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveTorsion);
                 mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
                 mcMoveTorsion1.setConstraintMap(constraintMap);
-                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(false);
+                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(true);
 
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveTorsion1);
                 mcMoveTorsion1.setStepSizeMax(2);
