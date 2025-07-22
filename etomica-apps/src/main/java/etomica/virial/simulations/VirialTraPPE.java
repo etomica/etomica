@@ -53,7 +53,7 @@ public class VirialTraPPE {
     public static void main(String[] args) {
         VirialParam params = new VirialParam();
         boolean isCommandline = args.length > 0;
-        if (isCommandline) {
+       /* if (isCommandline) {
             ParseArgs.doParseArgs(params, args);
         }
         else {
@@ -73,7 +73,7 @@ public class VirialTraPPE {
             params.doChainRef = true;
 
             params.BDtol = 1e-12;
-        }
+        }*/
 
         // Import Params
         final ChemForm[] chemForm = params.chemForm;
@@ -390,7 +390,7 @@ public class VirialTraPPE {
         public int[] nTypes = {2};
         public int nDer = 3;
         public double temperature = 400;
-        public long numSteps = 1000000;
+        public long numSteps = 100000000;
 
         public double refFrac = -1;
         public double sigmaHSRef = 5;

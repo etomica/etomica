@@ -7,10 +7,7 @@ package etomica.integrator.mcmove;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.molecule.CenterOfMass;
-import etomica.molecule.IMolecule;
-import etomica.molecule.MoleculeSource;
-import etomica.molecule.MoleculeSourceRandomMolecule;
+import etomica.molecule.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
@@ -18,6 +15,7 @@ import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -63,7 +61,7 @@ public class MCMoveMoleculeRotate extends MCMoveBoxStep {
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
         uOld = potentialCompute.computeOneOldMolecule(molecule);
-        if (uOld > 1e10) {
+        if (uOld > 1e15) {
             throw new RuntimeException("molecule " + molecule + " in box " + box + " has an overlap ("+uOld+")");
         }
         while (oldPositions.size() < molecule.getChildList().size()) {

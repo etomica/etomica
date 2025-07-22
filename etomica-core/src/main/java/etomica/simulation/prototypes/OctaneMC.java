@@ -103,14 +103,14 @@ public class OctaneMC extends Simulation {
         MCMoveMolecule translateMove = new MCMoveMolecule(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(translateMove);
 
-        MCMoveMoleculeRotate rotateMove = new MCMoveMoleculeRotate(random, pcAgg, box);
+      /*  MCMoveMoleculeRotate rotateMove = new MCMoveMoleculeRotate(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(rotateMove);
 
         MCMoveWiggle wiggleMove = new MCMoveWiggle(random, pcAgg, box);
         integrator.getMoveManager().addMCMove(wiggleMove);
 
         MCMoveAtom moveAtom = new MCMoveAtom(random, pcAgg, box);
-        integrator.getMoveManager().addMCMove(moveAtom);
+        integrator.getMoveManager().addMCMove(moveAtom);*/
 
         AtomType typeCH3 = species.getAtomType(0);
         AtomType typeCH2 = species.getAtomType(1);
@@ -436,7 +436,7 @@ public class OctaneMC extends Simulation {
         public int numMolecules = 72;
         public double density = 8.332487e-05;
         public boolean graphics = false;
-        public long numSteps = 200000;
+        public long numSteps = 5;
         public String configFilename = null;
         public double rc = 12;
     }

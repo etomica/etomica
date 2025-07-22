@@ -331,10 +331,13 @@ public class DCVGCMD extends Simulation {
 
         profile2TemperaturePump = new DataPumpListener(profileTemperature2, null);
         integratorDCV.getEventManager().addListener(profile2TemperaturePump);
+        System.out.println("Meter flux: " +meterFlux0.getDataAsScalar() + " " + meterFlux1.getDataAsScalar() + " " + meterFlux2.getDataAsScalar() + " " + meterFlux3.getDataAsScalar());
+        System.out.println("Density: "+density1.getDataAsScalar() + " "+density2.getDataAsScalar());
+        System.out.println("Temperature: "+temperature1.getDataAsScalar() + " " + temperature2.getDataAsScalar());
     }
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 5000000));
+         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 50000));
     }
 }
