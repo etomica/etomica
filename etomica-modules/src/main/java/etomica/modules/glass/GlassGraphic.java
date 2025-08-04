@@ -61,7 +61,9 @@ public class GlassGraphic extends SimulationGraphic {
         IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(rdfMeter);
         sim.integrator.getEventManager().addListener(rdfMeterListener);
         rdfMeterListener.setInterval(100);
-        rdfMeter.getXDataSource().setXMax(4.0);
+        double L = sim.box.getBoundary().getBoxSize().getX(0);
+        rdfMeter.getXDataSource().setXMax(Math.min(4, L/2));
+        rdfMeter.getXDataSource().setNValues(200);
         rdfMeter.setBox(sim.box);
         DisplayPlotXChart rdfPlot = new DisplayPlotXChart();
         DataPump rdfPump = new DataPump(rdfMeter, rdfPlot.getDataSet().makeDataSink());
@@ -1537,7 +1539,7 @@ public class GlassGraphic extends SimulationGraphic {
         List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
         DeviceButtonGroup sfacButtons = null;
         int n = sim.box.getLeafList().size();
-        double cut1 = 10;
+        double cut1 = 20;
         if (n > 500) cut1 /= Math.pow(n / 500.0, 1.0 / sim.getSpace().D());
         MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut1);
         meterSFac.setNormalizeByN(true);
@@ -1560,8 +1562,8 @@ public class GlassGraphic extends SimulationGraphic {
                 .setLabel("density");
         plotSFac.setYLog(true);
         plotSFac.getDataSet().setUpdatingOnAnyChange(true);
+        plotSFac.setLegend(new DataTag[]{accSFac.getTag()}, "density");
 
-        double L = sim.box.getBoundary().getBoxSize().getX(0);
 
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
@@ -1612,6 +1614,8 @@ public class GlassGraphic extends SimulationGraphic {
         plotSFac.getSeries("mobility")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("mobility");
+        plotSFac.setLegend(new DataTag[]{sfacFromDumps.getTag()}, "mobility");
+
 
         MeterFromDumps sfacFromDumpsMotion = new MeterFromDumps(dumpSFacMotion);
         DataPumpListener pumpSfacMotion = new DataPumpListener(sfacFromDumpsMotion, plotSFac.makeSink("xmotion"), 500);
@@ -1619,6 +1623,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotSFac.getSeries("xmotion")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("x motion");
+        plotSFac.setLegend(new DataTag[]{sfacFromDumpsMotion.getTag()}, "x motion");
 
         sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
         sfacButtons.setLabel("B signal");
@@ -1924,6 +1929,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotSFac.getSeries("normalstress")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("normal stress");
+        plotSFac.setLegend(new DataTag[]{accSFacNormalStress.getTag()}, "normal stress");
 
         VoronoiFaceOrders faceOrders = new VoronoiFaceOrders(sim.box, new double[]{1,sim.sigmaB});
 
