@@ -22,6 +22,8 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 
+import java.util.Arrays;
+
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF).  The
  * meter takes data via actionPerformed and returns the average RDF via
@@ -107,7 +109,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
     }
 
     public void zeroData() {
-        for (int i = 0; i < gSum.length; i++) gSum[i] = 0;
+        Arrays.fill(gSum, 0);
         callCount = 0;
     }
 
@@ -165,21 +167,25 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
         }
         final double[] y = data.getData();
         long numAtomPairs = 0;
-        // for some reason, we need to ignore test here
+        // we ignore test here because we want the density of atoms pairs that pass
+        // the test relative to all atom pairs with nominal density
         if (type1 == null) {
             long numAtoms = box.getLeafList().size();
             numAtomPairs = numAtoms*(numAtoms-1)/2;
         }
         else {
             IAtomList atoms = box.getLeafList();
+            long nAtoms1 = 0, nAtoms2 = 0;
             for (int i=0; i<atoms.size(); i++) {
-                IAtom atom1 = atoms.get(i);
-                if (type1 != null && atom1.getType() != type1) continue;
-                for (int j = i + 1; j < atoms.size(); j++) {
-                    IAtom atom2 = atoms.get(i);
-                    if (type2 != null && atom2.getType() != type2) continue;
-                    numAtomPairs++;
-                }
+                AtomType t = atoms.get(i).getType();
+                if (t == type1) nAtoms1++;
+                if (t == type2) nAtoms2++;
+            }
+            if (type2 == type1) {
+                numAtomPairs = nAtoms1 * (nAtoms1 - 1) / 2;
+            }
+            else {
+                numAtomPairs = nAtoms1*nAtoms2;
             }
         }
 	    double norm = numAtomPairs * callCount / box.getBoundary().volume();
