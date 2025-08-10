@@ -71,8 +71,51 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(rdfPumpListener);
         rdfPumpListener.setInterval(10);
         dataStreamPumps.add(rdfPump);
+        rdfPlot.setLegend(new DataTag[]{rdfMeter.getTag()}, "total");
 
-        rdfPlot.setDoLegend(false);
+        final MeterRDF rdfMeterA = new MeterRDF(sim.getSpace());
+        IntegratorListenerAction rdfMeterAListener = new IntegratorListenerAction(rdfMeterA);
+        sim.integrator.getEventManager().addListener(rdfMeterAListener);
+        rdfMeterAListener.setInterval(100);
+        rdfMeterA.setAtomType(sim.speciesA.getLeafType());
+        rdfMeterA.getXDataSource().setXMax(4.0);
+        rdfMeterA.setBox(sim.box);
+        DataPump rdfPumpA = new DataPump(rdfMeterA, rdfPlot.getDataSet().makeDataSink());
+        IntegratorListenerAction rdfPumpAListener = new IntegratorListenerAction(rdfPumpA);
+        sim.integrator.getEventManager().addListener(rdfPumpAListener);
+        rdfPumpAListener.setInterval(10);
+        dataStreamPumps.add(rdfPumpA);
+        rdfPlot.setLegend(new DataTag[]{rdfMeterA.getTag()}, "A");
+
+        final MeterRDF rdfMeterB = new MeterRDF(sim.getSpace());
+        IntegratorListenerAction rdfMeterBListener = new IntegratorListenerAction(rdfMeterB);
+        sim.integrator.getEventManager().addListener(rdfMeterBListener);
+        rdfMeterBListener.setInterval(100);
+        rdfMeterB.setAtomType(sim.speciesB.getLeafType());
+        rdfMeterB.getXDataSource().setXMax(4.0);
+        rdfMeterB.setBox(sim.box);
+        DataPump rdfPumpB = new DataPump(rdfMeterB, rdfPlot.getDataSet().makeDataSink());
+        IntegratorListenerAction rdfPumpBListener = new IntegratorListenerAction(rdfPumpB);
+        sim.integrator.getEventManager().addListener(rdfPumpBListener);
+        rdfPumpBListener.setInterval(10);
+        dataStreamPumps.add(rdfPumpB);
+        rdfPlot.setLegend(new DataTag[]{rdfMeterB.getTag()}, "B");
+
+        final MeterRDF rdfMeterAB = new MeterRDF(sim.getSpace());
+        IntegratorListenerAction rdfMeterABListener = new IntegratorListenerAction(rdfMeterAB);
+        sim.integrator.getEventManager().addListener(rdfMeterABListener);
+        rdfMeterABListener.setInterval(100);
+        rdfMeterAB.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesB.getLeafType());
+        rdfMeterAB.getXDataSource().setXMax(4.0);
+        rdfMeterAB.setBox(sim.box);
+        DataPump rdfPumpAB = new DataPump(rdfMeterAB, rdfPlot.getDataSet().makeDataSink());
+        IntegratorListenerAction rdfPumpABListener = new IntegratorListenerAction(rdfPumpAB);
+        sim.integrator.getEventManager().addListener(rdfPumpABListener);
+        rdfPumpABListener.setInterval(10);
+        dataStreamPumps.add(rdfPumpAB);
+        rdfPlot.setLegend(new DataTag[]{rdfMeterAB.getTag()}, "A-B");
+
+
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
         rdfPlot.setLabel("RDF");
 
