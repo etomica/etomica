@@ -37,6 +37,7 @@ public class IntegratorMC extends IntegratorBox {
      */
     public IntegratorMC(PotentialCompute potentialCompute, IRandom random, double temperature, Box box) {
         super(potentialCompute, temperature, box);
+
         this.random = random;
         setIsothermal(true); //has no practical effect, but sets value of
         // isothermal to be consistent with way integrator
@@ -71,6 +72,8 @@ public class IntegratorMC extends IntegratorBox {
      */
     protected void doStepInternal() {
         //select the move
+//        System.out.println(potentialCompute.computeAll(false));
+
         MCMoveBox move = (MCMoveBox) moveManager.selectMove();
         if (move == null)
             return;
@@ -82,7 +85,6 @@ public class IntegratorMC extends IntegratorBox {
             moveEventManager.fireEvent(trialFailedEvent);
             return;
         }
-
         //notify any listeners that move has been attempted
         moveEventManager.fireEvent(trialEvent);
 
@@ -90,7 +92,9 @@ public class IntegratorMC extends IntegratorBox {
         double chi = move.getChi(temperature);
         if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
             if (dodebug) {
-                System.out.println(stepCount + " move " + move + " rejected " + chi);
+//                System.out.println(stepCount + " move " + move + " rejected " + chi);
+                System.out.println(stepCount + " move " + move + " rejected " + chi+" "+potentialCompute.computeAll(false));
+
             }
             move.getTracker().updateCounts(false, chi);
             move.rejectNotify();
@@ -99,7 +103,9 @@ public class IntegratorMC extends IntegratorBox {
             moveEventManager.fireEvent(rejectedEvent);
         } else {
             if (dodebug) {
-                System.out.println(stepCount + " move " + move + " accepted " + chi);
+//                System.out.println(stepCount + " move " + move + " accepted " + chi);
+                System.out.println(stepCount + " move " + move + " accepted " + chi+" "+potentialCompute.computeAll(false));
+
             }
             move.getTracker().updateCounts(true, chi);
             move.acceptNotify();
@@ -108,6 +114,10 @@ public class IntegratorMC extends IntegratorBox {
             //notify listeners of outcome
             moveEventManager.fireEvent(acceptedEvent);
         }
+//        if (stepCount == 25) {
+//            System.exit(0);
+//        }
+
     }
 
     /**
