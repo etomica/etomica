@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.space.Boundary;
+import etomica.units.Degree;
 import etomica.units.dimensions.Angle;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -20,6 +21,7 @@ public class P3BondAngle implements IPotentialBondAngle {
         setAngle(angle);
         setEpsilon(epsilon);
     }
+
 
     public double u(double costheta) {
         double theta;
@@ -84,6 +86,9 @@ public class P3BondAngle implements IPotentialBondAngle {
             theta = Math.acos(costheta);
         }
         double dtheta = theta - angle;
+//        if (Math.abs(Degree.UNIT.fromSim(angle) - 112) < 0.01) {
+//            System.out.println(Degree.UNIT.fromSim(theta));
+//        }
         du[0] = -epsilon * dtheta / Math.sqrt(1 - costheta * costheta);
         u[0] = 0.5 * epsilon * dtheta * dtheta;
     }

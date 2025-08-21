@@ -28,52 +28,45 @@ import etomica.virial.BoxCluster;
  *
  * Originally developed by Arpit for alkanes.
  */
-public class MCMoveClusterAngle extends MCMoveBoxStep {
+public class MCMoveClusterTorsion extends MCMoveBoxStep {
     private final PotentialCompute potential;
     protected final IRandom random;
     protected final Space space;
-    protected ISpecies species;
+    protected final ISpecies species;
     protected double dt = 0;
     protected Vector[] position = null;
-    protected final IntArrayList [] bonding;
+    protected final int[][] quads;
     protected int iMolecule;
+    protected final IntArrayList[] bonding;
     double uOld = 0;
     double uNew = 0;
     double wOld = 0;
     double wNew = 0;
-    int [] modified;
+    final int [] modified;
     int modifiedIndex = 0;
     int b = 0;
-    protected int start, stop;
-    protected boolean doLattice;
     protected int[] constraintMap;
 
-    public MCMoveClusterAngle(PotentialCompute potentialCompute, Space space, IntArrayList[] bonding, IRandom random, double stepSize) {
+    public MCMoveClusterTorsion(PotentialCompute potentialCompute, Space space, ISpecies species, IntArrayList[] bonding, int[][] quads, IRandom random, double stepSize) {
         super();
         this.potential = potentialCompute;
         this.space = space;
         this.random = random;
-        this.bonding = bonding;
+        this.quads = quads;
         this.stepSize = stepSize;
-        modified = new int[bonding.length];
+        this.species = species;
+        this.bonding = bonding;
+        modified = new int[species.getLeafAtomCount()];
         setStepSizeMax(Math.PI/2);
-        start = 0;
-        stop = Integer.MAX_VALUE;
     }
 
-    public void setDoLattice(boolean doLattice) {
-        this.doLattice = doLattice;
-    }
 
     public void setBox(Box p) {
         super.setBox(p);
-        position = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
+        position = space.makeVectorArray(p.getMoleculeList(species).get(0).getChildList().size());
+
     }
 
-    public void setAtomRange(int start, int stop) {
-        this.start = start;
-        this.stop = stop;
-    }
 
     public void setConstraintMap(int[] newConstraintMap) {
         constraintMap = newConstraintMap;
@@ -100,59 +93,36 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         for(int j = 0; j < molecule.getChildList().size(); j++) {
             position[j].E(atoms.get(j).getPosition());
         }
-        if (molecule.getChildList().size() < 3) return false;
         modifiedIndex = 0;
-        int d = 0;
-        do{
-            b = random.nextInt(bonding.length);
-            d = Math.min(b, bonding.length-1-b);
-        }while (bonding[b].size() < 2 || (d < start || d >= stop));
+
+        int d = random.nextInt(quads.length);
+        int a = quads[d][1];
+        b = quads[d][2];
         modified[modifiedIndex]=b;
         ++modifiedIndex;
-        int a = random.nextInt(bonding[b].size());
-        a = bonding[b].getInt(a);
         modified[modifiedIndex] = a;
         ++modifiedIndex;
-        Vector r = space.makeVector();
-        r.Ev1Mv2(atoms.get(b).getPosition(), atoms.get(a).getPosition());
         Vector axis = space.makeVector();
-        if (doLattice) {
-            dt = Math.PI/2;
-            do {
-                axis.E(0);
-                axis.setX(random.nextInt(axis.getD()), random.nextInt(2) * 2 - 1);
-            }
-            while (Math.abs(axis.dot(r))/Math.sqrt(r.squared()) > 0.9);
-        }
-        else {
-            dt = 2 * stepSize * (random.nextDouble() - 0.5);
-            axis.setRandomSphere(random);
-            Vector projection = space.makeVector();
-            projection.Ea1Tv1(axis.dot(r)/r.squared(), r);
-            axis.ME(projection);
-            axis.normalize();
-        }
+
+
+        dt = 2 * stepSize * (random.nextDouble() - 0.5);
+        axis.Ev1Mv2(atoms.get(a).getPosition(), atoms.get(b).getPosition());
+        axis.normalize();
+
         RotationTensor3D rotationTensor = new RotationTensor3D();
         rotationTensor.setRotationAxis(axis, dt);
         Vector shift = space.makeVector();
-        transform(rotationTensor, a, atoms, shift);
         transformBondedAtoms(rotationTensor, a, atoms, shift);
+        rotationTensor.setRotationAxis(axis, -dt);
+
+        transformBondedAtoms(rotationTensor, b, atoms, shift);
 
         if (iMolecule==0 || (constraintMap != null && constraintMap[iMolecule] == 0)) {
-            if (doLattice) {
-                shift.E(CenterOfMass.position(box, molecule));
-                shift.TE(-1);
-                for (int i=0; i<shift.getD(); i++) {
-                    shift.setX(i, Math.floor(shift.getX(i)));
-                }
+            double mt = 0;
+            for (IAtom aa : atoms) {
+                mt += aa.getType().getMass();
             }
-            else {
-                double mt = 0;
-                for (IAtom aa : atoms) {
-                    mt += aa.getType().getMass();
-                }
-                shift.TE(-1.0 / mt);
-            }
+            shift.TE(-1.0 / mt);
             for (IAtom aa : atoms) {
                 aa.getPosition().PE(shift);
             }
@@ -200,6 +170,8 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
 
     @Override
     public double getChi(double temperature) {
+//        System.out.println("uOld = " + uOld + ", uNew = " + uNew + ", wOld = " + wOld +  ", wNew = " + wNew);
+//        System.exit(0);
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 
