@@ -11,7 +11,7 @@ import etomica.data.types.DataFunction;
 import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 
-public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependent, DataSourceMSD.MSDSink {
+public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependent, IDataSinkBlockAvg {
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
@@ -97,7 +97,7 @@ public class DataSourceHistogramMSD implements IDataSource, DataSourceIndependen
         return xTag;
     }
 
-    public void putMSD(int log2interval, long step, double msd) {
+    public void putBlock(int log2interval, long step, double msd) {
         histograms[log2interval].addValue(msd);
     }
 }

@@ -12,17 +12,17 @@ import etomica.molecule.IMolecule;
  */
 public class BoxMoleculeIndexEvent extends BoxMoleculeEvent {
 
-    protected final int index;
+    protected final int oldIndex;
 
-    public BoxMoleculeIndexEvent(Box box, IMolecule mole, int index) {
+    public BoxMoleculeIndexEvent(Box box, IMolecule mole, int oldIndex) {
         super(box, mole);
-        this.index = index;
+        this.oldIndex = oldIndex;
     }
 
     /**
      * @return the new index of the molecule
      */
-    public int getIndex() {
-        return index;
+    public int getOldIndex() {
+        return oldIndex;
     }
 }

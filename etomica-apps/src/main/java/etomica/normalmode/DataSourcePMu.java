@@ -87,7 +87,7 @@ public class DataSourcePMu implements IDataSource, DataSourceIndependent {
             double pressure1 = 0;
             for (int i=0; i<pSplitter.getNumDataSinks() && i<=ratios.length; i++) {
                 double pi = p2/tot;
-                AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+                AccumulatorAverageCollapsing acc = (AccumulatorAverageCollapsing)pSplitter.getDataSink(i);
                 if (acc == null || acc.getSampleCount() == 0) {
                     if (i==0) return data;
                     break;

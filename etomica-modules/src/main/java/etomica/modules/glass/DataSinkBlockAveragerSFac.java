@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This data sink expects structure factor as input and computes block
+ * averages for the real and imaginary components.  The block averages
+ * are sent on to a Sink along with the size of the block.
+ */
 public class DataSinkBlockAveragerSFac implements IDataSink, Statefull {
 
     protected final ConfigurationStorage configStorage;
@@ -51,14 +56,15 @@ public class DataSinkBlockAveragerSFac implements IDataSink, Statefull {
         long step = configStorage.getSavedSteps()[0];
         double[][] xy = blockAvg[minInterval];
         double[] phaseAngles = meterSFac.getPhaseAngles();
+        // loop over wave vectors
         for (int j = 0; j < xy.length; j++) {
             double sfac = inputData.getValue(j);
             double tanphi = Math.tan(phaseAngles[j]);
-            double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
+            double y = Math.sqrt(sfac / (1 + tanphi * tanphi));
             if (phaseAngles[j] > Math.PI / 2 || phaseAngles[j] < -Math.PI / 2) {
-                x = -x;
+                y = -y;
             }
-            double y = x * tanphi;
+            double x = y * tanphi;
             blockAvg[minInterval][j][0] = x;
             blockAvg[minInterval][j][1] = y;
         }

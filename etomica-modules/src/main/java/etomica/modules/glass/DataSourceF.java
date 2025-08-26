@@ -11,13 +11,17 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**
  * Computes the excess kurtosis (alpha2) for the distribution of displacements
  */
-public class DataSourceF implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceF implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -29,12 +33,12 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
     protected long[] nSamples;
     protected final Vector dr, q;
     protected AtomType type;
-    protected double strucFac =0;
+    protected double strucFac = 0;
     protected double[] cSum;
     protected double[] sSum;
 
 
-    public DataSourceF(ConfigurationStorage configStorage) {
+    public DataSourceF(ConfigurationStorage configStorage, double qx) {
         this.configStorage = configStorage;
         Space space = configStorage.getBox().getSpace();
         fSum = new double[0];
@@ -42,20 +46,14 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         tag = new DataTag();
         tTag = new DataTag();
         dr = space.makeVector();
-        q = space.makeVector();
-        q.setX(0,7.0);
+        this.q = space.makeVector();
+        q.setX(0,qx);
         cSum = new double[0];
         sSum = new double[0];
         reset();
     }
 
-    public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n == fSum.length && data != null) return;
-        if (n < 1) n = 0;
-        if(n==0){
-            strucFac = 0;
-        }
+    public void reallocate(int n) {
         fSum = Arrays.copyOf(fSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
@@ -78,6 +76,11 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
                 t[i] = dt * (1L << i);
             }
         }
+    }
+
+    public void reset() {
+        strucFac = 0;
+        reallocate(0);
     }
 
     @Override
@@ -104,7 +107,8 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
+        int n = configStorage.getLastConfigIndex();
+        if (n > fSum.length || data == null) reallocate(n);
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         double c0Sum =0 , s0Sum = 0;
@@ -147,5 +151,33 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        int n = fSum.length;
+        fw.write(n+" "+strucFac+"\n");
+        for (int i=0; i<n; i++) {
+            fw.write(fSum[i]+" "+cSum[i]+" "+sSum[i]+" "+nSamples[i]+"\n");
+        }
+        fw.write(cSum[n]+" "+sSum[n]+"\n");
+   }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        String[] bits = br.readLine().split(" ");
+        int n = Integer.parseInt(bits[0]);
+        strucFac = Double.parseDouble(bits[1]);
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            bits = br.readLine().split(" ");
+            fSum[i] = Double.parseDouble(bits[0]);
+            cSum[i] = Double.parseDouble(bits[1]);
+            sSum[i] = Double.parseDouble(bits[2]);
+            nSamples[i] = Long.parseLong(bits[3]);
+        }
+        bits = br.readLine().split(" ");
+        cSum[n] = Double.parseDouble(bits[0]);
+        sSum[n] = Double.parseDouble(bits[1]);
     }
 }

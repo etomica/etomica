@@ -125,7 +125,7 @@ public class GlassGraphic extends SimulationGraphic {
         configStorageLinear.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorageLinear);
 
-        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
+        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
         DisplayBox dbox;
@@ -638,7 +638,7 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(kePump);
             dsCorKE.setMinInterval(3);
         }
-        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
+        DataSourceCorBlock dsCorMSD = new DataSourceCorBlock(sim.integrator);
         dsCorMSD.setMinInterval(3);
 
         DataSourceHisogram dsHistogramP = new DataSourceHisogram(sim.integrator);
@@ -655,6 +655,8 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             dsMSDcorU = null;
         }
+
+        DataSourceCorBlock dsCorVisc = new DataSourceCorBlock(sim.integrator);
 
 
         //Gs: total
@@ -1396,13 +1398,30 @@ public class GlassGraphic extends SimulationGraphic {
         DataSourceMSD meterMSDA = new DataSourceMSD(configStorage, sim.speciesA.getLeafType());
         configStorage.addListener(meterMSDA);
         DataPumpListener pumpMSDA = new DataPumpListener(meterMSDA, plotMSD.getDataSet().makeDataSink(), 1000);
-        sim.integrator.getEventManager().addListener(pumpMSDA);
         plotMSD.setLegend(new DataTag[]{meterMSDA.getTag()}, "A");
+        sim.integrator.getEventManager().addListener(pumpMSDA);
         DataSourceMSD meterMSDB = new DataSourceMSD(configStorage, sim.speciesB.getLeafType());
         configStorage.addListener(meterMSDB);
         DataPumpListener pumpMSDB = new DataPumpListener(meterMSDB, plotMSD.getDataSet().makeDataSink(), 1000);
         plotMSD.setLegend(new DataTag[]{meterMSDB.getTag()}, "B");
         sim.integrator.getEventManager().addListener(pumpMSDB);
+
+        DisplayPlotXChart plotMSDstdev = new DisplayPlotXChart();
+        IDataSource dsMSDstdev = meterMSD.makeStdevDataSource();
+        DataPumpListener pumpMSDstdev = new DataPumpListener(dsMSDstdev, plotMSDstdev.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpMSDstdev);
+        IDataSource dsMSDAstdev = meterMSDA.makeStdevDataSource();
+        DataPumpListener pumpMSDAstdev = new DataPumpListener(dsMSDAstdev, plotMSDstdev.getDataSet().makeDataSink(), 1000);
+        plotMSDstdev.setLegend(new DataTag[]{dsMSDAstdev.getTag()}, "A");
+        sim.integrator.getEventManager().addListener(pumpMSDAstdev);
+        IDataSource dsMSDBstdev = meterMSDB.makeStdevDataSource();
+        DataPumpListener pumpMSDBstdev = new DataPumpListener(dsMSDBstdev, plotMSDstdev.getDataSet().makeDataSink(), 1000);
+        plotMSDstdev.setLegend(new DataTag[]{dsMSDBstdev.getTag()}, "B");
+        sim.integrator.getEventManager().addListener(pumpMSDBstdev);
+        plotMSDstdev.setLabel("MSD stdev");
+        plotMSDstdev.getPlot().setYLog(true);
+        plotMSDstdev.getPlot().setXLog(true);
+        add(plotMSDstdev);
 
         //VAC
         configStorage.setDoVelocity(true);
@@ -1434,7 +1453,7 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotAlpha2);
 
         //F - new
-        DataSourceF meterF = new DataSourceF(configStorage);
+        DataSourceF meterF = new DataSourceF(configStorage, 7);
         configStorage.addListener(meterF);
         DisplayPlotXChart plotF = new DisplayPlotXChart();
         DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);
@@ -1544,6 +1563,10 @@ public class GlassGraphic extends SimulationGraphic {
             plotMSDcorUP.setLegend(new DataTag[]{dsCorKE.getTag()}, "KE");
             sim.integrator.getEventManager().addListener(pumpKEcor);
         }
+        pTensorAccum.addViscositySink(dsCorVisc);
+        DataPumpListener pumpViscCor = new DataPumpListener(dsCorVisc, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
+        plotMSDcorUP.setLegend(new DataTag[]{dsCorVisc.getTag()}, "eta");
+        sim.integrator.getEventManager().addListener(pumpViscCor);
 
         if (dsMSDcorU != null) {
             meterMSD.addMSDSink(dsMSDcorU);
@@ -1599,6 +1622,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         DisplayPlotXChart plotSFac = new DisplayPlotXChart();
         accSFac.addDataSink(plotSFac.makeSink("sfac"), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+        plotSFac.setLegend(new DataTag[]{accSFac.getTag()}, "density");
         plotSFac.setLabel("SFac");
         plotSFac.getSeries("sfac")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
@@ -1608,13 +1632,16 @@ public class GlassGraphic extends SimulationGraphic {
         plotSFac.setLegend(new DataTag[]{accSFac.getTag()}, "density");
 
 
+        // straight structure factors
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
-            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorage);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility, positionMobility);
             meterSFacMobility[i].setNormalizeByN(true);
             DataFork forkSFacMobility = new DataFork();
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
@@ -1629,13 +1656,17 @@ public class GlassGraphic extends SimulationGraphic {
             accSFacMobility[i].addDataSink(dumpSFacMobility[i], new AccumulatorAverage.StatType[]{accSFacMobility[i].AVERAGE});
         }
 
+        // and now structure factor correlations; either self correlation in time or cross correlation at a given time
         MeterStructureFactor[] meterSFacMotion = new MeterStructureFactor[30];
         DataDump[] dumpSFacMotion = new DataDump[30];
         AccumulatorAverageFixed[] accSFacMotion = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
-            meterSFacMotion[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            // for the purpose of position, mobility and motion can work the same way
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorage);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMotion[i] = new MeterStructureFactor(sim.box, 3, signalMotion, positionMobility);
             meterSFacMotion[i].setNormalizeByN(true);
             DataFork forkSFacMotion = new DataFork();
             accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
@@ -1653,6 +1684,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         MeterFromDumps sfacFromDumps = new MeterFromDumps(dumpSFacMobility);
         DataPumpListener pumpSfacMobility = new DataPumpListener(sfacFromDumps, plotSFac.makeSink("mobility"), 500);
+        plotSFac.setLegend(new DataTag[]{sfacFromDumps.getTag()}, "mobility");
         sim.integrator.getEventManager().addListener(pumpSfacMobility);
         plotSFac.getSeries("mobility")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
@@ -1662,6 +1694,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         MeterFromDumps sfacFromDumpsMotion = new MeterFromDumps(dumpSFacMotion);
         DataPumpListener pumpSfacMotion = new DataPumpListener(sfacFromDumpsMotion, plotSFac.makeSink("xmotion"), 500);
+        plotSFac.setLegend(new DataTag[]{sfacFromDumpsMotion.getTag()}, "xmotion");
         sim.integrator.getEventManager().addListener(pumpSfacMotion);
         plotSFac.getSeries("xmotion")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
@@ -1682,6 +1715,8 @@ public class GlassGraphic extends SimulationGraphic {
         Vector[] wv = meterSFac.getWaveVectors();
         List<Vector> myWV = new ArrayList<>();
         double wvMax2 = 2.01 * Math.PI / L;
+        // find all wv pointing in x, y OR z with mag < wvMax
+        // because wvMax is the smallest wv size, we get 3 wv
         for (Vector vector : wv) {
             int nd = 0;
             for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
@@ -1800,7 +1835,9 @@ public class GlassGraphic extends SimulationGraphic {
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
-            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            AtomPositionMobility positionMobility = new AtomPositionMobility(configStorage);
+            positionMobility.setPrevConfig(i + 1);
+            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion, positionMobility);
             meterSFacMotion2[i].setNormalizeByN(true);
             meterSFacMotion2[i].setWaveVec(wv);
             DataPump pumpSFacMotion2 = new DataPump(meterSFacMotion2[i], sfcMotionCor.makeSink(i, meterSFacMotion2[i]));
@@ -1811,7 +1848,7 @@ public class GlassGraphic extends SimulationGraphic {
 
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
-            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility, positionMobility);
             meterSFacMobility2[i].setNormalizeByN(true);
             meterSFacMobility2[i].setWaveVec(wv);
             DataFork sfacMobility2Fork = new DataFork();
@@ -1821,14 +1858,14 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacDensityMobility));
             if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
-                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
+                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacPackingMobility));
             } else {
-                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityAMobility));
+                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacDensityAMobility));
             }
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacKEMobility));
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacStress2Mobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacKEMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2[i], i, dsCorSFacStress2Mobility));
         }
 
         DisplayPlotXChart plotSFacCor = new DisplayPlotXChart();
@@ -1849,72 +1886,86 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(pumpSFacMobilityCor);
             plotSFacCor.getSeries("mobility" + label)
                     .setLabel("mobility " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "mobility");
 
             m = sfcDensityCor.makeMeter(mobilityMap[j]);
             DataPumpListener pumpSFacDensityCor = new DataPumpListener(m, plotSFacCor.makeSink("density" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacDensityCor);
             plotSFacCor.getSeries("density" + label)
                     .setLabel("density " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density");
 
             m = sfcKECor.makeMeter(mobilityMap[j]);
             DataPumpListener pumpSFacKEsfcCor = new DataPumpListener(m, plotSFacCor.makeSink("KE" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacKEsfcCor);
 
             plotSFacCor.getSeries("KE" + label).setLabel("KE " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "KE");
 
             m = sfcStress2Cor.makeMeter(mobilityMap[j]);
             DataPumpListener pumpSFacStress2sfcCor = new DataPumpListener(m, plotSFacCor.makeSink("stress" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacStress2sfcCor);
             plotSFacCor.getSeries("stress" + label).setLabel("stress " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "stress");
 
             if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
                 m = sfcPackingCor.makeMeter(mobilityMap[j]);
                 DataPumpListener pumpSFacPackingCor = new DataPumpListener(m, plotSFacCor.makeSink("packing" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpSFacPackingCor);
                 plotSFacCor.getSeries("packing" + label).setLabel("packing " + label);
+                plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "packing");
             } else {
                 m = sfcDensityACor.makeMeter(mobilityMap[j]);
                 DataPumpListener pumpSFacDensityACor = new DataPumpListener(m, plotSFacCor.makeSink("densityA" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpSFacDensityACor);
                 plotSFacCor.getSeries("densityA" + label).setLabel("densityA " + label);
+                plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density4");
             }
             DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
             DataPumpListener pumpCorSFacDensityMobility = new DataPumpListener(mm, plotSFacCor.makeSink("d-m" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacDensityMobility);
             plotSFacCor.getSeries("d-m" + label).setLabel("d-m " + label);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "den-mob");
 
             if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
                 mm = dsCorSFacPackingMobility.makeMeter(j);
                 DataPumpListener pumpCorSFacPackingMobility = new DataPumpListener(mm, plotSFacCor.makeSink("p-m" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacPackingMobility);
                 plotSFacCor.getSeries("p-m" + label).setLabel("p-m " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "pack-mob");
 
                 mm = dsCorSFacPackingDensity.makeMeter(j);
                 DataPumpListener pumpCorSFacPackingDensity = new DataPumpListener(mm, plotSFacCor.makeSink("p-d" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacPackingDensity);
                 plotSFacCor.getSeries("p-d" + label).setLabel("p-d " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "pack-den");
             } else {
                 mm = dsCorSFacDensityAMobility.makeMeter(j);
                 DataPumpListener pumpCorSFacDensityAMobility = new DataPumpListener(mm, plotSFacCor.makeSink("da-m" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacDensityAMobility);
                 plotSFacCor.getSeries("da-m" + label).setLabel("da-m " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "dena-mob");
 
                 mm = dsCorSFacDensityADensity.makeMeter(j);
                 DataPumpListener pumpCorSFacDensityADensity = new DataPumpListener(mm, plotSFacCor.makeSink("da-d" + label), 1000);
                 sim.integrator.getEventManager().addListener(pumpCorSFacDensityADensity);
                 plotSFacCor.getSeries("da-d" + label).setLabel("da-d " + label);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "dena-den");
             }
             mm = dsCorSFacKEMobility.makeMeter(j);
             DataPumpListener pumpCorSFacKEMobility = new DataPumpListener(mm, plotSFacCor.makeSink("KE-m" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacKEMobility);
             plotSFacCor.getSeries("KE-m" + label).setLabel("KE-m " + label);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "KE-mob");
 
             mm = dsCorSFacStress2Mobility.makeMeter(j);
             DataPumpListener pumpCorSFacStress2Mobility = new DataPumpListener(mm, plotSFacCor.makeSink("s-m" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacStress2Mobility);
             plotSFacCor.getSeries("s-m" + label).setLabel("s-m " + label);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "stress-mob");
         }
 
+        // only pay attention to the first wave vector of each category
         foo = new int[motionMap.length];
         for (int j = 0; j < motionMap.length; j++) {
             if (foo[motionMap[j]] != 0) continue;
@@ -1927,6 +1978,7 @@ public class GlassGraphic extends SimulationGraphic {
             DataPumpListener pumpSFacMotionCor = new DataPumpListener(m, plotSFacCor.makeSink("motion" + label), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacMotionCor);
             plotSFacCor.getSeries("motion" + label).setLabel("motion " + label);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "motion "+label);
         }
 
         DeviceSlider sfacPrevConfig = new DeviceSlider(sim.getController(), new Modifier() {
@@ -1969,6 +2021,7 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(pumpSFacNormal);
 
         accSFacNormalStress.addDataSink(plotSFac.makeSink("normalstress"), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+        plotSFac.setLegend(new DataTag[]{accSFacNormalStress.getTag()}, "normal stress");
         plotSFac.getSeries("normalstress")
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter)
                 .setLabel("normal stress");
@@ -2023,13 +2076,14 @@ public class GlassGraphic extends SimulationGraphic {
                     dsCorP.setEnabled(false);
                     if (dsCorKE != null) dsCorKE.setEnabled(false);
                     dsCorMSD.setEnabled(false);
+                    dsCorVisc.setEnabled(false);
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
                     dpAutocor.reset();
                     dpxyAutocor.reset();
                     pTensorAccum.setEnabled(false);
                     pTensorAccum.reset();
-                    dsMSDcorU.setEnabled(false);
+                    if (dsMSDcorU != null) dsMSDcorU.setEnabled(false);
                     meterFs.reset();
                     meterFsA.reset();
                     meterFsB.reset();
@@ -2092,6 +2146,7 @@ public class GlassGraphic extends SimulationGraphic {
                     dsCorP.setEnabled(true);
                     dsCorKE.setEnabled(true);
                     dsCorMSD.setEnabled(true);
+                    dsCorVisc.setEnabled(false);
                     dsHistogramP.setEnabled(true);
                     dsPMSDhistory.setEnabled(true);
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(true);
@@ -2262,12 +2317,16 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 250;
-            params.nB = 250;
-            params.density = 1.52;
+            params.nA = 200;
+            params.nB = 200;
+            params.density = 1.;
             params.D = 3;
+            params.rcLJ = 2.5;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
+        if (params.eta>0 && params.potential == SimGlass.PotentialChoice.HS) {
+            params.density = SimGlass.densityForEta(params.eta, params.nA/(double)(params.nA+params.nB), params.sigmaB);
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ, params.sigmaB);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
