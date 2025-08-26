@@ -11,6 +11,8 @@ import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
 
+import java.util.Objects;
+
 /**
  * Identifies a set of atoms and defines properties of those atoms. Properties include indices used for tracking, mass
  * and element.
@@ -105,7 +107,12 @@ public class AtomType implements Comparable<AtomType> {
      * @return the value of the mass.
      */
     public final double getMass() {
-        return element.getMass();
+        if(element != null){
+            return element.getMass();
+        }
+        else {
+            return 0;
+        }
     }
 
     /**
@@ -129,6 +136,18 @@ public class AtomType implements Comparable<AtomType> {
     @Override
     public String toString() {
         return AtomType.class.getSimpleName() + "[" + this.name + "]";
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AtomType atomType = (AtomType) o;
+        return Objects.equals(name, atomType.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     public int compareTo(AtomType otherAtomType) {

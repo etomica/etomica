@@ -1,0 +1,4066 @@
+package etomica.GasMOP;
+
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.config.IConformation;
+import etomica.lattice.LatticePlane;
+import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
+import etomica.potential.UFF.PDBReaderMOP;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space3d.RotationTensor3D;
+import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.units.Degree;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+
+public class AutoMOP {
+    double dist=0;
+    public double phi = (1+ Math.sqrt(5))/2;
+    public double phi2 = phi*phi;
+    private List<Vector> listVecPoly = new ArrayList<>();
+    private RotationTensor3D rotationTensor;
+    private RotationTensor3D rotationalTensor1, rotationalTensor2;
+    private Map<String, List<Integer>> faceEdgeMap = new HashMap<>();
+    private Map<Integer, List<Integer>> midpointVector = new HashMap<>();
+    public Map<Integer, String> atomIdentifierMap = new HashMap<>();
+    public Map<Integer, String> atomMap = new HashMap<>();
+    public Map<Integer, String> atomMapMOP = new HashMap<>();
+    public ArrayList<ArrayList<Integer>> connectivityMOP = new ArrayList<>();
+    public ArrayList<Integer> arrayListMetals = new ArrayList<>();
+    public Map<Integer, List<Integer>> metalMoleculeMap = new HashMap<>();
+    public Map<Integer, Integer> oldNewAtomNumMap = new HashMap<>();
+
+    public List<Integer[]> getStrucList(String struc){
+        Map<Double, List<Integer[]>> distMap = new HashMap<>();
+        List<Integer[]>distEqual = new ArrayList<>();
+        AutoMOPUpgrade autoMOP = new AutoMOPUpgrade();
+        if(struc.equals("tetra")){
+            List<Vector> listVectorTetra = new ArrayList<>();
+            Vector vec1 = Vector.of(1, 1, 1);
+            Vector vec2 = Vector.of(-1, -1, 1);
+            Vector vec3 = Vector.of(-1, 1, -1);
+            Vector vec4 = Vector.of(1, -1, -1);
+            listVectorTetra.add(vec1);
+            listVectorTetra.add(vec2);
+            listVectorTetra.add(vec3);
+            listVectorTetra.add(vec4);
+            distEqual = autoMOP.edgeBetweenPoints(distMap, listVectorTetra);
+            setVecPositionList(listVectorTetra);
+        } else if (struc.equals("dodeca")) {
+            List<Vector> listVecDodeca = new ArrayList<>();
+            Vector vec1 = Vector.of(1, 0, phi2);
+            Vector vec2 = Vector.of(1, 0, -phi2);
+            Vector vec3 = Vector.of(-1, 0, phi2);
+            Vector vec4 = Vector.of(-1, 0, -phi2);
+            Vector vec5 = Vector.of(phi, phi, phi);
+            Vector vec6 = Vector.of(-phi, -phi, -phi);
+            Vector vec7 = Vector.of(phi, -phi, -phi);
+            Vector vec8 = Vector.of(phi, phi, -phi);
+            Vector vec9 = Vector.of(-phi, phi, -phi);
+            Vector vec10 = Vector.of(-phi, phi, phi);
+            Vector vec11 = Vector.of(-phi, -phi, phi);
+            Vector vec12 = Vector.of(phi, -phi, phi);
+            Vector vec13 = Vector.of(0, phi2, 1);
+            Vector vec14 = Vector.of(0, phi2, -1);
+            Vector vec15 = Vector.of(0, -phi2, 1);
+            Vector vec16 = Vector.of(0, -phi2, -1);
+            Vector vec17 = Vector.of(phi2, 1, 0);
+            Vector vec18 = Vector.of(phi2, -1, 0);
+            Vector vec19 = Vector.of(-phi2, 1, 0);
+            Vector vec20 = Vector.of(-phi2, -1, 0);
+            listVecDodeca.add(vec1);
+            listVecDodeca.add(vec2);
+            listVecDodeca.add(vec3);
+            listVecDodeca.add(vec4);
+            listVecDodeca.add(vec5);
+            listVecDodeca.add(vec6);
+            listVecDodeca.add(vec7);
+            listVecDodeca.add(vec8);
+            listVecDodeca.add(vec9);
+            listVecDodeca.add(vec10);
+            listVecDodeca.add(vec11);
+            listVecDodeca.add(vec12);
+            listVecDodeca.add(vec13);
+            listVecDodeca.add(vec14);
+            listVecDodeca.add(vec15);
+            listVecDodeca.add(vec16);
+            listVecDodeca.add(vec17);
+            listVecDodeca.add(vec18);
+            listVecDodeca.add(vec19);
+            listVecDodeca.add(vec20);
+            distEqual = autoMOP.edgeBetweenPoints(distMap, listVecDodeca);
+            setVecPositionList(listVecDodeca);
+        } else if (struc.equals("cube")) {
+            List<Vector> listVecCubic = new ArrayList<>();
+            Vector vec1 = Vector.of(1, 1, 1);
+            Vector vec2 = Vector.of(-1, -1, -1);
+            Vector vec3 = Vector.of(-1, 1, 1);
+            Vector vec4 = Vector.of(1, -1, 1);
+            Vector vec5 = Vector.of(1, 1, -1);
+            Vector vec6 = Vector.of(-1, -1, 1);
+            Vector vec7 = Vector.of(1, -1, -1);
+            Vector vec8 = Vector.of(-1, 1, -1);
+            listVecCubic.add(vec1);
+            listVecCubic.add(vec2);
+            listVecCubic.add(vec3);
+            listVecCubic.add(vec4);
+            listVecCubic.add(vec5);
+            listVecCubic.add(vec6);
+            listVecCubic.add(vec7);
+            listVecCubic.add(vec8);
+            distEqual = autoMOP.edgeBetweenPoints(distMap, listVecCubic);
+            setVecPositionList(listVecCubic);
+        } else if (struc.equals("icosa")) {
+            List<Vector> listVecIcosa = new ArrayList<>();
+            Vector vec1 = Vector.of(0, 1, phi);
+            Vector vec2 = Vector.of(0, 1, -phi);
+            Vector vec3 = Vector.of(0, -1, phi);
+            Vector vec4 = Vector.of(0, -1, -phi);
+            Vector vec5 = Vector.of(1, phi, 0);
+            Vector vec6 = Vector.of(1, -phi, 0);
+            Vector vec7 = Vector.of(-1, phi, 0);
+            Vector vec8 = Vector.of(-1, -phi, 0);
+            Vector vec9 = Vector.of(phi, 0, 1);
+            Vector vec10 = Vector.of(-phi, 0, 1);
+            Vector vec11 = Vector.of(phi, 0, -1);
+            Vector vec12 = Vector.of(-phi, 0, -1);
+            listVecIcosa.add(vec1);
+            listVecIcosa.add(vec2);
+            listVecIcosa.add(vec3);
+            listVecIcosa.add(vec4);
+            listVecIcosa.add(vec5);
+            listVecIcosa.add(vec6);
+            listVecIcosa.add(vec7);
+            listVecIcosa.add(vec8);
+            listVecIcosa.add(vec9);
+            listVecIcosa.add(vec10);
+            listVecIcosa.add(vec11);
+            listVecIcosa.add(vec12);
+            distEqual = autoMOP.edgeBetweenPoints(distMap, listVecIcosa);
+            setVecPositionList(listVecIcosa);
+        } else if (struc.equals("octa")) {
+            List<Vector> listVecRhombic = new ArrayList<>();
+            double C0 = Math.sqrt(2)/2;
+            Integer[] intArray = new Integer[3];
+            Vector vec0 = Vector.of(0.0, 0.0,  C0);
+            Vector vec1 = Vector.of(0.0, 0.0, -C0);
+            Vector vec2 = Vector.of(C0, 0.0, 0.0);
+            Vector vec3 = Vector.of(-C0, 0.0, 0.0);
+            Vector vec4 = Vector.of(0.0,  C0, 0.0);
+            Vector vec5 = Vector.of(0.0, -C0, 0.0);
+            listVecRhombic.add(vec0);
+            listVecRhombic.add(vec1);
+            listVecRhombic.add(vec2);
+            listVecRhombic.add(vec3);
+            listVecRhombic.add(vec4);
+            listVecRhombic.add(vec5);
+            intArray = new Integer[]{0, 2, 4};
+            distEqual.add(intArray);
+            intArray = new Integer[]{0, 4, 3};
+            distEqual.add(intArray);
+            intArray = new Integer[]{0, 3, 5};
+            distEqual.add(intArray);
+            intArray = new Integer[]{0, 5, 2};
+            distEqual.add(intArray);
+            intArray = new Integer[]{1, 2, 5};
+            distEqual.add(intArray);
+            intArray = new Integer[]{1, 5, 3};
+            distEqual.add(intArray);
+            intArray = new Integer[]{1, 3, 4};
+            distEqual.add(intArray);
+            intArray = new Integer[]{1, 4, 2};
+            distEqual.add(intArray);
+            distEqual = autoMOP.edgeBetweenPoints(distMap, listVecRhombic);
+            setVecPositionList(listVecRhombic);
+        }
+        return distEqual;
+    }
+
+    public int numVertices(String geom){
+       switch (geom){
+           case "tetra":
+               return 4;
+           case "octa":
+               return 6;
+           case "cube":
+               return 8;
+           case "icosa":
+               return 12;
+           case "dodeca":
+               return 20;
+           default:
+               throw new RuntimeException("struc name has error");
+       }
+    }
+
+  /*  public static void main(String[] args) {
+        List<Integer[]> listEqual = new ArrayList<>();
+        AutoMOP autoMOP = new AutoMOP();
+        listEqual = autoMOP.getStrucListAct("tetra");
+        for (int i =0; i < listEqual.size(); i++){
+            System.out.println(Arrays.toString(listEqual.get(i)));
+        }
+        List<Vector> vecList = autoMOP.getListVecPoly();
+        for (int j = 0; j < vecList.size(); j++){
+            System.out.println(vecList.get(j));
+        }
+
+        Map<Double, List<Integer>> map = new HashMap<>();
+
+        // Sample input values
+        insert(map, 100.0, 1);   // new key
+        insert(map, 105.0, 2);   // within 10% of 100.0 → add to 100.0
+        insert(map, 111.0, 3);   // >10% different → new key
+        insert(map, 99.0, 4);    // within 10% of 100.0 → add to 100.0
+        insert(map, 110.9, 5);   // within 10% of 111.0 → add to 111.0
+
+        // Print the map
+        for (Map.Entry<Double, List<Integer>> entry : map.entrySet()) {
+            System.out.println(entry.getKey() + " → " + entry.getValue());
+        }
+
+        // Optional: Convert to Map<Double, Integer[]>
+        Map<Double, Integer[]> finalMap = new HashMap<>();
+        for (Map.Entry<Double, List<Integer>> entry : map.entrySet()) {
+            finalMap.put(entry.getKey(), entry.getValue().toArray(new Integer[0]));
+        }
+
+        System.out.println("\nConverted to Map<Double, Integer[]>:");
+        for (Map.Entry<Double, Integer[]> entry : finalMap.entrySet()) {
+            System.out.println(entry.getKey() + " → " + Arrays.toString(entry.getValue()));
+        }
+    }*/
+
+    public static void insert(Map<Double, List<Integer>> map, double newKey, int value) {
+        Double matchKey = null;
+
+        for (Double key : map.keySet()) {
+            double lowerBound = key * 0.9;
+            double upperBound = key * 1.1;
+
+            if (newKey >= lowerBound && newKey <= upperBound) {
+                matchKey = key;
+                break;
+            }
+        }
+
+        if (matchKey != null) {
+            map.get(matchKey).add(value);
+        } else {
+            map.put(newKey, new ArrayList<>(Arrays.asList(value)));
+        }
+    }
+    public void reOrientMolecule(Space space, Box box,ISpecies species, ArrayList<Integer> arrayListLinkerCarb, ArrayList<Integer> arrayListLinkerOxy, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map ){
+        if(arrayListLinkerCarb.size() == 3){
+            int carbA = arrayListLinkerCarb.get(0);
+            int carbB = arrayListLinkerCarb.get(1);
+            int carbC = arrayListLinkerCarb.get(2);
+            Vector carbAPosn = species.makeMolecule().getChildList().get(carbA).getPosition();
+            Vector carbBPosn = species.makeMolecule().getChildList().get(carbB).getPosition();
+            Vector carbCPosn = species.makeMolecule().getChildList().get(carbC).getPosition();
+            IMolecule molecule = species.makeMolecule();
+            //rotateAB into same plane
+             Vector vA = new Vector3D(), vB = new Vector3D(), vC = new Vector3D(), carbAB = new Vector3D(), vAB = new Vector3D(), vABCopy = new Vector3D(), carbABCopy = new Vector3D(), finalvecAB = new Vector3D(), finalcarbAB = new Vector3D(), vAC = new Vector3D();
+             vA.E(carbAPosn);
+             //B if in same plane as A
+             vB = Vector.of(carbBPosn.getX(0), carbBPosn.getX(1), carbAPosn.getX(2) );
+             vAB.E(vA);
+             vAB.ME(vB);
+             finalvecAB.E(vA);
+             vABCopy.E(vAB);
+             vAB.normalize();
+             carbAB.E(carbA);
+             carbAB.ME(carbBPosn);
+             finalcarbAB.E(carbAB);
+             carbABCopy.E(carbAB);
+             carbAB.normalize();
+
+             double prodDotABRotate = vAB.dot(carbAB);
+             double thetaRotate = Math.acos(prodDotABRotate);
+
+             vABCopy.XE(carbABCopy);
+             vABCopy.normalize();
+
+            rotationTensor.setRotationAxis(vABCopy, thetaRotate);
+            molecule.getChildList().forEach(atom -> {
+                if(atom.getIndex() == arrayListLinkerCarb.get(0)) {
+                    return;
+                }
+
+                atom.getPosition().ME(carbAPosn);
+                rotationTensor.transform(atom.getPosition());
+                atom.getPosition().PE(carbAPosn);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+
+             //rotate AC into same plane as AB
+            Vector vACcopy = new Vector3D(), carbACCopy = new Vector3D(), finalvecAC = new Vector3D(), finalcarbAC = new Vector3D(), carbAC = new Vector3D();
+            vC = Vector.of(carbCPosn.getX(0), carbCPosn.getX(1), carbAPosn.getX(2) );
+            vAC.E(carbA);
+            vAC.ME(vC);
+            vACcopy.E(vAC);
+            vAC.normalize();
+            finalvecAC.E(vAC);
+            carbAC.E(carbAPosn);
+            carbAC.ME(carbCPosn);
+            carbACCopy.E(carbAC);
+            finalcarbAC.E(carbAC);
+            carbAC.normalize();
+
+            double prodDotACRotate = vAC.dot(carbAC);
+            double deltaRotate = Math.acos(prodDotACRotate);
+
+            vACcopy.XE(carbACCopy);
+            vACcopy.normalize();
+            rotationTensor.setRotationAxis(vACcopy, deltaRotate);
+            molecule.getChildList().forEach(atom -> {
+                if(atom.getIndex() == arrayListLinkerCarb.get(0)) {
+                    return;
+                }
+
+                atom.getPosition().ME(carbAPosn);
+                rotationTensor.transform(atom.getPosition());
+                atom.getPosition().PE(carbAPosn);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+
+
+
+
+            //to be changed
+            Vector vecCact = new Vector3D();
+            vecCact = idealStruc(molecule, arrayListLinkerCarb);
+            Vector vecAB = new Vector3D();
+            vecAB.equals(carbAPosn);
+            vecAB.ME(carbBPosn);
+            double distAB = Math.sqrt(vecAB.squared());
+            Vector unitAB = new Vector3D();
+            unitAB.E(vecAB);
+            unitAB.normalize();
+
+
+
+
+            Vector vecC = new Vector3D();
+            Vector vecCCact = new Vector3D();
+            vecCCact.E(vecC);
+            vecCCact.ME(vecCact);
+            Vector unitCCact = new Vector3D();
+             unitCCact.E(vecCCact);
+            unitCCact.normalize();
+
+            double distCCact = Math.sqrt(vecCCact.squared());
+
+            IMolecule moleculeMOPOne = species.makeMolecule();
+
+            List<Vector> oldPosition = new ArrayList<>();
+            IMolecule moleculeMOP = box.getMoleculeList().get(0);
+            while (oldPosition.size() < moleculeMOP.getChildList().size()) {
+                oldPosition.add(space.makeVector());
+            }
+
+            Vector vecAC = new Vector3D();
+            vecAC.equals(carbAPosn);
+            Vector vecABCCross = new Vector3D();
+            vecAC.ME(carbCPosn);
+            vecABCCross.E(vecAC);
+            vecABCCross.XE(vecAB);
+            double distABC = Math.sqrt(vecABCCross.squared()) / Math.sqrt(vecAB.squared());
+            double denominator = Math.sqrt(vecAB.squared());
+
+            moleculeMOPOne.getChildList().forEach(atom -> {
+                Vector vecAM = new Vector3D();
+                Vector vecABMCross = new Vector3D();
+                oldPosition.get(atom.getIndex()).E(atom.getPosition());
+                vecAM.equals(carbAPosn);
+                vecAM.ME(atom.getPosition());
+                vecABMCross.E(vecAM);
+                vecABMCross.XE(vecAB);
+                double distABM = Math.sqrt(vecABMCross.squared()) / denominator;
+
+                Vector vecCCMod = new Vector3D();
+                vecCCMod.E(vecCCact);
+                vecCCMod.TE(distABM/distABC);
+                atom.getPosition().PE(vecCCMod);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+        }
+    }
+
+    public SpeciesBuilder makeCompleteMOP(AutoMOP autoMOP, Box box,ISpecies speciesLigand, ArrayList<ArrayList<Integer>> connectivityLigand, Map<Integer, String> mapLigand,  Map<Integer, Integer> oldnewAtomNumMap, ArrayList<ArrayList<Integer>> connectMOP,Map<Integer, String> atomMapMOP, List<Integer[]> metalAtomsNew, Map<Integer, List<Integer[]>> metalAtomsConnect, Map<String, AtomType> typeMapNew, boolean setMOPmassInfinite, boolean setDynamic ){
+        int num = box.getMoleculeList(speciesLigand).size();
+        List<Vector3D> positionMOP = new ArrayList<>();
+        AtomType typeNew;
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+        SpeciesBuilder speciesBuilder = new SpeciesBuilder(Space3D.getInstance());
+        int alpha = 0;
+        Integer[] oldNewMetal = new Integer[2];
+        Map<Integer[], Vector> metalPosn = new HashMap<>();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        IMolecule moleculeI = null;
+        AtomType atomI = null;
+        for (int i  = 0; i < moleculeList.size(); i++){
+            moleculeI = moleculeList.get(i);
+            for (int j =0; j < moleculeI.getChildList().size(); j++){
+                atomI = moleculeI.getChildList().get(j).getType();
+                String atomIString = String.valueOf(atomI);
+                Vector atomPosn = moleculeI.getChildList().get(j).getPosition();
+               // System.out.println(atomI);
+                int startIndex = atomIString.indexOf("[") + 1;
+                int endIndex = atomIString.indexOf("]");
+                String nameNew = atomIString.substring(startIndex, endIndex);
+                AtomType newName = pdbReaderMOP.returnElement(nameNew, setMOPmassInfinite);
+               // System.out.println(newName);
+                // AtomType newNameNew = returnElement(nameNew);
+                if (typeMapNew.containsKey(nameNew)) {
+                    typeNew = typeMapNew.get(nameNew);
+                } else {
+                    typeNew = newName;
+                    typeMapNew.put(nameNew, typeNew);
+                }
+                speciesBuilder.addAtom(typeNew, atomPosn,  "");
+                alpha++;
+            }
+        }
+
+
+
+        //System.exit(1);
+       /* for (int i = 0; i < connectivityLigand.size(); i++){
+            Integer atomOne = connectivityLigand.get(i).get(1);
+            String symbol = mapLigand.get(atomOne);
+            oldnewAtomNumMap.put(i, alpha);
+            for (int j =0; j < num; j++){
+                atomMapMOP.put(alpha, symbol);
+                Vector atomPosn = box.getMoleculeList().get(j).getChildList().get(atomOne).getPosition();
+                if(symbol.length() == 2){
+                    oldNewMetal = new Integer[]{num, alpha};
+                    metalAtomsNew.add(oldNewMetal);
+                    metalPosn.put(oldNewMetal, atomPosn);
+                }
+                // System.out.println(atomIdentifierMap.get(i));
+                AtomType newName = pdbReaderMOP.returnElement(symbol, setMOPmassInfinite);
+                System.out.println(newName);
+                // AtomType newNameNew = returnElement(nameNew);
+                if (typeMapNew.containsKey(symbol)) {
+                    typeNew = typeMapNew.get(symbol);
+                } else {
+                    typeNew = newName;
+                    typeMapNew.put(symbol, typeNew);
+                }
+                speciesBuilder.addAtom(typeNew, atomPosn,  "");
+                alpha++;
+            }
+        }*/
+       /* ISpecies speciesMOP = speciesBuilder.setDynamic(setDynamic).build();
+        System.out.println(speciesMOP.getAtomTypes());
+        System.out.println(oldnewAtomNumMap);
+        System.out.println(Arrays.deepToString(metalAtomsNew.toArray()));
+        System.out.println(speciesMOP);*/
+       // autoMOP.connectivityMOP(connectivityMOP,  removedMetals);
+        return speciesBuilder;
+    }
+    public void makeConnectivityMOP(Box box,ArrayList<ArrayList<Integer>> connectivityLigand,  ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String>  atomMapLigand, Map<Integer, String> atomMapMOP){
+        IMoleculeList moleculeList = box.getMoleculeList();
+        ArrayList<Integer> internalArrayList = new ArrayList<>();
+        //ArrayList<Integer> modifiedArrayList = new ArrayList<>();
+        int num  =0, modifiedNum =0, moleculeNum =0;
+        int ligandSize = connectivityLigand.size();
+        for (int i =0; i< moleculeList.size(); i++){
+            for (int j =0; j < connectivityLigand.size(); j++){
+                internalArrayList = connectivityLigand.get(j);
+               // System.out.println(internalArrayList);
+                ArrayList<Integer> modifiedArrayList = new ArrayList<>();
+                for (int k = 0; k < internalArrayList.size(); k++){
+                    //System.out.println(internalArrayList.get(k));
+                    num = internalArrayList.get(k);
+                    modifiedNum = ligandSize * i + num;
+                    modifiedArrayList.add(modifiedNum);
+                }
+              //  System.out.println("initial " + internalArrayList+ " Modified " +modifiedArrayList);
+                connectivityMOP.add(modifiedArrayList);
+            }
+          //  System.out.println("Molecule next " + "\n");
+        }
+        //System.exit(1);
+        int numPointer = 0;
+        int counter = 0;
+        int moleculeListSize = moleculeList.size();
+        for (int i =0; i<atomMapLigand.size(); i++){
+            String atomName = atomMapLigand.get(i);
+           for ( int j = 0; j < moleculeListSize; j++){
+               numPointer = i + moleculeListSize * ligandSize;
+               atomMapMOP.put(counter, atomName);
+               counter++;
+           }
+        }
+       // System.out.println(atomMapMOP);
+    }
+    public ISpecies getMoleculeMOP (Box box, Map<Integer, String> atomIdentifierMap, Map<Integer, String> atomMap,  boolean isDynamic, Vector centreMOP, boolean setMOPmassInfinite){
+        Map<Integer, String> atomIndentifierMap = new HashMap<>();
+        SpeciesBuilder speciesBuilder = new SpeciesBuilder(Space3D.getInstance());
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+         int counter = 0;
+         String indenName = "";
+        for (int i = 0; i < box.getMoleculeList().size(); i++){
+            IMolecule molecule = box.getMoleculeList().get(i);
+            IAtomList children = molecule.getChildList();
+            AtomType typeNew;
+            Map<String, AtomType> typeMapNew = new HashMap<>();
+            for (int j =0; j < molecule.getChildList().size(); j++){
+                IAtom a = children.get(j);
+                String atomName = String.valueOf(a.getType());
+                //String symbol = String.valueOf(atomIdentifierMap.get(j));
+               // System.out.println(atomName + " "+symbol);
+                int startIndex = atomName.indexOf("[") + 1;
+                int endIndex = atomName.indexOf("]");
+                String nameNew = atomName.substring(startIndex, endIndex);
+                AtomType newName = pdbReaderMOP.returnElement(nameNew, setMOPmassInfinite);
+                System.out.println(newName);
+                if (typeMapNew.containsKey(nameNew)) {
+                    typeNew = typeMapNew.get(nameNew);
+                } else {
+                    typeNew = newName;
+                    typeMapNew.put(nameNew, typeNew);
+                }
+                typeNew = typeMapNew.get(nameNew);
+                Vector v = a.getPosition();
+                v.ME(centreMOP);
+                speciesBuilder.addAtom(typeNew,v, "" );
+               // String atomMapName = atomMap.get(j+1);
+               // System.out.println( counter +" "+ nameNew);
+                if (nameNew.contains("_")) {
+                    indenName= nameNew.split("_")[0];
+                }
+                atomIndentifierMap.put(counter, indenName);
+                counter++;
+            }
+        }
+       // System.out.println(atomIndentifierMap);
+        //System.exit(1);
+        setAtomIndentidfierMap(atomIndentifierMap);
+        //System.exit(1);
+        return speciesBuilder.setDynamic(isDynamic).build();
+    }
+
+    public void setAtomIndentidfierMap(Map<Integer, String> atomIndentidfierMap){
+        this.atomIdentifierMap = atomIndentidfierMap;
+    }
+
+    //public Map<Integer, String> getAtomIdentifierMap(){return  atomIdentifierMap;}
+
+
+    public void removeExcessMetal (Box box, Map<Integer, String> atomMOPMap, ArrayList<ArrayList<Integer>> connectivityLigand, ArrayList<Integer> arrayListMetals, Map<Integer, List<Integer>> metalMoleculeMap){
+        IMoleculeList moleculeList = box.getMoleculeList();
+        List<Integer> metalPerMolecule = new ArrayList<>();
+        List<Integer> metalNumOverlapList = new ArrayList<>();
+        Map<Integer, Map<Integer, Vector3D>> positionMapMOP = new HashMap<>();
+        Map<Integer, Vector3D> positionMapLigand = new HashMap<>();
+        Vector3D positionMetal = new Vector3D();
+        for (int i = 0; i < moleculeList.size(); i++){
+            IMolecule moleculei = moleculeList.get(i);
+            positionMapLigand = new HashMap<>();
+            metalNumOverlapList = new ArrayList<>();
+            for(int j = 0; j < arrayListMetals.size(); j++){
+                int metalNum = arrayListMetals.get(j);
+                int metalNuminConnect = i  * connectivityLigand.size() + metalNum;
+                metalNumOverlapList.add(metalNuminConnect);
+                positionMetal = (Vector3D) moleculei.getChildList().get(metalNum).getPosition();
+                positionMapLigand.put(j, positionMetal);
+                //System.out.println(j + " "+positionMetal);
+            }
+            metalMoleculeMap.put(i, metalNumOverlapList);
+            positionMapMOP.put(i, positionMapLigand);
+        }
+        //System.out.println(metalMoleculeMap);
+
+
+
+      /*  for (int i = 0; i < moleculeList.size(); i++){
+            IMolecule moleculei = moleculeList.get(i);
+            metalPerMolecule = metalMoleculeMap.get(i);
+            for (int j =0; j < metalPerMolecule.size(); j++){
+                int metalINum = metalPerMolecule.get(j);
+                int metalNuminConnect = i  * connectivityLigand.size() + metalINum;
+                metalNumOverlapList.add(metalNuminConnect);
+                positionMetal = (Vector3D) moleculei.getChildList().get(metalINum).getPosition();
+                positionMapLigand.put(j, positionMetal);
+            }
+            metalMoleculeMap.put(i, metalNumOverlapList);
+            positionMapMOP.put(i, positionMapLigand);
+        }*/
+
+        SharedPoints sharedPoints = new SharedPoints();
+        Map<Vector3D, ArrayList<ArrayList<Integer>>>  vector3DListMap = new HashMap<>();
+        vector3DListMap = sharedPoints.findSharedPositions(positionMapMOP);
+       /* for (Map.Entry<Vector3D, ArrayList<ArrayList<Integer>>> entry : vector3DListMap.entrySet()) {
+            Vector3D key = entry.getKey();
+            ArrayList<ArrayList<Integer>> value = entry.getValue();
+
+            System.out.println("Key: " + key);
+            System.out.println("Value:");
+
+            for (ArrayList<Integer> innerList : value) {
+                System.out.println("  " + innerList);
+            }
+            System.out.println(); // Optional newline for spacing
+        }*/
+        Map<Integer,ArrayList<ArrayList<Integer>>> removedAtoms = new HashMap<>();
+        ArrayList<Integer> atomListInner = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> atomListOuter = new ArrayList<>();
+        int moleculeNum = 0, atomNum = 0, newAtomNum =0;
+        int ligandSize = box.getMoleculeList().get(0).getChildList().size();
+        ArrayList<Integer> atomsRemovedNums = new ArrayList<>();
+        Map<Integer, ArrayList<Integer>> connectivityMapAtomsRemoved = new HashMap<>();
+        int j = 0;
+        IAtomList moleculeI = null;
+        IAtom atomJ = null;
+
+        ArrayList<Integer> connectivityAtomRemoved = new ArrayList<>();
+        for (Map.Entry<Vector3D, ArrayList<ArrayList<Integer>>> entry : vector3DListMap.entrySet()) {
+            Vector position = entry.getKey();
+            atomListInner = new ArrayList<>();
+            atomListOuter = new ArrayList<>();
+            ArrayList<ArrayList<Integer>> atomIndices = entry.getValue();
+            int numOne = ligandSize * moleculeNum + atomNum;
+            for (int i = 1; i < atomIndices.size(); i++){
+                //Buiding AtomsRemoved
+                atomListInner = atomIndices.get(i);
+               // System.out.println(atomListInner);
+                moleculeI = box.getMoleculeList().get(atomListInner.get(0)).getChildList();
+                moleculeI.remove(atomListInner.get(1));
+                atomListOuter.add(atomListInner);
+            }
+            removedAtoms.put(j , atomListOuter);
+            j++;
+        }
+       // System.exit(1);
+        List<Integer> removedAtomsConnectivity = new ArrayList<>();
+      //  System.out.println(removedAtoms);
+        AutoMOPUpgrade autoMOP = new AutoMOPUpgrade();
+       // System.exit(1);
+
+        int i =0;
+        ArrayList<ArrayList<Integer>> outerArrayList = new ArrayList<>();
+        ArrayList<Integer> innerArrayList = new ArrayList<>();
+        Map<Integer, Integer> removedAtomNumsOldNew = new HashMap<>();
+
+
+
+
+        /* for (Map.Entry<Integer, ArrayList<ArrayList<Integer>>> entry : removedAtoms.entrySet()) {
+            outerArrayList = entry.getValue();
+            for ( j = 0 ; j < outerArrayList.size(); j++){
+                moleculeNum = innerArrayList.get(0);
+                atomNum = innerArrayList.get(1);
+
+                //required to modify connectivity for MOP
+                newAtomNum = ligandSize * moleculeNum + atomNum;
+                atomsRemovedNums.add(newAtomNum);
+
+                //handle removing Atoms
+                innerArrayList = outerArrayList.get(j);
+                moleculeI = box.getMoleculeList().get(moleculeNum);
+                IAtom atom = moleculeI.getChildList().get(atomNum);
+                moleculeI.getChildList().remove(atom);
+            }
+        }
+
+        //step 0
+        int ithAtomNum =0;
+      for (Map.Entry<Vector3D, ArrayList<ArrayList<Integer>>> entry : vector3DListMap.entrySet()){
+          Vector position = entry.getKey();
+          ArrayList<ArrayList<Integer>> atomIndices = entry.getValue();
+          for ( i = 1; i < atomIndices.size(); i++){
+              atomListInner = atomIndices.get(i);
+
+          }
+
+      }*/
+
+
+    }
+    public void getModifiedConnectivity(Box box, ISpecies mopComplete,ArrayList<ArrayList<Integer>> connectivityLigand, ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String> mapLigand, Map<Integer, String> mapMOP, List<Integer> arrayListMetals, Map<Integer, List<Integer>> atomMapMetal, Map<Vector, List<Integer>> atomMapOverlap){
+        AutoMOPUpgrade autoMOP = new AutoMOPUpgrade();
+        IMolecule moleculeMOP = mopComplete.makeMolecule();
+        IMoleculeList moleculeList = box.getMoleculeList();
+        String atom ="";
+        List<Integer> metalConnectivityNum = new ArrayList<>();
+        for (int i = 0; i < connectivityMOP.size(); i ++){
+            String atomName = mapMOP.get(connectivityMOP.get(i).get(0));
+            atom = autoMOP.getAtomName(atomName);
+            if (atom.length() == 2){
+                metalConnectivityNum.add(connectivityMOP.get(i).get(0));
+            }
+        }
+
+        List<Integer> metalInLigand = new ArrayList<>();
+        Map<Integer, Vector> atomMapVector = new HashMap<>();
+        int ligandSize = mapLigand.size();
+        for (int i = 0; i < metalConnectivityNum.size(); i ++){
+            int numAtom = metalConnectivityNum.get(i);
+            int j = 1;
+            while (true) {
+                double newLigandSize = j * ligandSize;
+                double value = numAtom / newLigandSize;
+                if (value >= 1 && value <= 2) {
+                    System.out.println(j + " "+ value);
+                    break;
+                }
+                j++;
+            }
+            metalInLigand = atomMapMetal.get(j);
+            for (int k = 0; k < metalInLigand.size(); k++){
+
+            }
+        }
+    }
+    public String getAtomName(String atomName){
+        int start = atomName.indexOf('[');
+        int end = atomName.indexOf(']');
+
+        if (start != -1 && end != -1 && start < end) {
+            return atomName.substring(start + 1, end);
+        } else {
+            return null; // Or handle invalid input case
+        }
+    }
+
+
+    public void reOrientMoleculeMethodTwo(Space space, Box box,ISpecies species, ArrayList<Integer> arrayListLinkerCarb, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Vector> moleculeProjection){
+        if(arrayListLinkerCarb.size() == 3){
+            //allign along Z axis
+            int carbA = arrayListLinkerCarb.get(0);
+            int carbB = arrayListLinkerCarb.get(1);
+            int carbC = arrayListLinkerCarb.get(2);
+            Vector carbAPosn = species.makeMolecule().getChildList().get(carbA).getPosition();
+            Vector carbBPosn = species.makeMolecule().getChildList().get(carbB).getPosition();
+            Vector carbCPosn = species.makeMolecule().getChildList().get(carbC).getPosition();
+            //System.out.println("\n "+carbAPosn + " "+ carbBPosn);
+            //System.out.println(carbCPosn +"\n");
+            IMolecule molecule = species.makeMolecule();
+
+            //Normal to the plane
+            Vector vecAB = new Vector3D(), vecBC = new Vector3D(), vecCross = new Vector3D(), vecNormal = new Vector3D(), vecNormalCopy = new Vector3D(), vecCrossPrd = new Vector3D();
+            vecAB.E(carbAPosn);
+            vecAB.ME(carbBPosn);
+            vecBC.E(carbCPosn);
+            vecBC.ME(carbBPosn);
+            vecCross.E(vecAB);
+            vecCross.XE(vecBC);
+            vecNormal.E(vecCross);
+            vecNormal.normalize();
+            Vector vecZNormal = Vector.of(0,0,1);
+            vecNormalCopy.E(vecNormal);
+            double productDot = vecNormal.dot(vecZNormal);
+            double theta = Math.acos(productDot);
+            vecCrossPrd.E(vecNormal);
+            vecCrossPrd.XE(vecZNormal);
+            vecCrossPrd.normalize();
+            rotationTensor.setRotationAxis(vecCrossPrd, theta);
+            molecule.getChildList().forEach(atom -> {
+                rotationTensor.transform(atom.getPosition());
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+            // rearrange atoms in the molecule so as to align iun form of equilateral
+
+            Vector vecCact = new Vector3D();
+            carbAPosn = molecule.getChildList().get(carbA).getPosition();
+            carbBPosn = molecule.getChildList().get(carbB).getPosition();
+            carbCPosn = molecule.getChildList().get(carbC).getPosition();
+            //System.out.println("\n "+carbAPosn + " "+ carbBPosn);
+            //System.out.println(carbCPosn +"\n");
+
+            Vector carbAPosnCopy = new Vector3D(), carbBPosnCopy = new Vector3D(), carbCPosnCopy = new Vector3D(), vecAC = new Vector3D(), vecACNorm = new Vector3D(), vecABNorm = new Vector3D(), vecCrossRotate = new Vector3D(), vecCC = new Vector3D(), vecCCNorm = new Vector3D();
+            carbAPosnCopy.E(carbAPosn);
+            carbBPosnCopy.E(carbBPosn);
+            carbCPosnCopy.E(carbCPosn);
+            vecAB.E(carbAPosnCopy);
+            vecAB.ME(carbBPosnCopy);
+            vecABNorm.E(vecAB);
+            vecABNorm.normalize();
+            vecAC.E(carbAPosnCopy);
+            vecAC.ME(carbCPosnCopy);
+            vecACNorm.E(vecAC);
+            vecACNorm.normalize();
+
+            //movement of every atom
+            vecCrossRotate.E(vecAC);
+            vecCrossRotate.XE(vecABNorm);
+            double distABC = Math.sqrt(vecCrossRotate.squared()) / Math.sqrt(vecACNorm.squared());
+
+            vecCact = idealStruc(molecule, arrayListLinkerCarb);
+            vecCC.E(carbCPosn);
+            vecCC.ME(vecCact);
+            vecCCNorm.E(vecCC);
+            vecCCNorm.normalize();
+            double distCCact = Math.sqrt(vecCC.squared());
+
+            Vector vecAM = new Vector3D();
+            Vector vecABMCross = new Vector3D();
+            Vector vecABMCrossNorm = new Vector3D();
+            Vector vecCCMove = new Vector3D();
+            double[] distABM = new double[1];
+            double[] multiplier = new double[1];
+            Vector finalCarbAPosn = carbAPosn;
+            AtomicInteger i = new AtomicInteger();
+            molecule.getChildList().forEach(atom -> {
+                Vector vecProj = moleculeProjection.get(i.get());
+                vecAM.E(finalCarbAPosn);
+                vecAM.ME(vecProj);
+                vecABMCross.E(vecAM);
+                vecABMCross.XE(vecAB);
+                vecABMCrossNorm.E(vecABMCross);
+                vecABMCrossNorm.normalize();
+                distABM[0] = Math.sqrt(vecABMCrossNorm.squared())/Math.sqrt(vecABNorm.squared());
+                multiplier[0] = distABM[0]/distABC;
+                vecCCMove.E(vecCC);
+                vecCCMove.TE(multiplier[0]);
+                i.getAndIncrement();
+            });
+        }
+    }
+
+    public Vector idealStruc (IMolecule molecule, ArrayList<Integer> listExtremeties ){
+        Vector vecReturn = new Vector3D();
+        if(listExtremeties.size() ==3) {
+            Vector v1 = molecule.getChildList().get(listExtremeties.get(0)).getPosition();
+            Vector v2 = molecule.getChildList().get(listExtremeties.get(1)).getPosition();
+            Vector v3 = molecule.getChildList().get(listExtremeties.get(2)).getPosition();
+            double angleOne = 60;
+            double angleTwo = -60;
+
+            double stheta = Math.sin(Degree.UNIT.toSim(angleOne));
+            double ctheta = Math.cos(Degree.UNIT.toSim(angleTwo));
+
+            double cxOne =  ctheta * (v1.getX(0) - v2.getX(0)) - stheta * (v1.getX(1) - v2.getX(1));
+            double cyOne =  stheta * (v1.getX(0) - v2.getX(0)) + ctheta * (v1.getX(1) - v2.getX(1));
+            double czOne = (v1.getX(3) +  v2.getX(3)) / 2;
+
+            double cxTwo =  ctheta * (v1.getX(0) - v2.getX(0)) + stheta * (v1.getX(1) - v2.getX(1));
+            double cyTw0 = -stheta * (v1.getX(0) - v2.getX(0)) + ctheta * (v1.getX(1) - v2.getX(1));
+            double czTwo = (v1.getX(3) +  v2.getX(3)) / 2;
+
+            Vector vactOne = Vector.of(cxOne, cyOne, czOne);
+            Vector vactTwo = Vector.of(cxTwo, cyTw0, czTwo);
+
+
+            double distOne = Math.sqrt(vactOne.Mv1Squared(v3));
+            double distTwo = Math.sqrt(vactTwo.Mv1Squared(v3));
+
+            if ( distOne < distTwo){
+                vecReturn.E(vactOne);
+            }else {
+                vecReturn.E(vactTwo);
+            }
+        } else if (listExtremeties.size() == 4) {
+
+        } else {
+            throw new RuntimeException("Incorrect struct");
+        }
+        return vecReturn;
+    }
+    /*public void getSpecies(ISpecies speciesMOP, Space space,  String struc, String structName, ISpecies speciesLigand, Box box, Box boxNew, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map){
+        Box box1 = new Box(space);
+        box1 = getAutoMOPBox(space, struc, structName, speciesLigand, box, boxNew, connectivity, map, false, true, 1);
+        IMoleculeList molecules = new MoleculeArrayList();
+        molecules = box.getMoleculeList(speciesLigand);
+        for (int i =0; i< molecules.size(); i++){
+            System.out.println(molecules.get(i));
+        }
+        System.exit(1);
+
+    }*/
+
+
+    // throw error if ligand and MOP type are not compatible
+    public void checkGeometryMOPType(ArrayList<Integer> arrayListMetals, String struc, String strucName){
+        if (arrayListMetals.size() == 2){
+            if (struc.equals("edge")){
+                return;
+            }else {
+                throw new RuntimeException("Incorrect geometry metal arraylist 2");
+            }
+        }else if (arrayListMetals.size() == 3){
+            if (struc.equals("face") || struc.equals("bent")){
+                if (strucName.equals("tetra") || strucName.equals("octa") || strucName.equals("icosa")){
+                    return;
+                }else {
+                    throw new RuntimeException("Incorrect geometry metal arraylist 3");
+                }
+            }
+        }else if (arrayListMetals.size() == 4){
+            if (struc.equals("face") || struc.equals("bent")){
+                if (strucName.equals("cube")){
+                    return;
+                }else {
+                    throw new RuntimeException("Incorrect geometry metal arraylist 4");
+                }
+            }
+        }else if (arrayListMetals.size() == 5){
+            if (struc.equals("face") || struc.equals("bent")){
+                if (strucName.equals("dodeca")){
+                    return;
+                }else {
+                    throw new RuntimeException("Incorrect geometry for metal arraylist 5");
+                }
+            }
+        }
+    }
+
+    public void modifyVerticesBent (List<Integer[]> faceList, List<Vector> vectorList){
+        for (int i =0; i < faceList.size(); i++){
+            System.out.println(faceList.get(i));
+        }
+    }
+
+    public SpeciesBuilder getAutoMOPBox(Space space, String struc, String structName, ISpecies species, Box box,ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map, boolean setMOPMassInfinite, boolean setDynamic){
+       // System.out.println("inside automop");
+        rotationTensor = new RotationTensor3D();
+        List<Integer[]> linkedVertices = getStrucList(structName);
+        ArrayList<Integer> arrayListMetals = new ArrayList<>();
+        ArrayList<Integer> arrayListLinkerOxy = new ArrayList<>();
+        ArrayList<Integer> arrayListLinkerCarb = new ArrayList<>();
+        calcExtremities(connectivity, map, arrayListMetals);
+        locateLinkerOxy(species, connectivity, map, arrayListLinkerOxy, arrayListLinkerCarb);
+        checkGeometryMOPType(arrayListMetals, struc, structName);
+        ArrayList<Vector> moleculeProjection = new ArrayList<>();
+        if((struc.equals("face") || struc.equals("bent")) && arrayListLinkerCarb.size() > 0){
+            moleculeProjection = getMoleculeProjection(space, box, species, arrayListLinkerCarb, arrayListLinkerOxy, connectivity, map );
+            reOrientMoleculeMethodTwo(space, box, species, arrayListLinkerCarb, arrayListLinkerOxy,moleculeProjection);
+        }
+        if(struc.equals("face")) {
+            dist = calcDistFace(species, arrayListLinkerOxy);
+        }
+        int numEdges = 0;
+        double coordinateMultiplier = 0; // converts edge length to circumsphere radius for modifying vertices
+        double sqrt2 = Math.sqrt(2);
+        boolean ifPlatonicGeom = true;
+        if(structName.equals("tetra")){
+            numEdges = 6;
+            coordinateMultiplier = dist/(2*sqrt2);
+        }  else if (structName.equals("icosa")) {
+            numEdges = 30;
+            // coordinateMultiplier = phi2 * dist / (2* sqrt3);
+            coordinateMultiplier = 0.5 * dist;
+        } else if (structName.equals("dodeca")) {
+            numEdges = 30;
+            //  coordinateMultiplier = phi* sqrt3/2 * dist;
+            coordinateMultiplier = 0.5 * dist;
+        } else if (structName.equals("octa")) {
+            numEdges = 12;
+            coordinateMultiplier =  dist/sqrt2;
+        } else if (structName.equals("cube")) {
+            numEdges = 12;
+              //coordinateMultiplier = Math.sqrt(3)/2 * dist;
+            coordinateMultiplier = 0.5 * dist;
+        }else {
+            ifPlatonicGeom = false;
+            switch (structName){
+                case "trunTetra":
+                    numEdges = 18;
+                    break;
+                case "cubOcta":
+                    numEdges = 24;
+                    break;
+                case "trunOcta":
+                    numEdges = 36;
+                    break;
+                case "trunCube":
+                    numEdges = 36;
+                    break;
+                case "rhomCubOcta":
+                    numEdges = 48;
+                    break;
+                case "snubCube":
+                    numEdges = 60;
+                    break;
+                case "icoDodeca":
+                    numEdges = 60;
+                    break;
+                case "trunCubOcta":
+                    numEdges = 72;
+                    break;
+                case "trunIcosa":
+                    numEdges = 90;
+                    break;
+                case "trunDodeca":
+                    numEdges = 90;
+                    break;
+                case "rhomIcoDodeca":
+                    numEdges = 120;
+                    break;
+                case "snubDodeca":
+                    numEdges = 150;
+                    break;
+                case "trunIcoDodeca":
+                    numEdges = 180;
+                    break;
+                default:
+                    System.out.println("incorrect geometry");
+
+            }
+        }
+        AutoMOP autoMOP = new AutoMOP();
+        Map<Integer, String> atomMapMOP = new HashMap<>();
+        Map<Integer, String> atomIdentifierMapMOP = new HashMap<>();
+        ArrayList<ArrayList<Integer>> connectivityMOP = new ArrayList<>();
+
+        coordinateMultiplier = 0.0;
+        int atomOne = arrayListMetals.get(0);
+        int atomTwo = arrayListMetals.get(1);
+        IMolecule molecule = species.makeMolecule();
+        Vector posnOne = molecule.getChildList().get(atomOne).getPosition();
+        Vector posntTwo = molecule.getChildList().get(atomTwo).getPosition();
+        coordinateMultiplier= Math.sqrt(posntTwo.Mv1Squared(posnOne));
+       // System.out.println("co "+ coordinateMultiplier);
+       /// System.out.println(structName);
+        if(struc.equals("edge")){
+            if (ifPlatonicGeom){
+                getMOPEdgePlatonic(box, structName,  species,linkedVertices, arrayListMetals, arrayListLinkerOxy, arrayListLinkerCarb, numEdges, coordinateMultiplier);
+            }else {
+                getMOPEdgeArchimedian(box, structName,  species,linkedVertices, arrayListMetals, arrayListLinkerOxy, arrayListLinkerCarb, numEdges, coordinateMultiplier);
+            }
+
+        } else if (struc.equals("face") || struc.equals("bent")) {
+            getMOPFace(box,struc, structName, species, connectivity, map,linkedVertices, arrayListMetals, arrayListLinkerOxy, arrayListLinkerCarb, numEdges, dist, moleculeProjection );
+        }/*else if (struc.equals("bent")) {
+            getMOPBent(box, structName, species, connectivity, map, linkedVertices, arrayListMetals, arrayListLinkerOxy, arrayListLinkerCarb, numEdges, dist, moleculeProjection);
+        }*/else {
+            box.setNMolecules(species, 1);
+        }
+
+        //System.exit(1);
+        Map<Integer, List<Integer>> metalMoleculeMap = new HashMap<>();
+        Map<Integer, Integer> oldNewAtomNumMap = new HashMap<>();
+        List<Integer[]> metalAtomsNew = new ArrayList<>();
+        Map<String, AtomType> typeMapNew = new HashMap<>();
+        Map<Integer, List<Integer[]>> metalAtomsConnect = new HashMap<>();
+       // autoMOP.makeConnectivityMOP(box, connectivity, connectivityMOP, map, atomMapMOP);
+        autoMOP.setAtomMap(atomMap);
+        //autoMOP.setAtomMapMOP(atomMapMOP);
+       // autoMOP.setconnectivity(connectivityMOP);
+       // autoMOP.setAtomIndentidfierMap(atomIdentifierMapMOP);
+        removeExcessMetal(box, atomMapMOP, connectivity, arrayListMetals, metalMoleculeMap);
+        SpeciesBuilder speciesBuilder = makeCompleteMOP(autoMOP, box, species, connectivity,map, oldNewAtomNumMap, connectivityMOP, atomMapMOP, metalAtomsNew, metalAtomsConnect, typeMapNew, setMOPMassInfinite,setDynamic  );
+        //boxNew.setNMolecules(speciesMOP, numMOPS);
+        autoMOP.setArrayListMetals(arrayListMetals);
+        autoMOP.setmetalMoleculeMap(metalMoleculeMap);
+        autoMOP.setOldNewAtomNumMap(oldNewAtomNumMap);
+        //connectivityMOP(autoMOP, connectivity, connectivityMOP, atomMap, atomMapMOP, arrayListMetals, oldNewAtomNumMap, metalMoleculeMap);
+        //System.exit(1);
+        return speciesBuilder;
+    }
+
+
+
+/*
+    public Box getAutoMOPComplex(Space space, String struc1, String struct2, String StrucGeom1, ISpecies species1, ISpecies species2, Box box, ArrayList<ArrayList<Integer>> connectivity1, ArrayList<ArrayList<Integer>> connectivity2, Map<Integer, String> map1, Map<Integer, String> map2){
+        rotationalTensor1 = new RotationTensor3D();
+        rotationalTensor2 = new RotationTensor3D();
+        ArrayList<Integer> arrayListLinkerOxy = new ArrayList<>();
+        ArrayList<Integer> arrayListLinkerCarb = new ArrayList<>();
+        List<Integer[]> linkedVertices = getStrucList(StrucGeom1);
+        ArrayList<Integer> metalList1 = new ArrayList<>(), oxyList1 = new ArrayList<>(), metalList2 = new ArrayList<>(), oxyList2 = new ArrayList<>();
+        Map<Integer, Integer[]> oxyConnectedCommonCarbon1 = new HashMap<>(), oxyConnectedCommonCarbon2 = new HashMap<>();
+        getOxyList(species1.makeMolecule(), connectivity1, map1, metalList1, oxyList1, oxyConnectedCommonCarbon1);
+        getOxyList(species2.makeMolecule(), connectivity2, map2, metalList2, oxyList2, oxyConnectedCommonCarbon1);
+        if(metalList1.size() != 0 || oxyConnectedCommonCarbon1.size() != 0){
+            parallelizeOxygenOrganic( box, species1.makeMolecule(), oxyConnectedCommonCarbon1);
+        }
+        locateLinkerOxy(species1, connectivity1, map1, arrayListLinkerOxy, arrayListLinkerCarb);
+        parallelizeOxygenOrganic( box, species1.makeMolecule(), oxyConnectedCommonCarbon1);
+        if(metalList2.size() != 0 || oxyConnectedCommonCarbon2.size() != 0){
+            parallelizeOxygenOrganic( box, species2.makeMolecule(), oxyConnectedCommonCarbon2);
+        }
+        ArrayList<Vector> moleculeProjection = new ArrayList<>();
+        if(struc1.equals("face") ){
+            moleculeProjection = getMoleculeProjection(space, box, species1, arrayListLinkerCarb, arrayListLinkerOxy, connectivity1, map1 );
+            reOrientMoleculeMethodTwo(space, box, species1, arrayListLinkerCarb, arrayListLinkerOxy,moleculeProjection);
+        }
+        Vector centre1 = new Vector3D();
+        if(StrucGeom1.equals("edge")){
+           // getMOPEdge(box, s,linkedVertices, arrayListMetals, arrayListLinkerOxy, arrayListLinkerCarb, numEdges, coordinateMultiplier);
+        } else if (StrucGeom1.equals("face")) {
+            getFaceMOPComplex ( box, StrucGeom1,species1, species2, linkedVertices, map1, map2, metalList1, centre1,  metalList2,  oxyList1,  oxyList2,  moleculeProjection);
+        }else if (StrucGeom1.equals("bent")) {
+            //getMOPBent(box, structName, species, connectivity, map, linkedVertices, arrayListMetals, arrayListLinkerOxy, arrayListLinkerCarb, numEdges, dist, moleculeProjection);
+        }else {
+         box.setNMolecules(species1, 1);
+         box.setNMolecules(species2, 1);
+        }
+        return box;
+    }
+*/
+    /*
+    public void getFaceMOPComplex (Box box, String strucName, ISpecies species1, ISpecies species2, List<Integer[]> linkedVertices, Map<Integer, String> map1, Map<Integer, String> map2, ArrayList<Integer> arrayListMetal1, Vector centre1, ArrayList<Integer> arrayListMetal2, ArrayList<Integer> arrayListLinkerOxy1, ArrayList<Integer> arrayListLinkerOxy2, ArrayList<Vector> moleculeProjection){
+        List<Integer[]> faces = new ArrayList<>();
+        List<Vector> vertices = new ArrayList<>();
+        int numFace, numVertices;
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+        Map<Integer, List<Integer[]>> faceEdges = new HashMap<>();
+
+        //gets coordinates depending on struct
+        verticesComboFaces(strucName, vertices, faces, faceEdges );
+
+        //get dist bw two extremities
+        Vector vecVert = vertices.get(0);
+        Vector vecVertTwo = vertices.get(1);
+        double faceLen = Math.sqrt(vecVert.Mv1Squared(vecVertTwo));
+
+        Vector vecOne = species1.makeMolecule().getChildList().get(arrayListLinkerOxy1.get(0)).getPosition();
+        Vector vecTwo = species1.makeMolecule().getChildList().get(arrayListLinkerOxy1.get(1)).getPosition();
+        double lenLig1 = Math.sqrt(vecOne.Mv1Squared(vecTwo));
+
+        Vector vecThree = species2.makeMolecule().getChildList().get(arrayListMetal1.get(0)).getPosition();
+        Vector vecFour = species2.makeMolecule().getChildList().get(arrayListMetal1.get(1)).getPosition();
+        double lenLig2 = Math.sqrt(vecOne.Mv1Squared(vecTwo));
+
+        double atomOneLJ = pdbReaderMOP.atomicPot(map1.get(arrayListLinkerOxy1.get(0)))[0];
+        double atomTwoLJ = pdbReaderMOP.atomicPot(map2.get(arrayListMetal2.get(1)))[0];
+        double coordinateMultiplier = (lenLig1 +  2 * lenLig2 + atomTwoLJ+ atomOneLJ) / faceLen;
+
+        if(strucName.equals("tetra")){
+            numFace = 4;
+            numVertices = 4;
+        }else if (strucName.equals("cube")) {
+            numFace = 6;
+            numVertices = 8;
+        } else if (strucName.equals("octa")) {
+            numFace = 8;
+            numVertices = 6;
+        } else if (strucName.equals("icosa")) {
+            numFace = 20;
+            numVertices = 12;
+        } else if (strucName.equals("dodeca")) {
+            numFace = 12;
+            numVertices = 20;
+        }else {
+            numFace = 1;
+            numVertices = 1;
+            throw  new RuntimeException("Shape not defined in face MOP");
+        }
+
+        //Move all ligands to the zeroth coordinate
+        Space space = Space3D.getInstance();
+        box.setNMolecules(species1, numFace);
+        box.setNMolecules(species2, numVertices);
+        List<Vector> oldPositionsTwo = new ArrayList<>();
+        IMolecule moleculeMOPOne = box.getMoleculeList().get(0);
+        while (oldPositionsTwo.size() < moleculeMOPOne.getChildList().size()) {
+            oldPositionsTwo.add(space.makeVector());
+        }
+
+        List<Vector> verticesModified = new ArrayList<>();
+        //Multiply unit coordinates to coordinates of Polyhedra acc to Ligand size
+
+        for(int i = 0; i< vertices.size(); i++){
+            Vector originOne, copyOriginOne = new Vector3D();
+            originOne = vertices.get(i);
+            copyOriginOne.Ea1Tv1(coordinateMultiplier, originOne);
+            verticesModified.add(i, copyOriginOne);
+        }
+        Map<Integer, Vector> centreBentLigand = new HashMap<>();
+
+        // For every face  of MOP
+        Map<Integer, List<List<Vector>>> vectorListMap = new HashMap<>();  // vector positions
+        Map<Integer, List<List<Integer>>> atomListMap = new HashMap<>();   // atom numbers at the positions
+        Map<Integer, Vector> centreMap = new HashMap<>();
+        Vector centre = new Vector3D();
+        for (int i =0; i< numVertices; i++){
+            centreMap.put(i, centre);
+        }
+        //Move every ligand to first vertice of the face
+        for (int i = 0; i < numVertices; i++){
+            Integer[] vecArray = faces.get(i);
+            moleculeMOPOne = box.getMoleculeList().get(i);
+            Vector originOne, copyOriginOne = new Vector3D();
+            originOne =verticesModified.get(vecArray[0]);
+            copyOriginOne.E(originOne);
+            Vector moleculeStart = moleculeMOPOne.getChildList().get(arrayListMetal2.get(0)).getPosition();
+            copyOriginOne.ME(moleculeStart);
+            Vector centreMod = centreMap.get(i);
+            moleculeMOPOne.getChildList().forEach(atom -> {
+                oldPositionsTwo.get(atom.getIndex()).E(atom.getPosition());
+                atom.getPosition().PE(copyOriginOne);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().ME(copyOriginOne);
+                atom.getPosition().PE(shift);
+            });
+            centreMod.ME(copyOriginOne);
+            Vector shift = box.getBoundary().centralImage(centreMod);
+            centreMod.PE(copyOriginOne);
+            centreMod.PE(shift);
+            //rotate vertice ligand
+            // translate or rotate it as is so as to make sense
+        }
+        //add face ligand
+
+
+
+    }
+
+*/
+   /* public ArrayList<ArrayList<Integer>> connectvityLigantToMOP(ArrayList<ArrayList<Integer>> connectivityLigand, Map<Integer, String> atomMapLigand, Map<Integer, String> atomMapMOP,   Map<Integer, String> atomIndentifierMapLigand, Map<Integer, String> atomIndentifierMapMOP,int numLigands){
+        ArrayList<ArrayList<Integer>> connectivityMOP = new ArrayList<>();
+        ArrayList<Integer> tempLigand = new ArrayList<>();
+        ArrayList<Integer> tempMOP = new ArrayList<>();
+        String atomName = "";
+        String atomIdentifier ="";
+        int newNum =0;
+        int ligandSize = connectivityLigand.size();
+        for (int i = 1; i < numLigands+1; i++){
+            for (int j = 0; j < connectivityLigand.size(); j++){
+                tempLigand = connectivityLigand.get(j);
+                for (int k =0; k <tempLigand.size(); k++){
+                    newNum = tempLigand.get(k) + (ligandSize * i);
+                    tempMOP.add(newNum);
+                }
+                connectivityMOP.add(tempMOP);
+                atomName = atomMapLigand.get(j);
+                atomIdentifier = atomIndentifierMapLigand.get(j);
+                newNum =  j  + i * ligandSize;
+                atomMapMOP.put(newNum, atomName);
+                atomIndentifierMapMOP.put(newNum, atomIdentifier);
+            }
+        }
+        return connectivityMOP;
+    }*/
+
+    public void connectivityMOP(ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, List<Integer>> removedMetals ){
+        Map<Integer, ArrayList<ArrayList<Integer>>> removedMetalArray = new HashMap<>();
+        ArrayList<Integer> tempArray = new ArrayList<>();
+        ArrayList<Integer> actArray = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> tempArrayList = new ArrayList<>();
+        for (Map.Entry<Integer,List<Integer>> entry : removedMetals.entrySet()) {
+            Integer key = entry.getKey();
+            List<Integer> arrayMetals = removedMetals.get(key);
+            tempArrayList = new ArrayList<>();
+            for (int i = 0; i < arrayMetals.size(); i++){
+                tempArray = connectivityMOP.get(arrayMetals.get(i));
+                tempArrayList.add(tempArray);
+                removedMetalArray.put(arrayMetals.get(i), tempArrayList);
+                tempArray.remove(0);
+                actArray = connectivityMOP.get(key);
+                connectivityMOP.remove((int) key);
+                actArray.addAll(tempArray);
+                connectivityMOP.add(key, actArray);
+            }
+        }
+        int numKey  = 0, numAct = 0;
+        ArrayList<ArrayList<Integer>> connectMOPMod = new ArrayList<>();
+        for (Map.Entry<Integer,List<Integer>> entry : removedMetals.entrySet()) {
+            Integer key = entry.getKey();
+            List<Integer> arrayMetals = removedMetals.get(key);
+            for (int i = 0; i < arrayMetals.size(); i++){
+                numKey = arrayMetals.get(i);
+                for (int j =0; j < connectivityMOP.size(); j++){
+                    tempArray = connectivityMOP.get(j);
+                    for (int k = 0 ; k < tempArray.size(); k++){
+                       numAct = tempArray.get(k);
+                       if (numAct > numKey){
+                           numAct--;
+                       }
+                       actArray.add(numAct);
+                    }
+                    connectMOPMod.add(actArray);
+                }
+            }
+        }
+        for (Map.Entry<Integer,List<Integer>> entry : removedMetals.entrySet()){
+            Integer key = entry.getKey();
+            List<Integer> arrayMetals = removedMetals.get(key);
+            for (int i  = 0; i < arrayMetals.size(); i ++){
+                numKey = arrayMetals.get(i);
+                connectMOPMod.remove(numKey);
+            }
+        }
+    }
+
+    public List<Integer> getOxyList(IMolecule molecule, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map, ArrayList<Integer> metalList, ArrayList<Integer> oxyList, Map<Integer, Integer[]> oxyConnectedCommonCarbon){
+        //check if metal is present
+        for(int i =0; i<connectivity.size(); i++){
+            int numZero = connectivity.get(i).get(0);
+            String atomZero = map.get(numZero);
+            if(atomZero.equals("FE+2")|| atomZero.equals("FE+3")||atomZero.equals("CR")||atomZero.equals("MO")||atomZero.equals("AL")||atomZero.equals("PD")||atomZero.equals("PT")||atomZero.equals("CU")||atomZero.equals("ZN")||atomZero.equals("ZR")||atomZero.equals("RH")||atomZero.equals("RU")){
+                metalList.add(numZero);
+            } else if (atomZero.equals("NI") || atomZero.equals("CO") ||atomZero.equals("PO") ||atomZero.equals("MO") ||atomZero.equals("MG") ||atomZero.equals("V") ||atomZero.equals("W") ||atomZero.equals("IR") ||atomZero.equals("TI") ||atomZero.equals("MN")) {
+                metalList.add(numZero);
+            }
+        }
+
+        //check if metal atom is connected to two oxygen atoms
+        Integer[] oxyConnected = new Integer[2];
+        for(int i =0; i< metalList.size(); i++){
+            ArrayList<Integer> connectivityMetal = connectivity.get(metalList.get(i));
+            if(connectivityMetal.size() == 3){
+                for (int j =0; j<2; j++){
+                    oxyConnected = new Integer[2];
+                    int numOne = connectivityMetal.get(j);
+                    if(map.get(numOne).equals("O")){
+                        if(connectivity.get(numOne).size() == 2){
+                            oxyList.add(numOne);
+                            oxyConnected[j] = numOne;
+                        }
+                    }
+                }
+            }
+            oxyConnectedCommonCarbon.put(i, oxyConnected);
+        }
+        return oxyList;
+    }
+
+    public void parallelizeOxygenOrganic (Box box, IMolecule molecule, Map<Integer, Integer[]> oxyConnectedCommonCarbon){
+        int oxyOne = oxyConnectedCommonCarbon.get(0)[0];
+        int oxyTwo = oxyConnectedCommonCarbon.get(0)[1];
+        int oxyThree = oxyConnectedCommonCarbon.get(1)[0];
+        int oxyFour = oxyConnectedCommonCarbon.get(1)[1];
+        Vector oxyOnePosn = molecule.getChildList().get(oxyOne).getPosition();
+        Vector oxyTwoPosn = molecule.getChildList().get(oxyTwo).getPosition();
+        Vector oxyThreePosn = molecule.getChildList().get(oxyThree).getPosition();
+        Vector oxyFourPosn = molecule.getChildList().get(oxyFour).getPosition();
+        Vector oxyAB = new Vector3D(), oxyABCopy = new Vector3D();
+        Vector oxyCD = new Vector3D(), oxyCDCopy = new Vector3D();
+        oxyAB.E(oxyOnePosn);
+        oxyAB.ME(oxyTwoPosn);
+        oxyABCopy.E(oxyAB);
+        oxyAB.normalize();
+        oxyCD.E(oxyThreePosn);
+        oxyCD.ME(oxyFourPosn);
+        oxyCDCopy.E(oxyCD);
+        oxyCD.normalize();
+
+        double prdDot = oxyAB.dot(oxyCD);
+        double theta = Math.acos(prdDot);
+        Vector vecABCDCross = new Vector3D();
+        vecABCDCross.E(oxyAB);
+        vecABCDCross.XE(oxyCD);
+        vecABCDCross.normalize();
+
+        rotationalTensor1.setRotationAxis(vecABCDCross, theta);
+        molecule.getChildList().forEach(atom -> {
+            if(atom.getIndex() == oxyThree || atom.getIndex() == oxyFour) {
+               // atom.getPosition().ME(vecANew);
+                rotationTensor.transform(atom.getPosition());
+               // atom.getPosition().PE(vecANew);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            }
+        });
+    }
+
+    public ArrayList<Vector> getMoleculeProjection(Space space, Box box,ISpecies species, ArrayList<Integer> arrayListLinkerCarb, ArrayList<Integer> arrayListLinkerOxy, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map ){
+        ArrayList<Vector> atomProj = new ArrayList<>();
+      //  if(arrayListLinkerCarb.size() == 3){
+            //allign along Z axis
+            int carbA = arrayListLinkerCarb.get(0);
+            int carbB = arrayListLinkerCarb.get(1);
+            int carbC = arrayListLinkerCarb.get(2);
+            Vector carbAPosn = species.makeMolecule().getChildList().get(carbA).getPosition();
+            Vector carbBPosn = species.makeMolecule().getChildList().get(carbB).getPosition();
+            Vector carbCPosn = species.makeMolecule().getChildList().get(carbC).getPosition();
+           /// System.out.println("\n "+carbAPosn + " "+ carbBPosn);
+            //System.out.println(carbCPosn +"\n");
+            IMolecule molecule = species.makeMolecule();
+
+            //Normal to the plane
+            Vector vecAB = new Vector3D(), vecBC = new Vector3D(), vecCross = new Vector3D(), vecNormal = new Vector3D(), vecNormalCopy = new Vector3D(), vecCrossPrd = new Vector3D();
+            vecAB.E(carbAPosn);
+            vecAB.ME(carbBPosn);
+            vecBC.E(carbCPosn);
+            vecBC.ME(carbBPosn);
+            vecCross.E(vecAB);
+            vecCross.XE(vecBC);
+            vecNormal.E(vecCross);
+            vecNormal.normalize();
+            double A = vecCross.getX(0);
+            double B = vecCross.getX(1);
+            double C = vecCross.getX(2);
+            //System.out.println(molecule.getChildList().size());
+
+            molecule.getChildList().forEach(atom -> {
+                Vector atomPosn = atom.getPosition();
+                double xA = atomPosn.getX(0);
+                double yB = atomPosn.getX(1);
+                double zC = atomPosn.getX(2);
+                double t =  - ((A * xA)  + (B *yB) + (C * zC) )/((A*A)+(B*B)+(C*C));
+                Vector vecProj = Vector.of((xA+(t*A)), (yB+(t*C)), (zC+(t*C)));
+                atomProj.add(vecProj);
+               // System.out.println(t);
+              //  System.out.println(atomPosn +" "+  vecProj);
+            });
+
+      /*  }else {
+            throw  new RuntimeException("Code not written " + arrayListLinkerCarb.size());
+        }*/
+        return atomProj;
+    }
+    public Box getMOPEdgePlatonic(Box box, String strucName,  ISpecies species,List<Integer[]> linkedVertices, ArrayList<Integer> arrayListExtremities, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Integer> arrayListLinkerCarb, int numEdges, double coordinateMultiplier){
+        box.setNMolecules(species, numEdges);
+        List<Vector> vecListPoly = getListVecPoly();
+        Space space = Space3D.getInstance();
+        List<Vector> oldPositionsTwo = new ArrayList<>();
+        IMolecule moleculeMOP = box.getMoleculeList().get(0);
+        while (oldPositionsTwo.size() < moleculeMOP.getChildList().size()) {
+            oldPositionsTwo.add(space.makeVector());
+        }
+        List<Integer[]> faces = new ArrayList<>();
+        List<Vector> vertices = new ArrayList<>();
+        Map<Integer, List<Integer[]>> faceEdges = new HashMap<>();
+        //gets coordinates depending on struct
+        verticesComboFaces(strucName, vertices, faces, faceEdges);
+        List<Integer[]> faceOne = faceEdges.get(0);
+        double actMult = 1000000;
+        for (int i =0; i< faceOne.size(); i++){
+            Vector vertOne = vertices.get(faceOne.get(i)[0]);
+            Vector vertTwo = vertices.get(faceOne.get(i)[1]);
+            double distVal = Math.sqrt(vertOne.Mv1Squared(vertTwo));
+            if (distVal < actMult){
+                actMult = distVal;
+            }
+        }
+        coordinateMultiplier =  coordinateMultiplier/actMult;
+        for(int i=0; i<numEdges; i++) {
+            //ideal vertice
+            Integer[] vecArray = linkedVertices.get(i); //vertices that form an edge
+            IMolecule moleculeMOPOne = box.getMoleculeList().get(i);
+            Vector originOne, copyOriginOne = new Vector3D();
+            originOne = vecListPoly.get(vecArray[0] ); // first end of vertice
+            copyOriginOne.Ea1Tv1(coordinateMultiplier, originOne); //convert actual to real vertice
+            Vector bAct = new Vector3D();
+            bAct.E(vecListPoly.get(vecArray[1] ));
+            bAct.TE(coordinateMultiplier);
+            //move molecule first extremity to the real vertice
+            IMolecule finalMoleculeMOPOne = moleculeMOPOne;
+            Vector originStart = finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            copyOriginOne.ME(originStart);
+            finalMoleculeMOPOne.getChildList().forEach(atom -> {
+                oldPositionsTwo.get(atom.getIndex()).E(atom.getPosition());
+                atom.getPosition().PE(copyOriginOne);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+            //find angle between vector connecting extremities and vertices that need to be connected
+            Vector vecAId = vecListPoly.get(vecArray[0]);
+            //    System.out.println("vecAID " +copyOriginOne);
+            Vector vecAIdVerify = new Vector3D();
+            vecAIdVerify.E(vecAId);
+           // vecAIdVerify.Ea1Tv1(coordinateMultiplier,vecAId );
+            Vector vecBId = vecListPoly.get(vecArray[1]);
+            Vector vecBIdCopy = new Vector3D();
+            vecBIdCopy.Ev1Mv2(vecBId, vecAId);
+            //System.out.println(vecAId +" "+vecBId);
+            vecBIdCopy.normalize();
+            //System.out.println("vecAID norm " + vecBIdCopy);
+            Vector vecANew = finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            Vector vecBNew = finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(1)).getPosition();
+            // System.out.println("vecA "+ vecANew);
+            //System.out.println("vecB "+vecBNew);
+            Vector vecBCopy = new Vector3D();
+            vecBCopy.Ev1Mv2(vecBNew, vecANew);
+            vecBCopy.normalize();
+
+            //angle between molecule extremity vector and edge vector
+            double prodDot = vecBCopy.dot(vecBIdCopy);
+            double theta = Math.acos(prodDot);
+            Vector vecBCross = new Vector3D();
+            vecBCross.E(vecBCopy);
+            vecBCross.XE(vecBIdCopy);
+            vecBCross.normalize();
+
+            rotationTensor.setRotationAxis(vecBCross, theta);
+            finalMoleculeMOPOne.getChildList().forEach(atom -> {
+                if(atom.getIndex() == arrayListExtremities.get(0)) {
+                    return;
+                }
+                atom.getPosition().ME(vecANew);
+                rotationTensor.transform(atom.getPosition());
+                atom.getPosition().PE(vecANew);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+            // System.out.println("after moved "+finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition() +" final moved "+finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(1)).getPosition() +"\n");
+            vecArray = linkedVertices.get(i);
+            vecAId = vecListPoly.get(vecArray[0]);
+            vecAIdVerify = new Vector3D();
+            vecAIdVerify.Ea1Tv1(coordinateMultiplier,vecAId );
+
+            //edges
+            Integer[] vecBArray = linkedVertices.get(i);
+            vecBId = vecListPoly.get(vecBArray[1]);
+            Vector vecBIdVerify = new Vector3D();
+            vecBIdVerify.Ea1Tv1(coordinateMultiplier,vecBId );
+            Vector vecABId = new Vector3D();
+            Vector vecABVerify = new Vector3D();
+            vecABId.Ev1Mv2(vecAIdVerify,vecBIdVerify);
+            vecABVerify.E(vecABId);
+            vecABVerify.normalize();
+
+            Vector vecCId = new Vector3D();
+            Vector vecCVerify = new Vector3D();
+            vecCId.Ev1Pv2(vecAIdVerify, vecBIdVerify);
+            vecCVerify.E(vecCId);
+            vecCId.TE(0.5);
+            vecCId.normalize();
+
+            //double cPerp = vecCId.dot(vecABVerify);
+            Vector vectorOxyoneCopy = new Vector3D();
+            Vector vectorCarCopy = new Vector3D();
+            Vector vectorOxyone = finalMoleculeMOPOne.getChildList().get(arrayListLinkerOxy.get(0)).getPosition();
+            Vector vectorCarbone = finalMoleculeMOPOne.getChildList().get(arrayListLinkerCarb.get(0)).getPosition();
+            vectorOxyoneCopy.E(vectorOxyone);
+            vectorCarCopy.E(vectorCarbone);
+            vectorOxyoneCopy.ME(vectorCarCopy);
+
+            vectorOxyoneCopy.normalize();
+            vectorCarCopy.normalize();
+            double project = vectorOxyoneCopy.dot(vecABVerify);
+            Vector projection = new Vector3D();
+            projection.Ea1Tv1(project, vecABVerify);
+
+            vectorOxyoneCopy.ME(projection);
+            vectorOxyoneCopy.normalize();
+
+            double prodDotRotate = vectorOxyoneCopy.dot(vecCId);
+            double thetaRotate = Math.acos(prodDotRotate);
+
+            vectorOxyoneCopy.XE(vecCId);
+            vectorOxyoneCopy.normalize();
+
+            rotationTensor.setRotationAxis(vectorOxyoneCopy, thetaRotate);
+            Vector finalVecAIdVerify = vecAIdVerify;
+            finalMoleculeMOPOne.getChildList().forEach(atom -> {
+                if(atom.getIndex() == arrayListExtremities.get(0)) {
+                    return;
+                }
+                atom.getPosition().ME(finalVecAIdVerify);
+                rotationTensor.transform(atom.getPosition());
+                atom.getPosition().PE(finalVecAIdVerify);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+        }
+        return box;
+    }
+
+    public Box getMOPEdgeArchimedian(Box box, String strucName,  ISpecies species,List<Integer[]> linkedVertices, ArrayList<Integer> arrayListExtremities, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Integer> arrayListLinkerCarb, int numEdges, double coordinateMultiplier){
+        box.setNMolecules(species, numEdges);
+        Space space = Space3D.getInstance();
+        List<Vector> oldPositionsTwo = new ArrayList<>();
+        IMolecule moleculeMOP = box.getMoleculeList().get(0);
+        while (oldPositionsTwo.size() < moleculeMOP.getChildList().size()) {
+            oldPositionsTwo.add(space.makeVector());
+        }
+        //  System.out.println("inside mopedgfe");
+        List<Integer[]> faces = new ArrayList<>();
+        Map<Integer, List<Integer[]>> faceEdges = new HashMap<>();
+        AutoMOP autoMOP = new AutoMOP();
+        List<Integer[]> listEdges = new ArrayList<>(); List<List<Integer>> faceList = new ArrayList<>(); Map<Integer, Vector> verticeMap = new HashMap<>(); Map<Double, List<Integer[]>> distMap = new HashMap<>(); Map<Integer, Vector> vectorListMap = new HashMap<>();  Map<Integer, Integer[]> midPointEdgeMap = new HashMap<>();
+        //gets coordinates depending on struct
+
+        autoMOP.verticesComboFacesArchimedian(strucName, listEdges, faceList, verticeMap, distMap,vectorListMap, midPointEdgeMap );
+
+        List<Integer[]> faceOne = new ArrayList<>();
+
+        faceOne = listEdges;
+        linkedVertices = listEdges;
+
+       // }*/
+
+
+
+        List<Vector> vecListPoly = new ArrayList<>();
+        for (int i = 0; i < verticeMap.size(); i++){
+            vecListPoly.add(verticeMap.get(i));
+        }
+        List<Vector> vertices = new ArrayList<>();
+        Vector vecNew = new Vector3D();
+        for (int i = 0; i < verticeMap.size(); i++){
+            Vector vec = verticeMap.get(i);
+            vecNew = new Vector3D();
+            vecNew.Ea1Tv1(coordinateMultiplier, vec);
+            vertices.add(i, vecNew);
+        }
+
+        Integer[] vert = linkedVertices.get(0);
+        Vector v1 = vertices.get(vert[0]);
+        Vector v2 = vertices.get(vert[1]);
+        double actMultNew = Math.sqrt(v2.Mv1Squared(v1));
+        //System.out.println(actMultNew);
+        for(int i=0; i<numEdges; i++) {
+            //ideal vertice
+            Integer[] vecArray = linkedVertices.get(i); //vertices that form an edge
+            IMolecule moleculeMOPOne = box.getMoleculeList().get(i);
+            Vector originOne, copyOriginOne = new Vector3D();
+
+            originOne = vecListPoly.get(vecArray[0] ); // first end of vertice
+            copyOriginOne.Ea1Tv1(coordinateMultiplier, originOne); //convert actual to real vertice
+            Vector bAct = new Vector3D();
+            bAct.E(vecListPoly.get(vecArray[1] ));
+            bAct.TE(coordinateMultiplier);
+            bAct.E(vecListPoly.get(vecArray[1] ));
+            //move molecule first extremity to the real vertice
+            IMolecule finalMoleculeMOPOne = moleculeMOPOne;
+            Vector originStart = finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            copyOriginOne.ME(originStart);
+            finalMoleculeMOPOne.getChildList().forEach(atom -> {
+                oldPositionsTwo.get(atom.getIndex()).E(atom.getPosition());
+                atom.getPosition().PE(copyOriginOne);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+            //find angle between vector connecting extremities and vertices that need to be connected
+            Vector vecAId = vecListPoly.get(vecArray[0]);
+            //    System.out.println("vecAID " +copyOriginOne);
+            Vector vecAIdVerify = new Vector3D();
+            vecAIdVerify.Ea1Tv1(coordinateMultiplier,vecAId );
+            Vector vecBId = vecListPoly.get(vecArray[1]);
+            Vector vecBIdCopy = new Vector3D();
+            vecBIdCopy.Ev1Mv2(vecBId, vecAId);
+            //System.out.println(vecAId +" "+vecBId);
+            vecBIdCopy.normalize();
+            //System.out.println("vecAID norm " + vecBIdCopy);
+            Vector vecANew = finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            Vector vecBNew = finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(1)).getPosition();
+            // System.out.println("vecA "+ vecANew);
+            //System.out.println("vecB "+vecBNew);
+            Vector vecBCopy = new Vector3D();
+            vecBCopy.Ev1Mv2(vecBNew, vecANew);
+            vecBCopy.normalize();
+
+            //angle between molecule extremity vector and edge vector
+            double prodDot = vecBCopy.dot(vecBIdCopy);
+            double theta = Math.acos(prodDot);
+            Vector vecBCross = new Vector3D();
+            vecBCross.E(vecBCopy);
+            vecBCross.XE(vecBIdCopy);
+            vecBCross.normalize();
+
+            rotationTensor.setRotationAxis(vecBCross, theta);
+            finalMoleculeMOPOne.getChildList().forEach(atom -> {
+                if(atom.getIndex() == arrayListExtremities.get(0)) {
+                    return;
+                }
+                atom.getPosition().ME(vecANew);
+                rotationTensor.transform(atom.getPosition());
+                atom.getPosition().PE(vecANew);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+            // System.out.println("after moved "+finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition() +" final moved "+finalMoleculeMOPOne.getChildList().get(arrayListExtremities.get(1)).getPosition() +"\n");
+            vecArray = linkedVertices.get(i);
+            vecAId = vecListPoly.get(vecArray[0]);
+            vecAIdVerify = new Vector3D();
+            vecAIdVerify.Ea1Tv1(coordinateMultiplier,vecAId );
+
+            //edges
+            Integer[] vecBArray = linkedVertices.get(i);
+            vecBId = vecListPoly.get(vecBArray[1]);
+            Vector vecBIdVerify = new Vector3D();
+            vecBIdVerify.Ea1Tv1(coordinateMultiplier,vecBId );
+            Vector vecABId = new Vector3D();
+            Vector vecABVerify = new Vector3D();
+            vecABId.Ev1Mv2(vecAIdVerify,vecBIdVerify);
+            vecABVerify.E(vecABId);
+            vecABVerify.normalize();
+
+            Vector vecCId = new Vector3D();
+            Vector vecCVerify = new Vector3D();
+            vecCId.Ev1Pv2(vecAIdVerify, vecBIdVerify);
+            vecCVerify.E(vecCId);
+            vecCId.TE(0.5);
+            vecCId.normalize();
+
+            //double cPerp = vecCId.dot(vecABVerify);
+            Vector vectorOxyoneCopy = new Vector3D();
+            Vector vectorCarCopy = new Vector3D();
+            Vector vectorOxyone = finalMoleculeMOPOne.getChildList().get(arrayListLinkerOxy.get(0)).getPosition();
+            Vector vectorCarbone = finalMoleculeMOPOne.getChildList().get(arrayListLinkerCarb.get(0)).getPosition();
+            vectorOxyoneCopy.E(vectorOxyone);
+            vectorCarCopy.E(vectorCarbone);
+            vectorOxyoneCopy.ME(vectorCarCopy);
+
+            vectorOxyoneCopy.normalize();
+            vectorCarCopy.normalize();
+            double project = vectorOxyoneCopy.dot(vecABVerify);
+            Vector projection = new Vector3D();
+            projection.Ea1Tv1(project, vecABVerify);
+
+            vectorOxyoneCopy.ME(projection);
+            vectorOxyoneCopy.normalize();
+
+            double prodDotRotate = vectorOxyoneCopy.dot(vecCId);
+            double thetaRotate = Math.acos(prodDotRotate);
+
+            vectorOxyoneCopy.XE(vecCId);
+            vectorOxyoneCopy.normalize();
+
+            rotationTensor.setRotationAxis(vectorOxyoneCopy, thetaRotate);
+            Vector finalVecAIdVerify = vecAIdVerify;
+            finalMoleculeMOPOne.getChildList().forEach(atom -> {
+                if(atom.getIndex() == arrayListExtremities.get(0)) {
+                    return;
+                }
+                atom.getPosition().ME(finalVecAIdVerify);
+                rotationTensor.transform(atom.getPosition());
+                atom.getPosition().PE(finalVecAIdVerify);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+        }
+        return box;
+    }
+    public Box getMOPFaceMod(Box box,String struc, String strucName, ISpecies species, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map,List<Integer[]> linkedVertices, ArrayList<Integer> arrayListExtremities, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Integer> arrayListLinkerCarb, int numEdges, double dist, ArrayList<Vector> moleculeProjection){
+        List<Integer[]> faces = new ArrayList<>();
+        List<Vector> vertices = new ArrayList<>();
+        Map<Integer, List<Integer[]>> faceEdges = new HashMap<>();
+        Map<Integer, List<Vector>> midPoints = new HashMap<>();
+        //gets coordinates depending on struct
+        verticesComboFaces(strucName, vertices, faces, faceEdges);
+        for (int i =0; i< faceEdges.size(); i++){
+            List<Integer[]> facesInOne = faceEdges.get(i);
+            List<Vector> midPointPerFace = new ArrayList<>();
+            for (int j =0; j< faceEdges.get(i).size(); j++){
+                Integer[] verts = facesInOne.get(j);
+                int numZero = verts[0];
+                int numOne = verts[1];
+                Vector vecZero = vertices.get(numZero);
+                Vector vecOne = vertices.get(numOne);
+                Vector vecMid = new Vector3D();
+                vecMid.E(vecZero);
+                vecMid.PE(vecOne);
+                vecMid.TE(0.5);
+                midPointPerFace.add(vecMid);
+            }
+            midPoints.put(i, midPointPerFace);
+        }
+        Vector vecOne = midPoints.get(0).get(0);
+        Vector vecTwo = midPoints.get(0).get(1);
+        double distNominal = Math.sqrt(vecOne.Mv1Squared(vecTwo));
+        Vector bentEnd =  new Vector3D();
+        double length = bentLength(species.makeMolecule(), arrayListExtremities, bentEnd);
+        double coordinateMultiplier = length/distNominal;
+        Map<Integer, List<Vector>> midPointsMod = new HashMap<>();
+        for (int i =0; i<midPoints.size(); i++){
+            List<Vector> facepointMod = new ArrayList<>();
+            for (int j =0; j<midPoints.get(i).size(); j++){
+                Vector vec = midPoints.get(i).get(j);
+                vec.TE(coordinateMultiplier);
+                facepointMod.add(vec);
+            }
+            midPointsMod.put(i, facepointMod);
+        }
+
+        for(int i =0; i< midPointsMod.size(); i++){
+            System.out.println(Arrays.deepToString(midPointsMod.get(i).toArray()));
+        }
+      //  System.exit(1);
+        return box;
+    }
+    public Map<Double, List<Integer>> getPentagonDist(List<Vector> vecListArray, List<Integer[]> faceVerticeList){
+        Map<Double, List<Integer>> distMap = new HashMap<>();
+        int firstPoint =0, nthPoint =0;
+        double distance = 0;
+        Vector firstVector = new Vector3D(), diffVector = new Vector3D(), nthVector = new Vector3D();
+        for (int i = 0; i < faceVerticeList.size(); i++){
+            Integer[] faceVertice = faceVerticeList.get(i);
+            firstPoint = faceVertice[0];
+            firstVector = vecListArray.get(firstPoint);
+            for (int j =1; j < faceVertice.length; j++){
+                nthPoint = faceVertice[j];
+                nthVector = vecListArray.get(nthPoint);
+                diffVector.E(firstVector);
+                distance = diffVector.Mv1Squared(firstVector);
+
+            }
+        }
+        return distMap;
+    }
+
+
+    public Box getMOPFace(Box box,String struc, String strucName, ISpecies species, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map,List<Integer[]> linkedVertices, ArrayList<Integer> arrayListExtremities, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Integer> arrayListLinkerCarb, int numEdges, double dist, ArrayList<Vector> moleculeProjection){
+        AutoMOP autoMOP = new AutoMOP();
+        List<Integer[]> faces = new ArrayList<>();
+        List<Vector> vertices = new ArrayList<>();
+        Map<Integer, List<Integer[]>> faceEdges = new HashMap<>();
+
+        //gets coordinates depending on struct
+        verticesComboFaces(strucName, vertices, faces, faceEdges );
+
+        //get dist bw two extremities
+        Vector vecVert = vertices.get(0);
+        Vector vecVertTwo = vertices.get(1);
+        double edgeLen = Math.sqrt(vecVert.Mv1Squared(vecVertTwo));
+
+        Vector vecOne = species.makeMolecule().getChildList().get(arrayListExtremities.get(0)).getPosition();
+        Vector vecTwo = species.makeMolecule().getChildList().get(arrayListExtremities.get(1)).getPosition();
+        double lenLig = Math.sqrt(vecOne.Mv1Squared(vecTwo));
+
+       //add ligands depending on MOP geometry and modify ideal coordinates
+        double coordinateMultiplier = lenLig/ edgeLen;
+        if(strucName.equals("tetra")){
+            numEdges = 4;
+        }else if (strucName.equals("cube")) {
+            numEdges = 6;
+        } else if (strucName.equals("octa")) {
+            numEdges = 8;
+        } else if (strucName.equals("icosa")) {
+            numEdges = 20;
+        } else if (strucName.equals("dodeca")) {
+            numEdges = 12;
+        }
+        //Move all ligands to the zeroth coordinate
+        Space space = Space3D.getInstance();
+        box.setNMolecules(species, numEdges);
+        List<Vector> oldPositionsTwo = new ArrayList<>();
+        IMolecule moleculeMOPOne = box.getMoleculeList().get(0);
+        while (oldPositionsTwo.size() < moleculeMOPOne.getChildList().size()) {
+            oldPositionsTwo.add(space.makeVector());
+        }
+        List<Vector> verticesModified = new ArrayList<>();
+        Map<Integer, List<Vector>> bentVertices = new HashMap<>();
+
+        // get vertices for Bent MOP (as centre of edges)
+        if(struc.equals("bent")){
+            for(int i = 0; i< vertices.size(); i++){
+                Vector originOne, copyOriginOne = new Vector3D();
+                originOne = vertices.get(i);
+                copyOriginOne.Ea1Tv1(coordinateMultiplier, originOne);
+                verticesModified.add(i, copyOriginOne);
+            }
+
+            Vector bentEnd =  new Vector3D();
+            double length = bentLength(species.makeMolecule(), arrayListExtremities, bentEnd);
+            double lengthStandard = calcDist( vertices, faces, faceEdges );
+            if(strucName.equals("tetra")){
+                coordinateMultiplier = 2 * length/lengthStandard;
+            } else {
+                coordinateMultiplier = length / lengthStandard;
+            }
+
+            //converts vertices of tetra MOP to final position where they need to be translated
+            for (int i =0; i<faceEdges.size(); i++){
+                List<Vector> newList = new ArrayList<>();
+                for (int j= 0; j<faceEdges.get(i).size(); j++){
+                    int vertIndOne  = faceEdges.get(i).get(j)[0];
+                    int vertIndTwo  = faceEdges.get(i).get(j)[1];
+                    Vector vertVecOne = verticesModified.get(vertIndOne);
+                    Vector vertVecTwo = verticesModified.get(vertIndTwo);
+                    Vector vecMod = new Vector3D();
+                    vecMod.E(vertVecOne);
+                    vecMod.PE(vertVecTwo);
+                    vecMod.TE(0.5);
+                    newList.add(vecMod);
+                }
+                bentVertices.put(i, newList);
+            }
+            System.out.println("\n");
+        }
+        // For every face  of MOP
+        Map<Integer, List<List<Vector>>> vectorListMap = new HashMap<>();  // vector positions
+        Map<Integer, List<List<Integer>>> atomListMap = new HashMap<>();   // atom numbers at the position
+        int numVertices = autoMOP.numVertices(strucName);
+        //Move zeroth extremities atom to the zeroth position of the MOP vertices
+        if(struc.equals("face")){
+          //  System.out.println("Face num "+ numEdges);
+
+            //Multiply unit coordinates to coordinates of Polyhedra acc to Ligand size
+            for(int i = 0; i< numVertices; i++){
+                Vector originOne, copyOriginOne = new Vector3D();
+                originOne = vertices.get(i);
+                copyOriginOne.Ea1Tv1(coordinateMultiplier, originOne);
+                verticesModified.add(i, copyOriginOne);
+            }
+
+            for(int i = 0; i<numEdges; i++){
+                Integer[] vecArray = faces.get(i);
+                moleculeMOPOne = box.getMoleculeList().get(i);
+                Vector originOne, copyOriginOne = new Vector3D();
+                originOne =verticesModified.get(vecArray[0]);
+                copyOriginOne.E(originOne);
+                Vector moleculeStart = moleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+                copyOriginOne.ME(moleculeStart);
+                moleculeMOPOne.getChildList().forEach(atom -> {
+                    oldPositionsTwo.get(atom.getIndex()).E(atom.getPosition());
+                    atom.getPosition().PE(copyOriginOne);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });
+                everyMolecule(i, faces.get(i), moleculeMOPOne, verticesModified, arrayListExtremities, vectorListMap, atomListMap, false );
+            }
+        }else{
+
+            for(int i = 0; i<numEdges; i++){
+                IMolecule finalmoleculeMOPOne;
+                List<Vector> faceVect = bentVertices.get(i);
+                finalmoleculeMOPOne = box.getMoleculeList().get(i);
+                Vector originOne, copyOriginOne = new Vector3D();
+                originOne =faceVect.get(0);
+                copyOriginOne.E(originOne);
+                // System.out.println("Before "+finalmoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition());
+                Vector moleculeStart = finalmoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+                copyOriginOne.ME(moleculeStart);
+                finalmoleculeMOPOne.getChildList().forEach(atom -> {
+                    oldPositionsTwo.get(atom.getIndex()).E(atom.getPosition());
+                    atom.getPosition().PE(copyOriginOne);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });
+                // System.out.println("After "+finalmoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition()+ "\n");
+                // finds which extremity of Ligand is closest to which vertice of MOP face
+                everyMolecule(i, faces.get(i),  finalmoleculeMOPOne, faceVect, arrayListExtremities, vectorListMap, atomListMap, true);
+            }
+        }
+
+        for(int i=0; i<numEdges; i++){
+
+          //  System.out.println("before");
+            IMolecule moleculeMOPOneNew = box.getMoleculeList().get(i);
+            //points on faces List not facelist
+            List<List<Vector>> faceList = vectorListMap.get(i);
+            List<List<Integer>> ligandList = atomListMap.get(0);
+
+            List<Integer> moleculeOne = ligandList.get(0);
+            /*System.out.println("molB "+ vectorListMap.get(i).get(1).get(0));
+            System.out.println("PosnB "+ moleculeMOPOneNew.getChildList().get(ligandList.get(1).get(1)).getPosition()+"\n");
+            // }
+            System.out.println("molA "+ vectorListMap.get(i).get(0).get(0));
+            System.out.println("PosnA "+ moleculeMOPOneNew.getChildList().get(ligandList.get(0).get(1)).getPosition());
+            System.out.println("molB "+ vectorListMap.get(i).get(1).get(0));
+            System.out.println("PosnB "+ moleculeMOPOneNew.getChildList().get(ligandList.get(1).get(1)).getPosition());
+            System.out.println("molC "+ vectorListMap.get(i).get(2).get(0));
+            System.out.println("PosnC "+ moleculeMOPOneNew.getChildList().get(ligandList.get(2).get(1)).getPosition());*/
+           // System.out.println("\n Face num "+ (i+1));
+
+
+            List<Vector> faceOne = faceList.get(0);
+            Vector vecA = faceOne.get(0); // first position of face (already translated)
+            Vector vecP = moleculeMOPOneNew.getChildList().get(moleculeOne.get(1)).getPosition(); // first position of molecule (already translated)
+            Vector vecACopy = new Vector3D(), vecPCopy = new Vector3D();
+            vecACopy.E(vecA);
+            vecPCopy.E(vecP);
+          //  for(int j = 1; j<faceList.size(); j++){
+            int j = 1;
+           // if(int j = 1){
+                Vector vecB = faceList.get(j).get(0); // second vertice of the face (to be rotated) / nth vertice
+                Vector vecQ = moleculeMOPOneNew.getChildList().get(ligandList.get(j).get(1)).getPosition(); // second endpoint of molecule (to be rotated)
+                Vector vecAB = new Vector3D(), vecPQ = new Vector3D();
+                vecAB.Ev1Mv2(vecB, vecACopy);
+                //System.out.println("vecAB : "+vecAB );
+                vecAB.normalize();
+                vecPQ.Ev1Mv2(vecQ, vecPCopy);
+               // System.out.println("vecPQ : "+vecPQ );
+                vecPQ.normalize();
+                double prodDotRotate = vecAB.dot(vecPQ);
+                double thetaRotate = Math.acos(prodDotRotate);
+                Vector vecABPQCross = new Vector3D();
+                vecABPQCross.E(vecPQ);
+                vecABPQCross.XE(vecAB);
+                vecABPQCross.normalize();
+                rotationTensor.setRotationAxis(vecABPQCross,thetaRotate);
+                moleculeMOPOneNew.getChildList().forEach(atom -> {
+
+                  /*  if(atom.getIndex() == arrayListExtremities.get(0)) {
+                        return;
+                    }*/
+                       atom.getPosition().ME(vecACopy);
+                       rotationTensor.transform(atom.getPosition());
+                       atom.getPosition().PE(vecACopy);
+                       Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                       atom.getPosition().PE(shift);
+                });
+           /* System.out.println("\n molB "+ vectorListMap.get(i).get(1).get(0));
+            System.out.println("PosnB "+ moleculeMOPOneNew.getChildList().get(ligandList.get(1).get(1)).getPosition()+"\n");
+            // }
+            System.out.println("molA "+ vectorListMap.get(i).get(0).get(0));
+            System.out.println("PosnA "+ moleculeMOPOneNew.getChildList().get(ligandList.get(0).get(1)).getPosition());
+            System.out.println("vert B "+ vectorListMap.get(i).get(1).get(0));
+            System.out.println("final Q "+ moleculeMOPOneNew.getChildList().get(ligandList.get(1).get(1)).getPosition());
+            System.out.println("vert C "+ vectorListMap.get(i).get(2).get(0));
+            System.out.println("final R "+ moleculeMOPOneNew.getChildList().get(ligandList.get(2).get(1)).getPosition());
+            System.out.println("\n");*/
+
+           // if(true){
+                vecP = moleculeMOPOneNew.getChildList().get(ligandList.get(0).get(1)).getPosition(); // first translated atom
+                vecQ = moleculeMOPOneNew.getChildList().get(ligandList.get(1).get(1)).getPosition(); // first rotated atom
+                Vector vecR = moleculeMOPOneNew.getChildList().get(ligandList.get(2).get(1)).getPosition();  // third atom not reached final position
+                Vector vecC = faceList.get(2).get(0); //final position of third atom
+                Vector midPQ = new Vector3D(), midPQCopy = new Vector3D(), vecPQC = new Vector3D(), vecPQR = new Vector3D(), vecPQCNorm = new Vector3D(), vecPQRNorm = new Vector3D();
+
+                //find angle  between plane before (PQR)  and after rotation (PQC)
+                //line connecting midpoint of P & Q and initial and final destion of R
+                midPQ.E(vecP);
+                midPQ.PE(vecQ);
+                midPQ.TE(0.5);
+                midPQCopy.E(midPQ);
+                vecPQC.E(vecC);
+                vecPQC.ME(midPQ);
+                vecPQCNorm.E(vecPQC);
+                vecPQCNorm.normalize();
+
+                vecPQR.E(vecR);
+                vecPQR.ME(midPQ);
+                vecPQRNorm.E(vecPQR);
+                vecPQRNorm.normalize();
+                //System.out.println(vecPQCNorm + " "+vecPQRNorm);
+                double prodplane = vecPQCNorm.dot(vecPQRNorm);
+                double anglePlane = Math.acos(prodplane);
+                Vector vecPQRCCross = new Vector3D();
+                vecPQRCCross.E(vecPQRNorm);
+                vecPQRCCross.XE(vecPQCNorm);
+                vecPQRCCross.normalize();
+
+                rotationTensor.setRotationAxis(vecPQRCCross,anglePlane);
+                Vector finalVecQ = vecQ;
+                moleculeMOPOneNew.getChildList().forEach(atom -> {
+
+                    if(atom.getIndex() == ligandList.get(0).get(1) || atom.getIndex() == ligandList.get(1).get(1) ) {
+                        return;
+                    }
+                    atom.getPosition().ME(midPQ);
+                    rotationTensor.transform(atom.getPosition());
+                    atom.getPosition().PE(midPQ);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                    //System.out.println(atom.getPosition());
+                });
+                //System.out.println(vecPQCNorm + " "+vecPQRNorm);
+           // vecR = moleculeMOPOneNew.getChildList().get(ligandList.get(2).get(1)).getPosition();
+             //   System.out.println( "after "+ vecR);
+              /*  System.out.println("molA "+ vectorListMap.get(i).get(0).get(0));
+                System.out.println("PosnA "+ moleculeMOPOneNew.getChildList().get(ligandList.get(0).get(1)).getPosition());
+                System.out.println("molB "+ vectorListMap.get(i).get(1).get(0));
+                System.out.println("PosnB "+ moleculeMOPOneNew.getChildList().get(ligandList.get(1).get(1)).getPosition());
+                System.out.println("molC "+ vectorListMap.get(i).get(2).get(0));
+                System.out.println("PosnC "+ moleculeMOPOneNew.getChildList().get(ligandList.get(2).get(1)).getPosition());*/
+           // }
+           // System.exit(1);
+        }
+       //
+     //   System.exit(1);
+        return box;
+    }
+
+    public Box getMOPBent(Box box, String strucName, ISpecies species, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map,List<Integer[]> linkedVertices, ArrayList<Integer> arrayListExtremities, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Integer> arrayListLinkerCarb, int numEdges, double dist, ArrayList<Vector> moleculeProj){
+        double coordinateMultiplier = 0;
+        List<Integer[]> faces = new ArrayList<>();
+        List<Vector> vertices = new ArrayList<>();
+        Map<Integer, List<Integer[]>> faceEdges = new HashMap<>();
+        verticesComboFaces(strucName, vertices, faces, faceEdges );
+
+        Vector bentEnd =  new Vector3D();
+        double length = bentLength(species.makeMolecule(), arrayListExtremities, bentEnd);
+        double lengthStandard = calcDist( vertices, faces, faceEdges );
+        if(strucName.equals("tetra")){
+            numEdges = 4;
+            coordinateMultiplier = 2 * length/lengthStandard;
+        } else {
+            throw new RuntimeException("Conversion factor not written");
+        }
+       // System.out.println(length +" "+ lengthStandard);
+       // System.out.println(coordinateMultiplier);
+        // rotateAroundAxis(vecListPoly,coordinateMultiplier);
+        //   distFace = calcDistFace(species, arrayListLinkerOxy);
+
+       /* if(strucName.equals("tetra")){
+            numEdges = 4;
+            dist = 3.0/2 * bentEndLength;
+        }else if (strucName.equals("cube")) {
+            numEdges = 6;
+            dist = 2 * bentEndLength;
+        } else if (strucName.equals("octa")) {
+            numEdges = 8;
+            dist = 3.0/2 * bentEndLength;
+        } else if (strucName.equals("icosa")) {
+            numEdges = 20;
+            dist = 3.0/2 * bentEndLength;
+        } else if (strucName.equals("dodeca")) {
+            numEdges = 12;
+            dist = 2 * Math.sin(Degree.UNIT.toSim(36)) * bentEndLength;
+        }*/
+        Space space = Space3D.getInstance();
+        box.setNMolecules(species, numEdges);
+        List<Vector> oldPositionsTwo = new ArrayList<>();
+        IMolecule moleculeMOPOne = box.getMoleculeList().get(0);
+        while (oldPositionsTwo.size() < moleculeMOPOne.getChildList().size()) {
+            oldPositionsTwo.add(space.makeVector());
+        }
+
+        List<Vector> verticesModified = new ArrayList<>();
+        for(int i = 0; i< vertices.size(); i++){
+            Vector originOne, copyOriginOne = new Vector3D();
+            originOne = vertices.get(i);
+            copyOriginOne.Ea1Tv1(coordinateMultiplier, originOne);
+            verticesModified.add(i, copyOriginOne);
+        }
+
+        //converts vertices of tetra MOP to final position where they need to be translated
+        Map<Integer, List<Vector>> bentVertices = new HashMap<>();
+        for (int i =0; i<faceEdges.size(); i++){
+            List<Vector> newList = new ArrayList<>();
+            for (int j= 0; j<faceEdges.get(i).size(); j++){
+                int vertIndOne  = faceEdges.get(i).get(j)[0];
+                int vertIndTwo  = faceEdges.get(i).get(j)[1];
+                Vector vertVecOne = verticesModified.get(vertIndOne);
+                Vector vertVecTwo = verticesModified.get(vertIndTwo);
+                Vector vecMod = new Vector3D();
+                vecMod.E(vertVecOne);
+                vecMod.PE(vertVecTwo);
+                vecMod.TE(0.5);
+                newList.add(vecMod);
+            }
+            bentVertices.put(i, newList);
+        }
+        System.out.println("\n");
+
+        // print all midpoints which are final positions of extremeties
+      /*  for(int i = 0; i<faceEdges.size(); i++){
+           // System.out.println(Arrays.deepToString(faceEdges.get(i).toArray()));
+            System.out.println(Arrays.deepToString(bentVertices.get(i).toArray()));
+        }*/
+
+        Map<Integer, List<List<Vector>>> vectorListMap = new HashMap<>();
+        Map<Integer, List<List<Integer>>> atomListMap = new HashMap<>();
+        for(int i = 0; i<faceEdges.size(); i++){
+            IMolecule finalmoleculeMOPOne;
+            List<Vector> faceVect = bentVertices.get(i);
+            finalmoleculeMOPOne = box.getMoleculeList().get(i);
+            Vector originOne, copyOriginOne = new Vector3D();
+            originOne =faceVect.get(0);
+            copyOriginOne.E(originOne);
+           // System.out.println("Before "+finalmoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition());
+            Vector moleculeStart = finalmoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            copyOriginOne.ME(moleculeStart);
+            finalmoleculeMOPOne.getChildList().forEach(atom -> {
+                oldPositionsTwo.get(atom.getIndex()).E(atom.getPosition());
+                atom.getPosition().PE(copyOriginOne);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+           // System.out.println("After "+finalmoleculeMOPOne.getChildList().get(arrayListExtremities.get(0)).getPosition()+ "\n");
+            // finds which extremity of Ligand is closest to which vertice of MOP face
+            everyMolecule(i, faces.get(i),  finalmoleculeMOPOne, faceVect, arrayListExtremities, vectorListMap, atomListMap, true);
+        }
+
+        for(int i=0; i<faceEdges.size(); i++){
+            IMolecule finalmoleculeMOPOne = box.getMoleculeList().get(i);
+            // Integer[] face = faces.get(i);
+            List<List<Vector>> faceList = vectorListMap.get(i);
+            List<Vector> faceOne = faceList.get(0);
+            List<List<Integer>> atomList = atomListMap.get(i);
+            Vector vecA = faceOne.get(0);
+            Vector vecP = faceOne.get(1);
+            Vector vecACopy = new Vector3D(), vecPCopy = new Vector3D();
+            vecACopy.E(vecA);
+            vecPCopy.E(vecP);
+
+            for(int j = 1; j< faceList.size(); j++){
+                int numAtom = atomList.get(j).get(1);
+                Vector vecB = faceList.get(j).get(0);
+                System.out.println(vecB);
+                Vector vecQ = faceList.get(j).get(1);
+                Vector vecAB = new Vector3D(), vecPQ = new Vector3D();
+                vecAB.Ev1Mv2(vecACopy, vecB);// ideal coordinates vector
+                vecAB.normalize();
+                vecPQ.Ev1Mv2(vecPCopy, vecQ); // ligand vector
+                vecPQ.normalize();
+
+                System.out.println("Before " + numAtom + " " + finalmoleculeMOPOne.getChildList().get(numAtom).getPosition() );
+                double prodDotRotate = vecPQ.dot(vecAB);
+                double thetaRotate = Math.acos(prodDotRotate);// angle of rotation
+                Vector vecABPQCross = new Vector3D();
+                vecABPQCross.E(vecPQ);
+                vecABPQCross.XE(vecAB);
+                vecABPQCross.normalize();// axis of rotation
+
+                rotationTensor.setRotationAxis(vecABPQCross, thetaRotate);
+               // int atomZero = atomList.get(0).get(0);
+               // int atomOne = atomList.get(1).get(0);
+               // int finalJ = j;
+                finalmoleculeMOPOne.getChildList().forEach(atom -> {
+                    /*if(atom.getIndex() == atomZero) {
+                        return;
+                    }
+                    if(finalJ == 2 &&  atom.getIndex() == atomOne){
+                        return;
+                    }*/
+                    //atom.getPosition().ME(vecP);
+                    rotationTensor.transform(atom.getPosition());
+                    //atom.getPosition().PE(vecP);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });
+                System.out.println("After " + numAtom + " " + finalmoleculeMOPOne.getChildList().get(numAtom).getPosition());
+
+            }
+        }
+        return box;
+    }
+
+    private void actDist(List<Vector> vertices, List<Integer[]> faces, Map<Integer, List<Integer[]>> faceEdges, double divider) {
+        Integer[] faceZero = faces.get(0);
+        List<Integer[]> faceZeroEdges = faceEdges.get(0);
+
+        System.out.println(Arrays.toString(faceZero));
+     //   for (int i =0; i< faceZeroEdges.size(); i++){
+            Integer[] faceZeroEdgeZero = faceZeroEdges.get(0);
+            System.out.println(Arrays.toString(faceZeroEdgeZero));
+            Vector vecVertZero = vertices.get(faceZeroEdgeZero[0]);
+            Vector vecVertOne = vertices.get(faceZeroEdgeZero[1]);
+            Vector dist = new Vector3D();
+            dist.Ev1Mv2(vecVertZero, vecVertOne);
+            double distVert = Math.sqrt(dist.squared());
+        System.out.println(distVert);
+    //    }
+      //  System.out.println(faceZeroEdges);
+    }
+
+    /*private void stretchMolecule(ISpecies species, ArrayList<Integer> arrayListLinkerOxy) {
+        IMolecule molecule = species.makeMolecule();
+        Map<Double,Integer[]> distanceMap = new HashMap<>();
+        for(int i =0; i< arrayListLinkerOxy.size(); i++){
+            for(int j=i+1; j<arrayListLinkerOxy.size(); j++){
+                Vector vectorOne = molecule.getChildList().get(arrayListLinkerOxy.get(i)).getPosition();
+                Vector vectorTwo = molecule.getChildList().get(arrayListLinkerOxy.get(j)).getPosition();
+                double distance = Math.sqrt(vectorOne.Mv1Squared(vectorTwo));
+             //   System.out.println( i + " " +j +" " + vectorOne+ " "+ vectorTwo + distance);
+                distanceMap.put(distance, new Integer[]{i, j});
+            }
+        }
+        List<Integer[]> adjactntPoints = new ArrayList<>();
+        List<Double> sortedKeys = new ArrayList<>(distanceMap.keySet());
+        Collections.sort(sortedKeys);
+        int n =10;
+        Map<Double,Integer[]> smallestDistanceMap = new HashMap<>();
+        // Print the n smallest keys and their respective values
+        for (int i = 0; i < Math.min(arrayListLinkerOxy.size(), sortedKeys.size()); i++) {
+            Double key = sortedKeys.get(i);
+            Integer[] value = distanceMap.get(key);
+            smallestDistanceMap.put(key, value);
+         //   System.out.println("Key: " + key + " Value: " + Arrays.toString(value));
+        }
+        double largestKey = Integer.MIN_VALUE;
+      //  System.out.println(smallestDistanceMap);
+        for (Map.Entry<Double, Integer[]> entry : smallestDistanceMap.entrySet()) {
+            System.out.println("Key: " + entry.getKey() + " Value: " + Arrays.toString(entry.getValue()));
+        }
+        Double smallestKey = 0.0;
+
+        double smallestSize = Integer.MIN_VALUE;
+
+        for (Map.Entry<Double, Integer[]> entry : smallestDistanceMap.entrySet()) {
+            double currentSize = entry.getKey();
+            // Check for smaller size or the same size with a smaller key
+            if (smallestSize < currentSize || (currentSize == smallestSize && (smallestKey == null || entry.getKey() > smallestKey))) {
+                smallestSize = currentSize;
+                smallestKey = entry.getKey();
+            }
+        }
+        double largestKeyFurther = smallestKey;
+        Integer[] valLargestKey = smallestDistanceMap.get(largestKeyFurther);
+        int zeroLargest = valLargestKey[0];
+        int oneLargest = valLargestKey[1];
+        System.out.println(Arrays.toString(valLargestKey));
+        List<Integer> toCompare = new ArrayList<>();
+        List<int[]> toCompareNew = new ArrayList<>();
+        System.out.println(smallestKey + " " + Arrays.toString(smallestDistanceMap.get(smallestKey)));
+
+        for(Map.Entry<Double, Integer[]> entry : smallestDistanceMap.entrySet()){
+            double currentSize = entry.getKey();
+            double diff = Math.abs(currentSize - largestKeyFurther);
+            if(diff > 1e-9){
+
+                Integer[] intNums = smallestDistanceMap.get(currentSize);
+                int zeroNum = intNums[0];
+                int oneNum = intNums[1];
+                System.out.println("num " + Arrays.toString(intNums) + " largest "+ Arrays.toString(valLargestKey));
+
+                if(zeroLargest == zeroNum){
+                    toCompare.add(oneNum);
+                }else if(zeroLargest == oneNum){
+                    toCompare.add(zeroNum);
+                }else if(oneLargest == zeroNum){
+                    toCompare.add(oneNum);
+                }else if(oneLargest == oneNum){
+                    toCompare.add(zeroNum);
+                }
+            }
+        }
+        System.out.println(toCompare);
+        Vector vectorA = molecule.getChildList().get(zeroLargest).getPosition();
+        Vector vectorB = molecule.getChildList().get(oneLargest).getPosition();
+        Vector vectorC = molecule.getChildList().get(toCompare.get(0)).getPosition();
+        Vector vectorD = molecule.getChildList().get(toCompare.get(1)).getPosition();
+        Vector vectorAB = new Vector3D();
+        vectorAB.Ev1Mv2(vectorA, vectorB);
+        vectorAB.normalize();
+        vectorC.normalize();
+        vectorD.normalize();
+        double cosThetaCAB = vectorAB.dot(vectorC);
+        double cosThetaDAB = vectorAB.dot(vectorD);
+      //  System.out.println(toCompareNew);
+        System.exit(1);
+    }*/
+
+    private double calcDist(List<Vector> vertices, List<Integer[]> faces, Map<Integer, List<Integer[]>> faceEdges) {
+        double dist ;
+        Integer[] faceOne = faceEdges.get(0).get(0);
+        int vertOne = faceOne[0];
+        int vertTwo = faceOne[1];
+        Vector vecOne = vertices.get(vertOne);
+        Vector vecTwo = vertices.get(vertTwo);
+        dist = vecTwo.Mv1Squared(vecOne);
+        return Math.sqrt(dist);
+    }
+
+    public double bentLength(IMolecule molecule, List<Integer> extremeties, Vector bentLength) {
+        Vector vecOne = molecule.getChildList().get(extremeties.get(0)).getPosition();
+        Vector vecTwo = molecule.getChildList().get(extremeties.get(1)).getPosition();
+        return Math.sqrt(vecOne.Mv1Squared(vecTwo));
+    }
+    private double calcDistFace(ISpecies species, ArrayList<Integer> arrayListLinkerOxy) {
+        List<Vector> listVect = new ArrayList<>();
+        IMolecule molecule = species.makeMolecule();
+        Vector vectMean = new Vector3D();
+        for(int i = 0; i< arrayListLinkerOxy.size(); i++){
+            Vector vect = molecule.getChildList().get(arrayListLinkerOxy.get(i)).getPosition();
+            Vector vectCopy = new Vector3D();
+            vectCopy.E(vect);
+            vectMean.PE(vectCopy);
+            listVect.add(vect);
+        }
+        //System.out.println(vectMean);
+        vectMean.TE(1.0/arrayListLinkerOxy.size());
+     //   System.out.println(listVect);
+      //  System.out.println(vectMean);
+        Vector vectCopy = molecule.getChildList().get(arrayListLinkerOxy.get(0)).getPosition();
+        double distFace = vectCopy.Mv1Squared(vectMean);
+       // System.out.println(distFace);
+        return Math.sqrt(distFace);
+    }
+
+    private void calcFaceCentroidFace (List<Integer[]>faces,List<Vector> vertices, List<Vector> centres){
+        for(int i =0; i< faces.size(); i++){
+            Integer[] vecArray = faces.get(i);
+            Vector sum= new Vector3D();
+            for(int j=0; j<vecArray.length; j++){
+                Vector vecOne = new Vector3D();
+              //  System.out.println(vecArray[j]);
+                vecOne = vertices.get(vecArray[j]);
+                sum.PE(vecOne);
+            }
+            sum.TE(1.0/vecArray.length);
+            centres.add(sum);
+        }
+    }
+    public void getAdjacentDistane(int i, List<Vector> vertices, Integer[] face,  Map<Integer, Map<Integer, Double>> largerDistMap, Map<Integer, Map<Integer, Double>> largerAtomMap, ArrayList<Integer> arrayListExtremities, IMolecule molecule){
+            Map<Integer, Double> distanceMap = new HashMap<>();
+            int vertOne = face[0];
+            Vector vertOnePosn = vertices.get(vertOne);
+            Vector vertOnePosnCopy = new Vector3D();
+            vertOnePosnCopy.E(vertOnePosn);
+            for(int j =1; j<face.length; j++){
+                int vertTwo = face[j];
+                Vector vertTwoPosn = vertices.get(vertTwo);
+                Vector vertTwoPosnCopy = new Vector3D();
+                vertTwoPosnCopy.E(vertTwoPosn);
+                double distEdges = vertTwoPosnCopy.Mv1Squared(vertOnePosnCopy);
+                distanceMap.put(vertTwo, distEdges);
+              //  System.out.println(distanceMap);
+            }
+            largerDistMap.put(i, distanceMap);
+            Map<Integer, Double> distanceAtomMap = new HashMap<>();
+            int numOne = arrayListExtremities.get(0);
+            Vector atomOnePosn = molecule.getChildList().get(numOne).getPosition();
+            Vector atomOnePosnCopy = new Vector3D();
+            atomOnePosnCopy.E(atomOnePosn);
+            for(int k = 1; k < arrayListExtremities.size(); k++){
+                int numTwo = arrayListExtremities.get(k);
+                Vector atomTwoPosn = molecule.getChildList().get(numTwo).getPosition();
+                Vector vertTwoPosnCopy = new Vector3D();
+                vertTwoPosnCopy.E(atomTwoPosn);
+                double distVertAtoms = vertTwoPosnCopy.Mv1Squared(atomOnePosnCopy);
+                distanceAtomMap.put(arrayListExtremities.get(k), distVertAtoms);
+            }
+            largerAtomMap.put(i, distanceAtomMap);
+       // System.exit(1);
+    }
+
+    public void everyMolecule (int i, Integer[] face, IMolecule molecule, List<Vector> modifiedVertices,ArrayList<Integer> arrayListExtremities, Map<Integer, List<List<Vector>>> map ,   Map<Integer, List<List<Integer>>>  atomListmap, boolean ifBent ){
+        List<List<Integer>> faceLigand = new ArrayList<>();
+        List<List<Vector>> faceList = new ArrayList<>();
+        //ABCDE represent  face alphabets and PQRST represent molecule alphabets
+        if (face.length == 3){
+            Vector vectorA = new Vector3D(), vectorB= new Vector3D(), vectorC = new Vector3D();
+            if(ifBent){
+                vectorA = modifiedVertices.get(0);
+                vectorB = modifiedVertices.get(1);
+                vectorC = modifiedVertices.get(2);
+            }else {
+                vectorA = modifiedVertices.get(face[0]);
+                vectorB = modifiedVertices.get(face[1]);
+                vectorC = modifiedVertices.get(face[2]);
+            }
+
+            Vector vectorP = molecule.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            Vector vectorQ = molecule.getChildList().get(arrayListExtremities.get(1)).getPosition();
+            Vector vectorR = molecule.getChildList().get(arrayListExtremities.get(2)).getPosition();
+            Vector vectorQCopy = new Vector3D(), vectorBCopy = new Vector3D(), vectorCCopy = new Vector3D(), vectorBQ = new Vector3D(), vectorCQ = new Vector3D();
+            vectorBCopy.E(vectorB);
+            vectorCCopy.E(vectorC);
+            vectorQCopy.E(vectorQ);
+            double doubleBQ = vectorBCopy.Mv1Squared(vectorQCopy);
+            double doubleCQ = vectorCCopy.Mv1Squared(vectorQCopy);
+            List<Vector> listA = new ArrayList<>();
+            List<Vector> listB = new ArrayList<>();
+            List<Vector> listC = new ArrayList<>();
+            listA.add(vectorA);
+            listA.add(vectorP);
+            listB.add(vectorB);
+            listC.add(vectorC);
+
+            List<Integer> listvA = new ArrayList<>();
+            List<Integer> listvB = new ArrayList<>();
+            List<Integer> listvC = new ArrayList<>();
+            listvA.add(face[0]);
+            listvA.add(arrayListExtremities.get(0));
+            listvB.add(face[1]);
+            listvC.add(face[2]);
+
+            if(doubleBQ<doubleCQ){
+                listB.add(vectorQ);
+                listC.add(vectorR);
+
+                listvB.add(arrayListExtremities.get(1));
+                listvC.add(arrayListExtremities.get(2));
+            }else {
+                listB.add(vectorR);
+                listC.add(vectorQ);
+
+                listvB.add(arrayListExtremities.get(2));
+                listvC.add(arrayListExtremities.get(1));
+            }
+            faceList.add(listA);
+            faceList.add(listB);
+            faceList.add(listC);
+
+            faceLigand.add(listvA);
+            faceLigand.add(listvB);
+            faceLigand.add(listvC);
+
+            map.put(i, faceList);
+            atomListmap.put(i, faceLigand);
+        } else if (face.length == 4) {
+            //molecule Math
+            Vector vectorP = molecule.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            Vector vectorQ = molecule.getChildList().get(arrayListExtremities.get(1)).getPosition();
+            Vector vectorR= molecule.getChildList().get(arrayListExtremities.get(2)).getPosition();
+            Vector vectorS = molecule.getChildList().get(arrayListExtremities.get(3)).getPosition();
+            Vector vectorPCopy = new Vector3D();
+            vectorPCopy.E(vectorP);
+          /*  double doublePQ = vectorPCopy.Mv1Squared(vectorQ);
+            double doublePR = vectorPCopy.Mv1Squared(vectorR);
+            double doublePS = vectorPCopy.Mv1Squared(vectorS);*/
+
+
+            //faceMath
+            Vector vectorC = new Vector3D(), vectorCCopy = new Vector3D(), vectorD = new Vector3D(), vectorA = new Vector3D(), vectorB = new Vector3D();
+            vectorA = modifiedVertices.get(0);
+            vectorB = modifiedVertices.get(1);
+            vectorC = modifiedVertices.get(2);
+            vectorD = modifiedVertices.get(3);
+
+            double doubleBS = vectorB.Mv1Squared(vectorS);
+            double doubleBQ = vectorB.Mv1Squared(vectorQ);
+
+            List<Vector> listA = new ArrayList<>();
+            List<Vector> listB = new ArrayList<>();
+            List<Vector> listC = new ArrayList<>();
+            List<Vector> listD = new ArrayList<>();
+            listA.add(vectorA);
+            listA.add(vectorP);
+            listB.add(vectorB);
+            listC.add(vectorC);
+            listC.add(vectorR);
+            listD.add(vectorD);
+
+            if(doubleBQ > doubleBS ){
+                listB.add(vectorS);
+                listD.add(vectorQ);
+                //System.out.println("AP " + " BS " + " DQ " + " CR");
+            } else {
+                listD.add(vectorS);
+                listB.add(vectorQ);
+               // System.out.println("AP " + " BQ " + " DS " +" CR");
+            }
+            faceList.add(listA);
+            faceList.add(listB);
+            faceList.add(listC);
+            faceList.add(listD);
+            map.put(i, faceList);
+
+        } else if (face.length == 5) {
+            Vector vectorP = molecule.getChildList().get(arrayListExtremities.get(0)).getPosition();
+            Vector vectorQ = molecule.getChildList().get(arrayListExtremities.get(1)).getPosition();
+            Vector vectorR= molecule.getChildList().get(arrayListExtremities.get(4)).getPosition();
+            Vector vectorS = molecule.getChildList().get(arrayListExtremities.get(3)).getPosition();
+            Vector vectorT = molecule.getChildList().get(arrayListExtremities.get(2)).getPosition();
+            Vector vectorPCopy = new Vector3D();
+            vectorPCopy.E(vectorP);
+            double doublePQ = vectorPCopy.Mv1Squared(vectorQ);
+            double doublePR = vectorPCopy.Mv1Squared(vectorR);
+            double doublePS = vectorPCopy.Mv1Squared(vectorS);
+            double doublePT = vectorPCopy.Mv1Squared(vectorT);
+
+
+            //faceMath
+            Vector vectorC = new Vector3D(), vectorCCopy = new Vector3D(), vectorD = new Vector3D(), vectorA = new Vector3D(), vectorB = new Vector3D(), vectorE = new Vector3D();
+            vectorA = modifiedVertices.get(0);
+            vectorB = modifiedVertices.get(2);
+            vectorE = modifiedVertices.get(3);
+            vectorC = modifiedVertices.get(4);
+            vectorD = modifiedVertices.get(5);
+
+            double doubleBT = vectorB.Mv1Squared(vectorT);
+            double doubleBQ = vectorB.Mv1Squared(vectorQ);
+            double doubleCR = vectorC.Mv1Squared(vectorR);
+            double doubleCS = vectorC.Mv1Squared(vectorS);
+
+            List<Vector> listA = new ArrayList<>();
+            List<Vector> listB = new ArrayList<>();
+            List<Vector> listC = new ArrayList<>();
+            List<Vector> listD = new ArrayList<>();
+            List<Vector> listE = new ArrayList<>();
+            listA.add(vectorA);
+            listA.add(vectorP);
+            listB.add(vectorB);
+            listC.add(vectorC);
+            listD.add(vectorD);
+            listE.add(vectorE);
+
+            if(doubleBT > doubleBQ ){
+                listB.add(vectorQ);
+                listE.add(vectorT);
+                if(doubleCR > doubleCS){
+                    listC.add(vectorS);
+                    listD.add(vectorR);
+                   // System.out.println("AP " + " BQ " + " CS " + " DR " +" ET ");
+                } else {
+                    listC.add(vectorR);
+                    listD.add(vectorS);
+                   // System.out.println("AP " + " BQ " + " CR " + " DS " +" ET ");
+                }
+            }else {
+                listE.add(vectorQ);
+                listB.add(vectorT);
+                if(doubleCR > doubleCS){
+                    listC.add(vectorS);
+                    listD.add(vectorR);
+                  //  System.out.println("AP " + " BT " + " CS " + " DR " +" EQ");
+                } else {
+                    listC.add(vectorR);
+                    listD.add(vectorS);
+                   // System.out.println("AP " + " BT " + " CR " + " DS " +" EQ ");
+                }
+            }
+            faceList.add(listA);
+            faceList.add(listB);
+            faceList.add(listC);
+            faceList.add(listD);
+            faceList.add(listE);
+            map.put(i, faceList);
+        }
+    }
+
+    public Map<Integer, Double> sortIntegers(Map<Integer, Double> map){
+        List<Map.Entry<Integer, Double>> list = new LinkedList<>(map.entrySet());
+
+        // Sort the list based on values, handling potential floating-point precision issues
+        Collections.sort(list, Comparator.comparingDouble(Map.Entry::getValue));
+
+        // Create a new LinkedHashMap to preserve insertion order
+        Map<Integer, Double> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<Integer, Double> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
+    }
+
+    public Box getMOPVertice(Box box, String strucName, ISpecies species, ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map,List<Integer[]> linkedVertices, ArrayList<Integer> arrayListExtremities, ArrayList<Integer> arrayListLinkerOxy, ArrayList<Integer> arrayListLinkerCarb, int numEdges, double dist, double coordinateMultiplier){
+        double distFace = 0;
+        box.setNMolecules(species, numEdges);
+        List<Vector> vecListPoly = getListVecPoly();
+        rotateAroundAxis(vecListPoly,coordinateMultiplier);
+        //   System.exit(1);
+        if(strucName.equals("tetra")){
+            numEdges = 4;
+            dist = 2 * Math.sqrt(3) * distFace;
+        } else if (strucName.equals("cube")) {
+            numEdges = 6;
+            dist = 2 * distFace;
+        }else if (strucName.equals("octa")) {
+            numEdges = 8;
+            dist = 2 * Math.sqrt(3) * distFace;
+        }  else if (strucName.equals("icosa")) {
+            numEdges = 20;
+            dist = 2 * Math.sqrt(3) * distFace;
+        } else if (strucName.equals("dodeca")) {
+            numEdges = 12;
+            dist =  2 * distFace / (Math.tan(Degree.UNIT.toSim(36)));
+        }
+
+        Space space = Space3D.getInstance();
+        List<Vector> oldPositionsTwo = new ArrayList<>();
+        IMolecule moleculeMOPOne = box.getMoleculeList().get(0);
+        while (oldPositionsTwo.size() < moleculeMOPOne.getChildList().size()) {
+            oldPositionsTwo.add(space.makeVector());
+        }
+        return box;
+    }
+
+    public void verticesComboFaces(String strucName, List<Vector> vertices,  List<Integer[]> faces, Map<Integer, List<Integer[]>> faceEdges){
+        double phi = ( 1 + Math.sqrt(5)) / 2;
+        if(strucName.equals("tetra")){
+           // System.out.println("tetra");
+            Vector vec0 = Vector.of(1, 1, 1);
+            Vector vec1 = Vector.of(1, -1, -1);
+            Vector vec2 = Vector.of(-1, 1, -1);
+            Vector vec3 = Vector.of(-1, -1, 1);
+
+
+            vertices.add(vec0);
+            vertices.add(vec1);
+            vertices.add(vec2);
+            vertices.add(vec3);
+
+            faces.add(new Integer[]{ 0, 1, 3});
+            faces.add(new Integer[]{ 0, 1, 2});
+            faces.add(new Integer[]{ 0, 2, 3});
+            faces.add(new Integer[]{ 1, 3, 2});
+
+            List<Integer[]> faceZero = new ArrayList<>();
+            List<Integer[]> faceOne = new ArrayList<>();
+            List<Integer[]> faceTwo = new ArrayList<>();
+            List<Integer[]> faceThree = new ArrayList<>();
+
+            faceZero.add(new Integer[]{0,3});
+            faceZero.add(new Integer[]{2,0});
+            faceZero.add(new Integer[]{2,3});
+            faceEdges.put(0, faceZero);
+
+            faceOne.add(new Integer[]{0,1});
+            faceOne.add(new Integer[]{0,2});
+            faceOne.add(new Integer[]{1,2});
+            faceEdges.put(1, faceOne);
+
+            faceTwo.add(new Integer[]{1,2});
+            faceTwo.add(new Integer[]{1,3});
+            faceTwo.add(new Integer[]{2,3});
+            faceEdges.put(2, faceTwo);
+
+            faceThree.add(new Integer[]{0,1});
+            faceThree.add(new Integer[]{0,3});
+            faceThree.add(new Integer[]{1,3});
+            faceEdges.put(3, faceThree);
+
+
+         /*   faces.add(new Integer[]{ 1, 2, 4});
+            faces.add(new Integer[]{ 1, 2, 3});
+            faces.add(new Integer[]{ 1, 3, 4});
+            faces.add(new Integer[]{ 2, 4, 3});*/
+
+        } else if (strucName.equals("cube") ){
+            Vector vec0 = Vector.of(1, 1, 1);
+            Vector vec7 = Vector.of(-1, -1, -1);
+            Vector vec4 = Vector.of(-1, 1, 1);
+            Vector vec2 = Vector.of(1, -1, 1);
+            Vector vec1 = Vector.of(1, 1, -1);
+            Vector vec6 = Vector.of(-1, -1, 1);
+            Vector vec3 = Vector.of(1, -1, -1);
+            Vector vec5 = Vector.of(-1, 1, -1);
+            vertices.add(vec0);
+            vertices.add(vec1);
+            vertices.add(vec2);
+            vertices.add(vec3);
+            vertices.add(vec4);
+            vertices.add(vec5);
+            vertices.add(vec6);
+            vertices.add(vec7);
+
+
+           /* faces.add(new Integer[]{ 0, 2, 3, 5});
+            faces.add(new Integer[]{ 0, 3, 4, 6});
+            faces.add(new Integer[]{ 1, 6, 7, 4});
+            faces.add(new Integer[]{ 1, 2, 5, 7});
+            faces.add(new Integer[]{ 1, 5, 3, 6});*/
+
+            faces.add(new Integer[]{ 0, 3, 5, 2});
+            faces.add(new Integer[]{ 0, 3, 4, 6});
+            faces.add(new Integer[]{ 4, 6, 1, 7});
+            faces.add(new Integer[]{ 5, 2, 7, 1});
+            faces.add(new Integer[]{ 3, 5, 1, 6});
+            faces.add(new Integer[]{ 0, 2, 7, 4});
+
+            List<Integer[]> faceZero = new ArrayList<>();
+            List<Integer[]> faceOne = new ArrayList<>();
+            List<Integer[]> faceTwo = new ArrayList<>();
+            List<Integer[]> faceThree = new ArrayList<>();
+            List<Integer[]> faceFour = new ArrayList<>();
+            List<Integer[]> faceFive = new ArrayList<>();
+
+            faceZero.add(new Integer[]{ 0,3 });
+            faceZero.add(new Integer[]{ 3,5 });
+            faceZero.add(new Integer[]{ 5,2 });
+            faceZero.add(new Integer[]{0 ,2 });
+            faceEdges.put(0, faceZero);
+
+            faceTwo.add(new Integer[]{ 1,6 });
+            faceTwo.add(new Integer[]{ 1,7 });
+            faceTwo.add(new Integer[]{ 4,6 });
+            faceTwo.add(new Integer[]{ 4,7 });
+            faceEdges.put(1, faceOne);
+
+            faceTwo.add(new Integer[]{ 0, 2});
+            faceTwo.add(new Integer[]{2 , 7});
+            faceTwo.add(new Integer[]{ 4, 7});
+            faceTwo.add(new Integer[]{ 0, 4});
+            faceEdges.put(2, faceTwo);
+
+            faceThree.add(new Integer[]{ 5,2 });
+            faceThree.add(new Integer[]{ 2,7 });
+            faceThree.add(new Integer[]{ 7,1 });
+            faceThree.add(new Integer[]{ 1, 5});
+            faceEdges.put(3, faceThree);
+
+            faceFour.add(new Integer[]{ 3,5 });
+            faceFour.add(new Integer[]{ 5,1 });
+            faceFour.add(new Integer[]{ 1, 6});
+            faceFour.add(new Integer[]{ 6, 3});
+            faceEdges.put(4, faceFour);
+
+            faceFive.add(new Integer[]{ 0, 2});
+            faceFive.add(new Integer[]{ 2, 7});
+            faceFive.add(new Integer[]{ 4, 7});
+            faceFive.add(new Integer[]{ 0, 4});
+            faceEdges.put(5, faceFive);
+
+
+         /*   faces.add(new Integer[]{ 1, 3, 5, 8});
+            faces.add(new Integer[]{ 1, 3, 4, 6});
+            faces.add(new Integer[]{ 1, 4, 5, 7});
+            faces.add(new Integer[]{ 2, 7, 8, 5});
+            faces.add(new Integer[]{ 2, 3, 6, 8});
+            faces.add(new Integer[]{ 2, 6, 4, 7});*/
+
+
+        } else if (strucName.equals("octa")){
+
+            double C0 = Math.sqrt(2)/2;
+            Integer[] intArray = new Integer[3];
+            Vector vec0 = Vector.of(0.0, 0.0,  C0);
+            Vector vec1 = Vector.of(0.0, 0.0, -C0);
+            Vector vec2 = Vector.of(C0, 0.0, 0.0);
+            Vector vec3 = Vector.of(-C0, 0.0, 0.0);
+            Vector vec4 = Vector.of(0.0,  C0, 0.0);
+            Vector vec5 = Vector.of(0.0, -C0, 0.0);
+            vertices.add(vec0);
+            vertices.add(vec1);
+            vertices.add(vec2);
+            vertices.add(vec3);
+            vertices.add(vec4);
+            vertices.add(vec5);
+            intArray = new Integer[]{0, 2, 4};
+            faces.add(intArray);
+            intArray = new Integer[]{0, 4, 3};
+            faces.add(intArray);
+            intArray = new Integer[]{0, 3, 5};
+            faces.add(intArray);
+            intArray = new Integer[]{0, 5, 2};
+            faces.add(intArray);
+            intArray = new Integer[]{1, 2, 5};
+            faces.add(intArray);
+            intArray = new Integer[]{1, 5, 3};
+            faces.add(intArray);
+            intArray = new Integer[]{1, 3, 4};
+            faces.add(intArray);
+            intArray = new Integer[]{1, 4, 2};
+            faces.add(intArray);
+            List<Integer[]> faceZero = new ArrayList<>();
+            List<Integer[]> faceOne = new ArrayList<>();
+            List<Integer[]> faceTwo = new ArrayList<>();
+            List<Integer[]> faceThree = new ArrayList<>();
+            List<Integer[]> faceFour = new ArrayList<>();
+            List<Integer[]> faceFive = new ArrayList<>();
+            List<Integer[]> faceSix = new ArrayList<>();
+            List<Integer[]> faceSeven = new ArrayList<>();
+
+            faceZero.add(new Integer[]{ 0,2 });
+            faceZero.add(new Integer[]{ 2, 4});
+            faceZero.add(new Integer[]{ 4,0 });
+            faceEdges.put(0, faceZero);
+
+            faceOne.add(new Integer[]{ 0,4 });
+            faceOne.add(new Integer[]{ 3, 4});
+            faceOne.add(new Integer[]{ 0,3 });
+            faceEdges.put(1, faceOne);
+
+            faceTwo.add(new Integer[]{0 , 3});
+            faceTwo.add(new Integer[]{ 3, 5});
+            faceTwo.add(new Integer[]{ 5, 0});
+            faceEdges.put(2, faceTwo);
+
+            faceThree.add(new Integer[]{ 0, 5});
+            faceThree.add(new Integer[]{ 5, 2});
+            faceThree.add(new Integer[]{ 2, 0});
+            faceEdges.put(3, faceThree);
+
+            faceFour.add(new Integer[]{ 1, 2});
+            faceFour.add(new Integer[]{ 2, 5});
+            faceFour.add(new Integer[]{ 1, 5 });
+            faceEdges.put(4, faceFour);
+
+            faceFive.add(new Integer[]{ 1, 5});
+            faceFive.add(new Integer[]{ 5,3 });
+            faceFive.add(new Integer[]{ 1, 3});
+            faceEdges.put(5, faceFive);
+
+            faceSix.add(new Integer[]{ 1, 3});
+            faceSix.add(new Integer[]{ 3,4 });
+            faceSix.add(new Integer[]{ 1, 4});
+            faceEdges.put(6, faceSix);
+
+            faceSeven.add(new Integer[]{ 1, 4});
+            faceSeven.add(new Integer[]{ 4, 2});
+            faceSeven.add(new Integer[]{ 2, 1});
+            faceEdges.put(5, faceSeven);
+            /*for (int i =0; i < faceEdges.size(); i++){
+                List<Integer[]> faceNew = faceEdges.get(i);
+                for (int j = 0; j<faceNew.size(); j++){
+                    Integer[] newInt = faceNew.get(j);
+                    int numOne = newInt[0];
+                    int numTwo = newInt[1];
+                    Vector vecOne = vertices.get(numOne);
+                    Vector vecTwo = vertices.get(numTwo);
+                    double dist = vecTwo.Mv1Squared(vecOne);
+                    System.out.println(i +" "+ j+" "+numOne + " "+ numTwo +" "+ vecOne +" " + vecTwo+" "+Math.sqrt(dist));
+
+                }
+            }
+            System.exit(1);*/
+
+
+          /*  faces.add(new Integer[]{ 5, 3, 2});
+            faces.add(new Integer[]{ 1, 3, 5 });
+            faces.add(new Integer[]{ 2, 5, 4});
+            faces.add(new Integer[]{ 1, 5, 4});
+            faces.add(new Integer[]{ 1, 4, 6});
+            faces.add(new Integer[]{ 1, 3, 6});
+            faces.add(new Integer[]{ 3, 2, 6});
+            faces.add(new Integer[]{ 2, 4, 6});*/
+
+        } else if (strucName.equals("icosa")) {
+            Integer[] intArray = new Integer[3];
+            double C0 = (1 + Math.sqrt(5)/4);
+            Vector vec0 = Vector.of(0.5,  0.0,   C0);
+            Vector vec1 = Vector.of(0.5,  0.0,  -C0);
+            Vector vec2 = Vector.of(-0.5,  0.0,   C0);
+            Vector vec3 = Vector.of(-0.5,  0.0,  -C0);
+            Vector vec4 = Vector.of(C0,  0.5,  0.0);
+            Vector vec5 = Vector.of(C0, -0.5,  0.0);
+            Vector vec6 = Vector.of(-C0,  0.5,  0.0);
+            Vector vec7 = Vector.of(-C0, -0.5,  0.0);
+            Vector vec8 = Vector.of(0.0,   C0,  0.5);
+            Vector vec9 = Vector.of(0.0,   C0, -0.5);
+            Vector vec10 = Vector.of(0.0,  -C0,  0.5);
+            Vector vec11 = Vector.of(0.0,  -C0, -0.5);
+            vertices.add(vec0);
+            vertices.add(vec1);
+            vertices.add(vec2);
+            vertices.add(vec3);
+            vertices.add(vec4);
+            vertices.add(vec5);
+            vertices.add(vec6);
+            vertices.add(vec7);
+            vertices.add(vec8);
+            vertices.add(vec9);
+            vertices.add(vec10);
+            vertices.add(vec11);
+
+
+            intArray = new Integer[]{0,  2, 10};
+            faces.add(intArray);
+            intArray = new Integer[]{0, 10,  5};
+            faces.add(intArray);
+            intArray = new Integer[]{0,  5,  4};
+            faces.add(intArray);
+            intArray = new Integer[]{0,  4,  8};
+            faces.add(intArray);
+            intArray = new Integer[]{0,  8,  2};
+            faces.add(intArray);
+            intArray = new Integer[]{3,  1, 11};
+            faces.add(intArray);
+            intArray = new Integer[]{3, 11,  7};
+            faces.add(intArray);
+            intArray = new Integer[]{3,  7,  6};
+            faces.add(intArray);
+            intArray = new Integer[]{3,  6,  9};
+            faces.add(intArray);
+            intArray = new Integer[]{3,  9,  1};
+            faces.add(intArray);
+            intArray = new Integer[]{2,  6,  7};
+            faces.add(intArray);
+            intArray = new Integer[]{2,  7, 10};
+            faces.add(intArray);
+            intArray = new Integer[]{10,  7, 11};
+            faces.add(intArray);
+            intArray = new Integer[]{10, 11,  5};
+            faces.add(intArray);
+            intArray = new Integer[]{5, 11,  1};
+            faces.add(intArray);
+            intArray = new Integer[]{5,  1,  4};
+            faces.add(intArray);
+            intArray = new Integer[]{4,  1,  9};
+            faces.add(intArray);
+            intArray = new Integer[]{4,  9,  8};
+            faces.add(intArray);
+            intArray = new Integer[]{8,  9,  6};
+            faces.add(intArray);
+            intArray = new Integer[]{8,  6,  2};
+            faces.add(intArray);
+
+            List<Integer[]> faceZero = new ArrayList<>();
+            List<Integer[]> faceOne = new ArrayList<>();
+            List<Integer[]> faceTwo = new ArrayList<>();
+            List<Integer[]> faceThree = new ArrayList<>();
+            List<Integer[]> faceFour = new ArrayList<>();
+            List<Integer[]> faceFive = new ArrayList<>();
+            List<Integer[]> faceSix = new ArrayList<>();
+            List<Integer[]> faceSeven = new ArrayList<>();
+            List<Integer[]> faceEight = new ArrayList<>();
+            List<Integer[]> faceNine = new ArrayList<>();
+            List<Integer[]> faceTen = new ArrayList<>();
+            List<Integer[]> faceEleven = new ArrayList<>();
+            List<Integer[]> faceTwelve = new ArrayList<>();
+            List<Integer[]> faceThirteen = new ArrayList<>();
+            List<Integer[]> faceFourteen = new ArrayList<>();
+            List<Integer[]> faceFifteen = new ArrayList<>();
+            List<Integer[]> faceSixteen = new ArrayList<>();
+            List<Integer[]> faceSeventeen = new ArrayList<>();
+            List<Integer[]> faceEighteen = new ArrayList<>();
+            List<Integer[]> faceNineteen = new ArrayList<>();
+
+            faceZero.add(new Integer[]{ 2,0 });
+            faceZero.add(new Integer[]{ 0,10 });
+            faceZero.add(new Integer[]{2 ,10 });
+            faceEdges.put(0, faceZero);
+
+            faceOne.add(new Integer[]{ 10, 0});
+            faceOne.add(new Integer[]{ 10, 5});
+            faceOne.add(new Integer[]{ 0,5 });
+            faceEdges.put(1, faceOne);
+
+            faceTwo.add(new Integer[]{ 5,0 });
+            faceTwo.add(new Integer[]{ 4,5 });
+            faceTwo.add(new Integer[]{ 4,0});
+            faceEdges.put(2, faceTwo);
+
+            faceThree.add(new Integer[]{ 4, 0});
+            faceThree.add(new Integer[]{ 0,8 });
+            faceThree.add(new Integer[]{ 4, 8});
+            faceEdges.put(3, faceThree);
+
+            faceFour.add(new Integer[]{ 8, 0});
+            faceFour.add(new Integer[]{ 0, 2});
+            faceFour.add(new Integer[]{ 8, 2});
+            faceEdges.put(4, faceFour);
+
+            faceFive.add(new Integer[]{ 1, 3});
+            faceFive.add(new Integer[]{ 3, 11});
+            faceFive.add(new Integer[]{ 1, 11});
+            faceEdges.put(5, faceFive);
+
+            faceSix.add(new Integer[]{ 3, 11});
+            faceSix.add(new Integer[]{ 11,7 });
+            faceSix.add(new Integer[]{ 3, 7});
+            faceEdges.put(6, faceSix);
+
+            faceSeven.add(new Integer[]{ 3, 7});
+            faceSeven.add(new Integer[]{ 7, 6});
+            faceSeven.add(new Integer[]{ 3, 6});
+            faceEdges.put(7, faceSeven);
+
+            faceEight.add(new Integer[]{ 6, 3});
+            faceEight.add(new Integer[]{ 6, 9});
+            faceEight.add(new Integer[]{ 3, 9});
+            faceEdges.put(8, faceEight);
+
+            faceNine.add(new Integer[]{3, 9});
+            faceNine.add(new Integer[]{ 9, 1});
+            faceNine.add(new Integer[]{3 ,1 });
+            faceEdges.put(9, faceNine);
+
+            faceTen.add(new Integer[]{ 2, 6});
+            faceTen.add(new Integer[]{ 6, 7});
+            faceTen.add(new Integer[]{ 2,7 });
+            faceEdges.put(10, faceTen);
+
+            faceEleven.add(new Integer[]{ 2, 7});
+            faceEleven.add(new Integer[]{ 7, 10});
+            faceEleven.add(new Integer[]{ 2, 10});
+            faceEdges.put(11, faceEleven);
+
+            faceTwelve.add(new Integer[]{ 10,7 });
+            faceTwelve.add(new Integer[]{7 , 11});
+            faceTwelve.add(new Integer[]{ 11, 7 });
+            faceEdges.put(12, faceTwelve);
+
+            faceThirteen.add(new Integer[]{ 10, 11});
+            faceThirteen.add(new Integer[]{ 11,5 });
+            faceThirteen.add(new Integer[]{ 10,5 });
+            faceEdges.put(13, faceThirteen);
+
+            faceFourteen.add(new Integer[]{ 5, 11});
+            faceFourteen.add(new Integer[]{ 11, 1});
+            faceFourteen.add(new Integer[]{ 5,1 });
+            faceEdges.put(14, faceFourteen);
+
+            faceFifteen.add(new Integer[]{ 5, 1});
+            faceFifteen.add(new Integer[]{ 1, 4});
+            faceFifteen.add(new Integer[]{ 5, 4});
+            faceEdges.put(15, faceFifteen);
+
+            faceSixteen.add(new Integer[]{ 4,1 });
+            faceSixteen.add(new Integer[]{ 1, 9});
+            faceSixteen.add(new Integer[]{ 4, 9});
+            faceEdges.put(16, faceSixteen);
+
+            faceSeventeen.add(new Integer[]{ 4, 9});
+            faceSeventeen.add(new Integer[]{ 9, 8});
+            faceSeventeen.add(new Integer[]{ 4, 8});
+            faceEdges.put(17, faceSeventeen);
+
+            faceEighteen.add(new Integer[]{ 8, 9});
+            faceEighteen.add(new Integer[]{ 9, 6});
+            faceEighteen.add(new Integer[]{ 8, 6});
+            faceEdges.put(18, faceEighteen);
+
+            faceNineteen.add(new Integer[]{ 8,6 });
+            faceNineteen.add(new Integer[]{ 6, 2});
+            faceNineteen.add(new Integer[]{ 8,2 });
+            faceEdges.put(19, faceNineteen);
+
+
+
+           /* Vector vec0 = Vector.of(0,1 , phi);
+            Vector vec1 = Vector.of(0,1,-phi );
+            Vector vec2 = Vector.of(0,-1 , phi);
+            Vector vec3 = Vector.of(0,-1,-phi );
+            Vector vec4 = Vector.of(phi, 0, 1);
+            Vector vec5 = Vector.of(phi, 0, -1);
+            Vector vec6 = Vector.of(-phi, 0, 1);
+            Vector vec7 = Vector.of(-phi, 0, -1);
+            Vector vec8 = Vector.of(1, phi, 0);
+            Vector vec9 = Vector.of(1, -phi, 0);
+            Vector vec10 = Vector.of(-1, phi, 0);
+            Vector vec11 = Vector.of(-1, -phi, 0);
+            vertices.add(vec0);
+            vertices.add(vec1);
+            vertices.add(vec2);
+            vertices.add(vec3);
+            vertices.add(vec4);
+            vertices.add(vec5);
+            vertices.add(vec6);
+            vertices.add(vec7);
+            vertices.add(vec8);
+            vertices.add(vec9);
+            vertices.add(vec10);
+            vertices.add(vec11);*/
+
+          /*  faces.add(new Integer[]{ 0, 4, 6});
+            faces.add(new Integer[]{ 0, 4, 8});
+            faces.add(new Integer[]{ 0, 8, 2});
+            faces.add(new Integer[]{ 0, 2, 9});
+            faces.add(new Integer[]{ 0, 6, 9});
+            faces.add(new Integer[]{ 1, 4, 6});
+            faces.add(new Integer[]{ 1, 4, 10});
+            faces.add(new Integer[]{ 1, 3, 10});
+            faces.add(new Integer[]{ 1, 3, 11});
+            faces.add(new Integer[]{ 1, 6, 11});
+            faces.add(new Integer[]{ 2, 9, 7});
+            faces.add(new Integer[]{ 2, 7, 5});
+            faces.add(new Integer[]{ 2, 5, 8});
+            faces.add(new Integer[]{ 3, 7, 11});
+            faces.add(new Integer[]{ 3, 7, 5});
+            faces.add(new Integer[]{ 3, 5, 10});
+            faces.add(new Integer[]{ 8, 10, 4});
+            faces.add(new Integer[]{ 5, 8, 10});
+            faces.add(new Integer[]{ 6, 9, 11});
+            faces.add(new Integer[]{ 7, 9, 11});
+
+
+            faces.add(new Integer[]{ 1,  5, 7});
+            faces.add(new Integer[]{ 1,  5, 9});
+            faces.add(new Integer[]{ 1,  9, 3});
+            faces.add(new Integer[]{ 1,  3, 10});
+            faces.add(new Integer[]{ 1,  7, 10});
+            faces.add(new Integer[]{ 2,  5, 7});
+            faces.add(new Integer[]{ 2,  5, 11});
+            faces.add(new Integer[]{ 2,  4, 11});
+            faces.add(new Integer[]{ 2,  4, 12});
+            faces.add(new Integer[]{ 2,  7, 12});
+            faces.add(new Integer[]{ 3,  10, 8});
+            faces.add(new Integer[]{ 3, 8, 6});
+            faces.add(new Integer[]{ 3, 6, 9});
+            faces.add(new Integer[]{ 4, 8, 12});
+            faces.add(new Integer[]{ 4, 8, 6});
+            faces.add(new Integer[]{ 4, 6, 11});
+            faces.add(new Integer[]{ 9, 11, 5});
+            faces.add(new Integer[]{ 6, 9, 11});
+            faces.add(new Integer[]{ 7,  10, 12});
+            faces.add(new Integer[]{ 8,  10, 12});*/
+       /*     faces.add(new Integer[]{2,0,8 });
+            faces.add(new Integer[]{ 8,0,4});
+            faces.add(new Integer[]{4,0,6 });
+            faces.add(new Integer[]{6,0,9});
+            faces.add(new Integer[]{9,0,2});
+            faces.add(new Integer[]{ 1,4,10});
+            faces.add(new Integer[]{ 6,11,9});
+            faces.add(new Integer[]{ 1,11,3});
+            faces.add(new Integer[]{7,3,5 });
+            faces.add(new Integer[]{1,6,11 });
+            faces.add(new Integer[]{2,9,7 });
+            faces.add(new Integer[]{ 5,2,7});
+            faces.add(new Integer[]{ 8,2,5});
+            faces.add(new Integer[]{ 5,8,10});
+            faces.add(new Integer[]{8,4,10});
+            faces.add(new Integer[]{1,4,6 });
+            faces.add(new Integer[]{1,3,10});
+            faces.add(new Integer[]{3,7,11 });
+            faces.add(new Integer[]{5,3,10 });
+            faces.add(new Integer[]{9,7,11});
+
+*/
+
+
+
+        } else if (strucName.equals("dodeca")) {
+            Vector vec0 = Vector.of(1, 0, phi2);
+            Vector vec1 = Vector.of(1, 0, -phi2);
+            Vector vec2 = Vector.of(-1, 0, phi2);
+            Vector vec3 = Vector.of(-1, 0, -phi2);
+            Vector vec4 = Vector.of(phi, phi,phi );
+            Vector vec5 = Vector.of(-phi, -phi,-phi );
+            Vector vec6 = Vector.of(phi, -phi, -phi);
+            Vector vec7 = Vector.of(phi, phi, -phi);
+            Vector vec8 = Vector.of(-phi, phi,-phi );
+            Vector vec9 = Vector.of(-phi,phi ,phi );
+            Vector vec10 = Vector.of(-phi,-phi , phi);
+            Vector vec11 = Vector.of(phi,-phi ,phi);
+            Vector vec12 = Vector.of(0, phi2,1 );
+            Vector vec13 = Vector.of(0, phi2, -1);
+            Vector vec14 = Vector.of(0,-phi2 ,1 );
+            Vector vec15 = Vector.of(0, -phi2, -1);
+            Vector vec16 = Vector.of(phi2, 1, 0);
+            Vector vec17 = Vector.of(phi2, -1, 0);
+            Vector vec18 = Vector.of(-phi2, 1, 0);
+            Vector vec19 = Vector.of(-phi2, -1, 0);
+            vertices.add(vec0);
+            vertices.add(vec1);
+            vertices.add(vec2);
+            vertices.add(vec3);
+            vertices.add(vec4);
+            vertices.add(vec5);
+            vertices.add(vec6);
+            vertices.add(vec7);
+            vertices.add(vec8);
+            vertices.add(vec9);
+            vertices.add(vec10);
+            vertices.add(vec11);
+            vertices.add(vec12);
+            vertices.add(vec13);
+            vertices.add(vec14);
+            vertices.add(vec15);
+            vertices.add(vec16);
+            vertices.add(vec17);
+            vertices.add(vec18);
+            vertices.add(vec19);
+          /*  faces.add(new Integer[]{ 10, 14, 19 , 15 ,5 });
+            faces.add(new Integer[]{ 10, 19,  2,  9, 18  });
+            faces.add(new Integer[]{ 10, 14, 11 , 0, 2 });
+            faces.add(new Integer[]{ 11, 17,  6, 15, 14 });
+            faces.add(new Integer[]{ 16, 4 , 12, 7, 13  });
+            faces.add(new Integer[]{ 17, 16,  6, 7, 1 });
+            faces.add(new Integer[]{ 13,  7,  1 , 3,8  });
+            faces.add(new Integer[]{ 9,  12,  8, 18,13 });
+            faces.add(new Integer[]{ 8,   3,  5, 18, 19  });
+            faces.add(new Integer[]{ 0,   2,  4, 9, 12});
+            faces.add(new Integer[]{ 0,  11, 16 ,17 , 4  });
+            faces.add(new Integer[]{ 1,   3, 5, 15, 6  });*/
+
+            faces.add(new Integer[]{0,11,17,16,4 });
+            faces.add(new Integer[]{0,4,12,9,2 });
+            faces.add(new Integer[]{0,11,14,10,2 });
+            faces.add(new Integer[]{4,16,7,13,12 });
+            faces.add(new Integer[]{ 2,9,18,19,10 });
+            faces.add(new Integer[]{5,19, 10,14,15});
+            faces.add(new Integer[]{ 11,14,15,6,17});
+            faces.add(new Integer[]{1,3,8,13,7});
+            faces.add(new Integer[]{ 1,7,16,17,6});
+            faces.add(new Integer[]{ 1,6,15,5,3});
+            faces.add(new Integer[]{8,13,12,9,18});
+            faces.add(new Integer[]{ 8,3,5,19,18});
+
+            List<Integer[]> faceZero = new ArrayList<>();
+            List<Integer[]> faceOne = new ArrayList<>();
+            List<Integer[]> faceTwo = new ArrayList<>();
+            List<Integer[]> faceThree = new ArrayList<>();
+            List<Integer[]> faceFour = new ArrayList<>();
+            List<Integer[]> faceFive = new ArrayList<>();
+            List<Integer[]> faceSix = new ArrayList<>();
+            List<Integer[]> faceSeven = new ArrayList<>();
+            List<Integer[]> faceEight = new ArrayList<>();
+            List<Integer[]> faceNine = new ArrayList<>();
+            List<Integer[]> faceTen = new ArrayList<>();
+            List<Integer[]> faceEleven = new ArrayList<>();
+
+            faceZero.add(new Integer[]{ 0,11 });
+            faceZero.add(new Integer[]{ 11,17 });
+            faceZero.add(new Integer[]{ 17,16 });
+            faceZero.add(new Integer[]{16 ,4 });
+            faceZero.add(new Integer[]{0 , 4});
+            faceEdges.put(0, faceZero);
+
+            faceOne.add(new Integer[]{0 ,4 });
+            faceOne.add(new Integer[]{ 4,12 });
+            faceOne.add(new Integer[]{ 12,9 });
+            faceOne.add(new Integer[]{ 9,2 });
+            faceOne.add(new Integer[]{ 2,0 });
+            faceEdges.put(1, faceOne);
+
+            faceTwo.add(new Integer[]{0 ,11 });
+            faceTwo.add(new Integer[]{ 11,14 });
+            faceTwo.add(new Integer[]{ 14,10 });
+            faceTwo.add(new Integer[]{ 10,2 });
+            faceTwo.add(new Integer[]{ 0,2 });
+            faceEdges.put(2, faceTwo);
+
+            faceThree.add(new Integer[]{ 4,16 });
+            faceThree.add(new Integer[]{ 16,7 });
+            faceThree.add(new Integer[]{ 7,13 });
+            faceThree.add(new Integer[]{ 13,12 });
+            faceThree.add(new Integer[]{ 4,12 });
+            faceEdges.put(3, faceThree);
+
+            faceFour.add(new Integer[]{ 2,9 });
+            faceFour.add(new Integer[]{ 9,18 });
+            faceFour.add(new Integer[]{ 18,19 });
+            faceFour.add(new Integer[]{ 19,10 });
+            faceFour.add(new Integer[]{ 2,10 });
+            faceEdges.put(4, faceFour);
+
+            faceFive.add(new Integer[]{ 5,19 });
+            faceFive.add(new Integer[]{ 19,10 });
+            faceFive.add(new Integer[]{ 10,14 });
+            faceFive.add(new Integer[]{14 ,15 });
+            faceFive.add(new Integer[]{15 ,5 });
+            faceEdges.put(5, faceFive);
+
+            faceSix.add(new Integer[]{ 11,14 });
+            faceSix.add(new Integer[]{ 14,15 });
+            faceSix.add(new Integer[]{ 15,6 });
+            faceSix.add(new Integer[]{ 6,17 });
+            faceSix.add(new Integer[]{ 17, 11});
+            faceEdges.put(6, faceSix);
+
+            faceSeven.add(new Integer[]{ 1,3 });
+            faceSeven.add(new Integer[]{ 3,8 });
+            faceSeven.add(new Integer[]{ 8,13 });
+            faceSeven.add(new Integer[]{ 13,7 });
+            faceSeven.add(new Integer[]{ 7,1 });
+            faceEdges.put(7, faceSeven);
+
+            faceEight.add(new Integer[]{1 ,7 });
+            faceEight.add(new Integer[]{ 7,16 });
+            faceEight.add(new Integer[]{ 16,17 });
+            faceEight.add(new Integer[]{ 17,6 });
+            faceEight.add(new Integer[]{ 6, 1});
+            faceEdges.put(8, faceEight);
+
+            faceNine.add(new Integer[]{ 1,6 });
+            faceNine.add(new Integer[]{ 6,15 });
+            faceNine.add(new Integer[]{ 15,5 });
+            faceNine.add(new Integer[]{ 5,3 });
+            faceNine.add(new Integer[]{3 , 1});
+            faceEdges.put(9, faceNine);
+
+            faceTen.add(new Integer[]{ 8,13 });
+            faceTen.add(new Integer[]{ 13,12 });
+            faceTen.add(new Integer[]{ 12,9 });
+            faceTen.add(new Integer[]{ 9,18 });
+            faceTen.add(new Integer[]{18 ,8 });
+            faceEdges.put(10, faceTen);
+
+            faceEleven.add(new Integer[]{ 8, 3});
+            faceEleven.add(new Integer[]{ 3, 5});
+            faceEleven.add(new Integer[]{ 5,19 });
+            faceEleven.add(new Integer[]{19 ,18 });
+            faceEleven.add(new Integer[]{ 8, 18});
+            faceEdges.put(11, faceEleven);
+
+        /*    faces.add(new Integer[]{ 11, 15 , 20 , 16 ,6 });
+            faces.add(new Integer[]{ 11,  20,  3,10, 19  });
+            faces.add(new Integer[]{ 11, 15 , 12 , 1, 3 });
+            faces.add(new Integer[]{ 12, 18 ,  7, 16, 15 });
+            faces.add(new Integer[]{ 17, 5 ,13 ,8, 14  });
+            faces.add(new Integer[]{ 18, 17 , 7 , 8, 2 });
+            faces.add(new Integer[]{ 14,  8, 2 , 4,9  });
+            faces.add(new Integer[]{ 10,  13,  9, 19,14 });
+            faces.add(new Integer[]{ 9,  4,  6, 19, 20  });
+            faces.add(new Integer[]{ 1,  3,  5, 10, 13 });
+            faces.add(new Integer[]{ 1,  12, 17 ,18 , 5  });
+            faces.add(new Integer[]{ 2, 4 ,6  ,16, 7  });*/
+
+
+        }
+    }
+    //finds which edges are in a MOP
+    public Map<Double, List<Integer[]>> edgeBetweenPoints ( Map<Double, List<Integer[]>> distMap, List<Vector> listVect){
+        List<Integer[]> doubleList = new ArrayList<>();
+        Integer[] points = new Integer[2];
+        for (int i = 0; i < listVect.size(); i++) {
+            Vector pointA = listVect.get(i);
+            for (int j = i + 1; j < listVect.size(); j++) { // Start from i + 1 to avoid duplicates
+                Vector pointB = listVect.get(j);
+
+                double distance = calculateDistance(pointA, pointB);
+                doubleList = distMap.get(distance);
+                if(doubleList == null){
+                    doubleList = new ArrayList<>();
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }else {
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }
+            }
+        }
+        return distMap;
+    }
+
+
+    public Double[] verticesComboFacesArchimedian(String strucName, List<Integer[]> listEdges, List<List<Integer>> faceList, Map<Integer, Vector> verticeMap, Map<Double, List<Integer[]>> distMap, Map<Integer, Vector> vectorListMap,  Map<Integer, Integer[]> midPointEdgeMap){
+        Double[] nums = new Double[2];
+        if (strucName.equals("trunTetra")){
+            double c0 = Math.sqrt(2)/4;
+            double c1 = 3 * Math.sqrt(2)/4;
+            nums = new Double[]{c0, c1};
+        } else if (strucName.equals("cubOcta")) {
+            double c0 = Math.sqrt(2)/2;
+            nums = new Double[]{c0};
+        } else if (strucName.equals("trunOcta")) {
+            double c0 = Math.sqrt(2)/2;
+            double c1 = Math.sqrt(2);
+            nums = new Double[]{c0, c1};
+        } else if (strucName.equals("trunCube")) {
+            double c0 = (1 + Math.sqrt(2))/2;
+            nums = new Double[]{c0};
+        } else if (strucName.equals("rhomCubOcta")) {
+            double c0 = (1 + Math.sqrt(2))/2;
+            nums = new Double[]{c0};
+        } else if (strucName.equals("snubCube")) {
+            double b = 3 * Math.sqrt(33);
+            double c0 = Math.sqrt(3 * (4 - Math.cbrt(17 + b) - Math.cbrt(17 - b))) / 6;
+            double c1 = Math.sqrt(3 * (2 + Math.cbrt(17 + b) + Math.cbrt(17 - b))) / 6;
+            double c2 = Math.sqrt(3 * (4 + Math.cbrt(199 + b) + Math.cbrt(199 - b))) / 6;
+            nums = new Double[]{c0, c1, c2};
+        } else if (strucName.equals("icoDodeca")) {
+            double b = Math.sqrt(5);
+            double c0 = (1 + b)/4;
+            double c1 = (3 + b)/4;
+            double c2 = (1 + b)/2;
+            nums = new Double[]{c0, c1, c2};
+        } else if (strucName.equals("trunCubOcta")) {
+            double c0 = (1 + Math.sqrt(2)) / 2;
+            double c1 = (1 + 2 * Math.sqrt(2)) / 2;
+            nums = new Double[]{c0, c1};
+        } else if (strucName.equals("trunIcosa")) {
+            double b = Math.sqrt(5);
+            double c0 = (1 + b) / 4;
+            double c1 = 2 * c0;
+            double c2 = (5 + b) / 4;
+            double c3 = (2 + b) / 2;
+            double c4 = 3 *  c0;
+            nums = new Double[]{c0, c1, c2, c3, c4};
+        } else if (strucName.equals("rhomIcoDodeca")) {
+            double b = Math.sqrt(5);
+            double c0 = (1 + b) / 4;
+            double c1 = (3 + b) / 4;
+            double c2 = 2 * c0;
+            double c3 = (5 + b) / 4;
+            double c4 = (2 + b) / 2;
+            nums = new Double[]{c0, c1, c2, c3, c4};
+        } else if (strucName.equals("snubDodeca")) {
+            double phi = (1 + Math.sqrt(5)) / 2;
+            double phi2 = phi * phi;
+            double x = Math.cbrt((phi + Math.sqrt(phi-5.0/27))/2) + Math.cbrt((phi - Math.sqrt(phi-5.0/27))/2);
+            double x2 = x * x;
+            double m = Math.sqrt(x * (x + phi) + 1);
+            double n = Math.sqrt((x - 1 - (1/x)) * phi);
+            double p = Math.sqrt(1 - x + (1 + phi) / x);
+            double C0  = phi * Math.sqrt(3 - (x2)) / 2;
+            double C1  = x * phi * Math.sqrt(3 - (x2)) / 2;
+            double C2  = phi * n / 2;
+            double C3  = (x2) * phi * Math.sqrt(3 - (x2)) / 2;
+            double C4  = x * phi * n / 2;
+            double C5  = phi * p / 2;
+            double C6  = phi * Math.sqrt(x + 1 - phi) / 2;
+            double C7  = (x2) * phi * n / 2;
+            double C8  = x * phi * p / 2;
+            double C9  = Math.sqrt((x + 2) * phi + 2) / 2;
+            double C10 = x * Math.sqrt(x * (1 + phi) - phi) / 2;
+            double C11 = Math.sqrt((x2) * (1 + 2 * phi) - phi) / 2;
+            double C12 = phi * Math.sqrt((x2) + x) / 2;
+            double C13 = (phi2) * m / (2 * x);
+            double C14 = phi * m / 2;
+            nums = new Double[]{C0, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14};
+        } else if (strucName.equals("trunIcoDodeca")) {
+            double b = Math.sqrt(5);
+            double C0 = (3 + b) / 4;
+            double C1 = (1 + b) / 2;
+            double C2 = (5 + b) / 4;
+            double C3 = (2 + b) / 2;
+            double C4 = 3 * (1 + b) / 4;
+            double C5 = (3 + b) / 2;
+            double C6 = (5 + 3 * b) / 4;
+            double C7 = (4 + b) / 2;
+            double C8 = (7 + 3 * b) / 4;
+            double C9 = (3 + 2 * b) / 2;
+            nums = new Double[]{C0, C1, C2, C3, C4, C5, C6, C7, C8, C9};
+        } else if (strucName.equals("trunDodeca")) {
+            double b = Math.sqrt(5);
+            double C0 = (3 + b) / 4;
+            double C1 = (1 + b) / 2;
+            double C2 = (2 + b) / 2;
+            double C3 = (3 + b) / 2;
+            double C4 = (5 + 3 * b) / 4;
+            nums = new Double[]{C0, C1, C2, C3, C4};
+        } else if (strucName.equals("tetra")) {
+            double C0 = Math.sqrt(2)/4;
+            nums = new Double[]{C0};
+        }else if (strucName.equals("octa")) {
+            double C0 = Math.sqrt(2)/2;
+            nums = new Double[]{C0};
+        }else if (strucName.equals("cube")) {
+            double C0 = 1.0;
+            nums = new Double[]{C0};
+        }else if (strucName.equals("icosa")) {
+            double C0 = (1+ (Math.sqrt(5)))/4;
+            nums = new Double[]{C0};
+        }else if (strucName.equals("dodeca")) {
+            double C0 = (1+ (Math.sqrt(5)))/4;
+            double C1 = (3+ (Math.sqrt(5)))/4;
+            nums = new Double[]{C0, C1};
+        }else {
+            throw new RuntimeException("Incorrect geometry name");
+        }
+        AutoMOP autoMOP = new AutoMOP();
+        String strucNew = strucName + ".txt";
+        autoMOP.runFileScanner(String.valueOf(strucNew),faceList, verticeMap, nums);
+        List<Integer[]> distNew = autoMOP.edgeBetweenPointsNew(distMap, verticeMap, faceList);
+      // System.out.println(Arrays.deepToString(distNew.toArray()));
+       // System.out.println(distNew);
+        listEdges.addAll(distNew);
+       // System.out.println("faceList "+ Arrays.deepToString(faceList.toArray()));
+       // System.out.println("edgeList "+ Arrays.deepToString(listEdges.toArray()));
+        //System.out.println(listEdges.size());
+     //   Map<String, List<Integer>> faceEdgeMap = autoMOP.getFaceEdges(faceList, listEdges);
+        //Map<Integer, List<Integer>> midpointVector = getMidpointVector(faceEdgeMap, verticeMap, vectorListMap, midPointEdgeMap);
+       // setFaceEdgeMap(faceEdgeMap);
+       // setMidPointVectorMap(midpointVector);
+        return nums;
+    }
+    public void runFileScanner(String fileName,  List<List<Integer>> faceList, Map<Integer, Vector> verticeMap, Double[] nums){
+        Scanner scanner = new Scanner(System.in);
+        final String FOLDER_PATH = "D:\\Sem-VIII\\Archimedian";
+        File folder = new File(FOLDER_PATH);
+        // Check if it's a valid folder
+        if (!folder.exists() || !folder.isDirectory()) {
+            System.out.println("Invalid folder path: " + FOLDER_PATH);
+            return;
+        }
+
+        // List all files in the folder
+        File[] files = folder.listFiles();
+        if (files == null || files.length == 0) {
+            System.out.println("No files found in folder: " + FOLDER_PATH);
+            return;
+        }
+        File fileNew = new File(FOLDER_PATH, fileName);
+        String canonicalPath= " ";
+        int i = 0;
+        try {
+            canonicalPath = fileNew.getCanonicalPath();
+            for (File file : files) {
+                try {
+                   // System.out.println(file + " "+ canonicalPath);
+                    if (file.isFile() &&
+                            file.getCanonicalPath().equals(canonicalPath)) {
+
+                      //  System.out.println("\n--- Contents of " + file.getName() + " ---");
+
+                        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                               // System.out.println(line);
+                                makeGeometry(i, line, verticeMap, faceList, nums);
+                                i++;
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+       // System.exit(1);
+       // System.out.println(fileNew);
+      //  System.out.println(faceList);
+      //  System.out.println(verticeMap);
+      //  System.exit(1);
+        // Loop through each file
+
+       // System.exit(1);
+    }
+
+    public void makeGeometry (int i, String line, Map<Integer, Vector> vectorMap, List<List<Integer>> faceMap, Double[] nums){
+        //Pattern pattern = Pattern.compile("^V(\\d+)\\s*=\\s*(\\(.*\\))");
+        // Regex to extract a,b,c inside parentheses
+       // System.out.println(line);
+        Pattern pattern = Pattern.compile("V\\d+\\s*=\\s*\\(([^,]+),([^,]+),([^\\)]+)\\)");
+        Matcher matcher = pattern.matcher(line);
+
+        Pattern pattern2 = Pattern.compile("\\{\\s*(\\d+\\s*,\\s*){2,5}\\d+\\s*\\}");
+        Matcher matcher2 = pattern2.matcher(line);
+
+        if (matcher.find()) {
+            Object x = parseValue(matcher.group(1).trim());
+            Object y = parseValue(matcher.group(2).trim());
+            Object z = parseValue(matcher.group(3).trim());
+
+            x = printIfStartsWithC("x", x, nums);
+            y = printIfStartsWithC("y", y, nums);
+            z = printIfStartsWithC("z", z, nums);
+            Vector newVec = Vector.of((Double) x,(Double) y,(Double) z);
+            vectorMap.put(i, newVec);
+        } else if (matcher2.find()){
+            line = line.replaceAll("[{}]", "").trim();
+            String[] parts = line.split(",");
+            List<Integer> numbers = new ArrayList<>();
+
+            for (String part : parts) {
+                numbers.add(Integer.parseInt(part.trim()));
+            }
+
+            // Validate size
+            if (numbers.size() >= 3 && numbers.size() <= 6) {
+                //System.out.println("Valid group of size " + numbers.size());
+                //System.out.println("Values: " + numbers);
+                faceMap.add(numbers);
+            }
+        }/*else {
+            System.out.println("None of the sequences");
+        }*/
+    }
+
+    private static void dfs(int node, Set<Integer> visited, Map<Integer, List<Integer>> graph, List<Integer> component) {
+        visited.add(node);
+        component.add(node);
+        for (int neighbor : graph.getOrDefault(node, Collections.emptyList())) {
+            if (!visited.contains(neighbor)) {
+                dfs(neighbor, visited, graph, component);
+            }
+        }
+    }
+
+    public Map<String, List<Integer>> getFaceEdges(List<List<Integer>> faceVertices, List<Integer[]> listEdges){
+        Map<String, List<Integer>> mapEdgeFace = new HashMap<>();
+        faceEdgeMatcher faceEdgeMatcher = new faceEdgeMatcher();
+        mapEdgeFace = faceEdgeMatcher.mapEdgesToFaces(faceVertices, listEdges);
+      /*  for (Map.Entry<String, List<Integer>> entry : mapEdgeFace.entrySet()) {
+            System.out.println("Edge " + entry.getKey() + " found in faces: " + entry.getValue());
+        }*/
+        return mapEdgeFace;
+    }
+
+    //get Face and midpoints for the face
+    public Map<Integer, List<Integer>> getMidpointVector(Map<String, List<Integer>> mapEdgeFace, Map<Integer, Vector> listVertices, Map<Integer, Vector> vectorListMap, Map<Integer, Integer[]> midPointEdgeMap){
+        Map<Integer, List<Integer>> faceMidpoints = new HashMap<>();
+        int alpha = 0;
+        for (Map.Entry<String, List<Integer>> entry : mapEdgeFace.entrySet()) {
+            String edge = entry.getKey();
+            String[] parts = edge.split("-");
+            int i = Integer.parseInt(parts[0]);
+            int j = Integer.parseInt(parts[1]);
+            Vector vecOne = listVertices.get(i);
+            Vector vecTwo = listVertices.get(j);
+            vecTwo.PE(vecOne);
+            vecTwo.TE(0.5);
+            List<Integer> faceIndices = entry.getValue();
+            vectorListMap.put(alpha, vecTwo);
+            midPointEdgeMap.put(alpha, new Integer[]{i,j});
+            for (int beta = 0; beta< faceIndices.size(); beta++){
+                int num = faceIndices.get(beta);
+                if (faceMidpoints.containsKey(num)){
+                    List<Integer> midpoint = faceMidpoints.get(num);
+                    midpoint.add(alpha);
+                }else {
+                    List<Integer> midpoint = new ArrayList<>();
+                    midpoint.add(alpha);
+                    faceMidpoints.put(num, midpoint);
+                }
+            }
+         //   System.out.println("alpha " +  alpha+ " Edge " + edge +" i "+ i +" j " + j + " -> Faces " + faceIndices + " "+ vecTwo);
+            alpha++;
+        }
+        return faceMidpoints;
+    }
+
+    public static List<List<Integer>> findClosestPointClusters(List<Vector> points) {
+        Map<Double, List<int[]>> distMap = new HashMap<>();
+        int n = points.size();
+
+        // Step 1: Compute all pairwise distances
+        for (int i = 0; i < n; i++) {
+            Vector p1 = points.get(i);
+            for (int j = i + 1; j < n; j++) {
+                Vector p2 = points.get(j);
+                double dist = Math.sqrt(p1.Mv1Squared(p2));
+                distMap.computeIfAbsent(dist, k -> new ArrayList<>()).add(new int[]{i, j});
+            }
+        }
+
+        // Step 2: Find the smallest distance
+        double minDist = Collections.min(distMap.keySet());
+        System.out.println("Smallest Distance: " + minDist);
+
+        // Step 3: Build graph of connected points at min distance
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for (int[] pair : distMap.get(minDist)) {
+            graph.computeIfAbsent(pair[0], k -> new ArrayList<>()).add(pair[1]);
+            graph.computeIfAbsent(pair[1], k -> new ArrayList<>()).add(pair[0]);
+        }
+
+        // Step 4: Find connected components
+        Set<Integer> visited = new HashSet<>();
+        List<List<Integer>> clusters = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            if (graph.containsKey(i) && !visited.contains(i)) {
+                List<Integer> component = new ArrayList<>();
+                dfs(i, visited, graph, component);
+                clusters.add(component);
+            }
+        }
+
+        return clusters;
+    }
+
+    private static Object parseValue(String str) {
+        try {
+            return Double.parseDouble(str);
+        } catch (NumberFormatException e) {
+            return str;
+        }
+    }
+
+    private double printIfStartsWithC(String name, Object value, Double[] nums) {
+        double returnVal = 0.0;
+        if (value instanceof String) {
+            String str = (String) value;
+            if (str.startsWith("C") ) {
+              //  String prefix = "C";
+                String rest = str.substring(1);
+              //  System.out.println(name + " starts with 'C'"+ rest);
+                returnVal = nums[Integer.parseInt(rest)];
+            } else if (str.startsWith("-C")) {
+               // String middle = "C";
+                String rest = str.substring(2);
+                //System.out.println(name + " stats with -C "+  ("-"+rest));
+                returnVal = -nums[Integer.parseInt(rest)];
+            }
+        }else if (value instanceof Number) {
+            returnVal = ((Number) value).doubleValue();  // will work for Double, Integer, etc.
+        }
+        return returnVal;
+    }
+
+  /*  public List<Integer[]> edgeBetweenPoints(Map<Double, List<Integer[]>> distMap,  List<Vector> listVecRhombic){
+        Double smallestKey = null;
+        List<Integer[]> doubleList = new ArrayList<>();
+        Integer[] points = new Integer[2];
+        for (int i = 0; i < listVecRhombic.size(); i++) {
+            Vector pointA = listVecRhombic.get(i);
+            for (int j = i + 1; j < listVecRhombic.size(); j++) { // Start from i + 1 to avoid duplicates
+                Vector pointB = listVecRhombic.get(j);
+
+                double distance = calculateDistance(pointA, pointB);
+                doubleList = distMap.get(distance);
+                if(doubleList == null){
+                    doubleList = new ArrayList<>();
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }else {
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }
+            }
+        }
+
+        double smallestSize = Integer.MAX_VALUE;
+
+        for (Map.Entry<Double, List<Integer[]>> entry : distMap.entrySet()) {
+            double currentSize = entry.getKey();
+            // Check for smaller size or the same size with a smaller key
+            if (currentSize < smallestSize || (currentSize == smallestSize && (smallestKey == null || entry.getKey() < smallestKey))) {
+                smallestSize = currentSize;
+                smallestKey = entry.getKey();
+            }
+        }
+
+        return  distMap.get(smallestKey);
+    }*/
+    public List<Integer[]> edgeBetweenPointsNew(Map<Double, List<Integer[]>> distMap,  Map<Integer, Vector> listVecRhombic, List<List<Integer>> faceList){
+        Double smallestKey = null;
+        double tolerance = 0.10;
+       // List<Integer[]> doubleList = new ArrayList<>();
+        Integer[] points = new Integer[2];
+       /* for (int i = 0; i < listVecRhombic.size(); i++) {
+            Vector pointA = listVecRhombic.get(i);
+            for (int j = i + 1; j < listVecRhombic.size(); j++) { // Start from i + 1 to avoid duplicates
+                Vector pointB = listVecRhombic.get(j);
+
+                double distance = calculateDistance(pointA, pointB);
+                doubleList = distMap.get(distance);
+                if(doubleList == null){
+                    doubleList = new ArrayList<>();
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }else {
+                    points = new Integer[]{i, j};
+                    doubleList.add(points);
+                    distMap.put(distance, doubleList);
+                }
+            }
+        }*/
+        Set<String> seenPairs = new HashSet<>();
+        for (int i =0; i<listVecRhombic.size(); i ++){
+            Vector vecI = listVecRhombic.get(i);
+            for ( int j =i+1; j < listVecRhombic.size(); j++){
+                Vector vecJ = listVecRhombic.get(j);
+                double distance = calculateDistance(vecI, vecJ);
+                String pairKey = i + "-" + j;
+                if (seenPairs.contains(pairKey)) continue;
+                seenPairs.add(pairKey);
+                boolean found = false;
+                Double matchedKey = null;
+
+                // Try to find an existing key within ±5% of current distance
+                for (Double existingKey : distMap.keySet()) {
+                    double relativeDiff = Math.abs(existingKey - distance) / ((existingKey + distance) / 2.0);
+                    if (relativeDiff <= tolerance) {
+                        matchedKey = existingKey;
+                        found = true;
+                        break;
+                    }
+                }
+
+                // Use matched key if found, else add new one
+                if (found) {
+                    distMap.get(matchedKey).add(new Integer[]{i, j});
+                } else {
+                    List<Integer[]> doubleList = new ArrayList<>();
+                    doubleList.add(new Integer[]{i, j});
+                    distMap.put(distance, doubleList);
+                }
+            }
+        }
+
+       /* for (Map.Entry<Double, List<Integer[]>> entry : distMap.entrySet()) {
+            Double distance = entry.getKey();
+            List<Integer[]> pairs = entry.getValue();
+
+            System.out.print("Distance: " + distance + " -> Pairs: ");
+            for (Integer[] pair : pairs) {
+                System.out.print("[" + pair[0] + ", " + pair[1] + "] ");
+            }
+            System.out.println(pairs.size()); // move to next line after each distance
+        }*/
+
+      /*  for ( int i = 0; i < faceList.size(); i++){
+            System.out.println("\nFace num " +i);
+            List<Integer> faceNums = faceList.get(i);
+            Vector pointA = listVecRhombic.get(faceNums.get(0));
+            System.out.println(faceNums);
+            for (int j = 1; j < faceNums.size(); j++) { // Avoid duplicates
+                if (faceNums.get(0) < faceNums.get(j)){
+                      System.out.println(faceNums.get(0) + " "+ faceNums.get(j));
+                    Vector pointB = listVecRhombic.get(faceNums.get(j));
+                    System.out.println(pointA + " "+ pointB);
+                    double distance = calculateDistance(pointA, pointB);
+
+                    String pairKey = faceNums.get(0) + "-" + faceNums.get(j);
+                    if (seenPairs.contains(pairKey)) continue;
+                    seenPairs.add(pairKey);
+                    boolean found = false;
+                    Double matchedKey = null;
+
+                    // Try to find an existing key within ±5% of current distance
+                    for (Double existingKey : distMap.keySet()) {
+                        double relativeDiff = Math.abs(existingKey - distance) / ((existingKey + distance) / 2.0);
+                        if (relativeDiff <= tolerance) {
+                            matchedKey = existingKey;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // Use matched key if found, else add new one
+                    if (found) {
+                        System.out.println("Here "+ faceNums.get(0) +" "+ faceNums.get(j));
+                        distMap.get(matchedKey).add(new Integer[]{faceNums.get(0), faceNums.get(j)});
+                    } else {
+                        List<Integer[]> doubleList = new ArrayList<>();
+                        doubleList.add(new Integer[]{faceNums.get(0), faceNums.get(j)});
+                        distMap.put(distance, doubleList);
+                    }
+                }
+            }
+
+        }*/
+
+
+        double smallestSize = Integer.MAX_VALUE;
+
+        for (Map.Entry<Double, List<Integer[]>> entry : distMap.entrySet()) {
+            double currentSize = entry.getKey();
+            // Check for smaller size or the same size with a smaller key
+            if (currentSize < smallestSize || (currentSize == smallestSize && (smallestKey == null || entry.getKey() < smallestKey))) {
+                smallestSize = currentSize;
+                smallestKey = entry.getKey();
+            }
+        }
+       // System.out.println(distMap.keySet());
+       // System.exit(1);
+        double scale = (1 / tolerance); // 1000
+
+        for (int i = 0; i < listVecRhombic.size(); i++) {
+            Vector pointA = listVecRhombic.get(i);
+            for (int j = i + 1; j < listVecRhombic.size(); j++) {
+                Vector pointB = listVecRhombic.get(j);
+
+                double distance = calculateDistance(pointA, pointB);
+                long bucketKey = Math.round(distance * scale); // 🎯 Bucketing key
+
+                List<Integer[]> pairList = distMap.getOrDefault(bucketKey, new ArrayList<>());
+                pairList.add(new Integer[]{i, j});
+                distMap.put((double) bucketKey, pairList);
+            }
+        }
+
+     /*   for (Map.Entry<Double, List<Integer[]>> entry : distMap.entrySet()) {
+            Double distance = entry.getKey();
+            List<Integer[]> pointPairs = entry.getValue();
+
+            System.out.print("Distance: " + distance + " -> Pairs: ");
+            for (Integer[] pair : pointPairs) {
+                System.out.print(Arrays.toString(pair) + " ");
+            }
+            System.out.println(); // Move to next line for each distance
+        }*/
+
+       return distMap.get(smallestKey);
+    }
+
+    public double calculateDistance(Vector pointA, Vector pointB){
+        return Math.sqrt(pointA.Mv1Squared(pointB));
+    }
+
+
+    public void setVecPositionList(List<Vector> vectPositions){
+        this.listVecPoly  = vectPositions;
+    }
+
+    public void calcCentroid(List<Vector> polyVec, Vector centroid){
+        Vector sum = new Vector3D();
+        Vector polyVecEqual = new Vector3D();
+        for(int i = 0; i < polyVec.size(); i++){
+            polyVecEqual.E(polyVec.get(i));
+            centroid.PE(polyVecEqual);
+        }
+        int size = polyVec.size();
+        centroid.TE(1.0 / size);
+    }
+
+    public void rotateAroundAxis(List<Vector> listVecPoly, double coordinateMultiplier){
+        List<Vector> listMultiplied = new ArrayList<>();
+        for(int i = 0; i < listVecPoly.size() ; i++){
+            Vector multiplied = new Vector3D();
+            multiplied.Ea1Tv1(coordinateMultiplier, listVecPoly.get(i));
+            listMultiplied.add(multiplied);
+        }
+        Vector centroid = new Vector3D();
+        calcCentroid(listMultiplied, centroid);
+        System.out.println(centroid);
+    }
+
+    public List<Vector> getListVecPoly(){
+        return listVecPoly;
+    }
+
+    // presently considering simple single atom cation
+    public void calcExtremities (ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMap, ArrayList<Integer> atomNamesExtreme){
+        //check for metal atom
+        /*String[] metalNames = {"FE+2", "FE+3", "CR", "MO", "AL",
+                "PD", "PT", "Cu", "ZN", "ZR", "RH","RU", "NI","Co","PO","MO","MN","MG","V","W","IR","TI", "CU"};*/
+        String[] metalNames = { "Cu","Co"};
+        String[] nonMetalNames = {"N_1", "N_2", "N_3", "O_1", "O_2",
+                "O_3", "S_2", "S_3", "O", "N", "S", "P"};
+        // also verify it is connected to just one Nitrogen or Oxygen
+        for(int i=0; i< connectivityModified.size(); i++){
+            ArrayList<Integer> intenalArray = connectivityModified.get(i);
+            String atomName = atomMap.get(intenalArray.get(0));
+            boolean found = false;
+            boolean connectedSingle = false;
+            boolean nonMetalConnected = false;
+            for (String name : metalNames) {
+                if (name.equals(atomName)) {
+                    found = true;
+                    if(intenalArray.size() >= 2){
+                        connectedSingle = true;
+                        String atomNameConnected = atomMap.get(intenalArray.get(1));
+                        for (String nonName : nonMetalNames) {
+                            if (nonName.equals(atomNameConnected)) {
+                                nonMetalConnected = true;
+                                atomNamesExtreme.add(i);
+                                break; // Stop searching if a match is found
+                            }
+                        }
+                    }
+                    break; // Stop searching if a match is found
+                }
+            }
+        }
+        if(atomNamesExtreme.size() < 1){
+            for (int i = 0; i< connectivityModified.size(); i++) {
+                ArrayList<Integer> intenalArray = connectivityModified.get(i);
+                String atomName = atomMap.get(intenalArray.get(0));
+                if (atomName.equals("CO")){
+
+                }
+            }
+        }
+    }
+
+    public void locateLinkerOxy (ISpecies species, ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMap, ArrayList<Integer> atomNamesOxygenExtreme, ArrayList<Integer> atomNamesCarbonExtreme){
+       // String[] metalNames = {"FE+2", "FE+3", "CR", "MO", "AL",
+            //    "PD", "PT", "Cu", "ZN", "ZR", "RH","RU", "NI","Co","PO","MO","MN","MG","V","W","IR","TI", "CU"};
+        String[] metalNames = {"Cu", "Co"};
+        int p =0;
+        IMolecule molecule = species.makeMolecule();
+        ArrayList<Integer> oxyNums = new ArrayList<>();
+        for(int i=0; i< connectivityModified.size(); i++){
+            ArrayList<Integer> arrayMetal = connectivityModified.get(i);
+            String atomName = atomMap.get(arrayMetal.get(0));
+            for (String name : metalNames) {
+                if (name.equals(atomName)) {
+                  //  metalFound = true;
+                    //System.out.println(name);
+                    if(arrayMetal.size() >=2){
+                        int connectivityAdjOxy = arrayMetal.get(1);
+                        ArrayList<Integer> arrayAdjOxy = connectivityModified.get(connectivityAdjOxy);
+                       // adjOxyFound = true ;
+                       // System.out.println("Array Oxy " + arrayAdjOxy + "  array Metal "+  arrayMetal );
+                        int connectivityCarb = (arrayMetal.get(0) != arrayAdjOxy.get(1)) ? arrayAdjOxy.get(1) : arrayAdjOxy.get(2);
+                        atomNamesCarbonExtreme.add(connectivityCarb);
+                        atomNamesOxygenExtreme.add(arrayMetal.get(1));
+                       // linkedCFound = true;
+                        //ArrayList<Integer> arrayCarb = connectivityModified.get(connectivityCarb);
+                        //int doubleBondOxy = ( arrayCarb.get(1) != connectivityAdjOxy) ? arrayCarb.get(1) : arrayCarb.get(2) ;
+                       // atomNamesOxygenExtreme.add(doubleBondOxy);
+                    }
+                    break;
+                }/* else if (atomName.equals("O")) {
+                    if(arrayMetal.size() == 2){
+                        System.out.println("O present "+ p + " "+ i + " "+ arrayMetal.size());
+                       // System.out.println("size " );
+                        oxyNums.add(i);
+                    }
+                    p++;
+                    break;
+                }*/
+            }
+        }
+        List<AtomType> atomTypes = species.getAtomTypes();
+        IConformation conformation = species.getConformation();
+       /* for ( Integer atomNum : oxyNums){
+            //AtomType name = atomTypes.get(atomNum);
+           // System.out.println(name);
+        }*/
+      //  System.exit(1);
+    }
+    public void setFaceEdgeMap(Map<String, List<Integer>> faceEdgeMap){
+        this.faceEdgeMap = faceEdgeMap;
+    }
+    public Map<String, List<Integer>> getFaceEdgeMap(){
+        return faceEdgeMap;
+    }
+    public void setMidPointVectorMap(Map<Integer, List<Integer>> midpointVector){this.midpointVector = midpointVector;}
+    public void setAtomIdentifierMap(Map<Integer, String> atomIdentifierMap){this.atomIdentifierMap = atomIdentifierMap;}
+    public void setAtomMap(Map<Integer, String> atomMap){this.atomMap = atomMap;}
+    public void setAtomMapMOP(Map<Integer, String> atomMapMOP){this.atomMapMOP = atomMapMOP;}
+    public void setconnectivity(ArrayList<ArrayList<Integer>> connectivityMOP) {this.connectivityMOP = connectivityMOP;}
+    public void setArrayListMetals (ArrayList<Integer> arrayListMetals){this.arrayListMetals = arrayListMetals;}
+    public void setmetalMoleculeMap (Map<Integer, List<Integer>> metalMoleculeMap){this.metalMoleculeMap = metalMoleculeMap;}
+    public void setOldNewAtomNumMap(Map<Integer, Integer> oldNewAtomNumMap){this.oldNewAtomNumMap = oldNewAtomNumMap;}
+    public ArrayList<Integer> getArrayListMetals(){return arrayListMetals;}
+    public Map<Integer, List<Integer>> getMetalMoleculeMap(){return metalMoleculeMap;}
+    public Map<Integer, Integer> getOldNewAtomNumMap(){return oldNewAtomNumMap;}
+    public Map<Integer, String> getAtomIdentifierMap (){return atomIdentifierMap;}
+    public Map<Integer, String> getAtomMap (){return  atomMap;}
+    public Map<Integer, List<Integer>> getMidpointVector(){return midpointVector;}
+}

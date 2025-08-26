@@ -13,6 +13,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -107,7 +108,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
 
             if (!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size() - 1);
             else testMolecule = species.makeMolecule();
-
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             box.addMolecule(testMolecule);

@@ -16,6 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
+import etomica.units.*;
 import etomica.util.collections.DoubleArrayList;
 import etomica.util.collections.IntArrayList;
 
@@ -24,8 +25,10 @@ import java.util.Arrays;
 public class PotentialMaster implements PotentialCompute {
     protected final BondingInfo bondingInfo;
     protected final IPotential2[][] pairPotentials;
+    protected double[][][] pScale;
     protected final Box box;
     protected final Vector dr;
+    protected double u;
     protected double[] uAtom;
     protected final DoubleArrayList duAtom;
     protected final IntArrayList uAtomsChanged;
@@ -41,18 +44,21 @@ public class PotentialMaster implements PotentialCompute {
 
     public boolean doAllTruncationCorrection = true;
     public boolean doOneTruncationCorrection = false;
+    protected final double[] reduction;
     boolean first = true;
     public long tAll, numAll;
     public long numMC, tMC;
 
+
     public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo) {
         this(sm, box, bondingInfo, new IPotential2[sm.getAtomTypeCount()][sm.getAtomTypeCount()]);
     }
-
     public PotentialMaster(SpeciesManager sm, Box box, BondingInfo bondingInfo, IPotential2[][] pairPotentials) {
         space = box.getSpace();
         this.bondingInfo = bondingInfo;
         this.pairPotentials = pairPotentials;
+        pScale = new double[sm.getAtomTypeCount()][sm.getAtomTypeCount()][];
+        reduction = new double[pairPotentials.length];
         this.box = box;
         dr = box.getSpace().makeVector();
 
@@ -149,8 +155,14 @@ public class PotentialMaster implements PotentialCompute {
     }
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12) {
+        setPairPotential(atomType1, atomType2, p12, new double[]{1,0,0,0});
+    }
+
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, IPotential2 p12, double[] ijScale){
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
         pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
+        pScale[atomType2.getIndex()][atomType1.getIndex()]= ijScale;
+        pScale[atomType1.getIndex()][atomType2.getIndex()]= ijScale;
     }
 
     public IPotential2[][] getPairPotentials() {
@@ -162,31 +174,38 @@ public class PotentialMaster implements PotentialCompute {
 
     }
 
-    protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, IPotential2 pij, PotentialCallback pc, boolean skipIntra) {
-        if (pc != null && pc.skipPair(iAtom, jAtom)) return 0;
+    protected double handleComputeAll(boolean doForces, IAtom iAtom, IAtom jAtom, int iAtomNum, int jAtomNum, Vector ri, Vector rj, Vector jbo, IPotential2 ip2, PotentialCallback pc){
+        double u =0;
+
+        if (pc != null && pc.skipPair(iAtomNum, jAtomNum)) return 0;
         numAll++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double[] u012 = new double[3];
         double r2 = dr.squared();
-        if (skipIntra && r2 < minR2) return 0;
-        pij.u012add(r2, u012);
-        double uij = u012[0];
-//        double uij = pij.u(dr.squared());
-        if (uij == 0) return 0;
-        if (pc != null) pc.pairCompute(iAtom, jAtom, dr, u012);
-//        System.out.println(iAtom+" "+jAtom+" "+uij);
-        uAtom[iAtom] += 0.5 * uij;
-        uAtom[jAtom] += 0.5 * uij;
-        double duij = u012[1];
+        double multiplier = r2 < minR2 ? getpScaleMultiplier(iAtom, jAtom) : 1;
+        ip2.u012add(r2, u012);
+        double uij = multiplier*u012[0];
+        u += uij;
+        uAtom[iAtomNum] += 0.5 * u;
+        uAtom[jAtomNum] += 0.5 * u;
+        double duij;
+        duij = multiplier * u012[1];
         virialTot += duij;
         if (doForces && duij != 0) {
             dr.TE(duij / r2);
-            forces[iAtom].PE(dr);
-            forces[jAtom].ME(dr);
+            forces[iAtomNum].PE(dr);
+            forces[jAtomNum].ME(dr);
+            if(forces[iAtomNum].equals(Double.NaN) || forces[jAtomNum].equals(Double.NaN)){
+
+                throw new RuntimeException("oops ");
+
+            }
         }
-        return uij;
+       // System.out.println(iAtom + " " + iAtom.getPosition() + jAtom + " " + jAtom.getPosition() + " "+ u);
+        return u;
     }
+
 
     protected final void zeroArrays(boolean doForces) {
         virialTot = 0;
@@ -206,33 +225,35 @@ public class PotentialMaster implements PotentialCompute {
         }
     }
 
+
     @Override
     public double computeAll(boolean doForces, PotentialCallback pc) {
         double[] uAtomOld = new double[uAtom.length];
         boolean debug = false;
         if (debug) System.arraycopy(uAtom, 0, uAtomOld, 0, uAtom.length);
         zeroArrays(doForces);
-
         IAtomList atoms = box.getLeafList();
         double u = 0;
         Boundary boundary = box.getBoundary();
         long t1 = System.nanoTime();
+
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
-            IPotential2[] ip = pairPotentials[iType];
+            IPotential2[] ip1 = pairPotentials[iType];
             for (int j = i + 1; j < atoms.size(); j++) {
                 IAtom jAtom = atoms.get(j);
                 int jType = jAtom.getType().getIndex();
-                IPotential2 pij = ip[jType];
-                if (pij == null) continue;
+                Vector rj = jAtom.getPosition();
+                IPotential2 ip2 = ip1[jType];
+                if (ip2 == null) continue;
 
                 if (bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom)) continue;
 
                 dr.Ev1Mv2(jAtom.getPosition(), ri);
                 boundary.nearestImage(dr);
-                u += handleComputeAll(doForces, i, j, zero, dr, zero, pij, pc, false);
+                u += handleComputeAll(doForces, iAtom, jAtom, i, j, zero, dr, zero, ip2, pc);
             }
         }
         tAll += System.nanoTime() - t1;
@@ -251,7 +272,6 @@ public class PotentialMaster implements PotentialCompute {
             boolean success = true;
             for (int i = 0; i < uAtom.length; i++) {
                 if (Math.abs(uAtom[i] - uAtomOld[i]) > 1e-9) {
-                    System.out.println("uAtom diff " + i + " " + uAtom[i] + " " + uAtomOld[i]);
                     success = false;
                 }
             }
@@ -306,25 +326,40 @@ public class PotentialMaster implements PotentialCompute {
         }
         return uIntra;
     }
-
-    protected double handleComputeOne(IPotential2 pij, Vector ri, Vector rj, Vector jbo, int iAtom, int jAtom, boolean skipIntra) {
+    protected double getpScaleMultiplier(IAtom iAtom, IAtom jAtom){
+        double[][] pScale1 = pScale[iAtom.getType().getIndex()];
+        int n = bondingInfo.n(false, iAtom, jAtom);
+        if(n>3){
+            n = 3;
+        }
+        int nStar = jAtom.getType().getIndex();
+        return pScale1[nStar][n];
+    }
+    protected double handleComputeOne( IAtom iAtom, IAtom jAtom, Vector ri, Vector rj, Vector jbo, IPotential2 ip2){
         numMC++;
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double r2 = dr.squared();
-        if (skipIntra && r2 < minR2) return 0;
-        double uij = pij.u(r2);
-        if (uij == 0) return 0;
+        //System.out.println("Non");
+        double uij = ip2.u(r2);
+        if (uij == 0) {
+            return 0;
+        }
+        double multiplier = r2 < minR2 ? getpScaleMultiplier(iAtom, jAtom) : 1;
+        uij *= multiplier;
+        uAtomsChanged.add(jAtom.getLeafIndex());
 
-        uAtomsChanged.add(jAtom);
         if (duAtomMulti) {
-            duAtom.plusEquals(iAtom, 0.5 * uij);
-            duAtom.plusEquals(jAtom, 0.5 * uij);
+            duAtom.plusEquals(iAtom.getLeafIndex(), 0.5 * uij);
+            duAtom.plusEquals(jAtom.getLeafIndex(), 0.5 * uij);
         } else {
             duAtom.plusEquals(0, 0.5 * uij);
             duAtom.add(0.5 * uij);
         }
+         //System.out.println("Non " + uij);
+       // System.out.println(iAtom.getType() + " "+ iAtom.getPosition()+" " + jAtom.getType() + " "+jAtom.getPosition()+" " + uij +" "+  Math.exp(-uij/291));
         return uij;
+
     }
 
     @Override
@@ -365,7 +400,7 @@ public class PotentialMaster implements PotentialCompute {
             if (bondingInfo.skipBondedPair(isPureAtoms, atom, jAtom)) continue;
             dr.Ev1Mv2(jAtom.getPosition(), atom.getPosition());
             boundary.nearestImage(dr);
-            u += handleComputeOne(pij, zero, dr, zero, i, j, false);
+            u += handleComputeOne(atom, jAtom, zero, dr,  zero,pij);
         }
         tMC += System.nanoTime() - t1;
         return u;
@@ -386,7 +421,7 @@ public class PotentialMaster implements PotentialCompute {
             u += computeOneTruncationCorrection(atom.getLeafIndex());
         }
         if (u == Double.POSITIVE_INFINITY) return u;
-
+       // System.out.println("Uexcess "+ u);
         return u;
     }
 
@@ -454,6 +489,7 @@ public class PotentialMaster implements PotentialCompute {
     }
 
     public double computeOneTruncationCorrection(int iAtom) {
+        double integral =0;
         if (!doOneTruncationCorrection) {
             return 0;
         }
@@ -467,9 +503,15 @@ public class PotentialMaster implements PotentialCompute {
             } else {
                 pairDensity = atomCountByType[j] / box.getBoundary().volume();
             }
-            double integral = p.integral(space, p.getRange());
+            if(p == null){
+                integral = 0;
+            }else {
+                integral = p.integral(space, p.getRange());
+            }
+
             uCorrection += pairDensity * integral;
         }
         return uCorrection;
     }
+
 }

@@ -18,7 +18,7 @@ public final class Radian extends SimpleUnit {
      */
     public static final Radian UNIT = new Radian();
 
-    private Radian() {
+    public Radian() {
         super(Angle.DIMENSION, 1.0, "radians", "rad", Prefix.ALLOWED);
     }
 }

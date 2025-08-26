@@ -24,6 +24,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.P2HardAssociationCone;
+import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.compute.NeighborManagerSimple;
 import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
@@ -52,8 +53,9 @@ public class GEMCWithRotation extends Simulation {
 
     public GEMCWithRotation(Space _space) {
         super(_space);
-
-        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false, true);
+        SpeciesGasTraPPE gasTraPPE = new SpeciesGasTraPPE();
+        //species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false, true);
+        species = (SpeciesGeneral) gasTraPPE.speciesGasTraPPE(_space, SpeciesGasTraPPE.ChemForm.C2H4,false );
         addSpecies(species);
 
         box1 = this.makeBox();

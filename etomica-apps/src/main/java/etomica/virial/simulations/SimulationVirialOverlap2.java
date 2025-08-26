@@ -35,7 +35,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
+import etomica.units.*;
 import etomica.units.dimensions.Null;
+import etomica.util.collections.IntArrayList;
 import etomica.virial.BoxCluster;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.CoordinatePairSet;
@@ -73,12 +75,16 @@ public class SimulationVirialOverlap2 extends Simulation {
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveTranslate;
     public MCMoveBoxStep[] mcMoveWiggle;
+    public MCMoveBoxStep[] mcMoveStetch;
+    public MCMoveBoxStep[] mcMoveBend;
+    protected IntArrayList[] intListBonds;
     public int numExtraTargetClusters;
 
     public IntegratorOverlap integratorOS;
     public double refPref;
     protected boolean initialized;
     protected boolean doWiggle;
+    protected boolean doBend;
     protected ClusterAbstract[] extraTargetClusters;
     public DataPumpListener[] accumulatorPumps;
     protected long blockSize;
@@ -142,6 +148,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         extraTargetClusters = new ClusterAbstract[0];
     }
 
+
     public void setPotentialComputeFactory(PotentialComputeFactory potentialComputeFactory) {
         this.potentialComputeFactory = potentialComputeFactory;
     }
@@ -200,6 +207,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         boolean multiAtomic = false;
         for (int i = 0; i < species.length; i++) {
             addSpecies(species[i]);
+            //addSpeciesNew(species[i]);
         }
         for (ISpecies sp : getSpeciesList()) {
             if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
@@ -216,6 +224,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         }
         if (doWiggle) {
             mcMoveWiggle = new MCMoveBoxStep[2];
+        }
+        if(doBend){
+            mcMoveStetch = new MCMoveBoxStep[2];
+            mcMoveBend = new MCMoveBoxStep[2];
         }
 
         blockSize = 1000;
@@ -272,6 +284,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     }
                     if (doBend) {
                         mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(pc, random, 0.5, space);
+
                     } else {
                         mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(random, pc, box[iBox]);
                     }
@@ -566,6 +579,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void initRefPref(String fileName, long initSteps) {
+       // System.out.println(" initRef");
         initRefPref(fileName, initSteps, true);
     }
 
@@ -587,7 +601,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                         refPref = Double.parseDouble(refPrefString);
                         bufReader.close();
                         fileReader.close();
-                        System.out.println("setting ref pref (from file) to "+refPref);
+                       // System.out.println("setting ref pref (from file) to "+refPref);
                         dpVirialOverlap[0].setNumAlpha(numAlpha);
                         dpVirialOverlap[1].setNumAlpha(numAlpha);
                         setRefPref(refPref, 1);
@@ -891,12 +905,17 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void printResults(double refIntegral, String[] extraNames) {
+        Unit cm =new PrefixedUnit(Prefix.CENTI, Meter.UNIT);
+        Unit cm6 = new CompoundUnit(new Unit[]{cm}, new double[]{6});
+        Unit mol2 = new CompoundUnit(new Unit[]{Mole.UNIT}, new double[]{2});
+        Unit cm3mol = new UnitRatio(cm6, mol2);
         double[] ratioAndError = dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: " + ratio + " error: " + error);
-        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral));
-
+        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral) );
+        //System.out.println("abs average(cm3/mol): "+cm3mol.fromSim(ratio*refIntegral)+" error: "+cm3mol.fromSim(error*Math.abs(refIntegral)));
+        System.out.println("percent error in abs average:  " +Math.abs((error*Math.abs(refIntegral))*100/(ratio*refIntegral)) +" added");
         double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(dvo.getAlphaSource().getAlpha(0));
         System.out.println(String.format("overlap ratio: % 20.15e error: %10.15e", alphaData[0], alphaData[1]));
 

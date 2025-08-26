@@ -175,6 +175,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         double voidFrac = (nSites - sumOfMolecules)/((double)nSites);
         double voidSum = 0;
         int siteCount = 0;
+
         for (int i=0; i<sumOfMolecules; i++) {
             IMolecule a = moleculeList.get(i);
             int[] ii = indexIterator.next();

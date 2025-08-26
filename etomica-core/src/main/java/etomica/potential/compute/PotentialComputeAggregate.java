@@ -144,6 +144,7 @@ public class PotentialComputeAggregate implements PotentialCompute {
                 }
             }
         }
+      // System.out.println("Sum potential compute aggregate " + sum);
         return sum;
     }
 

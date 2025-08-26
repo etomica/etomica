@@ -399,7 +399,7 @@ public class VirialAlkane {
      */
     public static class VirialSiepmannSpheresParam extends ParameterBase {
         public int nPoints = 4;
-        public int nSpheres = 3;
+        public int nSpheres = 5;
         public double temperature = 298.0;// Kelvin
         public long numSteps = 1000000;
         public double refFreq = -1;

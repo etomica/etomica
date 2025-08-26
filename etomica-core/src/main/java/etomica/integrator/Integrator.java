@@ -64,9 +64,9 @@ public abstract class Integrator implements Statefull {
         if (iieCount == 0) {
             eventManager.stepStarted();
         }
-
+        //System.out.println(" u old " + uold);
         doStepInternal();
-
+     //   System.out.println(stepCount);
         if (iieCount == 0) {
             eventManager.stepFinished();
             iieCount = interval;

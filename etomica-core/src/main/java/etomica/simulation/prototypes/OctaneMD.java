@@ -338,7 +338,7 @@ public class OctaneMD extends Simulation {
             }
         };
         DataFork forkP = new DataFork(new IDataSink[]{dpZ, dpZm1oR});
-        if (graphics) {
+        if (true) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Octane MD", 3);
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
@@ -576,7 +576,7 @@ public class OctaneMD extends Simulation {
         public double temperatureK = 500;
         public int numMolecules = 72;
         public double density = 8.332487e-05;
-        public boolean graphics = false;
+        public boolean graphics = true;
         public long numSteps = 200000;
         public long mcSteps = 0;
         public int cycles = 100;

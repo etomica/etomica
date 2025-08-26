@@ -117,9 +117,7 @@ public class TestLJGCMC3D extends Simulation {
         long t1 = System.currentTimeMillis();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         long t2 = System.currentTimeMillis();
-
         System.out.println("runtime: " + (t2 - t1) * 0.001);
-
         double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
         double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
         double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);

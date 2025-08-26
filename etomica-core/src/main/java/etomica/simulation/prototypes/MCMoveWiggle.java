@@ -175,4 +175,13 @@ public class MCMoveWiggle extends MCMoveAtom {
         }
         return true;
     }
+    public double getChi(double temperature) {
+        uNew = potentialCompute.computeOne(atom);
+        // System.out.println(" unew move atom " +  uNew);
+        return Math.exp(-(uNew - uOld) / temperature);
+    }
+
+    public MoleculeSource getMoleculeSource() {
+        return moleculeSource;
+    }
 }

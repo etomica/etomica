@@ -61,7 +61,7 @@ public final class Debug {
     /**
      * true if debugging is currently enabled (when the integrator reaches step START) 
      */
-    public static boolean DEBUG_NOW = false;
+    public static boolean DEBUG_NOW = true;
 
     /**
      * Atom index of first atom of interest.  More debugging information will be
