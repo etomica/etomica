@@ -4,13 +4,18 @@
 
 package etomica.integrator;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.util.Debug;
+import etomica.util.Statefull;
 import etomica.util.random.IRandom;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Implements Langevin dynamics using the BAOAB algorithm.
@@ -25,11 +30,24 @@ import etomica.util.random.IRandom;
 public class IntegratorLangevin extends IntegratorMD {
 
     protected double gamma;
+    protected Vector[] dx;
+    protected int n = 0;
+//    protected FileWriter fw;
 
     public IntegratorLangevin(PotentialCompute potentialCompute, IRandom random,
                               double timeStep, double temperature, Box box, double gamma) {
         super(potentialCompute, random, timeStep, temperature, box);
         setGamma(gamma);
+        dx = space.makeVectorArray(box.getLeafList().size());
+//        try {
+//            fw = new FileWriter("_dx-dt0.035-g"+gamma);
+//        }
+//        catch (IOException ex) {
+//            throw new RuntimeException(ex);
+//        }
+//
+        this.n = 0;
+
     }
 
     public void setGamma(double newGamma) {
@@ -43,6 +61,7 @@ public class IntegratorLangevin extends IntegratorMD {
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             r.PEa1Tv1(dt, v);
+            dx[iLeaf].PEa1Tv1(dt, v);
         }
     }
 
@@ -76,6 +95,7 @@ public class IntegratorLangevin extends IntegratorMD {
         Vector rand = space.makeVector();
         int nLeaf = atoms.size();
         double expX = Math.exp(-x);
+
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             for (int i=0; i<rand.getD(); i++) {
                 rand.setX(i, c*sqrtT * random.nextGaussian());
@@ -99,6 +119,53 @@ public class IntegratorLangevin extends IntegratorMD {
         propagatorB(leafList, timeStep/2);
 
         computeKE(leafList);
+
+
+
+//        Vector[] forces = potentialCompute.getForces();
+//        double sumF2 = 0;
+//        for (int i=0; i<forces.length; i++) {
+//            sumF2 += forces[i].squared();
+//        }
+//        System.out.println(sumF2/3.0/box.getLeafList().size());
+
+//        double msd = 0;
+//        for (int i=0; i<dx.length; i++) {
+//            msd += dx[i].squared();
+//        }
+//        msd /= 3*box.getLeafList().size();
+//        System.out.println(Math.sqrt(msd));
+        int n_eq = 100000/5;
+        if (n > n_eq)   System.out.println(n-n_eq-1 + "   " + dx[0].getX(0));
+
+        n++;
+//        int steps = 100000;
+//        int steps_eq = steps / 5;
+//        if (true) {
+//        if (n > steps_eq) {
+//            try {
+//                for (int i=0; i<box.getLeafList().size(); i++) {
+//                    fw.write(Math.sqrt(dx[i].squared()) + "\n");
+//                }
+//            }
+//            catch (IOException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//        }
+//        if (n == steps_eq + steps) {
+//            try {
+//                fw.close();
+//            }
+//            catch (IOException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//        }
+
+//        IAtomKinetic a = (IAtomKinetic) box.getLeafList().get(0);
+//        Vector velocity = a.getVelocity();
+//        System.out.println(dx[0].getX(0));
+
+        dx = space.makeVectorArray(box.getLeafList().size());
     }
 
     protected void computeKE(IAtomList atoms) {

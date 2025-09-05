@@ -12,57 +12,136 @@ import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class IntegratorBrownian extends IntegratorMD {
 
     protected boolean isLM;
+    protected double f2EM;
+    protected int numAtoms;
+    protected Vector[] rand_0, rand_1;
+    protected Vector[] dx;
+    protected int n = 0;
+    protected FileWriter fw;
+
     public IntegratorBrownian(PotentialCompute potentialCompute, IRandom random,
-                              double h, double temperature, Box box) {
+                              double h, double temperature, Box box, boolean isLM, double f2EM) {
         super(potentialCompute, random, h, temperature, box);
-        this.isLM = true;
-        System.out.println(" isLM: " + isLM);
+        this.isLM = isLM;
+        this.f2EM = f2EM;
+        this.n = 0;
+        this.numAtoms = box.getLeafList().size();
+        System.out.println(" isLM: " + this.isLM);
+
+        rand_0 = space.makeVectorArray(numAtoms);
+        rand_1 = space.makeVectorArray(numAtoms);
+        for (int i = 0; i < numAtoms; i++) {
+            for (int j = 0; j < space.getD(); j++) {
+                rand_0[i].setX(j, random.nextGaussian());
+            }
+        }
+        try {
+//            fw = new FileWriter("dx-em");
+            fw = new FileWriter("dx-lm");
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-
     protected void propagatorA(IAtomList atoms, double h) {
-        int nLeaf = atoms.size();
         Vector[] forces = potentialCompute.getForces();
-        for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
+        for (int iLeaf = 0; iLeaf < numAtoms; iLeaf++) {
+            IAtomKinetic atom = (IAtomKinetic) atoms.get(iLeaf);
             Vector force = forces[iLeaf];
-            Vector r = a.getPosition();
-            r.PEa1Tv1(h/a.getType().getMass(), force);
+            Vector r = atom.getPosition();
+
+            r.PEa1Tv1(h, force);
+//            if (isLM) {
+//                r.PEa1Tv1(h, force);
+//            } else {
+//                r.PEa1Tv1(h/2, force);
+//            }
+            dx[iLeaf].PEa1Tv1(h , force);
         }
     }
 
     protected void propagatorO(IAtomList atoms, double h) {
         if (!isothermal) return;
-        Vector rand = space.makeVector();
-        int nLeaf = atoms.size();
-        for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) atoms.get(iLeaf);
-            double mass = a.getType().getMass();
-            double sqrtT = Math.sqrt(2*temperature*h/mass);
-            for (int i=0; i<rand.getD(); i++) {
-                rand.setX(i, random.nextGaussian());
+        double sigma = Math.sqrt(2 * temperature * h);
+        for (int i = 0; i < numAtoms; i++) {
+            for (int j = 0; j < space.getD(); j++) {
+                rand_1[i].setX(j, random.nextGaussian());
             }
-            Vector r = a.getPosition();
+
+            IAtomKinetic atom = (IAtomKinetic) atoms.get(i);
+            Vector r = atom.getPosition();
+
             if (isLM) { //LM
-                r.PEa1Tv1(sqrtT/2, rand);
-                r.PEa1Tv1(sqrtT/2*Math.sqrt(mass/temperature), a.getVelocity());
-                a.getVelocity().Ea1Tv1(Math.sqrt(temperature/mass), rand);
+                r.PEa1Tv1(sigma / 2, rand_0[i]);
+                r.PEa1Tv1(sigma / 2, rand_1[i]);
+                dx[i].PEa1Tv1(sigma / 2, rand_0[i]);
+                dx[i].PEa1Tv1(sigma / 2, rand_1[i]);
+                rand_0[i].E(rand_1[i]);
             } else { //EM
-                r.PEa1Tv1(sqrtT, rand);
+//                sigma = Math.sqrt(2 * temperature * h / 2 * (1 - h * f2EM / 4));
+                r.PEa1Tv1(sigma, rand_1[i]);
+                dx[i].PEa1Tv1(sigma, rand_1[i]);
             }
         }
     }
 
     protected void doStepInternal() {
         super.doStepInternal();
-
+        dx = space.makeVectorArray(box.getLeafList().size());
         IAtomList leafList = box.getLeafList();
         propagatorA(leafList, timeStep);
         propagatorO(leafList, timeStep);
         computeForce();
+
+        int n_eq = 100000/5;
+//        if (n > n_eq)   System.out.println(n-n_eq-1 + "   " + dx[0].getX(0));
+        n++;
+
+//        double sumF2 = 0;
+//        Vector[] forces = potentialCompute.getForces();
+//        for (int iLeaf = 0; iLeaf < numAtoms; iLeaf++) {
+//            sumF2 += forces[iLeaf].squared();
+//        }
+//        System.out.println(sumF2/(3.0 * numAtoms));
+
+//        double dx2 = 0;
+//        for (int i = 0; i < dx.length; i++) {
+//            dx2 += dx[i].squared();
+//        }
+//        dx2 /= (box.getSpace().getD() * box.getLeafList().size());
+//        System.out.println(Math.sqrt(dx2));
+
+
+        int steps = 100000;
+        int steps_eq = steps / 5;
+        if (n > steps_eq) {
+            try {
+                fw.write(dx[0].getX(0) + "\n");
+//                for (int i=0; i<box.getLeafList().size(); i++) {
+//                    fw.write(Math.sqrt(dx[i].squared()) + "\n");
+//                }
+            }
+            catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        if (n == steps_eq + steps) {
+            try {
+                fw.close();
+            }
+            catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        dx = space.makeVectorArray(box.getLeafList().size());
 
     }
 

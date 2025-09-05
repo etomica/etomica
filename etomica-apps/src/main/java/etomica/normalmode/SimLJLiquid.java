@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomSourceFixed0;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -17,24 +16,19 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterPressureFromIntegrator;
 import etomica.graphics.*;
-import etomica.integrator.*;
-import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.IntegratorBrownian;
+import etomica.integrator.IntegratorLangevin;
+import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
-import etomica.potential.compute.PotentialCompute;
-import etomica.potential.compute.PotentialComputeAggregate;
-import etomica.potential.compute.PotentialComputeField;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
@@ -53,7 +47,7 @@ public class SimLJLiquid extends Simulation {
     public double temperature;
     public Box box;
 
-    public SimLJLiquid(int nAtoms, double rho, double temperature, double rc, boolean isLRC, double dt, double gamma, double nu, Thermostat thermostat) {
+    public SimLJLiquid(int nAtoms, double rho, double temperature, double rc, boolean isLRC, double dt, double gamma, double nu, Thermostat thermostat, boolean isLM, double f2EM) {
         super(Space3D.getInstance());
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         AtomType leafType = species.getLeafType();
@@ -64,13 +58,13 @@ public class SimLJLiquid extends Simulation {
         inflater.setTargetDensity(rho);
         inflater.actionPerformed();
 
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space), space);//BCC
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicBcc(space), space);//BCC
         config.initializeCoordinates(box);
 
         double sigma = 1, eps = 1;
         potential = new P2LennardJones(sigma, eps);
         P2SoftSphericalTruncatedForceShifted potentialTruncated = new P2SoftSphericalTruncatedForceShifted(potential, rc);
-        PotentialMasterList pm = new PotentialMasterList(this.getSpeciesManager(), box, 2, 1.5*rc, BondingInfo.noBonding());
+        PotentialMasterList pm = new PotentialMasterList(this.getSpeciesManager(), box, 2, 1.5 * rc, BondingInfo.noBonding());
         pm.setPairPotential(leafType, leafType, potentialTruncated);
 
         if (!isLRC) {
@@ -88,11 +82,17 @@ public class SimLJLiquid extends Simulation {
             integrator.setThermostatNoDrift(false);
             System.out.println(" LT thermostat (gamma: " + gamma+")");
         } else if (thermostat == Thermostat.BD) { //Brownian Sampling
-            integrator = new IntegratorBrownian(pm, random, dt, temperature, box);
+            integrator = new IntegratorBrownian(pm, random, dt, temperature, box, isLM, f2EM);
             integrator.setThermostatNoDrift(false);
-            System.out.println(" BD thermostat (h: " + dt+")");
+            System.out.println(" BD thermostat (h=" + dt +") " + " dt=sqrt(2h)=" + Math.sqrt(2*dt));
+            System.out.println(" f2EM: " + f2EM);
         }
         integrator.setIsothermal(true);
+
+//        pm.init();
+//        integrator.getEventManager().removeListener(pm);
+//        potentialTruncated.setTruncationRadius(0.6 * box.getBoundary().getBoxSize().getX(0));
+
     }
 
     public static void main(String[] args) {
@@ -102,17 +102,23 @@ public class SimLJLiquid extends Simulation {
         boolean isGraphic = params.isGraphic;
         int nAtoms = params.nAtoms;
         int nSteps = params.nSteps;
-        int nStepsEq = nSteps/10;
+
+
+        int nStepsEq = nSteps/5;
+
+
         double temperature = params.temperature;
         double rho = params.rho;
         double rc = params.rc;
         double dt = params.dt;
         Thermostat thermostat = params.thermostat;
         boolean isLRC = params.isLRC;
+        boolean isLM = params.isLM;
         double gamma = params.gamma;
+        double f2EM = params.f2EM;
         double nu = params.nu;
 
-        SimLJLiquid sim = new SimLJLiquid(nAtoms, rho, temperature, rc, isLRC, dt, gamma, nu, thermostat);
+        SimLJLiquid sim = new SimLJLiquid(nAtoms, rho, temperature, rc, isLRC, dt, gamma, nu, thermostat, isLM, f2EM);
         double L = sim.box.getBoundary().getBoxSize().getX(0);
         System.out.println(" isLRC: " + isLRC);
         System.out.println(" N: " + nAtoms + " , density: " + rho + " , L/2: " + L/2 + " , T: " + temperature);
@@ -196,6 +202,7 @@ public class SimLJLiquid extends Simulation {
         double corP = accumulatorP.getData(accumulatorP.BLOCK_CORRELATION).getValue(0);
         System.out.println(" P: " + avgP + "  " + errP + "    " + corP);
 
+        System.out.println("\n Exact (T=1, rho=0.8, rc=2.5, N=500, LRC): U=-5.5792754 & P=1.004");
         long t2 = System.nanoTime();
         System.out.println("\n time: " + (t2 - t1)/1.0e9/60.0 + " min");
     }
@@ -203,16 +210,22 @@ public class SimLJLiquid extends Simulation {
     public enum Thermostat {LT, AT, BD};
 
     public static class SimParams extends ParameterBase {
-        public boolean isGraphic = !false;
+        public boolean isGraphic = false;
         public boolean isLRC = true;
-        public int nAtoms = 500;
+        public int nAtoms = 256;
         public int nSteps = 100000;
-        public double temperature = 1.0;
+//        System.out.println("Exact (T=1, rho=0.8, rc=2.5, N=500, LRC): U=-5.5792754 & P=1.004");
+        public double temperature = 1;
         public double rho = 0.8;
         public double rc = 2.5;
-        public double dt = 0.0005;
+        public double dt = 0.0002;
         public Thermostat thermostat = Thermostat.BD;
-        public double gamma = 200; //LT
-        public double nu = 50; // AT
+        public boolean isLM = !false; // BD
+        public double f2EM = 300; //LT
+        public double gamma = 1000; //LT
+        public double nu = 10; // AT
+//        gamma=10: dx=dt
+//        gamma=1000:dx=dt/sqrt(2)
+//        If dt=0.005 for gamma=10, then we need dt=0.005*sqrt(2) for gamma=1000
     }
 }
