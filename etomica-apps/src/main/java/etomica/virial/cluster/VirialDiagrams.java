@@ -74,8 +74,8 @@ public class VirialDiagrams {
     protected static int[][] sixStart = new int[0][0];
 
     public static void main(String[] args) {
-        final int n = 4;
-        boolean multibody = true;
+        final int n = 5;
+        boolean multibody = false;
         boolean flex = true;
         boolean doKeepEBonds = false;
         boolean doReeHoover = false;

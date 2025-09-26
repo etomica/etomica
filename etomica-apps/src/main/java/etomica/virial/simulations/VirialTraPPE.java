@@ -62,14 +62,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.butadiene, ChemForm.NH3};
-            params.nPoints = 3; //B order
-            params.types = new int[]{1, 0, 0};
+            params.chemForm = new ChemForm[]{ChemForm.butadiene};
+            params.nPoints = 5; //B order
             params.temperature = 1000;
-            params.diagram = "5c";
+            params.diagram = "BC";
             params.numSteps = 200000000;
             params.refFrac = -1;
-            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
+//            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
@@ -236,7 +235,7 @@ public class VirialTraPPE {
 
         System.out.println("isFlex = " + isFlex);
         System.out.println("Diagram " + params.diagram);
-        VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
+        VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, true);
 
         Diagrams.setDoReeHoover(false);
         ClusterAbstract targetCluster = Diagrams.makeVirialCluster(fTarget);
@@ -273,7 +272,7 @@ public class VirialTraPPE {
 
                     Graph cancelGraph = cancelMap.get(g);
                     if (cancelGraph != null) {
-                        diagramFlexCorrection[iGraph] = true;
+//                        diagramFlexCorrection[iGraph] = true;
                         Set<Graph> gSplit = Diagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
 
                         System.out.print(" - " + VirialAlkane.getSplitGraphString(gSplit, Diagrams, false));
