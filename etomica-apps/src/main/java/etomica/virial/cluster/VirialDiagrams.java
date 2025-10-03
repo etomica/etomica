@@ -1034,13 +1034,13 @@ public class VirialDiagrams {
 
         char oneBond = 'o';
         Metadata.COLOR_MAP.put(eBond, "red");
-        Metadata.COLOR_MAP.put(fBond, "green");
+        Metadata.COLOR_MAP.put(fBond, "black");
         Metadata.COLOR_MAP.put(mBond, "blue");
         Metadata.COLOR_MAP.put(mmBond, "orange");
         Metadata.COLOR_MAP.put(fmBond, "black");
         Metadata.COLOR_MAP.put(efbcBond, "fuchsia");
         Metadata.COLOR_MAP.put(excBond, "red");
-        Metadata.COLOR_MAP.put(ffBond, "green");
+        Metadata.COLOR_MAP.put(ffBond, "black");
         Metadata.COLOR_MAP.put(mxcBond, "blue");
         Metadata.DASH_MAP.put(excBond, 3);
         Metadata.DASH_MAP.put(ffBond, 3);
