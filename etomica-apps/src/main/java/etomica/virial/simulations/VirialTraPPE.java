@@ -65,7 +65,7 @@ public class VirialTraPPE {
             params.chemForm = new ChemForm[]{ChemForm.butadiene};
             params.nPoints = 5; //B order
             params.temperature = 1000;
-            params.diagram = "BC";
+            params.diagram = "808c";
             params.numSteps = 200000000;
             params.refFrac = -1;
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
@@ -235,7 +235,7 @@ public class VirialTraPPE {
 
         System.out.println("isFlex = " + isFlex);
         System.out.println("Diagram " + params.diagram);
-        VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, true);
+        VirialDiagrams Diagrams = new VirialDiagrams(nPoints, false, isFlex);
 
         Diagrams.setDoReeHoover(false);
         ClusterAbstract targetCluster = Diagrams.makeVirialCluster(fTarget);
