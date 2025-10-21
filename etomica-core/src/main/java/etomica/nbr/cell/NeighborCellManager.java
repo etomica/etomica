@@ -34,11 +34,16 @@ public class NeighborCellManager implements NeighborManager {
     protected int[] atomCell;
     public int[] allCellOffsets;
     protected final boolean rectangular;
+    protected final boolean handleOutOfBox;
 
     public NeighborCellManager(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo) {
+        this (sm,box,cellRange,bondingInfo,false);
+    }
+    public NeighborCellManager(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo,boolean handleOutOfBox) {
         this.box = box;
         this.cellRange = cellRange;
         this.rectangular = box.getBoundary().isRectangular();
+        this.handleOutOfBox = handleOutOfBox;
         boxHalf = box.getSpace().makeVector();
         numCells = new int[3];
         jump = new int[3];
@@ -58,17 +63,6 @@ public class NeighborCellManager implements NeighborManager {
         return bondingInfo;
     }
 
-    public int cellForCoord(Vector r) {
-        int cellNum = 0;
-        Vector bs = box.getBoundary().getBoxSize();
-        boolean[] periodic = box.getBoundary().getPeriodicity();
-        for (int i = 0; i < periodic.length; i++) {
-            double x = (r.getX(i) + boxHalf.getX(i)) / bs.getX(i);
-            if (periodic[i]) cellNum += ((int) (cellRange + x * (numCells[i] - 2 * cellRange))) * jump[i];
-            else cellNum += ((int) (x * numCells[i])) * jump[i];
-        }
-        return cellNum;
-    }
 
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
@@ -284,6 +278,9 @@ public class NeighborCellManager implements NeighborManager {
             }
 //            System.out.println("cells: "+numCells[0]+" "+numCells[1]+" "+numCells[2]);
         }
+        if (handleOutOfBox){
+            totalCells++;
+        }
         if (totalCells > cellLastAtom.length) {
             cellLastAtom = new int[totalCells];
             wrapMap = new int[totalCells];
@@ -443,6 +440,10 @@ public class NeighborCellManager implements NeighborManager {
                 }
             }
         }
+        if (handleOutOfBox){
+            wrapMap[totalCells-1]=totalCells-1;
+            boxOffsets[totalCells-1]= rawBoxOffsets[0];
+        }
 
         if (allCellOffsets.length < 2 * numCellOffsets) {
             allCellOffsets = new int[2 * numCellOffsets];
@@ -495,6 +496,11 @@ public class NeighborCellManager implements NeighborManager {
             for (int i = 0; i < r.getD(); i++) {
                 double x = s.getX(i) + 0.5;
                 int y = ((int) (cellRange + x * (numCells[i] - 2 * cellRange)));
+                if ( handleOutOfBox && (y<cellRange || y>= numCells[i]-cellRange)){
+                   cellNum=cellLastAtom.length-1;
+                   break;
+                }
+
                 if (y == numCells[i] - cellRange) y--;
                 else if (y == cellRange - 1) y++;
 //                System.out.print(" "+y);
@@ -543,6 +549,10 @@ public class NeighborCellManager implements NeighborManager {
         for (int i = 0; i < r.getD(); i++) {
             double x = s.getX(i) + 0.5;
             int y = ((int) (cellRange + x * (numCells[i] - 2 * cellRange)));
+            if ( handleOutOfBox && (y<cellRange || y>= numCells[i]-cellRange)){
+                cellNum=cellLastAtom.length-1;
+                break;
+            }
             if (y == numCells[i] - cellRange) y--;
             else if (y == cellRange - 1) y++;
             cellNum += y * jump[i];
@@ -619,5 +629,9 @@ public class NeighborCellManager implements NeighborManager {
 
     public int[] getCellLastAtom() {
         return cellLastAtom;
+    }
+
+    public boolean isHandleOutOfBox() {
+        return handleOutOfBox;
     }
 }

@@ -15,6 +15,8 @@ public class NeighborIteratorCell implements NeighborIterator {
     private final boolean isPureAtoms;
     private final Box box;
     private final Space space;
+    private final boolean handleOutOfBox;
+
 
     public NeighborIteratorCell(NeighborCellManager cellManager, BondingInfo bondingInfo, boolean isPureAtoms, Box box) {
         this.cellManager = cellManager;
@@ -22,6 +24,7 @@ public class NeighborIteratorCell implements NeighborIterator {
         this.isPureAtoms = isPureAtoms;
         this.box = box;
         this.space = box.getSpace();
+        this.handleOutOfBox = cellManager.isHandleOutOfBox();
     }
 
     protected double getMinR2() {
@@ -57,6 +60,9 @@ public class NeighborIteratorCell implements NeighborIterator {
         }
 
         int iCell = atomCell[iAtom];
+        if (handleOutOfBox && iCell==wrapMap.length-1){
+            return;
+        }
         for (int ico = 0; ico < cellManager.numCellOffsets; ico++) {
             int cellOffset = cellOffsets[ico];
             int jCell = iCell + cellOffset;
@@ -73,6 +79,22 @@ public class NeighborIteratorCell implements NeighborIterator {
                 if (skipIntra && rij.squared() < minR2) continue;
                 if (rij.squared() > minR2) n = 0;
                 consumer.accept(atom2, rij, n);
+
+            }
+        }
+        if (handleOutOfBox){
+            int jCell=wrapMap.length-1;
+            for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+                IAtom atom2 = atoms.get(j);
+                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+                int n = bondingInfo.n(false, atom1, atom2);
+
+                Vector rij = space.makeVector();
+                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                if (skipIntra && rij.squared() < minR2) continue;
+                if (rij.squared() > minR2) n = 0;
+                consumer.accept(atom2, rij, n);
+
             }
         }
     }
@@ -99,6 +121,23 @@ public class NeighborIteratorCell implements NeighborIterator {
             if (skipIntra && rij.squared() < minR2) continue;
             if (rij.squared() > minR2) n = 0;
             consumer.accept(atom2, rij, 0);
+        }
+        if (handleOutOfBox && iCell==wrapMap.length-1){
+            for (int jCell = 0; jCell < wrapMap.length-1; jCell++) {
+
+
+
+                for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+                    IAtom atom2 = atoms.get(j);
+                    boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+
+                    Vector rij = space.makeVector();
+                    rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+
+                    consumer.accept(atom2, rij, 0);
+                }
+            }
+            return;
         }
 
         for (int ico = 0; ico < cellManager.numCellOffsets; ico++) {
@@ -226,6 +265,23 @@ public class NeighborIteratorCell implements NeighborIterator {
             if (rij.squared() > minR2) n = 0;
             consumer.accept(atom2, rij, n);
         }
+        if (handleOutOfBox && iCell==wrapMap.length-1){
+            for (int jCell = 0; jCell < wrapMap.length-1; jCell++) {
+
+
+
+                for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+                    IAtom atom2 = atoms.get(j);
+                    boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+
+                    Vector rij = space.makeVector();
+                    rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+
+                    consumer.accept(atom2, rij, 0);
+                }
+            }
+            return;
+        }
 
         for (int ico = 0; ico < 2 * cellManager.numCellOffsets; ico++) {
             int cellOffset = allCellOffsets[ico];
@@ -243,6 +299,21 @@ public class NeighborIteratorCell implements NeighborIterator {
                 if (skipIntra && rij.squared() < minR2) continue;
                 if (rij.squared() > minR2) n = 0;
                 consumer.accept(atom2, rij, n);
+            }
+        }
+        if (handleOutOfBox){
+            int jCell=wrapMap.length-1;
+            for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
+                IAtom atom2 = atoms.get(j);
+                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, atom1, atom2);
+                int n = bondingInfo.n(false, atom1, atom2);
+
+                Vector rij = space.makeVector();
+                rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+                if (skipIntra && rij.squared() < minR2) continue;
+                if (rij.squared() > minR2) n = 0;
+                consumer.accept(atom2, rij, n);
+
             }
         }
     }
