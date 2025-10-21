@@ -188,7 +188,7 @@ public class NeighborCellManager implements NeighborManager {
                 }
                 // include cellRange of padding on each side of the box
                 numCells[i] = ((int) Math.floor(bs.getX(i) / minCellSize));
-                if (periodic[i]) numCells[i] += cellRange * 2;
+                numCells[i] += cellRange * 2;
                 totalCells *= numCells[i];
             }
         } else {
@@ -207,7 +207,7 @@ public class NeighborCellManager implements NeighborManager {
             // min(lz) = minCellSize
             double minCellSize = range / cellRange;
             numBoxCells[D - 1] = numCells[D - 1] = (int) (edgeVectors[D - 1].getX(D - 1) / minCellSize);
-            if (periodic[D - 1]) numCells[D - 1] += cellRange * 2;
+            numCells[D - 1] += cellRange * 2;
             totalCells *= numCells[D - 1];
 
             xmin[D - 1] = 0;
@@ -233,7 +233,7 @@ public class NeighborCellManager implements NeighborManager {
             double fac2 = lzy * lzz / facd;
             double minlyy = minCellSize / Math.sqrt(fac1 * fac1 + fac2 * fac2);
             numBoxCells[D - 2] = numCells[D - 2] = (int) (edgeVectors[D - 2].getX(D - 2) / minlyy);
-            if (periodic[D - 2]) numCells[D - 2] += cellRange * 2;
+            numCells[D - 2] += cellRange * 2;
             totalCells *= numCells[D - 2];
 
             double lyy = edgeVectors[D - 2].getX(D - 2) / numBoxCells[D - 2];
@@ -272,7 +272,7 @@ public class NeighborCellManager implements NeighborManager {
                 double fac3 = alphaOlxx * lzz;
                 double minlxx = minCellSize / Math.sqrt(fac1 * fac1 + fac2 * fac2 + fac3 * fac3);
                 numBoxCells[D - 3] = numCells[D - 3] = (int) (edgeVectors[D - 3].getX(D - 3) / minlxx);
-                if (periodic[D - 3]) numCells[D - 3] += cellRange * 2;
+                numCells[D - 3] += cellRange * 2;
 
                 xmin[D - 3] = 0;
                 xmin[D - 3] += Math.min(0, lyx);
