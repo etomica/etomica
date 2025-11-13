@@ -12,6 +12,7 @@ public class DeviceRunControls extends Device {
     public DeviceRunControls(Controller controller) {
         super(controller);
         this.button = new JButton(" Start ");
+        this.button.setName("runToggle");
         this.pauseDisplayed = false;
 
         this.button.addActionListener(e -> {
