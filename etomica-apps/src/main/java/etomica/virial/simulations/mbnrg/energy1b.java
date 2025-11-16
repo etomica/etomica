@@ -16,7 +16,7 @@ public class energy1b {
      * has an energy larger than the value set in definitions.h (EMAX1B)
      * @return Sum of the one-body energies of all the monomers passed as arguments
      */
-    static double get_1b_energy(String mon1, Integer nm, ArrayList<Double> xyz1, ArrayList<Integer> bad_idxs) {
+    static double get_1b_energy(String mon1, Integer nm, Double[] xyz1, ArrayList<Integer> bad_idxs) {
 
         ArrayList<Double> energies;
         // Look for the proper call to energy depending on the monomer id

@@ -14,7 +14,7 @@ public class A1B2_1b {
         this.mon1 = mon1;
         A1B2_init_1b.init(this);
     }
-    ArrayList<Double> eval(ArrayList<Double> xyz, int nmon) {
+    ArrayList<Double> eval(Double[] xyz, int nmon) {
         ArrayList<Double> energies = new ArrayList<>(nmon);
         for (int i = 0; i < nmon; i++) {
             energies.add(0.0);
@@ -23,14 +23,19 @@ public class A1B2_1b {
         for (int j = 0; j < nmon; j++) {
 
 //            std::copy(xyz + j * 9, xyz + (j + 1) * 9, xcrd);
-//                    const double* A0 = xcrd + 0;
+//        const double* A0 = xcrd + 0;
 //        const double* B0 = xcrd + 3;
 //        const double* B1 = xcrd + 6;
 
-            int base = j * 9;
-            double[] A0 = { xyz.get(base), xyz.get(base+1), xyz.get(base+2) };
-            double[] B0 = { xyz.get(base+3), xyz.get(base+4), xyz.get(base+5) };
-            double[] B1 = { xyz.get(base+6), xyz.get(base+7), xyz.get(base+8) };
+            int srcPos = j * 9;
+            double[] A0 = new double[3];
+            double[] B0 = new double[3];
+            double[] B1 = new double[3];
+
+            System.arraycopy(xyz, srcPos, A0, 0, 3);
+            System.arraycopy(xyz, srcPos + 3, B0, 0, 3);
+            System.arraycopy(xyz, srcPos + 6, B1, 0, 3);
+
             double[] x = new double[3];
             double[] g = new double[3];
             x[0] = Definitions.v_intra(k_intra_AB, d_intra_AB, A0, B0);
