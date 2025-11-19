@@ -5,6 +5,7 @@ import java.util.ArrayList;
 /**
  * @file energy2b
  * @brief Contains the implementation of the 2b energy calls
+ * unittest-energy2b.cpp has sample xyz1 and xyz2
  */
 
 public class energy2b {
