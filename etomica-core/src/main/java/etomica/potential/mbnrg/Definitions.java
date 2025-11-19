@@ -1,12 +1,12 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
+
+import etomica.space.Vector;
 
 public class Definitions {
     public static final double EMAX1B = 100000.0;
     public static final double EPSILON = 1E-50;
-    static double v_intra(double k, double r0, double[] a1, double[] a2) {
-        double[] dx = {a1[0] - a2[0], a1[1] - a2[1], a1[2] - a2[2]};
-        double dsq = dx[0] * dx[0] + dx[1] * dx[1] + dx[2] * dx[2];
-        double d = Math.sqrt(dsq);
+    static double v_intra(double k, double r0, Vector v1, Vector v2) {
+        double d = Math.sqrt(v1.Mv1Squared(v2));
 
         return Math.exp(-k * (d - r0));
     }

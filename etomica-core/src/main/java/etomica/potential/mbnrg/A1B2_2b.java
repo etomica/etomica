@@ -1,10 +1,9 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class A1B2_2b {
-    Double[] coefficients;
+    double[] coefficients;
     String mon1;
     String mon2;
     double m_d_intra_AB;
@@ -150,7 +149,7 @@ public class A1B2_2b {
 
             sw = f_switch(r12);
 
-            energies.set(j, sw * poly_A1B2_2b.poly_eval(coefficients, v));
+            energies.set(j, sw * Poly_A1B2_2b.poly_eval(coefficients, v));
         }
 
         double energy = 0.0;

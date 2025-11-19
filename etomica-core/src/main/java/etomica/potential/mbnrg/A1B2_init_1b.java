@@ -1,7 +1,7 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
 
 public class A1B2_init_1b {
-    public static void init(A1B2_1b t){
+    public static void init(P1mbnrgCO2 t){
         if (t.mon1.equals("co2")) {
             t.coefficients = new Double[]{
                     -1.645734441711526e+01, -2.811519309501759e+01, 2.812464786974462e+00,

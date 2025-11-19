@@ -1,4 +1,4 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
 
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialMolecular;
@@ -20,14 +20,14 @@ public class energy1b implements IPotentialMolecular {
      * has an energy larger than the value set in definitions.h (EMAX1B)
      * @return Sum of the one-body energies of all the monomers passed as arguments
      */
-    static double get_1b_energy(String mon1, Integer nm, Double[] xyz1, ArrayList<Integer> bad_idxs) {
+    static double get_1b_energy(String mon1, int nm, double[] xyz1) {
 
         ArrayList<Double> energies;
         // Look for the proper call to energy depending on the monomer id
         if (mon1.equals("co2")) {
 //            x1b_A1B2_deg4::x1b_A1B2_v1x pot(mon1);
 
-            A1B2_1b pot = new A1B2_1b("co2");
+            P1mbnrgCO2 pot = new P1mbnrgCO2("co2");
             energies = pot.eval(xyz1, nm);
         }
         else {
@@ -38,7 +38,6 @@ public class energy1b implements IPotentialMolecular {
         double e = 0.0;
         for (int i = 0; i < nm; i++) {
             e += energies.get(i);
-            if (energies.get(i) > Definitions.EMAX1B) bad_idxs.add(i);
         }
 
         // Return energy

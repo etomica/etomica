@@ -1,7 +1,7 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
 
-public class poly_A1B2_2b {
-    static double poly_eval(Double[] a, double[] x) {
+public class Poly_A1B2_2b {
+    static double poly_eval(double[] a, double[] x) {
         double t1 = a[0];
         double t2 = a[13];
         double t3 = a[109];

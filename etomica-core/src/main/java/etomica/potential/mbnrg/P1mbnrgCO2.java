@@ -1,8 +1,10 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
 
-import java.util.ArrayList;
+import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
+import etomica.space.Vector;
 
-public class A1B2_1b {
+public class P1mbnrgCO2 implements etomica.potential.IPotentialMolecular {
     String mon1;
     Double[] coefficients;
     double d_intra_AB;
@@ -10,40 +12,22 @@ public class A1B2_1b {
     double k_intra_AB;
     double k_intra_BB;
 
-    public A1B2_1b(String mon1){
+    public P1mbnrgCO2(String mon1){
         this.mon1 = mon1;
         A1B2_init_1b.init(this);
     }
-    ArrayList<Double> eval(Double[] xyz, int nmon) {
-        ArrayList<Double> energies = new ArrayList<>(nmon);
-        for (int i = 0; i < nmon; i++) {
-            energies.add(0.0);
-        }
+    public double energy(IMoleculeList molecules) {
 
-        for (int j = 0; j < nmon; j++) {
+        IAtomList atoms = molecules.get(0).getChildList();
+        Vector vC = atoms.get(0).getPosition();
+        Vector vO1 = atoms.get(1).getPosition();
+        Vector vO2 = atoms.get(2).getPosition();
 
-//            std::copy(xyz + j * 9, xyz + (j + 1) * 9, xcrd);
-//        const double* A0 = xcrd + 0;
-//        const double* B0 = xcrd + 3;
-//        const double* B1 = xcrd + 6;
-
-            int srcPos = j * 9;
-            double[] A0 = new double[3];
-            double[] B0 = new double[3];
-            double[] B1 = new double[3];
-
-            System.arraycopy(xyz, srcPos, A0, 0, 3);
-            System.arraycopy(xyz, srcPos + 3, B0, 0, 3);
-            System.arraycopy(xyz, srcPos + 6, B1, 0, 3);
-
-            double[] x = new double[3];
-            double[] g = new double[3];
-            x[0] = Definitions.v_intra(k_intra_AB, d_intra_AB, A0, B0);
-            x[1] = Definitions.v_intra(k_intra_AB, d_intra_AB, A0, B1);
-            x[2] = Definitions.v_intra(k_intra_BB, d_intra_BB, B0, B1);
-            energies.set(j, poly_eval(coefficients, x, g));
-        }
-        return energies;
+        double[] x = new double[3];
+        x[0] = Definitions.v_intra(k_intra_AB, d_intra_AB, vC, vO1);
+        x[1] = Definitions.v_intra(k_intra_AB, d_intra_AB, vC, vO2);
+        x[2] = Definitions.v_intra(k_intra_BB, d_intra_BB, vO1, vO2);
+        return poly_eval(coefficients, x);
     }
 //    static ArrayList<Double> eval(ArrayList<Double> xyz, ArrayList<Double> grad, Integer nmon, ArrayList<Double> virial) {
 //
@@ -106,7 +90,7 @@ public class A1B2_1b {
 //
 //        return energies;
 //    }
-    static double poly_eval(Double[] a, double[] x, double[] g) {
+    static double poly_eval(Double[] a, double[] x) {
         double t1 = a[1];
         double t2 = a[4];
         double t6 = x[2];
@@ -149,14 +133,14 @@ public class A1B2_1b {
         double t57 = t27 * t53;
         double t59 = (t57 + t45 + t30 + t31) * t53;
         double t61 = (t21 + t26 + t56 + t59) * t53;
-        double t93 = (2.0 * t15 + t16) * t6;
-        double t95 = 2.0 * t23;
-        double t100 = t46 * t25;
-        g[0] = ((2.0 * t57 + t45 + t30 + t31) * t53 + t21 + t26 + t56 + t59) * t53 + t12 + t20 + t52 + t61;
-        g[1] = ((2.0 * t28 + t30 + t31) * t25 + t21 + t26 + t33) * t25 + t12 + t20 + t35 +
-                ((2.0 * t45 + t47 + t48) * t25 + t38 + t43 + t50 + (t44 * t53 + t47 + t48 + 2.0 * t54) * t53) * t53;
-        g[2] = ((2.0 * t4 + t5) * t6 + t2 + t7) * t6 + t1 + t9 + (t93 + t13 + t18 + (t29 * t25 + t24 + t95) * t25) * t25 +
-                (t93 + t13 + t18 + (t100 + 2.0 * t40 + t41) * t25 + (t29 * t53 + t100 + t24 + t95) * t53) * t53;
+//        double t93 = (2.0 * t15 + t16) * t6;
+//        double t95 = 2.0 * t23;
+//        double t100 = t46 * t25;
+//        g[0] = ((2.0 * t57 + t45 + t30 + t31) * t53 + t21 + t26 + t56 + t59) * t53 + t12 + t20 + t52 + t61;
+//        g[1] = ((2.0 * t28 + t30 + t31) * t25 + t21 + t26 + t33) * t25 + t12 + t20 + t35 +
+//                ((2.0 * t45 + t47 + t48) * t25 + t38 + t43 + t50 + (t44 * t53 + t47 + t48 + 2.0 * t54) * t53) * t53;
+//        g[2] = ((2.0 * t4 + t5) * t6 + t2 + t7) * t6 + t1 + t9 + (t93 + t13 + t18 + (t29 * t25 + t24 + t95) * t25) * t25 +
+//                (t93 + t13 + t18 + (t100 + 2.0 * t40 + t41) * t25 + (t29 * t53 + t100 + t24 + t95) * t53) * t53;
         double e = (t1 + t9) * t6 + (t12 + t20 + t35) * t25 + (t12 + t20 + t52 + t61) * t53;
 
 

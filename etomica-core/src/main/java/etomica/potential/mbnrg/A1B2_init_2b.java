@@ -1,10 +1,10 @@
-package etomica.virial.simulations.mbnrg;
+package etomica.potential.mbnrg;
 
 public class A1B2_init_2b {
     public static void init(A1B2_2b t){
 
         if (t.mon1.equals("co2_archive") && t.mon2.equals("co2_archive")) {
-            t.coefficients = new Double[]{4.694794919805926e+01,   // 0
+            t.coefficients = new double[]{4.694794919805926e+01,   // 0
                     3.928132229735403e+01,   // 1
                     -4.516164290568798e+01,  // 2
                     -1.097543583423560e+02,  // 3
@@ -2289,7 +2289,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2") && t.mon2.equals("co2")) {
-            t.coefficients = new Double[]{-3.040308393767158e+01,  // 0
+            t.coefficients = new double[]{-3.040308393767158e+01,  // 0
                     -4.935835704084199e+01,  // 1
                     -5.067052824205514e+01,  // 2
                     -1.112342207171995e+02,  // 3
@@ -4573,7 +4573,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2cm5100") && t.mon2.equals("co2cm5100")) {
-            t.coefficients = new Double[]{-3.040308393767158e+01,  // 0
+            t.coefficients = new double[]{-3.040308393767158e+01,  // 0
                     -4.935835704084199e+01,  // 1
                     -5.067052824205514e+01,  // 2
                     -1.112342207171995e+02,  // 3
@@ -6857,7 +6857,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2cm595") && t.mon2.equals("co2cm595")) {
-            t.coefficients = new Double[]{-1.256364893220614e+02,   // 0
+            t.coefficients = new double[]{-1.256364893220614e+02,   // 0
                     7.825571010941376e+01,    // 1
                     -1.212207326097032e+02,   // 2
                     -4.698544553075398e+00,   // 3
@@ -9142,7 +9142,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2cm590") && t.mon2.equals("co2cm590")) {
-            t.coefficients = new Double[]{
+            t.coefficients = new double[]{
 
                     -2.596170736798926e+01,   // 0
                     -8.052885034967450e+01,   // 1
@@ -11429,7 +11429,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2cm585") && t.mon2.equals("co2cm585")) {
-            t.coefficients = new Double[]{-1.828522122277550e+02,  // 0
+            t.coefficients = new double[]{-1.828522122277550e+02,  // 0
                     1.368317082173195e+02,   // 1
                     -2.104271141172651e+01,  // 2
                     2.119846115558244e+01,   // 3
@@ -13714,7 +13714,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2cm5875") && t.mon2.equals("co2cm5875")) {
-            t.coefficients = new Double[]{-7.102469735543582e+01,   // 0
+            t.coefficients = new double[]{-7.102469735543582e+01,   // 0
                     -8.259367033595379e+01,   // 1
                     -3.021957788960513e+02,   // 2
                     -2.439322256359246e+02,   // 3
@@ -15999,7 +15999,7 @@ public class A1B2_init_2b {
         }
 
         if (t.mon1.equals("co2cm580") && t.mon2.equals("co2cm580")) {
-            t.coefficients = new Double[]{
+            t.coefficients = new double[]{
 
                     -2.386924369963469e+02,   // 0
                     -3.935411838842848e+01,   // 1

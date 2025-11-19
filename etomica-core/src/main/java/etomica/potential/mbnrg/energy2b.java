@@ -1,6 +1,4 @@
-package etomica.virial.simulations.mbnrg;
-
-import java.util.ArrayList;
+package etomica.potential.mbnrg;
 
 /**
  * @file energy2b
