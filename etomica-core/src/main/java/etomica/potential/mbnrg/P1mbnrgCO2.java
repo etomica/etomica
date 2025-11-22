@@ -6,7 +6,7 @@ import etomica.space.Vector;
 
 public class P1mbnrgCO2 implements etomica.potential.IPotentialMolecular {
     String mon1;
-    Double[] coefficients;
+    double[] coefficients;
     double d_intra_AB;
     double d_intra_BB;
     double k_intra_AB;
@@ -90,7 +90,7 @@ public class P1mbnrgCO2 implements etomica.potential.IPotentialMolecular {
 //
 //        return energies;
 //    }
-    static double poly_eval(Double[] a, double[] x) {
+    static double poly_eval(double[] a, double[] x) {
         double t1 = a[1];
         double t2 = a[4];
         double t6 = x[2];

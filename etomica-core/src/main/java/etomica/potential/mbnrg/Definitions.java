@@ -23,5 +23,31 @@ public class Definitions {
             g2[i] -= gg * dx[i];
         }
     }
+    static double v_exp(double r0, double k, Vector v1, Vector v2){
+
+        double r = Math.sqrt(v1.Mv1Squared(v2));
+
+        return Math.exp(k * (r0 - r));
+//            double gg = -k * exp1 / r;
+//
+//            g[0] *= gg;
+//            g[1] *= gg;
+//            g[2] *= gg;
+
+
+    };
+    static double v_exp(double k, Vector v1, Vector v2){
+
+        double r = Math.sqrt(v1.Mv1Squared(v2));
+
+        return Math.exp(k * (- r));
+//            double gg = -k * exp1 / r;
+//
+//            g[0] *= gg;
+//            g[1] *= gg;
+//            g[2] *= gg;
+
+
+    };
 
 }

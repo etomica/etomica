@@ -3,7 +3,7 @@ package etomica.potential.mbnrg;
 public class A1B2_init_1b {
     public static void init(P1mbnrgCO2 t){
         if (t.mon1.equals("co2")) {
-            t.coefficients = new Double[]{
+            t.coefficients = new double[]{
                     -1.645734441711526e+01, -2.811519309501759e+01, 2.812464786974462e+00,
                     -1.037329541815288e+00, 7.711862844029446e-01, 7.913896321274219e-01,
                     3.005541855414814e-03, -1.222605763830645e-02, 1.239401252785214e-02,

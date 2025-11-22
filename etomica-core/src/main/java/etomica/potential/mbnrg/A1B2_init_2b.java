@@ -1,7 +1,7 @@
 package etomica.potential.mbnrg;
 
 public class A1B2_init_2b {
-    public static void init(A1B2_2b t){
+    public static void init(P2mbnrgCO2 t){
 
         if (t.mon1.equals("co2_archive") && t.mon2.equals("co2_archive")) {
             t.coefficients = new double[]{4.694794919805926e+01,   // 0
