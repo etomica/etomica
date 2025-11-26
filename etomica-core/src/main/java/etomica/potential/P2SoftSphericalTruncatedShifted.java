@@ -46,7 +46,11 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     }
 
     public void u01TruncationCorrection(Space space, double[] uCorrection, double[] duCorrection) {
-        uCorrection[0] = 0;
-        duCorrection[0] = 0;
+        double A = space.sphereArea(1.0);
+        double D = space.D();
+        double integral = potential.integral(space, rCutoff);
+        double u = -shift;
+        uCorrection[0] = integral - space.sphereVolume(rCutoff) * shift;
+        duCorrection[0] = -A * space.powerD(rCutoff) * u - D * integral;
     }
 }
