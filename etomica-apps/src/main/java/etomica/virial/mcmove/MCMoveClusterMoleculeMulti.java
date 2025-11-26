@@ -6,8 +6,11 @@ package etomica.virial.mcmove;
 
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space1d.Vector1D;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
 
@@ -89,6 +92,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 }
                 else {
                     translationVectors[tv].setRandomCube(random);
+//                    translationVectors[tv].setX(1, 0);
+//                    translationVectors[tv].setX(2, 0);
+
                     translationVectors[tv].TE(stepSize);
                 }
             }
@@ -96,8 +102,11 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 atom.getPosition().PE(translationVectors[tv]);
             });
         }
+
         ((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+//        System.out.println("uNew: " + uNew + " uOld: " + uOld);
+
         return true;
     }
 	
@@ -113,6 +122,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
             throw new RuntimeException("oops oops, reverted to illegal configuration");
         }
+
+//
+
     }
 
     public void acceptNotify() {
