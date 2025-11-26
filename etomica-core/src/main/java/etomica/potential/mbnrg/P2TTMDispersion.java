@@ -2,6 +2,7 @@ package etomica.potential.mbnrg;
 
 import etomica.exception.MethodNotImplementedException;
 import etomica.potential.IPotential2;
+import etomica.potential.TruncationFactory;
 
 /**
  * 2B pairwise Thole-Type (TTM) interatomic dispersion energy
@@ -10,16 +11,16 @@ import etomica.potential.IPotential2;
 
 
 public class P2TTMDispersion implements IPotential2 {
-//    public static IPotential2 makeTruncated(double delta, double c6, TruncationFactory tf) {
-//        return tf.make(new P2dispersion(delta, c6));
-//    }
+    public static IPotential2 makeTruncated(double delta, double c6, TruncationFactory tf) {
+        return tf.make(new P2TTMDispersion(delta, c6));
+    }
 
-    private double delta;
-    private double c6;
+    private final double delta;
+    private final double c6;
 
     public P2TTMDispersion(double delta, double c6){
-        setDelta(delta);
-        setC6(c6);
+        this.delta = delta;
+        this.c6 = c6;
     }
 
 
@@ -61,35 +62,11 @@ public class P2TTMDispersion implements IPotential2 {
         return tt * c6 / r6;
     }
 
-    /**
-     * The derivative r*du/dr.
-     */
-    public double du(double r2) {
-
-        throw new MethodNotImplementedException();
-
-    }
-    /**
-     * The second derivative of the pair energy, times the square of the
-     * separation: r^2 d^2u/dr^2.
-     */
-    public double d2u(double r2) {
-
-        throw new MethodNotImplementedException();
-    }
 
 
 
-        /**
-         * Integral used for corrections to potential truncation.
-         */
-//    public double integral(Space space, double rC) {
-//        throw new MethodNotImplementedException("Integral for long-range correction for Exp-6 not yet implemented");
-//    }
 
-    private void setC6(double c6) {
-        this.c6 = c6;
-    }
+
     public double getDelta() {
         return delta;
     }
@@ -97,9 +74,6 @@ public class P2TTMDispersion implements IPotential2 {
         return c6;
     }
 
-    private void setDelta(double delta) {
-        this.delta = delta;
-    }
 
 
 }
