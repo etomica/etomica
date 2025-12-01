@@ -4,6 +4,7 @@ import etomica.space.Vector;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +56,16 @@ public class Definitions {
 
 
     };
-
+    //Method that reads PIP coefficients from a file
     public static double[] readCoefficients(String filename) {
+        String basePath = "etomica-core/src/main/java/etomica/potential/mbnrg/";
+        Path fullPath = Paths.get(basePath, filename);
+//        System.out.println("Looking for file at: " + fullPath.toAbsolutePath());
+
         ArrayList<Double> numbers = new ArrayList<>();
 
         try {
-            for (String line : Files.readAllLines(Paths.get(filename))) {
+            for (String line : Files.readAllLines(fullPath)) {
                 line = line.trim();
                 if (!line.isEmpty()) {
                     numbers.add(Double.parseDouble(line));

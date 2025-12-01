@@ -1,10 +1,17 @@
 package etomica.potential.mbnrg;
 
+import java.util.Arrays;
+
 public class A1B2_init_2b {
+//    public static void main(String[] args) {
+//        double[] x = Definitions.readCoefficients("co2_archive_2b");
+//        System.out.println("Coefficients: " + Arrays.toString(x));
+//
+//    }
     public static void init(P2mbnrgCO2 t){
 
         if (t.mon1.equals("co2_archive") && t.mon2.equals("co2_archive")) {
-            t.coefficients = Definitions.readCoefficients("co2_archive_co2_archive");
+            t.coefficients = Definitions.readCoefficients("co2_archive_2b");
             t.m_d_intra_AB = 2.533470783111825e+00;  // A^(-1))
             t.m_k_intra_AB = 1.772445777810116e+00;  // A^(-1))
             t.m_d_intra_BB = 1.299246633223584e+00;  // A^(-1))
