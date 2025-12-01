@@ -2,6 +2,12 @@ package etomica.potential.mbnrg;
 
 import etomica.space.Vector;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Definitions {
     public static final double EMAX1B = 100000.0;
     public static final double EPSILON = 1E-50;
@@ -50,4 +56,24 @@ public class Definitions {
 
     };
 
-}
+    public static double[] readCoefficients(String filename) {
+        ArrayList<Double> numbers = new ArrayList<>();
+
+        try {
+            for (String line : Files.readAllLines(Paths.get(filename))) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    numbers.add(Double.parseDouble(line));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+
+        double[] result = new double[numbers.size()];
+        for (int i = 0; i < numbers.size(); i++) {
+            result[i] = numbers.get(i);
+        }
+
+        return result;
+    }}
