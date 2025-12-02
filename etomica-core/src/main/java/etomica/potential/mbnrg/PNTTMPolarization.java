@@ -1,380 +1,287 @@
 package etomica.potential.mbnrg;
 
-import etomica.atom.IAtom;
+import Jama.Matrix;
 import etomica.atom.IAtomList;
-import etomica.molecule.IMolecule;
+import etomica.chem.elements.Carbon;
+import etomica.chem.elements.Oxygen;
+import etomica.models.water.PNWaterGCPM;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotentialMolecular;
-import etomica.potential.amoeba.PotentialMoleculePairAmoebaMPole;
+import etomica.potential.PotentialPolarizable;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.space3d.Tensor3D;
-import etomica.space3d.Vector3D;
 import etomica.units.Electron;
-import etomica.util.collections.IntArrayList;
+import etomica.units.Kelvin;
 
 import java.util.Arrays;
 
-public class PNTTMPolarization implements IPotentialMolecular {
+import static etomica.math.SpecialFunctions.erfc;
 
-    protected final Space space;
-    protected final IntArrayList[][] bonding;
-    protected final PotentialMoleculePairAmoebaMPole.Axis[][] axis;
-    protected final PotentialMoleculePairAmoebaMPole.Multipole[][] multipoles;
-    protected final double[] polarizability;
-    protected final double[] damping, pdamp;
-    protected double tol;
+public class PNTTMPolarization implements IPotentialMolecular, PotentialPolarizable {
 
-    public PNTTMPolarization(Space space, IntArrayList[][] bonding, PotentialMoleculePairAmoebaMPole.Axis[][] axis, PotentialMoleculePairAmoebaMPole.Multipole[][] multipoles, double[] polarizability, double[] damping, double tol) {
-        this.space = space;
-        this.bonding = bonding;
-        this.axis = axis;
-        this.multipoles = multipoles;
-        this.polarizability = polarizability;
-        this.damping = damping;
-        pdamp = new double[polarizability.length];
-        for (int i=0; i<pdamp.length; i++) {
-            pdamp[i] = Math.pow(polarizability[i], 1.0/6.0);
-        }
-        this.tol = tol;
+    protected final double sigma;
+    protected final double epsilon, gamma;
+    protected final double chargeO, chargeC;
+    protected final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
+    protected final Vector rijVector;
+    protected final Vector work, shift;
+    protected final Tensor Tunit, Tij;
+    protected final double sigmaM;
+    protected final double sigmaH;
+    protected final double sqrtHMsigmas;
+    protected final double massC;
+    protected final double massO;
+    protected final double a;
+    protected final double totalMass;
+    protected final double sqrtPiHMsigmas;
+    protected final double sqrtPiMMsigmas;
+    protected final double alphaC;
+    protected final double alphaO;
+    protected final double[][] pairPolarization;
+    protected Boundary boundary;
+    protected Matrix[] Eq, A;
+    protected Vector comi, comj;
+    private double UpolAtkins;
+
+    public PNTTMPolarization(Space space, Boundary boundary) {
+        super();
+        this.boundary = boundary;
+        a = 2.57;
+        sigma = 3.69;
+        epsilon = Kelvin.UNIT.toSim(110);
+        gamma = 12.75;
+        chargeO = Electron.UNIT.toSim(-0.353);
+        chargeC = Electron.UNIT.toSim(0.706);
+        core = 4.41; //4.41 = 2.1^2; value according to Cummings
+        sigmaM = 0.610;
+        sigmaH = 0.455;
+        sqrtHMsigmas = Math.sqrt(2 * (sigmaH * sigmaH + sigmaM * sigmaM));
+        massC = Carbon.INSTANCE.getMass();
+        massO = Oxygen.INSTANCE.getMass();
+        totalMass = massO * 2 + massC;
+        sqrtPiHMsigmas = Math.sqrt(Math.PI * (sigmaH * sigmaH + sigmaM * sigmaM));
+        sqrtPiMMsigmas = Math.sqrt(Math.PI * (2 * sigmaM * sigmaM));
+        alphaC = 1.47167;
+        alphaO = 0.76979;
+
+        comi = space.makeVector();
+        comj = space.makeVector();
+        shift = space.makeVector();
+
+        rijVector = space.makeVector();
+
+        work = space.makeVector();
+
+        Tunit = space.makeTensor();
+        Tunit.E(new double[][]{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+        Tij = space.makeTensor();
+
+        Eq = new Matrix[0];
+        A = new Matrix[0];
+        pairPolarization = new double[10][10];
     }
 
-    protected Tensor transformQ(Tensor Q, Tensor rot) {
-        Tensor A = new Tensor3D();
-        for (int i=0; i<3; i++) {
-            for (int j=0; j<3; j++) {
-                double sum = 0;
-                for (int k=0; k<3; k++) {
-                    for (int m=0; m<3; m++) {
-                        sum += rot.component(i,k)*rot.component(j,m)*Q.component(m,k);
-                    }
-                }
-                A.setComponent(i,j,sum);
-            }
-        }
-        return A;
-    }
 
-    @Override
     public double energy(IMoleculeList molecules) {
-        IMolecule[] m = new IMolecule[molecules.size()];
-        for (int i=0; i<m.length; i++) m[i] = molecules.get(i);
-        return energy(m);
-    }
+        double sum = 0;
 
-    public double[] dampthole(int i, int k, int order, double r) {
-        double[] rv = new double[order+1];
-        Arrays.fill(rv, 1);
-        double damp = pdamp[i] * pdamp[k];
-        if (damp == 0) return rv;
-        double pgamma = Math.min(damping[i], damping[k]);
-        if (pgamma == 0) pgamma = damping[i] + damping[k];
-        if (pgamma == 0) return rv;
-        double x = r/damp;
-        damp = pgamma * x*x*x;
-        if (damp < 50) {
-            double expdamp = Math.exp(-damp);
-            rv[3] = 1 - expdamp;
-            rv[5] = 1 - expdamp*(1+damp);
-            if (order >= 7) {
-                double damp2 = damp*damp;
-                rv[7] = 1 - expdamp*(1 + damp + 0.6*damp2);
-                if (order >= 9) {
-                    double damp3 = damp*damp2;
-                    rv[9] = 1 - expdamp*(1 + damp + 18.0/35.0*damp2 + 9.0/35.0*damp3);
-                }
+        double up = getPolarizationEnergy(molecules);
+        if (molecules.size() == 2) {
+            int idx0 = molecules.get(0).getIndex();
+            int idx1 = molecules.get(1).getIndex();
+            if (idx0 > idx1) {
+                pairPolarization[idx1][idx0] = up;
+            } else {
+                pairPolarization[idx0][idx1] = up;
             }
         }
-        return rv;
+        sum += up;
+
+        return sum;
     }
 
-    protected Vector[][] computeField(IMolecule[] molecules, PotentialMoleculePairAmoebaMPole.Multipole[][] mpoles) {
-        Vector[][] field = new Vector[mpoles.length][];
-        double rmin = Double.POSITIVE_INFINITY;
-        for (int i=0; i<molecules.length; i++) {
-            IAtomList atoms1 = molecules[i].getChildList();
-            field[i] = new Vector[atoms1.size()];
+    public double getLastPolarizationEnergy() {
+        return UpolAtkins;
+    }
 
-            for (int j=0; j<atoms1.size(); j++) {
-                IAtom a1 = atoms1.get(j);
-                PotentialMoleculePairAmoebaMPole.Multipole ijmpole = mpoles[i][j];
-//                System.out.println(i+" "+j+" "+ijmpole.mu+" "+inducedDipoles[i][j]+" "+mu1);
-                field[i][j] = new Vector3D();
+    public double getPolarizationEnergy(IMoleculeList molecules) {
 
-                for (int k=0; k<i; k++) {
-                    IAtomList atoms2 = molecules[k].getChildList();
-                    for (int l=0; l<atoms2.size(); l++) {
-                        PotentialMoleculePairAmoebaMPole.Multipole klmpole = mpoles[k][l];
-                        IAtom a2 = atoms2.get(l);
+        final int molCount = molecules.size();
+        if (Eq.length < molCount + 1) {
+            Eq = Arrays.copyOf(Eq, molCount + 1);
+            A = Arrays.copyOf(A, molCount + 1);
+        }
+        if (Eq[molCount] == null) {
+            Eq[molCount] = new Matrix(3 * molCount, 1);
+            A[molCount] = new Matrix(3 * molCount, 3 * molCount);
 
-                        Vector dr = space.makeVector();
-                        dr.Ev1Mv2(a2.getPosition(), a1.getPosition());
-                        double r2 = dr.squared();
-                        double r = Math.sqrt(r2);
+            for (int i = 0; i < 3 * molCount; i++) {
+                A[molCount].set(i, i, 1);
+            }
+        }
+        final Matrix myEq = Eq[molCount];
+        final Matrix myA = A[molCount];
+        for (int i = 0; i < 3 * molCount; i++) {
+            myEq.set(i, 0, 0);
+        }
 
-                        //cos(dipole 1 and r12)
-                        double c1 = ijmpole.mu.dot(dr);  // dir
-                        //cos(r12 and dipole 2)
-                        double c2 = dr.dot(klmpole.mu);  // dkr
+        /*
+         * Finding the Electric fields at the center of mass of each molecule i due to molecule j, Eqi
+         * kmb, 8/7/06
+         */
 
-                        Vector Q1dr = new Vector3D();
-                        Q1dr.E(dr);
-                        ijmpole.Q.transform(Q1dr);
-                        // Q2dr now has components qix, qiy, qiz
-                        double Q1drdr = Q1dr.dot(dr); // qir
+        for (int i = 0; i < molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
+            Vector Cir = iLeafAtoms.get(0).getPosition();
+            Vector Oi1r = iLeafAtoms.get(1).getPosition();
+            Vector Oi2r = iLeafAtoms.get(2).getPosition();
 
-                        Vector Q2dr = new Vector3D();
-                        Q2dr.E(dr);
-                        klmpole.Q.transform(Q2dr);
-                        // Q2dr now has components qkx, qky, qkz
-                        double Q2drdr = Q2dr.dot(dr); // qkr
+            comi.Ea1Tv1(massO, Oi1r);
+            comi.PEa1Tv1(massO, Oi2r);
+            comi.PEa1Tv1(massC, Cir);
+            comi.TE(1.0 / totalMass);//c.o.m of molecule i
 
-                        double[] dmpik = dampthole(a1.getType().getIndex(), a2.getType().getIndex(), 7, r);
-                        double rr3 = dmpik[3] / (r*r2);
-                        double rr5 = 3 * dmpik[5] / (r*r2*r2);
-                        double rr7 = 15 * dmpik[7] / (r*r2*r2*r2);
-                        double a = rr3*klmpole.q - rr5*c2 + rr7*Q2drdr;
-                        Vector fid = new Vector3D();
-                        fid.Ea1Tv1(-a, dr);
-                        fid.PEa1Tv1(-rr3, klmpole.mu);
-                        fid.PEa1Tv1(2*rr5, Q2dr);
-                        a = rr3*ijmpole.q + rr5*c1 + rr7*Q1drdr;
-                        Vector fkd = new Vector3D();
-                        fkd.Ea1Tv1(a, dr);
-                        fkd.PEa1Tv1(-rr3, ijmpole.mu);
-                        fkd.PEa1Tv1(-2*rr5, Q1dr);
-                        Vector fid2 = new Vector3D();
-                        fid2.Ea1Tv1(Electron.UNIT.fromSim(1), fid);
-                        Vector fkd2 = new Vector3D();
-                        fkd2.Ea1Tv1(Electron.UNIT.fromSim(1), fkd);
+            for (int j = 0; j < molecules.size(); j++) {
+                if (i == j) continue;
+                IAtomList jLeafAtoms = molecules.get(j).getChildList();
+                Vector Cjr = jLeafAtoms.get(0).getPosition();
+                Vector Oj1r = jLeafAtoms.get(1).getPosition();
+                Vector Oj2r = jLeafAtoms.get(2).getPosition();
 
-                        if (r < 0.6) {
-                            if (polarizability[a1.getType().getIndex()] != 0 && fid.squared() != 0) return null;
-                            if (polarizability[a2.getType().getIndex()] != 0 && fkd.squared() != 0) return null;
-                            if (polarizability[a1.getType().getIndex()] * polarizability[a2.getType().getIndex()] != 0) return null;
+                work.Ev1Mv2(Cir, Cjr);
+                shift.Ea1Tv1(-1, work);
+                boundary.nearestImage(work);
+                shift.PE(work);
+                final boolean zeroShift = shift.squared() < 0.1;
+                double comtoO1, comtoO2;
+
+                if (zeroShift) {
+
+                    comtoO1 = Math.sqrt(comi.Mv1Squared(Oj1r));
+                    comtoO2 = Math.sqrt(comi.Mv1Squared(Oj2r));
+                } else {
+                    shift.PE(comi);
+                    comtoO1 = Math.sqrt(Oj1r.Mv1Squared(shift));
+                    shift.ME(comi);
+
+                    shift.PE(comi);
+                    comtoO2 = Math.sqrt(Oj2r.Mv1Squared(shift));
+                    shift.ME(comi);
+                }
+
+
+                // For molecules that are far apart, fac=chargeX/comWtoX^3, but we add up
+                // facs for H and M, which mostly cancel each other out, so we lose quite
+                // a bit of precision (~2-3 digits).
+                double pol16 = Math.pow(alphaC*alphaO, 1.0/6.0);
+                double fac = chargeO / (comtoO1 * comtoO1) *
+                        (1 - Math.exp(-a * Math.pow(comtoO1/pol16, 4)));
+                work.Ev1Mv2(comi, Oj1r);
+                work.PE(shift);
+                work.TE(fac);
+                myEq.set(i * 3 + 0, 0, myEq.get(i * 3 + 0, 0) + work.getX(0));
+                myEq.set(i * 3 + 1, 0, myEq.get(i * 3 + 1, 0) + work.getX(1));
+                myEq.set(i * 3 + 2, 0, myEq.get(i * 3 + 2, 0) + work.getX(2));
+
+                fac = chargeO / (comtoO2 * comtoO2) *
+                        (1 - Math.exp(-a * Math.pow(comtoO2/pol16, 4)));
+                work.Ev1Mv2(comi, Oj2r);
+                work.PE(shift);
+                work.TE(fac);
+                myEq.set(i * 3 + 0, 0, myEq.get(i * 3 + 0, 0) + work.getX(0));
+                myEq.set(i * 3 + 1, 0, myEq.get(i * 3 + 1, 0) + work.getX(1));
+                myEq.set(i * 3 + 2, 0, myEq.get(i * 3 + 2, 0) + work.getX(2));
+
+
+                if (i < j) {
+                    double OOr2;
+                    if (zeroShift) {
+                        OOr2 = O1r.Mv1Squared(Ojr);
+                    } else {
+                        shift.PE(O1r);
+                        OOr2 = Ojr.Mv1Squared(shift);
+                        shift.ME(O1r);
+                    }
+                    if (OOr2 < core) {
+                        UpolAtkins = Double.NaN;
+                        return UpolAtkins;
+                    }
+                    comj.Ea1Tv1(massH, Hj1r);
+                    comj.PEa1Tv1(massO, Ojr);
+                    comj.PEa1Tv1(massH, Hj2r);
+                    comj.TE(1.0 / totalMass);
+
+                    rijVector.Ev1Mv2(comj, comi);
+
+                    double r12 = Math.sqrt(rijVector.squared());
+
+
+                    double f = (1 - erfc(r12 / (2 * sigmaM))) - (r12 / (sigmaM * Math.sqrt(Math.PI)) + (r12 * r12 * r12) / (6 * Math.sqrt(Math.PI) * sigmaM * sigmaM * sigmaM)) * Math.exp(-r12 * r12 / (4 * sigmaM * sigmaM));
+
+                    double g = (1 - erfc(r12 / (2 * sigmaM))) - (r12 / (sigmaM * Math.sqrt(Math.PI))) * Math.exp(-r12 * r12 / (4 * sigmaM * sigmaM));
+
+                    // Filling the unit matrix I
+                    Tij.Ev1v2(rijVector, rijVector);//Each tensor Tij is a 3X3 matrix
+
+                    Tij.TE(3 * f / (r12 * r12));
+
+                    Tij.PEa1Tt1(-g, Tunit);
+                    Tij.TE(1 / (r12 * r12 * r12));
+
+                    //Try matrix inversion solution with Jama library
+
+                    Tij.TE(alphaPol);
+
+                    int mOffset = i * 3;
+                    int nOffset = j * 3;
+                    for (int m = 0; m < 3; m++) {
+                        for (int n = 0; n < 3; n++) {
+                            myA.set(mOffset + m, nOffset + n, -Tij.component(m, n));
+                            myA.set(nOffset + n, mOffset + m, -Tij.component(n, m));
                         }
-                        if (r < 0.2) {
-                            // very close but apparently not interacting???
-                            System.err.println("close ! "+a1.getLeafIndex()+" "+a2.getLeafIndex()+" "+r);
-                        }
-                        rmin = Math.min(r, rmin);
-                        //TODO incorporate dscale for larger molecules
-                        field[i][j].PE(fid);
-                        field[k][l].PE(fkd);
-                    }
-
-                }
-            }
-        }
-//        System.out.println("rmin "+rmin);
-        return field;
-    }
-
-    protected Vector[][] computeField2(IMolecule[] molecules, Vector[][] inducedDipoles) {
-        Vector[][] field = new Vector[inducedDipoles.length][];
-        for (int i=0; i<molecules.length; i++) {
-            IAtomList atoms1 = molecules[i].getChildList();
-            field[i] = new Vector[atoms1.size()];
-
-            for (int j=0; j<atoms1.size(); j++) {
-                IAtom a1 = atoms1.get(j);
-//                System.out.println(i+" "+j+" "+ijmpole.mu+" "+inducedDipoles[i][j]+" "+mu1);
-                field[i][j] = new Vector3D();
-
-                for (int k=0; k<=i; k++) {
-                    IAtomList atoms2 = molecules[k].getChildList();
-                    for (int l=0; l<atoms2.size(); l++) {
-                        if  (k==i && l>=j) break;
-                        IAtom a2 = atoms2.get(l);
-
-                        Vector dr = space.makeVector();
-                        dr.Ev1Mv2(a2.getPosition(), a1.getPosition());
-                        double r2 = dr.squared();
-                        double r = Math.sqrt(r2);
-
-                        //cos(dipole 1 and r12)
-                        double c1 = inducedDipoles[i][j].dot(dr);  // dir
-                        //cos(r12 and dipole 2)
-                        double c2 = dr.dot(inducedDipoles[k][l]);  // dkr
-
-                        double[] dmpik = dampthole(a1.getType().getIndex(), a2.getType().getIndex(), 5, r);
-                        double rr3 = dmpik[3] / (r*r2);
-                        double rr5 = 3 * dmpik[5] / (r*r2*r2);
-                        double a = - rr5*c2;
-                        Vector fid = new Vector3D();
-                        fid.Ea1Tv1(-a, dr);
-                        fid.PEa1Tv1(-rr3, inducedDipoles[k][l]);
-                        a = rr5*c1;
-                        Vector fkd = new Vector3D();
-                        fkd.Ea1Tv1(a, dr);
-                        fkd.PEa1Tv1(-rr3, inducedDipoles[i][j]);
-                        Vector fid2 = new Vector3D();
-                        fid2.Ea1Tv1(Electron.UNIT.fromSim(1), fid);
-                        Vector fkd2 = new Vector3D();
-                        fkd2.Ea1Tv1(Electron.UNIT.fromSim(1), fkd);
-//                        if (a2.getLeafIndex()==0) {
-//                            System.out.println("field "+a1.getLeafIndex()+" "+a2.getLeafIndex()+" "+fid2+" "+fkd2);
-//                        }
-
-                        //TODO incorporate dscale for larger molecules
-                        field[i][j].PE(fid);
-                        field[k][l].PE(fkd);
-                    }
-
-                }
-            }
-        }
-        return field;
-    }
-
-
-    public double energy(IMolecule[] molecules) {
-        PotentialMoleculePairAmoebaMPole.Multipole[][] mpoles = new PotentialMoleculePairAmoebaMPole.Multipole[molecules.length][];
-        for (int i=0; i<molecules.length; i++) {
-            IAtomList atoms = molecules[i].getChildList();
-            mpoles[i] = new PotentialMoleculePairAmoebaMPole.Multipole[atoms.size()];
-
-            for (IAtom a : atoms) {
-                PotentialMoleculePairAmoebaMPole.Axis myAxis = axis[a.getParentGroup().getType().getIndex()][a.getIndex()];
-                Tensor rot = PotentialMoleculePairAmoebaMPole.getRotmat(a, myAxis);
-                int ia = a.getIndex();
-                mpoles[i][ia] = new PotentialMoleculePairAmoebaMPole.Multipole();
-                PotentialMoleculePairAmoebaMPole.Multipole myMultipole = multipoles[molecules[i].getType().getIndex()][ia];
-                mpoles[i][ia].q = myMultipole.q;
-                mpoles[i][ia].mu = new Vector3D();
-                mpoles[i][ia].mu.E(myMultipole.mu);
-                rot.transform(mpoles[i][ia].mu);
-                mpoles[i][ia].Q = transformQ(myMultipole.Q, rot);
-            }
-        }
-
-        Vector[][] uind = new Vector[molecules.length][];
-        for (int i=0; i<uind.length; i++) {
-            IAtomList atoms = molecules[i].getChildList();
-            uind[i] = new Vector[atoms.size()];
-            for (int j=0; j<uind[i].length; j++) {
-                uind[i][j] = new Vector3D();
-            }
-        }
-
-        double lastRes = Double.POSITIVE_INFINITY;
-        Vector[][] field0 = computeField(molecules, mpoles);
-        if (field0 == null) return Double.POSITIVE_INFINITY;
-        for (int iter=0; ; iter++) {
-            Vector[][] ifield = computeField2(molecules, uind);
-            Vector f = new Vector3D();
-            f.Ea1Tv1(Electron.UNIT.fromSim(1), field0[0][0]);
-            f.PEa1Tv1(Electron.UNIT.fromSim(1), ifield[0][0]);
-//            System.out.println("field00 "+field0[0][0]+" "+ifield[0][0]+" "+f);
-//            f.Ea1Tv1(Electron.UNIT.fromSim(1), field[0][1]);
-//            System.out.println("field01 "+field[0][1]+" "+f);
-//            f.Ea1Tv1(Electron.UNIT.fromSim(1), field[1][0]);
-//            System.out.println("field10 "+field[1][0]+" "+f);
-//            f.Ea1Tv1(Electron.UNIT.fromSim(1), field[1][1]);
-//            System.out.println("field11 "+field[1][1]+" "+f);
-            double res = 0;
-            for (int i = 0; i < uind.length; i++) {
-                IAtomList atoms = molecules[i].getChildList();
-                for (int j = 0; j < uind[i].length; j++) {
-                    IAtom a = atoms.get(j);
-                    Vector uindNew = new Vector3D();
-                    uindNew.Ea1Tv1(polarizability[a.getType().getIndex()], field0[i][j]);
-                    uindNew.PEa1Tv1(polarizability[a.getType().getIndex()], ifield[i][j]);
-                    double b = 0.8;
-                    uindNew.TE(b);
-                    uindNew.PEa1Tv1(1-b, uind[i][j]);
-                    res += uindNew.Mv1Squared(uind[i][j]);
-                    uind[i][j].E(uindNew);
-
-                    if (i==0 && j==0 && false) {
-//                        System.out.println("induced "+polarizability[a.getType().getIndex()]+" "+field0[i][j]+" "+ifield[i][j]+" "+uind[0][0]);
-                        Vector foo = new Vector3D(), bar = new Vector3D(), blah = new Vector3D();
-                        foo.Ea1Tv1(Electron.UNIT.fromSim(1), field0[i][j]);
-                        blah.Ea1Tv1(Electron.UNIT.fromSim(1), ifield[i][j]);
-                        bar.Ea1Tv1(Electron.UNIT.fromSim(1), uind[0][0]);
-//                        System.out.println("        "+foo+" "+blah+" "+bar);
-                        System.out.println(iter+" "+ifield[i][j].getX(0)+" "+ifield[0][0].getX(1)+" "+ifield[0][0].getX(2));
                     }
                 }
             }
-//            System.out.println(iter+" "+Math.sqrt(res));
-            if (res < tol || res >= lastRes) break;
-            lastRes = res;
-//            Vector foo = new Vector3D();
-//            foo.Ea1Tv1(Debye.UNIT.fromSim(1), uind[0][0]);
-//            System.out.println("induced dipole "+foo);
+
+        }
+        //x here represents P (almost).
+        //For x to be P, the A of the Ax=b actually needs an extra factor of
+        //alphaPol.  We'll add that bit in when we calculate UpolAtkins.
+
+        Matrix x = myA.solve(myEq);//myA*x=myEq
+
+        if (false) {
+            // this is (mathematically) what we want.  But Jama is slow.
+            UpolAtkins = -0.5 * (x.transpose().times(myEq)).get(0, 0) * alphaPol;
+        } else {
+            UpolAtkins = 0;
+            for (int i = 0; i < 3 * molCount; i++) {
+                UpolAtkins += x.get(i, 0) * myEq.get(i, 0);
+            }
+            UpolAtkins *= -0.5 * alphaPol;
         }
 
-        double u = 0;
-        for (int i=0; i<molecules.length; i++) {
-            for (int j=i+1; j<molecules.length; j++) {
-                u += energy(molecules[i], molecules[j], mpoles[i], mpoles[j], uind[i], uind[j]);
+        // only needed for more complicated Eq8 from Cummings paper
+        if (false) {
+
+            // for the sake of clarity (over perf), just multiply x by alphaPol
+            // (see comment above about A lacking alphaPol)
+            x.timesEquals(alphaPol);
+            Matrix Ep = myA.times(x).minus(x);
+            Ep.timesEquals(-1 / alphaPol);
+
+            double x2NormF = x.normF();
+            double UpolEquation8 = 2 * UpolAtkins - 0.5 * (x.transpose().times(Ep).get(0, 0)) + (0.5 / alphaPol) * (x2NormF * x2NormF);
+
+            if (Math.abs(UpolAtkins - UpolEquation8) > 1.e-6) {
+                throw new RuntimeException("oops " + UpolAtkins + " " + UpolEquation8);
             }
         }
 
-        return u;
+        return UpolAtkins;
     }
 
-    public double energy(IMolecule molecule1, IMolecule molecule2, PotentialMoleculePairAmoebaMPole.Multipole[] mpole1, PotentialMoleculePairAmoebaMPole.Multipole[] mpole2, Vector[] uind1, Vector[] uind2) {
-        IAtomList atoms1 = molecule1.getChildList();
-        IAtomList atoms2 = molecule2.getChildList();
-        double u = 0;
-
-        for (IAtom a1 : atoms1) {
-            int i1 = a1.getIndex();
-            PotentialMoleculePairAmoebaMPole.Multipole ampole1 = mpole1[i1];
-            for (IAtom a2 : atoms2) {
-                int i2 = a2.getIndex();
-                PotentialMoleculePairAmoebaMPole.Multipole ampole2 = mpole2[i2];
-                Vector dr = space.makeVector();
-                dr.Ev1Mv2(a2.getPosition(), a1.getPosition());
-                double r2 = dr.squared();
-                double r = Math.sqrt(r2);
-                double[] dmpik = dampthole(a1.getType().getIndex(), a2.getType().getIndex(), 7, r);
-                double rr3 = dmpik[3] / (r*r2);
-                double rr5 = 3 * dmpik[5] / (r*r2*r2);
-                double rr7 = 15 * dmpik[7] / (r*r2*r2*r2);
-
-                double mmcos_D1_u2 = ampole1.mu.dot(uind2[i2]);
-                double mmcos_u1_D2 = uind1[i1].dot(ampole2.mu);
-                //cos(dipole 1 and r12)
-                double uir = uind1[i1].dot(dr);  // uir/r
-                double dir = ampole1.mu.dot(dr);  // uir/r
-                //cos(r12 and dipole 2)
-                double ukr = dr.dot(uind2[i2]);  // ukr/r
-                double dkr = dr.dot(ampole2.mu);  // ukr/r
-                double uqmu = -ampole1.q*ukr*rr3;
-                double umuq =  ampole2.q*uir*rr3;
-                double uumu = mmcos_u1_D2*rr3 - uir * dkr * rr5;
-                double umuu = mmcos_D1_u2*rr3 - dir * ukr * rr5;
-
-                Vector Q1dr = new Vector3D();
-                Q1dr.E(dr);
-                ampole1.Q.transform(Q1dr);
-                double Q1drdr = Q1dr.dot(dr); // qir
-                double Q1drmu2 = Q1dr.dot(uind2[i2]); // dkqi
-
-                Vector Q2dr = new Vector3D();
-                Q2dr.E(dr);
-                ampole2.Q.transform(Q2dr);
-                double Q2drdr = Q2dr.dot(dr); // qkr
-                double Q2drmu1 = Q2dr.dot(uind1[i1]); // diqk
-
-                double umuQ = -2*Q2drmu1 * rr5 + uir*Q2drdr * rr7;
-                double uQmu = 2*Q1drmu2 * rr5 - ukr*Q1drdr * rr7;
-
-//                System.out.printf("mp %d %d  % 10.5e % 10.5e  % 10.5e % 10.5e  % 10.5e % 10.5e\n", a1.getLeafIndex(), a2.getLeafIndex(),
-//                        0.5*kcalpmole.fromSim(umuq), 0.5*kcalpmole.fromSim(uqmu),
-//                        0.5*kcalpmole.fromSim(umuu), 0.5*kcalpmole.fromSim(uumu),
-//                        0.5*kcalpmole.fromSim(uQmu), 0.5*kcalpmole.fromSim(umuQ));
-
-                u += 0.5*(uqmu + umuq + uumu + umuu+ umuQ + uQmu);
-//                System.out.printf("mp %d %d  % 10.7e\n", a1.getLeafIndex(), a2.getLeafIndex(), 0.5*kcalpmole.fromSim(uqmu + umuq + uumu + umuu + umuQ + uQmu));
-            }
-        }
-//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-//        System.out.println("polarization tot "+kcalpmole.fromSim(u));
-        return u;
-    }
 }
+
