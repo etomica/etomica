@@ -59,6 +59,7 @@ public class PotentialMoleculePair implements IPotentialMolecular {
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
                 u += p2.u(dr.squared());
+//                System.out.println("u =" + u + " dr.squared()= " + dr.squared() + " a0=" + a0.getPosition() + " a1=" + a1.getPosition());
             }
         }
         return u;

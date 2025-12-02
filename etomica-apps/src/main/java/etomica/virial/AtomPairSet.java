@@ -17,15 +17,15 @@ import java.util.ListIterator;
  * constructor, and forms an instance of AtomPair for each pair formed in the
  * list.  Each AtomPair instance can be accessed via the getSPair method. 
  */
-public class AtomPairSet implements java.io.Serializable {
+public class AtomPairSet {
 
     /**
      * Constructor for AtomPairSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public AtomPairSet(IMoleculeList list) {
-        aPairs = new MoleculePair[list.size()-1][];
-        setAtoms(list);
+        mPairs = new MoleculePair[list.size()-1][];
+        setMolecules(list);
     }
     
     /**
@@ -33,27 +33,23 @@ public class AtomPairSet implements java.io.Serializable {
      */
     public MoleculePair getAPair(int i, int j) {
         if(i==j) throw new IllegalArgumentException("Error: asking for pair formed with both atoms the same");
-        return i<j ? aPairs[i][j-i-1] : aPairs[j][i-j-1];
+        return i<j ? mPairs[i][j-i-1] : mPairs[j][i-j-1];
     }
 
-    private void setAtoms(IMoleculeList list) {
+    private void setMolecules(IMoleculeList list) {
         int N = list.size();
         for(int i=0; i<N-1; i++) {
-            aPairs[i] = new MoleculePair[N-1-i];
+            mPairs[i] = new MoleculePair[N-1-i];
             for(int j=0; j<N-1-i; j++) {
                 IMolecule mol0, mol1;
                 mol0 = list.get(i);
                 mol1 = list.get(i+j+1);
-                if(mol0.getType().getIndex()>mol1.getType().getIndex()){//only for mixtures
-                    mol0 = mol1;
-                    mol1 = list.get(i);
-                }
-                aPairs[i][j] = new MoleculePair(mol0, mol1);
+                mPairs[i][j] = new MoleculePair(mol0, mol1);
             }
         }
     }
     
-    private final MoleculePair[][] aPairs;
+    private final MoleculePair[][] mPairs;
 
     public static class MoleculePair implements IMoleculeList {
         protected final IMolecule mol0, mol1;

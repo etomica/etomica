@@ -76,25 +76,29 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
             if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IMolecule molecule = moleculeList.get(i);
-            IAtomList childList = molecule.getChildList();
-            int numChildren = childList.size();
-            if (numChildren != 3) continue;
-            double dt = stepSize * (random.nextDouble() - 0.5);
-            dTheta[i] = dt;
-            transform(molecule, dt);
+                IMolecule molecule = moleculeList.get(i);
+                IAtomList childList = molecule.getChildList();
+                int numChildren = childList.size();
+                if (numChildren != 3) continue;
+                double dt = stepSize * (random.nextDouble() - 0.5);
+                dTheta[i] = dt;
+                boolean success = transform(molecule, dt);
+                if (!success) {
+                    dTheta[i] = 0;
+                }
         }
         ((BoxCluster)box).trialNotify();
         wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         uNew = pc.computeAll(false);
+
         return true;
     }
     
-    protected void transform(IMolecule molecule, double dt) {
+    protected boolean transform(IMolecule molecule, double dt) {
         IAtomList childList = molecule.getChildList();
         int numChildren = childList.size();
-        if (numChildren != 3) return;
-        
+        if (numChildren != 3) return false;
+
         Vector pos0 = childList.get(0).getPosition();
         Vector pos1 = childList.get(1).getPosition();
         Vector pos2 = childList.get(2).getPosition();
@@ -107,40 +111,48 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         double bondLength12 = Math.sqrt(work2.squared());
         work2.TE(1.0/bondLength12);
         double dot = work1.dot(work2);
+        double theta0 = Math.acos(dot);
+        // positive dt means bend to smaller angle
+        if (theta0 - dt < 0 || theta0 - dt > Math.PI) return false;
         work2.PEa1Tv1(-dot, work1);
         work2.TE(1.0/Math.sqrt(work2.squared()));
 
         double cdt = Math.cos(dt);
         double sdt = Math.sin(dt);
-        
-        work3.E(pos0);
+        double m0 = childList.get(0).getType().getMass();
+        double m1 = childList.get(1).getType().getMass();
+        double m2 = childList.get(2).getType().getMass();
+
+        work3.Ea1Tv1(m0, pos0);
         pos0.E(pos1);
         pos0.PEa1Tv1(bondLength01*cdt, work1);
         pos0.PEa1Tv1(bondLength01*sdt, work2);
-        work3.ME(pos0);
+        work3.PEa1Tv1(-m0, pos0);
 
-        // normalize bond lengths -- we'll scaled our vectors back up later
+        // normalize bond lengths -- we'll scale our vectors back up later
         work2.Ev1Mv2(pos2, pos1);
         work2.TE(1.0/bondLength12);
         dot = work1.dot(work2);
         work1.PEa1Tv1(-dot, work2);
         work1.TE(1.0/Math.sqrt(work1.squared()));
 
-        work3.PE(pos2);
+        work3.PEa1Tv1(m2, pos2);
         pos2.E(pos1);
         pos2.PEa1Tv1(bondLength12*cdt, work2);
         pos2.PEa1Tv1(bondLength12*sdt, work1);
-        work3.ME(pos2);
+        work3.PEa1Tv1(-m2, pos2);
         
         // translate COM back to its original position
-        work3.TE(1.0/3.0);
+        work3.TE(1/(m0+m1+m2));
         pos0.PE(work3);
         pos1.PE(work3);
         pos2.PE(work3);
+
+        return true;
     }
     
     public void acceptNotify() {
-//        System.out.println("accepted wiggle");
+//        System.out.println("accepted angle");
         ((BoxCluster)box).acceptNotify();
     }
 
