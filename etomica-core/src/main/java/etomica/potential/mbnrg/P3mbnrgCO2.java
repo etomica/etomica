@@ -100,7 +100,8 @@ public class P3mbnrgCO2 implements IPotentialMolecular {
 
             sw = sw12 * sw13 + sw12 * sw23 + sw13 * sw23 - 2 * sw12 * sw23 * sw13;
 
-            return sw * Poly_A1B2_3b.poly_eval(xs, coefficients);
+//            return sw * Poly_A1B2_3b.poly_eval(xs, coefficients);
+            return 0;
 
     }
     

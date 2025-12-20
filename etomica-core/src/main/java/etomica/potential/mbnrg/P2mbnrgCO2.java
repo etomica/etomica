@@ -91,8 +91,8 @@ public class P2mbnrgCO2 implements IPotentialMolecular {
         v[14] = Definitions.v_exp(m_d_BB, m_k_BB, vO2_1, vO2_2);
 
         sw = f_switch(r12);
-
-        return sw * Poly_A1B2_2b.poly_eval(coefficients, v);
+        return 0;
+//        return sw * Poly_A1B2_2b.poly_eval(coefficients, v);
     }
 
 
