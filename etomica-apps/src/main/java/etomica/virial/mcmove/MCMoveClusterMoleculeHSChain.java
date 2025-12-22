@@ -99,12 +99,13 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
             translationVector.setRandomInSphere(random);
             //1-D hack, should be TE(2sig) as well on line 107
 //            translationVector.setRandomCube(random);
-
 //            translationVector.setX(1, 0);
 //            translationVector.setX(2, 0);
 
             double sig = getSigma(prev, seq[i]);
             translationVector.TE(sig);
+//            translationVector.setX(0, 5.5);
+
             translateFrom(prev, seq[i]);
 
             for (int j=0; j<n; j++) {

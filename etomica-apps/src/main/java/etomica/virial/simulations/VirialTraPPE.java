@@ -62,16 +62,17 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.butadiene};
-            params.nPoints = 5; //B order
+            params.chemForm = new ChemForm[]{ChemForm.CO2};
+            params.nPoints = 2; //B order
             params.temperature = 1000;
-            params.diagram = "808c";
-            params.numSteps = 200000000;
+            params.diagram = "BC";
+            params.numSteps = 100000000;
             params.refFrac = -1;
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
+            params.nDer = 0;
 //            params.BDtol = 1e-11;
         }
         // Import Params
@@ -486,7 +487,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
-                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(true);
+//                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
 
                 if (TP.bonding.length > 3) {
                     mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
@@ -497,7 +498,7 @@ public class VirialTraPPE {
                     sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
                     mcMoveAngle1_oneSide.setStepSizeMax(0.6);
                     mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
-                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
+//                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
 
                 }
 
@@ -505,6 +506,8 @@ public class VirialTraPPE {
         }}
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             if(isFlex) {
@@ -513,8 +516,8 @@ public class VirialTraPPE {
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
             sim.accumulators[0].setBlockSize(1);
         }
-        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
+//        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
+//        ((MCMoveStepTracker)sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(false);
 
         // create the intramolecular potential here, add to it and add it to
         // the potential master if needed
@@ -528,7 +531,7 @@ public class VirialTraPPE {
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveTorsion);
                 mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
                 mcMoveTorsion1.setConstraintMap(constraintMap);
-                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(true);
+//                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(true);
 
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveTorsion1);
                 mcMoveTorsion1.setStepSizeMax(2);
@@ -629,13 +632,13 @@ public class VirialTraPPE {
 //        });
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
+//        System.exit(0);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
         if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
             ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 0.5;
 
         }
         System.out.println("equilibration finished");
-
         if(dorefpref){
             long t2 = System.currentTimeMillis();
             System.out.println("time: "+(t2-t1)/1000.0);
@@ -856,7 +859,7 @@ public class VirialTraPPE {
                 //Construct Arrays
                 sigma = new double[]{sigmaC, sigmaO};
                 epsilon = new double[]{epsilonC, epsilonO};
-                charge = new double[]{qC, qO};
+                charge = new double[]{0.0, 0.0};
 
                 //Get Coordinates
                 Vector3D posC = new Vector3D(new double[]{0, 0, 0});

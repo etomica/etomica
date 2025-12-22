@@ -41,6 +41,14 @@ public class MayerMix implements MayerFunction {
         if (debug && (Double.isNaN(f) || Double.isInfinite(f))) {
             throw new  RuntimeException("bogus f: "+f+"   beta: "+beta+"   u: "+potential[idx0][idx1].energy(pair));
         }
+//        if (-x/beta<200){
+//        System.out.println(Math.sqrt(r2)+" "+-x/beta);}
+//        if(Math.abs(r2-5.5*5.5)<0.001){
+//            System.exit(0);
+//        }
+//        if(r2<9 && f>-0.999){
+//            throw new RuntimeException();
+//        }
         return f;
     }
 
