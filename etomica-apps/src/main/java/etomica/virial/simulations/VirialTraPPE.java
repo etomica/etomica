@@ -506,8 +506,14 @@ public class VirialTraPPE {
         }}
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+//            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+//            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+//            sim.box[1].getMoleculeList().get(1).getChildList().forEach(atom -> {
+//                atom.getPosition().PE(Vector.of(4, 0, 0));
+//            });
+//            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+//            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).startMolecule = 1;
+//            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).startMolecule = 1;
 
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
             if(isFlex) {
@@ -630,7 +636,10 @@ public class VirialTraPPE {
 //                writer.actionPerformed();
 //            }
 //        });
-        // Equilibrate
+        // Equilibrate//        System.exit(0);
+//        for (int i = 0; i<=10;i++){
+//            sim.integrators[1].doStep();
+//        }
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
 //        System.exit(0);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
@@ -638,6 +647,7 @@ public class VirialTraPPE {
             ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 0.5;
 
         }
+//        sim.setRefPref(1);
         System.out.println("equilibration finished");
         if(dorefpref){
             long t2 = System.currentTimeMillis();
@@ -660,7 +670,10 @@ public class VirialTraPPE {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println();
-
+        for (int i = 0; i <=5 ; i++){
+        Vector r = sim.box[1].getLeafList().get(i).getPosition();
+        System.out.println(r.getX(0)+" "+r.getX(1)+" "+r.getX(2));
+        }
 
         // Print BD and Flip Stats
         if(!isFlex) {
@@ -859,7 +872,7 @@ public class VirialTraPPE {
                 //Construct Arrays
                 sigma = new double[]{sigmaC, sigmaO};
                 epsilon = new double[]{epsilonC, epsilonO};
-                charge = new double[]{0.0, 0.0};
+                charge = new double[]{qC, qO};
 
                 //Get Coordinates
                 Vector3D posC = new Vector3D(new double[]{0, 0, 0});
