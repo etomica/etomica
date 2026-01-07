@@ -62,7 +62,7 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.CO2};
+            params.chemForm = new ChemForm[]{ChemForm.propane};
             params.nPoints = 2; //B order
             params.temperature = 1000;
             params.diagram = "BC";
@@ -506,8 +506,11 @@ public class VirialTraPPE {
         }}
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-//            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-//            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+            sim.integrators[0].getMoveManager().removeMCMove(mcMoveAngle);
+            sim.integrators[1].getMoveManager().removeMCMove(mcMoveAngle1);
+
+            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 //            sim.box[1].getMoleculeList().get(1).getChildList().forEach(atom -> {
 //                atom.getPosition().PE(Vector.of(4, 0, 0));
 //            });
