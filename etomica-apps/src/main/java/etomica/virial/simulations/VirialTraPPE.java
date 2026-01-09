@@ -506,11 +506,11 @@ public class VirialTraPPE {
         }}
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-            sim.integrators[0].getMoveManager().removeMCMove(mcMoveAngle);
-            sim.integrators[1].getMoveManager().removeMCMove(mcMoveAngle1);
+//            sim.integrators[0].getMoveManager().removeMCMove(mcMoveAngle);
+//            sim.integrators[1].getMoveManager().removeMCMove(mcMoveAngle1);
 
-            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
-            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
+//            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
+//            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 //            sim.box[1].getMoleculeList().get(1).getChildList().forEach(atom -> {
 //                atom.getPosition().PE(Vector.of(4, 0, 0));
 //            });
@@ -673,10 +673,7 @@ public class VirialTraPPE {
         sim.getController().runActivityBlocking(ai);
 
         System.out.println();
-        for (int i = 0; i <=5 ; i++){
-        Vector r = sim.box[1].getLeafList().get(i).getPosition();
-        System.out.println(r.getX(0)+" "+r.getX(1)+" "+r.getX(2));
-        }
+
 
         // Print BD and Flip Stats
         if(!isFlex) {

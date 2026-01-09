@@ -46,6 +46,8 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     int modifiedIndex = 0;
     int b = 0;
     protected int[] constraintMap;
+    double sum;
+    int counter;
 
     public MCMoveClusterAngleGeneral(PotentialCompute potentialCompute, Space space, ISpecies species, IntArrayList[] bonding, boolean oneSide, int[][] triplets, IRandom random, double stepSize) {
         super();
@@ -81,6 +83,9 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     @Override
     public boolean doTrial() {
         uOld = potential.computeAll(false);
+        sum += uOld;
+        counter++;
+        if (counter % 10000 == 0){System.out.println("counter = " + counter + " " + sum/counter);}
         wNew = wOld = 1;
         if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
