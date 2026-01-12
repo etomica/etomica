@@ -85,7 +85,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         uOld = potential.computeAll(false);
         sum += uOld;
         counter++;
-        if (counter % 10000 == 0){System.out.println("counter = " + counter + " " + sum/counter);}
+//        if (counter % 100000 == 0){System.out.println(box.getIndex()+"counter = " + counter + " " + sum/counter);}
         wNew = wOld = 1;
         if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
@@ -93,7 +93,6 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         while (species != null && moleculeList.get(iMolecule).getType() != species) {
             iMolecule = random.nextInt(moleculeList.size());
         }
-
         IMolecule molecule = moleculeList.get(iMolecule);
         IAtomList atoms = molecule.getChildList();
         for(int j = 0; j < molecule.getChildList().size(); j++) {
@@ -150,7 +149,8 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
             wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         }
         uNew = potential.computeAll(false);
-
+//        if (box.getIndex() == 1 &&  Math.abs(wNew - 0.5) < 0.1) {
+//        System.out.println(box.getIndex() + " " + uOld + " " + uNew + " " + wOld + " " + wNew);}
         return true;
     }
 

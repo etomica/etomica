@@ -487,6 +487,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
+//                ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).startMolecule = 1;
 //                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
 
                 if (TP.bonding.length > 3) {
@@ -506,6 +507,8 @@ public class VirialTraPPE {
         }}
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+//            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+
 //            sim.integrators[0].getMoveManager().removeMCMove(mcMoveAngle);
 //            sim.integrators[1].getMoveManager().removeMCMove(mcMoveAngle1);
 
@@ -514,6 +517,8 @@ public class VirialTraPPE {
 //            sim.box[1].getMoleculeList().get(1).getChildList().forEach(atom -> {
 //                atom.getPosition().PE(Vector.of(4, 0, 0));
 //            });
+//            sim.box[1].trialNotify();
+//            sim.box[1].acceptNotify();
 //            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
 //            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).startMolecule = 1;
 //            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).startMolecule = 1;

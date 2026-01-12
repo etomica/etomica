@@ -91,6 +91,8 @@ public class P3BondAngle implements IPotentialBondAngle {
 //        }
         du[0] = -epsilon * dtheta / Math.sqrt(1 - costheta * costheta);
         u[0] = 0.5 * epsilon * dtheta * dtheta;
+//        System.out.println(costheta + " " + 0.5*epsilon*dtheta*dtheta);
+
     }
 
     protected Boundary boundary;

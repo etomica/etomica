@@ -36,6 +36,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     protected boolean doLattice;
     protected int[] rotationCenters;
     public int startMolecule;
+    public boolean first = true;
 
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Box box) {
         super();
@@ -87,6 +88,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     public int[] nTimespointedX = new int[3];
     public int total = 0;
     public boolean doTrial() {
+//        if(!first) {return false;}
+//        first = false;
         total++;
         int nX = 0;
         if (Math.abs(box.getLeafList().get(4).getPosition().getX(0) - 4)> 0.5) {
@@ -131,7 +134,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
                 }
                 rotationAxis[j] = random.nextInt(3);
 //                rotationAxis[j] = 1;
-//                theta[j] = Math.PI / 2;
+//                theta[j] = Math.PI;
             }
             rotationTensor.setAxial(rotationAxis[j],theta[j]);
 //            System.out.println("rotationTensor: " + rotationTensor + "theta: " + theta[j] + "sin (theta):" + Math.sin(theta[j]) + "cos(theta):" + Math.cos(theta[j]));
