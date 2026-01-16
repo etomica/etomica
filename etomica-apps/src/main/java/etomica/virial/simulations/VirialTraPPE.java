@@ -13,11 +13,11 @@ import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.*;
+import etomica.potential.P2BondStretch;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -62,7 +62,7 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propane};
+            params.chemForm = new ChemForm[]{ChemForm.CO2};
             params.nPoints = 2; //B order
             params.temperature = 1000;
             params.diagram = "BC";
@@ -304,6 +304,17 @@ public class VirialTraPPE {
 
         //P3 bond angle
         for (TraPPEParams TP : TPList) {
+            if(TP.r_eq != null){
+                //bond stretch
+                P2BondStretch[] p2 = new P2BondStretch[TP.r_eq.length];
+                for (int j = 0; j < TP.r_eq.length; j++) {
+                    p2[j] = new P2BondStretch(TP.k_b[j], TP.r_eq[j]);
+
+                    bondingInfo.setBondingPotentialPair(TP.species, p2[j], Collections.singletonList(TP.pairs[j]));
+
+                }
+
+            }
             if (TP.theta_eq != null) {
                 P3BondAngle[] p3 = new P3BondAngle[TP.theta_eq.length]; //declaration, instatation
                 for (int j = 0; j < TP.theta_eq.length; j++) {
@@ -463,6 +474,9 @@ public class VirialTraPPE {
         int[] constraintMap = new int[nPoints+1];
         MCMoveClusterAngleGeneral mcMoveAngle = null;
         MCMoveClusterAngleGeneral mcMoveAngle1 = null;
+        MCMoveClusterStretch mcMoveStretch = null;
+        MCMoveClusterStretch mcMoveStretch1 = null;
+
         MCMoveClusterAngleGeneral mcMoveAngle_oneSide = null;
         MCMoveClusterAngleGeneral mcMoveAngle1_oneSide = null;
 
@@ -477,7 +491,13 @@ public class VirialTraPPE {
         }
 
         for (TraPPEParams TP : TPList) {
+            if(TP.r_eq != null){
+                mcMoveStretch = new MCMoveClusterStretch(sim.integrators[0].getPotentialCompute(), space, TP.bonding, sim.getRandom(), 0.1);
+                sim.integrators[0].getMoveManager().addMCMove(mcMoveStretch);
+                mcMoveStretch1 = new MCMoveClusterStretch(sim.integrators[1].getPotentialCompute(), space, TP.bonding, sim.getRandom(), 0.1);
+                sim.integrators[1].getMoveManager().addMCMove(mcMoveStretch1);
 
+            }
             if(TP.theta_eq != null) {
                 mcMoveAngle = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
                 mcMoveAngle.setStepSizeMax(0.6);
@@ -487,6 +507,7 @@ public class VirialTraPPE {
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
+
 //                ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).startMolecule = 1;
 //                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
 
@@ -769,7 +790,10 @@ public class VirialTraPPE {
         public final double[] charge;
         public double[] k_theta;
         public double[] theta_eq;
+        public double[] k_b;
+        public double[] r_eq;
         public double[][] a;
+        public int[][] pairs;
         public int[][] triplets;
         public int[][] quads;
         public IntArrayList[] bonding;
@@ -873,11 +897,18 @@ public class VirialTraPPE {
                 double sigmaO = 3.050; // Angstrom
                 double epsilonO = Kelvin.UNIT.toSim(79.0);
                 double qO = Electron.UNIT.toSim(-0.350);
-
+                double k_r = Kelvin.UNIT.toSim(10);
                 //Construct Arrays
                 sigma = new double[]{sigmaC, sigmaO};
                 epsilon = new double[]{epsilonC, epsilonO};
                 charge = new double[]{qC, qO};
+                k_b = new double[]{k_r};
+                r_eq = new double[]{bondLengthCO};
+                pairs = new int[][]{{0, 1}, {0, 2}};
+                bonding = new IntArrayList[3];
+                bonding[0] = new IntArrayList(new int[]{1, 2});
+                bonding[1] = new IntArrayList(new int[]{0});
+                bonding[2] = new IntArrayList(new int[]{0});
 
                 //Get Coordinates
                 Vector3D posC = new Vector3D(new double[]{0, 0, 0});
