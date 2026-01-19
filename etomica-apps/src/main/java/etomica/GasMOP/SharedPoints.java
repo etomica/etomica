@@ -1,7 +1,5 @@
 package etomica.GasMOP;
 import etomica.space3d.Vector3D;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 
@@ -51,9 +49,7 @@ public class SharedPoints {
             Vector3D representativeKey = representativeKeyMap.get(entry.getKey());
             result.put(representativeKey, entry.getValue());
         }
-
         return result;
-
     }
 
     class RoundedVector3D {
@@ -66,7 +62,7 @@ public class SharedPoints {
         }
 
         private double round(double value) {
-            return new BigDecimal(value).setScale(3, RoundingMode.HALF_UP).doubleValue();
+            return Math.round(value * 1000.0) / 1000.0;
         }
 
         @Override
@@ -82,11 +78,7 @@ public class SharedPoints {
         public int hashCode() {
             return Objects.hash(x, y, z);
         }
-
     }
-
-
-
 
     public static void main(String[] args) {
         Map<Integer, Map<Integer, Vector3D>> positionMap = new HashMap<>();

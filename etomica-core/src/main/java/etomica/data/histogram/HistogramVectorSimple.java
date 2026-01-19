@@ -26,10 +26,10 @@ public class HistogramVectorSimple {
     protected Set<List<Integer>> setUnique;
     protected Integer[] set = new Integer[3];
     protected int nBinsX, nBinsY, nBinsZ;
-    protected int numsteps;
+    protected long numsteps;
 
 
-    public HistogramVectorSimple(int nX, int nY, int nZ, DoubleRange rangeX, DoubleRange rangeY, DoubleRange rangeZ, ISpecies species, Box box, int numsteps){
+    public HistogramVectorSimple(int nX, int nY, int nZ, DoubleRange rangeX, DoubleRange rangeY, DoubleRange rangeZ, ISpecies species, Box box, long numsteps){
         nBinsX = nX;
         nBinsY = nY;
         nBinsZ = nZ;
@@ -52,7 +52,7 @@ public class HistogramVectorSimple {
         this.box = box;
     }
 
-    private void setNumSteps(int steps){this.numsteps = steps;}
+    private void setNumSteps(long steps){this.numsteps = steps;}
 
     //set box length
     private void setL(Box box){
@@ -185,7 +185,7 @@ public class HistogramVectorSimple {
     public ISpecies getSpecies(){
         return species;
     }
-    public int getSteps(){return numsteps;}
+    public long getSteps(){return numsteps;}
 
     public long[][][] getCounts(){return counts;}
 

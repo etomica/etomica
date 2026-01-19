@@ -2,18 +2,17 @@ package etomica.GasMOP;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomSource;
-import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.box.RandomPositionSource;
+import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
+import etomica.data.histogram.HistogramVectorEnergy;
 import etomica.data.histogram.HistogramVectorSimple;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.*;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.Integrator;
@@ -22,6 +21,7 @@ import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.*;
 import etomica.math.DoubleRange;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeSourceRandomMolecule;
@@ -35,11 +35,16 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesManager;
 import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.collections.IntArrayList;
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.virial.mcmove.MCMoveClusterAngle;
+import etomica.virial.mcmove.MCMoveClusterAngleBend;
+
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -53,7 +58,7 @@ public class GCMCMOP extends Simulation {
     public MCMoveMolecule mcMoveMolecule;
     public PotentialMasterCell potentialMasterCell;
     public MCMoveMoleculeRotate mcMoveMoleculeRotate;
-    public MCMoveInsertDelete mcMoveID, mcMoveIDTwo;
+  //  public MCMoveInsertDelete mcMoveID, mcMoveIDTwo;
     public ISpecies speciesMOP, speciesGas, speciesGrapheneOne, speciesGrapheneFive,speciesSecondGas, autoMOP ;
     public ISpecies speciesMOPTwo, speciesMOPThree,speciesMOPFour, speciesMOPFive, speciesCOF;
     public Box box, boxNew;
@@ -68,16 +73,17 @@ public class GCMCMOP extends Simulation {
     public static List<List<AtomType>> listGrapheneGasMixed = new ArrayList<>();
     public static double massMembrane;
     public static HistogramVectorSimple targHist;
-    public GCMCMOP(String confNameOne, String confNameGasOne, String confNameGasTwo, String confNameGraphene,String struc, String autoStruc, Vector centreMOP, Vector centreMOPTwo, Vector grapheneOne, int numMolOne, int numMolTwo, double temperature, double truncatedRadius, double truncatedRadiusLJ, double sigma, double mu1, double mu2, boolean ifGraphenePresent, boolean ifSecondGasPresent, boolean ifMultipleGraphenePresent, boolean ifMoveRotateMoves, Vector boxSize, boolean makeAllMove, boolean doElectrostatics, double multiplier, boolean isGasCOMPASS, boolean isGasTraPPE, boolean ifMOPPresent, boolean ifCOFPesent, boolean ifautoMOP) throws IOException {
+    public GCMCMOP(String confNameOne, String confNameGasOne, String confNameGasTwo, String confNameGraphene,String struc, String autoStruc, Vector centreMOP, Vector centreMOPTwo, Vector grapheneOne, Vector grapheneTwo, Vector grapheneThree, Vector grapheneFour, int numMolOne, int numMolTwo, double temperature, double truncatedRadius, double truncatedRadiusLJ, double sigma, double mu1, double mu2, boolean ifGraphenePresent, boolean ifSecondGasPresent, boolean ifMultipleGraphenePresent, boolean ifMoveRotateMoves, Vector boxSize, boolean makeAllMove, boolean doElectrostatics, double multiplier, boolean isGasCOMPASS, boolean isGasTraPPE, boolean ifMOPPresent, boolean ifCOFPesent, boolean ifautoMOP, boolean ifXYZfile) throws IOException {
         super(Space3D.getInstance());
       //  System.out.println(struc +" "+ autoStruc);
         //Make Species
-       // setRandom(new RandomMersenneTwister(2));
+
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         PDBReaderMOP pdbReaderMOP2 = new PDBReaderMOP();
         PDBReaderMOP pdbReaderCOF = new PDBReaderMOP();
+        AutoMOP autoMOP1 = new AutoMOP();
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
-        PDBReaderReplicaNew pdbReaderReplicaNew = new PDBReaderReplicaNew();
+        PDBReaderReplica pdbReaderReplicaNew = new PDBReaderReplica();
         GeneralGrapheneReader grapheneReader = new GeneralGrapheneReader();
         SetPotential SetPotential = new SetPotential();
 
@@ -86,27 +92,126 @@ public class GCMCMOP extends Simulation {
       Map<Integer,String> atomMap1 = new HashMap<>();
 
       double  truncCal = truncatedRadius;
-        AutoMOP autoMOP = new AutoMOP();
+       // AutoMOPUpgrade autoMOP = new AutoMOPUpgrade();
         GetSpeciesMOP getSpeciesMOP = new GetSpeciesMOP();
+        Map<Integer, Vector3D> atomMAPVector = new HashMap<>();
+        Map<Integer, String> atomMapPDB = new HashMap<>();
         if (ifMOPPresent){
             ArrayList<ArrayList<Integer>> connectivityLigand = new ArrayList<>();
             Map<Integer, String> mapLigand = new HashMap<>();
-            speciesMOP = getSpeciesMOP.getSpeciesMOP(pdbReaderMOP, pdbReaderReplica, sm, confNameOne, confNameGasOne,struc, autoStruc, connectivityLigand, mapLigand, connectivity1, atomMap1, false, true, ifMOPPresent, ifautoMOP, isGasTraPPE);
+            speciesMOP = getSpeciesMOP.getSpeciesMOP(autoMOP1, pdbReaderMOP, pdbReaderReplica, sm, confNameOne, confNameGasOne, confNameGasTwo, struc, autoStruc, connectivityLigand, mapLigand, connectivity1, atomMap1, false, true, ifMOPPresent, ifautoMOP, isGasTraPPE, ifSecondGasPresent, ifXYZfile);
             addSpecies(speciesMOP);
+            atomMAPVector = autoMOP1.getAtomMapVector();
+            atomMapPDB = autoMOP1.getAtomMapPDB();
+            if(ifGraphenePresent){
+                speciesGrapheneOne = grapheneReader.getSpecies(confNameGraphene, new Vector3D(0, 0, 0), false);
+                addSpecies(speciesGrapheneOne);
+               // System.out.println("added graphene");
+            }
             if (isGasTraPPE){
                 speciesGas = getSpeciesMOP.getSpeciesGas();
                 addSpecies(speciesGas);
+                if(ifSecondGasPresent){
+                    speciesSecondGas = getSpeciesMOP.getSpeciesSecondGas();
+                    addSpecies(speciesSecondGas);
+                }
             }else {
                 speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true, new Vector3D(0, 0, 0), false);
                 addSpecies(speciesGas);
+                if(ifSecondGasPresent){
+                    speciesSecondGas = pdbReaderReplicaNew.getSpecies(confNameGasTwo, true, new Vector3D(0, 0, 0), false);
+                    addSpecies(speciesSecondGas);
+                }
+
+
             }
         } else {
+            if (isGasTraPPE){
+               // if (ifGasTrappe) {
+                SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
+                    if (confNameGasOne.equals("ch4")) {
+                        SpeciesGasTraPPE.ChemForm = CH4;
+                    } else if (confNameGasOne.equals("ethane")) {
+                        SpeciesGasTraPPE.ChemForm = C2H6;
+                    } else if (confNameGasOne.equals("propane")) {
+                        SpeciesGasTraPPE.ChemForm = C3H8;
+                    } else if (confNameGasOne.equals("ethene")) {
+                        SpeciesGasTraPPE.ChemForm = C2H4;
+                    } else if (confNameGasOne.equals("propene")) {
+                        SpeciesGasTraPPE.ChemForm = C3H6;
+                    } else if (confNameGasOne.equals("co2")) {
+                        SpeciesGasTraPPE.ChemForm = CO2;
+                    } else if (confNameGasOne.equals("o2")) {
+                        SpeciesGasTraPPE.ChemForm = O2;
+                    } else if (confNameGasOne.equals("n2")) {
+                        SpeciesGasTraPPE.ChemForm = N2;
+                    }else if (confNameGasOne.equals("nh3")) {
+                        SpeciesGasTraPPE.ChemForm = NH3;
+                    }else if (confNameGasOne.equals("butene")) {
+                        SpeciesGasTraPPE.ChemForm = C4H8ene_1;
+                    }else if (confNameGasOne.equals("13butadiene")) {
+                        SpeciesGasTraPPE.ChemForm = C4H8ene_13;
+                    }else if (confNameGasOne.equals("nbutane")) {
+                        SpeciesGasTraPPE.ChemForm = C4H10;
+                    }else if (confNameGasOne.equals("methylpropene")) {
+                        SpeciesGasTraPPE.ChemForm = methylPropene_2;
+                    }else if (confNameGasOne.equals("methylpropane")) {
+                        SpeciesGasTraPPE.ChemForm = methylPropane_2;
+                    }else if (confNameGasOne.equals("transbutene")) {
+                        SpeciesGasTraPPE.ChemForm = transButene;
+                    }else if (confNameGasOne.equals("cisbutene")) {
+                        SpeciesGasTraPPE.ChemForm = cisButene;
+                    }
+                    speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
+                    //sim.addSpecies(speciesGas);
+               // }
+
+                //speciesMOP = cifReader.speciesCIF(confNameOne,false);
+
+                //species Gas
+       /* if (isGasCOMPASS) {
+            //  speciesGas = pdbReaderCOMPASS.getSpecies(confNameGasOne, false, true, new Vector3D(0,0,0));
+        } else if (isGasTraPPE) {
+            speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
+        } else {
             speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true, new Vector3D(0, 0, 0), false);
-            addSpecies(speciesGas);
+        }*/
+                if(ifGraphenePresent){
+                    speciesGrapheneOne = grapheneReader.getSpecies(confNameGraphene, new Vector3D(0, 0, 0), false);
+                    addSpecies(speciesGrapheneOne);
+                   // System.out.println("added graphene");
+                }
+              //  System.out.println(speciesGrapheneOne.getMass());
+                getSpeciesMOP.setSpeciesGas(speciesGas);
+                speciesGas = getSpeciesMOP.getSpeciesGas();
+                addSpecies(speciesGas);
+                if (ifSecondGasPresent){
+                    getSpeciesMOP.setSpeciesSecondGas(speciesSecondGas);
+                    speciesSecondGas = getSpeciesMOP.getSpeciesSecondGas();
+                    addSpecies(speciesSecondGas);
+                }
+            }else {
+                if(ifGraphenePresent){
+                    speciesGrapheneOne = grapheneReader.getSpecies(confNameGraphene, new Vector3D(0, 0, 0), true);
+                    addSpecies(speciesGrapheneOne);
+                 //   System.out.println("added graphene");
+                }
+                speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true, new Vector3D(0, 0, 0), false);
+                addSpecies(speciesGas);
+                speciesSecondGas = pdbReaderReplicaNew.getSpecies(confNameGasTwo, true, new Vector3D(0, 0, 0), false);
+                addSpecies(speciesSecondGas);
+              //  System.out.println("added");
+            }
         }
         box = this.makeBox();
-        box.addNewMolecule(speciesMOP);
+        if (ifMOPPresent){
+            box.addNewMolecule(speciesMOP);
+        }
+
+
         connectivity1 = pdbReaderMOP.getConnectivityModified();
+       // System.out.println("box" + boxSize);
+        box.getBoundary().setBoxSize(boxSize);
         ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModified();
         atomMap1 = pdbReaderMOP.getAtomMapWithoutRunning();
         Map<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModified();
@@ -116,7 +221,6 @@ public class GCMCMOP extends Simulation {
            speciesMOP = autoMOP.getAutoMOPBox(Space3D.getInstance(), struc, autoStruc, speciesMOP, box, connectivity1, atomMapModified1, false, true, 1);
            //addSpecies(speciesMOP);
        }*/
-        System.out.println(box.getMoleculeList());
 
        /* boxNew = this.makeBox();
         if(ifMOPPresent && ifautoMOP){
@@ -127,50 +231,104 @@ public class GCMCMOP extends Simulation {
         }*/
       Map<Double, List<Integer[]> >distMap = new HashMap<>();
       //tetra= 6, cube = 12 octahedron = 12, dodecahedron = 30, icosahedron = 30;
-
+        GCMCMOPParams paramsNew = new GCMCMOPParams();
         if(ifGraphenePresent ){
-            if(!ifMultipleGraphenePresent ){
+            if(ifMultipleGraphenePresent){
                 List<Vector> oldPositions = new ArrayList<>();
                 massMembrane = speciesGrapheneOne.getMass()*numMolOne;
-                box.setNMolecules(speciesGrapheneOne, 2);
+                box.setNMolecules(speciesGrapheneOne, 4);
                 IMolecule moleculeMOPZero = box.getMoleculeList().get(0);
                 while (oldPositions.size() < moleculeMOPZero.getChildList().size()) {
                     oldPositions.add(space.makeVector());
                 }
+                Vector vecgrapheneOne = new Vector3D(0.0,0.0, paramsNew.graphenezOne);
+                Vector finalVecgrapheneOne = vecgrapheneOne;
+                System.out.println(finalVecgrapheneOne);
                 moleculeMOPZero.getChildList().forEach(atom -> {
                     oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                    atom.getPosition().PE(grapheneOne);
+                    atom.getPosition().PE(finalVecgrapheneOne);
                     Vector shift = box.getBoundary().centralImage(atom.getPosition());
                     atom.getPosition().PE(shift);
                 });
+                vecgrapheneOne = new Vector3D(0.0,0.0, paramsNew.graphenezTwo);
+                System.out.println(vecgrapheneOne);
                 IMolecule moleculeMOPOne = box.getMoleculeList().get(1);
+                Vector finalVecgrapheneOne1 = vecgrapheneOne;
                 moleculeMOPOne.getChildList().forEach(atom -> {
                     oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                    atom.getPosition().PE(grapheneOne);
+                    atom.getPosition().PE(finalVecgrapheneOne1);
                     Vector shift = box.getBoundary().centralImage(atom.getPosition());
                     atom.getPosition().PE(shift);
                 });
+                vecgrapheneOne = new Vector3D(0.0,0.0,  paramsNew.graphenezThree);
+                System.out.println(vecgrapheneOne);
+                moleculeMOPOne = box.getMoleculeList().get(2);
+                Vector finalVecgrapheneOne2 = vecgrapheneOne;
+                moleculeMOPOne.getChildList().forEach(atom -> {
+                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                    atom.getPosition().PE(finalVecgrapheneOne2);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });
+                vecgrapheneOne = new Vector3D(0.0,0.0,  paramsNew.graphenezFour);
+                System.out.println(vecgrapheneOne);
+                moleculeMOPOne = box.getMoleculeList().get(3);
+                Vector finalVecgrapheneOne3 = vecgrapheneOne;
+                moleculeMOPOne.getChildList().forEach(atom -> {
+                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                    atom.getPosition().PE(finalVecgrapheneOne3);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });
+              /*  vecgrapheneOne = new Vector3D(0.0,0.0, 15.0);
+                System.out.println(vecgrapheneOne);
+                moleculeMOPOne = box.getMoleculeList().get(4);
+                Vector finalVecgrapheneOne4 = vecgrapheneOne;
+                moleculeMOPOne.getChildList().forEach(atom -> {
+                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                    atom.getPosition().PE(finalVecgrapheneOne4);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });
+                vecgrapheneOne = new Vector3D(0.0,0.0, -15.0);
+                System.out.println(vecgrapheneOne);
+                moleculeMOPOne = box.getMoleculeList().get(5);
+                Vector finalVecgrapheneOne5 = vecgrapheneOne;
+                moleculeMOPOne.getChildList().forEach(atom -> {
+                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                    atom.getPosition().PE(finalVecgrapheneOne5);
+                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                    atom.getPosition().PE(shift);
+                });*/
 
                /* //box.addNewMolecule(speciesGrapheneOne);
                 box.addNewMolecule(speciesGrapheneTwo);
               */
             } else {
                 box.addNewMolecule(speciesGrapheneOne);
-                box.addNewMolecule(speciesGrapheneFive);
+            //    box.addNewMolecule(speciesGrapheneFive);
             }
         }
+        //System.out.println(speciesMOP.getMass());
+      //  System.exit(1);
 
-        GCMCMOPParams paramsNew = new GCMCMOPParams();
-       /* if(paramsNew.doMOPPDBOutput){
+        if(paramsNew.doMOPPDBOutput){
             PDBWriterNew writerPDB = new PDBWriterNew();
             Map<Integer, Vector3D> positionsAtom = new HashMap<>();
             IMolecule molecule =speciesMOP.makeMolecule();
-            for (int i = 0; i<speciesMOP.getLeafAtomCount(); i++){
-                positionsAtom.put(i, (Vector3D) molecule.getChildList().get(i).getPosition());
+            if (!ifautoMOP){
+                for (int i = 0; i<speciesMOP.getLeafAtomCount(); i++){
+                    positionsAtom.put(i, (Vector3D) molecule.getChildList().get(i).getPosition());
+                }
+            }else {
+                positionsAtom = atomMAPVector;
+                atomMapModified1 = atomMapPDB;
             }
-            writerPDB.writePDB(paramsNew.fileOutPutName, atomMapModified1, positionsAtom, connectivity1);
-        }*/
 
+            writerPDB.writePDB(paramsNew.fileOutPutName1, atomMapModified1, positionsAtom, connectivity1);
+        }
+
+        //System.exit(1);
         //System.out.println(speciesGas.getMass());
         Map<Integer, String> atomIdentifierMapModified1 = pdbReaderMOP.getModifiedAtomIdentifierMap();
       //  Map<Integer, String> atomMapModified1 = new HashMap<>();
@@ -193,10 +351,10 @@ public class GCMCMOP extends Simulation {
             box.setNMolecules(speciesMOP, 1);
         }*/
 
-      //  System.exit(1);
-        if(ifSecondGasPresent){
+       // System.exit(1);
+    /*    if(ifSecondGasPresent){
             box.addNewMolecule(speciesSecondGas);
-        }
+        }*/
 
         if(ifGraphenePresent && ifMOPPresent){
             if(ifSecondGasPresent){
@@ -225,8 +383,6 @@ public class GCMCMOP extends Simulation {
         }
 
 
-       // System.out.println(speciesMOP.getMass());
-       // System.exit(1);
         ArrayList<ArrayList<Integer>> connectedAtoms1 = pdbReaderMOP.getConnectivity();
         //ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModified();
        // Map<Integer,String> atomMap1 = pdbReaderMOP.getAtomMapWithoutRunning();
@@ -241,7 +397,6 @@ public class GCMCMOP extends Simulation {
         Map<String[],List<int[]>> bondTypesMap1= pdbReaderMOP.idenBondTypes(dupletsSorted1, atomIdentifierMapModified1);
         Map<String[],List<int[]>> angleTypesMap1= pdbReaderMOP.idenAngleTypes(tripletsSorted1, atomIdentifierMapModified1);
         Map<String[],List<int[]>> torsionTypesMap1= pdbReaderMOP.idenTorsionTypes(quadrupletsSorted1, atomIdentifierMapModified1);
-        //System.out.println(speciesGas.getMass()/speciesMOP.getMass());
 
         ArrayList<ArrayList<Integer>> connectedAtoms2= null;
         ArrayList<ArrayList<Integer>> connectivityModified2= null;
@@ -258,6 +413,8 @@ public class GCMCMOP extends Simulation {
         Map<String[], List<int[]>> torsionTypesMap2 = null;
         int[] harmonicBond = null;
         List<int[]> bonds = new ArrayList<>();
+        List<int[]> angles = new ArrayList<>();
+        List<int[]> torsions = new ArrayList<>();
         //Bonding Parameters GasOne
         if (isGasCOMPASS && !isGasTraPPE) {
             connectedAtoms2 = pdbReaderReplica.getConnectivityWithoutRunning();
@@ -288,36 +445,34 @@ public class GCMCMOP extends Simulation {
             angleTypesMap2 = pdbReaderReplica.idenAngleTypes(tripletsSorted2, atomIdentifierMapModified2);
             torsionTypesMap2 = pdbReaderReplica.idenTorsionTypes(quadrupletsSorted2, atomIdentifierMapModified2);
         }
-
-       /* System.out.println(speciesMOP.getMass());
-        System.out.println(Gram.UNIT.fromSim(speciesMOP.getMass()));
-        Unit cm = new PrefixedUnit(Prefix.CENTI, Meter.UNIT);
-        Unit cm3 = new CompoundUnit(new Unit[]{cm}, new double[]{3});
-        UnitRatio gcm3 = new UnitRatio(Gram.UNIT, cm3);
-        System.out.println(gcm3.toSim(1.082) +" exp");
-        double valBox = boxSize.getX(0);
-        double mopDen = speciesMOP.getMass()/(valBox*valBox*valBox);
-        System.out.println(mopDen);
-        System.out.println(gcm3.fromSim(mopDen));*/
-   //     System.out.println(gcm3.toSim(1.082)/gcm3.toSim(mopDen));
         //SetBonding Potential
         UniversalSimulation.makeAtomPotentials(sm);
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
         //MOP
-         SetPotential.setBondStretch(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, pmBonding);
-        //GasOne
-        if (!isGasTraPPE) {
-            SetPotential.setBondStretch(speciesGas, bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2, quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, pmBonding);
-        } else {
-            String[] parts = confNameGasOne.split("//");
-            String gasName = parts[parts.length-1];
-            SetPotential.setBondStretchTraPPE(speciesGas, bonds, pmBonding, gasName);
+        if (ifMOPPresent){
+            SetPotential.setBondStretch(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, pmBonding);
+            //GasOne
+            if (!isGasTraPPE) {
+                SetPotential.setBondStretch(speciesGas, bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2, quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, pmBonding);
+            } else {
+                String[] parts = confNameGasOne.split("//");
+                String gasName = parts[parts.length-1];
+                //SetPotential.setBondStretchTraPPE(speciesGas, bonds, pmBonding, gasName);
+                SetPotential.setBondStretchTraPPE(speciesGas, bonds, angles, torsions, pmBonding, gasName);
+            }
         }
-
         //GasTwo
-        if(ifSecondGasPresent){
-            SetPotential.setBondStretch(speciesSecondGas,bondTypesMapSecondGas, angleTypesMapSecondGas, torsionTypesMapSecondGas, bondsNumSecondGas, bondListSecondGas,quadrupletsSortedSecondGas, atomIdentifierMapModifiedSecondGas, atomicPotMapSecondGas, pmBonding);
+        if(ifSecondGasPresent ){
+            if (!isGasTraPPE){
+                SetPotential.setBondStretch(speciesSecondGas,bondTypesMapSecondGas, angleTypesMapSecondGas, torsionTypesMapSecondGas, bondsNumSecondGas, bondListSecondGas,quadrupletsSortedSecondGas, atomIdentifierMapModifiedSecondGas, atomicPotMapSecondGas, pmBonding);
+            }else {
+                String[] parts = confNameGasOne.split("//");
+                String gasName = parts[parts.length-1];
+             //   SetPotential.setBondStretchTraPPE(speciesSecondGas, bonds, pmBonding, gasName);
+                SetPotential.setBondStretchTraPPE(speciesSecondGas, bonds, angles, torsions, pmBonding, gasName);
+            }
+
         }
         List<AtomType> listGas;
         List<List<AtomType>> listMOPGasPairs = null;
@@ -332,7 +487,7 @@ public class GCMCMOP extends Simulation {
 
         if (ifMOPPresent) {
             listMOPGasPairs = SetPotential.listGrapheneSpecial(speciesMOP.getUniqueAtomTypes(), listGas);
-        } else if (ifautoMOP) {
+        } else if (ifautoMOP  && ifMOPPresent) {
             listMOPGasPairs = SetPotential.listGrapheneSpecial(this.autoMOP.getUniqueAtomTypes(), listGas);
         } else {
             listMOPGasPairs = SetPotential.listFinal(listGas);
@@ -381,11 +536,111 @@ public class GCMCMOP extends Simulation {
         if (ifGraphenePresent) {
             List<List<AtomType>> listGrapheneGasFinal = SetPotential.listGrapheneSpecial(speciesGrapheneOne.getUniqueAtomTypes(), listGas);
             //  List<List<AtomType>> listGrapheneGasFinal = SetPotential.listFinal(listGrapheneGasUnique);
+            P2Electrostatic[] p2ElectroGasgraphene = new P2Electrostatic[listGrapheneGasFinal.size()];
+            IPotential2[] p2electroGasgraphene = new IPotential2[listGrapheneGasFinal.size()];
             LJUFF[] p2LJGrapheneGas = new LJUFF[listGrapheneGasFinal.size()];
-            //   SetPotential.doLJ(listGrapheneGasFinal, potentialMasterCell,  p2LJGrapheneGas, listGrapheneGasFinal.size(), truncatedRadiusLJ, isGasTraPPE);
+            if (isGasTraPPE) {
+                SetPotential.doLJElectrostatic(listGrapheneGasFinal, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, listGrapheneGasFinal.size(), truncatedRadius, false, true);
+            } else {
+                SetPotential.doLJElectrostatic(listGrapheneGasFinal, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, p2electroGasgraphene, listGrapheneGasFinal.size(), truncatedRadiusLJ, doElectrostatics);
+            }
+
+        }
+
+        //Gas-Gas
+
+        SetPotential.setBondStretch(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, pmBonding);
+        //GasOne
+        if (!isGasTraPPE) {
+            SetPotential.setBondStretch(speciesGas, bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2, quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, pmBonding);
+        } else {
+            String[] parts = confNameGasOne.split("//");
+            String gasName = parts[parts.length-1];
+           // SetPotential.setBondStretchTraPPE(speciesGas, bonds, pmBonding, gasName);
+            SetPotential.setBondStretchTraPPE(speciesGas, bonds, angles, torsions, pmBonding, gasName);
+        }
+        //GasTwo
+       /* if(ifSecondGasPresent ){
+            if (!isGasTraPPE){
+                SetPotential.setBondStretch(speciesSecondGas,bondTypesMapSecondGas, angleTypesMapSecondGas, torsionTypesMapSecondGas, bondsNumSecondGas, bondListSecondGas,quadrupletsSortedSecondGas, atomIdentifierMapModifiedSecondGas, atomicPotMapSecondGas, pmBonding);
+            }else {
+                String[] parts = confNameGasOne.split("//");
+                String gasName = parts[parts.length-1];
+                SetPotential.setBondStretchTraPPE(speciesSecondGas, bonds, pmBonding, gasName);
+            }
+
+        }*/
+
+       // List<AtomType> listGas;
+     //   List<List<AtomType>> listMOPGasPairs = null;
+        List<List<AtomType>> listGrapheneGasPairs = null;
+
+        //NonBonded
+        potentialMasterCell.doAllTruncationCorrection = false;
+            //combine gases
+        if (ifSecondGasPresent) {
+            listGas = SetPotential.listTwoSpeciesPairs(speciesGas.getUniqueAtomTypes(), speciesSecondGas.getUniqueAtomTypes());
+        } else {
+            listGas = speciesGas.getUniqueAtomTypes();
+        }
+
+        if (ifMOPPresent) {
+            listMOPGasPairs = SetPotential.listGrapheneSpecial(speciesMOP.getUniqueAtomTypes(), listGas);
+        } else if (ifautoMOP  && ifMOPPresent) {
+            listMOPGasPairs = SetPotential.listGrapheneSpecial(this.autoMOP.getUniqueAtomTypes(), listGas);
+        } else {
+            listMOPGasPairs = SetPotential.listFinal(listGas);
+        }
+
+      //  LJUFF[] p2LJMOPGas = new LJUFF[listMOPGasPairs.size()];
+      //  P2Electrostatic[] p2ElectroMOPGas = new P2Electrostatic[listMOPGasPairs.size()];
+      //  IPotential2[] p2mopgas = new IPotential2[listMOPGasPairs.size()];
+        //   LJCOMPASS[] p2LJMOPGasCOMPASS = new LJCOMPASS[listMOPGasPairs.size()];
+        if (isGasTraPPE) {
+            if(ifMOPPresent){
+                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncCal, doElectrostatics, true);
+            }else {
+                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, true);
+            }
+        } else {
+            if(ifMOPPresent){
+                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, p2mopgas, listMOPGasPairs.size(), truncCal, doElectrostatics);
+            }else {
+                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, isGasTraPPE);
+            }
+        }
+
+        if (ifMOPPresent || ifautoMOP) {
+            List<List<AtomType>> listGasGas = new ArrayList<>();
+            if (ifSecondGasPresent) {
+                listGasGas = SetPotential.listGrapheneSpecial(speciesGas.getUniqueAtomTypes(), speciesSecondGas.getUniqueAtomTypes());
+            }else{
+                listGasGas = SetPotential.listFinal(speciesGas.getUniqueAtomTypes());
+            }
+            LJUFF[] p2LJGas = new LJUFF[listGasGas.size()];
+            IPotential2[] p2ljGas = new IPotential2[listGasGas.size()];
+            P2Electrostatic[] p2ElectroGas = new P2Electrostatic[listGasGas.size()];
+            //   LJCOMPASS[] p2LJGasCOMPASS = new LJCOMPASS[listGasGas.size()];
+            if (isGasTraPPE) {
+                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, listGasGas.size(), truncatedRadius, false, true);
+            } else {
+                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, p2ljGas, listGasGas.size(), truncatedRadiusLJ, doElectrostatics);
+            }
         }
 
 
+        if (ifGraphenePresent){
+            listGrapheneGasPairs = SetPotential.listGrapheneSpecial(speciesGrapheneOne.getUniqueAtomTypes(), listGas);
+            P2Electrostatic[] p2ElectroGasgraphene = new P2Electrostatic[listGrapheneGasPairs.size()];
+            IPotential2[] p2electroGasgraphene = new IPotential2[listGrapheneGasPairs.size()];
+            LJUFF[] p2LJGrapheneGas = new LJUFF[listGrapheneGasPairs.size()];
+            if (isGasTraPPE) {
+                SetPotential.doLJElectrostatic(listGrapheneGasPairs, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, listGrapheneGasPairs.size(), truncatedRadius, false, true);
+            } else {
+                SetPotential.doLJElectrostatic(listGrapheneGasPairs, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, p2electroGasgraphene, listGrapheneGasPairs.size(), truncatedRadiusLJ, doElectrostatics);
+            }
+        }
+        //random = new RandomMersenneTwister(2);
 
         potentialMasterCell.doOneTruncationCorrection = true;
         potentialMasterCell.init();
@@ -393,9 +648,9 @@ public class GCMCMOP extends Simulation {
         PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMasterCell, pmBonding);
         integrator = new IntegratorMC(pcAgg, random, Kelvin.UNIT.toSim(temperature), box);
         if (ifMoveRotateMoves) {
-          /*  mcMoveMolecule = new MCMoveMolecule(random, potentialMasterCell, box);
+            mcMoveMolecule = new MCMoveMolecule(random, potentialMasterCell, box);
             mcMoveMolecule.setStepSize( sigma);
-            ((MCMoveStepTracker) mcMoveMolecule.getTracker()).setTunable(false);*/
+            ((MCMoveStepTracker) mcMoveMolecule.getTracker()).setTunable(false);
             mcMoveMoleculeRotate = new MCMoveMoleculeRotate(random, potentialMasterCell, box);
             mcMoveMoleculeRotate.setStepSize( sigma);
             ((MCMoveStepTracker) mcMoveMoleculeRotate.getTracker()).setTunable(false);
@@ -412,33 +667,40 @@ public class GCMCMOP extends Simulation {
             // ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesMOP);
 
             //  }
-           //   ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
+            ((MoleculeSourceRandomMolecule) mcMoveMolecule.getMoleculeSource()).setSpecies(speciesGas);
             ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);
            //    }
-        }
-            BoxInflate inflater = new BoxInflate(box, space);
-            inflater.actionPerformed();
 
-            MCMoveInsertDelete mcMoveID = new MCMoveInsertDelete(potentialMasterCell, random, space);
+
+        }
+  /*      MCMoveInsDelSingleMolecule mcMoveIDSingle = new MCMoveInsDelSingleMolecule(potentialMasterCell, random, space);
+        mcMoveIDSingle.setBox(box);
+        mcMoveIDSingle.setMu(mu1);
+        mcMoveIDSingle.setSpecies(speciesGas);
+        integrator.getMoveManager().addMCMove(mcMoveIDSingle);*/
+            MCMoveInsertDelete mcMoveID = new MCMoveInsertDelete(pcAgg, random, space);
             mcMoveID.setBox(box);
             mcMoveID.setMu(mu1);
             mcMoveID.setSpecies(speciesGas);
             integrator.getMoveManager().addMCMove(mcMoveID);
-        //System.out.println(box.getMoleculeList());
-        //System.exit(1);
-       /* AtomSource atomSource = new AtomSourceRandomSpecies(random, speciesMOP);
-        atomSource.setBox(box);
-        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, pcAgg, box);
-        mcMoveAtom.setAtomSource(atomSource);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);*/
+            if (speciesGas.getUniqueAtomTypes().size()> 10){
+                IntArrayList[] bonding = SpeciesGasTraPPE.getIntArrayList(confNameGasOne);
+                MCMoveClusterAngle mcMoveClusterAngle = new MCMoveClusterAngle(pcAgg, space, bonding, random, 0.1);
+                mcMoveClusterAngle.setSpecies(speciesGas);
+                mcMoveClusterAngle.setBox(box);
+                integrator.getMoveManager().addMCMove(mcMoveClusterAngle);
+
+            }
 
         if (ifSecondGasPresent) {
             MCMoveInsertDelete mcMoveIDTwo = new MCMoveInsertDelete(potentialMasterCell, random, space);
-            mcMoveID.setBox(box);
-            mcMoveID.setMu(mu1);
-            mcMoveID.setSpecies(speciesSecondGas);
-            integrator.getMoveManager().addMCMove(mcMoveID);
+            mcMoveIDTwo.setBox(box);
+            mcMoveIDTwo.setMu(mu2);
+            System.out.println("mu2 " + mu2);
+            mcMoveIDTwo.setSpecies(speciesSecondGas);
+            integrator.getMoveManager().addMCMove(mcMoveIDTwo);
         }
+        //System.out.println(speciesGrapheneOne.getMass());
     }
 
     public static void main(String[] args) throws IOException {
@@ -454,6 +716,9 @@ public class GCMCMOP extends Simulation {
         double temperature = params.temperature;
         Vector centreMOP = params.centreMOP;
         Vector grapheneOne = params.grapheneOne;
+        Vector grapheneTwo = params.grapheneTwo;
+        Vector grapheneThree = params.grapheneThree;
+        Vector grapheneFour = params.grapheneFour;
         Vector centreMOPTwo = params.centreMOPTwo;
         boolean ifGraphenePresent = params.ifGraphenePresent;
         boolean ifSecondGasPresent = params.ifSecondGasPresent;
@@ -474,12 +739,20 @@ public class GCMCMOP extends Simulation {
         double mu2 = params.mu2;
         double sigma = params.sigma;
         List<Integer> muValues = new ArrayList<>();
+        List<String> mu2Values = new ArrayList<>();
+        mu2Values.add(params.geomOne);
         List<Integer> temperatureList = new ArrayList<>();
 
         List<String> mopNames = new ArrayList<>();
-       // mopNames.add(params.confNameEight1);
-        mopNames.add(params.confNameEight2);
-       // mopNames.add(params.confNameEight3);
+        /*mopNames.add(params.confNameGraphene);
+        mopNames.add(params.confNameGrapheneTwo);
+        mopNames.add(params.confNameGrapheneThree);
+        mopNames.add(params.confNameGrapheneFour);
+        mopNames.add(params.confNameGrapheneFive);
+        mopNames.add(params.confNameGrapheneSix);
+        mopNames.add(params.confNameGrapheneSeven);*/
+        mopNames.add(params.confNameEight1);
+
         /*mopNames.add(params.confNameEight4);
         mopNames.add(params.confNameEight5);
         mopNames.add(params.confNameEight6);
@@ -488,16 +761,50 @@ public class GCMCMOP extends Simulation {
         mopNames.add(params.confNameEight9);
         mopNames.add(params.confNameEight10);
         mopNames.add(params.confNameEight11);
-        mopNames.add(params.confNameEight12);
-      //  mopNames.add(params.confNameEight8);
-        mopNames.add(params.confNameEight13);*/
+       /* mopNames.add(params.confNameEight12);
+        mopNames.add(params.confNameEight13);
+        mopNames.add(params.confNameEight14);
+        mopNames.add(params.confNameEight15);
+        mopNames.add(params.confNameEight16);
+        mopNames.add(params.confNameEight17);
+        mopNames.add(params.confNameEight18);
+        mopNames.add(params.confNameEight19);
+        mopNames.add(params.confNameEight20);
+        mopNames.add(params.confNameEight21);
+        mopNames.add(params.confNameEight22);
+        mopNames.add(params.confNameEight23);
+        mopNames.add(params.confNameEight24);
+        mopNames.add(params.confNameEight25);
+        mopNames.add(params.confNameEight26);
+        mopNames.add(params.confNameEight27);
+        mopNames.add(params.confNameEight28);
+        mopNames.add(params.confNameEight29);
+        //mopNames.add(params.confNameEight30);
+        mopNames.add(params.confNameEight31);
+        mopNames.add(params.confNameEight32);
+        mopNames.add(params.confNameEight33);
+        mopNames.add(params.confNameEight34);
+        mopNames.add(params.confNameEight35);
+        mopNames.add(params.confNameEight36);
+        mopNames.add(params.confNameEight37);
+        mopNames.add(params.confNameEight38);
+        mopNames.add(params.confNameEight39);
+        mopNames.add(params.confNameEight40);
+        mopNames.add(params.confNameEight41);
+        mopNames.add(params.confNameEight42);
+        mopNames.add(params.confNameEight43);
+        mopNames.add(params.confNameEight44);
+        mopNames.add(params.confNameEight45);*/
         List<String> mopTypes = new ArrayList<>();
-      //  mopTypes.add(params.geomOne);
-      ///  mopTypes.add(params.geomTwo);
-      //  mopTypes.add(params.geomThree);
-       // mopTypes.add(params.geomFour);
-        mopTypes.add(params.geomFive);
 
+
+        //mopTypes.add(params.geomTwo);
+       // mopTypes.add(params.geomThree);
+      //  mopTypes.add(params.geomFour);
+     /*   mopTypes.add(params.geomFive);
+        mopTypes.add(params.geomSix);
+        mopTypes.add(params.geomSeven);
+        mopTypes.add(params.geomEight);*/
 
       /*  List<Double> mopTypes = new ArrayList<>();
         mopTypes.add(250.0);
@@ -506,7 +813,7 @@ public class GCMCMOP extends Simulation {
         mopTypes.add(310.0);
         mopTypes.add(330.0);
        mopTypes.add(350.0);*/
-        //mopTypes.add(params.confNameEight1);
+        mopTypes.add(params.confNameEight4);
       /*  mopTypes.add(params.confNameEight2);
        mopTypes.add(params.confNameEight3);
         mopTypes.add(params.confNameEight4);
@@ -518,24 +825,76 @@ public class GCMCMOP extends Simulation {
         //mopTypes.add(330.0);
        // mopTypes.add(350.0);
         //mopNames.add(params.geomOne);
-     //   mopNames.add(params.geomTwo);
-       //mopNames.add(params.geomThree);
-       // mopNames.add(params.geomFour);
-      //  mopNames.add(params.geomFive);
 
+        //mopNames.add(params.geomFive)
+        List<double[]> boxLen = new ArrayList<>();
+       // boxLen.add(new double[]{20.0, 20.0, 20.0,});
+        boxLen.add(new double[]{ params.boxZLen,params.boxZLen, params.boxZLen});
+        boxLen.add(new double[]{ 42.712, 42.712, 42.712});//2
+        boxLen.add(new double[]{  43.127, 43.127 , 43.127 });//3
+      /*boxLen.add(new Integer[]{ 40, 40,40 });//4
+        boxLen.add(new Integer[]{ 30, 30,25 });//5
+        boxLen.add(new Integer[]{ 40, 40, 25});//6
+        boxLen.add(new Integer[]{ 40, 40, 40});//7
+        boxLen.add(new Integer[]{ 45, 45,50 });//8
+        boxLen.add(new Integer[]{ 45,45 , 50});//9
+        boxLen.add(new Integer[]{ 80, 50, 50});//10
+        boxLen.add(new Integer[]{ 30,40 ,40 });//11
+        boxLen.add(new Integer[]{ 45, 35,60 });//12
+        boxLen.add(new Integer[]{ 40, 40,30 });//13
+        boxLen.add(new Integer[]{ 40, 40,60 });//14
+        boxLen.add(new Integer[]{ 30, 40,40 });//15
+        boxLen.add(new Integer[]{ 70, 60, 50});//17
+        boxLen.add(new Integer[]{ 45, 45, 60});//18
+        boxLen.add(new Integer[]{ 50, 50, 40});//19
+        boxLen.add(new Integer[]{30 ,30 ,40 });//20
+        boxLen.add(new Integer[]{ 40, 40, 50});//21
+        boxLen.add(new Integer[]{ 40,40 ,40 });//22
+        boxLen.add(new Integer[]{ 70,70 ,70 });//23
+        boxLen.add(new Integer[]{ 60, 60,45 });//24
+        boxLen.add(new Integer[]{ 60, 60, 45});//25
+        boxLen.add(new Integer[]{ 50, 40,45 });//26
+        boxLen.add(new Integer[]{ 40, 30, 40});//27
+        boxLen.add(new Integer[]{ 25,  25,25  }); //28
+        boxLen.add(new Integer[]{40 ,40  ,40  }); //29
+        boxLen.add(new Integer[]{ 50,50  ,40  }); //30
+      //  boxLen.add(new Integer[]{20 , 20 ,20  }); //31
+        boxLen.add(new Integer[]{ 25,25  ,25  }); //32
+        boxLen.add(new Integer[]{ 25,25  ,25  }); //33
+        boxLen.add(new Integer[]{ 17,17  ,17  }); //34
+        boxLen.add(new Integer[]{ 22, 22 ,22  }); //35
+        boxLen.add(new Integer[]{ 30, 30 ,30  }); //36
+        boxLen.add(new Integer[]{ 28,28  , 28 }); //37
+        boxLen.add(new Integer[]{ 35, 35 ,35  }); //38
+        boxLen.add(new Integer[]{ 22, 22 , 22 }); //39
+        boxLen.add(new Integer[]{ 25,  25,  25}); //40
+        boxLen.add(new Integer[]{25 , 25 , 25 }); //41
+        boxLen.add(new Integer[]{ 22,  22,  22}); //42
+        boxLen.add(new Integer[]{ 22,  22,  22}); //43
+        boxLen.add(new Integer[]{ 30,  30,  30}); //44
+        boxLen.add(new Integer[]{ 30,  30,  30}); //45
+        boxLen.add(new Integer[]{ 28,  28,  28}); //46*/
         List<Double> boxLengths = new ArrayList<>();
-        boxLengths.add(100.0);
-        boxLengths.add(40.0);
-        /*boxLengths.add(25.0);
-        boxLengths.add(35.0);
         boxLengths.add(30.0);
+        boxLengths.add(20.0);
+        boxLengths.add(15.0);
+        boxLengths.add(25.0);
+        boxLengths.add(20.0);
+        boxLengths.add(30.0);
+        boxLengths.add(35.0);
+        boxLengths.add(35.0);
         boxLengths.add(40.0);
-        boxLengths.add(50.0);
-        boxLengths.add(50.0);
-        boxLengths.add(50.0);
-        boxLengths.add(65.0);
-        boxLengths.add(60.0);
-        boxLengths.add(60.0);*/
+        boxLengths.add(40.0);
+        boxLengths.add(40.0);
+       /* boxLengths.add(22.0);
+        boxLengths.add(25.0);
+        boxLengths.add(25.0);
+        boxLengths.add(22.0);
+        boxLengths.add(22.0);*/
+      //  boxLengths.add(22.0);
+       // boxLengths.add(25.0);
+      //  boxLengths.add(28.0);
+     //   boxLengths.add(60.0);
         /* for (int beta =0; beta<6; beta++){
             double sideNew = params.side + beta * 10;
             mopNames.add(sideNew);
@@ -546,12 +905,37 @@ public class GCMCMOP extends Simulation {
       //  gasNames.add(params.geomFive);
        // gasNames.add(params.confNamegasOne);
         //gasNames.add(params.confNameGasTwo);
+        List<String> filNames = new ArrayList<>();
+        filNames.add(params.fileOutPutName1);
+        filNames.add(params.fileOutPutName2);
+       // filNames.add(params.fileOutPutName3);
+        //filNames.add(params.fileOutPutName4);
+       // filNames.add(params.fileOutPutName5);
+       // filNames.add(params.fileOutPutName6);
+       /// filNames.add(params.fileOutPutName7);
+      //  filNames.add(params.fileOutPutName8);
+        /*filNames.add(params.fileOutPutName9);
+        filNames.add(params.fileOutPutName10);
+        filNames.add(params.fileOutPutName11);
+        filNames.add(params.fileOutPutName12);
+        filNames.add(params.fileOutPutName13);
+        filNames.add(params.fileOutPutName14);
+        filNames.add(params.fileOutPutName15);
+        filNames.add(params.fileOutPutName16);*/
 
         List<String> gasSim = new ArrayList<>();
         gasSim.add(params.confNamegas);
-        gasSim.add(params.confNamegasOne);
-       // gasSim.add(params.confNameGasTwo);
-        //gasSim.add(params.confNameGasThree);
+       /* gasSim.add(params.confNamegasOne);
+        gasSim.add(params.confNameGasTwo);
+        gasSim.add(params.confNameGasThree);
+        gasSim.add(params.confNamegasFour);
+        gasSim.add(params.confNamegasFive);
+        gasSim.add(params.confNamegasSix);
+        gasSim.add(params.confNamegasSeven);
+        gasSim.add(params.confNamegasEight);
+        gasSim.add(params.confNamegasNine);
+        gasSim.add(params.confNamegasTen);
+        gasSim.add(params.confNamegasEleven);*/
 
        // mopTypes.add(params.confNameEight1);
        // mopTypes.add(params.confNameEight2);
@@ -565,40 +949,59 @@ public class GCMCMOP extends Simulation {
        for (int i = (int) mu1; i>params.muLimit; i= (int) (i+muDecrease)){
             muValues.add(i);
         }
+     /*   for (int i = (int) mu1; i>params.muLimit; i= (int) (i+muDecrease)){
+            mu2Values.add(i);
+        }*/
+
         System.out.println(muValues);
+       /*List<Integer> numBins = new ArrayList<>();
+       numBins.add(params.numBins1);
+        numBins.add(params.numBins2);
+        numBins.add(params.numBins3);*/
+        //numBins.add(params.numBins4);
+       /* numBins.add(params.numBins5);
+        numBins.add(params.numBins6);
+        numBins.add(params.numBins7);
+        numBins.add(params.numBins8);*/
        // System.out.println(boxSize);
         //System.out.println(truncatedRadius);
        // System.out.println("Geom "+ gasNames.get(0));
      //   String geom = params.geomOne;
-
+        int num = 0;
+        String confNameMOPOne = new String("");
 
         System.out.println(temperature);
 
         //String confNameMOPOne = params.confNameEight1;
-        for(int gamma = 0; gamma< mopTypes.size(); gamma++) {
-            String geom = mopTypes.get(gamma);
+        for(int gamma = 0; gamma< mu2Values.size(); gamma++) {
+          /*  String geom = mopTypes.get(gamma);
+            System.out.println("geomNames " +geom);*/
+           // mu2 = mu2Values.get(gamma);
+            String geom =mu2Values.get(gamma);
             for (int a = 0; a < gasSim.size(); a++) {
                 String gasSimAct = gasSim.get(a);
                 System.out.println(gasSimAct);
-
+                //String fileOutPutName = filNames.get(a);
                 // double sideLength = params.boxSize.getX(0);
                 for (int p = 0; p < mopNames.size(); p++) {
                     // double temperature = mopNames.get(p);
-                    String confNameMOPOne =mopNames.get(p);
-                    double boxLength = boxLengths.get(p);
-                    Vector boxSizeAct = new Vector3D(boxLength, boxLength, boxLength);
-                    truncatedRadiusLJ = boxLength/2;
-                    System.out.println("Box " + boxSizeAct+ " "+ truncatedRadiusLJ+ " "+ geom);
+                    confNameMOPOne =mopNames.get(p);
+
+                    double[] intn = boxLen.get(0);
+                    Vector boxSizeAct = Vector.of(intn[0], intn[1], intn[2]) ;
+                    truncatedRadiusLJ = 12.5;
+                    System.out.println("Box " + boxSizeAct+ " "+ truncatedRadiusLJ+ " ");
                     //System.out.println(temperature);
-                    System.out.println(confNameMOPOne);
+                  //  System.out.println(confNameGraphene);
                     //System.out.println(geom);
                     //   System.out.println("mu "+ -2600);
                     for (int i = 0; i < muValues.size(); i++) {
-                        int numSteps = params.numSteps;
+                        long numSteps = params.numSteps;
                         int mu = muValues.get(i);
-
-                        System.out.println(mu);
-                        GCMCMOP sim = new GCMCMOP(confNameMOPOne, gasSimAct, gasSimAct, confNameGraphene, params.struc, geom, centreMOP, centreMOPTwo, grapheneOne, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSizeAct, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent, ifautoMOP);
+                        System.out.println("mu1 " + mu);
+                        //  int mu = -3500;
+                        //System.out.println("temperature " + params.temperature);
+                        GCMCMOP sim = new GCMCMOP(confNameMOPOne, gasSimAct, params.confNameGasTwo, confNameGraphene, params.struc, geom, centreMOP, centreMOPTwo, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSizeAct, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent, ifautoMOP, params.ifXYZfile);
                         if (massMembrane < 1) {
                             massMembrane = 1;
                         }
@@ -622,18 +1025,19 @@ public class GCMCMOP extends Simulation {
                             massMOP = 1;
                         }
                         //  System.out.println(sim.speciesMOP.getMass());
-
+                        //  System.out.println(confNameGraphene);
                         if (doGraphics) {
                             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "GCMC");
                             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
                             if (ifMOPPresent) {
                                 //  dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
-                         dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
-                         dhbt.setDiameter(sim.speciesMOP.getAtomType(1), 0.8);
+                                // dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
+                                // dhbt.setDiameter(sim.speciesMOP.getAtomType(1), 0.8);
+                                // dhbt.setDiameter(sim.speciesMOP.getTypeByName("Cu"), 1);
                         /* dhbt.setDiameter(sim.speciesMOP.getAtomType(2), 0.8);
                          dhbt.setDiameter(sim.speciesMOP.getAtomType(3), 0.8);
                          dhbt.setDiameter(sim.speciesMOP.getAtomType(4), 0.8);*/
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomTypes().get(0), Color.green);
+                                // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomTypes().get(0), Color.green);
                                 // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomTypes().get(1), Color.red);
                                 // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomTypes().get(2), ColorExtra.goldenRod);
                                 // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomTypes().get(3), ColorExtra.gray);
@@ -642,21 +1046,24 @@ public class GCMCMOP extends Simulation {
                             }
 
                             if (ifGraphenePresent) {
-                                for (int j = 0; i < sim.speciesGrapheneOne.getUniqueAtomTypes().size(); i++) {
+                               /* for (int j = 0; j < sim.speciesGrapheneOne.getUniqueAtomTypes().size(); i++) {
                                     dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(j), 1.5);
-                                }
+                                }*/
                                 dhbt.setDiameter(sim.speciesGas.getAtomType(0), 1.5);
+                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(1), 1.5);
+                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(2), 1.5);
+                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(3), 1.5);
                                 //dhbt.setDiameter(sim.speciesGas.getAtomType(1), 1);
                                 //dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(0), 1.2);
-                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(1), 1.2);
-                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(2), 1.2);
-                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(3), 0.8);
-                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(4), 1.2);
+                                //   dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(0), 1.2);
+                                //  dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(2), 1.2);
+                                //  dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(3), 0.8);
+                            /*    dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(4), 1.2);
                                 dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(5), 1.2);
                                 dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(6), 1.2);
                                 dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(7), 1.2);
-                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(8), 1.2);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("CX"), Color.darkGray);
+                                dhbt.setDiameter(sim.speciesGrapheneOne.getAtomType(8), 1.2);*/
+                               /* ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("CX"), Color.darkGray);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("CY"), Color.darkGray);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("CZ"), Color.darkGray);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("C4"), ColorExtra.darkGray);
@@ -668,19 +1075,22 @@ public class GCMCMOP extends Simulation {
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("C4"), Color.darkGray);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("HK"), ColorExtra.Violet);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("OJ"), ColorExtra.gold);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("OK"), ColorExtra.cornflowerblue);
+                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getTypeByName("OK"), ColorExtra.cornflowerblue);*/
 
                             }
 
                             if (ifGraphenePresent) {
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(0), Color.gray);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(1), Color.gray);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(2), ColorExtra.lightcyan);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(3), Color.red);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(4), Color.gray);
+                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(0), Color.darkGray);
+                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(1), Color.darkGray);
+                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(2), ColorExtra.firebrick);
+                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(3), ColorExtra.lightGray);
+                                //  ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(1), Color.darkGray);
+                                //  ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(2), ColorExtra.darkRed);
+                                // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(3), Color.lightGray);
+                             /*   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(4), Color.gray);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(5), ColorExtra.lightcyan);
                                 ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(6), ColorExtra.lightcyan);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(7), ColorExtra.lightcyan);
+                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGrapheneOne.getAtomType(7), ColorExtra.lightcyan);*/
                             }
 
 
@@ -693,17 +1103,23 @@ public class GCMCMOP extends Simulation {
                     dhbt.setDiameter(sim.speciesMOP.getAtomType(4), 2);
                     dhbt.setDiameter(sim.speciesGas.getAtomType(0), 1.5);*/
                                 // dhbt.setDiameter(sim.speciesGas.getAtomType(1), 1);
-                                ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(0), ColorExtra.copper);
-                  /*  ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(1), ColorExtra.red);
-                    ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(2), ColorExtra.blue);
-                    ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(3), ColorExtra.gray);
-                    ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(4), ColorExtra.firebrick);*/
+                                // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(0), ColorExtra.copper);
+                                //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(1), ColorExtra.red);
+                                // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(2), ColorExtra.red);
+                                // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(3), ColorExtra.red);
+                                //   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(4), ColorExtra.lightcyan);
+                                // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(5), ColorExtra.darkGray);
+                                //   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(6), ColorExtra.red);
+                                //   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(7), ColorExtra.blue1);
+                                //   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesMOP.getAtomType(8), ColorExtra.lightcyan);
+                                //   ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGas.getAtomType(0), ColorExtra.tomato);
+                                //((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGas.getAtomType(1), ColorExtra.lightseagreen);
                             }
 
                             if (ifSecondGasPresent) dhbt.setDiameter(sim.speciesSecondGas.getAtomType(0), 1.5);
                             //if(ifSecondGasPresent)dhbt.setDiameter(sim.speciesSecondGas.getAtomType(1), 1);
 
-                            dhbt.setDiameter(sim.speciesGas.getAtomType(0), 3.5);
+                        //    dhbt.setDiameter(sim.speciesGas.getAtomType(0), 3.5);
                             // dhbt.setDiameter(sim.speciesGas.getAtomType(1), 3);
                             ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGas.getAtomType(0), ColorExtra.lightseagreen);
                             // ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.speciesGas.getAtomType(1), ColorExtra.salmon);
@@ -717,9 +1133,9 @@ public class GCMCMOP extends Simulation {
 
                         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
                         int pInterval = 2;
-                        int bs = params.numSteps / (pInterval * 5);
+                        long bs = params.numSteps / (pInterval * 5);
                         if (bs == 0) bs = 1;
-                /* MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
+             /*   MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
                 pMeter.setTemperature(sim.integrator.getTemperature());
                 AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
                 DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, pInterval);
@@ -742,13 +1158,17 @@ public class GCMCMOP extends Simulation {
                             nMoleculesGasTwo.setSpecies(sim.speciesSecondGas);
                         }
                         MeterDensity densityMeter = new MeterDensity(sim.box);
-                        int numsBins = params.numBins;
+                        // System.out.println(" gamma "+gamma);
+                        //   int numsBins = numBins.get(gamma);
+                        // System.out.println(numBins);
                         DoubleRange numBox = new DoubleRange(-(boxSizeAct.getX(0)) / 2, (boxSizeAct.getX(0)) / 2);
-                        if (params.doHistogram) {
-                            System.out.println("Numbins " + numsBins);
-                            HistogramVectorSimple histogramVectorSimple = new HistogramVectorSimple(numsBins, numsBins, numsBins, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
-                            histogramVectorSimple.actionPerformed();
-                        }
+                        //   if (params.doHistogram) {
+                        // System.out.println("Numbins " + numsBins);
+                        HistogramVectorSimple histogramVectorSimple = new HistogramVectorSimple(params.numBins1, params.numBins1, params.numBins1, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
+                       // histogramVectorSimple.actionPerformed();
+
+                        //     HistogramVectorEnergy histogramVectorEnergy = new HistogramVectorEnergy(params.numBins1, params.numBins1, params.numBins1, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
+                        // }
 
                         //     long[][][] count = histogramVectorSimple.getCounts();
                         // System.out.println(Arrays.deepToString(count));
@@ -757,30 +1177,46 @@ public class GCMCMOP extends Simulation {
                         densityMeter.setSpecies(sim.speciesGas);
                         DataPumpListener pumpDensity = new DataPumpListener(densityMeter, densityAccumulator);
                         sim.integrator.getEventManager().addListener(pumpDensity);
-
+                        MeterDensity densityMeterGasTwo = new MeterDensity(sim.box);
+                        AccumulatorAverage densityAccumulatorGastwo = new AccumulatorAverageFixed(bs);
                         if (ifSecondGasPresent) {
-                            MeterDensity densityMeterGasTwo = new MeterDensity(sim.box);
-                            AccumulatorAverage densityAccumulatorGastwo = new AccumulatorAverageFixed(bs);
                             densityMeterGasTwo.setSpecies(sim.speciesSecondGas);
                             DataPumpListener pumpDensityGasTwo = new DataPumpListener(densityMeterGasTwo, densityAccumulatorGastwo);
                             sim.integrator.getEventManager().addListener(pumpDensityGasTwo);
                         }
-                        if (params.doHistogram) {
-                            final Vector[] vec = {new Vector3D(), new Vector3D(), new Vector3D()};
-                            IMoleculeList molecules = sim.box.getMoleculeList(sim.speciesGas);
-                            final HistogramVectorSimple targHist = new HistogramVectorSimple(numsBins, numsBins, numsBins, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
+                        IMoleculeList molecules = sim.box.getMoleculeList(sim.speciesGas);
 
+
+                        if (params.doHistogramEnergy) {
+                            final HistogramVectorSimple targHist = new HistogramVectorSimple(params.numBins1, params.numBins1, params.numBins1, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
+                            final HistogramVectorEnergy targHistEnergy = new HistogramVectorEnergy(params.numBins1, params.numBins1, params.numBins1, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
                             IntegratorListener histListenerTarget = new IntegratorListener() {
                                 public void integratorStepStarted(IntegratorEvent e) {
                                 }
 
                                 public void integratorStepFinished(IntegratorEvent e) {
                                     for (int v = 0; v < molecules.size(); v++) {
-                                        vec[0] = molecules.get(v).getChildList().get(0).getPosition();
-                                        vec[1] = molecules.get(v).getChildList().get(0).getPosition();
-                                        vec[2].Ev1Pv2(vec[0], vec[1]);
-                                        vec[2].TE(0.5);
-                                        targHist.addValue(vec[2].getX(0), vec[2].getX(1), vec[2].getX(2));
+                                        double uNew = sim.integrator.getPotentialCompute().computeOneMolecule(molecules.get(v));
+                                        Vector vec = CenterOfMass.position(sim.box, molecules.get(v));
+                                        targHistEnergy.addValue(vec.getX(0), vec.getX(1), vec.getX(2), uNew);
+                                    }
+                                }
+
+                                public void integratorInitialized(IntegratorEvent e) {
+                                }
+                            };
+                            sim.integrator.getEventManager().addListener(histListenerTarget);
+                        }
+
+                        if (params.doHistogramSimple) {
+                            IntegratorListener energyHistListener = new IntegratorListener() {
+                                public void integratorStepStarted(IntegratorEvent e) {
+                                }
+
+                                public void integratorStepFinished(IntegratorEvent e) {
+                                    for (int v = 0; v < molecules.size(); v++) {
+                                        Vector vec = CenterOfMass.position(sim.box, molecules.get(v));
+                                        targHist.addValue(vec.getX(0), vec.getX(1), vec.getX(2));
                                     }
 
                                 }
@@ -788,14 +1224,67 @@ public class GCMCMOP extends Simulation {
                                 public void integratorInitialized(IntegratorEvent e) {
                                 }
                             };
-
-
                             System.out.println("collecting histograms");
 
 
                             // only collect the histogram if we're forcing it to run the reference system
-                            sim.integrator.getEventManager().addListener(histListenerTarget);
+
+                            sim.integrator.getEventManager().addListener(energyHistListener);
                         }
+                       /* HistorgamEnergy2D ehist =
+                                new HistorgamEnergy2D(
+                                        100, 100,       // energy bins, gradient bins
+                                        -50, 20,        // E_min, E_max (kJ/mol)
+                                        0, 50           // G_min, G_max
+                                );
+                        MeterWidomInsertion meterWidomInsertion = new MeterWidomInsertion(sim.box, sim.random, potentialCompute, temperature);
+                        RandomPositionSource randomPositionSource = new RandomPositionSource() {
+                            @Override
+                            public void setBox(Box box) {
+
+                            }
+
+                            @Override
+                            public Vector randomPosition() {
+                                return null;
+                            }
+                        };
+                        meterWidomInsertion.setPositionSource(randomPositionSource);
+                        if (params.doHistogramEnergy2D) {
+                            IntegratorListener gridEnergyListener = new IntegratorListener() {
+                                public void integratorInitialized(IntegratorEvent e) {}
+
+                                public void integratorStepStarted(IntegratorEvent e) {}
+
+                                public void integratorStepFinished(IntegratorEvent e) {
+
+                                    Box box = sim.box;
+                                    double L = box.getBoundary().getBoxSize().getX(0);
+                                    double spacing = 0.5; // Å
+
+                                    for (double x = -L/2; x < L/2; x += spacing) {
+                                        for (double y = -L/2; y < L/2; y += spacing) {
+                                            for (double z = -L/2; z < L/2; z += spacing) {
+
+                                                Vector3D pos = new Vector3D(x, y, z);
+                                                // Compute Widom insertion energy
+                                                double pot = sim.integrator.getPotentialCompute().computeOneMolecule(molecules.get(0));
+
+                                                // Compute gradient
+                                              //  Vector3D grad = pot.computeOneParticleForce(pos, sim.speciesGas);
+                                            //    double G = grad.norm(); // |∇E|
+
+                                            //    ehist.add(E, G);
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+
+                            sim.integrator.getEventManager().addListener(gridEnergyListener);
+
+
+                        }*/
                         long t1 = System.currentTimeMillis();
                         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
                         long t2 = System.currentTimeMillis();
@@ -803,15 +1292,15 @@ public class GCMCMOP extends Simulation {
                         //  System.out.println("runtime: " + (t2 - t1) * 0.001);
                         Unit pUnit = Bar.UNIT;
                         //     Unit MegaPascal = new PrefixedUnit(Prefix.MEGA, Pascal.UNIT);
-             /*  Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
-                double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
+               /*Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
+              double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
                 double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
                 double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
+                        System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);*/
              //   System.out.println("P (MPa) " + MegaPascal.fromSim(avgP) + " MPa " + MegaPascal.fromSim(errP) + " " + corP);
-                 System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);
-                System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);*/
+               //  System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);
                         //double muR = Constants.BOLTZMANN_K * temperature * Math.log(avgP/temperature);
-                        //System.out.println("muR: " + muR);
+                        //System.out.println("muR: " + muR);*/
 
                         double avgRho = densityAccumulator.getData(densityAccumulator.AVERAGE).getValue(0);
                         double errRho = densityAccumulator.getData(densityAccumulator.ERROR).getValue(0);
@@ -820,6 +1309,7 @@ public class GCMCMOP extends Simulation {
                         Unit dm3 = new CompoundUnit(new Unit[]{dm}, new double[]{3});
                         Unit m3 = new CompoundUnit(new Unit[]{Meter.UNIT}, new double[]{3});
                         Unit kgm3 = new UnitRatio(new PrefixedUnit(Prefix.KILO, Gram.UNIT), m3);
+                        Unit kJmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
                         //Unit moldm3 = new UnitRatio(Mole.UNIT, Liter.UNIT);
                         Unit cm = new PrefixedUnit(Prefix.CENTI, Meter.UNIT);
                         Unit cm3 = new CompoundUnit(new Unit[]{cm}, new double[]{3});
@@ -831,7 +1321,18 @@ public class GCMCMOP extends Simulation {
                         double errnum = errRho * sim.box.getBoundary().volume();
                         //    System.out.println(sim.box.getBoundary().volume()+ " volume");
                         double cornum = corRho;
-                        System.out.println("Num atoms : " + numAtomsAvg + " " + errnum + " " + cornum);
+                        Unit kilogram = new PrefixedUnit(Prefix.KILO, Gram.UNIT);
+                       // double mopMass = sim.speciesMOP.getMass();
+                      //  System.out.println(sim.speciesGrapheneOne.getMass());
+                     //   double grapheneMass = sim.speciesGrapheneOne.getMass();
+                     //   double mmolPg = (numAtomsAvg* 1000)/(grapheneMass * 4);
+                        //double errmmolPg = (errnum* 1000)/mopMass;
+                        //Unit moleperKilo = new UnitRatio(Mole.UNIT, kilogram);
+                        double err1 = errnum *100 / numAtomsAvg;
+                        System.out.println("Num atoms One : " + numAtomsAvg + " " + errnum  +" "+ err1 );
+                       // double massPer = (numAtomsAvg* sim.speciesGas.getMass())/((sim.speciesMOP.getMass())+ (numAtomsAvg* sim.speciesGas.getMass()));
+                       // System.out.println("mass Per " +massPer*100);
+                        //System.out.println("mol/mass : "+ numAtomsAvg/ sim.speciesMOP.getMass() + " "+ sim.speciesMOP.getMass() + " " + moleperKilo.fromSim(numAtomsAvg/ sim.speciesMOP.getMass()));
                         //  System.out.println("Actual "+ avgRho);
                         //System.out.println("nm " + nm3.fromSim(sim.box.getBoundary().volume()));
                         //System.out.println("Num atoms : " + numAtomsAvg + " " + errnum + " " + cornum + " " + (sim.speciesGas.getMass()*numAtomsAvg*1000/sim.speciesMOP.getMass()));
@@ -860,12 +1361,19 @@ public class GCMCMOP extends Simulation {
                         //System.out.println("Atoms gas One: " +numAtomGasOne);
 
                         if (ifSecondGasPresent) {
-                            double numAtomGasTwo = nMoleculesGasTwo.getDataAsScalar();
-                            System.out.println("Atoms gas Two: " + numAtomGasTwo);
+                            double avgRho2 = densityAccumulatorGastwo.getData(densityAccumulator.AVERAGE).getValue(0);
+                            double errRho2 = densityAccumulatorGastwo.getData(densityAccumulator.ERROR).getValue(0);
+                            double corRho2 = densityAccumulatorGastwo.getData(densityAccumulator.BLOCK_CORRELATION).getValue(0);
+                            double numAtomsAvg2 = avgRho2 * sim.box.getBoundary().volume();
+                            double errnum2 = errRho2 * sim.box.getBoundary().volume();
+                            double err2 = errnum2 * 100 / numAtomsAvg2;
+                            //System.out.println("Num atoms : " + numAtomsAvg +" "+numAtomsAvg2);
+                          //  System.out.println("Error " + err1 +" "+ err2+" \n");
                         }
+
 //        System.out.println(numAtomsAvg*sim.speciesGas.getMass()*100/(sim.speciesGrapheneOne.getMass()) + " " +numAtomsAvg*sim.speciesGas.getMass()+ " "+sim.speciesGrapheneOne.getMass());
                         //System.out.println("rho (kg/m3) " + kgm3.fromSim(avgRho) + " " + kgm3.fromSim(errRho) + " " + corRho);
-                        System.out.println("rho " + (avgRho) + " " + errRho + " " + corRho + " " + (errRho / avgRho) * 100);
+                      //  System.out.println("rho " + (avgRho) + " " + errRho + " " + corRho + " " + (errRho / avgRho) * 100 );
                         //System.out.println("\n");
                         // System.out.println("uptake  " + 22.414 * kgm3.fromSim(avgRho) / sim.speciesGas.getMass());
                         // System.out.println("Rho (mol/dm3) " + moldm3.fromSim(avgRho) + " " +errRho + " " +corRho);
@@ -874,24 +1382,18 @@ public class GCMCMOP extends Simulation {
                         //   other sims have significant correlation
                         // 4 sigma should fail 1 in 16,000 runs
 
-                        double expectedP = 0.0815; // finite size effect smaller than uncertainty
-                        double stdevP = 0.03;
-       /* if (Double.isNaN(avgP) || Math.abs(avgP - expectedP) / stdevP > 4) {
-            System.exit(1);
-        }*/
-
-
                         double expectedPE = -4.492; // finite size effect comparable to uncertainty
                         double stdevPE = 0.09;
-                        if (params.doHistogram) {
-                            double[][][] count = targHist.getHistogram();
+                        if (params.doHistogramEnergy) {
+                            HistogramVectorEnergy targHistEnergy = new HistogramVectorEnergy(params.numBins1, params.numBins1, params.numBins1, numBox, numBox, numBox, sim.speciesGas, sim.box, numSteps);
+                            long[][][] count = targHistEnergy.getCounts();
+                            double[][][] histN = targHistEnergy.getEnergyHist();
                             // System.out.println(Arrays.deepToString(count));
                             // }
-
-                            String filePath = params.fileOutPutName;
+                            String filePath = filNames.get(num);
 
                             try {
-                                FileWriter writer = new FileWriter(filePath);
+                                FileWriter writer = new FileWriter(filNames.get(0));
 
                                 String deepString = Arrays.deepToString(count);
                                 writer.write(deepString);
@@ -903,59 +1405,50 @@ public class GCMCMOP extends Simulation {
                                 System.out.println("An error occurred while saving the file.");
                                 e.printStackTrace();
                             }
+                           num ++;
+                        try {
+                            FileWriter writer = new FileWriter(filNames.get(1));
+
+                            String deepString1 = Arrays.deepToString(histN);
+                            writer.write(deepString1);
+
+                            writer.close();
+                            System.out.println("Histogram successfully saved to " + filePath);
+
+                        } catch (IOException e) {
+                            System.out.println("An error occurred while saving the file.");
+                            e.printStackTrace();
                         }
-
-
-           /* if (Double.isNaN(avgPE) || Math.abs(avgPE - expectedPE) / stdevPE > 4) {
-                System.exit(2);
-            }
-            double[] boxDimension = boxSize.toArray();
-            // System.out.println(sim.speciesGrapheneOne.getMass()*2/(boxDimension[0]* boxDimension[1]*boxDimension[2]));
-            double expectedRho = 0.65; // finite size effect smaller than uncertainty
-            double stdevRho = 0.006;
-
-            if (Double.isNaN(avgRho) || Math.abs(avgRho - expectedRho) / stdevRho > 4) {
-                System.exit(3);
-            }*/
-                        //  System.out.println("\n");
-
+                       }
 
                     }
-                    //  System.out.println("\n");
-
-
-
-                // System.out.println("\n");
-
-
-
+                }
+                double t2 = System.nanoTime();
+                System.out.println((t2 - t1Start) / Math.pow(10, 9));
             }
-            }
-            double t2 = System.nanoTime();
-            System.out.println((t2 - t1Start) / Math.pow(10, 9));
-            //int numSteps = params.numSteps;
         }
-
-
     }
+
    public Integrator getIntegrator(){
        return integrator;
    }
     public static class GCMCMOPParams extends ParameterBase {
         public Vector grapheneThirteen = new Vector3D(15.0,15.0, 60.0);
-        public Vector grapheneOne = new Vector3D(15.0,15.0, 0.0);
-        public Vector grapheneTwo = new Vector3D(0,0, -38.5);
-        public Vector grapheneSix = new Vector3D(0,0, -19.5);
-        public Vector grapheneThree = new Vector3D(0,0, 19.5);
+        public Vector grapheneOne = new Vector3D(0.0,0.0, 4.0);
+        public Vector grapheneTwo = new Vector3D(0,0, -4.0);
+        public Vector grapheneThree = new Vector3D(0,0, 12.0);
+        public Vector grapheneFour = new Vector3D(0,0, -12.0);
         public Vector grapheneSeven = new Vector3D(0,0, 38.5);
-        public Vector grapheneFour = new Vector3D(15.0,15.0, 30.0);
+        public Vector grapheneSix = new Vector3D(0,0, -19.5);
+
         public Vector grapheneNine = new Vector3D(15.0,15.0, 40.0);
         public Vector grapheneTen = new Vector3D(15.0,15.0, 50.0);
         public Vector grapheneFive = new Vector3D(15.0,15.0, -10.0);
         public Vector grapheneEight = new Vector3D(15.0,15.0, -40.0);
         public Vector grapheneEleven = new Vector3D(15.0,15.0, -50.0);
         public Vector grapheneTwelve = new Vector3D(15.0,15.0, -60.0);
-        public double mu2 = -1900;
+        public String confNameEight1 = "D:\\Sem-IX\\papers\\C5DT04764A\\01mop";
+        public String confNameEight4 = "D:\\Sem-IX\\papers\\Automatic\\Automatic1\\folderCopy\\acsami8b02015\\5";
         public Vector centreMOPTwo = new Vector3D(0.0,0.0,30);
         public Vector centreMOP = new Vector3D(0.0,0.0,-30);
         public Vector centreMOPThree = new Vector3D(0.0,0.0,-50);
@@ -965,69 +1458,93 @@ public class GCMCMOP extends Simulation {
 
         public double sigma =2.7;
         public boolean makeAllMove = false;
-        public boolean doHistogram = false;
-        public String confNamegas = "F://Avagadro//molecule//ch4" ;
-        public String confNamegasOne = "F://Avagadro//molecule//ethane" ;
-        public String confNameGasTwo = "F://Avagadro//molecule//Ar" ;
-        public String confNameGasThree = "F://Avagadro//molecule//ethane" ;
-        public String confNamegasFour = "F://Avagadro//molecule//propene" ;
-        public int numSteps =1000000;
-        public int numBins = 20;
-        public double temperature = 298;
-        public double mu1 = -2750;
-        public double muDecrease = -500;
-        public int muLimit = -2755;
+        public boolean doHistogramSimple = false;
+        public boolean doHistogramEnergy = false;
+        public boolean doHistogramEnergy2D = false;
         public boolean ifCOF = false;
         public String confNameCOF = "F://Avagadro//mop//tetra_CuCOOCH3";
-        public String confNameGraphene = "F://Avagadro//holeGO60";
+        public double boxZLen = 30;
+        public double graphenezOne = -6.25;
+        public double graphenezTwo = 6.25;
+        public double graphenezThree = 18.75;
+        public double graphenezFour = -18.75;
+        public String confNameGraphene = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_15_00";
+        public String confNameGrapheneTwo = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_05_00";
+        public String confNameGrapheneThree = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_15_00";
+        public String confNameGrapheneFour = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_25_00";
+        public String confNameGrapheneFive = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_35_00";
+        public String confNameGrapheneSix = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_45_00";
+        public String confNameGrapheneSeven = "D:\\Sem-IX\\GO\\GOSheets\\GO_sheets1\\go3030_55_00";
+        public Vector boxSize = new Vector3D(16, 16, 16);
+        public double temperature = 298;
+        public double mu2 = -470;
+        public double mu1 = -2620;
+        public double muDecrease = -20;
+        public int muLimit = -2621;
+        public long numSteps =1000000;
+       // public double side =50.0;
+        public boolean ifXYZfile = false;
 
-     //   public Vector boxSize = new Vector3D(16, 16, 16);
+        public String confNamegas = "cisbutene";
+        public String confNamegasOne = "1butene" ;
+        public String confNameGasTwo = "13butadiene" ;
+        public String confNameGasThree = "methylpropane" ;
+        public String confNamegasFour = "methylpropene" ;
+        public String confNamegasFive = "cisbutene" ;
+        public String confNamegasSix = "transbutene" ;
+        public String confNamegasSeven = "ethane" ;
+        public String confNamegasEight = "ethene" ;
+        public String confNamegasNine = "ch4" ;
+        public String confNamegasTen = "propane" ;
+        public String confNamegasEleven = "propene" ;
+        public boolean isGasTraPPE = true;
+        public double sizeOne =29.28;
+        public double sizeTwo = 49.0051;
+        public double sizeThree = 38.5022;
+        public String geomOne = "icosa" ;
+       /* public String confNameEight1 ="D:\\Sem-IX\\papers\\All\\Gong,Wang\\1";
+        public String confNameEight1 ="D:\\Sem-IX\\papers\\acs.cgd.6b00306\\1424706\\01";//tetra_cu
+*/
+       // public String confNameEight1 = "D:\\Sem-IX\\papers\\Automatic\\cif_by_doi_all\\101002anie201507295\\1";
 
-       ;
-        public double sizeOne =100;
-        public double sizeTwo = 80;
-        public double sizeThree = 85;
-        public double sizeFour = 105;
-        public double sizeFive = 70;
-        public String geomOne = "tetra" ;
-        public String geomTwo = "octa" ;
-        public String geomThree = "icosa" ;
-        public String geomFour = "dodeca" ;
-        public String geomFive = "tetra" ;
-        public String confNameEight1 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c9";
+        public String geomTwo = "trunOcta" ;
+        public String geomThree = "trunIcosa" ;
+        public String geomFour = "rhomCubOcta" ;
+        public String geomFive = "trunDodeca" ;
+        public String geomSix = "trunCube" ;
+        public String geomSeven = "trunOcta" ;
+        public String geomEight = "trunTetra" ;
 
-        public boolean doGraphics = true;
-        public double side =100;
-        public String fileOutPutName = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c7mod";
-        public String confNameEight2 ="F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c5mod";
-        public String confNameEight3 = "D:\\Sem-VIII\\sorption\\05_19\\actualMOPs\\tetra_c8";
-        public String confNameEight4 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c5mod";
-        public String confNameEight5 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c6mod";
-        public String confNameEight6 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c7mod";
-        public String confNameEight7 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c8mod";
-        public String confNameEight8 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c9mod";
-        public String confNameEight9 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c10mod";
-        public String confNameEight10 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c11mod";
-        public String confNameEight11 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c12mod";
-        public String confNameEight12 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c13mod";
-        public String confNameEight13 = "F:\\Avagadro\\mop\\mop3\\mopparts\\new\\Cu_c14";
-        public Vector boxSize = new Vector3D(side, side, side);
-        public double truncatedRadiusLJ =sizeOne/2;
+
+        public double sizeFour = 20;
+        public double sizeFive =35;
+        public double sizeSix = 20;
+        public double sizeSeven = 20;
+        public double sizeEight = 15;
+       // public int numBins1 = (int) ((int) sizeOne  );
+      //  public int numBins2 = (int) ((int) sizeTwo );
+       /// public int numBins3 = (int) ((int) sizeThree );
+       // public int numBins4 = (int) ((int) sizeThree );
+        public int numBins1 = 45;
+
+        public int numBins6 = 40;
+        public int numBins7 = 40;
+        public int numBins8 = 30;
+        public String fileOutPutName1 = "D:\\Sem-IX\\papers\\Automatic\\Automatic1\\acami8b2015_5_ethane.txt";
+        public String fileOutPutName2 = "D:\\Sem-IX\\papers\\Automatic\\Automatic1\\acami8b2015_5_methane.txt";
+        public String fileOutPutName3 = "D:\\Sem-IX\\09_26\\augustyniakethene.txt";
+       // public Vector boxSize = new Vector3D(sizeOne, sizeTwo, sizeThree);
+        public double truncatedRadiusLJ =12.8;
         public double truncatedRadius = truncatedRadiusLJ;
         public String struc = "edge";
-
         public boolean doFFAnalaysis = true;
-        //Forcefield for gas/MOP/GO (options : UFF, TRAPPE, GAFF, OPLSAA, DREIDING)
-        public String doGasFF = "TRAPPE";
-        public String doMOPFF = "UFF";
-        public String doGOFF = "GAFF";
-        public boolean ifautoMOP = true;
+        public boolean doGraphics = false;
+        public boolean ifautoMOP = false;
         public boolean isGasCOMPASS = false;
-        public boolean isGasTraPPE = false;
         public boolean ifGraphenePresent = false;
-        public boolean ifMultipleGraphenePresent = false;
+        public boolean ifMultipleGraphenePresent = true;
         public boolean ifSecondGasPresent = false;
-        public boolean ifMOPPresent = true;
+        public boolean ifMOPPresent = false;
         public boolean ifMoveRotateMoves = true;
         public boolean doElectrostatics = false;
         public boolean doMOPPDBOutput = false;

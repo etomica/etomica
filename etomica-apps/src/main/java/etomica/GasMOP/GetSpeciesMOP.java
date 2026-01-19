@@ -7,9 +7,9 @@ import etomica.molecule.Molecule;
 import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.UFF.PDBReaderMOP;
 import etomica.potential.UFF.PDBReaderReplica;
+import etomica.potential.UFF.XYZReaderMOP;
 import etomica.potential.UFF.cifReader;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
@@ -27,16 +27,22 @@ public class GetSpeciesMOP {
     public Box box;
     public SpeciesManager sm;
     ISpecies speciesLigand;
-    public ISpecies speciesGas;
+    public ISpecies speciesGas, speciesSecondGas;
     public void setSpeciesGas (ISpecies speciesGas){
         this.speciesGas = speciesGas;
+    }
+    public void setSpeciesSecondGas (ISpecies speciesSecondGas){
+        this.speciesSecondGas = speciesSecondGas;
     }
     public ISpecies getSpeciesGas(){
         return speciesGas;
     }
+    public ISpecies getSpeciesSecondGas(){
+        return speciesSecondGas;
+    }
 
-    public ISpecies getSpeciesMOP (PDBReaderMOP pdbReaderMOP, PDBReaderReplica pdbReaderReplica, SpeciesManager sm, String conf1, String conf2, String struc, String structName, ArrayList<ArrayList<Integer>> connectivityLigand, Map<Integer, String> mapLigand, ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String> mapMOP, boolean ifVirial, boolean setDynamic, boolean ifMOPpresent, boolean ifAutomMOP, boolean ifGasTrappe){
-        AutoMOP autoMOP = new AutoMOP();
+    public ISpecies getSpeciesMOP ( AutoMOP autoMOP, PDBReaderMOP pdbReaderMOP, PDBReaderReplica pdbReaderReplica, SpeciesManager sm, String conf1, String conf2, String conf3, String struc, String structName, ArrayList<ArrayList<Integer>> connectivityLigand, Map<Integer, String> mapLigand, ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String> mapMOP, boolean ifVirial, boolean setDynamic, boolean ifMOPpresent, boolean ifAutomMOP, boolean ifGasTrappe, boolean ifSecondGasPresent, boolean ifXYZfile){
+       // AutoMOP autoMOP = new AutoMOP();
         GetSpeciesMOP getSpeciesMOP = new GetSpeciesMOP();
        // GetSpeciesMOP getSpeciesMOPNew = new GetSpeciesMOP(Space3D.getInstance());
        /* if (false) {
@@ -61,27 +67,17 @@ public class GetSpeciesMOP {
 
         SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
         if (ifGasTrappe) {
-            if (conf2.equals("F://Avagadro//molecule//ch4")) {
-                SpeciesGasTraPPE.ChemForm = CH4;
-            } else if (conf2.equals("F://Avagadro//molecule//ethane")) {
-                SpeciesGasTraPPE.ChemForm = C2H6;
-            } else if (conf2.equals("F://Avagadro//molecule//propane")) {
-                SpeciesGasTraPPE.ChemForm = C3H8;
-            } else if (conf2.equals("F://Avagadro//molecule//ethene")) {
-                SpeciesGasTraPPE.ChemForm = C2H4;
-            } else if (conf2.equals("F://Avagadro//molecule//propene")) {
-                SpeciesGasTraPPE.ChemForm = C3H6;
-            } else if (conf2.equals("F://Avagadro//molecule//co2")) {
-                SpeciesGasTraPPE.ChemForm = CO2;
-            } else if (conf2.equals("F://Avagadro//molecule//o2")) {
-                SpeciesGasTraPPE.ChemForm = O2;
-            } else if (conf2.equals("F://Avagadro//molecule//n2")) {
-                SpeciesGasTraPPE.ChemForm = N2;
-            }else if (conf2.equals("F://Avagadro//molecule//nh3")) {
-                SpeciesGasTraPPE.ChemForm = NH3;
-            }
+            GetSpeciesMOP getSpeciesMOP1 = new GetSpeciesMOP();
+            SpeciesGasTraPPE.ChemForm = getSpeciesMOP1.getChemform(conf2);
+            speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
             setSpeciesGas(speciesGas);
             sim.addSpecies(speciesGas);
+            if (ifSecondGasPresent){
+                SpeciesGasTraPPE.ChemForm = getSpeciesMOP1.getChemform(conf3);
+                speciesSecondGas = speciesGasTraPPE.speciesGasTraPPETwo(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
+                setSpeciesSecondGas(speciesSecondGas);
+                sim.addSpecies(speciesSecondGas);
+            }
         }
 
         //speciesMOP = cifReader.speciesCIF(confNameOne,false);
@@ -96,10 +92,11 @@ public class GetSpeciesMOP {
         }*/
 
         getSpeciesMOP.setSpeciesGas(speciesGas);
+        getSpeciesMOP.setSpeciesSecondGas(speciesSecondGas);
         Map<Integer, Integer> oldnewAtomNumMap = new HashMap<>();
         List<Integer[]> metalAtomsNew = new ArrayList<>();
         IMolecule molecule = new Molecule(speciesLigand, speciesLigand.getLeafAtomCount());
-        System.out.println(molecule);
+       // System.out.println(molecule);
         Map<Integer, List<Integer[]>> metalAtomsConnect = new HashMap<>();
         Map<String, AtomType> typeMapNew = new HashMap<>();
         ISpecies species = null;
@@ -114,12 +111,78 @@ public class GetSpeciesMOP {
         connectivityMOP = new ArrayList<>();
        // box= autoMOP.getAutoMOPBox(space, struc, structName, speciesLigand, box, boxNew, connectivityLigand, mapLigand, ifVirial, setDynamic, 1);
        // System.out.println(box.getMoleculeList());
-       // if (ifAutomMOP){
-            SpeciesBuilder speciesBuilder =  autoMOP.getAutoMOPBox(Space3D.getInstance(), struc, structName, speciesLigand, box, connectivityLigand, mapLigand, ifVirial, setDynamic);
+
+        if (ifAutomMOP){
+            SpeciesBuilder speciesBuilder =  autoMOP.getAutoMOPBox(autoMOP, Space3D.getInstance(), struc, structName, speciesLigand, box, connectivityLigand, mapLigand, ifVirial, setDynamic);
             ISpecies species1 = speciesBuilder.setDynamic(true).build();
-       /* } else {
+            return species1;
+        } else {
             return speciesLigand;
-        }*/
-        return species1;
+        }
+        //return species1;
+    }
+
+
+    public ISpecies getSpeciesMOP(PDBReaderMOP pdbReaderMOP, PDBReaderReplica pdbReaderReplica, XYZReaderMOP xyzReaderMOP, SpeciesManager sm, String conf1, String conf2, String conf3, String struc, String structName, ArrayList<ArrayList<Integer>> connectivityLigand, Map<Integer, String> mapLigand, ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String> mapMOP, boolean ifVirial, boolean setDynamic, boolean ifMOPpresent, boolean ifAutomMOP, boolean ifGasTrappe, boolean ifSecondGasPresent, boolean ifXYZfile){
+        GetSpeciesMOP getSpeciesMOP = new GetSpeciesMOP();
+        Simulation sim = new Simulation(Space3D.getInstance());
+        if (ifMOPpresent) {
+            speciesLigand = xyzReaderMOP.getSpeciesMOP(conf1, false, false);
+            sim.addSpecies(speciesLigand);
+        }
+        SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
+        if (ifGasTrappe) {
+            GetSpeciesMOP getSpeciesMOP1 = new GetSpeciesMOP();
+            SpeciesGasTraPPE.ChemForm = getSpeciesMOP1.getChemform(conf2);
+            speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
+            setSpeciesGas(speciesGas);
+            sim.addSpecies(speciesGas);
+            if (ifSecondGasPresent){
+                SpeciesGasTraPPE.ChemForm = getSpeciesMOP1.getChemform(conf3);
+                speciesSecondGas = speciesGasTraPPE.speciesGasTraPPETwo(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
+                setSpeciesSecondGas(speciesSecondGas);
+                sim.addSpecies(speciesSecondGas);
+            }
+        }
+
+        getSpeciesMOP.setSpeciesGas(speciesGas);
+        getSpeciesMOP.setSpeciesSecondGas(speciesSecondGas);
+        return speciesLigand;
+    }
+    public SpeciesGasTraPPE.ChemForm getChemform(String conf2){
+        if (conf2.equals("ch4")) {
+            SpeciesGasTraPPE.ChemForm = CH4;
+        } else if (conf2.equals("ethane")) {
+            SpeciesGasTraPPE.ChemForm = C2H6;
+        } else if (conf2.equals("propane")) {
+            SpeciesGasTraPPE.ChemForm = C3H8;
+        } else if (conf2.equals("ethene")) {
+            SpeciesGasTraPPE.ChemForm = C2H4;
+        } else if (conf2.equals("propene")) {
+            SpeciesGasTraPPE.ChemForm = C3H6;
+        } else if (conf2.equals("co2")) {
+            SpeciesGasTraPPE.ChemForm = CO2;
+        } else if (conf2.equals("o2")) {
+            SpeciesGasTraPPE.ChemForm = O2;
+        } else if (conf2.equals("n2")) {
+            SpeciesGasTraPPE.ChemForm = N2;
+        }else if (conf2.equals("nh3")) {
+            SpeciesGasTraPPE.ChemForm = NH3;
+        }else if (conf2.equals("nbutane")) {
+            SpeciesGasTraPPE.ChemForm = C4H10;
+        }else if (conf2.equals("butene")) {
+            SpeciesGasTraPPE.ChemForm = C4H8ene_1;
+        }else if (conf2.equals("13butadiene")) {
+            SpeciesGasTraPPE.ChemForm = C4H8ene_13;
+        }else if (conf2.equals("cisbutene")) {
+            SpeciesGasTraPPE.ChemForm = cisButene;
+        }else if (conf2.equals("transbutene")) {
+            SpeciesGasTraPPE.ChemForm = transButene;
+        }else if (conf2.equals("methylpropene")) {
+            SpeciesGasTraPPE.ChemForm = methylPropene_2;
+        }else if (conf2.equals("methylpropane")) {
+            SpeciesGasTraPPE.ChemForm = methylPropane_2;
+        }
+        return etomica.potential.TraPPE.SpeciesGasTraPPE.ChemForm;
     }
 }

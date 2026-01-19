@@ -63,7 +63,7 @@ public class UFFMC3C extends Simulation {
         ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModified();
         Map<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModified();
         double truncCal =params.rc;
-        DistCalc distCalc = new DistCalc();
+        DistCalcCopy distCalc = new DistCalcCopy();
         if(params.ifMOPPresent){
             Map<Integer, Vector> listPositions = pdbReaderMOP.getPositions();
             box.getBoundary().setBoxSize(params.boxsize);
@@ -73,7 +73,7 @@ public class UFFMC3C extends Simulation {
         }
         //System.out.println(boxSize);
         if(params.ifautoMOP){
-            distCalc.getAutoMOPBox(Space3D.getInstance(), params.struc, params.autoStruc, speciesMOP, box, connectivityModified1, atomMapModified1);
+            distCalc.getAutoMOPBox(params.struc, params.autoStruc, speciesMOP, box, connectivityModified1, atomMapModified1);
         }
         Map<Double, List<Integer[]>>distMap = new HashMap<>();
         //tetra= 6, cube = 12 octahedron = 12, dodecahedron = 30, icosahedron = 30;

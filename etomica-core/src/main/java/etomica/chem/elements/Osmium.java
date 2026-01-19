@@ -10,7 +10,7 @@ public class Osmium  extends ElementChemical {
         super(symbol, mass, 21);
     }
 
-    public static final Scandium INSTANCE = new Scandium("76");
+    public static final Osmium INSTANCE = new Osmium("76");
 
     private static final long serialVersionUID = 1L;
 }

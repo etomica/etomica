@@ -64,12 +64,24 @@ public class PDBReaderMOP {
             BufferedReader bufReader = new BufferedReader(fileReader);
             String line ;
             atomMap.clear();
+            Integer atomNumber = 0;
             while ((line = bufReader.readLine()) != null) {
                 parseLineReader(line, typeMap, atomMap, positions);
                 m++;
                 if (line.startsWith("CONECT")) {
                     String[] parts = line.trim().split("\\s+");
-                    int atomNumber = Integer.parseInt(parts[1]);
+                    if (parts[1].length() > 4){
+                        if (parts[1].startsWith("9") ){
+                            String chunk = parts[1].substring(0,  4);
+                            atomNumber = Integer.parseInt(chunk);
+                        }else {
+                            String chunk = parts[1].substring(0,  5);
+                            atomNumber = Integer.parseInt(chunk);
+                        }
+                    }  else {
+                         atomNumber = Integer.parseInt(parts[1]);
+                    }
+
                     if (currentAtomList == null || atomNumber != currentAtomList.get(0)) {
                         // start a new list for the current atom
                         currentAtomList = new ArrayList<>();
@@ -77,7 +89,30 @@ public class PDBReaderMOP {
                         currentAtomList.add(atomNumber);
                     }
                     for (int i = 2; i < parts.length; i++) {
-                        currentAtomList.add(Integer.parseInt(parts[i]));
+                        String part = parts[i];
+
+                        if (part.startsWith("9")) {
+                            if (part.length() <= 4) {
+                                currentAtomList.add(Integer.parseInt(part));
+                            } else {
+                                for (int j = 0; j + 4 <= part.length(); j += 4) {
+                                    String chunk = part.substring(j, j + 4);
+                                    currentAtomList.add(Integer.parseInt(chunk));
+                                }
+                            }
+                        } else if (part.startsWith("1")) {
+                            if (part.length() <= 5) {
+                                currentAtomList.add(Integer.parseInt(part));
+                            } else {
+                                for (int j = 0; j + 5 <= part.length(); j += 5) {
+                                    String chunk = part.substring(j, j + 5);
+                                    currentAtomList.add(Integer.parseInt(chunk));
+                                }
+                            }
+                        } else {
+                            // Fallback for other unexpected cases
+                            currentAtomList.add(Integer.parseInt(part));
+                        }
                     }
                     connect++;
                 }
@@ -90,11 +125,64 @@ public class PDBReaderMOP {
         setConnectivity(connectivity);
     }
 
+    public void readPDBFileCrystal(String confName) {
+        int m=0;
+        String fileName = confName+".pdb";
+        FileReader fileReader;
+        Map<String, AtomType> typeMap = new HashMap<>();
+        ArrayList<Integer> currentAtomList = null;
+        try {
+            fileReader = new FileReader(fileName);
+        }catch(IOException e) {
+            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
+        }
+        try {
+            BufferedReader bufReader = new BufferedReader(fileReader);
+            String line ;
+            atomMap.clear();
+            while ((line = bufReader.readLine()) != null) {
+                parseLineReaderN(line,typeMap, atomMap, positions);
+                m++;
+            }
+            fileReader.close();
+        } catch(IOException e) {
+            throw new RuntimeException("Problem reading from "+fileName+", caught IOException: " + e.getMessage());
+        }
+        setPositions(positions);
+    }
+
     private void setPositions(Map<Integer, Vector> positions) {
         this.positions = positions;
     }
     public Map<Integer, Vector> getPositions (){
         return positions;
+    }
+
+    protected void parseLineReaderN(String line, Map<String, AtomType> typeMap, Map<Integer, String> atomMap, Map<Integer, Vector> positions) {
+        line = line.trim();
+        if (line.length() < 6) {
+            return;
+        }
+        if (line.substring(0, 6).equals("HETATM") || line.substring(0,4).equals("ATOM")) {
+            //coordinates of atom and create atom
+            double x = Double.parseDouble(line.substring(30, 38));
+            double y = Double.parseDouble(line.substring(38, 46));
+            double z = Double.parseDouble(line.substring(46, 54));
+            Vector positn = Vector.of(x, y, z);
+            String symbol = line.substring(14, 17).trim();
+            symbol = symbol.replaceAll("\\d{1,2}$", "");
+            int atomNumber = Integer.parseInt(line.substring(6,13).trim())-1;
+            positions.put(atomNumber, positn);
+            //  System.out.println(positions.get(1));
+            // System.out.println(atomNumber+" "+symbol);
+            if (atomMap.containsKey(atomNumber)){
+                // System.out.println("Error");
+                //  System.out.println("Duplicate atomNumber detected: " + atomNumber);
+            } else {
+                atomMap.put(atomNumber, symbol);
+                // System.out.println("Added atomNumber: " + atomNumber + " with symbol: " + symbol);
+            }
+        }
     }
 
     protected void parseLineReader(String line, Map<String, AtomType > typeMap, Map<Integer, String> atomMap, Map<Integer, Vector> positions) {
@@ -108,7 +196,7 @@ public class PDBReaderMOP {
             double y = Double.parseDouble(line.substring(38, 46));
             double z = Double.parseDouble(line.substring(46, 54));
             Vector positn = Vector.of(x, y, z);
-            String symbol = line.substring(12, 14).trim();
+            String symbol = line.substring(12, 16).trim();
             symbol = symbol.replaceAll("\\d{1,2}$", "");
             int atomNumber = Integer.parseInt(line.substring(7,11).trim());
             positions.put(atomNumber, positn);
@@ -288,15 +376,18 @@ public class PDBReaderMOP {
         SpeciesBuilder speciesBuilderNewMod =  new SpeciesBuilder(Space3D.getInstance());
         AtomType typeNew;
 
+        //System.out.println(confName);
         readPDBFile(confName);
        // System.out.println(atomMap);
       //  System.exit(1);
         ArrayList<ArrayList<Integer>> connectedAtoms =getConnectivity();
         ArrayList<ArrayList<Integer>> connectivityTemp = getConnectivityTemp(connectedAtoms);
-        Map<Integer, String> atomIdentifierMapMod = atomIdentifierMapModified(connectivityTemp, atomMap);
+       // Map<Integer, String> atomIdentifierMapMod = atomIdentifierMapModified(connectivityTemp, atomMap);
         ArrayList<ArrayList<Integer>> connectivityModified = getconnectivityModified(connectivityTemp);
         Map<Integer,String> atomMap = getAtomMap(connectivityTemp);
+        Map<Integer, String> atomIdentifierMapMod = atomIdentifierMapModified(connectivityTemp, atomMap);
         atomMapModified =getatomMapModified(atomMap);
+        atomIdentifierMap = getAtomIdentifierMapModified();
         Vector dr = Vector.d(centreMOP.getD());
         for(int i = 0; i < atomIdentifierMap.size(); i++) {
             String symbol = String.valueOf(atomIdentifierMap.get(i));
@@ -304,6 +395,7 @@ public class PDBReaderMOP {
             int endIndex = symbol.indexOf("]");
             String nameNew = symbol.substring(startIndex, endIndex);
             AtomType newName = returnElement(nameNew, setMOPmassInfinite);
+          //  System.out.println( i + " " +nameNew + " "+ newName);
             if (typeMapNew.containsKey(nameNew)) {
                 typeNew = typeMapNew.get(nameNew);
             } else {
@@ -314,7 +406,7 @@ public class PDBReaderMOP {
             speciesBuilderNew.addAtom(typeNew, position,  "");
         }
 
-        if(connect !=0){
+      /*  if(connect !=0){
             bondsNum = bondsAmongAtoms();
             setBondsNum(bondsNum);
             //eachBondValue = eachBondValue(connectivityModified, modifiedAtomIdentifierMap);
@@ -335,7 +427,7 @@ public class PDBReaderMOP {
             aromaticOtherElementFormer(connectivityModified, modifiedAtomIdentifierMap);
             listOfInversions = idenInversions(tripletsSorted);
             //System.out.println(Arrays.deepToString(listOfInversions.toArray()) + " in Main" );
-        }
+        }*/
         species= speciesBuilderNew.setDynamic(isDynamic).build();
         if(!setMOPmassInfinite){
             IMolecule molecule = species.makeMolecule();
@@ -1251,6 +1343,7 @@ public class PDBReaderMOP {
         priorityMap.put("Fe_3", 16);
         priorityMap.put("Fe_2", 16);
         priorityMap.put("B", 16);
+        //System.out.println(atomType);
         return priorityMap.get(atomType);
     }
 
@@ -1329,15 +1422,20 @@ public class PDBReaderMOP {
             elementReceiverMap.put("Ti", new AtomType(Titanium.INSTANCE, "Ti"));
             elementReceiverMap.put("Sc", new AtomType(Scandium.INSTANCE, "Sc"));
             elementReceiverMap.put("Zn", new AtomType(Zinc.INSTANCE, "Zn"));
+            elementReceiverMap.put("Pt", new AtomType(Platinum.INSTANCE, "Pt"));
+            elementReceiverMap.put("Tb", new AtomType(Terbium.INSTANCE, "Tb"));
+            elementReceiverMap.put("Mo", new AtomType(Molybdenum.INSTANCE, "Mo"));
+            elementReceiverMap.put("K", new AtomType(Potassium.INSTANCE, "K"));
+            elementReceiverMap.put("Pb", new AtomType(Lead.INSTANCE, "Pb"));
+            elementReceiverMap.put("Dy", new AtomType(Dysprosium.INSTANCE, "Dy"));
+            elementReceiverMap.put("Ir", new AtomType(Iridium.INSTANCE, "Ir"));
+            elementReceiverMap.put("Li", new AtomType(Lithium.INSTANCE, "Li"));
+            elementReceiverMap.put("Er", new AtomType(Erbium.INSTANCE, "Er"));
+            elementReceiverMap.put("Y", new AtomType(Yttrium.INSTANCE, "Y"));
+            elementReceiverMap.put("Os", new AtomType(Osmium.INSTANCE, "Os"));
+            elementReceiverMap.put("Hg", new AtomType(Mercury.INSTANCE, "Hg"));
+            elementReceiverMap.put("Cs", new AtomType(Cesium.INSTANCE, "Cs"));
            /* elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
-            elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
             elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));
             elementReceiverMap.put("V", new AtomType(Vanadium.INSTANCE, "V"));*/
             elementReceiverMap.put("Zr", new AtomType(Zirconium.INSTANCE, "Zr"));
@@ -1351,10 +1449,45 @@ public class PDBReaderMOP {
             elementReceiverMap.put("He", new AtomType(Helium.INSTANCE,"He"));
             elementReceiverMap.put("B", new AtomType(Boron.INSTANCE,"B"));
             elementReceiverMap.put("Fe_3", new AtomType(Iron.INSTANCE,"Fe_3"));
+            elementReceiverMap.put("Fe_2", new AtomType(Iron.INSTANCE,"Fe_2"));
             elementReceiverMap.put("F", new AtomType(Fluorine.INSTANCE,"F"));
             elementReceiverMap.put("P_3", new AtomType(Phosphorus.INSTANCE, "P_3"));
+            elementReceiverMap.put("In", new AtomType(Indium.INSTANCE, "In"));
+            elementReceiverMap.put("Ca", new AtomType(Calcium.INSTANCE, "Ca"));
+            elementReceiverMap.put("Cd", new AtomType(Cadmium.INSTANCE, "Cd"));
+            elementReceiverMap.put("Si", new AtomType(Silicon.INSTANCE, "Si"));
+            elementReceiverMap.put("Na", new AtomType(Sodium.INSTANCE, "Na"));
+            elementReceiverMap.put("Mg", new AtomType(Magnesium.INSTANCE, "Mg"));
+          //  elementReceiverMap.put("Pt", new AtomType(Platinum.INSTANCE, "Pt"));
+            elementReceiverMap.put("Ag", new AtomType(Silver.INSTANCE, "Ag"));
+            elementReceiverMap.put("Au", new AtomType(Gold.INSTANCE, "Au"));
+            elementReceiverMap.put("I", new AtomType(Iodine.INSTANCE, "I"));
+            elementReceiverMap.put("Al", new AtomType(Aluminium.INSTANCE, "Al"));
+            elementReceiverMap.put("As", new AtomType(Arsenic.INSTANCE, "Al"));
+            elementReceiverMap.put("Bi", new AtomType(Bismuth.INSTANCE, "Bi"));
+            elementReceiverMap.put("Eu", new AtomType(Europium.INSTANCE, "Eu"));
+            elementReceiverMap.put("Lu", new AtomType(Lutetium.INSTANCE, "Al"));
+            elementReceiverMap.put("Nd", new AtomType(Neodymium.INSTANCE, "Nd"));
+            elementReceiverMap.put("Re", new AtomType(Rhenium.INSTANCE, "Re"));
+            elementReceiverMap.put("Sb", new AtomType(Antimony.INSTANCE, "Sb"));
+            elementReceiverMap.put("Se", new AtomType(Selenium.INSTANCE, "Se"));
+            elementReceiverMap.put("Yb", new AtomType(Ytterbium.INSTANCE, "Yb"));
+            elementReceiverMap.put("C", new AtomType(Carbon.INSTANCE, "C"));
+            elementReceiverMap.put("O", new AtomType(Oxygen.INSTANCE, "O"));
+            elementReceiverMap.put("N", new AtomType(Nitrogen.INSTANCE, "N"));
+            elementReceiverMap.put("S", new AtomType(Sulfur.INSTANCE, "S"));
+            elementReceiverMap.put("P", new AtomType(Phosphorus.INSTANCE, "P"));
+            elementReceiverMap.put("Nb", new AtomType(Niobium.INSTANCE, "Nb"));
+            elementReceiverMap.put("Rb", new AtomType(Rubidium.INSTANCE, "Rb"));
+            elementReceiverMap.put("Ce", new AtomType(Cerium.INSTANCE, "Ce"));
+            elementReceiverMap.put("Pr", new AtomType(Praseodymium.INSTANCE, "Pr"));
+            elementReceiverMap.put("Sm", new AtomType(Samarium.INSTANCE, "Sm"));
+            elementReceiverMap.put("Gd", new AtomType(Gadolinium.INSTANCE, "Gd"));
+            elementReceiverMap.put("Ho", new AtomType(Holmium.INSTANCE, "Ho"));
+            elementReceiverMap.put("Tm", new AtomType(Thulium.INSTANCE, "Tm"));
+            elementReceiverMap.put("U", new AtomType(Uranium.INSTANCE, "U"));
+            elementReceiverMap.put("La", new AtomType(Lanthanum.INSTANCE, "La"));
         }
-       // System.out.println(elementReceiverMap.get(elementName));
         return elementReceiverMap.get(elementName);
     }
     public Map<String, Double> getAtomRequirement(){
@@ -1446,19 +1579,23 @@ public class PDBReaderMOP {
             } else if (element.equals("NE")) {
                 AtomType Ne = new AtomType(Neon.INSTANCE, "Ne");
                 atomIdentifierMap.put(0, Ne);
-            } else {
+            } else if(element.equals("HE")) {
                 AtomType He = new AtomType(Helium.INSTANCE, "He");
                 atomIdentifierMap.put(0, He);
             }
         }
+        //System.out.println(connectivityModified);
+        //System.out.println(atomMapModified);
+   //     System.exit(1);
         //System.out.println(connectivityModified + "connectivityModified");
+   //     System.out.println(connectivityModified.get(connectivityModified.size()-1));
         for (int i = 0; i < connectivityModified.size(); i++) {
             Integer retriveArrayFirstElementNumber = connectivityModified.get(i).get(0);
             //System.out.println(atomMapModified + "atomMap Modified");
             //System.out.println(connectivityModified + " connectivityModified");
             String retriveArrayFirstElementName = atomMapModified.get(retriveArrayFirstElementNumber);
-            //System.out.println(retriveArrayFirstElementName + " :retriveFirstName");
-            //System.out.println(atomMapModified + "atomMapModified");
+           // System.out.println(i +" "+retriveArrayFirstElementName + " :retriveFirstName");
+            //System.out.println(retriveArrayFirstElementName + " atomMapModified");
             //Carbon atoms
             if (retriveArrayFirstElementName.equals("C")) {
                 int arrayListSize = connectivityModified.get(i).size();
@@ -1681,7 +1818,66 @@ public class PDBReaderMOP {
                     AtomType Ti = new AtomType(Titanium.INSTANCE, "Ti");
                     //System.out.println("The atom " + (i) +" is N_2 " );
                     atomIdentifierMap.put(i, Ti);
-                } else {
+                }  else if (retriveArrayFirstElementName.equals("In")|| retriveArrayFirstElementName.equals("IN")) {
+                AtomType In = new AtomType(Indium.INSTANCE, "In");
+                //System.out.println("The atom " + (i) +" is N_2 " );
+                atomIdentifierMap.put(i, In);
+                }  else if (retriveArrayFirstElementName.equals("Ca")|| retriveArrayFirstElementName.equals("CA")) {
+                    AtomType Ca = new AtomType(Carbon.INSTANCE, "Ca");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Ca);
+                }  else if (retriveArrayFirstElementName.equals("CD")|| retriveArrayFirstElementName.equals("Cd")) {
+                    AtomType Cd = new AtomType(Cadmium.INSTANCE, "Cd");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Cd);
+                }  else if (retriveArrayFirstElementName.equals("Si")|| retriveArrayFirstElementName.equals("SI")) {
+                    AtomType Si = new AtomType(Silicon.INSTANCE, "Si");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Si);
+                }  else if (retriveArrayFirstElementName.equals("Na")|| retriveArrayFirstElementName.equals("NA")) {
+                    AtomType Na = new AtomType(Sodium.INSTANCE, "Na");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Na);
+                }  else if (retriveArrayFirstElementName.equals("Pt")|| retriveArrayFirstElementName.equals("PT")) {
+                AtomType Pt = new AtomType(Platinum.INSTANCE, "Pt");
+                //System.out.println("The atom " + (i) +" is N_2 " );
+                atomIdentifierMap.put(i, Pt);
+            }  else if (retriveArrayFirstElementName.equals("Rh")|| retriveArrayFirstElementName.equals("RH")) {
+                AtomType Rh = new AtomType(Rhodium.INSTANCE, "Rh");
+                //System.out.println("The atom " + (i) +" is N_2 " );
+                atomIdentifierMap.put(i, Rh);
+            }else if (retriveArrayFirstElementName.equals("Ag")|| retriveArrayFirstElementName.equals("AG")) {
+                    AtomType Ag = new AtomType(Silver.INSTANCE, "Ag");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Ag);
+                }else if (retriveArrayFirstElementName.equals("Au")|| retriveArrayFirstElementName.equals("AU")) {
+                    AtomType Au = new AtomType(Gold.INSTANCE, "Au");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Au);
+                }else if (retriveArrayFirstElementName.equals("Al")|| retriveArrayFirstElementName.equals("AL")) {
+                    AtomType Al = new AtomType(Aluminium.INSTANCE, "Al");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Al);
+                }else if (retriveArrayFirstElementName.equals("As")|| retriveArrayFirstElementName.equals("AS")) {
+                    AtomType As = new AtomType(Arsenic.INSTANCE, "As");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, As);
+                }else if (retriveArrayFirstElementName.equals("Bi")|| retriveArrayFirstElementName.equals("BI")) {
+                    AtomType Bi = new AtomType(Bismuth.INSTANCE, "Bi");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Bi);
+                }else if (retriveArrayFirstElementName.equals("Eu")|| retriveArrayFirstElementName.equals("EU")) {
+                    AtomType Eu = new AtomType(Europium.INSTANCE, "Eu");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Eu);
+                }else if (retriveArrayFirstElementName.equals("Lu")|| retriveArrayFirstElementName.equals("LU")) {
+                    AtomType Al = new AtomType(Aluminium.INSTANCE, "Lu");
+                    //System.out.println("The atom " + (i) +" is N_2 " );
+                    atomIdentifierMap.put(i, Al);
+                }
+
+                else {
+                    System.out.println(atomIdentifierMap.get(retriveArrayFirstElementNumber));
                    throw new RuntimeException("Atom not found " + retriveArrayFirstElementName + " " +retriveArrayFirstElementNumber);
                 }
             }
@@ -2357,29 +2553,38 @@ public class PDBReaderMOP {
         atomicConstant.put("Fe_2", new double[]{1.27, 109.47, 2.912, 0.013, 12.0, 2.43,0.7});
         atomicConstant.put("Fe_3", new double[]{1.335, 90.0, 2.912, 0.013, 12.0, 2.43,3.76,0.7});
         atomicConstant.put("Mn", new double[]{1.382, 90.0, 2.961, 0.013, 12.0, 2.43,3.325,0.7});
+        atomicConstant.put("Pt", new double[]{0.0, 0.0, 2.754, 0.080});
+        atomicConstant.put("Ag", new double[]{0.0, 0.0, 3.148, 0.0036});
+        atomicConstant.put("Au", new double[]{0.0, 0.0, 3.293, 0.039});
         atomicConstant.put("Ni", new double[]{1.164, 90.0, 2.834, 0.015, 12.0, 2.43,4.465,0.7});
         atomicConstant.put("Pd", new double[]{1.338, 90.0, 2.899, 0.048, 12.0, 3.21,4.32,0.2});
         atomicConstant.put("Zr", new double[]{1.564, 109.47, 3.124, 0.069, 12.0, 3.667,3.40,0.2});
         atomicConstant.put("W+6", new double[]{1.392, 90.0, 3.069, 0.067, 12.0, 3.7,4.63,0.1});
         atomicConstant.put("W+4", new double[]{1.526, 109.47, 3.069, 0.067, 12.0, 3.7,4.63,0.1});
         atomicConstant.put("Zn", new double[]{1.193, 109.47, 2.763, 0.124, 12.0, 1.308,5.106,0.7});
-        atomicConstant.put("Cu", new double[]{1.302, 109.47, 3.495, 0.005, 12.0, 1.756,3.729,0.7});
+      //  atomicConstant.put("Cu", new double[]{1.302, 109.47, 3.495, 0.005, 12.0, 1.756,3.729,0.7});
         atomicConstant.put("Cu1", new double[]{1.302, 109.47, 3.495, 0.005, 12.0, 1.756,3.729,0.7});
         atomicConstant.put("Rh", new double[]{1.332, 90.0, 2.929, 0.053, 12.0, 3.5,3.975,0.2});
         atomicConstant.put("Cr", new double[]{1.345, 90.0, 3.023, 0.015, 12.0, 2.463,3.415,0.7});
         atomicConstant.put("Ru", new double[]{1.478, 90.0, 2.963, 0.056, 12.0, 3.4,3.575,0.2});
         atomicConstant.put("Si", new double[]{1.117, 109.47, 4.295, 0.402, 12.175, 2.323,4.168,1.225});
         atomicConstant.put("C_Ar", new double[]{0.729, 120.0, 3.851, 0.105, 12.73, 1.912, 5.343, 2.0}); //C_Ar
-        atomicConstant.put("C_3", new double[]{0.757, 109.47, 3.851, 0.105, 12.73, 1.912, 5.343,2.0});
-        atomicConstant.put("C_2", new double[]{0.732, 120.0, 3.851, 0.105, 12.73, 1.912, 5.343,2.0});
-        atomicConstant.put("C_1", new double[]{0.706, 180, 3.851,0.105,12.73, 1.912, 5.343,2.0});
+        atomicConstant.put("Pb",new double[]{1.67, 90.0, 4.297, 0.663, 12, 2.846, 0.1, 0.1, 3.9, 3.53, 1.444});
+        atomicConstant.put("Yb",new double[]{1.45, 90, 3.355, 0.228, 12, 2.618, 0, 0.1, 3.2889, 2.965, 2.158});
+        atomicConstant.put("Dy",new double[]{1.58, 90, 3.428, 0.007, 12, 3.3, 0, 0.1, 3.0555, 2.8715, 1.934});
+        atomicConstant.put("Ir", new double[]{1.371, 90, 2.84, 0.073, 12, 3.731, 0, 0.1, 5, 4, 1.866});
+        atomicConstant.put("Li", new double[]{1.28, 109.47, 2.451, 0.025, 12, 1.026, 0, 2, 3.006, 2.386, 1.557});
+        atomicConstant.put("Er", new double[]{1.64, 109.47, 3.391, 0.007, 12, 3.3, 0, 0.1, 3.1865, 2.9145, 1.915});
+        atomicConstant.put("Nd", new double[]{1.78, 109.47, 3.575, 0.01, 12, 3.3, 0, 0.1, 2.8685, 2.6205, 2.007});
         atomicConstant.put("N_2", new double[]{0.699, 120.0, 3.66, 0.069, 13.407, 2.544,6.899,2.0});
-        atomicConstant.put("N_3", new double[]{0.7, 106.7, 3.66, 0.069, 13.407, 2.544, 6.899,0.45});
+        atomicConstant.put("Y", new double[]{1.698, 109.47, 3.345, 0.072, 12, 3.257, 0, 0.2, 3.83, 2.81, 1.998});
+        atomicConstant.put("Os", new double[]{1.372, 90, 3.12, 0.037, 12, 3.7, 0, 0.1, 5.14, 3.63, 1.7});
+       // atomicConstant.put("N_3", new double[]{0.7, 106.7, 3.66, 0.069, 13.407, 2.544, 6.899,0.45});
         atomicConstant.put("N_1", new double[]{0.685, 111.2, 3.66, 0.069, 13.407, 2.544,6.899,2.0});
-        atomicConstant.put("O_Ar", new double[]{0.68, 110.0, 3.5, 0.06, 14.085, 2.3, 8.741, 2.0});
-        atomicConstant.put("O_2", new double[]{0.68, 110.0, 3.5, 0.06, 14.085, 2.3, 8.741, 2.0});
-        atomicConstant.put("O_3", new double[]{0.658, 104.51, 3.5, 0.06, 14.085, 2.3,8.74,0.018});
-        atomicConstant.put("O_1", new double[]{0.639, 180.0, 3.5, 0.06, 14.085, 2.3, 8.741,2.0});
+       // atomicConstant.put("O_Ar", new double[]{0.68, 110.0, 3.5, 0.06, 14.085, 2.3, 8.741, 2.0});
+       // atomicConstant.put("O_2", new double[]{0.68, 110.0, 3.5, 0.06, 14.085, 2.3, 8.741, 2.0});
+       // atomicConstant.put("O_3", new double[]{0.658, 104.51, 3.5, 0.06, 14.085, 2.3,8.74,0.018});
+       // atomicConstant.put("O_1", new double[]{0.639, 180.0, 3.5, 0.06, 14.085, 2.3, 8.741,2.0});
         atomicConstant.put("S_2", new double[]{1.077, 92.2, 4.035, 0.274, 13.969, 2.703,6.928,1.25});
         atomicConstant.put("S_3", new double[]{1.064, 92.1, 4.035, 0.274, 13.969, 2.703,6.928,0.484});
         atomicConstant.put("C_Arp", new double[]{0.729, 120.0, 3.851, 0.105, 12.73, 1.912, 5.343, 2.0}); //C_Ar
@@ -2399,7 +2604,7 @@ public class PDBReaderMOP {
         atomicConstant.put("S+6", new double[]{1.027, 109.47, 4.035, 0.274, 13.969, 2.703,6.928,0.484});
         atomicConstant.put("P_3", new double[]{1.101, 93.8, 4.147, 0.305, 13.072, 2.863,5.463,2.4});
         //atomicConstant.put("P+5", new double[]{1.056, 109.47, 4.147, 0.305, 13.072, 2.863,5.463});
-        atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+       // atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("H8A", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("H6A", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("H8B", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
@@ -2411,9 +2616,9 @@ public class PDBReaderMOP {
         atomicConstant.put("H7B", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("H7A", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("H9C", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
-       /* atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
-        atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
-        atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});*/
+        atomicConstant.put("XeN", new double[]{1.267,90,4.404,0.332,12,0.556});
+    //    atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+        //atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("H_p", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("Cl", new double[]{1.044,180.0,3.947,0.227,14.866,2.348,8.564,1.25});
         atomicConstant.put("K", new double[]{1.953, 180, 3.812, 0.035, 12, 1.165,2.421,0.7});
@@ -2428,12 +2633,92 @@ public class PDBReaderMOP {
         atomicConstant.put("F", new double[]{0.668,180,3.364,0.050,14.762,1.735,10.874,2.0});
         atomicConstant.put("He", new double[]{0.849, 90.0, 2.362,0.056,15.24,0.098});
         atomicConstant.put("Ne", new double[]{0.920, 90.0, 3.243, 0.042, 15.440, 0.194});
-        atomicConstant.put("Kr", new double[]{1.147, 90.0, 4.141,0.220,14,0.452});
+        atomicConstant.put("KrN", new double[]{1.147, 90.0, 4.141,0.220,14,0.452});
         atomicConstant.put("Ar", new double[]{1.032, 90.0, 3.868,0.185,15.763, 0.300});
         atomicConstant.put("B", new double[]{0.828, 109.48, 4.083,0.180,12.052, 1.755, 4.528, 0});
+        atomicConstant.put("Cu", new double[]{0.0, 0.0, 3.495, 0.005, 12.0, 2.679,3.65,0.7});
+        atomicConstant.put("H", new double[]{0.354, 180.0, 3.2, 0.01, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("La", new double[]{1.943, 109.47, 3.522, 0.017, 12, 3.3, 0, 0.1, 2.8355, 2.7415, 2.071});
+        atomicConstant.put("Hg", new double[]{1.34, 180, 2.705, 0.385, 12, 1.75, 0, 0.1, 6.27, 4.16, 1.6});
+      //  atomicConstant.put("C_1", new double[]{0.354, 180.0, 3.98, 0.145, 12.0, 0.71,4.528, 0.0});
+     //   atomicConstant.put("C_3", new double[]{0.354, 180.0,4.08, 0.215, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("N_3", new double[]{0.354, 180.0, 3.695, 0.145, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("O_Ar", new double[]{0.354, 180.0, 3.5100, 0.3050, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("O_1", new double[]{0.354, 180.0, 3.51, 0.215, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("O_2", new double[]{0.354, 180.0, 3.61, 0.3050, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("O_3", new double[]{0.354, 180.0, 3.61, 0.3050, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("Cs", new double[]{2.57, 180, 4.517, 0.045, 12, 1.573, 0, 0.1, 2.183, 1.711, 2.984});
+        atomicConstant.put("Sc", new double[]{1.513, 109.47, 3.295, 0.019, 12, 2.592, 0, 0.7, 3.395, 3.08, 1.75});
+        atomicConstant.put("In", new double[]{0.0,0.0,4.463,0.599});
+        atomicConstant.put("Cd", new double[]{0.0,0.0,2.848,0.228});
+        atomicConstant.put("CA", new double[]{0,0, 3.851,  0.105});
+        atomicConstant.put("CY", new double[]{0,0,3.851 , 0.105});
+        atomicConstant.put("CX", new double[]{0,0,3.851, 0.105});//1.9080 , 0.0860
+        atomicConstant.put("CZ", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("C4", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("C3", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("C2", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("C1", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("C5", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("C6", new double[]{0,0,3.851, 0.105});
+        atomicConstant.put("H3", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("H1", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("N2", new double[]{0,0, 3.66, 0.069, 13.407, 2.544,6.899,2.0});
+        atomicConstant.put("OE", new double[]{0, 0, 3.5, 0.06, 14.085, 2.3,8.74,0.018});
+        atomicConstant.put("OJ", new double[]{0, 0, 3.5, 0.06, 14.085, 2.3,8.74,0.018});
+        atomicConstant.put("OK", new double[]{0, 0,  3.5, 0.06, 14.085, 2.3,8.74,0.018});
+        atomicConstant.put("OL", new double[]{0, 0,  3.5, 0.06, 14.085, 2.3,8.74,0.018});
+        atomicConstant.put("O1", new double[]{0, 0,  3.5, 0.06, 14.085, 2.3,8.74,0.018});
+        atomicConstant.put("O2", new double[]{0, 0,  3.5, 0.06, 14.085, 2.3,8.74,0.018});
+        atomicConstant.put("HK", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("Fe", new double[]{1.27, 109.47, 2.912, 0.013, 12.0, 2.43,0.7});
+        atomicConstant.put("P", new double[]{1.101, 93.8, 4.147, 0.305, 13.072, 2.863,5.463,2.4});
+        atomicConstant.put("Re", new double[]{1.372, 90.0, 2.954, 0.066, 12.0, 0.71,4.528, 0.0});
+        atomicConstant.put("Nb", new double[]{1.473, 109.47, 3.165, 0.059, 12, 3.618, 0, 0.2, 3.55, 3.38, 1.603});
+        atomicConstant.put("Sb", new double[]{1.407, 91.6, 4.42, 0.449, 13, 2.704, 1.1, 0.2, 4.899, 3.342, 1.404});
+        atomicConstant.put("Rb", new double[]{2.26, 180, 4.114, 0.04, 12, 1.592, 0, 0.2, 2.331, 1.846, 2.77});
+        atomicConstant.put("Ce", new double[]{1.841, 90, 3.556, 0.013, 12, 3.3, 0, 0.1, 2.774, 2.692, 1.925});
+        atomicConstant.put("Pr", new double[]{1.823, 90, 3.606, 0.01, 12, 3.3, 0, 0.1, 2.858, 2.564, 2.007});
+        atomicConstant.put("Sm", new double[]{1.78, 90, 3.52, 0.008, 12, 3.3, 0, 0.1, 2.9115, 2.7195, 1.978});
+        atomicConstant.put("Gd", new double[]{1.735, 90, 3.368, 0.009, 12, 3.3, 0, 0.1, 3.1665, 2.9745, 1.968});
+        atomicConstant.put("Ho", new double[]{1.696, 90, 3.409, 0.007, 12, 3.416, 0, 0.1, 3.127, 2.891, 1.925});
+        atomicConstant.put("Tm", new double[]{1.66, 90, 3.374, 0.006, 12, 3.3, 0, 0.1, 3.2514, 2.9329, 2});
+        atomicConstant.put("U", new double[]{1.65, 90, 3.395, 0.022, 12, 3.9, 0, 0, 3.341, 2.853, 1.713});
+        atomicConstant.put("Eu", new double[]{1.60, 90, 3.493, 0.008, 12, 3.3, 0, 0.1, 2.8785, 2.7875, 2.227});
+        atomicConstant.put("W", new double[]{1.16, 109.47, 3.069, 0.067, 12, 3.7, 0, 0.1, 4.63, 3.31, 1.538});
+        //  atomicConstant.put("C_2", new double[]{0.354, 180.0, 3.8983,0.0951, 12.0, 0.71,4.528, 0.0});
+      //  atomicConstant.put("C_3", new double[]{0.354, 180.0,3.8983, 0.0951, 12.0, 0.71,4.528, 0.0});
+        //from raspa
+        atomicConstant.put("O_1", new double[]{0,0,3.34, 1.39,0  });
+        atomicConstant.put("O_2", new double[]{0,0,3.49, 0.14,0  });
+        atomicConstant.put("C_3", new double[]{0,0,3.89,0.0951  });
+        atomicConstant.put("C_2", new double[]{0,0,3.89,0.0951  });
+        atomicConstant.put("C_1", new double[]{0,0,4.20,0.0933  });
+        atomicConstant.put("H", new double[]{0,0,3.20,0.0152  });
+        atomicConstant.put("C", new double[]{0,0,3.89,0.0951 });
+        atomicConstant.put("N", new double[]{0,0, 3.66, 0.069, 13.407, 2.544,6.899,2.0});
+        atomicConstant.put("O", new double[]{0,0,3.49, 0.14,0  });
+        atomicConstant.put("Tb", new double[]{0,0,3.451, 0.007,0  });
+        atomicConstant.put("S", new double[]{0,0,4.035, 0.274,0  });
+       // atomicConstant.put("Kr", new double[]{1.147, 90.0, 4.141,0.220,14,0.452});
+      //  atomicConstant.put("Xe", new double[]{1.267,90,4.404,0.332,12,0.556});
         double [] sample = atomicConstant.get(atomtype);
         return sample;
     }
+    /* public double [] atomicPot (String atomtype){
+        HashMap<String, double[]> atomicConstant = new HashMap<>();
+        atomicConstant.put("Cu", new double[]{0.0, 0.0, 3.495, 0.005, 12.0, 2.679,3.65,0.7});
+        atomicConstant.put("H", new double[]{0.354, 180.0, 0.0, 0.0, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("C_1", new double[]{0.354, 180.0, 3.98, 0.145, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("C_3", new double[]{0.354, 180.0,4.08, 0.215, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("N_3", new double[]{0.354, 180.0, 3.695, 0.145, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("O_Ar", new double[]{0.354, 180.0, 3.5100, 0.3050, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("O_1", new double[]{0.354, 180.0, 3.51, 0.215, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("O_2", new double[]{0.354, 180.0, 3.61, 0.3050, 12.0, 0.71,4.528, 0.0});
+         atomicConstant.put("O_3", new double[]{0.354, 180.0, 3.61, 0.3050, 12.0, 0.71,4.528, 0.0});
+        double [] sample = atomicConstant.get(atomtype);
+        return sample;
+    }*/
 
     public double [] electronicParam (String atomtype){
         HashMap<String, double[]> electronicConstant = new HashMap<>();

@@ -47,7 +47,8 @@ public class AutoMOP {
     public ArrayList<Integer> arrayListMetals = new ArrayList<>();
     public Map<Integer, List<Integer>> metalMoleculeMap = new HashMap<>();
     public Map<Integer, Integer> oldNewAtomNumMap = new HashMap<>();
-
+    public Map<Integer, String> atomMapPDB = new HashMap<>();
+    public Map<Integer, Vector3D> atomMapVector = new HashMap<>();
     public List<Integer[]> getStrucList(String struc){
         Map<Double, List<Integer[]>> distMap = new HashMap<>();
         List<Integer[]>distEqual = new ArrayList<>();
@@ -422,6 +423,8 @@ public class AutoMOP {
         IMoleculeList moleculeList = box.getMoleculeList();
         IMolecule moleculeI = null;
         AtomType atomI = null;
+        Map<Integer, String> atomMapMOPPDB = new HashMap<>();
+        Map<Integer, Vector3D> atomMapVector = new HashMap<>();
         for (int i  = 0; i < moleculeList.size(); i++){
             moleculeI = moleculeList.get(i);
             for (int j =0; j < moleculeI.getChildList().size(); j++){
@@ -441,10 +444,18 @@ public class AutoMOP {
                     typeNew = newName;
                     typeMapNew.put(nameNew, typeNew);
                 }
+                String atomPDB = nameNew.replaceAll("_\\d+$", "");
+                atomMapMOPPDB.put(alpha, atomPDB);
+                atomMapVector.put(alpha, (Vector3D) atomPosn);
                 speciesBuilder.addAtom(typeNew, atomPosn,  "");
                 alpha++;
             }
         }
+       // System.out.println(atomMapMOPPDB);
+        autoMOP.setAtomMapPDB(atomMapMOPPDB);
+        autoMOP.setAtomMapVector(atomMapVector);
+     //   System.out.println(atomMapVector);
+      //  System.exit(1);
 
 
 
@@ -483,16 +494,21 @@ public class AutoMOP {
        // autoMOP.connectivityMOP(connectivityMOP,  removedMetals);
         return speciesBuilder;
     }
-    public void makeConnectivityMOP(Box box,ArrayList<ArrayList<Integer>> connectivityLigand,  ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String>  atomMapLigand, Map<Integer, String> atomMapMOP){
+    public void setAtomMapPDB (Map<Integer, String> atomMapPDB){this.atomMapPDB = atomMapPDB;}
+    public Map<Integer, String> getAtomMapPDB(){return  atomMapPDB;}
+    public void setAtomMapVector(Map<Integer, Vector3D> atomMapVector){this.atomMapVector = atomMapVector;}
+    public Map<Integer, Vector3D> getAtomMapVector(){return atomMapVector;}
+    public void makeConnectivityMOP(Box box,ArrayList<ArrayList<Integer>> connectivityLigand,  ArrayList<ArrayList<Integer>> connectivityMOP, Map<Integer, String>  atomMapLigand, Map<Integer, String> atomMapMOP, ArrayList<Integer> arrayListMetals, Map<Integer, Map<Integer, Vector3D>> positionMapMOP , Map<Integer, List<Integer>> metalMoleculeMap ){
         IMoleculeList moleculeList = box.getMoleculeList();
         ArrayList<Integer> internalArrayList = new ArrayList<>();
         //ArrayList<Integer> modifiedArrayList = new ArrayList<>();
         int num  =0, modifiedNum =0, moleculeNum =0;
         int ligandSize = connectivityLigand.size();
+        Map<Integer, String> atomMapPDB = new HashMap<>();
         for (int i =0; i< moleculeList.size(); i++){
             for (int j =0; j < connectivityLigand.size(); j++){
                 internalArrayList = connectivityLigand.get(j);
-               // System.out.println(internalArrayList);
+                //System.out.println(internalArrayList);
                 ArrayList<Integer> modifiedArrayList = new ArrayList<>();
                 for (int k = 0; k < internalArrayList.size(); k++){
                     //System.out.println(internalArrayList.get(k));
@@ -500,12 +516,12 @@ public class AutoMOP {
                     modifiedNum = ligandSize * i + num;
                     modifiedArrayList.add(modifiedNum);
                 }
-              //  System.out.println("initial " + internalArrayList+ " Modified " +modifiedArrayList);
+               // System.out.println("initial " + internalArrayList+ " Modified " +modifiedArrayList);
                 connectivityMOP.add(modifiedArrayList);
             }
-          //  System.out.println("Molecule next " + "\n");
+           // System.out.println("Molecule next " + " " +i +"\n");
         }
-        //System.exit(1);
+       // System.exit(1);
         int numPointer = 0;
         int counter = 0;
         int moleculeListSize = moleculeList.size();
@@ -517,6 +533,28 @@ public class AutoMOP {
                counter++;
            }
         }
+        Map<Integer, Vector3D> positionMapLigand = new HashMap<>();
+        List<Integer> metalNumOverlapList = new ArrayList<>();
+        Vector3D positionMetal = new Vector3D();
+        for (int i = 0; i < moleculeList.size(); i++){
+            IMolecule moleculei = moleculeList.get(i);
+            positionMapLigand = new HashMap<>();
+            metalNumOverlapList = new ArrayList<>();
+            for(int j = 0; j < arrayListMetals.size(); j++){
+                int metalNum = arrayListMetals.get(j);
+                int metalNuminConnect = i  * connectivityLigand.size() + metalNum;
+                metalNumOverlapList.add(metalNuminConnect);
+                positionMetal = (Vector3D) moleculei.getChildList().get(metalNum).getPosition();
+                positionMapLigand.put(j, positionMetal);
+                //System.out.println(j + " "+positionMetal);
+            }
+            metalMoleculeMap.put(i, metalNumOverlapList);
+            positionMapMOP.put(i, positionMapLigand);
+        }
+        //System.out.println(atomMapMOP);
+        //System.out.println(positionMapMOP);
+        //System.out.println(metalMoleculeMap);
+        //System.exit(1);
        // System.out.println(atomMapMOP);
     }
     public ISpecies getMoleculeMOP (Box box, Map<Integer, String> atomIdentifierMap, Map<Integer, String> atomMap,  boolean isDynamic, Vector centreMOP, boolean setMOPmassInfinite){
@@ -573,32 +611,8 @@ public class AutoMOP {
     //public Map<Integer, String> getAtomIdentifierMap(){return  atomIdentifierMap;}
 
 
-    public void removeExcessMetal (Box box, Map<Integer, String> atomMOPMap, ArrayList<ArrayList<Integer>> connectivityLigand, ArrayList<Integer> arrayListMetals, Map<Integer, List<Integer>> metalMoleculeMap){
-        IMoleculeList moleculeList = box.getMoleculeList();
-        List<Integer> metalPerMolecule = new ArrayList<>();
-        List<Integer> metalNumOverlapList = new ArrayList<>();
-        Map<Integer, Map<Integer, Vector3D>> positionMapMOP = new HashMap<>();
-        Map<Integer, Vector3D> positionMapLigand = new HashMap<>();
-        Vector3D positionMetal = new Vector3D();
-        for (int i = 0; i < moleculeList.size(); i++){
-            IMolecule moleculei = moleculeList.get(i);
-            positionMapLigand = new HashMap<>();
-            metalNumOverlapList = new ArrayList<>();
-            for(int j = 0; j < arrayListMetals.size(); j++){
-                int metalNum = arrayListMetals.get(j);
-                int metalNuminConnect = i  * connectivityLigand.size() + metalNum;
-                metalNumOverlapList.add(metalNuminConnect);
-                positionMetal = (Vector3D) moleculei.getChildList().get(metalNum).getPosition();
-                positionMapLigand.put(j, positionMetal);
-                //System.out.println(j + " "+positionMetal);
-            }
-            metalMoleculeMap.put(i, metalNumOverlapList);
-            positionMapMOP.put(i, positionMapLigand);
-        }
+    public void removeExcessMetal (Box box, Map<Integer, String> atomMOPMap, ArrayList<ArrayList<Integer>> connectivityLigand, ArrayList<Integer> arrayListMetals, Map<Integer, List<Integer>> metalMoleculeMap, Map<Integer, Map<Integer, Vector3D>> positionMapMOP){
         //System.out.println(metalMoleculeMap);
-
-
-
       /*  for (int i = 0; i < moleculeList.size(); i++){
             IMolecule moleculei = moleculeList.get(i);
             metalPerMolecule = metalMoleculeMap.get(i);
@@ -667,28 +681,27 @@ public class AutoMOP {
         ArrayList<ArrayList<Integer>> outerArrayList = new ArrayList<>();
         ArrayList<Integer> innerArrayList = new ArrayList<>();
         Map<Integer, Integer> removedAtomNumsOldNew = new HashMap<>();
+        System.out.println(ligandSize);
 
-
-
-
-        /* for (Map.Entry<Integer, ArrayList<ArrayList<Integer>>> entry : removedAtoms.entrySet()) {
+         for (Map.Entry<Integer, ArrayList<ArrayList<Integer>>> entry : removedAtoms.entrySet()) {
             outerArrayList = entry.getValue();
             for ( j = 0 ; j < outerArrayList.size(); j++){
+                innerArrayList = outerArrayList.get(j);
                 moleculeNum = innerArrayList.get(0);
                 atomNum = innerArrayList.get(1);
 
                 //required to modify connectivity for MOP
                 newAtomNum = ligandSize * moleculeNum + atomNum;
                 atomsRemovedNums.add(newAtomNum);
-
+                System.out.println("MoleculeNum "+ moleculeNum +" atomNum "+atomNum + " "+ newAtomNum);
                 //handle removing Atoms
-                innerArrayList = outerArrayList.get(j);
-                moleculeI = box.getMoleculeList().get(moleculeNum);
-                IAtom atom = moleculeI.getChildList().get(atomNum);
-                moleculeI.getChildList().remove(atom);
+              /*  innerArrayList = outerArrayList.get(j);
+                IMolecule moleculeN = box.getMoleculeList().get(moleculeNum);
+                IAtom atom = moleculeN.getChildList().get(atomNum);
+                moleculeN.getChildList().remove(atom);*/
             }
         }
-
+         System.exit(1);
         //step 0
         int ithAtomNum =0;
       for (Map.Entry<Vector3D, ArrayList<ArrayList<Integer>>> entry : vector3DListMap.entrySet()){
@@ -699,7 +712,13 @@ public class AutoMOP {
 
           }
 
-      }*/
+      }
+
+      /*  ArrayList<ArrayList<Integer>> val = new ArrayList<>();
+        Map<Integer, List<Integer>> removedMetal = new HashMap<>();
+        for (Map.Entry<Integer, ArrayList<ArrayList<Integer>>> entry : removedAtoms.entrySet() ){
+            ArrayList<ArrayList<Integer>> key = entry.getValue();
+        }*/
 
 
     }
@@ -938,8 +957,30 @@ public class AutoMOP {
             System.out.println(faceList.get(i));
         }
     }
+    /* else if (structName.equals("icosa")) {
+                numEdges = 30;
+                // coordinateMultiplier = phi2 * dist / (2* sqrt3);
+                coordinateMultiplier = 0.5 * dist;
+            }
+     else if (structName.equals("dodeca")) {
+        numEdges = 30;
+        //  coordinateMultiplier = phi* sqrt3/2 * dist;
+        coordinateMultiplier = 0.5 * dist;
+    }     if(structName.equals("tetra")){
+            numEdges = 6;
+            coordinateMultiplier = dist/(2*sqrt2);
+        }  else if (structName.equals("octa")) {
+            numEdges = 12;
+            coordinateMultiplier =  dist/sqrt2;
+        } else if (structName.equals("cube")) {
+            numEdges = 12;
+              //coordinateMultiplier = Math.sqrt(3)/2 * dist;
+            coordinateMultiplier = 0.5 * dist;
+        }else {
+    */
 
-    public SpeciesBuilder getAutoMOPBox(Space space, String struc, String structName, ISpecies species, Box box,ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map, boolean setMOPMassInfinite, boolean setDynamic){
+
+    public SpeciesBuilder getAutoMOPBox(AutoMOP autoMOP, Space space, String struc, String structName, ISpecies species, Box box,ArrayList<ArrayList<Integer>> connectivity, Map<Integer, String> map, boolean setMOPMassInfinite, boolean setDynamic){
        // System.out.println("inside automop");
         rotationTensor = new RotationTensor3D();
         List<Integer[]> linkedVertices = getStrucList(structName);
@@ -961,72 +1002,69 @@ public class AutoMOP {
         double coordinateMultiplier = 0; // converts edge length to circumsphere radius for modifying vertices
         double sqrt2 = Math.sqrt(2);
         boolean ifPlatonicGeom = true;
-        if(structName.equals("tetra")){
-            numEdges = 6;
-            coordinateMultiplier = dist/(2*sqrt2);
-        }  else if (structName.equals("icosa")) {
-            numEdges = 30;
-            // coordinateMultiplier = phi2 * dist / (2* sqrt3);
-            coordinateMultiplier = 0.5 * dist;
-        } else if (structName.equals("dodeca")) {
-            numEdges = 30;
-            //  coordinateMultiplier = phi* sqrt3/2 * dist;
-            coordinateMultiplier = 0.5 * dist;
-        } else if (structName.equals("octa")) {
-            numEdges = 12;
-            coordinateMultiplier =  dist/sqrt2;
-        } else if (structName.equals("cube")) {
-            numEdges = 12;
-              //coordinateMultiplier = Math.sqrt(3)/2 * dist;
-            coordinateMultiplier = 0.5 * dist;
-        }else {
-            ifPlatonicGeom = false;
-            switch (structName){
-                case "trunTetra":
-                    numEdges = 18;
-                    break;
-                case "cubOcta":
-                    numEdges = 24;
-                    break;
-                case "trunOcta":
-                    numEdges = 36;
-                    break;
-                case "trunCube":
-                    numEdges = 36;
-                    break;
-                case "rhomCubOcta":
-                    numEdges = 48;
-                    break;
-                case "snubCube":
-                    numEdges = 60;
-                    break;
-                case "icoDodeca":
-                    numEdges = 60;
-                    break;
-                case "trunCubOcta":
-                    numEdges = 72;
-                    break;
-                case "trunIcosa":
-                    numEdges = 90;
-                    break;
-                case "trunDodeca":
-                    numEdges = 90;
-                    break;
-                case "rhomIcoDodeca":
-                    numEdges = 120;
-                    break;
-                case "snubDodeca":
-                    numEdges = 150;
-                    break;
-                case "trunIcoDodeca":
-                    numEdges = 180;
-                    break;
-                default:
-                    System.out.println("incorrect geometry");
 
-            }
+        ifPlatonicGeom = false;
+        switch (structName){
+            case "trunTetra":
+                numEdges = 18;
+                break;
+            case "cubOcta":
+                numEdges = 24;
+                break;
+            case "trunOcta":
+                numEdges = 36;
+                break;
+            case "trunCube":
+                numEdges = 36;
+                break;
+            case "rhomCubOcta":
+                numEdges = 48;
+                break;
+            case "snubCube":
+                numEdges = 60;
+                break;
+            case "icoDodeca":
+                numEdges = 60;
+                break;
+            case "trunCubOcta":
+                numEdges = 72;
+                break;
+            case "trunIcosa":
+                numEdges = 90;
+                break;
+            case "trunDodeca":
+                numEdges = 90;
+                break;
+            case "rhomIcoDodeca":
+                numEdges = 120;
+                break;
+            case "snubDodeca":
+                numEdges = 150;
+                break;
+            case "trunIcoDodeca":
+                numEdges = 180;
+                break;
+            case "icosa":
+                numEdges = 30;
+                break;
+            case "dodeca":
+                numEdges = 30;
+                break;
+            case "cube":
+                numEdges = 12;
+                break;
+            case "octa":
+                numEdges = 12;
+                break;
+            case "tetra":
+                numEdges = 6;
+                break;
+            default:
+                System.out.println("incorrect geometry");
+
         }
-        AutoMOP autoMOP = new AutoMOP();
+
+        //AutoMOP autoMOP = new AutoMOP();
         Map<Integer, String> atomMapMOP = new HashMap<>();
         Map<Integer, String> atomIdentifierMapMOP = new HashMap<>();
         ArrayList<ArrayList<Integer>> connectivityMOP = new ArrayList<>();
@@ -1061,12 +1099,13 @@ public class AutoMOP {
         List<Integer[]> metalAtomsNew = new ArrayList<>();
         Map<String, AtomType> typeMapNew = new HashMap<>();
         Map<Integer, List<Integer[]>> metalAtomsConnect = new HashMap<>();
-       // autoMOP.makeConnectivityMOP(box, connectivity, connectivityMOP, map, atomMapMOP);
+        Map<Integer, Map<Integer, Vector3D>> positionMapMOP = new HashMap<>();
+        autoMOP.makeConnectivityMOP(box, connectivity, connectivityMOP, map, atomMapMOP, arrayListMetals, positionMapMOP, metalMoleculeMap );
         autoMOP.setAtomMap(atomMap);
-        //autoMOP.setAtomMapMOP(atomMapMOP);
-       // autoMOP.setconnectivity(connectivityMOP);
-       // autoMOP.setAtomIndentidfierMap(atomIdentifierMapMOP);
-        removeExcessMetal(box, atomMapMOP, connectivity, arrayListMetals, metalMoleculeMap);
+        autoMOP.setAtomMapMOP(atomMapMOP);
+        autoMOP.setconnectivity(connectivityMOP);
+        autoMOP.setAtomIndentidfierMap(atomIdentifierMapMOP);
+       // removeExcessMetal(box, atomMapMOP, connectivity, arrayListMetals, metalMoleculeMap, positionMapMOP);
         SpeciesBuilder speciesBuilder = makeCompleteMOP(autoMOP, box, species, connectivity,map, oldNewAtomNumMap, connectivityMOP, atomMapMOP, metalAtomsNew, metalAtomsConnect, typeMapNew, setMOPMassInfinite,setDynamic  );
         //boxNew.setNMolecules(speciesMOP, numMOPS);
         autoMOP.setArrayListMetals(arrayListMetals);

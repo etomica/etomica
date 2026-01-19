@@ -209,7 +209,7 @@ public class PDBReaderReplica {
             Vector position = positions.get(i+1);
             speciesBuilderNew.addAtom(typeNew, position,  "");
         }
-
+        setPositions(positions);
         species= speciesBuilderNew.build();
         if(!setMOPmassInfinite){
             //   System.out.println(typeMapNew + " typeMapNew");
@@ -263,7 +263,8 @@ public class PDBReaderReplica {
     public List<int[]> getTorsionSorted(){
         return quadrupletsSorted;
     }
-
+    public void setPositions(Map<Integer, Vector> positions){this.positions = positions;}
+    public Map<Integer, Vector> getPositions(){return positions;}
 
     public void clearEverything(){
         positions.clear();
@@ -713,6 +714,7 @@ public class PDBReaderReplica {
         elementReceiverMap.put("Ne",  new AtomType(Neon.INSTANCE, "Ne"));
         elementReceiverMap.put("Co",  new AtomType(Cobalt.INSTANCE, "Co"));
         elementReceiverMap.put("Cl",  new AtomType(Chlorine.INSTANCE, "Cl"));
+        elementReceiverMap.put("Xe", new AtomType(Xenon.INSTANCE, "Xe"));
         return elementReceiverMap.get(elementName);
     }
 
@@ -731,6 +733,9 @@ public class PDBReaderReplica {
             } else if (element.equals("KR")) {
                 AtomType Kr = new AtomType(Krypton.INSTANCE, "Kr");
                 atomIdentifierMap.put(0, Kr);
+            }else if (element.equals("XE")) {
+                AtomType Xe = new AtomType(Xenon.INSTANCE, "Xe");
+                atomIdentifierMap.put(0, Xe);
             }else if (element.equals("HE")) {
                 AtomType He = new AtomType(Helium.INSTANCE, "He");
                 atomIdentifierMap.put(0, He);
@@ -1575,6 +1580,36 @@ public class PDBReaderReplica {
         electronicConstant.put("H", new double[]{4.5280,13.8904,0.371,1.0698});
         double [] sample = electronicConstant.get(atomtype);
         return sample;
+    }
+    public Double getCharge(String confName, String atomName){
+        Map<String, Map<String, Double>> chargeMap = new HashMap<>();
+        Map<String, Double> chargeNO2 = new HashMap<>();
+        Map<String, Double> chargeNO = new HashMap<>();
+        Map<String, Double> chargeCO2 = new HashMap<>();
+        Map<String, Double> chargeCO = new HashMap<>();
+        Map<String, Double> chargeO2 = new HashMap<>();
+        Map<String, Double> chargeN2 = new HashMap<>();
+        Map<String, Double> chargeSO2 = new HashMap<>();
+        chargeN2.put("N_3", 0.0);
+        chargeN2.put("O_2", 0.0);
+        chargeNO.put("N_2", 0.1191);
+        chargeNO.put("O_2", -0.1191);
+        chargeNO2.put("N_2", 0.2037);
+        chargeNO2.put("O_2", -0.1018);
+        chargeCO2.put("C_2", 0.3722);
+        chargeCO2.put("O_2", -0.1861);
+        chargeCO.put("C_2",0.2794 );
+        chargeCO.put("O_2", -0.2794);
+        chargeSO2.put("S",0.2518);
+        chargeSO2.put("O",-0.1259);
+        chargeMap.put("no", chargeNO);
+        chargeMap.put("no2", chargeNO2);
+        chargeMap.put("co2", chargeCO2);
+        chargeMap.put("co", chargeCO);
+        chargeMap.put("so2", chargeSO2);
+        chargeMap.put("o2", chargeO2);
+        chargeMap.put("n2", chargeN2);
+        return chargeMap.get(confName).get(atomName);
     }
 
     public ArrayList<ArrayList<Integer>> getConnectivityWithoutRunning(){

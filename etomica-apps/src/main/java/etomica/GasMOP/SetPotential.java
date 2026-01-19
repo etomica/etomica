@@ -5,13 +5,16 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
-import etomica.potential.GAFF.GAFFSimulation;
 import etomica.potential.OPLS_AA.PDBDataExtracterOPLS;
+import etomica.potential.TraPPE.P4BondTorsionTraPPET1;
+import etomica.potential.TraPPE.P4BondTorsionTraPPET2;
+import etomica.potential.TraPPE.P4BondTorsionTraPPET3;
 import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.UFF.*;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.units.*;
+import etomica.util.Constants;
 
 import java.util.*;
 
@@ -135,14 +138,14 @@ public class SetPotential {
         int i =0;
         int[] bondArr = null;
       //  Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT),Mole.UNIT);
-        P2HarmonicUFF p2Bond = new P2HarmonicUFF(Double.POSITIVE_INFINITY,  1.0);
-        if(name.equals("ethane") || name.equals("ethene") || name.equals("n2")){
+        P2HarmonicUFF p2Bond = new P2HarmonicUFF(0.0,  1.0);
+        if(name.equals("ethane") || name.equals("ethene") ){
             bondArr = new int[]{0,1};
             bond.add(bondArr);
-        } else if (name.equals("propene")){
+        } else if (name.equals("propene")|| name.equals("n2")){
             bondArr = new int[]{0,1};
             bond.add(bondArr);
-            bondArr = new int[]{2,1};
+            bondArr = new int[]{2,0};
             bond.add(bondArr);
         } else if (name.equals("propane")){
             bondArr = new int[]{0,1};
@@ -152,7 +155,7 @@ public class SetPotential {
         }else if( name.equals("co2")){
             bondArr = new int[]{0,1};
             bond.add(bondArr);
-            bondArr = new int[]{2,0};
+            bondArr = new int[]{0,2};
             bond.add(bondArr);
         } else if (name.equals("ch4")) {
             
@@ -163,6 +166,157 @@ public class SetPotential {
         //bondParams.add(bondConstant);
         pmBonding.setBondingPotentialPair(species, p2Bond, bond );
     }
+
+    public void setBondStretchTraPPE(ISpecies species, List<int[]> bond, List<int[]> angles, List<int[]> torsions, PotentialMasterBonding pmBonding, String name){
+        double Vi =0, Vj =0, V=0, Vtrue=0,  type;
+        int p;
+        int i =0;
+        int[] bondArr = null;
+        int[] angleArr = null;
+        int[] torArr = null;
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT),Mole.UNIT);
+        Unit K_rad2 = new CompoundUnit(new Unit[]{Kelvin.UNIT, Radian.UNIT}, new double[]{1.0, -2.0});
+        P2HarmonicUFF p2Bond = new P2HarmonicUFF(0.0,  1.0);
+        SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
+        List<double[]> angleList = speciesGasTraPPE.getAngle(name);
+        double[] torsionDouble = speciesGasTraPPE.getTorsion(name);
+        if(name.equals("ch4")) {
+
+        } else if (name.equals("ethane") || name.equals("ethene")) {
+
+            bondArr = new int[]{0,1};
+            bond.add(bondArr);
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+
+        } else if (name.equals("propane") || name.equals("propene")) {
+            bondArr = new int[]{0,1};
+            bond.add(bondArr);
+            bondArr = new int[]{2,1};
+            bond.add(bondArr);
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+
+            angleArr = new int[]{0, 1, 2};
+            angles.add(angleArr);
+            double[] angleDouble = angleList.get(0);
+            P3BondAngle bondAngle = new P3BondAngle(Degree.UNIT.toSim(angleDouble[0]), K_rad2.toSim(angleDouble[1]));
+            pmBonding.setBondingPotentialTriplet(species, bondAngle, angles);
+
+        } else if (name.equals("nbutane") || name.equals("13butadiene") ||
+                name.equals("cisbutene") ||
+                name.equals("transbutene")) {
+
+            bondArr = new int[]{0, 1};
+            bond.add(bondArr);
+            bondArr = new int[]{2, 1};
+            bond.add(bondArr);
+            bondArr = new int[]{3, 2};
+            bond.add(bondArr);
+
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+
+            angleArr = new int[]{0, 1, 2};
+            angles.add(angleArr);
+            angleArr = new int[]{1, 2, 3};
+            angles.add(angleArr);
+            double[] angleDouble = angleList.get(0);
+            P3BondAngle bondAngle = new P3BondAngle(Degree.UNIT.toSim(angleDouble[0]), K_rad2.toSim(angleDouble[1]));
+            pmBonding.setBondingPotentialTriplet(species, bondAngle, angles);
+            
+            torArr = new int[]{0, 1, 2, 3};
+            torsions.add(torArr);
+            if (name.equals("13butadiene")){
+
+                P4BondTorsionTraPPET2 p4BondTorsionTraPPET1 = new P4BondTorsionTraPPET2(Kelvin.UNIT.toSim(torsionDouble[0]), Kelvin.UNIT.toSim(torsionDouble[1]),Kelvin.UNIT.toSim(torsionDouble[2]),Kelvin.UNIT.toSim(torsionDouble[3]));
+                pmBonding.setBondingPotentialQuad(species, p4BondTorsionTraPPET1, torsions);
+            }else if (name.equals("nbutane")){
+
+                P4BondTorsionTraPPET1 p4BondTorsionTraPPET1 = new P4BondTorsionTraPPET1(Kelvin.UNIT.toSim(torsionDouble[0]),Kelvin.UNIT.toSim(torsionDouble[1]) , Kelvin.UNIT.toSim(torsionDouble[2]),Kelvin.UNIT.toSim(torsionDouble[3]));
+                pmBonding.setBondingPotentialQuad(species, p4BondTorsionTraPPET1, torsions);
+            } else if (name.equals("cisbutene")) {
+
+                P4BondTorsionTraPPET3 p4BondTorsionTraPPET1 = new P4BondTorsionTraPPET3(Degree.UNIT.toSim(torsionDouble[0]), K_rad2.toSim(torsionDouble[1]));
+                pmBonding.setBondingPotentialQuad(species, p4BondTorsionTraPPET1, torsions);
+            } else {//transbutene
+
+                P4BondTorsionTraPPET3 p4BondTorsionTraPPET1 = new P4BondTorsionTraPPET3(Degree.UNIT.toSim(torsionDouble[0]), K_rad2.toSim(torsionDouble[1]));
+                pmBonding.setBondingPotentialQuad(species, p4BondTorsionTraPPET1, torsions);
+            }
+
+        } else if (name.equals("butene") ) {
+            bondArr = new int[]{0, 1};
+            bond.add(bondArr);
+            bondArr = new int[]{2, 1};
+            bond.add(bondArr);
+            bondArr = new int[]{3, 2};
+            bond.add(bondArr);
+
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+
+            angleArr = new int[]{0, 1, 2};
+            angles.add(angleArr);
+            double[] angleDouble = angleList.get(0);
+            P3BondAngle bondAngle = new P3BondAngle(Degree.UNIT.toSim(angleDouble[0]), K_rad2.toSim(angleDouble[1]));
+            pmBonding.setBondingPotentialTriplet(species, bondAngle, angles);
+            
+            angles = new ArrayList<>();
+            angleArr = new int[]{1, 2, 3};
+            angles.add(angleArr);
+            angleDouble = angleList.get(1);
+            bondAngle = new P3BondAngle(Degree.UNIT.toSim(angleDouble[0]), K_rad2.toSim(angleDouble[1]));
+            pmBonding.setBondingPotentialTriplet(species, bondAngle, angles);
+
+            torArr = new int[]{0, 1, 2, 3};
+            torsions.add(torArr);
+            P4BondTorsionTraPPET1 p4BondTorsionTraPPET1 = new P4BondTorsionTraPPET1(Kelvin.UNIT.toSim(torsionDouble[0]) , Kelvin.UNIT.toSim(torsionDouble[1]) ,  Kelvin.UNIT.toSim(torsionDouble[2]), Kelvin.UNIT.toSim(torsionDouble[3]));
+            pmBonding.setBondingPotentialQuad(species, p4BondTorsionTraPPET1, torsions);
+
+        } else if (name.equals("methylpropane") || name.equals("methylpropene")) {
+            bondArr = new int[]{0,1};
+            bond.add(bondArr);
+            bondArr = new int[]{2,1};
+            bond.add(bondArr);
+            bondArr = new int[]{3,1};
+            bond.add(bondArr);
+
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+
+            angleArr = new int[]{0, 1, 2};
+            angles.add(angleArr);
+            angleArr = new int[]{0, 1, 3};
+            angles.add(angleArr);
+            angleArr = new int[]{2, 1, 3};
+            angles.add(angleArr);
+            double[] angleDouble = angleList.get(0);
+            P3BondAngle bondAngle = new P3BondAngle(Degree.UNIT.toSim(angleDouble[0]), K_rad2.toSim(angleDouble[1]));
+            pmBonding.setBondingPotentialTriplet(species, bondAngle, angles);
+
+        }else if (name.equals("co2")) {
+            bondArr = new int[]{0,1};
+            bond.add(bondArr);
+            bondArr = new int[]{2,1};
+            bond.add(bondArr);
+
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+        }
+        else if (name.equals("co2")){
+            bondArr = new int[]{0,1};
+            bond.add(bondArr);
+            bondArr = new int[]{2,1};
+            bond.add(bondArr);
+
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond );
+        } else if (name.equals("n2")) {
+            bondArr = new int[]{0, 1};
+            bond.add(bondArr);
+            bondArr = new int[]{2, 1};
+            bond.add(bondArr);
+
+            pmBonding.setBondingPotentialPair(species, p2Bond, bond);
+        }else {
+            throw  new RuntimeException("TraPPE Bonding not present");
+        }
+    }
+
 
     public void setBondStretchCOMPASS(ISpecies species, List<int[]> bond, PotentialMasterBonding pmBonding, String name){
         int[] bondArr1 = null;
@@ -206,13 +360,7 @@ public class SetPotential {
         pmBonding.setBondingPotentialPair(species, p2Bond, bond);
     }
 
-    void addUniqueElements(Set<AtomType> set, List<AtomType> list) {
-        for (AtomType atomType : list) {
-            if (!set.contains(atomType)) {
-                set.add(atomType);
-            }
-        }
-    }
+
 
     public void doLJ(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, int pairAtomSize, double truncatedRadius){
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
@@ -324,6 +472,7 @@ public class SetPotential {
         }
     }*/
 
+    //made changes
     public void doLJElectrostatic(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, IPotential2[] p2lj, int pairAtomSize, double truncatedRadius, boolean doElectrostatics){
         PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
         int i = 0;
@@ -346,7 +495,7 @@ public class SetPotential {
             if(iKey == null){
                 iKey = returnGaFF(atomTypeOne);
                 // System.out.println("Null IKEY "+Arrays.toString(iKey));
-                epsilonIKey = kcals.toSim(iKey[1]);
+                epsilonIKey = Kelvin.UNIT.toSim(iKey[1]);
                 sigmaIKey = iKey[0];
             } else {
                 //System.out.println(Arrays.toString(iKey));
@@ -356,8 +505,10 @@ public class SetPotential {
             if(jKey == null){
                 jKey = returnGaFF(atomTypeTwo);
                 // System.out.println("Null JKEY "+ Arrays.toString(jKey));
-                epsilonJKey = kcals.toSim(iKey[0]);
-                sigmaJKey = jKey[1];
+                epsilonJKey = Kelvin.UNIT.toSim(jKey[1]);
+              //  double epsNew = kcals.toSim(0.105);
+                //System.out.println(epsilonJKey + " "+ epsNew);
+                sigmaJKey = jKey[0];
             } else {
                 // System.out.println(Arrays.toString(jKey));
                 epsilonJKey = kcals.toSim(jKey[3]);
@@ -465,12 +616,160 @@ public class SetPotential {
                 p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i]);
             }
             //System.out.println(" \n");
+            potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2Trunc[i], new double[]{1, 0, 0, ifTraPPE ? 0 : 1 });
+            //potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);
+            i++;
+        }
+    }
+
+    public void doLJElectrostaticGG(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, int pairAtomSize, double truncatedRadius, boolean doElectrostatics, boolean ifTraPPE, String gas1){
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+        SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
+        int i = 0;
+        UFF uff = new UFF();
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
+        // System.out.println(pairsAtoms + " Pairs");
+        P2SoftSphericalSumTruncated[] p2Trunc = new P2SoftSphericalSumTruncated[pairAtomSize];
+        for(List<AtomType>individualPair: pairsAtoms){
+            AtomType atomNameOne = individualPair.get(0);
+            AtomType atomNameTwo = individualPair.get(1);
+            String atomTypeStringOne = String.valueOf(atomNameOne);
+            String atomTypeStringTwo = String.valueOf(atomNameTwo);
+            String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
+            String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
+
+            double[] iKey = pdbReaderMOP.atomicPot(atomTypeOne);
+            double[] jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
+           /* if (atomTypeOne.equals("CX") && atomTypeTwo.equals("CX")){
+                System.out.println("Here in CXCX");
+                continue;
+            }*/
+            // System.out.println(atomTypeOne+ " "+ Arrays.toString(iKey)+" " +atomTypeTwo+ " "+ Arrays.toString(jKey));
+            if(iKey == null && ifTraPPE){
+                iKey  = speciesTraPPE.atomicPot(atomTypeOne);
+                sigmaIKey = iKey[0];
+                //  double val = Math.pow(2,1.0/6.0);
+                //  epsilonIKey = Math.pow(2,1.0/6.0)*0.001987*Kelvin.UNIT.toSim(iKey[1]);
+                // epsilonIKey = Math.pow(2,1.0/6.0)*Kelvin.UNIT.toSim(iKey[1]);
+                epsilonIKey = Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*iKey[1]);
+            } else if (iKey == null ) {
+                iKey = returnGaFF(atomTypeOne);
+                // System.out.println("Null IKEY "+Arrays.toString(iKey));
+                epsilonIKey = kcals.toSim(iKey[0]);
+                sigmaIKey = iKey[1];
+            } else {
+                //System.out.println(Arrays.toString(iKey));
+                epsilonIKey = kcals.toSim(iKey[3]);
+                sigmaIKey = iKey[2];
+            }
+            if(jKey == null && !ifTraPPE){
+                jKey = returnGaFF(atomTypeTwo);
+                // System.out.println("Null JKEY "+ Arrays.toString(jKey));
+                epsilonJKey = kcals.toSim(iKey[0]);
+                sigmaJKey = jKey[1];
+            }else if (ifTraPPE) {
+                jKey  = speciesTraPPE.atomicPot(atomTypeTwo);
+                sigmaJKey = jKey[0];
+                //  epsilonJKey =Math.pow(2,1.0/6.0)*0.001987*Kelvin.UNIT.toSim(jKey[1]);
+                // epsilonJKey =Math.pow(2,1.0/6.0)*Kelvin.UNIT.toSim(jKey[1]);
+                epsilonJKey =Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
+            } else {
+                // System.out.println(Arrays.toString(jKey));
+                epsilonJKey = kcals.toSim(jKey[3]);
+                sigmaJKey = jKey[2];
+            }
+            if(doElectrostatics){
+                double chargeOne, chargeTwo = 0.0;
+                if(ifTraPPE){
+                    chargeOne = speciesTraPPE.atomicCharge(gas1, atomTypeOne);
+                    chargeTwo = speciesTraPPE.atomicCharge(gas1, atomTypeTwo);
+                } else {
+                    chargeOne = pdbReaderMOP.getatomCharge(atomTypeOne);
+                    chargeTwo = pdbReaderMOP.getatomCharge(atomTypeTwo);
+                }
+
+                P2Electrostatics[i] = uff.electroUFF(chargeOne, chargeTwo);
+            }
+
+            // System.out.println( atomTypeOne+ " "+ atomTypeTwo+ " " + sigmaIKey + " "+ sigmaJKey + " " + epsilonIKey + " " +epsilonJKey);
+            p2LJ[i] = uff.vdw(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey);
+
+            if(doElectrostatics){
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i], P2Electrostatics[i]);
+            }else {
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i]);
+            }
+            //System.out.println(" \n");
             potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2Trunc[i], new double[]{1, 0, 0, 1});
             //potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);
             i++;
         }
     }
 
+    public void doLJElectrostatic(List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, Map<String, Double> stringCharge, int pairAtomSize, double truncatedRadius, boolean doElectrostatics, boolean ifTraPPE){
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+        SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
+        int i = 0;
+        UFF uff = new UFF();
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
+        // System.out.println(pairsAtoms + " Pairs");
+        P2SoftSphericalSumTruncated[] p2Trunc = new P2SoftSphericalSumTruncated[pairAtomSize];
+        for(List<AtomType>individualPair: pairsAtoms){
+            AtomType atomNameOne = individualPair.get(0);
+            AtomType atomNameTwo = individualPair.get(1);
+            String atomTypeStringOne = String.valueOf(atomNameOne);
+            String atomTypeStringTwo = String.valueOf(atomNameTwo);
+            String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
+            String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
+
+            double[] iKey = pdbReaderMOP.atomicPot(atomTypeOne);
+            double[] jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
+
+            if(iKey == null && ifTraPPE) {
+                iKey = speciesTraPPE.atomicPot(atomTypeOne);
+                sigmaIKey = iKey[0];
+                epsilonIKey = Kelvin.UNIT.toSim(Math.pow(2, 1.0 / 6.0) * iKey[1]);
+            } else {
+                epsilonIKey = kcals.toSim(iKey[3]);
+                sigmaIKey = iKey[2];
+            }
+
+            if (ifTraPPE) {
+                jKey  = speciesTraPPE.atomicPot(atomTypeTwo);
+                sigmaJKey = jKey[0];
+                epsilonJKey =Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
+            } else {
+                epsilonJKey = kcals.toSim(jKey[3]);
+                sigmaJKey = jKey[2];
+            }
+
+            if(doElectrostatics){
+                double chargeOne, chargeTwo = 0.0;
+                if(ifTraPPE){
+                    chargeOne = stringCharge.get(atomTypeOne);
+                    chargeTwo = stringCharge.get(atomTypeTwo);
+                } else {
+                    chargeOne = pdbReaderMOP.getatomCharge(atomTypeOne);
+                    chargeTwo = pdbReaderMOP.getatomCharge(atomTypeTwo);
+                }
+
+                P2Electrostatics[i] = uff.electroUFF(chargeOne, chargeTwo);
+            }
+
+            // System.out.println( atomTypeOne+ " "+ atomTypeTwo+ " " + sigmaIKey + " "+ sigmaJKey + " " + epsilonIKey + " " +epsilonJKey);
+            p2LJ[i] = uff.vdw(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey);
+
+            if(doElectrostatics){
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i], P2Electrostatics[i]);
+            }else {
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i]);
+            }
+            //System.out.println(" \n");
+            potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2Trunc[i], new double[]{1, 0, 0, 1});
+            //potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);
+            i++;
+        }
+    }
     public void doLJ(List<List<AtomType>> pairsAtoms, LJUFF[] p2LJ, IPotential2[] p2lj, double rc, PotentialMasterCell potentialMasterCell, double[] sigmaIJ){
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
         int i = 0;
@@ -581,11 +880,12 @@ public class SetPotential {
     public double[] returnGaFF (String atomTypeOne){
         grapheneReader grapheneReader = new grapheneReader();
         double[] num = grapheneReader.atomicPotGraphene(atomTypeOne);
+        double[] numNew = new double[]{num[0],  Math.pow(2,1.0/6.0)*num[1] * Constants.BOLTZMANN_K};
         if (num == null){
             throw new RuntimeException("atomType One " +atomTypeOne);
 
         }
-        return num;
+        return numNew;
     }
     public List<List<AtomType>> getSpeciesPairs (ISpecies species){
         List<List<AtomType>> pairsAtoms1 = new ArrayList<>();
