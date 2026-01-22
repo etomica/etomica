@@ -30,6 +30,7 @@ import etomica.potential.*;
 import etomica.potential.TraPPE.SpeciesGasTraPPE;
 import etomica.potential.UFF.*;
 import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeEwaldFourier;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -73,7 +74,7 @@ public class GCMCGO extends Simulation {
     public static List<List<AtomType>> listGrapheneGasMixed = new ArrayList<>();
     public static double massMembrane;
     public static HistogramVectorSimple targHist;
-    public GCMCGO(String confNameOne, String confNameGasOne, String confNameGasTwo, String confNameGraphene,String struc, String autoStruc, Vector centreMOP, Vector centreMOPTwo, Vector grapheneOne, Vector grapheneTwo, Vector grapheneThree, Vector grapheneFour, int numMolOne, int numMolTwo, double temperature, double truncatedRadius, double truncatedRadiusLJ, double sigma, double mu1, double mu2, boolean ifGraphenePresent, boolean ifSecondGasPresent, boolean ifMultipleGraphenePresent, boolean ifMoveRotateMoves, Vector boxSize, boolean makeAllMove, boolean doElectrostatics, double multiplier, boolean isGasCOMPASS, boolean isGasTraPPE, boolean ifMOPPresent,boolean ifautoMOP, double levelOne , double levelTwo) throws IOException {
+    public GCMCGO(String confNameGasOne,String confNameGraphene,Vector grapheneOne, Vector grapheneTwo, Vector grapheneThree, Vector grapheneFour, int numMolOne, double temperature, double truncatedRadius, double truncatedRadiusLJ, double sigma, double mu1, double mu2, boolean ifGraphenePresent, boolean ifMultipleGraphenePresent, boolean ifMoveRotateMoves, Vector boxSize, boolean makeAllMove, boolean doElectrostatics, boolean ifGrapheneDatafile, boolean isGasCOMPASS, boolean isGasTraPPE, boolean isGasOPLS) throws IOException {
         super(Space3D.getInstance());
         //  System.out.println(struc +" "+ autoStruc);
         //Make Species
@@ -85,49 +86,27 @@ public class GCMCGO extends Simulation {
         PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
         PDBReaderReplica pdbReaderReplicaNew = new PDBReaderReplica();
         GeneralGrapheneReader grapheneReader = new GeneralGrapheneReader();
+        GrapheneReaderXYZPDB grapheneReaderXYZPDB = new GrapheneReaderXYZPDB();
+        GasOPLS gasOPLS = new GasOPLS();
         SetPotential SetPotential = new SetPotential();
-
+        GCMCGOParams gcmcgoParams = new GCMCGOParams();
 
         ArrayList<ArrayList<Integer>> connectivity1 = new ArrayList<>();
         Map<Integer,String> atomMap1 = new HashMap<>();
 
         double  truncCal = truncatedRadius;
-        // AutoMOPUpgrade autoMOP = new AutoMOPUpgrade();
         GetSpeciesMOP getSpeciesMOP = new GetSpeciesMOP();
-        Map<Integer, Vector3D> atomMAPVector = new HashMap<>();
-        Map<Integer, String> atomMapPDB = new HashMap<>();
-        if (ifMOPPresent){
-            ArrayList<ArrayList<Integer>> connectivityLigand = new ArrayList<>();
-            Map<Integer, String> mapLigand = new HashMap<>();
-            speciesMOP = getSpeciesMOP.getSpeciesMOP(autoMOP1, pdbReaderMOP, pdbReaderReplica, sm, confNameOne, confNameGasOne, confNameGasTwo, struc, autoStruc, connectivityLigand, mapLigand, connectivity1, atomMap1, false, true, ifMOPPresent, ifautoMOP, isGasTraPPE, ifSecondGasPresent, false);
-            addSpecies(speciesMOP);
-            atomMAPVector = autoMOP1.getAtomMapVector();
-            atomMapPDB = autoMOP1.getAtomMapPDB();
-            if(ifGraphenePresent){
+
+
+        if (ifGraphenePresent){
+            if(ifGrapheneDatafile){
+                speciesGrapheneOne = grapheneReaderXYZPDB.getSpecies(confNameGraphene,new Vector3D(0, 0, 0), false);
+                addSpecies(speciesGrapheneOne);
+            }else {
                 speciesGrapheneOne = grapheneReader.getSpecies(confNameGraphene, new Vector3D(0, 0, 0), false);
                 addSpecies(speciesGrapheneOne);
-                // System.out.println("added graphene");
             }
             if (isGasTraPPE){
-                speciesGas = getSpeciesMOP.getSpeciesGas();
-                addSpecies(speciesGas);
-                if(ifSecondGasPresent){
-                    speciesSecondGas = getSpeciesMOP.getSpeciesSecondGas();
-                    addSpecies(speciesSecondGas);
-                }
-            }else {
-                speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true, new Vector3D(0, 0, 0), false);
-                addSpecies(speciesGas);
-                if(ifSecondGasPresent){
-                    speciesSecondGas = pdbReaderReplicaNew.getSpecies(confNameGasTwo, true, new Vector3D(0, 0, 0), false);
-                    addSpecies(speciesSecondGas);
-                }
-
-
-            }
-        } else {
-            if (isGasTraPPE){
-                // if (ifGasTrappe) {
                 SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
                 if (confNameGasOne.equals("ch4")) {
                     SpeciesGasTraPPE.ChemForm = CH4;
@@ -163,75 +142,59 @@ public class GCMCGO extends Simulation {
                     SpeciesGasTraPPE.ChemForm = cisButene;
                 }
                 speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
-                //sim.addSpecies(speciesGas);
-                // }
-
-                //speciesMOP = cifReader.speciesCIF(confNameOne,false);
-
-                //species Gas
-       /* if (isGasCOMPASS) {
-            //  speciesGas = pdbReaderCOMPASS.getSpecies(confNameGasOne, false, true, new Vector3D(0,0,0));
-        } else if (isGasTraPPE) {
-            speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
-        } else {
-            speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true, new Vector3D(0, 0, 0), false);
-        }*/
-                if(ifGraphenePresent){
-                    speciesGrapheneOne = grapheneReader.getSpecies(confNameOne, new Vector3D(0, 0, 0), false);
-                    addSpecies(speciesGrapheneOne);
-                    // System.out.println("added graphene");
-                }
-                //  System.out.println(speciesGrapheneOne.getMass());
-                getSpeciesMOP.setSpeciesGas(speciesGas);
-                speciesGas = getSpeciesMOP.getSpeciesGas();
                 addSpecies(speciesGas);
-                if (ifSecondGasPresent){
-                    getSpeciesMOP.setSpeciesSecondGas(speciesSecondGas);
-                    speciesSecondGas = getSpeciesMOP.getSpeciesSecondGas();
-                    addSpecies(speciesSecondGas);
-                }
-            }else {
-                if(ifGraphenePresent){
-                    speciesGrapheneOne = grapheneReader.getSpecies(confNameGraphene, new Vector3D(0, 0, 0), true);
-                    addSpecies(speciesGrapheneOne);
-                    //   System.out.println("added graphene");
-                }
-                speciesGas = pdbReaderReplica.getSpecies(confNameGasOne, true, new Vector3D(0, 0, 0), false);
+            } else if (isGasOPLS) {
+                speciesGas = gasOPLS.getSpecies(confNameGasOne, new Vector3D(0,0,0),false );
                 addSpecies(speciesGas);
-                speciesSecondGas = pdbReaderReplicaNew.getSpecies(confNameGasTwo, true, new Vector3D(0, 0, 0), false);
-                addSpecies(speciesSecondGas);
-                //  System.out.println("added");
+            }
+        }else {
+            if (isGasTraPPE){
+                SpeciesGasTraPPE speciesGasTraPPE = new SpeciesGasTraPPE();
+                if (confNameGasOne.equals("ch4")) {
+                    SpeciesGasTraPPE.ChemForm = CH4;
+                } else if (confNameGasOne.equals("ethane")) {
+                    SpeciesGasTraPPE.ChemForm = C2H6;
+                } else if (confNameGasOne.equals("propane")) {
+                    SpeciesGasTraPPE.ChemForm = C3H8;
+                } else if (confNameGasOne.equals("ethene")) {
+                    SpeciesGasTraPPE.ChemForm = C2H4;
+                } else if (confNameGasOne.equals("propene")) {
+                    SpeciesGasTraPPE.ChemForm = C3H6;
+                } else if (confNameGasOne.equals("co2")) {
+                    SpeciesGasTraPPE.ChemForm = CO2;
+                } else if (confNameGasOne.equals("o2")) {
+                    SpeciesGasTraPPE.ChemForm = O2;
+                } else if (confNameGasOne.equals("n2")) {
+                    SpeciesGasTraPPE.ChemForm = N2;
+                }else if (confNameGasOne.equals("nh3")) {
+                    SpeciesGasTraPPE.ChemForm = NH3;
+                }else if (confNameGasOne.equals("1butene")) {
+                    SpeciesGasTraPPE.ChemForm = C4H8ene_1;
+                }else if (confNameGasOne.equals("13butadiene")) {
+                    SpeciesGasTraPPE.ChemForm = C4H8ene_13;
+                }else if (confNameGasOne.equals("nbutane")) {
+                    SpeciesGasTraPPE.ChemForm = C4H10;
+                }else if (confNameGasOne.equals("methylpropene")) {
+                    SpeciesGasTraPPE.ChemForm = methylPropene_2;
+                }else if (confNameGasOne.equals("methylpropane")) {
+                    SpeciesGasTraPPE.ChemForm = methylPropane_2;
+                }else if (confNameGasOne.equals("transbutene")) {
+                    SpeciesGasTraPPE.ChemForm = transButene;
+                }else if (confNameGasOne.equals("cisbutene")) {
+                    SpeciesGasTraPPE.ChemForm = cisButene;
+                }
+                speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
+                addSpecies(speciesGas);
+            } else if (isGasOPLS) {
+                speciesGas = gasOPLS.getSpecies(confNameGasOne, new Vector3D(0,0,0),false );
+                addSpecies(speciesGas);
             }
         }
         box = this.makeBox();
-        if (ifMOPPresent){
-            box.addNewMolecule(speciesMOP);
-        }
-
-
-        connectivity1 = pdbReaderMOP.getConnectivityModified();
-        // System.out.println("box" + boxSize);
         box.getBoundary().setBoxSize(boxSize);
-        ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModified();
-        atomMap1 = pdbReaderMOP.getAtomMapWithoutRunning();
-        Map<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModified();
 
-        //System.out.println(boxSize);
-      /* if(ifautoMOP){
-           speciesMOP = autoMOP.getAutoMOPBox(Space3D.getInstance(), struc, autoStruc, speciesMOP, box, connectivity1, atomMapModified1, false, true, 1);
-           //addSpecies(speciesMOP);
-       }*/
-
-       /* boxNew = this.makeBox();
-        if(ifMOPPresent && ifautoMOP){
-            boxNew.getBoundary().setBoxSize(boxSize);
-            boxNew.setNMolecules(speciesMOP, 1);
-        } else {
-            box.getBoundary().setBoxSize(new Vector3D(60,60,60));
-        }*/
         Map<Double, List<Integer[]> >distMap = new HashMap<>();
         //tetra= 6, cube = 12 octahedron = 12, dodecahedron = 30, icosahedron = 30;
-        GCMCMOPParams paramsNew = new GCMCMOPParams();
         if(ifGraphenePresent ){
             if(ifMultipleGraphenePresent){
                 List<Vector> oldPositions = new ArrayList<>();
@@ -241,7 +204,7 @@ public class GCMCGO extends Simulation {
                 while (oldPositions.size() < moleculeMOPZero.getChildList().size()) {
                     oldPositions.add(space.makeVector());
                 }
-                Vector vecgrapheneOne = new Vector3D(0.0,0.0, levelOne);
+                Vector vecgrapheneOne = new Vector3D(0.0,0.0, -10);
                 Vector finalVecgrapheneOne = vecgrapheneOne;
                 System.out.println(finalVecgrapheneOne);
                 moleculeMOPZero.getChildList().forEach(atom -> {
@@ -250,7 +213,7 @@ public class GCMCGO extends Simulation {
                     Vector shift = box.getBoundary().centralImage(atom.getPosition());
                     atom.getPosition().PE(shift);
                 });
-                vecgrapheneOne = new Vector3D(0.0,0.0, levelTwo);
+                vecgrapheneOne = new Vector3D(0.0,0.0, 10);
                 System.out.println(vecgrapheneOne);
                 IMolecule moleculeMOPOne = box.getMoleculeList().get(1);
                 Vector finalVecgrapheneOne1 = vecgrapheneOne;
@@ -260,98 +223,16 @@ public class GCMCGO extends Simulation {
                     Vector shift = box.getBoundary().centralImage(atom.getPosition());
                     atom.getPosition().PE(shift);
                 });
-               /* vecgrapheneOne = new Vector3D(0.0,0.0,  paramsNew.graphenezThree);
-                System.out.println(vecgrapheneOne);
-                moleculeMOPOne = box.getMoleculeList().get(2);
-                Vector finalVecgrapheneOne2 = vecgrapheneOne;
-                moleculeMOPOne.getChildList().forEach(atom -> {
-                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                    atom.getPosition().PE(finalVecgrapheneOne2);
-                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
-                    atom.getPosition().PE(shift);
-                });
-                vecgrapheneOne = new Vector3D(0.0,0.0,  paramsNew.graphenezFour);
-                System.out.println(vecgrapheneOne);
-                moleculeMOPOne = box.getMoleculeList().get(3);
-                Vector finalVecgrapheneOne3 = vecgrapheneOne;
-                moleculeMOPOne.getChildList().forEach(atom -> {
-                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                    atom.getPosition().PE(finalVecgrapheneOne3);
-                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
-                    atom.getPosition().PE(shift);
-                });*/
-              /*  vecgrapheneOne = new Vector3D(0.0,0.0, 15.0);
-                System.out.println(vecgrapheneOne);
-                moleculeMOPOne = box.getMoleculeList().get(4);
-                Vector finalVecgrapheneOne4 = vecgrapheneOne;
-                moleculeMOPOne.getChildList().forEach(atom -> {
-                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                    atom.getPosition().PE(finalVecgrapheneOne4);
-                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
-                    atom.getPosition().PE(shift);
-                });
-                vecgrapheneOne = new Vector3D(0.0,0.0, -15.0);
-                System.out.println(vecgrapheneOne);
-                moleculeMOPOne = box.getMoleculeList().get(5);
-                Vector finalVecgrapheneOne5 = vecgrapheneOne;
-                moleculeMOPOne.getChildList().forEach(atom -> {
-                    oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                    atom.getPosition().PE(finalVecgrapheneOne5);
-                    Vector shift = box.getBoundary().centralImage(atom.getPosition());
-                    atom.getPosition().PE(shift);
-                });*/
-
-               /* //box.addNewMolecule(speciesGrapheneOne);
-                box.addNewMolecule(speciesGrapheneTwo);
-              */
             } else {
                 box.addNewMolecule(speciesGrapheneOne);
-                //    box.addNewMolecule(speciesGrapheneFive);
             }
         }
         Map<Integer, String> atomIdentifierMapModified1 = pdbReaderMOP.getModifiedAtomIdentifierMap();
-
-        if(ifGraphenePresent && ifMOPPresent){
-            if(ifSecondGasPresent){
-                sm = new SpeciesManager.Builder().addSpecies(speciesGrapheneOne).addSpecies(speciesMOP).addSpecies(speciesGas).addSpecies(speciesSecondGas).build();
-            } else {
-                sm = new SpeciesManager.Builder().addSpecies(speciesGrapheneOne).addSpecies(speciesMOP).addSpecies(speciesGas).build();
-            }
-        }else if (ifGraphenePresent){
-            if(ifSecondGasPresent){
-                sm = new SpeciesManager.Builder().addSpecies(speciesGrapheneOne).addSpecies(speciesGas).addSpecies(speciesSecondGas).build();
-            } else {
-                sm = new SpeciesManager.Builder().addSpecies(speciesGrapheneOne).addSpecies(speciesGas).build();
-            }
-        } else if(ifMOPPresent){
-            if(ifSecondGasPresent){
-                sm = new SpeciesManager.Builder().addSpecies(speciesMOP).addSpecies(speciesGas).addSpecies(speciesSecondGas).build();
-            } else {
-                sm = new SpeciesManager.Builder().addSpecies(speciesMOP).addSpecies(speciesGas).build();
-            }
+        if (ifGraphenePresent){
+            sm = new SpeciesManager.Builder().addSpecies(speciesGrapheneOne).addSpecies(speciesGas).build();
         } else {
-            if (ifSecondGasPresent) {
-                sm = new SpeciesManager.Builder().addSpecies(speciesGas).addSpecies(speciesSecondGas).build();
-            } else {
-                sm = new SpeciesManager.Builder().addSpecies(speciesGas).build();
-            }
+            sm = new SpeciesManager.Builder().addSpecies(speciesGas).build();
         }
-
-
-        ArrayList<ArrayList<Integer>> connectedAtoms1 = pdbReaderMOP.getConnectivity();
-        //ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModified();
-        // Map<Integer,String> atomMap1 = pdbReaderMOP.getAtomMapWithoutRunning();
-        // Map<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModified();
-        ArrayList<Integer> bondList1 = pdbReaderMOP.getBondList(connectedAtoms1, atomMap1);
-        Map<String, double[]> atomicPotMap1 = pdbReaderMOP.atomicPotMap();
-        ArrayList<Integer> bondsNum1 = pdbReaderMOP.getBonds();
-
-        List<int[]> dupletsSorted1= pdbReaderMOP.getDupletesSorted();
-        List<int[]>tripletsSorted1= pdbReaderMOP.getAnglesSorted();
-        List<int[]>quadrupletsSorted1= pdbReaderMOP.getTorsionSorted();
-        Map<String[],List<int[]>> bondTypesMap1= pdbReaderMOP.idenBondTypes(dupletsSorted1, atomIdentifierMapModified1);
-        Map<String[],List<int[]>> angleTypesMap1= pdbReaderMOP.idenAngleTypes(tripletsSorted1, atomIdentifierMapModified1);
-        Map<String[],List<int[]>> torsionTypesMap1= pdbReaderMOP.idenTorsionTypes(quadrupletsSorted1, atomIdentifierMapModified1);
 
         ArrayList<ArrayList<Integer>> connectedAtoms2= null;
         ArrayList<ArrayList<Integer>> connectivityModified2= null;
@@ -400,15 +281,20 @@ public class GCMCGO extends Simulation {
             angleTypesMap2 = pdbReaderReplica.idenAngleTypes(tripletsSorted2, atomIdentifierMapModified2);
             torsionTypesMap2 = pdbReaderReplica.idenTorsionTypes(quadrupletsSorted2, atomIdentifierMapModified2);
         }
+
         //SetBonding Potential
         UniversalSimulation.makeAtomPotentials(sm);
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
-        //MOP
-        SetPotential.setBondStretch(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, pmBonding);
+
+        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
+        PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParams(2.62, 0);
+        System.out.println(params);
         //GasOne
-        if (!isGasTraPPE) {
+        if (!isGasTraPPE && !isGasOPLS) {
             SetPotential.setBondStretch(speciesGas, bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2, quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, pmBonding);
+        } else if (isGasOPLS) {
+         //   SetPotential.setBondStretchOPLS(bondTypesMap2, angleTypesMap2, torsionTypesMap2, pmBonding);
         } else {
             String[] parts = confNameGasOne.split("//");
             String gasName = parts[parts.length-1];
@@ -416,75 +302,20 @@ public class GCMCGO extends Simulation {
             SetPotential.setBondStretchTraPPE(speciesGas, bonds, angles, torsions, pmBonding, gasName);
         }
 
-        //GasTwo
-        if(ifSecondGasPresent ){
-            if (!isGasTraPPE){
-                SetPotential.setBondStretch(speciesSecondGas,bondTypesMapSecondGas, angleTypesMapSecondGas, torsionTypesMapSecondGas, bondsNumSecondGas, bondListSecondGas,quadrupletsSortedSecondGas, atomIdentifierMapModifiedSecondGas, atomicPotMapSecondGas, pmBonding);
-            }else {
-                String[] parts = confNameGasOne.split("//");
-                String gasName = parts[parts.length-1];
-                //   SetPotential.setBondStretchTraPPE(speciesSecondGas, bonds, pmBonding, gasName);
-                SetPotential.setBondStretchTraPPE(speciesSecondGas, bonds, angles, torsions, pmBonding, gasName);
-            }
-
-        }
         List<AtomType> listGas;
-        List<List<AtomType>> listMOPGasPairs = null;
-
         //NonBonded
         potentialMasterCell.doAllTruncationCorrection = false;
-        if (ifSecondGasPresent) {
-            listGas = SetPotential.listTwoSpeciesPairs(speciesGas.getUniqueAtomTypes(), speciesSecondGas.getUniqueAtomTypes());
-        } else {
-            listGas = speciesGas.getUniqueAtomTypes();
-        }
 
-        if (ifMOPPresent) {
-            listMOPGasPairs = SetPotential.listGrapheneSpecial(speciesMOP.getUniqueAtomTypes(), listGas);
-        } else if (ifautoMOP  && ifMOPPresent) {
-            listMOPGasPairs = SetPotential.listGrapheneSpecial(this.autoMOP.getUniqueAtomTypes(), listGas);
-        } else {
-            listMOPGasPairs = SetPotential.listFinal(listGas);
-        }
-
-        if (ifSecondGasPresent) {
-            listMOPGasPairs = SetPotential.listGrapheneSpecial(listGas, speciesSecondGas.getUniqueAtomTypes());
-        }
-
-        //MOP-Gas
-
-        // System.out.println(listMOPGas);
-
-        LJUFF[] p2LJMOPGas = new LJUFF[listMOPGasPairs.size()];
-        P2Electrostatic[] p2ElectroMOPGas = new P2Electrostatic[listMOPGasPairs.size()];
-        IPotential2[] p2mopgas = new IPotential2[listMOPGasPairs.size()];
-        //   LJCOMPASS[] p2LJMOPGasCOMPASS = new LJCOMPASS[listMOPGasPairs.size()];
-        if (isGasTraPPE) {
-            if(ifMOPPresent){
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncCal, doElectrostatics, true);
-            }else {
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, true);
-            }
-        } else {
-            if(ifMOPPresent){
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, p2mopgas, listMOPGasPairs.size(), truncCal, doElectrostatics);
-            }else {
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, isGasTraPPE);
-            }
-
-        }
-
-        if (ifMOPPresent || ifautoMOP) {
-            List<List<AtomType>> listGasGas = SetPotential.listFinal(speciesGas.getUniqueAtomTypes());
-            LJUFF[] p2LJGas = new LJUFF[listGasGas.size()];
-            IPotential2[] p2ljGas = new IPotential2[listGasGas.size()];
-            P2Electrostatic[] p2ElectroGas = new P2Electrostatic[listGasGas.size()];
-            //   LJCOMPASS[] p2LJGasCOMPASS = new LJCOMPASS[listGasGas.size()];
-            if (isGasTraPPE) {
-                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, listGasGas.size(), truncatedRadius, false, true);
-            } else {
-                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, p2ljGas, listGasGas.size(), truncatedRadiusLJ, doElectrostatics);
-            }
+        listGas = speciesGas.getUniqueAtomTypes();
+        Map<String, Double> chargeCoeffGas = new HashMap<>();
+        Map<String, double[]> potentialCoeffGas = new HashMap<>();
+        Map<String, Double> chargeCoeffGraph = new HashMap<>();
+        Map<String, double[]> potentialCoeffGraph = new HashMap<>();
+        if (isGasOPLS && ifGrapheneDatafile){
+            chargeCoeffGas = gasOPLS.getChargeCoeff();
+            chargeCoeffGraph = grapheneReaderXYZPDB.getChargeCoeff();
+            potentialCoeffGas = gasOPLS.getCoeffPotential();
+            potentialCoeffGraph = grapheneReaderXYZPDB.getCoeffPotential();
         }
         //Graphene-Gas
         if (ifGraphenePresent) {
@@ -495,87 +326,28 @@ public class GCMCGO extends Simulation {
             LJUFF[] p2LJGrapheneGas = new LJUFF[listGrapheneGasFinal.size()];
             if (isGasTraPPE) {
                 SetPotential.doLJElectrostatic(listGrapheneGasFinal, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, listGrapheneGasFinal.size(), truncatedRadius, false, true);
-            } else {
+            } else if (isGasOPLS) {
+                SetPotential.setPotentialGrapheneGas(listGrapheneGasFinal, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, listGrapheneGasFinal.size(), truncatedRadius, doElectrostatics, isGasTraPPE, isGasOPLS, ifGrapheneDatafile, chargeCoeffGas, potentialCoeffGas, chargeCoeffGraph, potentialCoeffGraph );
+            }else {
                 SetPotential.doLJElectrostatic(listGrapheneGasFinal, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, p2electroGasgraphene, listGrapheneGasFinal.size(), truncatedRadiusLJ, doElectrostatics);
             }
-
         }
 
-        //Gas-Gas
 
-        SetPotential.setBondStretch(speciesMOP, bondTypesMap1, angleTypesMap1, torsionTypesMap1,bondsNum1,bondList1, quadrupletsSorted1, atomIdentifierMapModified1,atomicPotMap1, pmBonding);
-        //GasOne
-        if (!isGasTraPPE) {
-            SetPotential.setBondStretch(speciesGas, bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2, quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, pmBonding);
-        } else {
-            String[] parts = confNameGasOne.split("//");
-            String gasName = parts[parts.length-1];
-            // SetPotential.setBondStretchTraPPE(speciesGas, bonds, pmBonding, gasName);
-            SetPotential.setBondStretchTraPPE(speciesGas, bonds, angles, torsions, pmBonding, gasName);
-        }
-
-        List<List<AtomType>> listGrapheneGasPairs = null;
-
+        List<List<AtomType>> listGasGasPairs = null;
+        listGas = speciesGas.getUniqueAtomTypes();
+        listGasGasPairs = SetPotential.listFinal(listGas);
         //NonBonded
-        potentialMasterCell.doAllTruncationCorrection = false;
-        //combine gases
-        if (ifSecondGasPresent) {
-            listGas = SetPotential.listTwoSpeciesPairs(speciesGas.getUniqueAtomTypes(), speciesSecondGas.getUniqueAtomTypes());
-        } else {
-            listGas = speciesGas.getUniqueAtomTypes();
+
+        P2Electrostatic[] p2ElectroGasGas = new P2Electrostatic[listGasGasPairs.size()];
+        IPotential2[] p2electroGasGas = new IPotential2[listGasGasPairs.size()];
+        LJUFF[] p2LJGasGas = new LJUFF[listGasGasPairs.size()];
+        if (isGasTraPPE || isGasOPLS){
+            SetPotential.setPotentialGasGasGO(listGasGasPairs, potentialMasterCell, p2LJGasGas, p2ElectroGasGas, listGasGasPairs.size(), truncatedRadius, doElectrostatics, isGasTraPPE, isGasOPLS, ifGrapheneDatafile, potentialCoeffGas, chargeCoeffGas);
+        }else {
+            SetPotential.doLJElectrostatic(listGasGasPairs, potentialMasterCell, p2LJGasGas, p2ElectroGasGas, p2electroGasGas, listGasGasPairs.size(), truncatedRadiusLJ, doElectrostatics);
         }
 
-        if (ifMOPPresent) {
-            listMOPGasPairs = SetPotential.listGrapheneSpecial(speciesMOP.getUniqueAtomTypes(), listGas);
-        } else if (ifautoMOP  && ifMOPPresent) {
-            listMOPGasPairs = SetPotential.listGrapheneSpecial(this.autoMOP.getUniqueAtomTypes(), listGas);
-        } else {
-            listMOPGasPairs = SetPotential.listFinal(listGas);
-        }
-
-        if (isGasTraPPE) {
-            if(ifMOPPresent){
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncCal, doElectrostatics, true);
-            }else {
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, true);
-            }
-        } else {
-            if(ifMOPPresent){
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, p2mopgas, listMOPGasPairs.size(), truncCal, doElectrostatics);
-            }else {
-                SetPotential.doLJElectrostatic(listMOPGasPairs, potentialMasterCell, p2LJMOPGas, p2ElectroMOPGas, listMOPGasPairs.size(), truncatedRadiusLJ, doElectrostatics, isGasTraPPE);
-            }
-        }
-
-        if (ifMOPPresent || ifautoMOP) {
-            List<List<AtomType>> listGasGas = new ArrayList<>();
-            if (ifSecondGasPresent) {
-                listGasGas = SetPotential.listGrapheneSpecial(speciesGas.getUniqueAtomTypes(), speciesSecondGas.getUniqueAtomTypes());
-            }else{
-                listGasGas = SetPotential.listFinal(speciesGas.getUniqueAtomTypes());
-            }
-            LJUFF[] p2LJGas = new LJUFF[listGasGas.size()];
-            IPotential2[] p2ljGas = new IPotential2[listGasGas.size()];
-            P2Electrostatic[] p2ElectroGas = new P2Electrostatic[listGasGas.size()];
-            if (isGasTraPPE) {
-                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, listGasGas.size(), truncatedRadius, false, true);
-            } else {
-                SetPotential.doLJElectrostatic(listGasGas, potentialMasterCell, p2LJGas, p2ElectroGas, p2ljGas, listGasGas.size(), truncatedRadiusLJ, doElectrostatics);
-            }
-        }
-
-
-        if (ifGraphenePresent){
-            listGrapheneGasPairs = SetPotential.listGrapheneSpecial(speciesGrapheneOne.getUniqueAtomTypes(), listGas);
-            P2Electrostatic[] p2ElectroGasgraphene = new P2Electrostatic[listGrapheneGasPairs.size()];
-            IPotential2[] p2electroGasgraphene = new IPotential2[listGrapheneGasPairs.size()];
-            LJUFF[] p2LJGrapheneGas = new LJUFF[listGrapheneGasPairs.size()];
-            if (isGasTraPPE) {
-                SetPotential.doLJElectrostatic(listGrapheneGasPairs, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, listGrapheneGasPairs.size(), truncatedRadius, false, true);
-            } else {
-                SetPotential.doLJElectrostatic(listGrapheneGasPairs, potentialMasterCell, p2LJGrapheneGas, p2ElectroGasgraphene, p2electroGasgraphene, listGrapheneGasPairs.size(), truncatedRadiusLJ, doElectrostatics);
-            }
-        }
 
         potentialMasterCell.doOneTruncationCorrection = true;
         potentialMasterCell.init();
@@ -604,20 +376,10 @@ public class GCMCGO extends Simulation {
         mcMoveID.setMu(mu1);
         mcMoveID.setSpecies(speciesGas);
         integrator.getMoveManager().addMCMove(mcMoveID);
-
-        if (ifSecondGasPresent) {
-            MCMoveInsertDelete mcMoveIDTwo = new MCMoveInsertDelete(potentialMasterCell, random, space);
-            mcMoveIDTwo.setBox(box);
-            mcMoveIDTwo.setMu(mu2);
-            System.out.println("mu2 " + mu2);
-            mcMoveIDTwo.setSpecies(speciesSecondGas);
-            integrator.getMoveManager().addMCMove(mcMoveIDTwo);
-        }
-      //  System.out.println(speciesGrapheneOne.getMass());
     }
 
     public static void main(String[] args) throws IOException {
-        GCMCMOPParams params = new GCMCMOPParams();
+        GCMCGOParams params = new GCMCGOParams();
         ParseArgs.doParseArgs(params, args);
         int numAtomOne = params.numAtomOne;
         int numAtomTwo = params.numAtomTwo;
@@ -641,6 +403,8 @@ public class GCMCGO extends Simulation {
         boolean doGraphics = params.doGraphics;
         boolean doElectrostatics = params.doElectrostatics;
         boolean ifMOPPresent = params.ifMOPPresent;
+        boolean ifGrapheneDataFile = params.ifGrapheneDataFile;
+        boolean ifGasOPLS = params.ifGasOPLS;
         boolean ifCOFPresent = params.ifCOF;
         // double mu1 = -params.mu1*BOLTZMANN_K*Kelvin.UNIT.toSim(temperature);
         boolean isGasCOMPASS = params.isGasCOMPASS;
@@ -688,18 +452,20 @@ public class GCMCGO extends Simulation {
         double[] boxOne = new double[3];
         List<double[]> grapheneSheetsPosnt = new ArrayList<>();
         double[] graphPosn = new double[2];
-        for (int delta = 0; delta < 19; delta++){
+       /* for (int delta = 0; delta < 1; delta++){
             double val = 5 + delta * 0.5;
             boxOne = new double[]{30, 30, 2*val};
             boxLen.add(boxOne);
             graphPosn = new double[]{-val/2, val/2};
             grapheneSheetsPosnt.add(graphPosn);
-        }
+        }*/
+        boxOne = new double[]{18.5,18.5,50};
+        boxLen.add(boxOne);
         System.out.println(Arrays.deepToString(boxLen.toArray()));
         System.out.println(Arrays.deepToString(grapheneSheetsPosnt.toArray()));
         List<String> gasSim = new ArrayList<>();
         gasSim.add(params.confNamegas);
-        gasSim.add(params.confNamegasOne);
+        //gasSim.add(params.confNamegasOne);
 
         double t1Start = System.nanoTime();
         for (int i = (int) mu1; i>params.muLimit; i= (int) (i+muDecrease)){
@@ -730,7 +496,7 @@ public class GCMCGO extends Simulation {
                 for (int p = 0; p < boxLen.size(); p++) {
                     // double temperature = mopNames.get(p);
 
-                    double[] levels = grapheneSheetsPosnt.get(p);
+                   // double[] levels = grapheneSheetsPosnt.get(p);
                     double[] boxSizeN = boxLen.get(p);
                     double[] intn = boxLen.get(0);
                     Vector boxSizeAct = Vector.of(boxSizeN[0], boxSizeN[1], boxSizeN[2]) ;
@@ -742,7 +508,7 @@ public class GCMCGO extends Simulation {
                        // System.out.println("mu1 " + mu);
                         //  int mu = -3500;
                         //System.out.println("temperature " + params.temperature);
-                        GCMCGO sim = new GCMCGO(confNameMOPOne, gasSimAct, params.confNameGasTwo, confNameGraphene, params.struc, geom, centreMOP, centreMOPTwo, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSizeAct, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent,ifautoMOP, levels[0], levels[1] ) ;
+                        GCMCGO sim = new GCMCGO( gasSimAct, confNameGraphene,  grapheneOne, grapheneTwo, grapheneThree, grapheneFour, numAtomOne,temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSizeAct, makeAllMove, doElectrostatics, ifGrapheneDataFile, isGasCOMPASS, isGasTraPPE, ifGasOPLS) ;
                         if (massMembrane < 1) {
                             massMembrane = 1;
                         }
@@ -1015,7 +781,7 @@ public class GCMCGO extends Simulation {
     public Integrator getIntegrator(){
         return integrator;
     }
-    public static class GCMCMOPParams extends ParameterBase {
+    public static class GCMCGOParams extends ParameterBase {
         public Vector grapheneThirteen = new Vector3D(15.0,15.0, 60.0);
         public Vector grapheneOne = new Vector3D(0.0,0.0, 4.0);
         public Vector grapheneTwo = new Vector3D(0,0, -4.0);
@@ -1030,20 +796,13 @@ public class GCMCGO extends Simulation {
         public Vector grapheneEight = new Vector3D(15.0,15.0, -40.0);
         public Vector grapheneEleven = new Vector3D(15.0,15.0, -50.0);
         public Vector grapheneTwelve = new Vector3D(15.0,15.0, -60.0);
-        public String confNameEight1 = "D:\\Sem-IX\\papers\\C5DT04764A\\01mop";
-        public String confNameEight4 = "D:\\Sem-IX\\papers\\Automatic\\Automatic1\\folderCopy\\acsami8b02015\\5";
         public Vector centreMOPTwo = new Vector3D(0.0,0.0,30);
         public Vector centreMOP = new Vector3D(0.0,0.0,-30);
-        public Vector centreMOPThree = new Vector3D(0.0,0.0,-50);
-        public Vector centreMOPFour = new Vector3D(0.0,0.0,50);
         public int numAtomOne = 1;
         public int numAtomTwo = 1;
 
         public double sigma =2.7;
         public boolean makeAllMove = false;
-        public boolean doHistogramSimple = false;
-        public boolean doHistogramEnergy = false;
-        public boolean doHistogramEnergy2D = false;
         public boolean ifCOF = false;
         public String confNameCOF = "F://Avagadro//mop//tetra_CuCOOCH3";
         public double boxZLen = 30;
@@ -1051,7 +810,7 @@ public class GCMCGO extends Simulation {
         public double graphenezTwo = 6.25;
         public double graphenezThree = 18.75;
         public double graphenezFour = -18.75;
-        public String confNameGraphene = "D:\\Sem-IX\\GO\\go3030";
+        public String confNameGraphene = "D:\\Sem-X\\GO\\graphitis\\GO_sheet";
         public String confNameGraphene1 = "D:\\Sem-IX\\GO\\go0019";
         public String confNameGraphene2 = "D:\\Sem-IX\\GO\\go0038";
         public String confNameGraphene3 = "D:\\Sem-IX\\GO\\go0056";
@@ -1083,7 +842,7 @@ public class GCMCGO extends Simulation {
         // public double side =50.0;
         public boolean ifXYZfile = false;
 
-        public String confNamegas = "ethane";
+        public String confNamegas = "D:\\Sem-X\\GO\\gasOPLS\\ethane";
         public String confNamegasOne = "ch4" ;
         public String confNameGasTwo = "ch4" ;
         public String confNameGasThree = "methylpropane" ;
@@ -1095,51 +854,19 @@ public class GCMCGO extends Simulation {
         public String confNamegasNine = "ch4" ;
         public String confNamegasTen = "propane" ;
         public String confNamegasEleven = "propene" ;
-        public boolean isGasTraPPE = true;
-        public double sizeOne =29.28;
-        public double sizeTwo = 49.0051;
-        public double sizeThree = 38.5022;
+        public boolean isGasTraPPE = false;
+        public boolean isGasOPLS = true;
         public String geomOne = "icosa" ;
-       /* public String confNameEight1 ="D:\\Sem-IX\\papers\\All\\Gong,Wang\\1";
-        public String confNameEight1 ="D:\\Sem-IX\\papers\\acs.cgd.6b00306\\1424706\\01";//tetra_cu
-*/
-        // public String confNameEight1 = "D:\\Sem-IX\\papers\\Automatic\\cif_by_doi_all\\101002anie201507295\\1";
-
-        public String geomTwo = "trunOcta" ;
-        public String geomThree = "trunIcosa" ;
-        public String geomFour = "rhomCubOcta" ;
-        public String geomFive = "trunDodeca" ;
-        public String geomSix = "trunCube" ;
-        public String geomSeven = "trunOcta" ;
-        public String geomEight = "trunTetra" ;
-
-
-        public double sizeFour = 20;
-        public double sizeFive =35;
-        public double sizeSix = 20;
-        public double sizeSeven = 20;
-        public double sizeEight = 15;
-        // public int numBins1 = (int) ((int) sizeOne  );
-        //  public int numBins2 = (int) ((int) sizeTwo );
-        /// public int numBins3 = (int) ((int) sizeThree );
-        // public int numBins4 = (int) ((int) sizeThree );
-        public int numBins1 = 45;
-
-        public int numBins6 = 40;
-        public int numBins7 = 40;
-        public int numBins8 = 30;
-        public String fileOutPutName1 = "D:\\Sem-IX\\papers\\Automatic\\Automatic1\\acami8b2015_5_ethane.txt";
-        public String fileOutPutName2 = "D:\\Sem-IX\\papers\\Automatic\\Automatic1\\acami8b2015_5_methane.txt";
-        public String fileOutPutName3 = "D:\\Sem-IX\\09_26\\augustyniakethene.txt";
-        // public Vector boxSize = new Vector3D(sizeOne, sizeTwo, sizeThree);
         public double truncatedRadiusLJ =12.8;
         public double truncatedRadius = truncatedRadiusLJ;
         public String struc = "edge";
         public boolean doFFAnalaysis = true;
         public boolean doGraphics = true;
         public boolean ifautoMOP = false;
+        public boolean ifGasOPLS = true;
         public boolean isGasCOMPASS = false;
         public boolean ifGraphenePresent = true;
+        public boolean ifGrapheneDataFile = true;
         public boolean ifMultipleGraphenePresent = true;
         public boolean ifSecondGasPresent = false;
         public boolean ifMOPPresent = false;

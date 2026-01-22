@@ -73,7 +73,9 @@ public class PotentialMaster implements PotentialCompute {
         this.atomCountByType = new int[sm.getAtomTypeCount()];
         for (ISpecies s : sm.getSpeciesArray()) {
             int nMols = box.getNMolecules(s);
+            //System.out.println(s.getUniqueAtomTypes());
             for (AtomType type : s.getAtomTypes()) {
+              //  System.out.println(type);
                 atomCountByType[type.getIndex()] += nMols;
             }
         }

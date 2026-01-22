@@ -28,8 +28,6 @@ public class SetPotential {
     public static double sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey;
     public int i;
     public static String atomName1,atomName2, atomName3 ;
-
-
     public void setBondStretch(ISpecies species1, Map<String[], List<int[]>> bondTypesMap1, Map<String[],List<int[]>> angleTypesMap1, Map<String[],List<int[]>> torsionTypesMap1, ArrayList<Integer> bondsNum1, ArrayList<Integer> bondList1, List<int[]>quadrupletsSorted1, Map<Integer, String> atomIdentifierMapModified1, Map<String, double[]> atomicPotMap1, PotentialMasterBonding pmBonding){
         double Vi =0, Vj =0, V=0, Vtrue=0,  type;
         int p;
@@ -166,7 +164,193 @@ public class SetPotential {
         //bondParams.add(bondConstant);
         pmBonding.setBondingPotentialPair(species, p2Bond, bond );
     }
+    public void setPotentialGrapheneGas (List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, int pairAtomSize, double truncatedRadius, boolean doElectrostatics, boolean ifGasTraPPE, boolean ifGasOPLS, boolean ifGrapheneDatafile, Map<String, Double> chargeCoeffGas,Map<String, double[]> potentialCoeffGas, Map<String, Double> chargeCoeffGraph,Map<String, double[]> potentialCoeffGraph  ){
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+        SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
+        GrapheneReaderXYZPDB grapheneReaderXYZPDB = new GrapheneReaderXYZPDB();
+        GasOPLS gasOPLS = new GasOPLS();
+        int i = 0;
+        UFF uff = new UFF();
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
+        // System.out.println(pairsAtoms + " Pairs");
+        P2SoftSphericalSumTruncated[] p2Trunc = new P2SoftSphericalSumTruncated[pairAtomSize];
+        double[] iKey = new double[10];
+        double[] jKey = new double[10];
 
+        for(List<AtomType>individualPair: pairsAtoms){
+            AtomType atomNameOne = individualPair.get(0);
+            AtomType atomNameTwo = individualPair.get(1);
+            String atomTypeStringOne = String.valueOf(atomNameOne);
+            String atomTypeStringTwo = String.valueOf(atomNameTwo);
+            String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
+            String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
+
+
+            if (!ifGrapheneDatafile){
+                iKey = pdbReaderMOP.atomicPot(atomTypeOne);
+                epsilonIKey = kcals.toSim(iKey[0]);
+                sigmaIKey = iKey[1];
+            }else {
+                iKey = potentialCoeffGraph.get(atomTypeOne);
+                epsilonIKey = kcals.toSim(iKey[0]);
+                sigmaIKey = iKey[1];
+            }
+
+            if (ifGasOPLS){
+                jKey = potentialCoeffGas.get(atomTypeTwo);
+                epsilonJKey = kcals.toSim(iKey[0]);
+                sigmaJKey = iKey[1];
+            } else if (ifGasTraPPE) {
+                jKey = speciesTraPPE.atomicPot(atomTypeTwo);
+                epsilonJKey = Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
+                sigmaJKey = jKey[0];
+            }else {
+                jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
+                epsilonJKey = kcals.toSim(iKey[1]);
+                sigmaJKey = iKey[1];
+            }
+
+
+            if(doElectrostatics){
+                double chargeOne, chargeTwo = 0.0;
+                if(ifGasTraPPE){
+                    chargeOne = speciesTraPPE.getCharge()[0];
+                    chargeTwo = speciesTraPPE.getCharge()[0];
+                } else if (ifGasOPLS && ifGrapheneDatafile) {
+                    chargeOne = chargeCoeffGraph.get(atomTypeOne);
+                    chargeTwo = chargeCoeffGas.get(atomTypeTwo);
+                } else {
+                    chargeOne = pdbReaderMOP.getatomCharge(atomTypeOne);
+                    chargeTwo = pdbReaderMOP.getatomCharge(atomTypeTwo);
+                }
+
+                P2Electrostatics[i] = uff.electroUFF(chargeOne, chargeTwo);
+            }
+
+            // System.out.println( atomTypeOne+ " "+ atomTypeTwo+ " " + sigmaIKey + " "+ sigmaJKey + " " + epsilonIKey + " " +epsilonJKey);
+            p2LJ[i] = uff.vdw(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey);
+
+            if(doElectrostatics){
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i], P2Electrostatics[i]);
+            }else {
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i]);
+            }
+
+            potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2Trunc[i], new double[]{1, 0, 0, ifGasTraPPE ? 0 : 1 });
+            //potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);
+            i++;
+        }
+    }
+
+    public void setPotentialGasGasGO (List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell, LJUFF[] p2LJ, P2Electrostatic[] P2Electrostatics, int pairAtomSize, double truncatedRadius, boolean doElectrostatics, boolean ifGasTraPPE, boolean ifGasOPLS, boolean ifGrapheneDatafile, Map<String, double[]> potentialCoeffGas, Map<String, Double> chargeCoeffGas){
+
+        PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+        SpeciesGasTraPPE speciesTraPPE = new SpeciesGasTraPPE();
+        GrapheneReaderXYZPDB grapheneReaderXYZPDB = new GrapheneReaderXYZPDB();
+        int i = 0;
+        UFF uff = new UFF();
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
+        // System.out.println(pairsAtoms + " Pairs");
+        P2SoftSphericalSumTruncated[] p2Trunc = new P2SoftSphericalSumTruncated[pairAtomSize];
+        double[] iKey = new double[10];
+        double[] jKey = new double[10];
+
+        for(List<AtomType>individualPair: pairsAtoms){
+            AtomType atomNameOne = individualPair.get(0);
+            AtomType atomNameTwo = individualPair.get(1);
+            String atomTypeStringOne = String.valueOf(atomNameOne);
+            String atomTypeStringTwo = String.valueOf(atomNameTwo);
+            String atomTypeOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
+            String atomTypeTwo = atomTypeStringTwo.substring(9, atomTypeStringTwo.length() - 1);
+
+            if (ifGasOPLS){
+                iKey = potentialCoeffGas.get(atomTypeTwo);
+                epsilonIKey = kcals.toSim(iKey[0]);
+                sigmaIKey = iKey[1];
+            } else if (ifGasTraPPE) {
+                iKey = speciesTraPPE.atomicPot(atomTypeTwo);
+                epsilonIKey = Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
+                sigmaIKey = iKey[0];
+            }else {
+                iKey = pdbReaderMOP.atomicPot(atomTypeTwo);
+                epsilonIKey = kcals.toSim(iKey[3]);
+                sigmaIKey = iKey[2];
+            }
+
+            if (ifGasOPLS){
+                jKey = potentialCoeffGas.get(atomTypeTwo);
+                epsilonJKey = kcals.toSim(iKey[0]);
+                sigmaJKey = iKey[1];
+            } else if (ifGasTraPPE) {
+                jKey = speciesTraPPE.atomicPot(atomTypeTwo);
+                epsilonJKey = Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
+                sigmaJKey = jKey[0];
+            }else {
+                jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
+                epsilonJKey = kcals.toSim(iKey[3]);
+                sigmaJKey = iKey[2];
+            }
+
+
+            if(doElectrostatics){
+                double chargeOne, chargeTwo = 0.0;
+                if(ifGasTraPPE){
+                    chargeOne = speciesTraPPE.getCharge()[0];
+                    chargeTwo = speciesTraPPE.getCharge()[0];
+                } else if (ifGasOPLS && ifGrapheneDatafile) {
+                    chargeOne = chargeCoeffGas.get(atomTypeOne);
+                    chargeTwo = chargeCoeffGas.get(atomTypeTwo);
+                } else {
+                    chargeOne = pdbReaderMOP.getatomCharge(atomTypeOne);
+                    chargeTwo = pdbReaderMOP.getatomCharge(atomTypeTwo);
+                }
+
+                P2Electrostatics[i] = uff.electroUFF(chargeOne, chargeTwo);
+            }
+
+           // System.out.println( atomTypeOne+ " "+ atomTypeTwo+ " " + sigmaIKey + " "+ sigmaJKey + " " + epsilonIKey + " " +epsilonJKey);
+            p2LJ[i] = uff.vdw(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey);
+
+            if(doElectrostatics){
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i], P2Electrostatics[i]);
+            }else {
+                p2Trunc[i] = new P2SoftSphericalSumTruncated(truncatedRadius, p2LJ[i]);
+            }
+
+            potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2Trunc[i], new double[]{1, 0, 0, ifGasTraPPE ? 0 : 1 });
+           // potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2LJ[i], new double[]{1, 0, 0, 1}, truncatedRadius);
+            i++;
+        }
+    }
+
+
+    public void setBondStretchOPLS(ISpecies species1, Map<String[], List<int[]>> bondTypesMap1,  Map<Integer, double[]> bondPotential, Map<String[], List<int[]>> angleTypesMap1, Map<Integer, double[]> anglePotential, PotentialMasterBonding pmBonding){
+        double Vi =0, Vj =0, V=0, Vtrue=0,  type;
+        int p;
+        int i =0;
+        Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT),Mole.UNIT);
+        for (Map.Entry<String[], List<int[]>> entry : bondTypesMap1.entrySet()) {
+            String[] bondType = entry.getKey();
+            List<int[]> bonds = entry.getValue();
+            // System.out.println(Arrays.toString(bondType) + ": " + Arrays.deepToString(bonds.toArray()));
+            double[] bondParamsArray = bondPotential.get(i);
+
+            P2HarmonicUFF p2Bond = new P2HarmonicUFF(bondParamsArray[0],  bondParamsArray[1]);
+            //bondParams.add(bondConstant);
+            pmBonding.setBondingPotentialPair(species1, p2Bond, bonds );
+            i++;
+        }
+
+        for (Map.Entry<String[], List<int[]>> entry : angleTypesMap1.entrySet()) {
+            String[] angleType = entry.getKey();
+            List<int[]> angle = entry.getValue();
+            // System.out.println(Arrays.toString(angleType) + ": " + Arrays.deepToString(angle.toArray()));
+            double[] angleParamsArray = anglePotential.get(i);
+            P3BondAngle p3BondAngle = new P3BondAngle(Degree.UNIT.toSim( angleParamsArray[0]), angleParamsArray[1]);
+            pmBonding.setBondingPotentialTriplet(species1, p3BondAngle, angle);
+            i++;
+        }
+    }
     public void setBondStretchTraPPE(ISpecies species, List<int[]> bond, List<int[]> angles, List<int[]> torsions, PotentialMasterBonding pmBonding, String name){
         double Vi =0, Vj =0, V=0, Vtrue=0,  type;
         int p;

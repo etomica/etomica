@@ -21,27 +21,28 @@ public class GrapheneReaderXYZPDB {
     private ISpecies species;
     double massSum;
     public Map<Integer, String> atomMapGraphene = new HashMap<>();
-    public Map<Integer,Vector> positions = new HashMap<>();
     public ArrayList<ArrayList<Integer>> connectivityGrapehene = new ArrayList<>();
     public Map<Integer, String> modifiedAtomIdentifierMapGraphene = new HashMap<>();
     public Map<Integer, Vector> positionsGraphene = new HashMap<>();
-    private Map<Integer,List<int[]>> bondTypeMap = new HashMap<>();
-    private Map<Integer,List<int[]>> angleTypeMap = new HashMap<>();
-    private Map<Integer,List<int[]>> torsionTypeMap = new HashMap<>();
-    private Map<Integer,List<int[]>> diheadralTypeMap = new HashMap<>();
-    private Map<Integer,List<int[]>> improperTypeMap = new HashMap<>();
+    public Map<Integer,List<int[]>> bondTypeMap = new HashMap<>();
+    public Map<Integer,List<int[]>> angleTypeMap = new HashMap<>();
+    public Map<Integer, double[]> pairCoeffsMap = new HashMap<>();
+    public Map<Integer,List<int[]>> torsionTypeMap = new HashMap<>();
+    public Map<Integer,List<int[]>> diheadralTypeMap = new HashMap<>();
+    public Map<Integer,List<int[]>> improperTypeMap = new HashMap<>();
     public Map<String, AtomType> typeMap = new HashMap<>();
-    public List<int[]> dupletsSorted, tripletsSorted, quadrupletsSorted = new ArrayList<>();
     Map<String, AtomType> typeMapNew = new HashMap<>();
-    protected Map<Integer, String> atomMap = new HashMap<>();
-    protected Set<String> uniqueElements = new HashSet<>();
-    protected Map<Integer, String> uniqueAtomTypeMap;
-    protected Map<Integer,double[]> bondPotential = new HashMap<>();
-    protected Map<Integer,double[]> anglePotential = new HashMap<>();
-    protected Map<Integer,double[]> torsionPotential = new HashMap<>();
-    protected Map<Integer, Integer> elementNumMap = new HashMap<>();
-    protected Map<Integer, Double> chargeMap = new HashMap<>();
-    protected Map<Integer, Vector> positionMap = new HashMap<>();
+    public Map<Integer, String> atomMap = new HashMap<>();
+    public Set<String> uniqueElements = new HashSet<>();
+    public Map<Integer, String> uniqueAtomTypeMap;
+    public Map<String, Double> chargeCoeff = new HashMap<>();
+    public Map<String, double[]> coeffPotential = new HashMap<>();
+    public Map<Integer,double[]> bondPotential = new HashMap<>();
+    public Map<Integer,double[]> anglePotential = new HashMap<>();
+    public Map<Integer,double[]> torsionPotential = new HashMap<>();
+    public Map<Integer, Integer> elementNumMap = new HashMap<>();
+    public Map<Integer, Double> chargeMap = new HashMap<>();
+    public Map<Integer, Vector> positionMap = new HashMap<>();
     double Q_TOL = 0.0001;
     protected IntArrayList[] hydroxyIntArr, epoxyIntArr, carboxyIntArr;
 
@@ -49,49 +50,12 @@ public class GrapheneReaderXYZPDB {
     Map<Integer, String> expandedAtomTypeMap = new HashMap<>();
     Map<String, Double> advChargeMap = new HashMap<>();
 
-    /*public ISpecies getSpecies(String confName, Vector vectorCOM, boolean isInfinite){
-        AtomType typeNew;
-        SpeciesBuilder speciesBuilderNew =  new SpeciesBuilder(Space3D.getInstance());
-        PDBReaderMOP pdbReader = new PDBReaderMOP();
-        GrapheneReaderXYZPDB grapheneReader = new GrapheneReaderXYZPDB();
-        grapheneReader.readDatafile(confName);
-        positionsGraphene = pdbReader.getPositions();
-        atomMap = pdbReader.getAtomMap();
-        Space space = Space3D.getInstance();
-        Vector center = space.makeVector();
-        Vector dr = Vector.d(center.getD());
-        int n =0;
-        for(int i = n; i < atomMap.size(); i++) {
-            String symbol = String.valueOf(atomMap.get(i));
-            //System.out.println(symbol);
-            // System.out.println(atomIdentifierMap.get(i));
-            AtomType newName = generalGrapheneReader.returnElement(symbol, isInfinite);
-            if (typeMapNew.containsKey(newName.getName())) {
-                typeNew = typeMapNew.get(newName.getName());
-            } else {
-                typeNew = newName;
-                typeMapNew.put(newName.getName(), typeNew);
-            }
-
-            Vector position = positionsGraphene.get(i);
-            //System.out.println(position +  " " + typeNew + "  " + i);
-            speciesBuilderNew.addAtom(typeNew, position,  "");
-        }
-        //System.out.println(typeMapNew + " typeMapNew");
-        species= speciesBuilderNew.setDynamic(true).build();
-        //   System.out.println(species.getMass() + " first");
-        return species;
-    }*/
-
     public void bondingGraphene(String fileName){
         ArrayList<ArrayList<Integer>> connectivity = new ArrayList<>();
         Map<Integer, List<int[]>> bondTypeMap = new HashMap<>();
         Map<Integer, List<int[]>> angleTypeMap = new HashMap<>();
         Map<Integer, List<int[]>> torsionTypeMap = new HashMap<>();
     }
-
-
-
 
     // Put this enum somewhere in your class (or as a private static enum)
 
@@ -159,6 +123,7 @@ public class GrapheneReaderXYZPDB {
                 // detect section headers
                 // -------------------------
                 // Coeff sections
+                if (equalsHeader(line, "Pair Coeffs"))     { section = Section.pairCoeff;    continue; }
                 if (equalsHeader(line, "Bond Coeffs"))     { section = Section.bond_Coeffs;    continue; }
                 if (equalsHeader(line, "Angle Coeffs"))    { section = Section.angle_Coeffs;   continue; }
                 if (equalsHeader(line, "Torsion Coeffs"))  { section = Section.torsion_Coeffs; continue; }
@@ -203,6 +168,21 @@ public class GrapheneReaderXYZPDB {
                             double k = Double.parseDouble(t[1]);
                             double theta0 = Double.parseDouble(t[2]);
                             anglePotentials.put(id, new double[]{k, theta0});
+                        }
+                        break;
+                    }
+                    case pairCoeff: {
+                        String[] t = line.split("\\s+");
+                        double[] doubles = new double[2];
+                        // atomID   moleculeID  atomTypeID  partialCharge   X   Y   Z
+                        if (t.length >= 2){
+                            int numZero = Integer.parseInt(t[0]);
+                            double numTwo = Double.parseDouble(t[1]);
+                            double numThree = Double.parseDouble(t[2]);
+                            doubles = new double[]{numTwo, numThree};
+                            pairCoeffsMap.put(numZero, doubles);
+                        }else {
+                            throw new RuntimeException("t "+ Arrays.toString(t));
                         }
                         break;
                     }
@@ -369,7 +349,7 @@ public class GrapheneReaderXYZPDB {
                         break;
                 }
             }
-
+            GasOPLS gasOPLS = new GasOPLS();
             setBondTypeMap(bondTypeMap);
             setAngleTypeMap(angleTypeMap);
             setTorsionTypeMap(torsionTypeMap);
@@ -378,8 +358,9 @@ public class GrapheneReaderXYZPDB {
             setConnectivity(connectivityGrapehene);
             Map<Integer, String> uniqueTypes = makeUniqueAtomTypes(massByTypeId);
             setUniqueAtomTypeMap(uniqueTypes);
+            coeffPotential = gasOPLS.makeCoeffPotential(uniqueTypes, pairCoeffsMap, chargeMap);
             atomMap = makeAtomMap(uniqueTypes, elementNumMap);
-            setPotentials(bondPotentials, anglePotentials, torsionPotentials, improperPotentials, dihedralPotentials, elementNumMap, chargeMap, atomMap, positionMap);
+            setPotentials(bondPotentials, anglePotentials, torsionPotentials, improperPotentials, dihedralPotentials, coeffPotential, elementNumMap, chargeMap, atomMap, positionMap);
             System.out.println("Done Reading: " + fileName);
 
         } catch (IOException e) {
@@ -545,28 +526,22 @@ public class GrapheneReaderXYZPDB {
 
 
     private enum Section {
-        NONE, atoms,
+        NONE, atoms,pairCoeff,
         bond_Coeffs, angle_Coeffs, dihedral_Coeffs, torsion_Coeffs, improper_Coeffs,
         bonds, angles, torsions, dihedrals, impropers;
     }
     private void setConnectivity(ArrayList<ArrayList<Integer>>connectivityGrapehene){
         this.connectivityGrapehene = connectivityGrapehene;
     }
-    private void setPotentials(Map<Integer, double[]> bondPotentials, Map<Integer, double[]> anglePotentials, Map<Integer, double[]> torsionPotentials,  Map<Integer, double[]> improperPotentials,  Map<Integer, double[]> dihedralPotentials, Map<Integer, Integer> elementNumMap, Map<Integer, Double> chargeMap, Map<Integer, String> atomMap, Map<Integer, Vector> positionMap){
+    public void setPotentials(Map<Integer, double[]> bondPotentials, Map<Integer, double[]> anglePotentials, Map<Integer, double[]> torsionPotentials,  Map<Integer, double[]> improperPotentials,  Map<Integer, double[]> dihedralPotentials,Map<String, double[]> coeffPotential, Map<Integer, Integer> elementNumMap, Map<Integer, Double> chargeMap, Map<Integer, String> atomMap, Map<Integer, Vector> positionMap){
         this.bondPotential = bondPotentials;
         this.anglePotential = anglePotentials;
         this.torsionPotential = torsionPotentials;
         this.atomMap = atomMap;
+        this.coeffPotential = coeffPotential;
         this.positionMap = positionMap;
         this.chargeMap = chargeMap;
         this.elementNumMap = elementNumMap;
-    }
-
-    public void speciesGraphene (Map<Integer, Vector> listofPositions, Map<Integer, String> atomMap){
-        ISpecies speciesGraphene ;
-        for(int i = 0; i < atomMap.size(); i++){
-            String atomName = atomMap.get(i);
-        }
     }
 
     private String elementFromMass(double mass) {
@@ -579,7 +554,7 @@ public class GrapheneReaderXYZPDB {
         if (Math.abs(mass - 30.974) < tol) return "P";
         throw new IllegalArgumentException("Unknown mass: " + mass);
     }
-    private Map<Integer, String> makeUniqueAtomTypes(Map<Integer, Double> massByTypeId) {
+    public Map<Integer, String> makeUniqueAtomTypes(Map<Integer, Double> massByTypeId) {
         // -----------------------------------------
         // Step 1: find contiguous range starting at 1
         // -----------------------------------------
@@ -613,7 +588,7 @@ public class GrapheneReaderXYZPDB {
         }
         return out;
     }
-    private Map<Integer, String> makeAtomMap(Map<Integer, String > uniqueTypes, Map<Integer, Integer>elementNumMap){
+    public Map<Integer, String> makeAtomMap(Map<Integer, String > uniqueTypes, Map<Integer, Integer>elementNumMap){
         Map<Integer, String> atomMap = new HashMap<>();
         int num = 0;
         String atomName ="";
@@ -632,6 +607,8 @@ public class GrapheneReaderXYZPDB {
         grapheneReaderXYZPDB.readDatafile(confName);
         positionsGraphene = grapheneReaderXYZPDB.getPositionMap();
         atomMapGraphene = grapheneReaderXYZPDB.getAtomMap();
+        chargeCoeff = grapheneReaderXYZPDB.getChargeCoeff();
+        coeffPotential = grapheneReaderXYZPDB.getCoeffPotential();
         Space space = Space3D.getInstance();
         Vector center = space.makeVector();
         Vector dr = Vector.d(center.getD());
@@ -716,7 +693,8 @@ public class GrapheneReaderXYZPDB {
     public Map<Integer, List<int[]>> getTorsionTypeMap(){return torsionTypeMap;}
     public Map<Integer, Double> getChargeMap(){return chargeMap;}
     public Map<Integer, String> getUniqueAtomTypeMap() {return uniqueAtomTypeMap;}
-
+    public Map<String, Double> getChargeCoeff(){return chargeCoeff;}
+    public Map<String, double[]> getCoeffPotential(){return coeffPotential;}
     public static void main(String[] args) {
         GrapheneReaderXYZPDB grapheneReaderXYZPDB = new GrapheneReaderXYZPDB();
         grapheneReaderXYZPDB.readDatafile("D:\\Sem-X\\GO\\graphitis\\GO_sheet");

@@ -925,8 +925,8 @@ public class GCMCMOP extends Simulation {
 
         List<String> gasSim = new ArrayList<>();
         gasSim.add(params.confNamegas);
-       /* gasSim.add(params.confNamegasOne);
-        gasSim.add(params.confNameGasTwo);
+        gasSim.add(params.confNamegasOne);
+        /*gasSim.add(params.confNameGasTwo);
         gasSim.add(params.confNameGasThree);
         gasSim.add(params.confNamegasFour);
         gasSim.add(params.confNamegasFive);
@@ -1135,11 +1135,11 @@ public class GCMCMOP extends Simulation {
                         int pInterval = 2;
                         long bs = params.numSteps / (pInterval * 5);
                         if (bs == 0) bs = 1;
-             /*   MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
+               MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
                 pMeter.setTemperature(sim.integrator.getTemperature());
                 AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
                 DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, pInterval);
-                sim.integrator.getEventManager().addListener(pPump);*/
+                sim.integrator.getEventManager().addListener(pPump);
 
                         bs = params.numSteps / 50;
                         if (bs == 0) bs = 1;
@@ -1292,11 +1292,11 @@ public class GCMCMOP extends Simulation {
                         //  System.out.println("runtime: " + (t2 - t1) * 0.001);
                         Unit pUnit = Bar.UNIT;
                         //     Unit MegaPascal = new PrefixedUnit(Prefix.MEGA, Pascal.UNIT);
-               /*Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
+               Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
               double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
                 double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
                 double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
-                        System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);*/
+                        System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);
              //   System.out.println("P (MPa) " + MegaPascal.fromSim(avgP) + " MPa " + MegaPascal.fromSim(errP) + " " + corP);
                //  System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);
                         //double muR = Constants.BOLTZMANN_K * temperature * Math.log(avgP/temperature);
@@ -1478,17 +1478,16 @@ public class GCMCMOP extends Simulation {
         public Vector boxSize = new Vector3D(16, 16, 16);
         public double temperature = 298;
         public double mu2 = -470;
-        public double mu1 = -2620;
+        public double mu1 = -2600;
         public double muDecrease = -20;
-        public int muLimit = -2621;
+        public int muLimit = -2800;
         public long numSteps =1000000;
        // public double side =50.0;
         public boolean ifXYZfile = false;
 
-        public String confNamegas = "cisbutene";
-        public String confNamegasOne = "1butene" ;
+        public String confNamegas = "transbutene";
+        public String confNamegasOne = "cisbutene" ;
         public String confNameGasTwo = "13butadiene" ;
-        public String confNameGasThree = "methylpropane" ;
         public String confNamegasFour = "methylpropene" ;
         public String confNamegasFive = "cisbutene" ;
         public String confNamegasSix = "transbutene" ;
@@ -1541,7 +1540,7 @@ public class GCMCMOP extends Simulation {
         public boolean doGraphics = false;
         public boolean ifautoMOP = false;
         public boolean isGasCOMPASS = false;
-        public boolean ifGraphenePresent = false;
+        public boolean ifGraphenePresent = true;
         public boolean ifMultipleGraphenePresent = true;
         public boolean ifSecondGasPresent = false;
         public boolean ifMOPPresent = false;
