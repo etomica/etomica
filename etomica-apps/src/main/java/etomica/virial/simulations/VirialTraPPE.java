@@ -310,7 +310,7 @@ public class VirialTraPPE {
                 for (int j = 0; j < TP.r_eq.length; j++) {
                     p2[j] = new P2BondStretch(TP.k_b[j], TP.r_eq[j]);
 
-                    bondingInfo.setBondingPotentialPair(TP.species, p2[j], Collections.singletonList(TP.pairs[j]));
+                    bondingInfo.setBondingPotentialPair(TP.species, p2[j], Arrays.asList(TP.pairs[j]));
 
                 }
 
@@ -793,7 +793,7 @@ public class VirialTraPPE {
         public double[] k_b;
         public double[] r_eq;
         public double[][] a;
-        public int[][] pairs;
+        public int[][][] pairs;
         public int[][] triplets;
         public int[][] quads;
         public IntArrayList[] bonding;
@@ -888,7 +888,7 @@ public class VirialTraPPE {
                 AtomType typeO = new AtomType(Oxygen.INSTANCE);
 
                 atomTypes = new AtomType[]{typeC,typeO};
-                isFlex = false;
+                isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCO = 1.160; // Angstrom
                 double sigmaC = 2.800; // Angstrom
@@ -897,14 +897,14 @@ public class VirialTraPPE {
                 double sigmaO = 3.050; // Angstrom
                 double epsilonO = Kelvin.UNIT.toSim(79.0);
                 double qO = Electron.UNIT.toSim(-0.350);
-                double k_r = Kelvin.UNIT.toSim(10);
+                double k_r = Kelvin.UNIT.toSim(1_000_000);
                 //Construct Arrays
                 sigma = new double[]{sigmaC, sigmaO};
                 epsilon = new double[]{epsilonC, epsilonO};
                 charge = new double[]{qC, qO};
                 k_b = new double[]{k_r};
                 r_eq = new double[]{bondLengthCO};
-                pairs = new int[][]{{0, 1}, {0, 2}};
+                pairs = new int[][][]{{{0, 1}, {0, 2}}};
                 bonding = new IntArrayList[3];
                 bonding[0] = new IntArrayList(new int[]{1, 2});
                 bonding[1] = new IntArrayList(new int[]{0});

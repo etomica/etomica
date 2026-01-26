@@ -56,7 +56,7 @@ public class P2BondStretch implements IPotential2 {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-        throw new RuntimeException("Nope");
+        return 2*Kb;
     }
 
     /**
