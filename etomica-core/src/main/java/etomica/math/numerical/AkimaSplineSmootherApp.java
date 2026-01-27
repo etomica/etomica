@@ -24,8 +24,8 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -76,7 +76,7 @@ public class AkimaSplineSmootherApp {
                 y[i] = i*i*i*i;
             }
         }
-        fitter = new AkimaSplineSmoother(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()));
+        fitter = new AkimaSplineSmoother(new RandomMersenneTwister(IRandom.getRandSeedArray()));
         fitter.setD2fac(d2fac);
         fitter.setD2dfac(d2dfac);
         fitter.setD3fac(d3fac);

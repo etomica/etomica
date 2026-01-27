@@ -6,7 +6,6 @@ package etomica.data;
 
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 import java.util.Arrays;
 
@@ -14,7 +13,7 @@ public class AccumulatorAverageCollapsingLogAB extends
         AccumulatorAverageCollapsingLog {
 
     public AccumulatorAverageCollapsingLogAB() {
-        this(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()));
+        this(new RandomMersenneTwister(IRandom.getRandSeedArray()));
     }
 
     public AccumulatorAverageCollapsingLogAB(IRandom random) {

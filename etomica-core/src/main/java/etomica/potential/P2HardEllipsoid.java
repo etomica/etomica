@@ -18,7 +18,6 @@ import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * Evaluates overlap of two identical ellipsoids of revolution at arbitrary separation and orientations.
@@ -47,7 +46,7 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
     protected final Vector3D insertionMultiplier; //used by makeOverlap
     protected final RotationTensor3D rotate = new RotationTensor3D(); // used by makeOverlap
 
-    protected int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+    protected int[] seeds = IRandom.getRandSeedArray();
     protected IRandom random = new RandomMersenneTwister(seeds);
 
 
@@ -370,7 +369,7 @@ public class P2HardEllipsoid implements IPotential2, IPotentialMolecular {
      */
     public static void main(String[] args) {
 
-        int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+        int[] seeds = IRandom.getRandSeedArray();
         IRandom random = new RandomMersenneTwister(seeds);
 
         boolean B2test = false;
