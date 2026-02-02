@@ -62,10 +62,10 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.CO2};
-            params.nPoints = 2; //B order
+            params.chemForm = new ChemForm[]{ChemForm.propan1ol};
+            params.nPoints = 3; //B order
             params.temperature = 1000;
-            params.diagram = "BC";
+            params.diagram = "5c";
             params.numSteps = 100000000;
             params.refFrac = -1;
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
@@ -320,7 +320,7 @@ public class VirialTraPPE {
                 for (int j = 0; j < TP.theta_eq.length; j++) {
                     p3[j] = new P3BondAngle(TP.theta_eq[j], TP.k_theta[j]);
 
-                    bondingInfo.setBondingPotentialTriplet(TP.species, p3[j], Collections.singletonList(TP.triplets[j]));
+                    bondingInfo.setBondingPotentialTriplet(TP.species, p3[j], Arrays.asList(TP.triplets[j]));
 
                 }
 
@@ -332,7 +332,7 @@ public class VirialTraPPE {
 
                     for (int i=0; i < TP.a.length; i++) {
                         p4[i] = new P4BondTorsion(space, TP.a[i][0], TP.a[i][1], TP.a[i][2], TP.a[i][3]);
-                        bondingInfo.setBondingPotentialQuad(TP.species, p4[i], Collections.singletonList(TP.quads[i]));
+                        bondingInfo.setBondingPotentialQuad(TP.species, p4[i], Arrays.asList(TP.quads[i]));
 
                     }
                 }
@@ -341,7 +341,7 @@ public class VirialTraPPE {
 
                     for (int i=0; i < TP.a.length; i++) {
                         p4[i] = new P4BondTorsionAlkylBenzene(space, TP.a[i][0], TP.a[i][1]);
-                        bondingInfo.setBondingPotentialQuad(TP.species, p4[i], Collections.singletonList(TP.quads[i]));
+                        bondingInfo.setBondingPotentialQuad(TP.species, p4[i], Arrays.asList(TP.quads[i]));
 
                     }
                 }
@@ -794,8 +794,8 @@ public class VirialTraPPE {
         public double[] r_eq;
         public double[][] a;
         public int[][][] pairs;
-        public int[][] triplets;
-        public int[][] quads;
+        public int[][][] triplets;
+        public int[][][] quads;
         public IntArrayList[] bonding;
         public final ISpecies species;
         public PotentialMoleculePair potentialGroup;
@@ -898,12 +898,18 @@ public class VirialTraPPE {
                 double epsilonO = Kelvin.UNIT.toSim(79.0);
                 double qO = Electron.UNIT.toSim(-0.350);
                 double k_r = Kelvin.UNIT.toSim(1_000_000);
+                double k_t = Kelvin.UNIT.toSim(62500);
+                double thetaCOO = Degree.UNIT.toSim(180);
+
                 //Construct Arrays
                 sigma = new double[]{sigmaC, sigmaO};
                 epsilon = new double[]{epsilonC, epsilonO};
                 charge = new double[]{qC, qO};
                 k_b = new double[]{k_r};
                 r_eq = new double[]{bondLengthCO};
+                theta_eq = new double[]{thetaCOO};
+                k_theta = new double[]{k_t};
+                triplets = new int[][][]{{{0, 1, 2}}};
                 pairs = new int[][][]{{{0, 1}, {0, 2}}};
                 bonding = new IntArrayList[3];
                 bonding[0] = new IntArrayList(new int[]{1, 2});
@@ -1046,7 +1052,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3, qO, qH};
                 theta_eq = new double[]{theta_CH3OH};
                 k_theta = new double[]{k_thetaCH3OH};
-                triplets = new int[][]{{0, 1, 2}};
+                triplets = new int[][][]{{{0, 1, 2}}};
                 bonding = new IntArrayList[3];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -1110,8 +1116,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCOH, theta_CH3OH};
                 k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c0, c1, c2, c3}};
-                triplets = new int[][]{{0, 1, 2}, {1, 2, 3}};
-                quads = new int[][]{{0, 1, 2, 3}};
+                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
+                quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -1199,8 +1205,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCC, theta_CCOH, theta_CH3OH};
                 k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}};
-                triplets = new int[][]{{0, 1, 2}, {1, 2, 3}, {2, 3, 4}};
-                quads = new int[][]{{0, 1, 2, 3}, {1, 2, 3, 4}};
+                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}, {2, 3, 4}}};
+                quads = new int[][][]{{{0, 1, 2, 3}, {1, 2, 3, 4}}};
                 bonding = new IntArrayList[5];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -1285,8 +1291,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCC, theta_CCOH,  theta_CH3OH, theta_CCOH};
                 k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH, k_thetaCCOH};
                 a = new double[][]{{c00, c01, c02, c03}, {c00, c01, c02, c03}};
-                triplets = new int[][]{{0, 1, 2}, {0, 1, 3}, {1, 3, 4}, {2, 1, 3}};
-                quads = new int[][]{{0, 1, 3, 4}, {2, 1, 3, 4}};
+                triplets = new int[][][]{{{0, 1, 2}, {0, 1, 3}, {1, 3, 4}, {2, 1, 3}}};
+                quads = new int[][][]{{{0, 1, 3, 4}, {2, 1, 3, 4}}};
                 bonding = new IntArrayList[5];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2,3});
@@ -1384,8 +1390,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCOH, theta_CH3OH, theta_CCC, theta_CCC};
                 k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH, k_thetaCCC, k_thetaCCC};
                 a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}, {c10, c11, c12, c13}};
-                triplets = new int[][]{{4, 2, 1}, {2, 4, 5}, {2, 1, 3}, {2, 1, 0}};
-                quads = new int[][]{{1, 2, 4, 5}, {0, 1, 2, 4}, {3, 1, 2, 4}};
+                triplets = new int[][][]{{{4, 2, 1}, {2, 4, 5}, {2, 1, 3}, {2, 1, 0}}};
+                quads = new int[][][]{{{1, 2, 4, 5}, {0, 1, 2, 4}, {3, 1, 2, 4}}};
                 bonding = new IntArrayList[6];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,3, 2});
@@ -1735,8 +1741,8 @@ public class VirialTraPPE {
                 double e1 = Degree.UNIT.toSim(180);
                 a = new double[][]{{e0, e1}};
 
-                triplets = new int[][]{{0, 6, 7}};
-                quads = new int[][]{{1, 0, 6, 7}, {5, 0, 6, 7}};
+                triplets = new int[][][]{{{0, 6, 7}}};
+                quads = new int[][][]{{{1, 0, 6, 7}, {5, 0, 6, 7}}};
                 bonding = new IntArrayList[9];
                 bonding[0] = new IntArrayList(new int[]{1, 5, 6});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -1950,7 +1956,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3, qCH2};
                 k_theta = new double[]{kCCC};
                 theta_eq = new double[]{thetaCCH};
-                triplets = new int[][]{{0, 1, 2}};
+                triplets = new int[][][]{{{0, 1, 2}}};
                 bonding = new IntArrayList[3];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -2005,8 +2011,8 @@ public class VirialTraPPE {
                 k_theta = new double[]{k, k};
                 theta_eq = new double[]{thetaCCH, thetaCCH};
                 a = new double[][]{{a00, a01, a02, a03}};
-                triplets = new int[][]{{0, 1, 2}, {1, 2, 3}};
-                quads = new int[][]{{0, 1, 2, 3}};
+                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
+                quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -2130,7 +2136,7 @@ public class VirialTraPPE {
                 charge = new double[]{qCH3, qCH, qCH2};
                 theta_eq = new double[]{thetaeq};
                 k_theta = new double[]{k};
-                triplets = new int[][]{{0, 1, 2}};
+                triplets = new int[][][]{{{0, 1, 2}}};
                 bonding = new IntArrayList[3];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -2184,8 +2190,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{thetaeq, thetaeq}; //123, 234
                 k_theta = new double[]{k, k}; //123, 234
                 a = new double[][]{{a00, a1prime, -a2prime, a3prime}};
-                triplets = new int[][]{{0, 1, 2}, {1, 2, 3}};
-                quads = new int[][]{{0, 1, 2, 3}};
+                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
+                quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});

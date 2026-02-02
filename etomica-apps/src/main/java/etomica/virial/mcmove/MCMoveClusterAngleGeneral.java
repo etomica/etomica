@@ -34,7 +34,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     protected final ISpecies species;
     protected double dt = 0;
     protected Vector[] position = null;
-    protected final int[][] triplets;
+    protected final int[][][] triplets;
     protected int iMolecule;
     protected final IntArrayList[] bonding;
     boolean oneSide;
@@ -49,7 +49,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     double sum;
     int counter;
 
-    public MCMoveClusterAngleGeneral(PotentialCompute potentialCompute, Space space, ISpecies species, IntArrayList[] bonding, boolean oneSide, int[][] triplets, IRandom random, double stepSize) {
+    public MCMoveClusterAngleGeneral(PotentialCompute potentialCompute, Space space, ISpecies species, IntArrayList[] bonding, boolean oneSide, int[][][] triplets, IRandom random, double stepSize) {
         super();
         this.potential = potentialCompute;
         this.space = space;
