@@ -62,10 +62,10 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propan1ol};
-            params.nPoints = 3; //B order
+            params.chemForm = new ChemForm[]{ChemForm.CO2};
+            params.nPoints = 2; //B order
             params.temperature = 1000;
-            params.diagram = "5c";
+            params.diagram = "BC";
             params.numSteps = 100000000;
             params.refFrac = -1;
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
@@ -536,7 +536,7 @@ public class VirialTraPPE {
 //            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
 //            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 //            sim.box[1].getMoleculeList().get(1).getChildList().forEach(atom -> {
-//                atom.getPosition().PE(Vector.of(4, 0, 0));
+//                atom.getPosition().PE(Vector.of(5.5, 0, 0));
 //            });
 //            sim.box[1].trialNotify();
 //            sim.box[1].acceptNotify();
@@ -669,14 +669,15 @@ public class VirialTraPPE {
 //        for (int i = 0; i<=10;i++){
 //            sim.integrators[1].doStep();
 //        }
-        sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
+//        sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
 //        System.exit(0);
-        sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
+//        sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
+
         if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
             ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 0.5;
 
         }
-//        sim.setRefPref(1);
+        sim.setRefPref(1);
         System.out.println("equilibration finished");
         if(dorefpref){
             long t2 = System.currentTimeMillis();
@@ -889,6 +890,7 @@ public class VirialTraPPE {
 
                 atomTypes = new AtomType[]{typeC,typeO};
                 isFlex = true;
+                polar = true;
                 //TraPPE Parameters
                 double bondLengthCO = 1.160; // Angstrom
                 double sigmaC = 2.800; // Angstrom
@@ -909,7 +911,7 @@ public class VirialTraPPE {
                 r_eq = new double[]{bondLengthCO};
                 theta_eq = new double[]{thetaCOO};
                 k_theta = new double[]{k_t};
-                triplets = new int[][][]{{{0, 1, 2}}};
+                triplets = new int[][][]{{{1, 0, 2}}};
                 pairs = new int[][][]{{{0, 1}, {0, 2}}};
                 bonding = new IntArrayList[3];
                 bonding[0] = new IntArrayList(new int[]{1, 2});

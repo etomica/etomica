@@ -71,6 +71,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
 
     //note that total energy is calculated
     public boolean doTrial() {
+        if (false) return false;
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, initial configuration unhappy");

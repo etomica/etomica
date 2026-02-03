@@ -66,10 +66,13 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
 
     @Override
     public boolean doTrial() {
+        if (false) {
+            return false;
+        }
         uOld = potential.computeAll(false);
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i = 0; i<moleculeList.size(); i++) {
+        for(int i = 1; i<moleculeList.size(); i++) {
             if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
@@ -83,10 +86,12 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
             do{
                 b = random.nextInt(bonding.length);
             }while (bonding[b].size() < 1);
+            b = 0;
             modified[modifiedIndex]=b;
             ++modifiedIndex;
             int a = random.nextInt(bonding[b].size());
             a = bonding[b].getInt(a);
+            a = 1;
             modified[modifiedIndex] = a;
             ++modifiedIndex;
             Vector dr = space.makeVector();
@@ -107,6 +112,8 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
         ((BoxCluster)box).trialNotify();
         uNew = potential.computeAll(false);
         wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        IAtomList atoms = box.getMoleculeList().get(1).getChildList();
+//        if (box.getIndex() == 1) System.out.println(Math.sqrt(atoms.get(0).getPosition().Mv1Squared(atoms.get(1).getPosition())) + " " + wNew);
         return true;
     }
 
@@ -150,7 +157,7 @@ public class MCMoveClusterStretch extends MCMoveBoxStep {
     @Override
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i = 0; i<box.getMoleculeList().size(); i++) {
+        for(int i = 1; i<box.getMoleculeList().size(); i++) {
             for(int j = 0; j < moleculeList.get(i).getChildList().size(); j++) {
                 moleculeList.get(i).getChildList().get(j).getPosition().E(position[i][j]);
             }

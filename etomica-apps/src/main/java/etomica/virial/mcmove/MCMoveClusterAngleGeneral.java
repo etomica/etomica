@@ -34,7 +34,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
     protected final ISpecies species;
     protected double dt = 0;
     protected Vector[] position = null;
-    protected final int[][][] triplets;
+    protected final int[][] triplets;
     protected int iMolecule;
     protected final IntArrayList[] bonding;
     boolean oneSide;
@@ -54,7 +54,17 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         this.potential = potentialCompute;
         this.space = space;
         this.random = random;
-        this.triplets = triplets;
+        int bondTypeSize = 0;
+        for (int i = 0; i < triplets.length; i++) {
+            bondTypeSize += triplets[i].length;
+        }
+        this.triplets = new int[bondTypeSize][];
+        for (int i = 0, k = 0; i < triplets.length; i++) {
+            for(int j = 0; j < triplets[i].length; j++) {
+                this.triplets[k] = triplets[i][j];
+                k++;
+            }
+        }
         this.stepSize = stepSize;
         this.species = species;
         this.bonding = bonding;
@@ -82,6 +92,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
 
     @Override
     public boolean doTrial() {
+        if (true) return false;
         uOld = potential.computeAll(false);
         sum += uOld;
         counter++;
@@ -105,16 +116,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
         modified[modifiedIndex]=b;
         ++modifiedIndex;
         Vector axis = space.makeVector();
-        Vector temp = space.makeVector();
-        if (oneSide) {
-            axis.setRandomSphere(random);
-        }
-        else{
-            axis.Ev1Mv2(atoms.get(triplets[d][0]).getPosition(), atoms.get(b).getPosition());
-            temp.Ev1Mv2(atoms.get(triplets[d][2]).getPosition(), atoms.get(b).getPosition());
-            axis.XE(temp);
-            axis.normalize();
-        }
+        axis.setRandomSphere(random);
 
 
         dt = 2 * stepSize * (random.nextDouble() - 0.5);

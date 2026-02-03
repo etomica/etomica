@@ -107,6 +107,9 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom iAtom = molecule.getChildList().get(pair[0]);
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
                         uTot[0] += handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
+                        if(Double.isNaN(uTot[0])) {
+                            throw new RuntimeException("");
+                        }
                     }
                 }
             });
@@ -121,7 +124,12 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom jAtom = molecule.getChildList().get(triplet[1]);
                         IAtom kAtom = molecule.getChildList().get(triplet[2]);
                         uTot[0] += handleOneBondTriplet(doForces, box.getBoundary(), iAtom, jAtom, kAtom, potential, forces);
+                        if(Double.isNaN(uTot[0])) {
+                            throw new RuntimeException("");
+                        }
+
                     }
+
                 }
             });
             uu[3] += uTot[0];

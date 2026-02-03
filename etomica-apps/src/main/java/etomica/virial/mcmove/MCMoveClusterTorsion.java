@@ -35,7 +35,7 @@ public class MCMoveClusterTorsion extends MCMoveBoxStep {
     protected final ISpecies species;
     protected double dt = 0;
     protected Vector[] position = null;
-    protected final int[][][] quads;
+    protected final int[][] quads;
     protected int iMolecule;
     protected final IntArrayList[] bonding;
     double uOld = 0;
@@ -52,7 +52,17 @@ public class MCMoveClusterTorsion extends MCMoveBoxStep {
         this.potential = potentialCompute;
         this.space = space;
         this.random = random;
-        this.quads = quads;
+        int bondTypeSize = 0;
+        for (int i = 0; i < quads.length; i++) {
+            bondTypeSize += quads[i].length;
+        }
+        this.quads = new int[bondTypeSize][];
+        for (int i = 0, k = 0; i < quads.length; i++) {
+            for(int j = 0; j < quads[i].length; j++) {
+                this.quads[k] = quads[i][j];
+                k++;
+            }
+        }
         this.stepSize = stepSize;
         this.species = species;
         this.bonding = bonding;

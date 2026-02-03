@@ -100,6 +100,8 @@ public class ClusterCoupledFlippedPoints implements ClusterAbstract {
             if (debugme) System.out.print(String.format("CCFP %10.4e\n", vsum));
             return vsum;
         }
+//        value = 0;
+//        if (true) return value;
         if (debugme) System.out.print(String.format("CCFP %10.4e ", vsum));
 
         IMoleculeList atomList = box.getMoleculeList();
