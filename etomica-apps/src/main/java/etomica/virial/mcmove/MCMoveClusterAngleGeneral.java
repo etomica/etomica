@@ -92,7 +92,7 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
 
     @Override
     public boolean doTrial() {
-        if (true) return false;
+        if (false) return false;
         uOld = potential.computeAll(false);
         sum += uOld;
         counter++;

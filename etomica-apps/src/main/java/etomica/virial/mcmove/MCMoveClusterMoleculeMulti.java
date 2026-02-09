@@ -13,6 +13,7 @@ import etomica.space.Vector;
 import etomica.space1d.Vector1D;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
+import etomica.virial.cluster.ClusterWeightAbs;
 
 
 /**
@@ -94,6 +95,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 else {
                     translationVectors[tv].setRandomCube(random);
 //                    translationVectors[tv].setX(1, 0);
+//                    translationVectors[tv].setX(0, 0);
 //                    translationVectors[tv].setX(2, 0);
 
                     translationVectors[tv].TE(stepSize);
@@ -106,7 +108,8 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
 
         ((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-//        System.out.println("uNew: " + uNew + " uOld: " + uOld);
+        double clusterNew = ((ClusterWeightAbs)((BoxCluster)box).getSampleCluster()).getSubCluster().value((BoxCluster)box);
+//        System.out.println("clusterNew: " + clusterNew + " v: " + moleculeList.get(1).getChildList().get(0).getPosition());
 
         return true;
     }

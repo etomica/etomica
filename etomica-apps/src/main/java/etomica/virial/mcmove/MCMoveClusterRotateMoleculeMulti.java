@@ -89,7 +89,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     public int total = 0;
     public boolean doTrial() {
 //        if(!first) {return false;}
-        if (true) return false;
+        if (false) return false;
 //        first = false;
         total++;
         int nX = 0;

@@ -13,6 +13,7 @@ import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -496,6 +497,7 @@ public class VirialTraPPE {
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveStretch);
                 mcMoveStretch1 = new MCMoveClusterStretch(sim.integrators[1].getPotentialCompute(), space, TP.bonding, sim.getRandom(), 0.1);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveStretch1);
+                ((MCMoveStepTracker) mcMoveStretch1.getTracker()).setNoisyAdjustment(false);
 
             }
             if(TP.theta_eq != null) {
@@ -536,7 +538,7 @@ public class VirialTraPPE {
 //            sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
 //            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 //            sim.box[1].getMoleculeList().get(1).getChildList().forEach(atom -> {
-//                atom.getPosition().PE(Vector.of(5.5, 0, 0));
+//                atom.getPosition().PE(Vector.of(0, 5.5, 0));
 //            });
 //            sim.box[1].trialNotify();
 //            sim.box[1].acceptNotify();
@@ -669,15 +671,15 @@ public class VirialTraPPE {
 //        for (int i = 0; i<=10;i++){
 //            sim.integrators[1].doStep();
 //        }
-//        sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
+        sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
 //        System.exit(0);
-//        sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
+        sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
 
         if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
             ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 0.5;
 
         }
-        sim.setRefPref(1);
+//        sim.setRefPref(1);
         System.out.println("equilibration finished");
         if(dorefpref){
             long t2 = System.currentTimeMillis();
