@@ -34,6 +34,13 @@ public class BondBondCOMPASS implements P2BondBond {
         double dx1 = r1 - r10;
         return 2 * k1 * dx2 *dx1;
     }
+    public void udu(double r1, double r2, double[] u, double[] du){
+        double dx2 = r2 - r20;
+        double dx1 = r1 - r10;
+        u[0] = 2 * k1 * dx2 *dx1;
+        du[0] = 2 * k1 * dx2;
+        du[1] = 2 * k1 * dx1;
+    }
 
     public void setSpringConstant(double kt){
         k1 =kt;

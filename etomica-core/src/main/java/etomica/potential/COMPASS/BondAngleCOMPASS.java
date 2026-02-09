@@ -36,5 +36,7 @@ public class BondAngleCOMPASS implements IPotentialBondAngleHybrid {
         double dx = r12 - b0;
         double dtheta = Math.acos(costheta) - theta0;
         u[0]= k1 * dx *dtheta;
+        du[0] = k1 * dtheta;  // ∂U/∂dx
+        du[1] = -( k1 * dx)/ Math.sqrt(1.0 - costheta * costheta);  // ∂U/∂costheta
     }
 }

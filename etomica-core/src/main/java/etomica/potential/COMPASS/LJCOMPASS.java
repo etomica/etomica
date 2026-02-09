@@ -49,10 +49,5 @@ public class LJCOMPASS implements IPotential2 {
         epsilon = eps;
 
     }
-    /* public double getSci(){ return scale;}
-
-     public final void setSciNew(double sci){
-         scale = sci;
-     }*/
     private double sigma, epsilon;
 }

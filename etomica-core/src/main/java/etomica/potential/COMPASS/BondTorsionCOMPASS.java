@@ -31,4 +31,13 @@ public class BondTorsionCOMPASS implements IPotentialBondTorsionHybrid {
         double torsion = (k1 * cosphi) + (k2 * Math.cos(2*phi)) + (k3 * Math.cos(3*phi));
         return (r-b0) * torsion;
     }
+
+    public void udu(double r, double cosphi, double[] u, double[] du){
+        double phi = Math.acos(cosphi);
+        double torsion = (k1 * cosphi) + (k2 * Math.cos(2*phi)) + (k3 * Math.cos(3*phi));
+        u[0] = (r - b0) * torsion;
+        du[0] = torsion;
+        du[1] = (r - b0) * ( k1 + 4.0 * k2 * cosphi
+                + k3 * (12.0 * cosphi * cosphi - 3.0) );
+    }
 }

@@ -25,4 +25,12 @@ public class AngleAngleCOMPASS implements IPotentialAngleAngleHybrid {
         double theta2 = Math.acos(costheta2);
         return  k1 * (theta2-theta20) * (theta1-theta10);
     }
+
+    public void udu(double costheta1,  double costheta2, double[] u, double[] du){
+        double theta1 = Math.acos(costheta1);
+        double theta2 = Math.acos(costheta2);
+        u[0] = k1 * (theta2-theta20) * (theta1-theta10);
+        du[0] = k1 * (theta2 - theta20); // ∂U/∂theta1
+        du[1] = k1 * (theta1 - theta10); // ∂U/∂theta2
+    }
 }

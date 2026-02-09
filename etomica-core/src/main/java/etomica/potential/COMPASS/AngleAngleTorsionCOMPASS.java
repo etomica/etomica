@@ -25,6 +25,14 @@ public class AngleAngleTorsionCOMPASS implements IPotentialAngleAngleTorsionHybr
         double theta1 = Math.acos(costheta1);
         return  k1 * (theta-theta0) * (theta1-theta10) * cosphi;
     }
+    public void udu(double costheta, double costheta1,  double cosphi, double[] u , double[] du){
+        double theta = Math.acos(costheta);
+        double theta1 = Math.acos(costheta1);
+        u[0] = k1 * (theta-theta0) * (theta1-theta10) * cosphi;
+        du[0] = k1 * (theta1 - theta10) * cosphi;
+        du[1] = k1 * (theta - theta0) * cosphi;
+        du[2] = k1 * (theta - theta0) * (theta1 - theta10);
+    }
 
 
 }

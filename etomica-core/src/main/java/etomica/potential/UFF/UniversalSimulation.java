@@ -4,8 +4,10 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
@@ -23,6 +25,9 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.math.function.FunctionMultiDimensionalDifferentiable;
+import etomica.math.numerical.NewtonMinimization;
+import etomica.math.numerical.SteepestDescent;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.*;
 import etomica.potential.compute.PotentialCompute;
@@ -122,7 +127,7 @@ public class UniversalSimulation extends Simulation {
         ArrayList<Integer> bondList = pdbReaderMOP.getBondList(connectedAtoms, atomMap);
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
         Map<Integer, String> atomIdentifierMapModified = pdbReaderMOP.getModifiedAtomIdentifierMap();
-        Map<String, double[]> atomicPotMap = pdbReaderMOP.atomicPotMap();
+        Map<String, double[]> atomicPotMap = pdbReaderMOP.getAtomicPotMapBond();
         System.out.println(atomicPotMap +" atomic Pot");
         makeAtomPotentials(sm);
         System.out.println(atomicPotMap + "atomicPotMap");
@@ -441,8 +446,18 @@ public class UniversalSimulation extends Simulation {
             ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
             configuration.initializeCoordinates(box);
             potentialMasterCell.init();
-            double u0 = potentialMasterCell.computeAll(false);
-            double x = 1;
+        double u0 = potentialMasterCell.computeAll(false);
+        double u1 = pmBonding.computeAll(false);
+        double x = 1;
+        System.out.println("Before SD pmc : " + kcals.fromSim(u0));
+        System.out.println("Before SD pmBonding: " + kcals.fromSim(u1));
+        runSteepestDescentMinimization(box, potentialMasterCell);
+        u0 = potentialMasterCell.computeAll(false);
+        System.out.println("After Newton minimization: U pmc = " + kcals.fromSim(u0));
+        System.out.println("After Newton minimization: U pmBonding = " + kcals.fromSim(u0));
+        System.exit(1);
+             u0 = potentialMasterCell.computeAll(false);
+             x = 1;
             System.out.println( u0 + " "+ x +" inMain "  + kcals.fromSim(u0));
             System.exit(1);
            while (u0 > 1e6*numMoleules) {
@@ -813,11 +828,188 @@ public class UniversalSimulation extends Simulation {
         public double density = 0.0000005;
         public boolean graphics = false;
         public long numSteps = 1000000;
-        public String configFilename = "F://Avagadro//molecule//co2";
+        public String configFilename = "F://Avagadro//molecule//h2N";
         public double rc = 10;
         public double pressureKPa = 1402;
     }
 
+    private void runNewtonMinimization(final Box box, final PotentialMasterCell pmc) {
+        final IAtomList atoms = box.getLeafList();
+        final int nAtoms = atoms.size();
+        final int dim = 3;
+        final int n = nAtoms * dim;
+
+        double[] x0 = new double[n];
+        for (int i = 0; i < nAtoms; i++) {
+            Vector r = atoms.get(i).getPosition();
+            x0[3*i    ] = r.getX(0);
+            x0[3*i + 1] = r.getX(1);
+            x0[3*i + 2] = r.getX(2);
+        }
+
+        FunctionMultiDimensionalDifferentiable f = new FunctionMultiDimensionalDifferentiable() {
+
+            @Override
+            public double f(double[] x) {
+                // set coordinates from x
+                for (int i = 0; i < nAtoms; i++) {
+                    Vector r = atoms.get(i).getPosition();
+                    r.setX(0, x[3*i    ]);
+                    r.setX(1, x[3*i + 1]);
+                    r.setX(2, x[3*i + 2]);
+                }
+                // update box and compute energy
+                return pmc.computeAll(false);
+            }
+
+            @Override
+            public int getDimension() {
+                return n;
+            }
+            @Override
+            public double df(int[] d, double[] x) {
+                final double h = 1e-5;
+                int order = 0;
+                int idx = -1;
+
+                for (int i = 0; i < d.length; i++) {
+                    if (d[i] != 0) {
+                        order += d[i];
+                        idx = i;
+                    }
+                }
+
+                // No derivatives → just f(x)
+                if (order == 0) {
+                    return f(x);
+                }
+
+                // First derivative with respect to x[idx]
+                if (order == 1 && idx >= 0) {
+                    double old = x[idx];
+
+                    x[idx] = old + h;
+                    double fp = f(x);
+
+                    x[idx] = old - h;
+                    double fm = f(x);
+
+                    x[idx] = old;
+                    return (fp - fm) / (2*h);
+                }
+
+                // Anything else (second or mixed derivatives) not needed for SteepestDescent
+                throw new UnsupportedOperationException("Higher-order derivatives not needed for SteepestDescent");
+            }
+        };
+
+        // 3. Run Newton minimization
+        NewtonMinimization newton = new NewtonMinimization(f, true);
+        double tol = 1e-6;
+        int maxIter = 50;
+        double[] xmin = newton.minimize(x0, tol, maxIter);
+
+        // 4. Copy minimized coordinates back into atoms (to be safe)
+        for (int i = 0; i < nAtoms; i++) {
+            Vector r = atoms.get(i).getPosition();
+            r.setX(0, xmin[3*i    ]);
+            r.setX(1, xmin[3*i + 1]);
+            r.setX(2, xmin[3*i + 2]);
+        }
+    }
+
+
+    private void runSteepestDescentMinimization(final Box box, final PotentialMasterCell pmc) {
+        final IAtomList atoms = box.getLeafList();
+        final int nAtoms = atoms.size();
+        final int dim = 3;
+        final int n = nAtoms * dim;
+
+        // 1. Build initial x from current coordinates
+        double[] x0 = new double[n];
+        for (int i = 0; i < nAtoms; i++) {
+            Vector r = atoms.get(i).getPosition();
+            x0[3*i    ] = r.getX(0);
+            x0[3*i + 1] = r.getX(1);
+            x0[3*i + 2] = r.getX(2);
+        }
+
+        // 2. Define f(x) = potential energy from pmc
+        FunctionMultiDimensionalDifferentiable f =
+                new FunctionMultiDimensionalDifferentiable() {
+
+                    @Override
+                    public double f(double[] x) {
+                        // set coordinates from x
+                        for (int i = 0; i < nAtoms; i++) {
+                            Vector r = atoms.get(i).getPosition();
+                            r.setX(0, x[3*i    ]);
+                            r.setX(1, x[3*i + 1]);
+                            r.setX(2, x[3*i + 2]);
+                        }
+                        // compute total energy
+                        return pmc.computeAll(false);
+                    }
+
+                    @Override
+                    public double df(int[] d, double[] x) {
+                        final double h = 1e-5;
+                        int order = 0;
+                        int idx = -1;
+
+                        for (int i = 0; i < d.length; i++) {
+                            if (d[i] != 0) {
+                                order += d[i];
+                                idx = i;
+                            }
+                        }
+
+                        if (order == 0) {
+                            return f(x);
+                        } else if (order == 1 && idx >= 0) {
+                            double old = x[idx];
+
+                            x[idx] = old + h;
+                            double fp = f(x);
+
+                            x[idx] = old - h;
+                            double fm = f(x);
+
+                            x[idx] = old;
+                            return (fp - fm) / (2*h);
+                        } else {
+                            throw new UnsupportedOperationException("Higher-order derivatives not needed");
+                        }
+                    }
+
+                    @Override
+                    public int getDimension() {
+                        return n;
+                    }
+                };
+
+        // 3. Run Steepest Descent minimization
+        SteepestDescent sd = new SteepestDescent(f);
+
+        // step sizes per coordinate: start with something small-ish
+        double[] xStep = new double[n];
+        for (int i = 0; i < n; i++) {
+            xStep[i] = 0.01; // or scale based on box size / typical displacements
+        }
+
+        double tol = 1e-6;
+        int maxIter = 200;
+
+        double[] xmin = sd.minimize(x0, xStep, tol, maxIter, true);
+
+        // 4. Copy minimized coordinates back into atoms
+        for (int i = 0; i < nAtoms; i++) {
+            Vector r = atoms.get(i).getPosition();
+            r.setX(0, xmin[3*i    ]);
+            r.setX(1, xmin[3*i + 1]);
+            r.setX(2, xmin[3*i + 2]);
+        }
+    }
 
     public static IPotential2[][] makeAtomPotentials(SpeciesManager sm) {
         // we could try to store the potentials more compactly, but it doesn't really matter
