@@ -63,17 +63,18 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.CO2};
-            params.nPoints = 2; //B order
-            params.temperature = 1000;
+            params.chemForm = new ChemForm[]{ChemForm.butadiene, ChemForm.propan2ol};
+            params.nPoints = 4; //B order
+            params.temperature = 650;
             params.diagram = "BC";
             params.numSteps = 100000000;
             params.refFrac = -1;
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
-            params.dorefpref = false;
+            params.dorefpref = true;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
             params.nDer = 0;
+            params.types = new int[]{0, 1, 1, 1};
 //            params.BDtol = 1e-11;
         }
         // Import Params
@@ -320,7 +321,6 @@ public class VirialTraPPE {
                 P3BondAngle[] p3 = new P3BondAngle[TP.theta_eq.length]; //declaration, instatation
                 for (int j = 0; j < TP.theta_eq.length; j++) {
                     p3[j] = new P3BondAngle(TP.theta_eq[j], TP.k_theta[j]);
-
                     bondingInfo.setBondingPotentialTriplet(TP.species, p3[j], Arrays.asList(TP.triplets[j]));
 
                 }
@@ -756,7 +756,7 @@ public class VirialTraPPE {
 
     enum ChemForm {
         N2, O2, CO2, NH3, CH4, CH3OH, ethanol, propan1ol, propan2ol, isobutanol, benzene, ethane, propane, butane, methane, ethene, propene, butadiene, toluene,
-        ethylbenzene, oxylene, pxylene, mxylene, water
+        ethylbenzene, oxylene, pxylene, mxylene, CO2_flex, water
     }
 
     /**
@@ -883,8 +883,43 @@ public class VirialTraPPE {
                         .addAtom(typeO, posO2, "O2")
                         .build();
             }
-
             else if (chemForm == ChemForm.CO2) {
+
+                //Atoms in Compound
+                AtomType typeC = new AtomType(Carbon.INSTANCE);
+                AtomType typeO = new AtomType(Oxygen.INSTANCE);
+
+                atomTypes = new AtomType[]{typeC,typeO};
+                isFlex = false;
+                polar = false;
+                //TraPPE Parameters
+                double bondLengthCO = 1.160; // Angstrom
+                double sigmaC = 2.800; // Angstrom
+                double epsilonC = Kelvin.UNIT.toSim(27.0);
+                double qC = Electron.UNIT.toSim(0.700);
+                double sigmaO = 3.050; // Angstrom
+                double epsilonO = Kelvin.UNIT.toSim(79.0);
+                double qO = Electron.UNIT.toSim(-0.350);
+
+                //Construct Arrays
+                sigma = new double[]{sigmaC, sigmaO};
+                epsilon = new double[]{epsilonC, epsilonO};
+                charge = new double[]{qC, qO};
+
+                //Get Coordinates
+                Vector3D posC = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posO1 = new Vector3D(new double[]{-bondLengthCO, 0, 0});
+                Vector3D posO2 = new Vector3D(new double[]{+bondLengthCO, 0, 0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeC, posC, "C")
+                        .addAtom(typeO, posO1, "O1")
+                        .addAtom(typeO, posO2, "O2")
+                        .build();
+            }
+
+            else if (chemForm == ChemForm.CO2_flex) {
 
                 //Atoms in Compound
                 AtomType typeC = new AtomType(Carbon.INSTANCE);
@@ -1120,7 +1155,7 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCOH, theta_CH3OH};
                 k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c0, c1, c2, c3}};
-                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
+                triplets = new int[][][]{{{0, 1, 2}}, {{1, 2, 3}}};
                 quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
@@ -1209,8 +1244,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCC, theta_CCOH, theta_CH3OH};
                 k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}};
-                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}, {2, 3, 4}}};
-                quads = new int[][][]{{{0, 1, 2, 3}, {1, 2, 3, 4}}};
+                triplets = new int[][][]{{{0, 1, 2}}, {{1, 2, 3}}, {{2, 3, 4}}};
+                quads = new int[][][]{{{0, 1, 2, 3}}, {{1, 2, 3, 4}}};
                 bonding = new IntArrayList[5];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -1295,8 +1330,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCC, theta_CCOH,  theta_CH3OH, theta_CCOH};
                 k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH, k_thetaCCOH};
                 a = new double[][]{{c00, c01, c02, c03}, {c00, c01, c02, c03}};
-                triplets = new int[][][]{{{0, 1, 2}, {0, 1, 3}, {1, 3, 4}, {2, 1, 3}}};
-                quads = new int[][][]{{{0, 1, 3, 4}, {2, 1, 3, 4}}};
+                triplets = new int[][][]{{{0, 1, 2}}, {{0, 1, 3}}, {{1, 3, 4}}, {{2, 1, 3}}};
+                quads = new int[][][]{{{0, 1, 3, 4}}, {{2, 1, 3, 4}}};
                 bonding = new IntArrayList[5];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,2,3});
@@ -1394,8 +1429,8 @@ public class VirialTraPPE {
                 theta_eq = new double[]{theta_CCOH, theta_CH3OH, theta_CCC, theta_CCC};
                 k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH, k_thetaCCC, k_thetaCCC};
                 a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}, {c10, c11, c12, c13}};
-                triplets = new int[][][]{{{4, 2, 1}, {2, 4, 5}, {2, 1, 3}, {2, 1, 0}}};
-                quads = new int[][][]{{{1, 2, 4, 5}, {0, 1, 2, 4}, {3, 1, 2, 4}}};
+                triplets = new int[][][]{{{4, 2, 1}}, {{2, 4, 5}}, {{2, 1, 3}}, {{2, 1, 0}}};
+                quads = new int[][][]{{{1, 2, 4, 5}}, {{0, 1, 2, 4}}, {{3, 1, 2, 4}}};
                 bonding = new IntArrayList[6];
                 bonding[0] = new IntArrayList(new int[]{1});
                 bonding[1] = new IntArrayList(new int[]{0,3, 2});
@@ -1746,7 +1781,7 @@ public class VirialTraPPE {
                 a = new double[][]{{e0, e1}};
 
                 triplets = new int[][][]{{{0, 6, 7}}};
-                quads = new int[][][]{{{1, 0, 6, 7}, {5, 0, 6, 7}}};
+                quads = new int[][][]{{{1, 0, 6, 7}}, {{5, 0, 6, 7}}};
                 bonding = new IntArrayList[9];
                 bonding[0] = new IntArrayList(new int[]{1, 5, 6});
                 bonding[1] = new IntArrayList(new int[]{0,2});
@@ -2015,7 +2050,7 @@ public class VirialTraPPE {
                 k_theta = new double[]{k, k};
                 theta_eq = new double[]{thetaCCH, thetaCCH};
                 a = new double[][]{{a00, a01, a02, a03}};
-                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
+                triplets = new int[][][]{{{0, 1, 2}}, {{1, 2, 3}}};
                 quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
@@ -2194,7 +2229,7 @@ public class VirialTraPPE {
                 theta_eq = new double[]{thetaeq, thetaeq}; //123, 234
                 k_theta = new double[]{k, k}; //123, 234
                 a = new double[][]{{a00, a1prime, -a2prime, a3prime}};
-                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
+                triplets = new int[][][]{{{0, 1, 2}}, {{1, 2, 3}}};
                 quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
