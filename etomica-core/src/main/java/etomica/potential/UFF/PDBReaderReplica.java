@@ -1220,6 +1220,21 @@ public class PDBReaderReplica {
         return angleTypesMap;
     }
 
+
+    public void getPotential(String gasName,  Map<String[], List<int[]>> bondTypesMap2, Map<String[], List<int[]>> angleTypesMap2,
+    Map<String[], List<int[]>> torsionTypesMap2, Map<Integer, double[]> bondPotential, Map<Integer, double[]> anglePotential,
+    Map<Integer, double[]> torsionPotential){
+        if (gasName.equals("ethane")){
+
+        }else if(gasName.equals("ethene")){
+
+        } else if (gasName.equals("ch4")) {
+
+        }else {
+            throw new RuntimeException("OPLS gas not Found");
+        }
+    }
+
     public Map<String[],List<int[]>> idenTorsionTypes( List<int[]> quadruplets,  Map<Integer, String> atomIdentifierMapModified){
         //System.out.println(Arrays.deepToString(quadruplets.toArray()) + "quadruplets");
         Map<String[],List<int[]>> torsionTypesMap = new HashMap<>();

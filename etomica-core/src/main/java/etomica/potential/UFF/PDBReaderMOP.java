@@ -2545,6 +2545,29 @@ public class PDBReaderMOP {
         return coordinationMapOutput;
     }
 
+    public Map<String, double[]> getAtomicPotMapBond(){
+        Map<String, double[]> atomicPotBond = new HashMap<>();
+        Set<String> uniqueElement= uniqueElementIdentifier();
+        Iterator<String> iterator = uniqueElement.iterator();
+        while (iterator.hasNext()){
+            String str = iterator.next();
+            //System.out.println(str + "str");
+            String elementName = str.substring(str.indexOf("[") + 1, str.indexOf("]"));
+            // System.out.println( str+ " " +elementName);
+            double[] atomicPotValues = atomicPotUFF(elementName);
+            //System.out.println(str + " " + Arrays.toString(atomicPotValues));
+            //atomicPotMap.put(str, atomicPotValues);
+            atomicPotBond.put(elementName, atomicPotValues);
+            //    System.out.println(elementName + " " + Arrays.toString(atomicPotValues));
+        }
+        return atomicPotBond;
+    }
+    public double[] atomicPotUFF(String atomTypeA){
+        HashMap<String, double[]> atomicConstant = new HashMap<>();
+        atomicConstant.put("H", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
+        double [] sample = atomicConstant.get(atomTypeA);
+        return sample;
+    }
     public double [] atomicPot (String atomtype){
         HashMap<String, double[]> atomicConstant = new HashMap<>();
         atomicConstant.put("V", new double[]{1.402, 109.47, 3.144, 0.016, 12.0, 2.679,3.65,0.7});

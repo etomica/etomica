@@ -287,14 +287,20 @@ public class GCMCGO extends Simulation {
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
 
-        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
-        PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParams(2.62, 0);
-        System.out.println(params);
+       // PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
+       // PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParams(2.62, 0);
+      //  System.out.println(params);
         //GasOne
+        Map<Integer, double[]> anglePotential = new HashMap<>();
+        Map<Integer, double[]> bondPotential = new HashMap<>();
+        Map<Integer, double[]> torsionPotential = new HashMap<>();
+        GasOPLS gasOPLS1 = new GasOPLS();
         if (!isGasTraPPE && !isGasOPLS) {
             SetPotential.setBondStretch(speciesGas, bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2, quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, pmBonding);
         } else if (isGasOPLS) {
-         //   SetPotential.setBondStretchOPLS(bondTypesMap2, angleTypesMap2, torsionTypesMap2, pmBonding);
+            String[] parts = confNameGasOne.split("//");
+            String gasName = parts[parts.length-1];
+            gasOPLS1.makePotential(gasName,  pmBonding);
         } else {
             String[] parts = confNameGasOne.split("//");
             String gasName = parts[parts.length-1];
@@ -811,6 +817,7 @@ public class GCMCGO extends Simulation {
         public double graphenezThree = 18.75;
         public double graphenezFour = -18.75;
         public String confNameGraphene = "D:\\Sem-X\\GO\\graphitis\\GO_sheet";
+        public boolean ifGasfileRead = false;
         public String confNameGraphene1 = "D:\\Sem-IX\\GO\\go0019";
         public String confNameGraphene2 = "D:\\Sem-IX\\GO\\go0038";
         public String confNameGraphene3 = "D:\\Sem-IX\\GO\\go0056";
@@ -835,10 +842,10 @@ public class GCMCGO extends Simulation {
         public Vector boxSize = new Vector3D(16, 16, 16);
         public double temperature = 298;
         public double mu2 = -470;
-        public double mu1 = -2620;
+        public double mu1 = -1400;
         public double muDecrease = -20;
-        public int muLimit = -2621;
-        public long numSteps =1000000;
+        public int muLimit = -3200;
+        public long numSteps =10000;
         // public double side =50.0;
         public boolean ifXYZfile = false;
 
@@ -861,11 +868,11 @@ public class GCMCGO extends Simulation {
         public double truncatedRadius = truncatedRadiusLJ;
         public String struc = "edge";
         public boolean doFFAnalaysis = true;
-        public boolean doGraphics = true;
+        public boolean doGraphics = false;
         public boolean ifautoMOP = false;
         public boolean ifGasOPLS = true;
         public boolean isGasCOMPASS = false;
-        public boolean ifGraphenePresent = true;
+        public boolean ifGraphenePresent = false;
         public boolean ifGrapheneDataFile = true;
         public boolean ifMultipleGraphenePresent = true;
         public boolean ifSecondGasPresent = false;
