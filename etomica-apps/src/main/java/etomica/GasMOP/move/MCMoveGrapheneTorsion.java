@@ -33,6 +33,7 @@ public class MCMoveGrapheneTorsion extends MCMoveBoxStep {
     protected final Vector r0;
     protected Vector v1, v2, v3, v4;
     protected final RotationTensor3D rotationTensor;
+    // keep angle same but change torsion. Explore torsions in GO
     public MCMoveGrapheneTorsion(IRandom random, PotentialCompute potentialCompute, Box box, IntArrayList[] intArrayLists){
         super();
         this.potentialCompute = potentialCompute;
