@@ -1,5 +1,6 @@
 package etomica.GasMOP;
 
+import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
@@ -16,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorListenerNHC;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -28,6 +30,7 @@ import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.math.numerical.SteepestDescent;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.potential.UFF.*;
 import etomica.potential.UFF.PDBReader;
@@ -65,6 +68,7 @@ public class GOMD  extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public MCMoveMolecule mcMoveMolecule;
     public ISpecies species;
+    public PotentialMaster potentialMaster;
     double molecularWeight=0;
     public IntegratorListenerNHC nhc;
     public GOMD(Space space,int numMoleules, double temperature, String configFileName, Vector vecGrapheneone, Vector vecGraphenetwo) {
@@ -107,40 +111,31 @@ public class GOMD  extends Simulation {
             });
         }
 
-
+        double nbrRange = 12.5 * 1.05 + 1;
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
         grapheneReaderXYZPDB.makeBondingPotential(grapheneReaderXYZPDB, species, pmBonding);
         makeAtomPotentials(sm);
-        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
+       // PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, nbrRange, pmBonding.getBondingInfo());
         SetPotential setPotential = new SetPotential();
         List<List<AtomType>> atomTypesGO =  setPotential.listFinal(species.getUniqueAtomTypes());
-        grapheneReaderXYZPDB.makeNBPotential(grapheneReaderXYZPDB, atomTypesGO, potentialMasterCell);
+        grapheneReaderXYZPDB.makeNBPotential(grapheneReaderXYZPDB, atomTypesGO, potentialMaster);
 
-        potentialMasterCell.doAllTruncationCorrection = false;
+        potentialMaster.doAllTruncationCorrection = true;
+        pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
 
-        integrator = new IntegratorVelocityVerlet(pcAgg, random, 0.001, temperature, box);
-//        integrator.setIsothermal(true);
-//        integrator.setThermostat(IntegratorMDFasterer.ThermostatType.ANDERSEN);
-//        integrator.setThermostatInterval(1000);
+        integrator = new IntegratorVelocityVerlet(pcAgg, random, 0.001, Kelvin.UNIT.toSim(temperature), box);
+        integrator.setIsothermal(true);
+        integrator.setThermostatInterval(1000);
         integrator.setThermostatNoDrift(false);
-//        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-        integrator.setIsothermal(false);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
         integrator.getEventManager().addListener(nhc);
 
-        pcAgg = new PotentialComputeAggregate(pmBonding, potentialMasterCell);
+        pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
         integratorMC = new IntegratorMC(pcAgg, random, temperature, box);
-        getController().addActivity(new ActivityIntegrate(integratorMC));
-
-     /*   mcMoveMolecule = new MCMoveMolecule(random, pcAgg, box);
-        integratorMC.getMoveManager().addMCMove(mcMoveMolecule);
-
-        MCMoveMoleculeRotate rotateMove = new MCMoveMoleculeRotate(random, pcAgg, box);
-        integratorMC.getMoveManager().addMCMove(rotateMove);
-
-        MCMoveWiggle wiggleMove = new MCMoveWiggle(random, pcAgg, box);
-        integratorMC.getMoveManager().addMCMove(wiggleMove);*/
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         MCMoveAtom moveAtom = new MCMoveAtom(random, pcAgg, box);
         integratorMC.getMoveManager().addMCMove(moveAtom);
@@ -148,9 +143,9 @@ public class GOMD  extends Simulation {
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-        potentialMasterCell.init();
+        potentialMaster.init();
 
-        double u0 = potentialMasterCell.computeAll(false);
+      //  double u0 = potentialMasterCell.computeAll(false);
         double u1 = pmBonding.computeAll(false);
         double x = 1;
     /*    System.out.println("Before SD pmc : " + kcals.fromSim(u0));
@@ -185,7 +180,7 @@ public class GOMD  extends Simulation {
         }*/
 
        // System.exit(1);
-        u0 = potentialMasterCell.computeAll(false);
+        double u0 = potentialMaster.computeAll(false);
         System.out.println( u0 +" initial Value "  + kcals.fromSim(u0));
 
     }
@@ -224,8 +219,7 @@ public class GOMD  extends Simulation {
         System.out.println("done writing ");
       //  System.exit(1);
         MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integratorMC);
-        sim.integratorMC.getPotentialCompute().init();
-        sim.integratorMC.reset();
+        sim.potentialMaster.init();
         System.out.println("u0/N "+(meterU.getDataAsScalar()/numMolecules));
         Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT);
         System.out.println("u0/N  "+ kjmol.fromSim(meterU.getDataAsScalar() / numMolecules) + " kJ/mol");
@@ -440,10 +434,10 @@ public class GOMD  extends Simulation {
         File file = new File("output.txt");
         FileWriter writer = new FileWriter(file);
         System.out.println("Reached after for loop");
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps/10));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/10));
         //sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveMolecule);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps/5));
+        //sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/5));
 
         long samples = numSteps / (numMolecules* 8L);
         long bs = samples / 10;
@@ -530,9 +524,9 @@ public class GOMD  extends Simulation {
         //public int pressure = 10;
         public double density = 0.0000005;
         public boolean graphics = false;
-        public long numSteps = 100000;
+        public long numSteps = 10000000;
         public String configFilename = "D:\\Sem-X\\GO\\graphitis\\GO_sheet2020";
-        public String outputFile = "D:\\Sem-X\\GO\\graphitis\\temp30L5001M.xyz";
+        public String outputFile = "D:\\Sem-X\\GO\\graphitis\\temp300K001Time.xyz";
         public int rc = 10;
         public double pressureKPa = 1402;
     }

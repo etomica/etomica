@@ -563,8 +563,8 @@ for(int alpha =0; alpha< confString.size(); alpha++){
     }
     }
     public static class VirialUniversalParam extends ParameterBase {
-        public String confName ="F://Avagadro//molecule//ch4";
-        public String conf2Name ="F://Avagadro//molecule//methanol";
+        public String confName ="F://Avagadro//molecule//Ar";
+        public String conf2Name ="F://Avagadro//molecule//Ar";
         public String conf3Name ="F://Avagadro//molecule//butadiene";
         public int nPoints =2;
         public double temperature =100;// Kelvin

@@ -87,6 +87,7 @@ public class SpeciesGasOPLSAA {
         CH4, C2H6, C3H8, C2H4, C3H6, CO2, N2, O2, NH3, H2
     }
 
+
     public double[] atomicPot (String atomType){
         HashMap<String, double[]> atomicConstant = new HashMap<>();
 

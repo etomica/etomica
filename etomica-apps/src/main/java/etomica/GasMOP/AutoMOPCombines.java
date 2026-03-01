@@ -14,8 +14,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesManager;
-import etomica.spin.ising.Ising;
-import org.apache.fop.render.pdf.PDFImageHandlerSVG;
 
 import java.util.ArrayList;
 import java.util.HashMap;

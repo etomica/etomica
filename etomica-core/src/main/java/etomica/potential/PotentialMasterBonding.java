@@ -175,7 +175,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         }
 //        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
 //        System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
-        //System.out.println(uTot[0]);
+      //  System.out.println(uTot[0]);
        // energyTot = uTot[0];
         return uTot[0];
     }
@@ -363,6 +363,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector rk = kAtom.getPosition();
+       // System.out.println(ri);
         Vector drji = Vector.d(ri.getD());
         Vector drjk = Vector.d(ri.getD());
 
@@ -378,9 +379,11 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] u = {0};
         double[] du = {0};
         potential.udu(costheta, u, du);
+
         double uijk = u[0];
         if (doForces) {
             double duijk = du[0]; // du/dcostheta
+            duijk = Math.min(duijk, 1000000000);
             Vector fi = forces[iAtom.getLeafIndex()];
             Vector fj = forces[jAtom.getLeafIndex()];
             Vector fk = forces[kAtom.getLeafIndex()];

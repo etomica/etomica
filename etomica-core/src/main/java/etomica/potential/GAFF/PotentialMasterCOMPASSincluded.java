@@ -160,24 +160,6 @@ public class PotentialMasterCOMPASSincluded implements PotentialCompute {
             });
             uu[4] += uTot[0];
             //  System.out.println(kjmol.fromSim(uu[3]) + " angles");
-            Map<IPotentialBondInversion, List<int[]>> potentials5 = bondingInfo.bondedInverts[i];
-            uu[4] -= uTot[0];
-            potentials5.forEach((potential, inverts) -> {
-                for (IMolecule molecule : molecules) {
-                    //   System.out.println("\n Torsion");
-                    for (int[] invert : inverts) {
-                        IAtom iAtom = molecule.getChildList().get(invert[0]);
-                        IAtom jAtom = molecule.getChildList().get(invert[1]);
-                        IAtom kAtom = molecule.getChildList().get(invert[2]);
-                        IAtom lAtom = molecule.getChildList().get(invert[3]);
-                        double u = handleOneBondInvert(doForces, box.getBoundary(), iAtom, jAtom, kAtom, lAtom, potential, forces);
-                        //System.out.println( iAtom+ " " + iAtom.getType() +" " + jAtom +" " + jAtom.getType() +" "+ kAtom +" " + kAtom.getType() +" "+ lAtom +" " + lAtom.getType() +" "+ kjmol.fromSim(u));
-                        uTot[0] += u;
-                    }
-                }
-            });
-           // System.out.println(Arrays.toString(uu) + " here IN Potentialmasterbonding");
-            uu[5] += uTot[0];
             Map<IPotentialBondBond, List<int[]>> potentials6 = bondingInfo.bondedBonds[i];
             potentials6.forEach((potential, bondedbonds) -> {
                 for(IMolecule molecule : molecules){

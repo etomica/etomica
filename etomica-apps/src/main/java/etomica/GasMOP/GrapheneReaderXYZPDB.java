@@ -727,7 +727,7 @@ public class GrapheneReaderXYZPDB {
         }
     }
 
-    public void makeNBPotential(GrapheneReaderXYZPDB grapheneReaderXYZPDB, List<List<AtomType>> pairsAtoms, PotentialMasterCell potentialMasterCell){
+    public void makeNBPotential(GrapheneReaderXYZPDB grapheneReaderXYZPDB, List<List<AtomType>> pairsAtoms, PotentialMaster potentialMaster){
         Map<Integer, String> uniqueAtomMap = grapheneReaderXYZPDB.getUniqueAtomTypeMap();
         Map<String, double[]> coeffPotential = grapheneReaderXYZPDB.getCoeffPotential();
         int uniqueAtomsNum = uniqueAtomMap.size();
@@ -761,7 +761,7 @@ public class GrapheneReaderXYZPDB {
             TruncationFactory tf = new TruncationFactoryForceShift(truncatedRadius);
             p2lj[k] = tf.make(p2LJ[k]);
 
-            potentialMasterCell.setPairPotential(atomNameOne, atomNameTwo, p2lj[k], new double[]{1, 0, 0, 1});
+            potentialMaster.setPairPotential(atomNameOne, atomNameTwo, p2lj[k], new double[]{1, 0, 0, 1});
             k ++;
         }
     }

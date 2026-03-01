@@ -56,7 +56,7 @@ public class MCMoveGrapheneAtomMulti  extends MCMoveBoxStep {
         }
 
     }
-    public boolean doTrialN() {
+    public boolean doTrial() {
         IAtomList leafAtoms = box.getLeafList();
         uOld = potentialCompute.computeOneOldMolecule(molecule);
         for(int i = startAtom; i<leafAtoms.size(); i++) {
@@ -71,12 +71,6 @@ public class MCMoveGrapheneAtomMulti  extends MCMoveBoxStep {
         return true;
     }
 
-    public boolean doTrial(){
-
-
-        return true;
-    }
-
     public int getStartAtom() {
         return startAtom;
     }
@@ -87,7 +81,6 @@ public class MCMoveGrapheneAtomMulti  extends MCMoveBoxStep {
 
     public double getChi(double temperature) {
         uNew = potentialCompute.computeOneMolecule(molecule);
-//        System.out.println("rotate "+molecule.getIndex()+" "+uOld+" => "+uNew);
         return Math.exp(-(uNew - uOld) / temperature);
     }
 
@@ -103,6 +96,11 @@ public class MCMoveGrapheneAtomMulti  extends MCMoveBoxStep {
             if (imposePBC) r.PE(box.getBoundary().centralImage(r));
         }
         ((BoxCluster)box).rejectNotify();
+
+        molecule.getChildList().forEach(atom -> {
+            atom.getPosition().E(oldPositions.get(atom.getIndex()));
+            potentialCompute.updateAtom(atom);
+        });
     }
 
     public void acceptNotify() {

@@ -105,7 +105,6 @@ public class MCMoveGrapheneWripple extends MCMoveBoxStep {
         });
     }
 
-
     public MoleculeSource getMoleculeSource() {
         return moleculeSource;
     }
