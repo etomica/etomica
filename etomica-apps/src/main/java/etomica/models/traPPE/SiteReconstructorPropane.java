@@ -20,6 +20,8 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 
+import java.util.Arrays;
+
 /**
  * Site reconstructor for TraPPE-EH propane.
  *
@@ -49,8 +51,10 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
     protected final PotentialMoleculePairImplicit.SiteSet sites;
 
     public SiteReconstructorPropane(ISpecies species) {
-        AtomType[] types = new AtomType[0];
-        types = species.getAtomTypes().toArray(types);
+        AtomType[] types = new AtomType[11];
+        // first 3 sites are C, then 8 CH (H are not included)
+        Arrays.fill(types, 0, 2, species.getAtomType(0));
+        Arrays.fill(types, 3, 10, species.getAtomType(2));
         sites = new PotentialMoleculePairImplicit.SiteSet(types);
     }
 
