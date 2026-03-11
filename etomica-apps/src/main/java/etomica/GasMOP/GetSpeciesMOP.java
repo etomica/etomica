@@ -137,16 +137,8 @@ public class GetSpeciesMOP {
             speciesGas = speciesGasTraPPE.speciesGasTraPPE(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
             setSpeciesGas(speciesGas);
             sim.addSpecies(speciesGas);
-            if (ifSecondGasPresent){
-                SpeciesGasTraPPE.ChemForm = getSpeciesMOP1.getChemform(conf3);
-                speciesSecondGas = speciesGasTraPPE.speciesGasTraPPETwo(Space3D.getInstance(), SpeciesGasTraPPE.ChemForm, false);
-                setSpeciesSecondGas(speciesSecondGas);
-                sim.addSpecies(speciesSecondGas);
-            }
         }
-
         getSpeciesMOP.setSpeciesGas(speciesGas);
-        getSpeciesMOP.setSpeciesSecondGas(speciesSecondGas);
         return speciesLigand;
     }
     public SpeciesGasTraPPE.ChemForm getChemform(String conf2){

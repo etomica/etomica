@@ -103,7 +103,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         zeroArrays(doForces);
 
         double[] uTot = {0};
-        double[] uu = new double[5];
+        double[] uu = new double[6];
        Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT);
         for (int i = 0; i < speciesList.size(); i++) {
             Map<IPotential2, List<int[]>> potentials = bondingInfo.bondedPairs[i];
@@ -116,7 +116,9 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
                         double u = handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
                         uTot[0] += u;
+                        //System.out.println(Arrays.toString(pair) + " "+ u);
                     }
+                 //   System.out.println("new Pairs");
                 }
             });
             uu[2] += uTot[0];
@@ -141,6 +143,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             Map<IPotentialBondTorsion, List<int[]>> potentials4 = bondingInfo.bondedQuads[i];
             uu[4] -= uTot[0];
             potentials4.forEach((potential, quads) -> {
+           //     double uQuads =0.0;
                 for (IMolecule molecule : molecules) {
                     for (int[] quad : quads) {
                         IAtom iAtom = molecule.getChildList().get(quad[0]);
@@ -148,15 +151,18 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom kAtom = molecule.getChildList().get(quad[2]);
                         IAtom lAtom = molecule.getChildList().get(quad[3]);
                         double u = handleOneBondQuad(doForces, box.getBoundary(), iAtom, jAtom, kAtom, lAtom, potential, forces);
+                      //  System.out.println(iAtom + " " +jAtom + " "+ kAtom+" "+ lAtom + " "+ u);
                         uTot[0] += u;
+                       // uQuads += u;
                     }
+                    //System.out.println(uQuads);
                 }
             });
 
             uu[4] += uTot[0];
          //   System.out.println(" 4 "+ uu[4]);
             Map<IPotentialBondInversion, List<int[]>> potentials5 = bondingInfo.bondedInverts[i];
-            uu[4] -= uTot[0];
+            uu[5] -= uTot[0];
             potentials5.forEach((potential, inverts) -> {
                 for (IMolecule molecule : molecules) {
                     for (int[] invert : inverts) {
@@ -169,6 +175,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                     }
                 }
             });
+            uu[5] += uTot[0];
         }
         if (Double.isNaN(uTot[0])) {
             throw new RuntimeException("oops");
@@ -352,7 +359,7 @@ public class PotentialMasterBonding implements PotentialCompute {
                 forces[iAtom.getLeafIndex()].PE(dr);
                 forces[jAtom.getLeafIndex()].ME(dr);
                 if(forces[iAtom.getLeafIndex()].isNaN() ||forces[jAtom.getLeafIndex()].isNaN() || Double.isNaN(uij) || Double.isNaN(duij) ){
-                    throw new RuntimeException("oops ");
+                    throw new RuntimeException("oops " + iAtom+ " "+ jAtom);
                 }
             }
         }
@@ -363,7 +370,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         Vector ri = iAtom.getPosition();
         Vector rj = jAtom.getPosition();
         Vector rk = kAtom.getPosition();
-       // System.out.println(ri);
+
         Vector drji = Vector.d(ri.getD());
         Vector drjk = Vector.d(ri.getD());
 
@@ -402,7 +409,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             fk.PE(df);
             fj.ME(df);
             if(forces[iAtom.getLeafIndex()].isNaN() ||forces[jAtom.getLeafIndex()].isNaN() || forces[kAtom.getLeafIndex()].isNaN()|| Double.isNaN(uijk) || Double.isNaN(duijk) ){
-                throw new RuntimeException("oops ");
+                throw new RuntimeException("oops " + iAtom+ " "+ jAtom+ " "+ kAtom);
             }
         }
         return uijk;

@@ -65,7 +65,7 @@ public class GOMC  extends Simulation {
     public GOMC(Space space, int numMoleules, double temperature, String configFileName, Vector vecGrapheneone, Vector vecGraphenetwo) {
         super(space);
         GrapheneReaderXYZPDB grapheneReaderXYZPDB = new GrapheneReaderXYZPDB();
-        species = grapheneReaderXYZPDB.getSpecies(configFileName, new Vector3D(0, 0, 0), false);
+        species = grapheneReaderXYZPDB.getSpecies(configFileName, new Vector3D(0, 0, 0), false, false);
 
         System.out.println("Species");
 
@@ -439,7 +439,7 @@ public class GOMC  extends Simulation {
         double errZ_ = dataZ_.getValue(AccumulatorAverage.ERROR.index);
         double corZ_ = dataZ_.getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
         System.out.println("(Z-1)/rho: "+" "+avgZ_+"   err: "+" "+errZ_+"   cor: "+" "+corZ_);
-        try{
+      /*  try{
             IMolecule moleculeGO = sim.box.getMoleculeList().get(0);
             Map<Integer, Vector> positionMap = new HashMap<>();
             Map<Integer, String> atomMap = new HashMap<>();
@@ -461,7 +461,7 @@ public class GOMC  extends Simulation {
             );
         } catch (IOException e) {
             System.out.println("An error occurred while writing to the file: " + e.getMessage());
-        }
+        }*/
         writer.close();
         String absolutePath = file.getAbsolutePath();
         System.out.println("File path: " + absolutePath);

@@ -389,11 +389,11 @@ public class PDBReaderMOP {
         atomMapModified =getatomMapModified(atomMap);
         atomIdentifierMap = getAtomIdentifierMapModified();
         Vector dr = Vector.d(centreMOP.getD());
-        for(int i = 0; i < atomIdentifierMap.size(); i++) {
-            String symbol = String.valueOf(atomIdentifierMap.get(i));
-            int startIndex = symbol.indexOf("[") + 1;
-            int endIndex = symbol.indexOf("]");
-            String nameNew = symbol.substring(startIndex, endIndex);
+        for(int i = 0; i < atomMapModified.size(); i++) {
+            String symbol = String.valueOf(atomMapModified.get(i));
+           /* int startIndex = symbol.indexOf("[") + 1;
+            int endIndex = symbol.indexOf("]");*/
+            String nameNew = symbol;
             AtomType newName = returnElement(nameNew, setMOPmassInfinite);
           //  System.out.println( i + " " +nameNew + " "+ newName);
             if (typeMapNew.containsKey(nameNew)) {
@@ -445,12 +445,12 @@ public class PDBReaderMOP {
                 massSum += mass;
             }
             centreMOP.TE(1.0 / massSum);
-            for(int i=0; i<atomIdentifierMap.size(); i++){
+            for(int i=0; i<atomMapModified.size(); i++){
                 IAtom a = children.get(i);
-                String symbol = String.valueOf(atomIdentifierMap.get(i));
-                int startIndex = symbol.indexOf("[") + 1;
-                int endIndex = symbol.indexOf("]");
-                String nameNew = symbol.substring(startIndex, endIndex);
+                String symbol = String.valueOf(atomMapModified.get(i));
+              /*  int startIndex = symbol.indexOf("[") + 1;
+                int endIndex = symbol.indexOf("]");*/
+                String nameNew = symbol;
                 typeNew = typeMapNew.get(nameNew);
                 Vector v = a.getPosition();
                 v.ME(centreMOP);
@@ -1070,6 +1070,18 @@ public class PDBReaderMOP {
 
     public Map<Integer,String> atomIdentifierMapModified (ArrayList<ArrayList<Integer>> connectivityModified, Map<Integer, String> atomMapModified) {
         Map<Integer, AtomType> atomIdentifierMap = atomIdentifier(connectivityModified, atomMapModified);
+
+        if (connectivityModified.size() == 0  && atomIdentifierMap.size() == 0){
+            for(int i=0; i<atomMapModified.size(); i++) {
+                String atomType = String.valueOf(atomMapModified.get(i));
+                String value = atomType.replace("AtomType[", "").replace("]", "");
+               /* if (value.equals("null")) {
+                    System.out.println(i + " " + atomType);
+                }*/
+                modifiedAtomIdentifierMap.put(i, value);
+            }
+        }
+
      /*   for(int i=0; i<atomIdentifierMap.size(); i++){
             String atomType = String.valueOf(atomIdentifierMap.get(i));
             String value = atomType.replace("AtomType[", "").replace("]", "");

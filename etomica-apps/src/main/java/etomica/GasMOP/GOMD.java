@@ -15,6 +15,7 @@ import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
@@ -36,6 +37,7 @@ import etomica.potential.UFF.*;
 import etomica.potential.UFF.PDBReader;
 import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeEwaldFourier;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.MCMoveWiggle;
 import etomica.simulation.prototypes.MeterTorsionAngle;
@@ -71,25 +73,30 @@ public class GOMD  extends Simulation {
     public PotentialMaster potentialMaster;
     double molecularWeight=0;
     public IntegratorListenerNHC nhc;
-    public GOMD(Space space,int numMoleules, double temperature, String configFileName, Vector vecGrapheneone, Vector vecGraphenetwo) {
+    public GOMD(Space space,int numMoleules, double temperature, String configFileName, Vector vecGrapheneone, Vector vecGraphenetwo, double x, double y, double z) {
         super(space);
         GrapheneReaderXYZPDB grapheneReaderXYZPDB = new GrapheneReaderXYZPDB();
-        species = grapheneReaderXYZPDB.getSpecies(configFileName, new Vector3D(0, 0, 0), false);
+        GOMDParams gomdParams = new GOMDParams();
 
+        species = grapheneReaderXYZPDB.getSpecies(configFileName, new Vector3D(0, 0, 0), false, gomdParams.ifAmberData);
         System.out.println("Species");
 
         SpeciesBuilder speciesBuilder = new SpeciesBuilder(Space3D.getInstance());
         speciesBuilder.setDynamic(true);
 
-        setRandom(new RandomMersenneTwister(1));
+     //   setRandom(new RandomMersenneTwister(3));
         addSpecies(species);
 
         box = this.makeBox();
-        box.getBoundary().setBoxSize(new Vector3D(25,25,30));
-        box.setNMolecules(species, numMoleules);
+        box.getBoundary().setBoxSize(new Vector3D(x,y,z)); //656050
+        box.setNMolecules(species, 1);
         molecularWeight = species.getMass()*numMoleules;
+        Vector vecZero = new Vector3D(0, 0, 10);
+        Vector vecOne = new Vector3D(0, 0, 20);
+        Vector vecTwo = new Vector3D(0, 0, -10);
+        Vector vecThree = new Vector3D(0, 0, -20);
         if (numMoleules > 1){
-            System.out.println(vecGrapheneone);
+            System.out.println(vecZero);
             List<Vector> oldPositions = new ArrayList<>();
             IMolecule moleculeMOPZero = box.getMoleculeList().get(0);
             while (oldPositions.size() < moleculeMOPZero.getChildList().size()) {
@@ -97,15 +104,32 @@ public class GOMD  extends Simulation {
             }
             moleculeMOPZero.getChildList().forEach(atom -> {
                 oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                atom.getPosition().PE(vecGrapheneone);
+                atom.getPosition().PE(vecZero);
                 Vector shift = box.getBoundary().centralImage(atom.getPosition());
                 atom.getPosition().PE(shift);
             });
-            System.out.println(vecGraphenetwo);
+            System.out.println(vecOne);
             IMolecule moleculeMOPOne = box.getMoleculeList().get(1);
             moleculeMOPOne.getChildList().forEach(atom -> {
                 oldPositions.get(atom.getIndex()).E(atom.getPosition());
-                atom.getPosition().PE(vecGraphenetwo);
+                atom.getPosition().PE(vecOne);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+            IMolecule moleculeMOPThree = box.getMoleculeList().get(2);
+            moleculeMOPThree.getChildList().forEach(atom -> {
+                oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                atom.getPosition().PE(vecTwo);
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            });
+
+            System.out.println(vecGraphenetwo);
+            IMolecule moleculeMOPFour = box.getMoleculeList().get(3);
+            moleculeMOPFour.getChildList().forEach(atom -> {
+                oldPositions.get(atom.getIndex()).E(atom.getPosition());
+                atom.getPosition().PE(vecThree);
                 Vector shift = box.getBoundary().centralImage(atom.getPosition());
                 atom.getPosition().PE(shift);
             });
@@ -114,17 +138,29 @@ public class GOMD  extends Simulation {
         double nbrRange = 12.5 * 1.05 + 1;
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
         PotentialMasterBonding pmBonding = new PotentialMasterBonding(sm, box);
-        grapheneReaderXYZPDB.makeBondingPotential(grapheneReaderXYZPDB, species, pmBonding);
+        if(gomdParams.ifAmberData){
+            grapheneReaderXYZPDB.makeBondingPotential(grapheneReaderXYZPDB, species, pmBonding, gomdParams.ifAmberData);
+        } else {
+            grapheneReaderXYZPDB.makeBondingPotential(grapheneReaderXYZPDB, species, pmBonding);
+        }
+
         makeAtomPotentials(sm);
        // PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, nbrRange, pmBonding.getBondingInfo());
         SetPotential setPotential = new SetPotential();
         List<List<AtomType>> atomTypesGO =  setPotential.listFinal(species.getUniqueAtomTypes());
-        grapheneReaderXYZPDB.makeNBPotential(grapheneReaderXYZPDB, atomTypesGO, potentialMaster);
+        //grapheneReaderXYZPDB.makeNBPotential(grapheneReaderXYZPDB, atomTypesGO, potentialMaster);
+
+        PotentialComputeEwaldFourier ewaldFourier = new PotentialComputeEwaldFourier(getSpeciesManager(), box);
+        PotentialComputeEwaldFourier.EwaldParams params = ewaldFourier.getOptimalParams(3, 0);
+
+        List<AtomType> atomTypesMolecules = species.getAtomTypes();
+        grapheneReaderXYZPDB.makeNBElectroPotential(grapheneReaderXYZPDB, atomTypesGO, potentialMaster, ewaldFourier, atomTypesMolecules, params);
 
         potentialMaster.doAllTruncationCorrection = true;
+     //   pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster, ewaldFourier);
         pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
-
+      //  pcAgg = new PotentialComputeAggregate(pmBonding);
         integrator = new IntegratorVelocityVerlet(pcAgg, random, 0.001, Kelvin.UNIT.toSim(temperature), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1000);
@@ -133,12 +169,12 @@ public class GOMD  extends Simulation {
         nhc = new IntegratorListenerNHC(integrator, random, 3, 2);
         integrator.getEventManager().addListener(nhc);
 
-        pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
+       /* pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
         integratorMC = new IntegratorMC(pcAgg, random, temperature, box);
         getController().addActivity(new ActivityIntegrate(integrator));
 
         MCMoveAtom moveAtom = new MCMoveAtom(random, pcAgg, box);
-        integratorMC.getMoveManager().addMCMove(moveAtom);
+        integratorMC.getMoveManager().addMCMove(moveAtom);*/
 
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
@@ -146,8 +182,6 @@ public class GOMD  extends Simulation {
         potentialMaster.init();
 
       //  double u0 = potentialMasterCell.computeAll(false);
-        double u1 = pmBonding.computeAll(false);
-        double x = 1;
     /*    System.out.println("Before SD pmc : " + kcals.fromSim(u0));
         System.out.println("Before SD pmBonding: " + kcals.fromSim(u1));
         runSteepestDescentMinimization2(box, potentialMasterCell);
@@ -178,11 +212,9 @@ public class GOMD  extends Simulation {
         } catch (IOException e) {
             System.out.println("An error occurred while writing to the file: " + e.getMessage());
         }*/
-
-       // System.exit(1);
-        double u0 = potentialMaster.computeAll(false);
-        System.out.println( u0 +" initial Value "  + kcals.fromSim(u0));
-
+        double uBonding = pmBonding.computeAll(false);
+        double uAll = pcAgg.computeAll(false);
+        System.out.println("utotal "+ uAll + " uBonding " + uBonding);
     }
 
     public static void main(String[] args) throws IOException {
@@ -192,8 +224,8 @@ public class GOMD  extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         Space space1 = Space3D.getInstance();
-        Vector vector1 = new Vector3D(0, 0, 5);
-        Vector vector2 = new Vector3D(0, 0, -5);
+        Vector vector1 = new Vector3D(0, 0, 10);
+        Vector vector2 = new Vector3D(0, 0, -10);
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/(16.042/ Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
 
         double temperatureK = params.temperatureK;
@@ -215,10 +247,11 @@ public class GOMD  extends Simulation {
         System.out.println("initial density "+ density);
         System.out.println("initial density (g/cm^3) "+ dUnit.fromSim(density));
 
-        GOMD sim = new GOMD(space1, 1, 500, configFilename, vector1, vector2  );
+        GOMD sim = new GOMD(space1, numMolecules, temperature, configFilename, vector1, vector2, params.x, params.y, params.z );
         System.out.println("done writing ");
       //  System.exit(1);
-        MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integratorMC);
+        MeterPotentialEnergyFromIntegrator meterU = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        MeterTemperature meterT = new MeterTemperature(sim.box, 3);
         sim.potentialMaster.init();
         System.out.println("u0/N "+(meterU.getDataAsScalar()/numMolecules));
         Unit kjmol = new UnitRatio(new PrefixedUnit(Prefix.KILO,Joule.UNIT), Mole.UNIT);
@@ -261,50 +294,21 @@ public class GOMD  extends Simulation {
         };
         DataFork forkP = new DataFork(new IDataSink[]{dpZ, dpZm1oR});
 
-        if (true) {
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorMC, 5000000));
-            sim.getController().addActionSequential(new IAction() {
-                @Override
-                public void actionPerformed() {
-                    sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveVolume);
-                }
-            });
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorMC));
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Universal MC", 3);
-            System.out.println("Reached after simulation graphic");
+        if (false) {
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Octane MD", 3);
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
-            ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getAtomType(0),1);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getAtomType(0), Color.darkGray);
-            /*((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("C_1"), Color.lightGray);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("O_2"), Color.red);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("O_1"), ColorExtra.indianRed);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box()).getColorScheme()).setColor(sim.species.getTypeByName("H_2"), ColorExtra.cornflowerblue);*/
-
-            DataSourceCountSteps timeSource = new DataSourceCountSteps(sim.integratorMC);
+            dhbt.setDiameter(sim.species.getAtomType(0), 3.75);
+            dhbt.setDiameter(sim.species.getAtomType(1), 3.95);
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-            List<DataPump> dataPumps = simGraphic.getController().getDataStreamPumps();
-            // System.out.println("Reached dataPump");
-            DataSourceCountSteps timer = new DataSourceCountSteps(sim.integratorMC);
+            DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
             DisplayTextBox timerBox = new DisplayTextBox();
-            timerBox.setLabel("Steps");
-            DataPumpListener pumpSteps = new DataPumpListener(timer, timerBox, numMolecules);
-            sim.integratorMC.getEventManager().addListener(pumpSteps);
+            timerBox.setLabel("Time");
+            DataPumpListener pumpSteps = new DataPumpListener(timer, timerBox, 100);
+            sim.integrator.getEventManager().addListener(pumpSteps);
             simGraphic.add(timerBox);
-
-            MeterDensity meterDensity = new MeterDensity(sim.box());
-            AccumulatorHistory accDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
-            accDensity.setTimeDataSource(timer);
-            DataPumpListener pumpDensity = new DataPumpListener(meterDensity, accDensity, 10);
-            sim.integratorMC.getEventManager().addListener(pumpDensity);
-            dataPumps.add(pumpDensity);
-
-            DisplayPlot historyDensity = new DisplayPlot();
-            accDensity.setDataSink(historyDensity.getDataSet().makeDataSink());
-            historyDensity.setLabel("Density");
-            historyDensity.setUnit(dUnit);
-            simGraphic.add(historyDensity);
 
             Unit perN = new SimpleUnit(Null.DIMENSION, numMolecules, "1/N", "1/N", false);
 
@@ -316,8 +320,7 @@ public class GOMD  extends Simulation {
             avgEnergy.setPushInterval(10);
             DataFork forkU = new DataFork(new IDataSink[]{historyU, historyU2, avgEnergy});
             DataPumpListener pumpU = new DataPumpListener(meterU, forkU, 10);
-            dataPumps.add(pumpU);
-            sim.integratorMC.getEventManager().addListener(pumpU);
+            sim.integrator.getEventManager().addListener(pumpU);
             DisplayPlotXChart plotU = new DisplayPlotXChart();
             plotU.setLabel("U");
             historyU.addDataSink(plotU.makeSink("U"));
@@ -334,26 +337,44 @@ public class GOMD  extends Simulation {
             display.setUnit(perN);
             simGraphic.add(display);
 
-            meterP.setTemperature(temperature);
-            meterP.doCallComputeAll(true);
+            if (sim.nhc != null) {
+                IntegratorListenerNHC.DataSourceTotalEnergy meterTotalEnergy = new IntegratorListenerNHC.DataSourceTotalEnergy(sim.integrator, sim.nhc);
+                AccumulatorHistory historyTotalEnergy = new AccumulatorHistory(new HistoryCollapsingDiscard());
+                historyTotalEnergy.setTimeDataSource(timer);
+                DataPumpListener pumpTotalEnergy = new DataPumpListener(meterTotalEnergy, historyTotalEnergy);
+                sim.integrator.getEventManager().addListener(pumpTotalEnergy);
+                DisplayPlotXChart plotTotalEnergy = new DisplayPlotXChart();
+                plotTotalEnergy.setLabel("conserved energy");
+                historyTotalEnergy.addDataSink(plotTotalEnergy.makeSink("total"));
+                simGraphic.add(plotTotalEnergy);
+            }
+
+            AccumulatorHistory historyT = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            historyT.setTimeDataSource(timer);
+            DataPumpListener pumpT = new DataPumpListener(meterT, historyT);
+            sim.integrator.getEventManager().addListener(pumpT);
+            DisplayPlotXChart plotT = new DisplayPlotXChart();
+            plotT.setLabel("T");
+            plotT.setUnit(Kelvin.UNIT);
+            historyT.addDataSink(plotT.makeSink("T"));
+            simGraphic.add(plotT);
+
+            AccumulatorAverageCollapsing avgP = new AccumulatorAverageCollapsing();
             AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingDiscard());
             historyP.setTimeDataSource(timer);
             AccumulatorHistory historyP2 = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyP2.setTimeDataSource(timer);
-            AccumulatorAverageCollapsing avgP = new AccumulatorAverageCollapsing();
+            forkP.addDataSink(avgP);
             forkP.addDataSink(historyP);
             forkP.addDataSink(historyP2);
-            forkP.addDataSink(avgP);
-            DataPumpListener pumpP = new DataPumpListener(meterP, forkP, numMolecules);
-            dataPumps.add(pumpP);
-            sim.integratorMC.getEventManager().addListener(pumpP);
+            DataPumpListener pumpP = new DataPumpListener(meterP, forkP, 10);
+            sim.integrator.getEventManager().addListener(pumpP);
             DisplayPlotXChart plotP = new DisplayPlotXChart();
             plotP.setLabel("P");
             historyP.addDataSink(plotP.makeSink("P"));
             plotP.setLegend(new DataTag[]{historyP.getTag()}, "samples");
             historyP2.addDataSink(plotP.makeSink("Pavg"));
             plotP.setLegend(new DataTag[]{historyP2.getTag()}, "avg");
-            plotP.setUnit(pUnit);
             simGraphic.add(plotP);
             simGraphic.getController().getDataStreamPumps().add(pumpP);
 
@@ -361,7 +382,7 @@ public class GOMD  extends Simulation {
             displayP.setAccumulator(avgP);
             simGraphic.add(displayP);
 
-            AccumulatorHistory historyZ = new AccumulatorHistory(new HistoryCollapsingDiscard());
+          /*  AccumulatorHistory historyZ = new AccumulatorHistory(new HistoryCollapsingDiscard());
             historyZ.setTimeDataSource(timer);
             AccumulatorHistory historyZ2 = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyZ2.setTimeDataSource(timer);
@@ -401,51 +422,37 @@ public class GOMD  extends Simulation {
             DisplayTextBoxesCAE displayZ_ = new DisplayTextBoxesCAE();
             displayZ_.setLabel("(Z-1)/rho");
             displayZ_.setAccumulator(avgZ_);
+            simGraphic.add(displayZ_);*/
 
-            simGraphic.add(displayZ_);
-            simGraphic.makeAndDisplayFrame(APP_NAME);
-
-
-            MeterTorsionAngle meterTorsion = new MeterTorsionAngle(sim.box, 2, 3, 4, 5);
-            AccumulatorAverageBlockless accTorsion1 = new AccumulatorAverageBlockless();
-            AccumulatorAverageCollapsing accTorsion2 = new AccumulatorAverageCollapsing();
-            AccumulatorHistory historyTorsion = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyTorsion.setTimeDataSource(timer);
-            AccumulatorHistory historyTorsion2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyTorsion2.setTimeDataSource(timer);
-            DataFork forkTorsion = new DataFork(new IDataSink[]{accTorsion1, accTorsion2, historyTorsion, historyTorsion2});
-            DataPumpListener pumpTorsion = new DataPumpListener(meterTorsion, forkTorsion, numMolecules);
-            dataPumps.add(pumpTorsion);
-            sim.integratorMC.getEventManager().addListener(pumpTorsion);
-            DisplayTextBoxesCAE displayTorsion = new DisplayTextBoxesCAE();
-            displayTorsion.setLabel("Torsion cos");
-            displayTorsion.setAccumulator(accTorsion2);
-            DisplayPlotXChart plotTorsion = new DisplayPlotXChart();
-            plotTorsion.setLabel("torsion");
-            historyTorsion.addDataSink(plotTorsion.makeSink("samples"));
-            plotTorsion.setLegend(new DataTag[]{historyTorsion.getTag()}, "samples");
-            historyTorsion2.addDataSink(plotTorsion.makeSink("avg"));
-            plotTorsion.setLegend(new DataTag[]{historyTorsion2.getTag()}, "avg");
-            simGraphic.add(plotTorsion);
             simGraphic.makeAndDisplayFrame();
             return;
-
         }
-        File file = new File("output.txt");
+        File file = new File(params.fileOne);
         FileWriter writer = new FileWriter(file);
-        System.out.println("Reached after for loop");
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/10));
-        //sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveMolecule);
 
-        //sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/5));
+        System.out.println("Reached after for loop");
+
+// Small equilibration
+    /*    sim.getController().runActivityBlocking(
+                new ActivityIntegrate(sim.integrator, numSteps/10)
+        );*/
+
+// Time source
+        DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
+
+// Energy history + averages
+        AccumulatorHistory historyU = new AccumulatorHistory(new HistoryCollapsingDiscard());
+        historyU.setTimeDataSource(timer);
+
+        AccumulatorHistory historyU2 = new AccumulatorHistory(new HistoryCollapsingAverage());
+        historyU2.setTimeDataSource(timer);
+
+        AccumulatorAverageCollapsing avgEnergy = new AccumulatorAverageCollapsing();
+        avgEnergy.setPushInterval(10);
 
         long samples = numSteps / (numMolecules* 8L);
         long bs = samples / 10;
         if (bs == 0) bs = 1;
-
-        AccumulatorAverageFixed accU = new AccumulatorAverageFixed((numSteps/10)/500);
-        DataPumpListener pumpU = new DataPumpListener(meterU, accU, 200);
-        sim.integratorMC.getEventManager().addListener(pumpU);
 
         AccumulatorAverageFixed accP = new AccumulatorAverageFixed(bs);
         forkP.addDataSink(accP);
@@ -454,11 +461,60 @@ public class GOMD  extends Simulation {
         AccumulatorAverageFixed accZm1oR = new AccumulatorAverageFixed(bs);
         dpZm1oR.addDataSink(accZm1oR);
         DataPumpListener pumpP = new DataPumpListener(meterP, forkP, 8*numMolecules);
-        sim.integratorMC.getEventManager().addListener(pumpP);
+        sim.integrator.getEventManager().addListener(pumpP);
 
+// Final block average
+        AccumulatorAverageFixed accU =
+                new AccumulatorAverageFixed((numSteps / 10) / 500);
+
+// ⭐ ENERGY FILE WRITER
+        EnergyHistoryWriter energyWriter =
+                new EnergyHistoryWriter(writer, timer);
+
+// Fork everything from meterU
+        DataFork forkU = new DataFork(new IDataSink[]{
+                historyU,
+                historyU2,
+                avgEnergy,
+                accU,
+                energyWriter
+        });
+
+// Pump every 10 steps
+        DataPumpListener pumpU =
+                new DataPumpListener(meterU, forkU, 10);
+
+        sim.integrator.getEventManager().addListener(pumpU);
+
+// ---- Run Production ----
         long t1 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps));
+
+        sim.getController().runActivityBlocking(
+                new ActivityIntegrate(sim.integrator, numSteps)
+        );
+
         long t2 = System.nanoTime();
+
+// Close writer
+        energyWriter.close();
+        writer.close();
+        //sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveMolecule);
+
+        //sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/5));
+
+
+
+
+
+     //   AccumulatorAverageFixed accU = new AccumulatorAverageFixed((numSteps/10)/500);
+     //  DataPumpListener pumpU = new DataPumpListener(meterU, accU, 200);
+      //  sim.integrator.getEventManager().addListener(pumpU);
+
+
+
+     /*   long t1 = System.nanoTime();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
+        long t2 = System.nanoTime();*/
 
         IData dataU = accU.getData();
         double avgU = dataU.getValue(AccumulatorAverage.AVERAGE.index) / numMolecules;
@@ -488,45 +544,60 @@ public class GOMD  extends Simulation {
         double avgZ_ = dataZ_.getValue(AccumulatorAverage.AVERAGE.index);
         double errZ_ = dataZ_.getValue(AccumulatorAverage.ERROR.index);
         double corZ_ = dataZ_.getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+
         System.out.println("(Z-1)/rho: "+" "+avgZ_+"   err: "+" "+errZ_+"   cor: "+" "+corZ_);
-        try{
-            IMolecule moleculeGO = sim.box.getMoleculeList().get(0);
-            Map<Integer, Vector> positionMap = new HashMap<>();
-            Map<Integer, String> atomMap = new HashMap<>();
-            for (int i = 0; i < moleculeGO.getChildList().size(); i++){
-                Vector vec = moleculeGO.getChildList().get(i).getPosition();
-                AtomType atomName = moleculeGO.getChildList().get(i).getType();
-                String atomTypeStringOne = String.valueOf(atomName);
-                String stringAtomOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
-                positionMap.put(i, vec);
-                atomMap.put(i, stringAtomOne);
+        File file2 = new File(params.fileTwo);
+        FileWriter writer2 = new FileWriter(file2);
+
+            for (int m = 0; m < sim.box.getMoleculeList().size(); m++){
+                IMolecule moleculeGO = sim.box.getMoleculeList().get(m);
+                Map<Integer, Vector> positionMap = new HashMap<>();
+                Map<Integer, String> atomMap = new HashMap<>();
+                for (int i = 0; i < moleculeGO.getChildList().size(); i++){
+                    Vector vec = moleculeGO.getChildList().get(i).getPosition();
+                    AtomType atomName = moleculeGO.getChildList().get(i).getType();
+                    String atomTypeStringOne = String.valueOf(atomName);
+                    String stringAtomOne = atomTypeStringOne.substring(9, atomTypeStringOne.length() - 1);
+                    positionMap.put(i, vec);
+                    atomMap.put(i, stringAtomOne);
+                }
+                System.out.println(positionMap);
+                System.out.println(atomMap);
+                System.out.println("\n");
             }
-            System.out.println(atomMap);
+
+
+          /*  System.out.println(atomMap);
             System.out.println(positionMap);
             XYZWriter.writeXYZ(
-                    paramsN.outputFile,
+                   String.valueOf(file2),
                     atomMap,
                     positionMap,
                     "Generated from Etomica maps"
-            );
-        } catch (IOException e) {
-            System.out.println("An error occurred while writing to the file: " + e.getMessage());
-        }
-        writer.close();
+            );*/
+
         String absolutePath = file.getAbsolutePath();
         System.out.println("File path: " + absolutePath);
         System.out.println("time: "+" "+(t2-t1)/1e9);
     }
 
     public static class GOMDParams extends ParameterBase {
-        public double temperatureK = 500;
+        public double temperatureK = 300;
         public int numMolecules = 1;
         //public int pressure = 10;
         public double density = 0.0000005;
         public boolean graphics = false;
-        public long numSteps = 10000000;
-        public String configFilename = "D:\\Sem-X\\GO\\graphitis\\GO_sheet2020";
-        public String outputFile = "D:\\Sem-X\\GO\\graphitis\\temp300K001Time.xyz";
+        public long numSteps = 10000;
+        public boolean ifAmberData = true;
+        public double x =50;
+        public double y =50;
+        public double z = 50;
+      //  public String configFilename = "D:\\Sem-X\\GO\\graphitis\\GO_sheet2020";
+      //  public String configFilename = "D:\\Sem-X\\GO\\amber\\go";
+     public String configFilename = "GO_sheet";
+     public String fileOne = "o1.txt";
+     public String fileTwo = "o2.txt";
+     //   public String outputFile = "D:\\Sem-X\\GO\\graphitis\\temp300K001Time.xyz";
         public int rc = 10;
         public double pressureKPa = 1402;
     }
@@ -539,99 +610,6 @@ public class GOMD  extends Simulation {
         System.out.println(lastTypeIndex + 1+ " "+lastTypeIndex + 1 + " lastTypeIndex" + " "+species.getAtomType(species.getUniqueAtomTypeCount() - 1));
         return new IPotential2[lastTypeIndex + 1][lastTypeIndex + 1];
     }
-
-
-  /*  public void runSteepestDescentMinimization(final Box box, final PotentialMasterCell pmc) {
-        final IAtomList atoms = box.getLeafList();
-        final int nAtoms = atoms.size();
-        final int dim = 3;
-        final int n = nAtoms * dim;
-
-        // 1. Build initial x from current coordinates
-        double[] x0 = new double[n];
-        for (int i = 0; i < nAtoms; i++) {
-            Vector r = atoms.get(i).getPosition();
-            x0[3*i    ] = r.getX(0);
-            x0[3*i + 1] = r.getX(1);
-            x0[3*i + 2] = r.getX(2);
-        }
-
-        // 2. Define f(x) = potential energy from pmc
-        FunctionMultiDimensionalDifferentiable f =
-                new FunctionMultiDimensionalDifferentiable() {
-
-                    @Override
-                    public double f(double[] x) {
-                        // set coordinates from x
-                        for (int i = 0; i < nAtoms; i++) {
-                            Vector r = atoms.get(i).getPosition();
-                            r.setX(0, x[3*i    ]);
-                            r.setX(1, x[3*i + 1]);
-                            r.setX(2, x[3*i + 2]);
-                        }
-                        // compute total energy
-                        return pmc.computeAll(false);
-                    }
-
-                    @Override
-                    public double df(int[] d, double[] x) {
-                        final double h = 1e-5;
-                        int order = 0;
-                        int idx = -1;
-
-                        for (int i = 0; i < d.length; i++) {
-                            if (d[i] != 0) {
-                                order += d[i];
-                                idx = i;
-                            }
-                        }
-
-                        if (order == 0) {
-                            return f(x);
-                        } else if (order == 1 && idx >= 0) {
-                            double old = x[idx];
-
-                            x[idx] = old + h;
-                            double fp = f(x);
-
-                            x[idx] = old - h;
-                            double fm = f(x);
-
-                            x[idx] = old;
-                            return (fp - fm) / (2*h);
-                        } else {
-                            throw new UnsupportedOperationException("Higher-order derivatives not needed");
-                        }
-                    }
-
-                    @Override
-                    public int getDimension() {
-                        return n;
-                    }
-                };
-
-        // 3. Run Steepest Descent minimization
-        SteepestDescent sd = new SteepestDescent(f);
-
-        // step sizes per coordinate: start with something small-ish
-        double[] xStep = new double[n];
-        for (int i = 0; i < n; i++) {
-            xStep[i] = 0.01; // or scale based on box size / typical displacements
-        }
-
-        double tol = 1e-6;
-        int maxIter = 200;
-
-        double[] xmin = sd.minimize(x0, xStep, tol, maxIter, true);
-
-        // 4. Copy minimized coordinates back into atoms
-        for (int i = 0; i < nAtoms; i++) {
-            Vector r = atoms.get(i).getPosition();
-            r.setX(0, xmin[3*i    ]);
-            r.setX(1, xmin[3*i + 1]);
-            r.setX(2, xmin[3*i + 2]);
-        }
-    }*/
 
     public void runSteepestDescentMinimization2(final Box box, final PotentialMasterCell pmc) {
         final IAtomList atoms = box.getLeafList();

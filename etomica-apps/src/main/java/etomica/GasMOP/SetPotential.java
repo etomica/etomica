@@ -199,7 +199,7 @@ public class SetPotential {
             if (ifGasOPLS){
                 jKey = potentialCoeffGas.get(atomTypeTwo);
                 epsilonJKey = kcals.toSim(iKey[0]);
-                sigmaJKey = iKey[1];
+                sigmaJKey = jKey[1];
             } else if (ifGasTraPPE) {
                 jKey = speciesTraPPE.atomicPot(atomTypeTwo);
                 epsilonJKey = Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
@@ -207,7 +207,7 @@ public class SetPotential {
             }else {
                 jKey = pdbReaderMOP.atomicPot(atomTypeTwo);
                 epsilonJKey = kcals.toSim(iKey[1]);
-                sigmaJKey = iKey[1];
+                sigmaJKey = jKey[1];
             }
 
 

@@ -100,7 +100,12 @@ public class GCMCGO extends Simulation {
 
         if (ifGraphenePresent){
             if(ifGrapheneDatafile){
-                speciesGrapheneOne = grapheneReaderXYZPDB.getSpecies(confNameGraphene,new Vector3D(0, 0, 0), false);
+                /*if (gcmcgoParams.ifAmberData){
+                    speciesGrapheneOne = grapheneReaderXYZPDB.getSpecies(confNameGraphene,new Vector3D(0, 0, 0), false);
+                }else {
+                //    speciesGrapheneOne = grapheneReaderXYZPDB.getSpeciesData(confNameGraphene,new Vector3D(0, 0, 0), false);
+                }*/
+                speciesGrapheneOne = grapheneReaderXYZPDB.getSpecies(confNameGraphene,new Vector3D(0, 0, 0), false, false);
                 addSpecies(speciesGrapheneOne);
             }else {
                 speciesGrapheneOne = grapheneReader.getSpecies(confNameGraphene, new Vector3D(0, 0, 0), false);
@@ -804,6 +809,7 @@ public class GCMCGO extends Simulation {
         public Vector grapheneTwelve = new Vector3D(15.0,15.0, -60.0);
         public Vector centreMOPTwo = new Vector3D(0.0,0.0,30);
         public Vector centreMOP = new Vector3D(0.0,0.0,-30);
+        public boolean ifAmberData = true;
         public int numAtomOne = 1;
         public int numAtomTwo = 1;
 
