@@ -2341,7 +2341,7 @@ public class VirialTraPPE {
                 k_theta = new double[]{kCCC}; //CCC
                 a = new double[][]{{}}; //dihedral
                 triplets = new int[][][]{{{0, 1, 2}}};
-                quads = new int[][][]{{}};
+                quads = new int[][][]{{{0, 1, 2, 8}, {2, 1, 0, 3}}}; //C-C-C-H
                 bonding = new IntArrayList[5];
                 bonding[0] = new IntArrayList(new int[]{1, 3});
                 bonding[1] = new IntArrayList(new int[]{0,2});
