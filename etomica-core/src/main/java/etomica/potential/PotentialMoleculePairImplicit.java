@@ -2,42 +2,40 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.models.traPPE;
+package etomica.potential;
 
 import etomica.atom.AtomType;
-import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential2;
-import etomica.potential.IPotentialMolecular;
+import etomica.atom.IAtom;import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;import etomica.species.SpeciesManager;
 
 /**
  * Potential that includes virtual sites whose position can be determined
  * from concrete IAtom positions using SiteReconstructors.
  */
-public class PotentialMoleculePairImplicit implements IPotentialMolecular {
+public class PotentialMoleculePairImplicit extends PotentialMoleculePair {
 
-    protected final Space space;
-    protected final IPotential2[][] atomPotentials;
 
     protected final SiteReconstructor reconstructor1, reconstructor2;
     protected final Vector dr;
 
     public PotentialMoleculePairImplicit(
-            Space space, IPotential2[][] atomPotentials,
+            Space space, SpeciesManager sm,
             SiteReconstructor reconstructor1, SiteReconstructor reconstructor2) {
-        this.space = space;
-        this.atomPotentials = atomPotentials;
+        super(space, sm);
         this.dr = space.makeVector();
         this.reconstructor1 = reconstructor1;
         this.reconstructor2 = reconstructor2;
     }
-
-    @Override
-    public double energy(IMoleculeList molecules) {
-        return energy(molecules.get(0), molecules.get(1));
+    public PotentialMoleculePairImplicit(
+            Space space, IPotential2[][] atomPotentials,
+            SiteReconstructor reconstructor1, SiteReconstructor reconstructor2) {
+        super(space, atomPotentials);
+        this.dr = space.makeVector();
+        this.reconstructor1 = reconstructor1;
+        this.reconstructor2 = reconstructor2;
     }
 
     public double energy(IMolecule molecule1, IMolecule molecule2) {
@@ -81,5 +79,24 @@ public class PotentialMoleculePairImplicit implements IPotentialMolecular {
 
         void reconstructSites(IMolecule molecule);
     }
+    public static class SiteReconstructorNull implements SiteReconstructor{
+        public SiteSet sites;
+        public PotentialMoleculePairImplicit.SiteSet getSites() {
+            return sites;
+        }
 
+        public void reconstructSites(IMolecule molecule){
+            if(sites == null) {
+                AtomType[] types = new AtomType[molecule.getChildList().size()];
+                for (IAtom a: molecule.getChildList()){
+                    types[a.getIndex()] = a.getType();
+                }
+                sites = new SiteSet(types);
+
+            }
+            for (IAtom a: molecule.getChildList()){
+                sites.pos[a.getIndex()].E(a.getPosition());
+            }
+        }
+    }
 }

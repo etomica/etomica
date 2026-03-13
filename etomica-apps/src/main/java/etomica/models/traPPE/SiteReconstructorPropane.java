@@ -13,6 +13,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
+import etomica.potential.PotentialMoleculePairImplicit;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -53,8 +54,8 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
     public SiteReconstructorPropane(ISpecies species) {
         AtomType[] types = new AtomType[11];
         // first 3 sites are C, then 8 CH (H are not included)
-        Arrays.fill(types, 0, 2, species.getAtomType(0));
-        Arrays.fill(types, 3, 10, species.getAtomType(2));
+        Arrays.fill(types, 0, 3, species.getAtomType(0));
+        Arrays.fill(types, 3, 11, species.getAtomType(2));
         sites = new PotentialMoleculePairImplicit.SiteSet(types);
     }
 
