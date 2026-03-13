@@ -8,6 +8,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
+import etomica.config.ConformationLinear;
 import etomica.graph.model.Graph;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
@@ -15,6 +16,8 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
+import etomica.models.traPPE.PotentialMoleculePairImplicit;
+import etomica.models.traPPE.SiteReconstructorPropane;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.*;
@@ -63,18 +66,17 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.butadiene, ChemForm.propan2ol};
+            params.chemForm = new ChemForm[]{ChemForm.propaneEH};
             params.nPoints = 4; //B order
             params.temperature = 650;
             params.diagram = "BC";
-            params.numSteps = 100000000;
+            params.numSteps = 1000000;
             params.refFrac = -1;
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
-            params.dorefpref = true;
+            params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
             params.nDer = 0;
-            params.types = new int[]{0, 1, 1, 1};
 //            params.BDtol = 1e-11;
         }
         // Import Params
@@ -756,7 +758,7 @@ public class VirialTraPPE {
 
     enum ChemForm {
         N2, O2, CO2, NH3, CH4, CH3OH, ethanol, propan1ol, propan2ol, isobutanol, benzene, ethane, propane, butane, methane, ethene, propene, butadiene, toluene,
-        ethylbenzene, oxylene, pxylene, mxylene, CO2_flex, water
+        ethylbenzene, oxylene, pxylene, mxylene, CO2_flex, propaneEH, water
     }
 
     /**
@@ -1327,10 +1329,10 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3, sigmaCH, sigmaO,sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonH};
                 charge = new double[]{qCH3,qCH, qO, qH};
-                theta_eq = new double[]{theta_CCC, theta_CCOH,  theta_CH3OH, theta_CCOH};
-                k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH, k_thetaCCOH};
+                theta_eq = new double[]{theta_CCC, theta_CCOH,  theta_CH3OH};
+                k_theta = new double[]{k_thetaCCC, k_thetaCCOH, k_thetaCH3OH};
                 a = new double[][]{{c00, c01, c02, c03}, {c00, c01, c02, c03}};
-                triplets = new int[][][]{{{0, 1, 2}}, {{0, 1, 3}}, {{1, 3, 4}}, {{2, 1, 3}}};
+                triplets = new int[][][]{{{0, 1, 2}}, {{0, 1, 3}, {2, 1, 3}}, {{1, 3, 4}}};
                 quads = new int[][][]{{{0, 1, 3, 4}}, {{2, 1, 3, 4}}};
                 bonding = new IntArrayList[5];
                 bonding[0] = new IntArrayList(new int[]{1});
@@ -1426,10 +1428,10 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3,sigmaCH, sigmaO, sigmaCH2, sigmaH};
                 epsilon = new double[] {epsilonCH3,epsilonCH, epsilonO, epsilonCH2, epsilonH};
                 charge = new double[]{qCH3,qCH, qO, qCH2, qH};
-                theta_eq = new double[]{theta_CCOH, theta_CH3OH, theta_CCC, theta_CCC};
-                k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH, k_thetaCCC, k_thetaCCC};
+                theta_eq = new double[]{theta_CCOH, theta_CH3OH, theta_CCC};
+                k_theta = new double[]{k_thetaCCOH, k_thetaCH3OH, k_thetaCCC};
                 a = new double[][]{{c00, c01, c02, c03}, {c10, c11, c12, c13}, {c10, c11, c12, c13}};
-                triplets = new int[][][]{{{4, 2, 1}}, {{2, 4, 5}}, {{2, 1, 3}}, {{2, 1, 0}}};
+                triplets = new int[][][]{{{4, 2, 1}}, {{2, 4, 5}}, {{2, 1, 3}, {2, 1, 0}}};
                 quads = new int[][][]{{{1, 2, 4, 5}}, {{0, 1, 2, 4}}, {{3, 1, 2, 4}}};
                 bonding = new IntArrayList[6];
                 bonding[0] = new IntArrayList(new int[]{1});
@@ -2019,6 +2021,57 @@ public class VirialTraPPE {
                         .build();
 
             }
+            else if (chemForm == ChemForm.propane) {
+                //TraPPE-UA
+                //Atom in Compound
+                //Avogadro
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE);
+                AtomType typeCH2 = new AtomType(Carbon.INSTANCE);
+
+                atomTypes = new AtomType[]{typeCH3, typeCH2};
+                isFlex = true;
+                //TraPPE Parameters
+                double bondLengthCHxCHy = 1.54; // Angstrom
+                double thetaCCH = Degree.UNIT.toSim(114);
+                double sigmaCH3 = 3.75; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(98);
+                double qCH3 = Electron.UNIT.toSim(0.0);
+                double sigmaCH2 = 3.95; // Angstrom
+                double epsilonCH2 = Kelvin.UNIT.toSim(46);
+                double qCH2 = Electron.UNIT.toSim(0.0);
+                double kCCC = Kelvin.UNIT.toSim(62500);
+                double yy = bondLengthCHxCHy*Math.sin(thetaCCH) ;
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3, sigmaCH2};
+                epsilon = new double[] {epsilonCH3, epsilonCH2};
+                charge = new double[]{qCH3, qCH2};
+                k_theta = new double[]{kCCC};
+                theta_eq = new double[]{thetaCCH};
+                triplets = new int[][][]{{{0, 1, 2}}};
+                bonding = new IntArrayList[3];
+                bonding[0] = new IntArrayList(new int[]{1});
+                bonding[1] = new IntArrayList(new int[]{0,2});
+                bonding[2] = new IntArrayList(new int[]{1});
+
+
+                //Get Coordinates
+                Vector3D posC1 = new Vector3D(new double[]{0, -yy/3, 0});
+                Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy, -yy/3, 0});
+                Vector3D posC3 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH), 2*yy/3, 0});
+                double posCavg = (2 * bondLengthCHxCHy  - bondLengthCHxCHy * Math.cos(thetaCCH))/3;
+                posC1 = new Vector3D(new double[]{0 - posCavg, -yy / 3, 0});
+                posC2 = new Vector3D(new double[]{bondLengthCHxCHy - posCavg, -yy / 3, 0});
+                posC3 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCH) - posCavg, 2 * yy / 3, 0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH3, posC1, "C1")
+                        .addAtom(typeCH2, posC2, "C2")
+                        .addAtom(typeCH3, posC3, "C3")
+                        .build();
+
+            }
+
             else if (chemForm == ChemForm.butane) {
                 //TraPPE-UA
                 //Atom in Compound
@@ -2047,10 +2100,10 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH3, sigmaCH2};
                 epsilon = new double[] {epsilonCH3, epsilonCH2};
                 charge = new double[]{qCH3, qCH2};
-                k_theta = new double[]{k, k};
-                theta_eq = new double[]{thetaCCH, thetaCCH};
+                k_theta = new double[]{k};
+                theta_eq = new double[]{thetaCCH};
                 a = new double[][]{{a00, a01, a02, a03}};
-                triplets = new int[][][]{{{0, 1, 2}}, {{1, 2, 3}}};
+                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
                 quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
@@ -2226,10 +2279,10 @@ public class VirialTraPPE {
                 sigma = new double[] {sigmaCH, sigmaCH2};
                 epsilon = new double[] {epsilonCH, epsilonCH2};
                 charge = new double[]{qCH, qCH2};
-                theta_eq = new double[]{thetaeq, thetaeq}; //123, 234
-                k_theta = new double[]{k, k}; //123, 234
+                theta_eq = new double[]{thetaeq}; //123, 234
+                k_theta = new double[]{k}; //123, 234
                 a = new double[][]{{a00, a1prime, -a2prime, a3prime}};
-                triplets = new int[][][]{{{0, 1, 2}}, {{1, 2, 3}}};
+                triplets = new int[][][]{{{0, 1, 2}, {1, 2, 3}}};
                 quads = new int[][][]{{{0, 1, 2, 3}}};
                 bonding = new IntArrayList[4];
                 bonding[0] = new IntArrayList(new int[]{1});
@@ -2256,6 +2309,56 @@ public class VirialTraPPE {
                         .addAtom(typeCH2, posC4, "C4")
 
                         .build();
+            }
+            else if (chemForm == ChemForm.propaneEH) {
+                //TraPPE-EH
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
+                AtomType typeCH2 = new AtomType(Carbon.INSTANCE); //methylene carbon
+                AtomType typeCH = new AtomType(new ElementSimple("CH", 0)); //virtual
+
+                atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH};
+                isFlex = true;
+                //TraPPE Parameters
+                double bondLengthCHxCHy = 1.535; // Angstrom
+                double bondLengthCH = 1.1; //Angstrom
+
+//                double thetaCCH = Degree.UNIT.toSim(110.70);
+                double sigmaCH = 3.31; // Angstrom
+                double epsilonCH = Kelvin.UNIT.toSim(15.30);
+                double qCH = Electron.UNIT.toSim(0.0);
+                double sigmaCH2 = 3.65; // Angstrom
+                double epsilonCH2 = Kelvin.UNIT.toSim(5);
+                double qCH2 = Electron.UNIT.toSim(0.000);
+                double sigmaCH3 = 3.30; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(4);
+                double qCH3 = Electron.UNIT.toSim(0.000);
+                double kCCC = Kelvin.UNIT.toSim(58765);
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3, sigmaCH2, sigmaCH};
+                epsilon = new double[] {epsilonCH3, epsilonCH2, epsilonCH};
+                charge = new double[]{qCH3, qCH2, qCH};
+//                theta_eq = new double[]{thetaCCC}; //103, 124
+                k_theta = new double[]{kCCC}; //CCC
+                a = new double[][]{{}}; //dihedral
+                triplets = new int[][][]{{{0, 1, 2}}};
+                quads = new int[][][]{{}};
+                bonding = new IntArrayList[5];
+                bonding[0] = new IntArrayList(new int[]{1, 3});
+                bonding[1] = new IntArrayList(new int[]{0,2});
+                bonding[2] = new IntArrayList(new int[]{1, 4});
+                bonding[3] = new IntArrayList(new int[]{0});
+                bonding[4] = new IntArrayList(new int[]{2});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addCount(typeCH3, 2)
+                        .addCount(typeCH2, 1)
+                        .addCount(typeCH, 8)
+                        .withConformation(new ConformationLinear(space))
+                        .build();
+                PotentialMoleculePairImplicit.SiteReconstructor reconstructor = new SiteReconstructorPropane(species);
+                PotentialMoleculePairImplicit.SiteSet sites = reconstructor.getSites();
+
             }
 
             else {
