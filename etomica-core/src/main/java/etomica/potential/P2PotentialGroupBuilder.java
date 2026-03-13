@@ -4,6 +4,7 @@ package etomica.potential;
 
 import etomica.atom.AtomType;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 
 /**
@@ -26,11 +27,11 @@ public class P2PotentialGroupBuilder {
         PotentialMoleculePairImplicit.SiteReconstructor rec2 = MP2.reconstructor;
         if (rec1 == null)
         {
-            rec1 = new PotentialMoleculePairImplicit.SiteReconstructorNull();
+            rec1 = new PotentialMoleculePairImplicit.SiteReconstructorNull(MP1.species);
         }
         if (rec2 == null)
         {
-            rec2 = new PotentialMoleculePairImplicit.SiteReconstructorNull();
+            rec2 = new PotentialMoleculePairImplicit.SiteReconstructorNull(MP2.species);
         }
         PotentialMoleculePairImplicit potentialGroup = new PotentialMoleculePairImplicit(space, sm, rec1, rec2);
         return buildPotential(potentialGroup, MP1, MP2);
@@ -102,16 +103,18 @@ public class P2PotentialGroupBuilder {
         protected final double[] sigma;
         protected final double[] epsilon;
         protected final double[] charge;
+        protected final ISpecies species;
         protected final PotentialMoleculePairImplicit.SiteReconstructor reconstructor;
 
-        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge){
-            this(atomTypes, sigma, epsilon, charge, null);
+        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge, ISpecies species){
+            this(atomTypes, sigma, epsilon, charge, species, null);
         }
-        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge, PotentialMoleculePairImplicit.SiteReconstructor reconstructor){
+        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge, ISpecies species, PotentialMoleculePairImplicit.SiteReconstructor reconstructor){
             this.atomTypes = atomTypes;
             this.sigma = sigma;
             this.epsilon = epsilon;
             this.charge = charge;
+            this.species = species;
             this.reconstructor = reconstructor;
         }
 

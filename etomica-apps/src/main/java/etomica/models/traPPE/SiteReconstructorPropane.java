@@ -48,22 +48,20 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
     protected static final double HALF_DCH = 0.5 * DCH;
     protected static final double COS120 = -0.5;
     protected static final double SIN120 = Math.sqrt(3)/2;
-
-    protected final PotentialMoleculePairImplicit.SiteSet sites;
-
-    public SiteReconstructorPropane(ISpecies species) {
+    public final ISpecies species;
+    public SiteReconstructorPropane(ISpecies species){
+        this.species = species;
+    }
+    public PotentialMoleculePairImplicit.SiteSet makeSites() {
         AtomType[] types = new AtomType[11];
         // first 3 sites are C, then 8 CH (H are not included)
         Arrays.fill(types, 0, 3, species.getAtomType(0));
         Arrays.fill(types, 3, 11, species.getAtomType(2));
-        sites = new PotentialMoleculePairImplicit.SiteSet(types);
+        return new PotentialMoleculePairImplicit.SiteSet(types);
     }
 
-    public PotentialMoleculePairImplicit.SiteSet getSites() {
-        return sites;
-    }
 
-    public void reconstructSites(IMolecule molecule) {
+    public void reconstructSites(IMolecule molecule, PotentialMoleculePairImplicit.SiteSet sites) {
         IAtomList atoms = molecule.getChildList();
 
         IAtom aC1 = atoms.get(0);
@@ -100,6 +98,18 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
                 rC3, rC2, rHR,
                 sites.pos[8], sites.pos[9], sites.pos[10]
         );
+        for (Vector v:sites.pos){
+            if (v.squared() > 10000) {
+                System.out.println("faraway " + molecule);
+                for (Vector v2:sites.pos){
+                    System.out.println("v " + v2);
+                }
+                for (IAtom a:atoms) {
+                    System.out.println("a " + a.getLeafIndex() + " " + a.getPosition());}
+                PotentialMoleculePairImplicit.debug = true;
+                return;
+            }
+        }
     }
 
     /**
@@ -302,8 +312,9 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
                 r.TE(bl0[i]);
                 r.PE(atoms.get(b0[0]).getPosition());
             }
-            reconstructor.reconstructSites(box.getMoleculeList().get(0));
-            PotentialMoleculePairImplicit.SiteSet sites = reconstructor.getSites();
+            PotentialMoleculePairImplicit.SiteSet sites = reconstructor.makeSites();
+
+            reconstructor.reconstructSites(box.getMoleculeList().get(0), sites);
             System.out.println();
             for (int j = 0; j < bonds.length; j++) {
                 int[] b = bonds[j];

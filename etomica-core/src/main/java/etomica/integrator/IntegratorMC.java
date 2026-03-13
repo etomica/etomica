@@ -23,7 +23,7 @@ import etomica.util.random.IRandom;
 
 public class IntegratorMC extends IntegratorBox {
 
-    public static boolean dodebug;
+    public static boolean dodebug = false;
     protected final IRandom random;
     protected final EventManager<MCMoveEvent> moveEventManager;
     private final MCMoveEvent trialEvent, trialFailedEvent;

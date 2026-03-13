@@ -20,6 +20,9 @@ public class PotentialMoleculePairImplicit extends PotentialMoleculePair {
 
     protected final SiteReconstructor reconstructor1, reconstructor2;
     protected final Vector dr;
+    public static boolean debug;
+    public SiteSet sites1;
+    public SiteSet sites2;
 
     public PotentialMoleculePairImplicit(
             Space space, SpeciesManager sm,
@@ -28,6 +31,8 @@ public class PotentialMoleculePairImplicit extends PotentialMoleculePair {
         this.dr = space.makeVector();
         this.reconstructor1 = reconstructor1;
         this.reconstructor2 = reconstructor2;
+        sites1 = reconstructor1.makeSites();
+        sites2 = reconstructor2.makeSites();
     }
     public PotentialMoleculePairImplicit(
             Space space, IPotential2[][] atomPotentials,
@@ -36,14 +41,14 @@ public class PotentialMoleculePairImplicit extends PotentialMoleculePair {
         this.dr = space.makeVector();
         this.reconstructor1 = reconstructor1;
         this.reconstructor2 = reconstructor2;
+        sites1 = reconstructor1.makeSites();
+        sites2 = reconstructor2.makeSites();
     }
 
     public double energy(IMolecule molecule1, IMolecule molecule2) {
-        reconstructor1.reconstructSites(molecule1);
-        reconstructor2.reconstructSites(molecule2);
+        reconstructor1.reconstructSites(molecule1, sites1);
+        reconstructor2.reconstructSites(molecule2, sites2);
 
-        SiteSet sites1 = reconstructor1.getSites();
-        SiteSet sites2 = reconstructor2.getSites();
 
         double u = 0.0;
         for (int i = 0; i < sites1.nSites; i++) {
@@ -52,9 +57,11 @@ public class PotentialMoleculePairImplicit extends PotentialMoleculePair {
                 IPotential2 p2 = iPotentials[sites2.types[j].getIndex()];
                 if (p2 == null) continue;
                 dr.Ev1Mv2(sites2.pos[j], sites1.pos[i]);
+                if (debug) System.out.println(i + " " + j + " " + dr.squared() + " " +p2.u(dr.squared()));
                 u += p2.u(dr.squared());
             }
         }
+        if (debug) System.exit(0);
         return u;
     }
 
@@ -75,25 +82,25 @@ public class PotentialMoleculePairImplicit extends PotentialMoleculePair {
 
     public interface SiteReconstructor {
 
-        SiteSet getSites();
+        SiteSet makeSites();
 
-        void reconstructSites(IMolecule molecule);
+        void reconstructSites(IMolecule molecule, SiteSet sites);
     }
     public static class SiteReconstructorNull implements SiteReconstructor{
-        public SiteSet sites;
-        public PotentialMoleculePairImplicit.SiteSet getSites() {
-            return sites;
+        public final ISpecies species;
+        public SiteReconstructorNull(ISpecies species){
+            this.species = species;
+        }
+        public PotentialMoleculePairImplicit.SiteSet makeSites() {
+            AtomType[] types = new AtomType[species.getLeafAtomCount()];
+            for (int i = 0; i < types.length; i++){
+                types[i] = species.getAtomType(i);
+            }
+            return new SiteSet(types);
         }
 
-        public void reconstructSites(IMolecule molecule){
-            if(sites == null) {
-                AtomType[] types = new AtomType[molecule.getChildList().size()];
-                for (IAtom a: molecule.getChildList()){
-                    types[a.getIndex()] = a.getType();
-                }
-                sites = new SiteSet(types);
 
-            }
+        public void reconstructSites(IMolecule molecule, SiteSet sites){
             for (IAtom a: molecule.getChildList()){
                 sites.pos[a.getIndex()].E(a.getPosition());
             }
