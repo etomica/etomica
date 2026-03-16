@@ -52,17 +52,14 @@ import java.awt.*;
 public class VirialLJV {
 
     public static void main(String[] args) {
-
         VirialHSParam params = new VirialHSParam();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 2;
-            params.numSteps = 10000000L;
-            params.ref = ReferenceChoice.CHAIN_TREE;
-            params.chainFrac = 0.5;
-            params.D = 3;
-            params.L = 3;
+            params.nPoints = 7;
+            params.numSteps = 100000L;
+            params.L = 7;
+            params.rc = 3;
         }
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
@@ -71,9 +68,12 @@ public class VirialLJV {
         final int D = params.D;
         final double L = params.L;
         final double temperature = params.T;
+        final double rc = params.rc;
         System.out.println("Number of points: " + nPoints);
+        System.out.println("Temperature: "+temperature);
         System.out.println("Dimensions: " + D);
         System.out.println("Box Length: " + L);
+        System.out.println("cutoff: "+rc);
         Space space = Space.getInstance(D);
         long t1 = System.currentTimeMillis();
 
@@ -81,10 +81,10 @@ public class VirialLJV {
 
         Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L) : new BoundaryRectangularNonperiodic(space);
 
-        P2SoftSphericalTruncated p2cut = new P2SoftSphericalTruncated(new P2LennardJones(), params.rc);
+        P2SoftSphericalTruncated p2cut = new P2SoftSphericalTruncated(new P2LennardJones(), rc);
         P2LatticeSum p2latsum = new P2LatticeSum(p2cut);
         MayerVDependent fTarget;
-        if (params.rc > L/2) {
+        if (rc > L/2 && params.latticeSum) {
             fTarget = new MayerVDependent(new MayerGeneralAtomic(space, p2latsum), b);
         }
         else {
@@ -278,6 +278,7 @@ public class VirialLJV {
         public double L = 0;
         public double T = 1;
         public double rc = 3;
+        public boolean latticeSum = true;
     }
 
 }
