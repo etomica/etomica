@@ -8,6 +8,8 @@ import etomica.potential.compute.NeighborIterator;
 import etomica.space.Space;
 import etomica.space.Vector;
 
+
+
 public class NeighborIteratorCell implements NeighborIterator {
 
     private final NeighborCellManager cellManager;
@@ -16,6 +18,7 @@ public class NeighborIteratorCell implements NeighborIterator {
     private final Box box;
     private final Space space;
     private final boolean handleOutOfBox;
+    public static boolean doDebug;
 
 
     public NeighborIteratorCell(NeighborCellManager cellManager, BondingInfo bondingInfo, boolean isPureAtoms, Box box) {
@@ -47,6 +50,7 @@ public class NeighborIteratorCell implements NeighborIterator {
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
         IAtom atom1 = atoms.get(iAtom);
+
 
         for (int j = cellNextAtom[iAtom]; j > -1; j = cellNextAtom[j]) {
             IAtom atom2 = atoms.get(j);
@@ -82,7 +86,7 @@ public class NeighborIteratorCell implements NeighborIterator {
 
             }
         }
-        if (handleOutOfBox){
+        if (handleOutOfBox ){
             int jCell=wrapMap.length-1;
             for (int j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                 IAtom atom2 = atoms.get(j);

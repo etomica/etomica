@@ -22,7 +22,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
     protected double adjustStep, minAdjustStep;
     protected double defaultAdjustStep = 1.05;
     protected long defaultAdjustInterval = 100;
-    protected boolean noisyAdjustment = false;
+    protected boolean noisyAdjustment = true;
     protected boolean noReset = false;
 
     public MCMoveStepTracker() {
@@ -111,6 +111,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
         nTrials = 0;
         nAccept = 0;
         chiSum = 0;
+    //System.exit(0);
     }
 
     /**

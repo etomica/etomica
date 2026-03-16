@@ -9,6 +9,7 @@ import etomica.integrator.mcmove.*;
 import etomica.potential.compute.PotentialCompute;
 import etomica.util.EventManager;
 import etomica.util.random.IRandom;
+import org.apache.commons.math3.ml.clustering.Cluster;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of
@@ -24,6 +25,8 @@ import etomica.util.random.IRandom;
 public class IntegratorMC extends IntegratorBox {
 
     public static boolean dodebug;
+    public static boolean debugNow;
+    public  int debugStep=0;
     protected final IRandom random;
     protected final EventManager<MCMoveEvent> moveEventManager;
     private final MCMoveEvent trialEvent, trialFailedEvent;
@@ -70,6 +73,7 @@ public class IntegratorMC extends IntegratorBox {
      * integrator. After completing move, fires an MCMove event if there are any listeners.
      */
     protected void doStepInternal() {
+        debugNow=dodebug && stepCount>= debugStep;
         //select the move
         MCMoveBox move = (MCMoveBox) moveManager.selectMove();
         if (move == null)
@@ -88,8 +92,10 @@ public class IntegratorMC extends IntegratorBox {
 
         //decide acceptance
         double chi = move.getChi(temperature);
-        if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
-            if (dodebug) {
+
+
+        if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble()) ){//reject
+            if (debugNow )  {
                 System.out.println(stepCount + " move " + move + " rejected " + chi);
             }
             move.getTracker().updateCounts(false, chi);
@@ -98,7 +104,7 @@ public class IntegratorMC extends IntegratorBox {
             rejectedEvent.chi = chi;
             moveEventManager.fireEvent(rejectedEvent);
         } else {
-            if (dodebug) {
+            if (debugNow ) {
                 System.out.println(stepCount + " move " + move + " accepted " + chi);
             }
             move.getTracker().updateCounts(true, chi);

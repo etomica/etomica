@@ -12,6 +12,8 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.compute.NeighborManagerCell;
 import etomica.space.RotationTensor;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -34,7 +36,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     protected final Vector r0;
     protected final RotationTensor rotationTensor;
     protected boolean doLattice;
+    protected int fixedAtom=-1;
     protected int[] rotationCenters;
+    protected NeighborManagerCell cellManager;
 
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Box box) {
         super();
@@ -47,6 +51,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
 
     public void setDoLattice(boolean doLattice) {
         this.doLattice = doLattice;
+    }
+    public void setFixedAtom(int fixedAtom){
+        this.fixedAtom = fixedAtom;
+
     }
 
     public void setBox(Box p) {
@@ -62,7 +70,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             }
         }
     }
-
+    public void setCellManager(NeighborManagerCell cellManager) {
+        this.cellManager = cellManager;
+    }
     @Override
     public double energyChange() {
         return 0;
@@ -83,9 +93,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             r.PE(box.getBoundary().centralImage(r));
         }
     }
-
+public boolean skipW=false;
     public boolean doTrial() {
-        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        if (!skipW) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, illegal initial configuration");
 //        }
@@ -100,6 +110,11 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             if (doLattice) {
                 if (i==0) continue;
                 rotationCenters[i] = random.nextInt(box.getLeafList().size());
+                r0.E(box.getLeafList().get(rotationCenters[i]).getPosition());
+            }
+            else if (fixedAtom>-1) {
+                if (i==0) continue;
+                rotationCenters[i] = fixedAtom;
                 r0.E(box.getLeafList().get(rotationCenters[i]).getPosition());
             }
             else {
@@ -140,7 +155,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
         }
 
         ((BoxCluster)box).trialNotify();
-        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        if (cellManager != null){
+            cellManager.assignCellAll();
+        }
+        if (!skipW) wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
 
@@ -160,6 +178,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
         for (int i = 0; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
             if (doLattice) {
+                if (i==0) continue;
+                r0.E(box.getLeafList().get(rotationCenters[i]).getPosition());
+            }
+            else if(fixedAtom>-1) {
                 if (i==0) continue;
                 r0.E(box.getLeafList().get(rotationCenters[i]).getPosition());
             }
@@ -184,6 +206,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             }
         }
         ((BoxCluster)box).rejectNotify();
+        if (cellManager != null){
+            cellManager.assignCellAll();
+        }
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
             throw new RuntimeException("oops oops, reverted to illegal configuration");
         }

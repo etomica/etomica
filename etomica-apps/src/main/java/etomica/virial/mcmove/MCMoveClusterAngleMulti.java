@@ -7,11 +7,14 @@ package etomica.virial.mcmove;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.NeighborManagerCell;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,6 +23,7 @@ import etomica.species.ISpecies;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
+import etomica.virial.PotentialMoleculePairCell;
 
 /**
  * Monte Carlo move for Mayer sampling that explore bond angle degrees of
@@ -50,7 +54,7 @@ public class MCMoveClusterAngleMulti extends MCMoveBoxStep {
     protected boolean doLattice;
     protected int[] constraintMap;
     protected final MCMoveClusterAngle.AtomChooser atomChooser;
-    protected NeighborCellManager cellManager;
+    protected NeighborManagerCell cellManager;
     public boolean skipW=false;
     protected final int numAtomsMoved;
 
@@ -83,7 +87,7 @@ public class MCMoveClusterAngleMulti extends MCMoveBoxStep {
         super.setBox(p);
         position = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
     }
-    public void setCellManager(NeighborCellManager cellManager) {
+    public void setCellManager(NeighborManagerCell cellManager) {
         this.cellManager = cellManager;
     }
 
@@ -184,15 +188,14 @@ public class MCMoveClusterAngleMulti extends MCMoveBoxStep {
         }
 
         if (cellManager != null){
-            for (IAtom aa : atoms) {
-                cellManager.updateAtom(aa);
-            }
+          cellManager.assignCellAll();
         }
         if (box instanceof BoxCluster) {
             ((BoxCluster)box).trialNotify();
             if (!skipW) wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         }
+
         uNew = potential.computeAll(false);
 for(int i = 0 ;i<2 && false;i++){
     for (int j = 0;j<8; j++){
@@ -257,7 +260,9 @@ for(int i = 0 ;i<2 && false;i++){
 
     @Override
     public double getChi(double temperature) {
-        //System.out.println("old "+wOld+" "+uOld+" new "+ wNew+" "+uNew);
+        if(IntegratorMC.dodebug && box.getIndex()==0){
+            System.out.println("old "+wOld+" "+uOld+" new "+ wNew+" "+uNew);
+        }
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 
@@ -271,12 +276,14 @@ for(int i = 0 ;i<2 && false;i++){
         IAtomList atomList = box.getMoleculeList().get(iMolecule).getChildList();
         for(int j = 0; j < atomList.size(); j++) {
            atomList.get(j).getPosition().E(position[j]);
-           if(cellManager!= null){
-               cellManager.updateAtom(atomList.get(j));
-           }
+
+        }
+        if(cellManager!= null){
+            cellManager.assignCellAll();
         }
         if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();
     }
+
 
 }
 

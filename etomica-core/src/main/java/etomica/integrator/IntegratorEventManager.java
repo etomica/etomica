@@ -56,6 +56,9 @@ public class IntegratorEventManager {
     public void stepFinished() {
         eventing = true;
         for (IntegratorListener listener : listeners) {
+            /*if( IntegratorMC.debugNow){
+              System.out.println(listener);
+            }*/
             listener.integratorStepFinished(event);
         }
         eventing = false;

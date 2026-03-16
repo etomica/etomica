@@ -128,7 +128,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         } else if (!Double.isNaN(pressure)) {
             sum *= pressure * box.getBoundary().volume() / ((box.getNMolecules(species) + 1) * temperature);
         }
-        return sum / nInsert; //return average
+        return sum /++ nInsert; //return average
     }
 
     public void setTemperature(double newTemperature) {

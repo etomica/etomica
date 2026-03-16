@@ -9,6 +9,8 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.compute.NeighborManagerCell;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -26,7 +28,7 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
     protected int[] seq;
     protected int[] constraintMap;
     protected final Vector translationVector;
-
+    protected NeighborManagerCell cellManager;
     public MCMoveClusterMoleculeHSChain(IRandom random, Box box, double sigma) {
         super();
         this.random = random;
@@ -43,6 +45,10 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
                 constraintMap[i] = i;
             }
         }
+    }
+
+    public void setCellManager(NeighborManagerCell cellManager) {
+        this.cellManager = cellManager;
     }
 
     @Override
@@ -86,6 +92,11 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().PE(translationVector);
         });
+        if (cellManager != null){
+            molecule.getChildList().forEach(atom -> {
+                cellManager.updateAtom(atom);
+            });
+        }
         for (int j=0; j<n; j++) {
             if (constraintMap[j] == prev && j != prev) {
                 translationVector.E(0);
@@ -111,6 +122,8 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
         }
 
         ((BoxCluster)box).trialNotify();
+        //new
+
         return true;
     }
 
@@ -125,6 +138,11 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveBox {
         molecule.getChildList().forEach(atom -> {
             atom.getPosition().PE(translationVector);
         });
+        if (cellManager != null){
+            molecule.getChildList().forEach(atom -> {
+                cellManager.updateAtom(atom);
+            });
+        }
     }
 
     protected double getSigma(int i, int j) {

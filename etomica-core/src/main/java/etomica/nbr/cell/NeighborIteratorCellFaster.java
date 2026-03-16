@@ -15,6 +15,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
     private final Box box;
     private final Space space;
     private final boolean handleOutOfBox;
+    public static boolean doDebug;
 
 
 
@@ -40,11 +41,37 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
         IAtom atom1 = atoms.get(iAtom);
+        Vector rij = space.makeVector();
+        int debugAtom1= 276;
+        int debugAtom2= 274;
+
+
+        if(doDebug && iAtom==debugAtom1) {
+
+            int[] cxyz = new int[3];
+
+
+            IAtom atomdebugAtom1 = atoms.get(debugAtom1);
+            IAtom atomdebugAtom2 = atoms.get(debugAtom2);
+
+
+
+
+
+
+
+            //System.out.println(atomCell[debugAtom1] + " " + cellCoordinate[debugAtom1] + " " + cxyz[0] + " " + cxyz[1] + " " + cxyz[2]);
+
+            System.out.println("Atom "+debugAtom1+":   pos=" + atomdebugAtom1.getPosition());
+            System.out.println("Atom "+debugAtom2+":   pos=" + atomdebugAtom2.getPosition());
+            System.out.println(atomCell[debugAtom1]+" "+atomCell[debugAtom2]);
+            System.out.println(cellManager.numCells[0]);
+        }
 
         for (int j = cellNextAtom[iAtom]; j > -1; j = cellNextAtom[j]) {
             IAtom atom2 = atoms.get(j);
 
-            Vector rij = space.makeVector();
+            //Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
             consumer.accept(atom2, rij, 0);
@@ -63,7 +90,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                             IAtom atom2 = atoms.get(j);
 
 
-                            Vector rij = space.makeVector();
+                            //Vector rij = space.makeVector();
                             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
 
@@ -76,16 +103,19 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
             int c = iCell - wrapMap.length + 125;
             int x = c % 5;
             int y = ((c - x) / 5) % 5;
-            int z = (((c - x) / 5) - y) % 5;
+            int z = (((c - x) / 5) - y) / 5;
             int cr = cellManager.cellRange;
             int minX = cr, minY = cr, minZ = cr;
-            int maxX = cellManager.numCells[0] - cr, maxY = cellManager.numCells[1] - cr, maxZ = cellManager.numCells[2] - cr;
+            int maxX = cellManager.numCells[0] - cr-1, maxY = cellManager.numCells[1] - cr-1, maxZ = cellManager.numCells[2] - cr-1;
             if (x == 1) maxX = minX + cr - 1;
             else if (x == 3) minX = maxX - cr + 1;
             if (y == 1) maxY = minY + cr - 1;
             else if (y == 3) minY = maxY - cr + 1;
             if (z == 1) maxZ = minZ + cr - 1;
             else if (z == 3) minZ = maxZ - cr + 1;
+            if(doDebug && iAtom==debugAtom1) {
+                System.out.println(x + " " + y + " " + z + " " + minZ + " " + maxZ);
+            }
             for (int cX = minX; cX <= maxX; cX++) {
                 for (int cY = minY; cY <= maxY; cY++) {
                     for (int cZ = minZ; cZ <= maxZ; cZ++) {
@@ -94,7 +124,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                             IAtom atom2 = atoms.get(j);
 
 
-                            Vector rij = space.makeVector();
+                           // Vector rij = space.makeVector();
                             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
 
@@ -117,7 +147,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                 IAtom atom2 = atoms.get(j);
 
 
-                Vector rij = space.makeVector();
+               // Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
 
@@ -138,12 +168,13 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
         IAtom atom1 = atoms.get(iAtom);
+        Vector rij = space.makeVector();
 
         int iCell = atomCell[iAtom];
         for (int j = cellLastAtom[iCell]; j != iAtom; j = cellNextAtom[j]) {
             IAtom atom2 = atoms.get(j);
 
-            Vector rij = space.makeVector();
+            //Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
             consumer.accept(atom2, rij, 0);
@@ -157,7 +188,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                     IAtom atom2 = atoms.get(j);
 
 
-                    Vector rij = space.makeVector();
+                    //Vector rij = space.makeVector();
                     rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
                     consumer.accept(atom2, rij, 0);
@@ -175,7 +206,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                 IAtom atom2 = atoms.get(j);
 
 
-                Vector rij = space.makeVector();
+                //Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
                 consumer.accept(atom2, rij, 0);
@@ -197,6 +228,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
         int iAtom = atom1.getLeafIndex();
         int iCell = atomCell[iAtom];
         double sum = 0;
+        Vector rij = space.makeVector();
 
 //        for (int cellOffset : allCellOffsets) {
 //            int jCell = iCell + cellOffset;
@@ -224,7 +256,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
             }
             IAtom atom2 = atoms.get(j);
 
-            Vector rij = space.makeVector();
+            //Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
             sum += consumer.accept(atom1, atom2, rij, 0);
@@ -239,7 +271,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                 IAtom atom2 = atoms.get(j);
 
 
-                Vector rij = space.makeVector();
+                //Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
 
@@ -276,6 +308,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
         int[] cellLastAtom = cellManager.getCellLastAtom();
         IAtom atom1 = atoms.get(iAtom);
         int iCell = atomCell[iAtom];
+        Vector rij = space.makeVector();
 
         for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
             if (j == iAtom) {
@@ -283,7 +316,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
             }
             IAtom atom2 = atoms.get(j);
 
-            Vector rij = space.makeVector();
+            //Vector rij = space.makeVector();
             rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
             consumer.accept(atom2, rij, 0);
@@ -297,7 +330,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                     IAtom atom2 = atoms.get(j);
 
 
-                    Vector rij = space.makeVector();
+                    //Vector rij = space.makeVector();
                     rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
                     consumer.accept(atom2, rij, 0);
@@ -315,7 +348,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                 IAtom atom2 = atoms.get(j);
 
 
-                Vector rij = space.makeVector();
+                //Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                 rij.PE(jbo);
 
@@ -328,7 +361,7 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
                 IAtom atom2 = atoms.get(j);
 
 
-                Vector rij = space.makeVector();
+                //Vector rij = space.makeVector();
                 rij.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 
                 consumer.accept(atom2, rij, 0);

@@ -19,7 +19,7 @@ import etomica.units.dimensions.Null;
 public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSource {
 
     public DataProcessorVirialOverlap(int aNumAlpha, boolean aIsReference) {
-		super();
+        super();
         isReference = aIsReference;
         setNumAlpha(aNumAlpha);
         setBennetParam(1.0,5);
@@ -30,7 +30,7 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
         setup();
         return dataInfo;
     }
-    
+
     protected void setup() {
         // recreate our data objects.  new dataInfo will also cause downstream to reset.
         // we need numAlpha elements for the overlap values and 1 for the not-overlap value.
@@ -45,22 +45,22 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     }
 
     /**
-	 * sets the range of parameter values used for Bennets method.
-	 * Default is a span of 5 centered about 1 (exp(-5) to (exp(5)).
-	 * @param aCenter geometric mean of all values
-	 * @param aSpan natural log of ratio of max value to aCenter
-	 */
-	public void setBennetParam(double aCenter, double aSpan) {
+     * sets the range of parameter values used for Bennets method.
+     * Default is a span of 5 centered about 1 (exp(-5) to (exp(5)).
+     * @param aCenter geometric mean of all values
+     * @param aSpan natural log of ratio of max value to aCenter
+     */
+    public void setBennetParam(double aCenter, double aSpan) {
         if (aSpan < 0.0 || (aSpan == 0 && numAlpha > 1) || aCenter <= 0.0 ) throw new IllegalArgumentException("span and center must be positive");
         alphaSpan = aSpan;
         alphaCenter = aCenter;
-		if (numAlpha==1) {
-			alpha[0] = aCenter;
-			return;
-		}
-		for (int i=0; i<numAlpha; i++) {
-			alpha[i] = Math.exp(2.0*aSpan*(i-(numAlpha-1)/2)/(numAlpha-1))*aCenter;
-		}
+        if (numAlpha==1) {
+            alpha[0] = aCenter;
+            return;
+        }
+        for (int i=0; i<numAlpha; i++) {
+            alpha[i] = Math.exp(2.0*aSpan*(i-(numAlpha-1)/2)/(numAlpha-1))*aCenter;
+        }
         // don't really need to recreate these, but we want to notify downstream
         if (numAlpha > 0) {
             setup();

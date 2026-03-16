@@ -45,6 +45,8 @@ import java.util.List;
  */
 public class VirialChainSingle {
 
+    private static int[] MeterRadiusGyration;
+
     public static void main(String[] args) {
         VirialChainParams params = new VirialChainParams();
         if (args.length > 0) {
@@ -243,6 +245,7 @@ public class VirialChainSingle {
         integrator.getEventManager().addListener(pumpTheta);
 
         MeterRadiusGyration meterRg = new MeterRadiusGyration(sim.box());
+
         AccumulatorAverageFixed accRg = new AccumulatorAverageFixed(steps/1000);
         DataPumpListener pumpRg = new DataPumpListener(meterRg, accRg, 10);
         integrator.getEventManager().addListener(pumpRg);

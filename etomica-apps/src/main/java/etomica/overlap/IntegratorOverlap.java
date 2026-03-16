@@ -192,6 +192,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             stepFrac[1] = 1.0 - nFrac;
             adjustCountdown = adjustInterval;
         }
+        //System.exit(0);
     }
 
     public double getIdealRefStepFraction() {

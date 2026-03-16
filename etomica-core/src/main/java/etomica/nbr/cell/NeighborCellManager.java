@@ -11,13 +11,14 @@ import etomica.integrator.IntegratorListener;
 import etomica.potential.BondingInfo;
 import etomica.potential.compute.NeighborIterator;
 import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.NeighborManagerCell;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.species.SpeciesManager;
 
 import java.util.Arrays;
 
-public class NeighborCellManager implements NeighborManager {
+public class NeighborCellManager implements NeighborManagerCell {
     protected final Box box;
     private final boolean isPureAtoms;
     private final BondingInfo bondingInfo;
@@ -38,7 +39,7 @@ public class NeighborCellManager implements NeighborManager {
     protected int [] atomCellCoordinate;
 
     public NeighborCellManager(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo) {
-        this (sm,box,cellRange,bondingInfo,false);
+        this (sm,box,cellRange,bondingInfo,true);
     }
     public NeighborCellManager(SpeciesManager sm, Box box, int cellRange, BondingInfo bondingInfo, boolean handleOutOfBox) {
         this.box = box;

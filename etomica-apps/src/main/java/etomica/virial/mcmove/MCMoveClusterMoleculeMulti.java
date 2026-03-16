@@ -7,6 +7,9 @@ package etomica.virial.mcmove;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMoleculeList;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.compute.NeighborManager;
+import etomica.potential.compute.NeighborManagerCell;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -26,7 +29,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
     protected int[] constraintMap;
     protected int startMolecule;
     protected boolean doLattice;
-
+    protected NeighborManagerCell cellManager;
+    protected boolean doXAxis;
+    protected double xchi;
     public MCMoveClusterMoleculeMulti(IRandom random, Box box) {
         super();
         this.random = random;
@@ -38,7 +43,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
         this.doLattice = doLattice;
         if (doLattice) setStepSizeMin(Math.max(1,stepSizeMin));
     }
+public void setDoXAxis(boolean doXAxis){
+        this.doXAxis = doXAxis;
 
+}
     public void setBox(Box p) {
         super.setBox(p);
         translationVectors = new Vector[box.getMoleculeList().size()];
@@ -52,6 +60,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
             }
         }
     }
+public void setCellManager(NeighborManagerCell cellManager) {
+    this.cellManager = cellManager;
+}
 
     @Override
     public double energyChange() {
@@ -70,9 +81,17 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
     public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
+
 //            throw new RuntimeException("oops, initial configuration unhappy");
 //        }
+
+
         IMoleculeList moleculeList = box.getMoleculeList();
+        double xold=0;
+        if (doXAxis){
+             xold=  moleculeList.get(startMolecule).getChildList().get(0).getPosition().getX(0);
+                 xold=Math.max(0.0001,Math.abs(xold));
+        }
         for(int i = startMolecule; i<moleculeList.size(); i++) {
             int tv = constraintMap[i];
             if (tv == i) {
@@ -87,20 +106,52 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                     }
                     translationVectors[tv].E(v);
                 }
+
+                else if (doXAxis) {
+                    translationVectors[tv].setX(0,2*random.nextDouble()-1);
+                }
                 else {
                     translationVectors[tv].setRandomCube(random);
                     translationVectors[tv].TE(stepSize);
                 }
+
             }
             moleculeList.get(i).getChildList().forEach(atom -> {
                 atom.getPosition().PE(translationVectors[tv]);
             });
         }
         ((BoxCluster)box).trialNotify();
+
+        if (cellManager != null){
+            cellManager.assignCellAll();
+        }
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        xchi=1;
+        if (doXAxis){
+            double x= moleculeList.get(startMolecule).getChildList().get(0).getPosition().getX(0);
+            xchi=x*x/(xold*xold);
+        }
+        //new
+        /*moleculeList = box.getMoleculeList();
+
+
+        if (moleculeList.size() >= 2) {
+            Vector r0 = moleculeList.get(0).getChildList().get(0).getPosition();
+            Vector r1 = moleculeList.get(1).getChildList().get(0).getPosition();
+            Vector dr = box.getSpace().makeVector();
+            dr.Ev1Mv2(r1, r0);
+            double distance = Math.sqrt(dr.squared());
+
+            double spikeDistance = 31.0;  // Adjust based on your spike bin
+            if (Math.abs(distance - spikeDistance) < 0.5) {
+                System.out.println("Distance: " + distance + " uOld: " + uOld + " uNew: " + uNew + " ratio: " + (uOld == 0 ? 0 : uNew/uOld));
+            }
+
+        }*/
+        //
         return true;
     }
-	
+
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i = startMolecule; i<moleculeList.size(); i++) {
@@ -110,6 +161,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
             });
         }
         ((BoxCluster)box).rejectNotify();
+        if (cellManager != null){
+            cellManager.assignCellAll();
+        }
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
             throw new RuntimeException("oops oops, reverted to illegal configuration");
         }
@@ -119,8 +173,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
         ((BoxCluster)box).acceptNotify();
     }
 
+
     public double getChi(double temperature) {
-        return uNew/uOld;
+
+        return uNew/uOld*xchi;
     }
 	
 }

@@ -6,6 +6,7 @@ package etomica.potential;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
@@ -25,7 +26,7 @@ public class PotentialMoleculePair implements IPotentialMolecular {
         this.space = space;
         this.atomPotentials = atomPotentials;
     }
-
+    public boolean doDebug = false;
     private static IPotential2[][] makeAtomPotentials(SpeciesManager sm) {
         // we could try to store the potentials more compactly, but it doesn't really matter
         ISpecies species = sm.getSpecies(sm.getSpeciesCount() - 1);
@@ -46,21 +47,34 @@ public class PotentialMoleculePair implements IPotentialMolecular {
     public double energy(IMoleculeList molecules) {
         return energy(molecules.get(0), molecules.get(1));
     }
+    public  long callCount,pairCount;
+    public IntegratorBox integrator1,integrator2;
 
     public double energy(IMolecule molecule1, IMolecule molecule2) {
         IAtomList atoms1 = molecule1.getChildList();
         IAtomList atoms2 = molecule2.getChildList();
         double u = 0;
+
         for (IAtom a0 : atoms1) {
             IPotential2[] p0 = atomPotentials[a0.getType().getIndex()];
             for (IAtom a1 : atoms2) {
                 IPotential2 p2 = p0[a1.getType().getIndex()];
-                if (p2 == null) continue;
+                if (p2 == null){System.out.println("zero");
+                    continue;
+                }
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
                 u += p2.u(dr.squared());
+                //check
+                if (doDebug && p2.u(dr.squared()) != 0)  // Calculates energy again for the print
+                    System.out.println("NO_CELL: " + a0.getLeafIndex() + " " + a1.getLeafIndex() + " " + dr.squared() + " " + p2.u(dr.squared()));
+               // if (p2.u(dr.squared())!=0) pairCount++;
+                //if(dr.squared()<16) System.out.println(a0.getLeafIndex()+" "+ a1.getLeafIndex()+" "+dr.squared()+" "+ p2.u(dr.squared()));
             }
+
         }
+
+
         return u;
     }
 

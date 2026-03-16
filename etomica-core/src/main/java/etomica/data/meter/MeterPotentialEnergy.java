@@ -28,7 +28,7 @@ public class MeterPotentialEnergy extends DataSourceScalar implements IDataSourc
      */
     public double getDataAsScalar() {
         if (callComputeAll) {
-            potentialMaster.computeAll(false);
+           return potentialMaster.computeAll(false);
         }
         return potentialMaster.getLastEnergy();
     }

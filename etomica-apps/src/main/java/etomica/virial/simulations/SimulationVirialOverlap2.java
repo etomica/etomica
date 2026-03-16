@@ -23,6 +23,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.math.DoubleRange;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.IPotential2;
 import etomica.potential.PotentialMasterBonding;
@@ -67,7 +68,8 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected final double temperature;
     protected final ClusterAbstract[] valueClusters;
     protected final int[] nMolecules;
-    protected final ClusterWeight[] sampleClusters;
+    protected final ClusterWeight[] sampleClusters1;
+    protected  ClusterWeight[] sampleClusters2;
     public DataVirialOverlap dvo;
     public AccumulatorAverageCovariance blockAccumulator;
     public MCMoveBoxStep[] mcMoveRotate;
@@ -89,6 +91,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected PotentialMasterBonding.FullBondingInfo bondingInfo;
     protected IPotential2[][] pairPotentials;
     protected PotentialComputeFactory potentialComputeFactory;
+    protected NeighborCellManager cellManager;
 
     /**
      * This constructor will create your simulation class, but you may call
@@ -112,7 +115,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         this.species = new ISpecies[0];
         this.nMolecules = nMolecules;
         valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
-        sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
+        sampleClusters1 = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
         meters = new MeterVirial[2];
         integrators = new IntegratorMC[2];
         dpVirialOverlap = new DataProcessorVirialOverlap[2];
@@ -133,7 +136,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         this.temperature = temperature;
         this.nMolecules = nMolecules;
         valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
-        sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)};
+        sampleClusters1 = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)};
         meters = new MeterVirial[2];
         integrators = new IntegratorMC[2];
         dpVirialOverlap = new DataProcessorVirialOverlap[2];
@@ -165,13 +168,13 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public ClusterWeight[] getSampleClusters() {
-        return sampleClusters;
+        return sampleClusters1;
     }
 
     public void setSampleClusters(ClusterWeight[] sampleClusters) {
         if (initialized) throw new RuntimeException("too late");
-        this.sampleClusters[0] = sampleClusters[0];
-        this.sampleClusters[1] = sampleClusters[1];
+        this.sampleClusters1[0] = sampleClusters[0];
+        this.sampleClusters1[1] = sampleClusters[1];
     }
 
     public void setBoxLengths(double refLength, double targetLength) {
@@ -188,7 +191,13 @@ public class SimulationVirialOverlap2 extends Simulation {
     public void setBondingInfo(PotentialMasterBonding.FullBondingInfo bondingInfo) {
         this.bondingInfo = bondingInfo;
     }
-
+public void setOverlapClusters (ClusterAbstract referenceInTargetCluster,ClusterAbstract targetInReferenceCluster){
+    if (initialized) throw new RuntimeException("too late");
+        sampleClusters2=new ClusterWeight[]{
+                ClusterWeightAbs.makeWeightCluster(referenceInTargetCluster),
+                ClusterWeightAbs.makeWeightCluster(targetInReferenceCluster)
+        };
+}
     public void init() {
         if (initialized) throw new RuntimeException("you can only call me once");
         // we aren't actually initialized yet, but we will be unless we crash.
@@ -222,7 +231,7 @@ public class SimulationVirialOverlap2 extends Simulation {
 
         for (int iBox=0; iBox<2; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = new BoxCluster(sampleClusters[iBox], space, boxLengths[iBox]);
+            box[iBox] = new BoxCluster(sampleClusters1[iBox], space, boxLengths[iBox]);
             addBox(box[iBox]);
             for (ISpecies sp : getSpeciesList()) {
                 box[iBox].setNMolecules(sp, nMolecules[sp.getIndex()]);
@@ -258,6 +267,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
             } else {
                 mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(random, box[iBox]);
+
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(random, box[iBox]);
@@ -281,13 +291,16 @@ public class SimulationVirialOverlap2 extends Simulation {
 
             ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iBox]);
+
             if (iBox == 0) {
-                meters[iBox] = new MeterVirial(new ClusterAbstract[]{valueClusters[0], sampleClusters[1].makeCopy()});
+                ClusterAbstract tCluster = sampleClusters2 != null ? sampleClusters2[1] : sampleClusters1[1].makeCopy();
+                meters[iBox] = new MeterVirial(new ClusterAbstract[]{valueClusters[0], tCluster});
+
             } else {
                 ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusters.length + 2];
                 allClustersForTarget[0] = valueClusters[1];
                 System.arraycopy(extraTargetClusters, 0, allClustersForTarget, 1, extraTargetClusters.length);
-                allClustersForTarget[allClustersForTarget.length - 1] = sampleClusters[0].makeCopy();
+                allClustersForTarget[allClustersForTarget.length - 1] = sampleClusters2 != null ? sampleClusters2[0] :sampleClusters1[0].makeCopy();
                 meters[iBox] = new MeterVirial(allClustersForTarget);
             }
             meters[iBox].setBox(box[iBox]);

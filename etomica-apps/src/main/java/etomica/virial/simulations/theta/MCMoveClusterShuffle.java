@@ -11,6 +11,8 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.compute.NeighborManagerCell;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -29,6 +31,7 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
     private final PotentialCompute potential;
     protected final IRandom random;
     protected final Space space;
+    protected int excludedAtom=-1;
     protected int numMoved;
     protected Vector[] bondVector;
     protected int[] seq, imposedBonds;
@@ -40,13 +43,17 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
     protected boolean doLattice;
     protected IntArrayList[] bonding;
     protected int[] constraintMap;
-
+    protected NeighborManagerCell cellManager;
+    public boolean skipW;
     public MCMoveClusterShuffle(PotentialCompute potentialCompute, Space space, IRandom random) {
         super();
         this.potential = potentialCompute;
         this.space = space;
         this.random = random;
         setStepSizeMin(2);
+    }
+    public void setExcludedAtom (int excludedAtom){
+        this.excludedAtom=excludedAtom;
     }
 
     public void setBonding(IntArrayList[] bonding) {
@@ -78,6 +85,10 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         }
     }
 
+    public void setCellManager(NeighborManagerCell cellManager) {
+        this.cellManager = cellManager;
+    }
+
     public long trials, searches;
 
     @Override
@@ -90,7 +101,7 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         numMoved = ((int)stepSize) + (random.nextDouble() < stepSize-(int)stepSize ? 1 : 0);
         uOld = potential.computeAll(false);
         wNew = wOld = 1;
-        if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        if (box instanceof BoxCluster && !skipW) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IMoleculeList moleculeList = box.getMoleculeList();
         iMolecule = random.nextInt(moleculeList.size());
 
@@ -110,21 +121,26 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
             searches++;
             actualMoved = 1;
             int start = 1 + random.nextInt(atoms.size() - numMoved - 1);
-            while (bonding[start].size() != 2) {
+            while (bonding[start].size() != 2 && start!=excludedAtom) {
                 start = 1 + random.nextInt(atoms.size() - numMoved - 1);
             }
             seq[1] = start;
-            forward = random.nextInt(2) == 0;
-            seq[0] = bonding[start].getInt(forward ? 0 : 1);
+            do{
+                forward = random.nextInt(2) == 0;
+                seq[0] = bonding[start].getInt(forward ? 0 : 1);
+            } while (seq[0]==excludedAtom);
+
             // bondVector[i] is vector forward from i
             bondVector[0].Ev1Mv2(atoms.get(seq[1]).getPosition(), atoms.get(seq[0]).getPosition());
             for (int i = 2; i <= numMoved && bonding[seq[i - 1]].size() == 2; i++) {
                 seq[i] = bonding[seq[i - 1]].getInt(forward ? 1 : 0);
+                if (seq[i]==excludedAtom)
+                    break;
                 bondVector[i - 1].Ev1Mv2(atoms.get(seq[i]).getPosition(), atoms.get(seq[i - 1]).getPosition());
                 actualMoved++;
             }
         }
-
+//System.out.println(Arrays.toString(seq));
         for (int i=0; i<numMoved; i++) {
             imposedBonds[i] = i;
         }
@@ -157,11 +173,16 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         for (IAtom a : atoms) {
             a.getPosition().PE(shift);
         }
+        if (cellManager != null){
+            for (IAtom aa : atoms) {
+                cellManager.updateAtom(aa);
+            }
+        }
 
         uNew = potential.computeAll(false);
         if (box instanceof BoxCluster) {
             ((BoxCluster)box).trialNotify();
-            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+            if (!skipW) wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         }
         return true;
     }
@@ -199,6 +220,11 @@ public class MCMoveClusterShuffle extends MCMoveBoxStep {
         }
         for (IAtom a : atoms) {
             a.getPosition().PE(shift);
+        }
+        if (cellManager != null){
+            for (IAtom aa : atoms) {
+                cellManager.updateAtom(aa);
+            }
         }
 
         if (box instanceof BoxCluster) ((BoxCluster)box).rejectNotify();

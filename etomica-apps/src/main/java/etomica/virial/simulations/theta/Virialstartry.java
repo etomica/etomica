@@ -79,7 +79,7 @@ public class Virialstartry {
         double temperature = params.temperature;
         long steps = params.numSteps;
         double refFreq = params.refFreq;
-        double sigmaHSRef = 3.5 * Math.sqrt(armLength);
+        double sigmaHSRef = 3.5*Math.sqrt(armLength);
 
         Space space = Space3D.getInstance();
 

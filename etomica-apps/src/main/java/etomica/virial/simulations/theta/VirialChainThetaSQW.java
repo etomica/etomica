@@ -214,36 +214,49 @@ public class VirialChainThetaSQW {
                 integrator.getMoveManager().addMCMove(angleMove1);
             }
             else if (nSpheres < 9) {
-                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+
+                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                        new MCMoveClusterAngle.AtomChooserStartStop(sim.getRandom(),0, nSpheres/4 ));
                 angleMove1.setBox(sim.box());
-                angleMove1.setAtomRange(0, nSpheres/4);
+
                 angleMove1.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove1, 0.5);
-                angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+
+                angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                        new MCMoveClusterAngle.AtomChooserStartStop(sim.getRandom(),nSpheres/4, nSpheres));
                 angleMove2.setBox(sim.box());
-                angleMove2.setAtomRange(nSpheres/4, nSpheres);
+
                 angleMove2.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove2, 0.5);
             }
             else {
-                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+
+                angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                        new MCMoveClusterAngle.AtomChooserStartStop(sim.getRandom(),0, nSpheres/4 ));
                 angleMove1.setBox(sim.box());
-                angleMove1.setAtomRange(0, nSpheres / 8);
+
                 angleMove1.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove1, 0.25);
-                angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+
+
+                angleMove2 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                        new MCMoveClusterAngle.AtomChooserStartStop(sim.getRandom(),nSpheres/8, nSpheres/4 ));
                 angleMove2.setBox(sim.box());
-                angleMove2.setAtomRange(nSpheres / 8, nSpheres / 4);
+
                 angleMove2.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove2, 0.25);
-                angleMove3 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+
+                angleMove3 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                        new MCMoveClusterAngle.AtomChooserStartStop(sim.getRandom(),nSpheres/4, 3 * nSpheres/8 ));
                 angleMove3.setBox(sim.box());
-                angleMove3.setAtomRange(nSpheres / 4, 3 * nSpheres / 8);
+
                 angleMove3.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove3, 0.25);
-                angleMove4 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
+
+                angleMove4 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                        new MCMoveClusterAngle.AtomChooserStartStop(sim.getRandom(),3 * nSpheres/8, nSpheres ));
                 angleMove4.setBox(sim.box());
-                angleMove4.setAtomRange(3 * nSpheres / 8, nSpheres);
+
                 angleMove4.setDoLattice(doLattice);
                 integrator.getMoveManager().addMCMove(angleMove4, 0.25);
             }
