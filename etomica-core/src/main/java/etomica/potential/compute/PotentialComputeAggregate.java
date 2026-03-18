@@ -82,8 +82,12 @@ public class PotentialComputeAggregate implements PotentialCompute {
     public double computeAll(boolean doForces, PotentialCallback pc) {
         double sum = 0;
         for (PotentialCompute potentialCompute : this.potentialComputes) {
+
             sum += potentialCompute.computeAll(doForces, pc);
+//            System.out.println("sum = " + sum);
+
         }
+
         if (doForces) {
             int n = potentialComputes.get(0).getForces().length;
             if (localStorage) {

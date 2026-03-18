@@ -107,6 +107,9 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom iAtom = molecule.getChildList().get(pair[0]);
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
                         uTot[0] += handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
+                        if(Double.isNaN(uTot[0])) {
+                            throw new RuntimeException("");
+                        }
                     }
                 }
             });
@@ -121,7 +124,17 @@ public class PotentialMasterBonding implements PotentialCompute {
                         IAtom jAtom = molecule.getChildList().get(triplet[1]);
                         IAtom kAtom = molecule.getChildList().get(triplet[2]);
                         uTot[0] += handleOneBondTriplet(doForces, box.getBoundary(), iAtom, jAtom, kAtom, potential, forces);
+
+                        if(Double.isNaN(uTot[0])) {
+                            for (IAtom a:box.getLeafList()) {
+                            System.out.println(a.getPosition());}
+
+                            throw new RuntimeException("");
+                        }
+
+
                     }
+
                 }
             });
             uu[3] += uTot[0];
@@ -370,6 +383,9 @@ public class PotentialMasterBonding implements PotentialCompute {
         }
         double vji_vkl = 1 / Math.sqrt(vji2vkl2);
         double costheta = vji.dot(vkl) * vji_vkl;
+        if(Double.isNaN(costheta)){
+            throw new RuntimeException();
+        }
         double[] u = {0}, du = {0};
         potential.udu(costheta, u, du);
 //        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
@@ -517,12 +533,12 @@ public class PotentialMasterBonding implements PotentialCompute {
             bondedQuads = new HashMap[sm.getSpeciesCount()];
             bondedQuadPartners = new HashMap[sm.getSpeciesCount()];
             for (int i = 0; i < sm.getSpeciesCount(); i++) {
-                bondedPairs[i] = new HashMap<>();
-                bondedPairPartners[i] = new HashMap<>();
-                bondedTriplets[i] = new HashMap<>();
-                bondedTripletPartners[i] = new HashMap<>();
-                bondedQuads[i] = new HashMap<>();
-                bondedQuadPartners[i] = new HashMap<>();
+                bondedPairs[i] = new LinkedHashMap<>();
+                bondedPairPartners[i] = new LinkedHashMap<>();
+                bondedTriplets[i] = new LinkedHashMap<>();
+                bondedTripletPartners[i] = new LinkedHashMap<>();
+                bondedQuads[i] = new LinkedHashMap<>();
+                bondedQuadPartners[i] = new LinkedHashMap<>();
             }
             n = new int[sm.getSpeciesCount()][][];
             for (int i=0; i<n.length; i++) {
