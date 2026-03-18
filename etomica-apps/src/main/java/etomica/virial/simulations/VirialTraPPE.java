@@ -70,7 +70,7 @@ public class VirialTraPPE {
             params.diagram = "BC";
             params.numSteps = 1000000;
             params.refFrac = -1;
-            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
+//            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
             params.sigmaHSRef = 6;
@@ -208,7 +208,7 @@ public class VirialTraPPE {
         for (int i = 0; i < chemForm.length; i++) {
             TraPPEParams TPi = TPList[i];
 
-            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge, TPi.species);
+            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge, TPi.species, TPi.reconstructor);
             potentials[i][i] = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, null);
 
             anyPolar = (anyPolar || TPi.polar);
@@ -603,7 +603,7 @@ public class VirialTraPPE {
 //        }
 
         // Run with Graphics
-        if (true) {
+        if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -2342,7 +2342,7 @@ public class VirialTraPPE {
                 double epsilonCH3 = Kelvin.UNIT.toSim(4);
                 double qCH3 = Electron.UNIT.toSim(0.000);
                 double kCCC = Kelvin.UNIT.toSim(58765);
-                double c1 = 854;
+                double c1 = Kelvin.UNIT.toSim(854);
                 double sigmaH = 0;
                 double epsilonH = 0;
                 double qH = 0;
@@ -2367,7 +2367,7 @@ public class VirialTraPPE {
                 Vector3D posC1 = new Vector3D(new double[]{bondLengthCHxCHy - posCavg, -yy / 3, 0});
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCC) - posCavg, 2 * yy / 3, 0});
                 Vector3D posH3 = new Vector3D(new double[]{0 - posCavg + bondLengthCH*Math.cos(thetaCCH), -yy/3 - bondLengthCH*Math.sin(thetaCCH), 0});
-                Vector3D posH4 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCC) - posCavg + bondLengthCH * Math.cos(thetaCCC - thetaCCH), 2 * yy / 3 - Math.sin(thetaCCC - thetaCCH), 0});
+                Vector3D posH4 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCC) - posCavg + bondLengthCH * Math.cos(thetaCCC - thetaCCH), 2 * yy / 3 - bondLengthCH * Math.sin(thetaCCC - thetaCCH), 0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)

@@ -249,6 +249,67 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
 
         return out;
     }
+    public static void checkSites(PotentialMoleculePairImplicit.SiteSet sites){
+        int[][] bonds = new int[][]{{0,1},{1,2},
+                {0,3},{0,4},{0,5},
+                {1,6},{1,7},
+                {2,8},{2,9},{2,10}};
+        int[][] angles = new int[][]{{0,1,2},  // C0C1C2, free
+                {3,0,1},{4,0,1},{5,0,1},       // HC0C1, should be 110.7
+                {0,1,6},{0,1,7},{2,1,6},{2,1,7}, // C0C1H and C2C1H, value depends on CCC, should all be equal
+                {1,2,8},{1,2,9},{1,2,10},      // C1C2H, should be 110.7
+                {3,0,4},{3,0,5},{4,0,5},       // HC0H, should be 107.8
+                {8,2,9},{8,2,10},{9,2,10},     // HC2H, should be 107.8
+                {6,1,7}                        // HC1H, should be 107.8
+        };
+
+        System.out.println();
+        for (int j = 0; j < bonds.length; j++) {
+            int[] b = bonds[j];
+            double r2 = sites.pos[b[0]].Mv1Squared(sites.pos[b[1]]);
+            System.out.println(j + " " + b[0] + " " + b[1] + " " + Math.sqrt(r2));
+        }
+        for (int j = 0; j < angles.length; j++) {
+            int[] b = angles[j];
+            Vector v01 = new Vector3D();
+            Vector v21 = new Vector3D();
+            v01.Ev1Mv2(sites.pos[b[0]], sites.pos[b[1]]);
+            v21.Ev1Mv2(sites.pos[b[2]], sites.pos[b[1]]);
+            double dot = v21.dot(v01);
+            double cos = dot / Math.sqrt(v01.squared() * v21.squared());
+            double theta = 180 * Math.acos(cos) / Math.PI;
+            System.out.println(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
+
+        }
+
+    }
+    public static void checkMolecule(IMolecule molecule){
+        int[][] bonds = new int[][]{{0,1},{1,2},
+                {0,3},{2,4}};
+        int[][] angles = new int[][]{{0,1,2},  // C0C1C2, free
+                {3,0,1},      // HC0C1, should be 110.7
+                {1,2,4}   // C1C2H, should be 110.7
+        };
+        IAtomList atoms = molecule.getChildList();
+        System.out.println();
+        for (int j = 0; j < bonds.length; j++) {
+            int[] b = bonds[j];
+            double r2 = atoms.get(b[0]).getPosition().Mv1Squared(atoms.get(b[1]).getPosition());
+            System.out.println(j + " " + b[0] + " " + b[1] + " " + Math.sqrt(r2));
+        }
+        for (int j = 0; j < angles.length; j++) {
+            int[] b = angles[j];
+            Vector v01 = new Vector3D();
+            Vector v21 = new Vector3D();
+            v01.Ev1Mv2(atoms.get(b[0]).getPosition(), atoms.get(b[1]).getPosition());
+            v21.Ev1Mv2(atoms.get(b[2]).getPosition(), atoms.get(b[1]).getPosition());
+            double dot = v21.dot(v01);
+            double cos = dot / Math.sqrt(v01.squared() * v21.squared());
+            double theta = 180 * Math.acos(cos) / Math.PI;
+            System.out.println(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
+
+        }
+    }
 
     public static void main(String[] args) {
         Space3D s = Space3D.getInstance();
@@ -266,19 +327,6 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
         sim.addSpecies(species);
         sim.addBox(box);
         box.setNMolecules(species, 1);
-
-        int[][] bonds = new int[][]{{0,1},{1,2},
-                {0,3},{0,4},{0,5},
-                {1,6},{1,7},
-                {2,8},{2,9},{2,10}};
-        int[][] angles = new int[][]{{0,1,2},  // C0C1C2, free
-                {3,0,1},{4,0,1},{5,0,1},       // HC0C1, should be 110.7
-                {0,1,6},{0,1,7},{2,1,6},{2,1,7}, // C0C1H and C2C1H, value depends on CCC, should all be equal
-                {1,2,8},{1,2,9},{1,2,10},      // C1C2H, should be 110.7
-                {3,0,4},{3,0,5},{4,0,5},       // HC0H, should be 107.8
-                {8,2,9},{8,2,10},{9,2,10},     // HC2H, should be 107.8
-                {6,1,7}                        // HC1H, should be 107.8
-        };
         IAtomList atoms = box.getMoleculeList().get(0).getChildList();
         int[][] bonds0 = new int[][]{{0,1},{1,2},{0,3},{2,4}};
         double[] bl0 = new double[]{1.535,1.535,1.1,1.1};
@@ -315,23 +363,7 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
             PotentialMoleculePairImplicit.SiteSet sites = reconstructor.makeSites();
 
             reconstructor.reconstructSites(box.getMoleculeList().get(0), sites);
-            System.out.println();
-            for (int j = 0; j < bonds.length; j++) {
-                int[] b = bonds[j];
-                double r2 = sites.pos[b[0]].Mv1Squared(sites.pos[b[1]]);
-                System.out.println(j + " " + b[0] + " " + b[1] + " " + Math.sqrt(r2));
-            }
-            for (int j = 0; j < angles.length; j++) {
-                int[] b = angles[j];
-                Vector v01 = new Vector3D();
-                Vector v21 = new Vector3D();
-                v01.Ev1Mv2(sites.pos[b[0]], sites.pos[b[1]]);
-                v21.Ev1Mv2(sites.pos[b[2]], sites.pos[b[1]]);
-                double dot = v21.dot(v01);
-                double cos = dot / Math.sqrt(v01.squared() * v21.squared());
-                double theta = 180*Math.acos(cos)/Math.PI;
-                System.out.println(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
-            }
+
         }
     }
 }
