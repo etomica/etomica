@@ -146,5 +146,124 @@ public class SteepestDescent {
         return x;
     }
 
+
+    public double[] minimize2(double[] xGuess, double[] xStep, double tol, int maxIter, boolean verbose) {
+
+        final int n = xGuess.length;
+        double[] der = new double[n];
+        double[] dir = new double[n];
+        double[] x = xGuess.clone();
+
+        double stepSize = 1.0;
+        double lastVal = Double.MAX_VALUE;
+
+        double[] lastDir = new double[n];
+        double totalStep = 0, lastTotalStep = 0;
+        int lastAvgStep = -1;
+
+        for (int iter = 0; iter < maxIter; iter++) {
+
+            // --- compute gradient ---
+            System.arraycopy(f.gradf(x), 0, der, 0, n);
+
+            // compute gradient norm
+            double gradNorm2 = 0;
+            for (int i = 0; i < n; i++) {
+                gradNorm2 += der[i] * der[i];
+            }
+            if (gradNorm2 == 0) return x;
+
+            // --- direction selection ---
+            double dirdot = 0;
+            for (int i = 0; i < n; i++) {
+                dirdot += lastDir[i] * dir[i];   // FIX 1: accumulate properly
+            }
+
+            if (dirdot < -0.2 && iter > 5 && iter > lastAvgStep + 3 && Math.random() < 0.5) {
+                for (int i = 0; i < n; i++) {
+                    dir[i] = totalStep * dir[i] + lastTotalStep * lastDir[i];
+                }
+                lastAvgStep = iter;
+            }
+            else {
+                lastDir = dir.clone();
+                for (int i = 0; i < n; i++) {
+                    dir[i] = -der[i] * xStep[i];
+                }
+            }
+
+            // normalize direction
+            double dt = 0;
+            for (int i = 0; i < n; i++) dt += dir[i] * dir[i];
+            dt = Math.sqrt(dt);
+            if (dt == 0) return x;
+
+            for (int i = 0; i < n; i++) dir[i] /= dt;
+
+            double val = f.f(x);
+
+            if (verbose) {
+                if (iter > 0)
+                    System.out.println(String.format(
+                            "%4d   % 10.4e   % 10.4e",
+                            iter, val, val - lastVal));
+                else
+                    System.out.println(String.format(
+                            "%4d   % 10.4e", iter, val));
+            }
+
+            if (lastVal - val < tol) return x;
+            lastVal = val;
+
+            lastTotalStep = totalStep;
+            totalStep = 0;
+
+            // --- line search ---
+            while (true) {
+
+                // take trial step
+                for (int i = 0; i < n; i++) {
+                    x[i] += dir[i] * stepSize;
+                }
+                totalStep += stepSize;
+
+                double newVal = f.f(x);
+
+                // NaN protection
+                if (!Double.isFinite(newVal)) {
+                    for (int i = 0; i < n; i++) {
+                        x[i] -= dir[i] * stepSize;
+                    }
+                    stepSize *= 0.1;
+                    if (stepSize < 1e-20) return x;
+                    continue;
+                }
+
+                // compute directional derivative
+                double newTotalD = 0;   // FIX 2: reset every trial
+                System.arraycopy(f.gradf(x), 0, der, 0, n);
+                for (int i = 0; i < n; i++) {
+                    newTotalD += dir[i] * der[i];
+                }
+
+                if (newTotalD > 0 || newVal > lastVal) {
+                    // overshoot, backtrack
+                    for (int i = 0; i < n; i++) {
+                        x[i] -= dir[i] * stepSize;
+                    }
+                    totalStep = 0;
+                    stepSize *= 0.1;
+                    if (stepSize < 1e-20) return x;
+                    continue;
+                }
+
+                val = newVal;
+                break;
+            }
+        }
+
+        return x;
+    }
+
     protected FunctionMultiDimensionalDifferentiable f;
 }

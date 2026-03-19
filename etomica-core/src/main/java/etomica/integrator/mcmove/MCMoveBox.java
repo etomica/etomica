@@ -43,13 +43,13 @@ public abstract class MCMoveBox extends MCMove {
         }
         return 0;
     }
-    
+
     public abstract double energyChange();
 
     /**
      * Indicates whether this move should nominally be performed at a frequency
      * proportional to the number of molecules in the box.
-     * 
+     *
      * @see #nominalFrequency
      */
     public final boolean isNominallyPerParticleFrequency() {
@@ -66,6 +66,6 @@ public abstract class MCMoveBox extends MCMove {
      * be given a different value by subclasses.
      */
     protected boolean perParticleFrequency;
-    
+
     protected Box box;
 }

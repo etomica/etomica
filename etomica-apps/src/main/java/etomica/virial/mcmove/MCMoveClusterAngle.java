@@ -16,6 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
+import etomica.units.dimensions.Null;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
@@ -65,11 +66,6 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         this.doLattice = doLattice;
     }
 
-    public void setBox(Box p) {
-        super.setBox(p);
-        position = space.makeVectorArray(p.getMoleculeList().get(0).getChildList().size());
-    }
-
     public void setAtomRange(int start, int stop) {
         this.start = start;
         this.stop = stop;
@@ -89,14 +85,20 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         uOld = potential.computeAll(false);
         wNew = wOld = 1;
         if (box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-        IMoleculeList moleculeList = box.getMoleculeList();
-        iMolecule = random.nextInt(moleculeList.size());
-        while (species != null && moleculeList.get(iMolecule).getType() != species) {
-            iMolecule = random.nextInt(moleculeList.size());
+        if(box.getMoleculeList().size() == 0) return false;
+        IMoleculeList moleculeList;
+        if (species != null){
+            moleculeList = box.getMoleculeList(species);
+        }else {
+            moleculeList = box.getMoleculeList();
         }
-
+        if (moleculeList.size() == 0) return false;
+        iMolecule = random.nextInt(moleculeList.size());
         IMolecule molecule = moleculeList.get(iMolecule);
         IAtomList atoms = molecule.getChildList();
+        if (position == null) {
+            position = space.makeVectorArray(atoms.size());
+        }
         for(int j = 0; j < molecule.getChildList().size(); j++) {
             position[j].E(atoms.get(j).getPosition());
         }
@@ -207,6 +209,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         if (box instanceof BoxCluster) ((BoxCluster)box).acceptNotify();
     }
 
+    public void setSpecies(ISpecies species){this.species = species;}
     @Override
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();

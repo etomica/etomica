@@ -57,7 +57,7 @@ public class PotentialMoleculeIntraAmoebaVDW extends PotentialMoleculeAmoebaVDW 
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(r[j], r1);
                 double uu = p2.u(dr.squared()) * pScale1[a2.getType().getIndex()][n];
-                System.out.println("VDW "+a1.getLeafIndex()+" "+a2.getLeafIndex()+" "+kcalpmole.fromSim(uu));
+                //System.out.println("VDW "+a1.getLeafIndex()+" "+a2.getLeafIndex()+" "+kcalpmole.fromSim(uu));
                 u += uu;
             }
         }
