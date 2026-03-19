@@ -1361,7 +1361,8 @@ public class GrapheneReaderXYZPDB {
             epsilonJKey = kcals.toSim(jKey[0]);
             sigmaJKey = jKey[1];
             p2LJ[k] = uff.vdw(sigmaIKey, sigmaJKey, epsilonIKey, epsilonJKey);
-
+          //  System.out.println(atomTypeOne + " "+ Arrays.toString(iKey));
+         //   System.out.println(atomTypeTwo + " "+ Arrays.toString(jKey));
             double chargeA = electroCharge.get(atomTypeOne);
             double chargeB = electroCharge.get(atomTypeTwo);
           //  p2Electrostatics[k] = new P2Ewald1Real(Electron.UNIT.toSim(chargeA) * Electron.UNIT.toSim(chargeB), params.alpha);

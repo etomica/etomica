@@ -60,7 +60,8 @@ public class LJUFF implements IPotential2 {
         //u012[2] += -156*epsilon*s6*s6;
         u012[0] += epsilon * (s6*s6 - 2*s6);
         u012[1] += -12*epsilon*((s6*s6)-s6);
-        u012[2] += -84*epsilon*s6 -156*epsilon*s6*s6;
+      //  u012[2] += -84*epsilon*s6 -156*epsilon*s6*s6;
+        u012[2] += 156*epsilon*s6*s6 - 84*epsilon*s6;
         /*u012[0] += epsilon * (6 / (scale - 6)) * expo - epsilon * ( scale / ( scale - 6)) * sigma6 / r6;
         u012[1] += 6 * epsilon * scale * sigma6 / (scale_6 * r7) - ( 6 * epsilon * sigma * expo / (scale_6 * sigma) );
         u012[2] += 6 * epsilon * scale2 * expo / ( scale_6 * sigma2) - 42 * epsilon * scale * sigma6 / ( scale_6 * r8);*/

@@ -95,7 +95,7 @@ public class GOMD  extends Simulation {
         Vector vecOne = new Vector3D(0, 0, 20);
         Vector vecTwo = new Vector3D(0, 0, -10);
         Vector vecThree = new Vector3D(0, 0, -20);
-        if (numMoleules > 1){
+     /*   if (numMoleules > 1){
             System.out.println(vecZero);
             List<Vector> oldPositions = new ArrayList<>();
             IMolecule moleculeMOPZero = box.getMoleculeList().get(0);
@@ -133,7 +133,7 @@ public class GOMD  extends Simulation {
                 Vector shift = box.getBoundary().centralImage(atom.getPosition());
                 atom.getPosition().PE(shift);
             });
-        }
+        }*/
 
         double nbrRange = 12.5 * 1.05 + 1;
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
@@ -156,12 +156,12 @@ public class GOMD  extends Simulation {
 
         List<AtomType> atomTypesMolecules = species.getAtomTypes();
         grapheneReaderXYZPDB.makeNBElectroPotential(grapheneReaderXYZPDB, atomTypesGO, potentialMaster, ewaldFourier, atomTypesMolecules, params);
-
+        //System.exit(1);
         potentialMaster.doAllTruncationCorrection = true;
      //   pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster, ewaldFourier);
         pcAgg = new PotentialComputeAggregate(pmBonding, potentialMaster);
       //  pcAgg = new PotentialComputeAggregate(pmBonding);
-        integrator = new IntegratorVelocityVerlet(pcAgg, random, 0.001, Kelvin.UNIT.toSim(temperature), box);
+        integrator = new IntegratorVelocityVerlet(pcAgg, random, 0.001, temperature, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1000);
         integrator.setThermostatNoDrift(false);
@@ -294,7 +294,7 @@ public class GOMD  extends Simulation {
         };
         DataFork forkP = new DataFork(new IDataSink[]{dpZ, dpZm1oR});
 
-        if (false) {
+        if (true) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Octane MD", 3);
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
@@ -586,15 +586,15 @@ public class GOMD  extends Simulation {
         public int numMolecules = 1;
         //public int pressure = 10;
         public double density = 0.0000005;
-        public boolean graphics = false;
+        public boolean graphics = true;
         public long numSteps = 10000;
         public boolean ifAmberData = true;
-        public double x =50;
-        public double y =50;
+        public double x =60;
+        public double y =60;
         public double z = 50;
-      //  public String configFilename = "D:\\Sem-X\\GO\\graphitis\\GO_sheet2020";
-      //  public String configFilename = "D:\\Sem-X\\GO\\amber\\go";
-     public String configFilename = "GO_sheet";
+       // public String configFilename = "D:\\Sem-X\\GO\\graphitis\\GO_sheet2020";
+        public String configFilename = "D:\\Sem-X\\GO\\amber\\go";
+ //    public String configFilename = "GO_sheet";
      public String fileOne = "o1.txt";
      public String fileTwo = "o2.txt";
      //   public String outputFile = "D:\\Sem-X\\GO\\graphitis\\temp300K001Time.xyz";

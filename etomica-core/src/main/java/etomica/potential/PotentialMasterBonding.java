@@ -180,8 +180,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         if (Double.isNaN(uTot[0])) {
             throw new RuntimeException("oops");
         }
-//        Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-//        System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
+       // Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+      //  System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
       //  System.out.println(uTot[0]);
        // energyTot = uTot[0];
         return uTot[0];

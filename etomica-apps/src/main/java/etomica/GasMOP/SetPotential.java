@@ -683,8 +683,14 @@ public class SetPotential {
                 sigmaIKey = iKey[0];
             } else {
                 //System.out.println(Arrays.toString(iKey));
-                epsilonIKey = kcals.toSim(iKey[3]);
-                sigmaIKey = iKey[2];
+                if (atomTypeOne.equals("Kr") || atomTypeOne.equals("Xe")){
+                    epsilonIKey = Kelvin.UNIT.toSim(iKey[0]);
+                    sigmaIKey = iKey[1];
+                }else {
+                    epsilonIKey = kcals.toSim(iKey[3]);
+                    sigmaIKey = iKey[2];
+                }
+
             }
             if(jKey == null){
                 jKey = returnGaFF(atomTypeTwo);
@@ -694,9 +700,14 @@ public class SetPotential {
                 //System.out.println(epsilonJKey + " "+ epsNew);
                 sigmaJKey = jKey[0];
             } else {
-                // System.out.println(Arrays.toString(jKey));
-                epsilonJKey = kcals.toSim(jKey[3]);
-                sigmaJKey = jKey[2];
+                if (atomTypeTwo.equals("Kr") || atomTypeTwo.equals("Xe")){
+                    epsilonIKey = Kelvin.UNIT.toSim(jKey[0]);
+                    sigmaIKey = jKey[1];
+                }else {
+                    // System.out.println(Arrays.toString(jKey));
+                    epsilonJKey = kcals.toSim(jKey[3]);
+                    sigmaJKey = jKey[2];
+                }
             }
             if(doElectrostatics){
                 double chargeOne = pdbReaderMOP.getatomCharge(atomTypeOne);

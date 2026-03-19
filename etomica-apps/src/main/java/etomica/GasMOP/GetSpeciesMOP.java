@@ -56,11 +56,12 @@ public class GetSpeciesMOP {
         }*/
         Simulation sim = new Simulation(Space3D.getInstance());
         if (ifMOPpresent) {
-            speciesLigand = pdbReaderMOP.getSpeciesMOP(conf1, false, new Vector3D(0.0, 0.0, 0.0), false);
+            if(ifAutomMOP){
+                speciesLigand = pdbReaderMOP.getSpeciesMOP(conf1, false, new Vector3D(0.0, 0.0, 0.0), false);
+            }else {
+                speciesLigand = pdbReaderMOP.getSpeciesMOP(conf1, false, new Vector3D(0.0, 0.0, 0.0), false);
+            }
             cifReader cifReader = new cifReader();
-            sim.addSpecies(speciesLigand);
-        }else if(ifAutomMOP){
-            speciesLigand = pdbReaderMOP.getSpeciesMOP(conf1, false, new Vector3D(0.0, 0.0, 0.0), false);
             sim.addSpecies(speciesLigand);
         }
 

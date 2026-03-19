@@ -1456,6 +1456,7 @@ public class PDBReaderMOP {
             elementReceiverMap.put("Mn", new AtomType(Manganese.INSTANCE, "Mn"));
             elementReceiverMap.put("W", new AtomType(Tungsten.INSTANCE, "W"));
             elementReceiverMap.put("Cu", new AtomType(Copper.INSTANCE, "Cu"));
+            elementReceiverMap.put("CU", new AtomType(Copper.INSTANCE, "Cu"));
             elementReceiverMap.put("Pd", new AtomType(Palladium.INSTANCE, "Pd"));
             elementReceiverMap.put("Ar", new AtomType(Argon.INSTANCE,"Ar"));
             elementReceiverMap.put("He", new AtomType(Helium.INSTANCE,"He"));
@@ -2735,6 +2736,8 @@ public class PDBReaderMOP {
         atomicConstant.put("O", new double[]{0,0,3.49, 0.14,0  });
         atomicConstant.put("Tb", new double[]{0,0,3.451, 0.007,0  });
         atomicConstant.put("S", new double[]{0,0,4.035, 0.274,0  });
+        atomicConstant.put("Kr", new double[]{3.66,165.2});
+        atomicConstant.put("Xe", new double[]{3.97,229.8});
        // atomicConstant.put("Kr", new double[]{1.147, 90.0, 4.141,0.220,14,0.452});
       //  atomicConstant.put("Xe", new double[]{1.267,90,4.404,0.332,12,0.556});
         double [] sample = atomicConstant.get(atomtype);
