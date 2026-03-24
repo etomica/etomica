@@ -5,7 +5,6 @@
 package etomica.models.traPPE;
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
@@ -13,15 +12,13 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
-import etomica.potential.PotentialMoleculePairImplicit;
+import etomica.potential.SiteReconstructor;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
-
-import java.util.Arrays;
 
 /**
  * Site reconstructor for TraPPE-EH propane.
@@ -41,7 +38,7 @@ import java.util.Arrays;
  *
  * Total: 11 LJ sites per molecule.
  */
-public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.SiteReconstructor {
+public class SiteReconstructorAlkane extends SiteReconstructor {
 
     // Geometry constants
     protected static final double DCH = 1.100;  // Angstrom
@@ -49,67 +46,41 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
     protected static final double COS120 = -0.5;
     protected static final double SIN120 = Math.sqrt(3)/2;
     public final ISpecies species;
-    public SiteReconstructorPropane(ISpecies species){
+    public SiteReconstructorAlkane(ISpecies species){
         this.species = species;
     }
-    public PotentialMoleculePairImplicit.SiteSet makeSites() {
-        AtomType[] types = new AtomType[11];
-        // first 3 sites are C, then 8 CH (H are not included)
-        Arrays.fill(types, 0, 3, species.getAtomType(0));
-        Arrays.fill(types, 3, 11, species.getAtomType(2));
-        return new PotentialMoleculePairImplicit.SiteSet(types);
-    }
 
 
-    public void reconstructSites(IMolecule molecule, PotentialMoleculePairImplicit.SiteSet sites) {
+    public void reconstructSites(IMolecule molecule) {
         IAtomList atoms = molecule.getChildList();
 
-        IAtom aC1 = atoms.get(0);
-        IAtom aC2 = atoms.get(1);
-        IAtom aC3 = atoms.get(2);
-        IAtom aHL = atoms.get(3);
-        IAtom aHR = atoms.get(4);
+        Vector rC1 = atoms.get(0).getPosition();
+        Vector rC2 = atoms.get(1).getPosition();
+        Vector rC3 = atoms.get(2).getPosition();
+        Vector rHL1 = atoms.get(3).getPosition();
+        Vector rHL2 = atoms.get(4).getPosition();
+        Vector rHL3 = atoms.get(5).getPosition();
+        Vector rHM1 = atoms.get(6).getPosition();
+        Vector rHM2 = atoms.get(7).getPosition();
+        Vector rHR1 = atoms.get(8).getPosition();
+        Vector rHR2 = atoms.get(9).getPosition();
+        Vector rHR3 = atoms.get(10).getPosition();
 
-        Vector rC1 = aC1.getPosition();
-        Vector rC2 = aC2.getPosition();
-        Vector rC3 = aC3.getPosition();
-        Vector rHL = aHL.getPosition();
-        Vector rHR = aHR.getPosition();
-
-        // 0-2: carbon LJ sites
-        sites.pos[0].E(rC1);
-        sites.pos[1].E(rC2);
-        sites.pos[2].E(rC3);
 
         // 3-5: left methyl bond-center sites
         reconstructMethylBondCenters(
-                rC1, rC2, rHL,
-                sites.pos[3], sites.pos[4], sites.pos[5]
-        );
+                rC1, rC2, rHL1, rHL2, rHL3);
 
         // 6-7: central methylene bond-center sites
         reconstructMethyleneBondCenters(
                 rC1, rC2, rC3,
-                sites.pos[6], sites.pos[7]
+                rHM1, rHM2
         );
 
         // 8-10: right methyl bond-center sites
         reconstructMethylBondCenters(
-                rC3, rC2, rHR,
-                sites.pos[8], sites.pos[9], sites.pos[10]
+                rC3, rC2, rHR1, rHR2, rHR3
         );
-        for (Vector v:sites.pos){
-            if (v.squared() > 10000) {
-                System.out.println("faraway " + molecule);
-                for (Vector v2:sites.pos){
-                    System.out.println("v " + v2);
-                }
-                for (IAtom a:atoms) {
-                    System.out.println("a " + a.getLeafIndex() + " " + a.getPosition());}
-                PotentialMoleculePairImplicit.debug = true;
-                return;
-            }
-        }
     }
 
     /**
@@ -124,7 +95,6 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
     protected static void reconstructMethylBondCenters(
             Vector terminalCarbon,
             Vector neighborCarbon,
-            Vector knownH,
             Vector bc1,
             Vector bc2,
             Vector bc3) {
@@ -134,15 +104,13 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
         axis.normalize();
 
         Vector3D u1 = new Vector3D();
-        u1.Ev1Mv2(knownH, terminalCarbon);
+        u1.Ev1Mv2(bc1, terminalCarbon);
         u1.normalize();
 
         Vector3D u2 = rotate120(u1, axis, +1.0);
         Vector3D u3 = rotate120(u1, axis, -1.0);
 
         // Bond-center sites are at carbon + 0.5*dCH*u
-        bc1.E(terminalCarbon);
-        bc1.PEa1Tv1(HALF_DCH, u1);
 
         bc2.E(terminalCarbon);
         bc2.PEa1Tv1(HALF_DCH, u2);
@@ -249,7 +217,7 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
 
         return out;
     }
-    public static void checkSites(PotentialMoleculePairImplicit.SiteSet sites){
+    public static void checkMolecule(IMolecule molecule){
         int[][] bonds = new int[][]{{0,1},{1,2},
                 {0,3},{0,4},{0,5},
                 {1,6},{1,7},
@@ -261,34 +229,6 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
                 {3,0,4},{3,0,5},{4,0,5},       // HC0H, should be 107.8
                 {8,2,9},{8,2,10},{9,2,10},     // HC2H, should be 107.8
                 {6,1,7}                        // HC1H, should be 107.8
-        };
-
-        System.out.println();
-        for (int j = 0; j < bonds.length; j++) {
-            int[] b = bonds[j];
-            double r2 = sites.pos[b[0]].Mv1Squared(sites.pos[b[1]]);
-            System.out.println(j + " " + b[0] + " " + b[1] + " " + Math.sqrt(r2));
-        }
-        for (int j = 0; j < angles.length; j++) {
-            int[] b = angles[j];
-            Vector v01 = new Vector3D();
-            Vector v21 = new Vector3D();
-            v01.Ev1Mv2(sites.pos[b[0]], sites.pos[b[1]]);
-            v21.Ev1Mv2(sites.pos[b[2]], sites.pos[b[1]]);
-            double dot = v21.dot(v01);
-            double cos = dot / Math.sqrt(v01.squared() * v21.squared());
-            double theta = 180 * Math.acos(cos) / Math.PI;
-            System.out.println(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
-
-        }
-
-    }
-    public static void checkMolecule(IMolecule molecule){
-        int[][] bonds = new int[][]{{0,1},{1,2},
-                {0,3},{2,4}};
-        int[][] angles = new int[][]{{0,1,2},  // C0C1C2, free
-                {3,0,1},      // HC0C1, should be 110.7
-                {1,2,4}   // C1C2H, should be 110.7
         };
         IAtomList atoms = molecule.getChildList();
         System.out.println();
@@ -309,6 +249,7 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
             System.out.println(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
 
         }
+
     }
 
     public static void main(String[] args) {
@@ -328,11 +269,11 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
         sim.addBox(box);
         box.setNMolecules(species, 1);
         IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-        int[][] bonds0 = new int[][]{{0,1},{1,2},{0,3},{2,4}};
-        double[] bl0 = new double[]{1.535,1.535,1.1,1.1};
-        int[][] angles0 = new int[][]{{1,0,3},{1,2,4}};
+        int[][] bonds0 = new int[][]{{0,1},{1,2},{0,3},{2,8}};
+        double[] bl0 = new double[]{1.535,1.535,0.55, 0.55};
+        int[][] angles0 = new int[][]{{1,0,3},{1,2,8}};
         double[] phi0 = new double[]{Math.PI*110.70/180, Math.PI*110.7/180};
-        PotentialMoleculePairImplicit.SiteReconstructor reconstructor = new SiteReconstructorPropane(species);
+        SiteReconstructor reconstructor = new SiteReconstructorAlkane(species);
 
         for (int step=0; step<10; step++) {
             for (int i=0; i<bonds0.length; i++) {
@@ -360,10 +301,9 @@ public class SiteReconstructorPropane implements PotentialMoleculePairImplicit.S
                 r.TE(bl0[i]);
                 r.PE(atoms.get(b0[0]).getPosition());
             }
-            PotentialMoleculePairImplicit.SiteSet sites = reconstructor.makeSites();
 
-            reconstructor.reconstructSites(box.getMoleculeList().get(0), sites);
-
+            reconstructor.reconstructSites(box.getMoleculeList().get(0));
+            checkMolecule(box.getMoleculeList().get(0));
         }
     }
 }

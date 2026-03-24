@@ -138,11 +138,6 @@ public class MCMoveClusterTorsion extends MCMoveBoxStep {
             }
         }
 
-        if (box instanceof BoxCluster) {
-            ((BoxCluster)box).trialNotify();
-            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-        }
-        uNew = potential.computeAll(false);
 
         return true;
     }
@@ -182,6 +177,12 @@ public class MCMoveClusterTorsion extends MCMoveBoxStep {
     public double getChi(double temperature) {
 //        System.out.println("uOld = " + uOld + ", uNew = " + uNew + ", wOld = " + wOld +  ", wNew = " + wNew);
 //        System.exit(0);
+        if (box instanceof BoxCluster) {
+            ((BoxCluster)box).trialNotify();
+            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        }
+        uNew = potential.computeAll(false);
+
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 

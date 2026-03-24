@@ -146,11 +146,6 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
             }
         }
 
-        if (box instanceof BoxCluster) {
-            ((BoxCluster)box).trialNotify();
-            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-        }
-        uNew = potential.computeAll(false);
 //        if (box.getIndex() == 1 &&  Math.abs(wNew - 0.5) < 0.1) {
 //        System.out.println(box.getIndex() + " " + uOld + " " + uNew + " " + wOld + " " + wNew);}
         return true;
@@ -189,6 +184,11 @@ public class MCMoveClusterAngleGeneral extends MCMoveBoxStep {
 
     @Override
     public double getChi(double temperature) {
+        if (box instanceof BoxCluster) {
+            ((BoxCluster)box).trialNotify();
+            wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        }
+        uNew = potential.computeAll(false);
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);
     }
 

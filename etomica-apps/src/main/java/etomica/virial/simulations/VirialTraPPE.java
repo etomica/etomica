@@ -15,8 +15,11 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
-import etomica.potential.PotentialMoleculePairImplicit;
-import etomica.models.traPPE.SiteReconstructorPropane;
+import etomica.models.traPPE.MCMoveClusterAngleGeneralImplicit;
+import etomica.models.traPPE.MCMoveClusterTorsionImplicit;
+import etomica.molecule.IMolecule;
+import etomica.potential.SiteReconstructor;
+import etomica.models.traPPE.SiteReconstructorAlkane;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.*;
@@ -45,6 +48,7 @@ import etomica.virial.wheatley.ClusterWheatleySoftDerivatives;
 import etomica.virial.wheatley.ClusterWheatleySoftDerivativesBD;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -64,9 +68,9 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propaneEH};
+            params.chemForm = new ChemForm[]{ChemForm.propane};
             params.nPoints = 2; //B order
-            params.temperature = 650;
+            params.temperature = 375;
             params.diagram = "BC";
             params.numSteps = 1000000;
             params.refFrac = -1;
@@ -205,10 +209,15 @@ public class VirialTraPPE {
         SpeciesManager sm = sb.build();
 
         IPotentialMolecular[][] potentials = new IPotentialMolecular[nTypes.length][nTypes.length];
+        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
+
         for (int i = 0; i < chemForm.length; i++) {
             TraPPEParams TPi = TPList[i];
+            if (TPi.skipIndices != null) {
+                bondingInfo.handledIndices(TPi.species, TPi.skipIndices);
+            }
 
-            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge, TPi.species, TPi.reconstructor);
+            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes, TPi.sigma, TPi.epsilon, TPi.charge, TPi.species);
             potentials[i][i] = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, MPi, null);
 
             anyPolar = (anyPolar || TPi.polar);
@@ -230,7 +239,6 @@ public class VirialTraPPE {
         MayerMix fTarget = new MayerMix(potentials);
 
         //flex moves
-        PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm);
         int nSpheres = TPList[0].species.getAtomTypes().size();
         boolean isFlex = TPList[0].isFlex && (params.diagram == null|| !params.diagram.equals("BC"));
 
@@ -348,7 +356,7 @@ public class VirialTraPPE {
                     //propane-EH
                     P4BondTorsionAlkaneXCCH[] p4 = new P4BondTorsionAlkaneXCCH[TP.a.length];
                     for (int i=0; i < TP.a.length; i++) {
-                        p4[i] = new P4BondTorsionAlkaneXCCH(space, 0, 0, 0, TP.a[i][0]);
+                        p4[i] = new P4BondTorsionAlkaneXCCH(space, 2*TP.a[i][0], 0, 0, -TP.a[i][0]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4[i], Arrays.asList(TP.quads[i]));}
 
                     }
@@ -498,6 +506,15 @@ public class VirialTraPPE {
         }
 
         for (TraPPEParams TP : TPList) {
+            if (TP.reconstructor != null) {
+                for (int b = 0; b <2 ; b++ ){
+                    for (IMolecule m: sim.box[b].getMoleculeList(TP.species)){
+                        TP.reconstructor.reconstructSites(m);
+                    }
+
+                }
+            }
+
             if(TP.r_eq != null){
                 mcMoveStretch = new MCMoveClusterStretch(sim.integrators[0].getPotentialCompute(), space, TP.bonding, sim.getRandom(), 0.1);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveStretch);
@@ -507,31 +524,25 @@ public class VirialTraPPE {
 
             }
             if(TP.theta_eq != null) {
-                mcMoveAngle = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
+                if (TP.reconstructor == null) {
+                    mcMoveAngle = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
+                    mcMoveAngle1 = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
+
+                }
+                else {
+                    mcMoveAngle = new MCMoveClusterAngleGeneralImplicit(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1, TP.reconstructor);
+                    mcMoveAngle1 = new MCMoveClusterAngleGeneralImplicit(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1, TP.reconstructor);
+
+                }
                 mcMoveAngle.setStepSizeMax(0.6);
                 mcMoveAngle.setConstraintMap(constraintMap);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle);
-                mcMoveAngle1 = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, false, TP.triplets, sim.getRandom(), 0.1);
                 mcMoveAngle1.setConstraintMap(constraintMap);
                 sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1);
                 mcMoveAngle1.setStepSizeMax(0.6);
 
 //                ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).startMolecule = 1;
 //                ((MCMoveStepTracker)mcMoveAngle1.getTracker()).setNoisyAdjustment(false);
-
-                if (TP.bonding.length > 3) {
-                    mcMoveAngle_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
-                    mcMoveAngle_oneSide.setStepSizeMax(0.6);
-                    mcMoveAngle_oneSide.setConstraintMap(constraintMap);
-                    sim.integrators[0].getMoveManager().addMCMove(mcMoveAngle_oneSide);
-                    mcMoveAngle1_oneSide = new MCMoveClusterAngleGeneral(sim.integrators[1].getPotentialCompute(), space, TP.species, TP.bonding, true, TP.triplets, sim.getRandom(), 0.1);
-                    sim.integrators[1].getMoveManager().addMCMove(mcMoveAngle1_oneSide);
-                    mcMoveAngle1_oneSide.setStepSizeMax(0.6);
-                    mcMoveAngle1_oneSide.setConstraintMap(constraintMap);
-//                    ((MCMoveStepTracker)mcMoveAngle1_oneSide.getTracker()).setNoisyAdjustment(true);
-
-                }
-
 
         }}
         if (doChainRef) {
@@ -568,11 +579,19 @@ public class VirialTraPPE {
         MCMoveClusterTorsion mcMoveTorsion1 = null;
         for (TraPPEParams TP : TPList) {
             if (TP.a != null) {
-                mcMoveTorsion = new MCMoveClusterTorsion(sim.integrators[0].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
+                if (TP.reconstructor == null) {
+                    mcMoveTorsion = new MCMoveClusterTorsion(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
+                    mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
+
+                }
+                else{
+                    mcMoveTorsion = new MCMoveClusterTorsionImplicit(sim.integrators[0].getPotentialCompute(), space, TP.species, TP.bonding, TP.quads, sim.getRandom(), 1, TP.reconstructor);
+                    mcMoveTorsion1 = new MCMoveClusterTorsionImplicit(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1, TP.reconstructor);
+
+                }
                 mcMoveTorsion.setStepSizeMax(2);
                 mcMoveTorsion.setConstraintMap(constraintMap);
                 sim.integrators[0].getMoveManager().addMCMove(mcMoveTorsion);
-                mcMoveTorsion1 = new MCMoveClusterTorsion(sim.integrators[1].getPotentialCompute(), space,TP.species, TP.bonding, TP.quads, sim.getRandom(), 1);
                 mcMoveTorsion1.setConstraintMap(constraintMap);
 //                ((MCMoveStepTracker)mcMoveTorsion1.getTracker()).setNoisyAdjustment(true);
 
@@ -808,13 +827,13 @@ public class VirialTraPPE {
         public IntArrayList[] bonding;
         public final ISpecies species;
         public PotentialMoleculePair potentialGroup;
-        protected static Element elementM = new ElementSimple("M", 0.0);
-        protected boolean isFlex;
-        protected boolean polar;
-        protected final ChemForm chemForm;
-        protected final Space space;
-        protected PotentialMoleculePairImplicit.SiteReconstructor reconstructor;
-
+        public static Element elementM = new ElementSimple("M", 0.0);
+        public boolean isFlex;
+        public boolean polar;
+        public final ChemForm chemForm;
+        public final Space space;
+        public SiteReconstructor reconstructor;
+        public ArrayList<int[]> skipIndices;
         //Set up computing the boolean. It is hard coded for now.
 
         public TraPPEParams(Space space, ChemForm chemForm){
@@ -2319,14 +2338,13 @@ public class VirialTraPPE {
                 //TraPPE-EH
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE); //methylene carbo n
-                AtomType typeH = new AtomType(Hydrogen.INSTANCE);
-                AtomType typeCH = new AtomType(new ElementSimple("CH", 0)); //virtual
+                AtomType typeCH = new AtomType(new ElementSimple("CH", 1)); //virtual
 
-                atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH, typeH};
+                atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH};
                 isFlex = true;
                 //TraPPE Parameters
                 double bondLengthCHxCHy = 1.535; // Angstrom
-                double bondLengthCH = 1.1; //Angstrom
+                double bondLengthCH = 0.55; //Angstrom
 
                 double thetaCCC = Degree.UNIT.toSim(112.70);
                 double thetaCCH = Degree.UNIT.toSim(110.70);
@@ -2343,42 +2361,68 @@ public class VirialTraPPE {
                 double qCH3 = Electron.UNIT.toSim(0.000);
                 double kCCC = Kelvin.UNIT.toSim(58765);
                 double c1 = Kelvin.UNIT.toSim(854);
-                double sigmaH = 0;
-                double epsilonH = 0;
-                double qH = 0;
 
                 //Construct Arrays
-                sigma = new double[] {sigmaCH3, sigmaCH2, sigmaH, sigmaCH};
-                epsilon = new double[] {epsilonCH3, epsilonCH2, epsilonH, epsilonCH};
-                charge = new double[]{qCH3, qCH2, qH, qCH};
+                sigma = new double[] {sigmaCH3, sigmaCH2, sigmaCH};
+                epsilon = new double[] {epsilonCH3, epsilonCH2, epsilonCH};
+                charge = new double[]{qCH3, qCH2, qCH};
                 theta_eq = new double[]{thetaCCC}; //103, 124
                 k_theta = new double[]{kCCC}; //CCC
-                a = new double[][]{{c1}}; //dihedral
+                a = new double[][]{{c1}}; //dihedralg
                 triplets = new int[][][]{{{0, 1, 2}}};
-                quads = new int[][][]{{{0, 1, 2, 4}, {2, 1, 0, 3}}}; //C-C-C-H
-                bonding = new IntArrayList[5];
-                bonding[0] = new IntArrayList(new int[]{1, 3});
-                bonding[1] = new IntArrayList(new int[]{0,2});
-                bonding[2] = new IntArrayList(new int[]{1, 4});
+                quads = new int[][][]{{{3, 0, 1, 2}, {0, 1, 2, 8}}}; //C-C-C-H
+                bonding = new IntArrayList[11];
+                bonding[0] = new IntArrayList(new int[]{1, 3, 4, 5});
+                bonding[1] = new IntArrayList(new int[]{0,2, 6, 7});
+                bonding[2] = new IntArrayList(new int[]{1, 8, 9, 10});
                 bonding[3] = new IntArrayList(new int[]{0});
-                bonding[4] = new IntArrayList(new int[]{2});
+                bonding[4] = new IntArrayList(new int[]{0});
+                bonding[5] = new IntArrayList(new int[]{0});
+                bonding[6] = new IntArrayList(new int[]{1});
+                bonding[7] = new IntArrayList(new int[]{1});
+                bonding[8] = new IntArrayList(new int[]{2});
+                bonding[9] = new IntArrayList(new int[]{2});
+                bonding[10] = new IntArrayList(new int[]{2});
+
+                skipIndices = new ArrayList<>();
+                int[][] indices = new int[][]{{3, 8}, {3, 9}, {3, 10}, {4, 8}, {4, 9}, {4, 10}, {5, 8}, {5, 9}, {5, 10}}; // do not skip
+                for (int i = 0; i < 11; i++){
+                    for (int j = i+1; j < 11; j++){
+                        boolean found = false;
+                        for (int k = 0; k < indices.length; k++){
+                            if (indices[k][0] == i && indices[k][1] == j ){
+                                found = true;
+                            }
+                        }
+                        if (found){
+                            continue;
+                        }
+                        skipIndices.add(new int[]{i, j});
+
+                    }
+                }
                 double posCavg = (2 * bondLengthCHxCHy  - bondLengthCHxCHy * Math.cos(thetaCCC))/3;
                 Vector3D posC0 = new Vector3D(new double[]{0 - posCavg, -yy / 3, 0});
                 Vector3D posC1 = new Vector3D(new double[]{bondLengthCHxCHy - posCavg, -yy / 3, 0});
                 Vector3D posC2 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCC) - posCavg, 2 * yy / 3, 0});
                 Vector3D posH3 = new Vector3D(new double[]{0 - posCavg + bondLengthCH*Math.cos(thetaCCH), -yy/3 - bondLengthCH*Math.sin(thetaCCH), 0});
-                Vector3D posH4 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCC) - posCavg + bondLengthCH * Math.cos(thetaCCC - thetaCCH), 2 * yy / 3 - bondLengthCH * Math.sin(thetaCCC - thetaCCH), 0});
+                Vector3D posH8 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCHxCHy * Math.cos(thetaCCC) - posCavg + bondLengthCH * Math.cos(thetaCCC - thetaCCH), 2 * yy / 3 - bondLengthCH * Math.sin(thetaCCC - thetaCCH), 0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
                         .addAtom(typeCH3, posC0, "C0")
                         .addAtom(typeCH2, posC1, "C1")
                         .addAtom(typeCH3, posC2, "C2")
-                        .addAtom(typeH, posH3, "H3")
-                        .addAtom(typeH, posH4, "H4")
-                        .addAtom(typeCH, new Vector3D(), "CH")
+                        .addAtom(typeCH, posH3, "H3")
+                        .addAtom(typeCH, new Vector3D(), "H4")
+                        .addAtom(typeCH, new Vector3D(), "H5")
+                        .addAtom(typeCH, new Vector3D(), "H6")
+                        .addAtom(typeCH, new Vector3D(), "H7")
+                        .addAtom(typeCH, posH8, "H8")
+                        .addAtom(typeCH, new Vector3D(), "H9")
+                        .addAtom(typeCH, new Vector3D(), "H10")
                         .build();
-                reconstructor = new SiteReconstructorPropane(species);
+                reconstructor = new SiteReconstructorAlkane(species);
 
             }
 
@@ -2387,114 +2431,6 @@ public class VirialTraPPE {
             }
 
         }
-
-
-
-//        public void buildPotentials(SpeciesManager sm) {
-//            if(chemForm == ChemForm.N2) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.O2) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.CO2) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.NH3) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.CH4) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.CH3OH) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.benzene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.ethane) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.propane) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.butane) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.methane) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.ethene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.propene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.butadiene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.ethanol) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.propan1ol) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.propan2ol) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.isobutanol) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.toluene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.ethylbenzene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.oxylene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.mxylene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.pxylene) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.water) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//            else if (chemForm == ChemForm.propaneEH) {
-//                P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes, sigma, epsilon, charge, reconstructor);
-//                potentialGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space, sm, modelParams, null);
-//            }
-//
-//
-//
-//        }
 
     }
 

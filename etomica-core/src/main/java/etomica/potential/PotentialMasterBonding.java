@@ -554,7 +554,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             return etomica.util.Arrays.addInt(a, i);
         }
 
-        private int[][][] handledIndices(ISpecies species, List<int[]> bondedIndices) {
+        public int[][][] handledIndices(ISpecies species, List<int[]> bondedIndices) {
             isOnlyRigidMolecules = false;
             int speciesIndex = species.getIndex();
             if (bondedAtoms[speciesIndex] == null) {
@@ -582,6 +582,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             }
             return partners;
         }
+
 
         // look for atoms 1-bond away from a1; these are b+1 away from a2
         protected void pop(int[][] ni, int a1, int a2, int b) {
