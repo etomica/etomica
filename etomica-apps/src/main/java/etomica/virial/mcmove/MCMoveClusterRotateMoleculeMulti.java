@@ -85,21 +85,21 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             r.PE(box.getBoundary().centralImage(r));
         }
     }
-    public int[] nTimespointedX = new int[3];
-    public int total = 0;
+//    public int[] nTimespointedX = new int[3];
+//    public int total = 0;
     public boolean doTrial() {
 //        if(!first) {return false;}
         if (false) return false;
 //        first = false;
-        total++;
-        int nX = 0;
-        if (Math.abs(box.getLeafList().get(4).getPosition().getX(0) - 4)> 0.5) {
-            nX++;
-        }
-        if (Math.abs(box.getLeafList().get(1).getPosition().getX(0))> 0.5) {
-            nX++;
-        }
-        nTimespointedX[nX]++;
+//        total++;
+//        int nX = 0;
+//        if (Math.abs(box.getLeafList().get(4).getPosition().getX(0) - 4)> 0.5) {
+//            nX++;
+//        }
+//        if (Math.abs(box.getLeafList().get(1).getPosition().getX(0))> 0.5) {
+//            nX++;
+//        }
+//        nTimespointedX[nX]++;
 
 //        if (total % 100000 == 0) {
 //            System.out.println(box.getIndex() + " " + ((double)nTimespointedX[0])/total + " " +((double)nTimespointedX[1])/total + " "+ ((double)nTimespointedX[2])/total);

@@ -264,9 +264,6 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
             }
         }
 
-
-        int totalH = 2 * nC + 2;
-
         // --- assign hydrogens per carbon ---
         int[][] hOnC = new int[nC][];
         hIndex = nC;
@@ -381,7 +378,7 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
         SpeciesBuilder sb = new SpeciesBuilder(s);
         AtomType C = new AtomType(Carbon.INSTANCE);
         AtomType CH = new AtomType(new ElementSimple("CH", 0));
-        int nC = 4; //user input
+        int nC = 3; //user input
         int nA = 3*nC+2; //total number of atoms
         System.out.println("number of carbons: " + nC);
         sb.addCount(C, nC);
