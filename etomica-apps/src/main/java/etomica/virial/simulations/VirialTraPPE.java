@@ -68,9 +68,9 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.propane};
+            params.chemForm = new ChemForm[]{ChemForm.ethane};
             params.nPoints = 2; //B order
-            params.temperature = 375;
+            params.temperature = 423.2;
             params.diagram = "BC";
             params.numSteps = 1000000;
             params.refFrac = -1;
@@ -781,7 +781,7 @@ public class VirialTraPPE {
 
     enum ChemForm {
         N2, O2, CO2, NH3, CH4, CH3OH, ethanol, propan1ol, propan2ol, isobutanol, benzene, ethane, propane, butane, methane, ethene, propene, butadiene, toluene,
-        ethylbenzene, oxylene, pxylene, mxylene, CO2_flex, propaneEH, water
+        ethylbenzene, oxylene, pxylene, mxylene, CO2_flex, propaneEH, ethaneEH, water
     }
 
     /**
@@ -2421,6 +2421,63 @@ public class VirialTraPPE {
                         .addAtom(typeCH, posH8, "H8")
                         .addAtom(typeCH, new Vector3D(), "H9")
                         .addAtom(typeCH, new Vector3D(), "H10")
+                        .build();
+                reconstructor = new SiteReconstructorAlkane(species);
+
+            }
+            else if (chemForm == ChemForm.ethaneEH) {
+                //TraPPE-EH
+                AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
+                AtomType typeCH = new AtomType(new ElementSimple("CH", 1)); //virtual
+
+                atomTypes = new AtomType[]{typeCH3, typeCH};
+                isFlex = true;
+                //TraPPE Parameters
+                double bondLengthCHxCHy = 1.535; // Angstrom
+                double bondLengthCH = 0.55; //Angstrom
+
+                double thetaCCH = Degree.UNIT.toSim(110.70);
+
+                double sigmaCH = 3.31; // Angstrom
+                double epsilonCH = Kelvin.UNIT.toSim(15.30);
+                double qCH = Electron.UNIT.toSim(0.0);
+                double sigmaCH3 = 3.30; // Angstrom
+                double epsilonCH3 = Kelvin.UNIT.toSim(4);
+                double qCH3 = Electron.UNIT.toSim(0.000);
+                double c1 = Kelvin.UNIT.toSim(717);
+
+                //Construct Arrays
+                sigma = new double[] {sigmaCH3, sigmaCH};
+                epsilon = new double[] {epsilonCH3, epsilonCH};
+                charge = new double[]{qCH3,  qCH};
+                a = new double[][]{{c1}}; //dihedral
+                quads = new int[][][]{{{2, 0, 1, 5}}}; //H-C-C-H
+                bonding = new IntArrayList[8];
+                bonding[0] = new IntArrayList(new int[]{1, 2, 3, 4});
+                bonding[1] = new IntArrayList(new int[]{0, 5, 6, 7});
+                bonding[2] = new IntArrayList(new int[]{0});
+                bonding[3] = new IntArrayList(new int[]{0});
+                bonding[4] = new IntArrayList(new int[]{0});
+                bonding[5] = new IntArrayList(new int[]{1});
+                bonding[6] = new IntArrayList(new int[]{1});
+                bonding[7] = new IntArrayList(new int[]{1});
+
+                skipIndices = new ArrayList<>();
+                Vector3D posC0 = new Vector3D(new double[]{0, 0, 0});
+                Vector3D posC1 = new Vector3D(new double[]{bondLengthCHxCHy, 0, 0});
+                Vector3D posH2 = new Vector3D(new double[]{bondLengthCH*Math.cos(thetaCCH), bondLengthCH*Math.sin(thetaCCH), 0});
+                Vector3D posH5 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCH * Math.cos(thetaCCH), - bondLengthCH * Math.sin(thetaCCH), 0});
+
+                //Set Geometry
+                species = new SpeciesBuilder(space)
+                        .addAtom(typeCH3, posC0, "C0")
+                        .addAtom(typeCH3, posC1, "C1")
+                        .addAtom(typeCH, posH2, "H2")
+                        .addAtom(typeCH, new Vector3D(), "H3")
+                        .addAtom(typeCH, new Vector3D(), "H4")
+                        .addAtom(typeCH, posH5, "H5")
+                        .addAtom(typeCH, new Vector3D(), "H6")
+                        .addAtom(typeCH, new Vector3D(), "H7")
                         .build();
                 reconstructor = new SiteReconstructorAlkane(species);
 
