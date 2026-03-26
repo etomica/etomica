@@ -61,11 +61,10 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
         int nA = atoms.size();
         int nC = (nA - 2) / 3; // number of carbons = (number of atoms - 2) /3
         Vector[] rC = new Vector[nC];
-        rC[0] = atoms.get(0).getPosition(); //left most carbon
-        for (int i = 1; i < nC - 1; i++) {
-            rC[i] = atoms.get(i).getPosition(); //methylene carbons
+
+        for (int i = 0; i < nC; i++) {
+            rC[i] = atoms.get(i).getPosition();
         }
-        rC[nC-1] = atoms.get(nC-1).getPosition(); //rC(n-1), right most carbon
 
         Vector rHL1 = atoms.get(nC).getPosition();
         Vector rHL2 = atoms.get(nC+1).getPosition();
@@ -73,8 +72,8 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
         Vector[] rHM1 = new Vector[nC-1];
         Vector[] rHM2 = new Vector[nC-1];
         for (int i = 1 ; i < nC -1 ; i ++ ) { // methylene hydrogens looped over carbons 1 to nC-2
-            rHM1[i] = atoms.get(nC+i+2).getPosition();
-            rHM2[i] = atoms.get(nC+i+3).getPosition();
+            rHM1[i] = atoms.get(nC+2*i+1).getPosition();
+            rHM2[i] = atoms.get(nC+2*i+2).getPosition();
         }
         Vector rHR1 = atoms.get(nA-3).getPosition();
         Vector rHR2 = atoms.get(nA-2).getPosition();
@@ -378,7 +377,7 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
         SpeciesBuilder sb = new SpeciesBuilder(s);
         AtomType C = new AtomType(Carbon.INSTANCE);
         AtomType CH = new AtomType(new ElementSimple("CH", 0));
-        int nC = 3; //user input
+        int nC = 4; //user input
         int nA = 3*nC+2; //total number of atoms
         System.out.println("number of carbons: " + nC);
         sb.addCount(C, nC);
