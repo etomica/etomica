@@ -348,12 +348,12 @@ public class VirialTraPPE {
 
                     } else if (TP.a[i].length == 1) {
                         //alkane-EH, TP.a.length == 1, X-C-C-H
-                        P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 0, 0, 0, TP.a[i][0]);
+                        P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 2*TP.a[i][0], 0, 0, -TP.a[i][0]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4, Arrays.asList(TP.quads[i]));
 
                     } else {
                         //alkane-EH, TP.a.length == 3, C-C-C-C
-                        P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 2 * TP.a[i][2], TP.a[i][0], TP.a[i][1], -TP.a[i][2]);
+                        P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 0, TP.a[i][0], TP.a[i][1], TP.a[i][2]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4, Arrays.asList(TP.quads[i]));
 
                     }
@@ -2336,7 +2336,7 @@ public class VirialTraPPE {
                 //TraPPE-EH
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE); //methylene carbo n
-                AtomType typeCH = new AtomType(new ElementSimple("CH", 1)); //virtual
+                AtomType typeCH = new AtomType(new ElementSimple("CH", 0)); //virtual
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH};
                 isFlex = true;
@@ -2477,10 +2477,10 @@ public class VirialTraPPE {
 
                     }
                 }
-                Vector3D posC0 = new Vector3D(new double[]{0, 0, 0});
-                Vector3D posC1 = new Vector3D(new double[]{bondLengthCHxCHy, 0, 0});
-                Vector3D posH2 = new Vector3D(new double[]{bondLengthCH*Math.cos(thetaCCH), -bondLengthCH*Math.sin(thetaCCH), 0});
-                Vector3D posH5 = new Vector3D(new double[]{bondLengthCHxCHy - bondLengthCH * Math.cos(thetaCCH), bondLengthCH * Math.sin(thetaCCH), 0});
+                Vector3D posC0 = new Vector3D(new double[]{-bondLengthCHxCHy/2, 0, 0});
+                Vector3D posC1 = new Vector3D(new double[]{bondLengthCHxCHy/2, 0, 0});
+                Vector3D posH2 = new Vector3D(new double[]{-bondLengthCHxCHy/2 + bondLengthCH*Math.cos(thetaCCH), -bondLengthCH*Math.sin(thetaCCH), 0});
+                Vector3D posH5 = new Vector3D(new double[]{bondLengthCHxCHy/2 - bondLengthCH * Math.cos(thetaCCH), bondLengthCH * Math.sin(thetaCCH), 0});
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
@@ -2500,7 +2500,7 @@ public class VirialTraPPE {
                 //TraPPE-EH
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE); //methylene carbo n
-                AtomType typeCH = new AtomType(new ElementSimple("CH", 1)); //virtual
+                AtomType typeCH = new AtomType(new ElementSimple("CH", 0)); //zero mass for hydrogen so that the conformation places COM at origin
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH};
                 isFlex = true;
