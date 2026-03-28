@@ -68,7 +68,7 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.benzeneEH};
+            params.chemForm = new ChemForm[]{ChemForm.ethaneEH};
             params.nPoints = 2; //B order
             params.temperature = 423.2;
             params.diagram = "BC";
@@ -340,21 +340,33 @@ public class VirialTraPPE {
 
                         P4BondTorsion p4 = new P4BondTorsion(space, TP.a[i][0], TP.a[i][1], TP.a[i][2], TP.a[i][3]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4, Arrays.asList(TP.quads[i]));
+//                        for(double cosphi=-1; cosphi<=1; cosphi+=0.05){
+//                            System.out.println(TP.chemForm + " a:" + Arrays.toString(TP.a[i]) +" cosphi: " + cosphi + " U: " + p4.u(cosphi));
+//                        }
 
                     } else if (TP.a[i].length == 2) {
 
                         P4BondTorsionAlkylBenzene p4 = new P4BondTorsionAlkylBenzene(space, TP.a[i][0], TP.a[i][1]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4, Arrays.asList(TP.quads[i]));
+//                        for(double cosphi=-1; cosphi<=1; cosphi+=0.05){
+//                            System.out.println(TP.chemForm + " a:" + Arrays.toString(TP.a[i]) +" cosphi: " + cosphi + " U: " + p4.u(cosphi));
+//                        }
 
                     } else if (TP.a[i].length == 1) {
                         //alkane-EH, TP.a.length == 1, X-C-C-H
-                        P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 2*TP.a[i][0], 0, 0, -TP.a[i][0]);
+                        P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 0, 0, 0, TP.a[i][0]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4, Arrays.asList(TP.quads[i]));
+//                        for(double cosphi=-1; cosphi<=1; cosphi+=0.05){
+//                            System.out.println(TP.chemForm + " a:" + Arrays.toString(TP.a[i]) +" cosphi: " + cosphi + " U: " + p4.u(cosphi));
+//                        }
 
                     } else {
                         //alkane-EH, TP.a.length == 3, C-C-C-C
                         P4BondTorsionAlkaneXCCH p4 = new P4BondTorsionAlkaneXCCH(space, 0, TP.a[i][0], TP.a[i][1], TP.a[i][2]);
                         bondingInfo.setBondingPotentialQuad(TP.species, p4, Arrays.asList(TP.quads[i]));
+//                        for(double cosphi=-1; cosphi<=1; cosphi+=0.05){
+//                            System.out.println(TP.chemForm + " a:" + Arrays.toString(TP.a[i]) +" cosphi: " + cosphi + " U: " + p4.u(cosphi));
+//                        }
 
                     }
 
@@ -365,6 +377,7 @@ public class VirialTraPPE {
             }
 
         }
+//        System.exit(0);
 
 
         // Setting up Target Cluster for Rigid
@@ -2461,18 +2474,8 @@ public class VirialTraPPE {
                 bonding[7] = new IntArrayList(new int[]{1});
 
                 skipIndices = new ArrayList<>();
-                int[][] indices = new int[][]{}; // do not skip
-                for (int i = 0; i < 11; i++){
-                    for (int j = i+1; j < 11; j++){
-                        boolean found = false;
-                        for (int k = 0; k < indices.length; k++){
-                            if (indices[k][0] == i && indices[k][1] == j ){
-                                found = true;
-                            }
-                        }
-                        if (found){
-                            continue;
-                        }
+                for (int i = 0; i < 8; i++){
+                    for (int j = i+1; j < 8; j++){
                         skipIndices.add(new int[]{i, j});
 
                     }
@@ -2553,8 +2556,8 @@ public class VirialTraPPE {
 
                 skipIndices = new ArrayList<>();
                 int[][] indices = new int[][]{{4, 9}, {4, 10}, {5, 9}, {5, 10}, {6, 9}, {6, 10}, {7, 11}, {7, 12}, {7, 13}, {8, 11}, {8, 12}, {8, 13}}; // do not skip
-                for (int i = 0; i < 11; i++){
-                    for (int j = i+1; j < 11; j++){
+                for (int i = 0; i < 14; i++){
+                    for (int j = i+1; j < 14; j++){
                         boolean found = false;
                         for (int k = 0; k < indices.length; k++){
                             if (indices[k][0] == i && indices[k][1] == j ){
