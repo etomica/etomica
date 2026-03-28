@@ -9,7 +9,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
 import etomica.potential.SiteReconstructor;
@@ -19,10 +18,6 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Site reconstructor for TraPPE-EH alkane with nC carbons.
@@ -231,26 +226,19 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
 
         return out;
     }
-    public static void checkMolecule(IMolecule molecule, int nC){
-//        int[][] bonds = new int[][]{{0,1},{1,2},
-//                {0,3},{0,4},{0,5},
-//                {1,6},{1,7},
-//                {2,8},{2,9},{2,10}};
-//        int[][] angle = new int[][]{{0,1,2},  // C0C1C2, free
-//                {3,0,1},{4,0,1},{5,0,1},       // HC0C1, should be 110.7
-//                {0,1,6},{0,1,7},{2,1,6},{2,1,7}, // C0C1H and C2C1H, value depends on CCC, should all be equal
-//                {1,2,8},{1,2,9},{1,2,10},      // C1C2H, should be 110.7
-//                {3,0,4},{3,0,5},{4,0,5},       // HC0H, should be 107.8
-//                {8,2,9},{8,2,10},{9,2,10},     // HC2H, should be 107.8
-//                {6,1,7}                        // HC1H, should be 107.8
-//        };
+    public static void checkMolecule(IMolecule molecule){
+        int nAtoms = molecule.getChildList().size();
+        int nC = (nAtoms - 2) / 3;
         int totalBonds = (nC - 1) + (2 * nC + 2); // C-C + C-H
-        int[][] bonds = new int[totalBonds][1];
+        int[][] bonds = new int[totalBonds][];
+        double[] expectedBondLength = new double[totalBonds];
         int idx = 0;
 
         // C-C bonds
         for (int i = 0; i < nC - 1; i++) {
-            bonds[idx++] = new int[]{i, i + 1};
+            bonds[idx] = new int[]{i, i + 1};
+            expectedBondLength[idx] = 1.535;
+            idx++;
         }
 
         // C-H bonds
@@ -259,7 +247,9 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
             int hCount = (i == 0 || i == nC - 1) ? 3 : 2;
 
             for (int j = 0; j < hCount; j++) {
-                bonds[idx++] = new int[]{i, hIndex++};
+                bonds[idx] = new int[]{i, hIndex++};
+                expectedBondLength[idx] = HALF_DCH;
+                idx++;
             }
         }
 
@@ -276,68 +266,43 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
             }
         }
 
-        // --- count angles correctly ---
-        int count = 0;
-
-        // 1. CCC
-        count += Math.max(0, nC - 2);
-
-        // 2. HC-C (right neighbor only)
-        for (int i = 0; i < nC; i++) {
-            if (i < nC - 1) {
-                count += hOnC[i].length;
-            }
-        }
-
-        // 3. middle carbons (both sides)
-        for (int i = 1; i < nC - 1; i++) {
-            count += 2 * hOnC[i].length;
-        }
-
-        // 4. last carbon
-        if (nC > 1) {
-            count += hOnC[nC - 1].length;
-        }
-
-        // 5. H-C-H
-        for (int i = 0; i < nC; i++) {
-            int h = hOnC[i].length;
-            count += h * (h - 1) / 2;
-        }
+        // CCC + methyl HCC + methylene HCC + methyl HCH + methylene HCH
+        int count = nC-2 + 3*2 + 4*(nC-2) + 3*2 + (nC-2);;
 
         int[][] angles = new int[count][3];
+        double[] expectedAngles = new double[count];
+        int[][] angleMatches = new int[count][0];
+        double[] computedAngles = new double[count];
         idx = 0;
 
         // --- 1. CCC ---
         for (int i = 1; i < nC - 1; i++) {
-            angles[idx++] = new int[]{i - 1, i, i + 1};
+            angles[idx] = new int[]{i - 1, i, i + 1};
+            expectedAngles[idx] = Double.NaN;  // flexible bond angle
+            idx++;
         }
 
         // --- 2. HC-C ---
         for (int i = 0; i < nC; i++) {
-            if (i < nC - 1) {
-                for (int h : hOnC[i]) {
-                    angles[idx++] = new int[]{h, i, i + 1};
+            for (int h : hOnC[i]) {
+                if (i < nC-1) {
+                    angles[idx] = new int[]{h, i, i + 1};
+                    expectedAngles[idx] = i == 0 ? 110.7 : Double.NaN;
+                    idx++;
+                }
+                if (i > 0) {
+                    angles[idx] = new int[]{h, i, i - 1};
+                    expectedAngles[idx] = i == nC-1 ? 110.7 : Double.NaN;
+                    idx++;
                 }
             }
-        }
+            if (i > 0 && i < nC-1) {
+                angleMatches[idx-1] = new int[]{idx-4, idx-3, idx-2};
+            }
+            else {
+                angleMatches[idx-1] = new int[]{idx-2};
+            }
 
-        // --- 3. middle carbons ---
-        for (int i = 1; i < nC - 1; i++) {
-            for (int h : hOnC[i]) {
-                angles[idx++] = new int[]{i - 1, i, h};
-            }
-            for (int h : hOnC[i]) {
-                angles[idx++] = new int[]{i + 1, i, h};
-            }
-        }
-
-        // --- 4. last carbon ---
-        if (nC > 1) {
-            int i = nC - 1;
-            for (int h : hOnC[i]) {
-                angles[idx++] = new int[]{i - 1, i, h};
-            }
         }
 
         // --- 5. H-C-H ---
@@ -345,18 +310,26 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
             int[] hs = hOnC[i];
             for (int a = 0; a < hs.length; a++) {
                 for (int b = a + 1; b < hs.length; b++) {
-                    angles[idx++] = new int[]{hs[a], i, hs[b]};
+                    angles[idx] = new int[]{hs[a], i, hs[b]};
+                    expectedAngles[idx] = (i == 0 || i == nC-1) ? 108.21498144098956 : (THETA_HCH_CH2*180/Math.PI);
+                    idx++;
                 }
             }
         }
 
         IAtomList atoms = molecule.getChildList();
         System.out.println();
+        System.out.println("bonds");
         for (int j = 0; j < bonds.length; j++) {
             int[] b = bonds[j];
             double r2 = atoms.get(b[0]).getPosition().Mv1Squared(atoms.get(b[1]).getPosition());
-            System.out.println(j + " " + b[0] + " " + b[1] + " " + Math.sqrt(r2));
+            double jbl = Math.sqrt(r2);
+            System.out.println(j + " " + b[0] + " " + b[1] + " " + jbl+" "+expectedBondLength[j]);
+            if (Math.abs(jbl - expectedBondLength[j]) > 1e-10) {
+                throw new RuntimeException("Unexpected bond length");
+            }
         }
+        System.out.println("angles");
         for (int j = 0; j < angles.length; j++) {
             int[] b = angles[j];
             Vector v01 = new Vector3D();
@@ -366,79 +339,95 @@ public class SiteReconstructorAlkane extends SiteReconstructor {
             double dot = v21.dot(v01);
             double cos = dot / Math.sqrt(v01.squared() * v21.squared());
             double theta = 180 * Math.acos(cos) / Math.PI;
-            System.out.println(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
-
+            computedAngles[j] = theta;
+            System.out.print(j + " " + b[0] + " " + b[1] + " " + b[2] + " " + theta);
+            if (!Double.isNaN(expectedAngles[j])) System.out.print(" "+expectedAngles[j]);
+            if (!Double.isNaN(expectedAngles[j]) && expectedAngles[j] > 0 && Math.abs(theta-expectedAngles[j]) > 1e-9) {
+                throw new RuntimeException("Unexpected bond length");
+            }
+            if (angleMatches[j].length > 0) {
+                System.out.print(" match");
+                for (int k=0; k<angleMatches[j].length; k++) {
+                    if (Math.abs(theta - computedAngles[angleMatches[j][k]]) > 1e-10) {
+                        System.out.println();
+                        throw new RuntimeException("This should have matched angle "+angleMatches[j][k]);
+                    }
+                    System.out.print(" "+angleMatches[j][k]);
+                }
+            }
+            System.out.println();
         }
-
     }
 
     public static void main(String[] args) {
+        System.out.println(SiteReconstructorAlkane.COS_HALF_HCH);
+        System.out.println(SiteReconstructorAlkane.SIN120);
+        System.out.println(SiteReconstructorAlkane.SIN_HALF_HCH);
+        System.out.println(SiteReconstructorAlkane.THETA_HCH_CH2*180/Math.PI);
         Space3D s = Space3D.getInstance();
-        SpeciesBuilder sb = new SpeciesBuilder(s);
         AtomType C = new AtomType(Carbon.INSTANCE);
         AtomType CH = new AtomType(new ElementSimple("CH", 0));
-        int nC = 4; //user input
-        int nA = 3*nC+2; //total number of atoms
-        System.out.println("number of carbons: " + nC);
-        sb.addCount(C, nC);
-        sb.addCount(CH, nA-nC);
-        sb.withConformation(new ConformationLinear(s));
-        Box box = new Box(s);
-        Simulation sim = new Simulation(s);
-        ISpecies species = sb.build();
-        sim.addSpecies(species);
-        sim.addBox(box);
-        box.setNMolecules(species, 1);
-        IAtomList atoms = box.getMoleculeList().get(0).getChildList();
-//        int[][] bonds0 = new int[][]{{0,1},{1,2},{0,3},{2,8}};
-//        double[] bl0 = new double[]{1.535,1.535,0.55, 0.55};
-//        int[][] angles0 = new int[][]{{1,0,3},{1,2,8}};
-//        double[] phi0 = new double[]{Math.PI*110.70/180, Math.PI*110.7/180};
-        int[][] bonds0 = new int[nC+1][1];
-        double[] bl0 = new double[nC+1];
-        for (int i = 0; i < nC - 1; i ++) {
-            bonds0[i] = new int[]{i, i+1};
-            bl0[i] = 1.535;
-        }
-        bonds0[nC-1] = new int[]{0,nC};
-        bonds0[nC] = new int[]{nC-1, nA-3};
-        bl0[nC-1] = 0.55;
-        bl0[nC] = 0.55;
-
-        int[][] angles0 = new int[][]{{1,0,nC},{nC-2, nC-1, nA-3}};
-        double[] phi0 = new double[]{Math.PI*110.70/180, Math.PI*110.7/180};
-
-        SiteReconstructor reconstructor = new SiteReconstructorAlkane(species);
-
-        for (int step=0; step<10; step++) {
-            for (int i=0; i<bonds0.length; i++) {
-                int[] b0 = bonds0[i];
-                Vector r = atoms.get(b0[1]).getPosition();
-                r.setRandomSphere(sim.getRandom());
-                for (int j=0; j<angles0.length; j++) {
-                    // look for a bond angle that includes this atom
-                    if (angles0[j][2] == b0[1]) {
-                        // we have a bond angle, rotate r to match the prescribed bond angle
-                        Vector x = s.makeVector();
-                        x.Ev1Mv2(atoms.get(angles0[j][0]).getPosition(), atoms.get(angles0[j][1]).getPosition());
-                        x.normalize();
-                        Vector y = s.makeVector();
-                        y.E(r);
-                        double xydot = x.dot(y);
-                        y.PEa1Tv1(-xydot, x);
-                        y.normalize();
-                        r.Ea1Tv1(Math.cos(phi0[j]), x);
-                        r.PEa1Tv1(Math.sin(phi0[j]), y);
-                        break;
-                    }
-                }
-                // now set our bond length and shift
-                r.TE(bl0[i]);
-                r.PE(atoms.get(b0[0]).getPosition());
+        for (int nC = 2; nC<6; nC++) {
+            int nA = 3*nC+2; //total number of atoms
+            SpeciesBuilder sb = new SpeciesBuilder(s);
+            System.out.println("number of carbons: " + nC);
+            sb.addCount(C, nC);
+            sb.addCount(CH, nA-nC);
+            sb.withConformation(new ConformationLinear(s));
+            Box box = new Box(s);
+            Simulation sim = new Simulation(s);
+            ISpecies species = sb.build();
+            sim.addSpecies(species);
+            sim.addBox(box);
+            box.setNMolecules(species, 1);
+            IAtomList atoms = box.getMoleculeList().get(0).getChildList();
+            int[][] bonds0 = new int[nC+1][1];
+            double[] bl0 = new double[nC+1];
+            for (int i = 0; i < nC - 1; i ++) {
+                bonds0[i] = new int[]{i, i+1};
+                bl0[i] = 1.535;
             }
+            bonds0[nC-1] = new int[]{0,nC};
+            bonds0[nC] = new int[]{nC-1, nA-3};
+            bl0[nC-1] = 0.55;
+            bl0[nC] = 0.55;
 
-            reconstructor.reconstructSites(box.getMoleculeList().get(0));
-            checkMolecule(box.getMoleculeList().get(0), nC);
+            double phiHCC = Math.PI*110.70/180;
+            int[][] angles0 = new int[][]{{1,0,nC},{nC-2, nC-1, nA-3}};
+            double[] phi0 = new double[]{phiHCC, phiHCC};
+
+            SiteReconstructor reconstructor = new SiteReconstructorAlkane(species);
+
+            for (int step=0; step<2; step++) {
+                for (int i = 0; i < bonds0.length; i++) {
+                    int[] b0 = bonds0[i];
+                    Vector r = atoms.get(b0[1]).getPosition();
+                    r.setRandomSphere(sim.getRandom());
+                    for (int j = 0; j < angles0.length; j++) {
+                        // look for a bond angle that includes this atom
+                        if (angles0[j][2] == b0[1]) {
+                            // we have a bond angle, rotate r to match the prescribed bond angle
+                            Vector x = s.makeVector();
+                            x.Ev1Mv2(atoms.get(angles0[j][0]).getPosition(), atoms.get(angles0[j][1]).getPosition());
+                            x.normalize();
+                            Vector y = s.makeVector();
+                            y.E(r);
+                            double xydot = x.dot(y);
+                            y.PEa1Tv1(-xydot, x);
+                            y.normalize();
+                            r.Ea1Tv1(Math.cos(phi0[j]), x);
+                            r.PEa1Tv1(Math.sin(phi0[j]), y);
+                            break;
+                        }
+                    }
+                    // now set our bond length and shift
+                    r.TE(bl0[i]);
+                    r.PE(atoms.get(b0[0]).getPosition());
+                }
+
+                reconstructor.reconstructSites(box.getMoleculeList().get(0));
+                checkMolecule(box.getMoleculeList().get(0));
+            }
         }
     }
 }
