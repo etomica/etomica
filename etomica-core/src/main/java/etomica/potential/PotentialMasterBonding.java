@@ -109,12 +109,14 @@ public class PotentialMasterBonding implements PotentialCompute {
             Map<IPotential2, List<int[]>> potentials = bondingInfo.bondedPairs[i];
             IMoleculeList molecules = box.getMoleculeList(speciesList.get(i));
             uu[2] -= uTot[0];
+            Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
             potentials.forEach((potential, pairs) -> {
                 for (IMolecule molecule : molecules) {
                     for (int[] pair : pairs) {
                         IAtom iAtom = molecule.getChildList().get(pair[0]);
                         IAtom jAtom = molecule.getChildList().get(pair[1]);
                         double u = handleOneBondPair(doForces, box.getBoundary(), iAtom, jAtom, potential, forces, pc);
+                      //  System.out.println("bonding "+kcalpmole.fromSim(u)+" "+iAtom +" "+ jAtom);
                         uTot[0] += u;
                         //System.out.println(Arrays.toString(pair) + " "+ u);
                     }
@@ -180,8 +182,8 @@ public class PotentialMasterBonding implements PotentialCompute {
         if (Double.isNaN(uTot[0])) {
             throw new RuntimeException("oops");
         }
-       // Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
-      //  System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
+        //Unit kcalpmole = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+       // System.out.println("bonding "+kcalpmole.fromSim(uu[2])+" "+kcalpmole.fromSim(uu[3])+" "+kcalpmole.fromSim(uu[4]));
       //  System.out.println(uTot[0]);
        // energyTot = uTot[0];
         return uTot[0];
@@ -350,7 +352,7 @@ public class PotentialMasterBonding implements PotentialCompute {
         double[] u012 = new double[3];
         potential.u012add(r2, u012);
         double uij = u012[0];
-        //System.out.println("uij " + uij);
+       // System.out.println("uij " + uij+ " "+ r2);
         if (pc != null) pc.pairCompute(iAtom.getLeafIndex(), jAtom.getLeafIndex(), dr, u012);
         if (doForces) {
             double duij = u012[1];

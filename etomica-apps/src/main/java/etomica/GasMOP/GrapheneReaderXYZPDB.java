@@ -589,7 +589,8 @@ public class GrapheneReaderXYZPDB {
                             double numSix = Double.parseDouble(t[6]);
                             positionMap.put(numZero, Vector.of(numFour, numFive, numSix));
                             elementNumMap.put(numZero, numTwo);
-                            chargeMap.put(numZero, numThree);
+                          //  chargeMap.put(numZero, numThree);
+                            chargeMap.put(numZero, 0.0);
                         }else {
                             throw new RuntimeException("t "+ Arrays.toString(t));
                         }
@@ -1218,11 +1219,11 @@ public class GrapheneReaderXYZPDB {
         for (int i = 1; i < bondTypesMap2.size()+1; i++){
             double[] potential = bondPotential.get(i);
 
-            P2HarmonicUFF p2HarmonicUFF = new P2HarmonicUFF(kcals_mol.toSim(potential[0]), potential[1]);
+            P2HarmonicUFF p2HarmonicUFF = new P2HarmonicUFF(kcals_mol.toSim(potential[0]), Angstrom.UNIT.toSim(potential[1]));
             pmBonding.setBondingPotentialPair(species1, p2HarmonicUFF, bondTypesMap2.get(i));
         }
 
-        for (int i = 1; i < angleTypesMap2.size()+1; i++){
+      /*  for (int i = 1; i < angleTypesMap2.size()+1; i++){
             double[] potential = anglePotential.get(i);
             P3BondAngle p3BondAngle = new P3BondAngle(Degree.UNIT.toSim(potential[1]), kcals_mol.toSim(potential[0]) );
             pmBonding.setBondingPotentialTriplet(species1, p3BondAngle, angleTypesMap2.get(i));
@@ -1241,7 +1242,7 @@ public class GrapheneReaderXYZPDB {
             } else  {
                throw new RuntimeException("error torsion type");
             }
-        }
+        }*/
     }
 
 

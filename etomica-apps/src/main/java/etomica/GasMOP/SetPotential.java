@@ -684,8 +684,8 @@ public class SetPotential {
             } else {
                 //System.out.println(Arrays.toString(iKey));
                 if (atomTypeOne.equals("Kr") || atomTypeOne.equals("Xe")){
-                    epsilonIKey = Kelvin.UNIT.toSim(iKey[0]);
-                    sigmaIKey = iKey[1];
+                    epsilonIKey = Kelvin.UNIT.toSim(iKey[1]);
+                    sigmaIKey = 1.12246 * iKey[0];
                 }else {
                     epsilonIKey = kcals.toSim(iKey[3]);
                     sigmaIKey = iKey[2];
@@ -701,8 +701,8 @@ public class SetPotential {
                 sigmaJKey = jKey[0];
             } else {
                 if (atomTypeTwo.equals("Kr") || atomTypeTwo.equals("Xe")){
-                    epsilonIKey = Kelvin.UNIT.toSim(jKey[0]);
-                    sigmaIKey = jKey[1];
+                    epsilonJKey = Kelvin.UNIT.toSim(jKey[1]);
+                    sigmaJKey = 1.12246 * jKey[0];
                 }else {
                     // System.out.println(Arrays.toString(jKey));
                     epsilonJKey = kcals.toSim(jKey[3]);
@@ -769,9 +769,16 @@ public class SetPotential {
                 epsilonIKey = kcals.toSim(iKey[0]);
                 sigmaIKey = iKey[1];
             } else {
+                if (atomTypeOne.equals("Kr") || atomTypeOne.equals("Xe")){
+                    epsilonIKey = Kelvin.UNIT.toSim(iKey[1]);
+                    sigmaIKey = 1.12246 *  iKey[0];
+                }else {
+                    epsilonIKey = kcals.toSim(iKey[3]);
+                    sigmaIKey = iKey[2];
+                }
                 //System.out.println(Arrays.toString(iKey));
-                epsilonIKey = kcals.toSim(iKey[3]);
-                sigmaIKey = iKey[2];
+             /*   epsilonIKey = kcals.toSim(iKey[3]);
+                sigmaIKey = iKey[2];*/
             }
             if(jKey == null && !ifTraPPE){
                 jKey = returnGaFF(atomTypeTwo);
@@ -785,9 +792,13 @@ public class SetPotential {
                // epsilonJKey =Math.pow(2,1.0/6.0)*Kelvin.UNIT.toSim(jKey[1]);
                 epsilonJKey =Kelvin.UNIT.toSim(Math.pow(2,1.0/6.0)*jKey[1]);
             } else {
-                // System.out.println(Arrays.toString(jKey));
-                epsilonJKey = kcals.toSim(jKey[3]);
-                sigmaJKey = jKey[2];
+                if (atomTypeOne.equals("Kr") || atomTypeOne.equals("Xe")){
+                    epsilonIKey = Kelvin.UNIT.toSim(iKey[1]);
+                    sigmaIKey = 1.12246 * iKey[0];
+                }else {
+                    epsilonIKey = kcals.toSim(iKey[3]);
+                    sigmaIKey = iKey[2];
+                }
             }
             if(doElectrostatics){
                 double chargeOne, chargeTwo = 0.0;

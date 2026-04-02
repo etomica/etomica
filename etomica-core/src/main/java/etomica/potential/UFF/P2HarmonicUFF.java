@@ -44,6 +44,10 @@ public class P2HarmonicUFF implements IPotential2 {
         u012[1] = 2*w*r*dx;
         u012[2] = 2*w*r2;
         setu012add(u012);
+
+       // u012[0] = 0.5*w*dx*dx;
+      //  u012[1] = w*r*dx;
+      //  u012[2] = w*r*dx;
     }
 
     public void setu012add(double[] u012){

@@ -310,7 +310,7 @@ public class SpeciesGasTraPPE {
             species = new SpeciesBuilder(space)
                     .addAtom(typeCH2ene, pos1, "ch2ene")
                     .addAtom(typeCHene, pos2, "chene")
-                    .addAtom(typeCH2ane, pos3, "ch2ane")
+                    .addAtom(typeCH2ane, pos3, "ch21ene")
                     .addAtom(typeCH3, pos4, "ch3")
                     .build();
 
@@ -366,7 +366,7 @@ public class SpeciesGasTraPPE {
             species = new SpeciesBuilder(space)
                     .addAtom(typeCH3, pos1, "ch30")
                     .addAtom(typeC, pos2, "c1")
-                    .addAtom(typeCHene, pos3, "chene0")
+                    .addAtom(typeCH2ene, pos3, "chene0")
                     .addAtom(typeCH3, pos4, "ch31")
                     .build();
 
@@ -869,7 +869,7 @@ public class SpeciesGasTraPPE {
         atomicConstant.put("ch2ene", new double[]{3.675, 85});
         atomicConstant.put("chene", new double[]{3.73, 47});
         atomicConstant.put("chdiene", new double[]{3.710, 52});
-      //  atomicConstant.put("c", new double[]{3.75, 20});
+        atomicConstant.put("c", new double[]{3.85, 20});
         atomicConstant.put("M", new double[]{0.0, 0.0});
         atomicConstant.put("N", new double[]{3.310, 36});
         // Check if the atomtype exists in the map

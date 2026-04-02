@@ -3551,7 +3551,7 @@ public class AutoMOP {
     public void runFileScanner(String fileName,  List<List<Integer>> faceList, Map<Integer, Vector> verticeMap, Double[] nums){
         Scanner scanner = new Scanner(System.in);
         final String FOLDER_PATH = "D:\\Sem-VIII\\Archimedian";
-       // final String FOLDER_PATH = "/user/odesai/automop/Archimedian";
+        //final String FOLDER_PATH = "/user/odesai/automop/Archimedian";
         File folder = new File(FOLDER_PATH);
         // Check if it's a valid folder
         if (!folder.exists() || !folder.isDirectory()) {

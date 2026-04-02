@@ -177,8 +177,8 @@ public class GOMD  extends Simulation {
         integratorMC.getMoveManager().addMCMove(moveAtom);*/
 
         Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-        configuration.initializeCoordinates(box);
+       // ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+      //  configuration.initializeCoordinates(box);
         potentialMaster.init();
 
       //  double u0 = potentialMasterCell.computeAll(false);
@@ -299,7 +299,7 @@ public class GOMD  extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Octane MD", 3);
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
             dhbt.setDiameter(sim.species.getAtomType(0), 3.75);
-            dhbt.setDiameter(sim.species.getAtomType(1), 3.95);
+           // dhbt.setDiameter(sim.species.getAtomType(1), 3.95);
 
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
@@ -589,11 +589,11 @@ public class GOMD  extends Simulation {
         public boolean graphics = true;
         public long numSteps = 10000;
         public boolean ifAmberData = true;
-        public double x =60;
-        public double y =60;
-        public double z = 50;
+        public double x =67.6631;
+        public double y =63.62699;
+        public double z = 17.1992;
        // public String configFilename = "D:\\Sem-X\\GO\\graphitis\\GO_sheet2020";
-        public String configFilename = "D:\\Sem-X\\GO\\amber\\go";
+        public String configFilename = "D:\\Sem-X\\GO\\amber\\Lammps\\Graphene\\molecule";
  //    public String configFilename = "GO_sheet";
      public String fileOne = "o1.txt";
      public String fileTwo = "o2.txt";
