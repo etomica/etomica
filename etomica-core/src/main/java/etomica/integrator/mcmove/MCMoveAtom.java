@@ -8,6 +8,7 @@ import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.molecule.MoleculeSource;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -120,5 +121,6 @@ public class MCMoveAtom extends MCMoveBoxStep {
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;
+        atomSource.setBox(box);
     }
 }

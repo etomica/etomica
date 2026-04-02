@@ -338,7 +338,7 @@ public class OctaneMD extends Simulation {
             }
         };
         DataFork forkP = new DataFork(new IDataSink[]{dpZ, dpZm1oR});
-        if (graphics) {
+        if (true) {
             sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Octane MD", 3);
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
@@ -468,29 +468,6 @@ public class OctaneMD extends Simulation {
             displayZ_.setAccumulator(avgZ_);
             simGraphic.add(displayZ_);
 
-            MeterTorsionAngle meterTorsion = new MeterTorsionAngle(sim.box, 2, 3, 4, 5);
-            AccumulatorAverageBlockless accTorsion1 = new AccumulatorAverageBlockless();
-            AccumulatorAverageCollapsing accTorsion2 = new AccumulatorAverageCollapsing();
-            AccumulatorHistory historyTorsion = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            historyTorsion.setTimeDataSource(timer);
-            AccumulatorHistory historyTorsion2 = new AccumulatorHistory(new HistoryCollapsingAverage());
-            historyTorsion2.setTimeDataSource(timer);
-            DataFork forkTorsion = new DataFork(new IDataSink[]{accTorsion1, accTorsion2, historyTorsion, historyTorsion2});
-            DataPumpListener pumpTorsion = new DataPumpListener(meterTorsion, forkTorsion, 10);
-            sim.integrator.getEventManager().addListener(pumpTorsion);
-            DisplayTextBoxesCAE displayTorsion = new DisplayTextBoxesCAE();
-            displayTorsion.setLabel("Torsion cos");
-            displayTorsion.setAccumulator(accTorsion2);
-            DisplayPlotXChart plotTorsion = new DisplayPlotXChart();
-            plotTorsion.setLabel("torsion");
-            historyTorsion.addDataSink(plotTorsion.makeSink("samples"));
-            plotTorsion.setLegend(new DataTag[]{historyTorsion.getTag()}, "samples");
-            historyTorsion2.addDataSink(plotTorsion.makeSink("avg"));
-            plotTorsion.setLegend(new DataTag[]{historyTorsion2.getTag()}, "avg");
-            simGraphic.add(plotTorsion);
-
-            simGraphic.getController().getDataStreamPumps().add(pumpTorsion);
-
             simGraphic.makeAndDisplayFrame();
             return;
         }
@@ -573,10 +550,10 @@ public class OctaneMD extends Simulation {
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperatureK = 500;
+        public double temperatureK = 2000;
         public int numMolecules = 72;
         public double density = 8.332487e-05;
-        public boolean graphics = false;
+        public boolean graphics = true;
         public long numSteps = 200000;
         public long mcSteps = 0;
         public int cycles = 100;

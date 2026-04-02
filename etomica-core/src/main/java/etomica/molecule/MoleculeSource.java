@@ -18,6 +18,7 @@ public interface MoleculeSource {
      */
     public void setBox(Box p);
 
+
     /**
      * Returns an atom.  Will return null if there are no appropriate atoms in 
      * the given box.

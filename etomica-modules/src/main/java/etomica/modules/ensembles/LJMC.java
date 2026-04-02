@@ -51,7 +51,7 @@ public class LJMC extends Simulation {
 
         box = this.makeBox();
         PotentialMasterCell potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
-        int N = 200;  //number of atoms
+        int N = 10;  //number of atoms
 
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         getController().addActivity(new ActivityIntegrate(integrator));

@@ -25,7 +25,8 @@ public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumT
     @Override
     public double u(double r2) {
         if (r2 > r2Cutoff) return 0;
-        return uShift + Math.sqrt(r2) * ufShift + uWrapped(r2);
+        double u = uShift + Math.sqrt(r2) * ufShift + uWrapped(r2);
+        return u;
     }
 
     @Override
