@@ -11,6 +11,9 @@ import etomica.data.types.DataDoubleArray;
 import etomica.overlap.AlphaSource;
 import etomica.units.dimensions.Null;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * DataProcessor which takes in values for v/pi and pi2/pi (from MeterVirial)
  * and calculates the overlap values for various values of alpha.
@@ -112,11 +115,19 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
             }
             else {
                 x[j+numVirialValues] = 1.0 / (alpha[j] + 1.0/value1);
+                if(numAlpha==1 && fw!=null){
+                    try {
+                        fw.write("" + x[j+numVirialValues]+"\n" );
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
             }
         }
         return data;
     }
-
+public FileWriter fw;
     /**
      * Returns ith factor used in the overlap value.
      */

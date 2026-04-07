@@ -76,7 +76,7 @@ public class Virialjack {
         } else {
 
             params.nPoints = 2;
-            params.armLength =64;
+            params.armLength =128;
             params.coreSigma=4;
             params.numArms = 20;
             params.temperature = 5;

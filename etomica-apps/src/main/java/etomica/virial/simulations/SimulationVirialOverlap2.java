@@ -218,6 +218,7 @@ public void setOverlapClusters (ClusterAbstract referenceInTargetCluster,Cluster
                 multiAtomic = true;
             }
         }
+
         accumulatorPumps = new DataPumpListener[2];
         mcMoveTranslate = new MCMoveBoxStep[2];
         if (doRotate || multiAtomic) {

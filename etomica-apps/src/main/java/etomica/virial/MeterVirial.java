@@ -13,6 +13,9 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.dimensions.Null;
 import etomica.virial.cluster.ClusterAbstract;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
@@ -46,6 +49,14 @@ public class MeterVirial implements IDataSource, java.io.Serializable {
             throw new RuntimeException("oops "+pi+" for box "+box.getIndex());
         }
         double x[] = data.getData();
+        if(fw!=null && writeCount<1000){
+            try {
+                fw.write(writeCount+","+clusters[0].value(box)+","+clusters[1].value(box)+"\n");
+                writeCount++;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         for (int i=0; i<clusters.length; i++) {
             x[i] = clusters[i].value(box)/pi;
             if (Double.isNaN(x[i]) || Double.isInfinite(x[i])) {
@@ -57,6 +68,8 @@ public class MeterVirial implements IDataSource, java.io.Serializable {
 //        System.out.println(box.getIndex()+" "+pi+" "+x[0]+" "+x[1]);
         return data;
     }
+    public FileWriter fw;
+    public long writeCount;
     
     public ClusterAbstract[] getClusters() {
         return clusters;

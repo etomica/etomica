@@ -87,13 +87,14 @@ public class VirialjackCell {
         } else {
 
 
-            params.nPoints = 2;
-            params.armLength =64;
-            params.coreSigma=4;
-            params.numArms = 20;
-            params.temperature = 5;
-            params.numSteps = 100000L;
-            params.boxLength =40;
+            params.nPoints = 3;
+            params.armLength =8;
+            params.coreSigma=1;
+            params.numArms = 12;
+            params.temperature = 12;
+            params.numSteps =10000000L;
+            params.boxLength =50;
+            params.sigmaHSRef = 0;
             params.rc = 2.5;
         }
 
@@ -158,9 +159,13 @@ public class VirialjackCell {
         MayerGeneral fTargetInReference = new MayerGeneral(pTargetInReference);
         // HS reference diameter: original heuristic plus optional core contribution
         // original: 1.5 + 0.15*(2*armLength)
-        double sigmaHSRef = params.useCoreInHSRef
+        /*double sigmaHSRef = params.useCoreInHSRef
                 ? (params.coreSigma + 0.15*(2*armLength) + params.hsExtra)
-                : (1.5 + 0.15*(2*armLength) + params.hsExtra);
+                : (1.5 + 0.15*(2*armLength) + params.hsExtra);*/
+        //new
+        double sigmaHSRef = params.sigmaHSRef > 0
+                ? params.sigmaHSRef
+                : 1.0;
 
         MayerFunction fRefPos = new MayerFunction() {
             public void setBox(Box box) {}
@@ -324,7 +329,7 @@ public class VirialjackCell {
         angleMoves[0].setBox(sim.box[0]);
         angleMoves[0].setConstraintMap(constraintMap);
        angleMoves[0].setFixedCOM(false);
-        sim.integrators[0].getMoveManager().addMCMove(angleMoves[0]);
+        sim.integrators[0].getMoveManager().addMCMove(angleMoves[0],0.1);
         angleMoves[1] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,1,armLength/2));
         angleMoves[1].setBox(sim.box[1]);
@@ -332,14 +337,14 @@ public class VirialjackCell {
         angleMoves[0].setCellManager(referenceCellManager);
         angleMoves[1].setFixedCOM(false);
         angleMoves[1].setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMoves[1]);
+        sim.integrators[1].getMoveManager().addMCMove(angleMoves[1],0.1);
 
         angleMoves[2] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1,
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2+1,armLength));
         angleMoves[2].setBox(sim.box[0]);
         angleMoves[2].setConstraintMap(constraintMap);
         angleMoves[2].setFixedCOM(false);
-        sim.integrators[0].getMoveManager().addMCMove(angleMoves[2]);
+        sim.integrators[0].getMoveManager().addMCMove(angleMoves[2],0.1);
         angleMoves[3] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2+1,armLength));
         angleMoves[3].setBox(sim.box[1]);
@@ -347,7 +352,7 @@ public class VirialjackCell {
         angleMoves[2].setCellManager(referenceCellManager);
         angleMoves[3].setFixedCOM(false);
         angleMoves[3].setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMoves[3]);
+        sim.integrators[1].getMoveManager().addMCMove(angleMoves[3],0.1);
 
         MCMoveClusterAngleMulti angleMovesMulti1 = new MCMoveClusterAngleMulti(pc1, space, bonding, sim.getRandom(), 1,
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,1,armLength/2),5);
@@ -356,7 +361,7 @@ public class VirialjackCell {
         
         angleMovesMulti1.setFixedCOM(false);
         angleMovesMulti1.setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1);
+        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1,0.4);
 
         MCMoveClusterAngleMulti angleMovesMulti1outer = new MCMoveClusterAngleMulti(pc1, space, bonding, sim.getRandom(), 1,
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2 + 1,armLength),10);
@@ -369,7 +374,7 @@ public class VirialjackCell {
         angleMovesMulti0.setConstraintMap(constraintMap);
         angleMovesMulti0.setFixedCOM(false);
         angleMovesMulti0.setCellManager(referenceCellManager);
-        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0);
+        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0,0.4);
 
         MCMoveClusterAngleMulti angleMovesMulti0outer = new MCMoveClusterAngleMulti(pc0, space, bonding, sim.getRandom(), 1,
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2+1,armLength),10);
@@ -377,11 +382,11 @@ public class VirialjackCell {
         angleMovesMulti0outer.setConstraintMap(constraintMap);
         angleMovesMulti0outer.setFixedCOM(false);
         angleMovesMulti0outer.setCellManager(referenceCellManager);
-        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0outer);
+        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0outer,0.4);
 
         angleMovesMulti1outer.setFixedCOM(false);
         angleMovesMulti1outer.setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1outer);
+        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1outer,0.4);
 
         MCMoveClusterShuffle shuffleMove0 = null, shuffleMove1 = null;
         if (false && armLength > 5 ) {
@@ -419,6 +424,15 @@ public class VirialjackCell {
         relaxIntegrator.getMoveManager().addMCMove(angleMoves[3],0.1);
         relaxIntegrator.getMoveManager().addMCMove(angleMovesMulti1, 0.4);
         relaxIntegrator.getMoveManager().addMCMove(angleMovesMulti1outer, 0.4);
+        //new
+        angleMoves[0].skipW=true;
+        angleMoves[2].skipW=true;
+        angleMovesMulti0.skipW=true;
+        angleMovesMulti0outer.skipW=true;
+        sim.integrators[0].getMoveManager().setFrequency(mcMoveHSC, 0);
+        sim.integrators[0].getMoveManager().setFrequency(sim.mcMoveRotate[0], 0);
+        sim.integrators[1].getMoveManager().setFrequency(sim.mcMoveTranslate[1], 0);
+        sim.integrators[1].getMoveManager().setFrequency(sim.mcMoveRotate[1], 0);
 
 
        // shuffleMove1.skipW=true;
@@ -436,7 +450,11 @@ public class VirialjackCell {
 
         //relaxIntegrator.getMoveManager().setFrequency(shuffleMove1,0.2);
         //relaxIntegrator.getMoveManager().setFrequency(angleMoves[1], 0.8);
-        ActivityIntegrate relaxActivity=new ActivityIntegrate(relaxIntegrator,10000);
+       //new
+        ActivityIntegrate relaxActivity0=new ActivityIntegrate(sim.integrators[0],10000);
+        ActivityIntegrate relaxActivity=new ActivityIntegrate(sim.integrators[1],10000);
+
+
 
         Activity activityInitRefPref = new Activity() {
             @Override
@@ -567,7 +585,14 @@ public class VirialjackCell {
             }
 
             long trelax=System.nanoTime();
+           // sim.getController().runActivityBlocking(relaxActivity);
+
             sim.getController().runActivityBlocking(relaxActivity);
+            sim.getController().runActivityBlocking(relaxActivity0);
+
+
+
+
 
             plotEndDistance.getPlot().setTitle("endDistance");
             plotEndDistance.setLabel("endDistance");
@@ -579,6 +604,7 @@ public class VirialjackCell {
             sim.initRefPref(null, 10, false);
 
             sim.equilibrate(null, 20, false);
+
             sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
@@ -711,10 +737,26 @@ public class VirialjackCell {
             //to compare
 
             long trelax=System.nanoTime();
-            sim.getController().runActivityBlocking(relaxActivity);
+        if(params.sigmaHSRef > 0){
+            sim.getController().runActivityBlocking(relaxActivity0);
+        }
+        sim.getController().runActivityBlocking(relaxActivity);
+            //sim.getController().runActivityBlocking(relaxActivity0);
+            //sim.getController().runActivityBlocking(relaxActivity);
+
             trelax=System.nanoTime()-trelax;
             System.out.println("time to relax: " +trelax/ 1e9);
-            //System.exit(0);
+
+            //new
+        angleMoves[0].skipW=false;
+        angleMoves[2].skipW=false;
+        angleMovesMulti0.skipW=false;
+        angleMovesMulti0outer.skipW=false;
+        sim.integrators[0].getMoveManager().setFrequency(mcMoveHSC, 1);
+        sim.integrators[0].getMoveManager().setFrequency(sim.mcMoveRotate[0], 1);
+        sim.integrators[1].getMoveManager().setFrequency(sim.mcMoveTranslate[1], 1);
+        sim.integrators[1].getMoveManager().setFrequency(sim.mcMoveRotate[1], 1);
+
         angleMoves[1].skipW=false;
         angleMoves[3].skipW=false;
         angleMovesMulti1.skipW=false;
@@ -750,7 +792,7 @@ public class VirialjackCell {
         benchmarkIntegrator.getMoveManager().addMCMove(sim.mcMoveTranslate[1]);
         benchmarkIntegrator.getMoveManager().addMCMove(sim.mcMoveRotate[1]);
         if(true){
-            HistogramExpanding histogram = new HistogramExpanding(1);
+            HistogramExpanding histogram = new HistogramExpanding(0.1);
             HistogramExpanding clusterValue = new HistogramExpanding(0.1);
 
             long tq=System.nanoTime();
@@ -843,7 +885,24 @@ public class VirialjackCell {
             System.out.println("time to do steps: " +tq/ (double) m);
             System.out.println("atoms out of the box:"  +sum/m);
             double[]h=histogram.getHistogram();
+            //new
+            if(params.sigmaHSRef <= 0){
+                double[] xVals = histogram.xValues();
+                double cumulative = 0;
+                double percentile70 = xVals[xVals.length-1];
+                for(int i=0;i<h.length;i++){
+                    cumulative += h[i];
+                    if(cumulative >= 0.70){
+                        percentile70 = xVals[i];
+                        break;
+                    }
+                }
+                System.out.println("suggested sigmaHSRef: " + percentile70);
+                System.exit(0);
+
+            }
             System.out.println("distance histogram: "+Arrays.toString(h));
+
             h= clusterValue.getHistogram();
             double[] x=clusterValue.xValues();
             for(int i =0;i<h.length;i++){
@@ -865,6 +924,12 @@ public class VirialjackCell {
         sim.initRefPref(refFileName, initSteps);
         //System.exit(0);
         sim.equilibrate(refFileName, 2*initSteps);
+       /* try {
+            //sim.dpVirialOverlap[1].fw=new FileWriter("overlap.csv");
+            //sim.meters[1].fw=new FileWriter("virial.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
         ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
         sim.setAccumulatorBlockSize(steps);
 
@@ -906,6 +971,12 @@ public class VirialjackCell {
 
         sim.getController().runActivityBlocking(ai);
         long t2 = System.nanoTime();
+        /*try {
+            //sim.dpVirialOverlap[1].fw.close();
+            sim.meters[1].fw.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
 
         if (fw != null) {
             try { fw.close(); } catch (IOException ex) { throw new RuntimeException(ex); }
@@ -977,6 +1048,7 @@ public class VirialjackCell {
         public double hsExtra = 0.0;
         public double rc=4;
         public double boxLength = 10;
+        public double sigmaHSRef = 0;
     }
     public static class DataSourceEndDistance implements IDataSource{
         public DataTag tag;

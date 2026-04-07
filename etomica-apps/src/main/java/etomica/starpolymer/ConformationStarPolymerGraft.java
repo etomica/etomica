@@ -84,7 +84,7 @@ public class ConformationStarPolymerGraft implements IConformation {
             graftVectors[16].E(new double[]{ x2,  0, x3}); graftVectors[17].E(new double[]{ x2,  0,-x3});
             graftVectors[18].E(new double[]{-x2,  0, x3}); graftVectors[19].E(new double[]{-x2,  0,-x3});
         }
-        else {
+        else if (f!=0){
             throw new RuntimeException("Unsupported f="+f+" (use 1,2,4,6,8,12,20)");
         }
 
