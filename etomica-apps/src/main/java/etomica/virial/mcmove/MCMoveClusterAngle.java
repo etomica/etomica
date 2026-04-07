@@ -12,7 +12,6 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.compute.NeighborManagerCell;
 import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
@@ -318,12 +317,18 @@ for(int i = 0 ;i<2 && false;i++){
 
         //int bead = 1 + rnd.nextInt(l - 1);
     }
+
+    /**
+     * Returns a bonded pair of atoms to perturb that will never include the core.
+     * With start and stop given, the pair returned will include an atom from the
+     * start-to-stop range as the first (outer) atom.
+     */
     public static class AtomChooserStarfl implements AtomChooser {
         private final IRandom random;
         private final int f,l;
         private final int start,stop;
         public AtomChooserStarfl (IRandom random,int f,int l) {
-            this(random, f, l, 1, l );
+            this(random, f, l, 2, l );
         }
         public AtomChooserStarfl (IRandom random,int f,int l,int start,int stop) {
             this.f = f;
@@ -335,7 +340,8 @@ for(int i = 0 ;i<2 && false;i++){
 
         @Override
         public int[] chooseAtoms(IntArrayList[] bonding) {
-            int a = 1+ start + random.nextInt(stop-start) + l * random.nextInt(f);
+            // start and stop specify range for a
+            int a = l * random.nextInt(f) + start + random.nextInt(1+stop-start);
 
             int b = a-1;
 
