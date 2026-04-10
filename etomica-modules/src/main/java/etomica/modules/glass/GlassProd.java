@@ -905,7 +905,7 @@ public class GlassProd {
                 GlassProd.writeDataToFile(m, "corRSelf_t" + i + ".dat");
             }
 
-            GlassProd.writeDataToFile(meterFs, filenameFs);
+            GlassProd.writeDataToFile(meterFs, meterFs.errData, filenameFs);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc, meterPerc3}, filenamePerc);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(),
                     meterPerc3.makeImmFractionSource()}, filenameImmFrac);
