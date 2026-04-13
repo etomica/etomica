@@ -137,6 +137,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 //        checkF(cPairs,aPairs);
         
         calcValue();
+//        value -= 0.02;
         if (debug && (Double.isNaN(value) || Double.isInfinite(value))) {
             updateF(box);
             calcValue();
