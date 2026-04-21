@@ -94,7 +94,7 @@ public class MCMoveMoleculeRotate extends MCMoveBoxStep {
 
     public double getChi(double temperature) {
         uNew = potentialCompute.computeOneMolecule(molecule);
-//        System.out.println("rotate "+molecule.getIndex()+" "+uOld+" => "+uNew);
+        //System.out.println("rotate "+molecule.getIndex()+" "+uOld+" => "+uNew);
         return Math.exp(-(uNew - uOld) / temperature);
     }
 

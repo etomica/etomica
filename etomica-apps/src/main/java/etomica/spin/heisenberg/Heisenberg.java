@@ -599,7 +599,7 @@ public class Heisenberg extends Simulation {
         public boolean doEnergyMF = false;
         public boolean doAEEMF = false;
         public int formula = 3;
-        public boolean doGraphic = false;
+        public boolean doGraphic = true;
         public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;

@@ -1526,7 +1526,7 @@ public class PDBReaderReplica {
         atomicConstant.put("H_p", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("Cl", new double[]{1.044,180.0,3.947,0.227,14.866,2.348,8.564,1.25});
         atomicConstant.put("K", new double[]{1.953, 180, 3.812, 0.035, 12, 1.165,2.421,0.7});
-        atomicConstant.put("Kr", new double[]{1.953, 180, 4.141, 0.220, 12, 1.165,2.421,0.7});
+       // atomicConstant.put("Kr", new double[]{1.953, 180, 4.141, 0.220, 12, 1.165,2.421,0.7});
         atomicConstant.put("Br", new double[]{1.192, 180, 4.189, 0.251, 15, 2.519,7.790,0.7});
         atomicConstant.put("Na", new double[]{1.539, 180, 2.983, 0.03, 12.0 , 1.081,2.843,1.25});
         atomicConstant.put("Mg", new double[]{1.421,109.47, 3.021, 0.111, 12.0, 1.787,1.25});
@@ -1574,6 +1574,8 @@ public class PDBReaderReplica {
         atomicConstant.put("N1", new double[]{0.7, 106.7, 3.66, 0.069, 13.407, 2.544, 6.899,0.45});
         atomicConstant.put("HK", new double[]{0.354, 180.0, 2.886, 0.044, 12.0, 0.71,4.528, 0.0});
         atomicConstant.put("B", new double[]{0.828, 109.48, 4.083,0.180,12.052, 1.755, 4.528, 0});
+        atomicConstant.put("Kr", new double[]{3.636,166.4});
+        atomicConstant.put("Xe", new double[]{4.10,221.0});
         double [] sample = atomicConstant.get(atomtype);
         return sample;
     }

@@ -1,10 +1,15 @@
 package etomica.virial;
 
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.data.IDataInfo;
+import etomica.data.types.DataDouble;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -18,13 +23,23 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.units.*;
+import etomica.units.dimensions.CompoundDimension;
+import etomica.units.dimensions.DimensionRatio;
+import etomica.units.dimensions.Quantity;
+import etomica.units.dimensions.Volume;
+import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.*;
+import etomica.virial.simulations.MultiVirialUFF;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.simulations.virialUFF;
 import etomica.virial.wheatley.ClusterWheatleySoftMix;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -56,43 +71,44 @@ public class VirialMultiUFF {
        // moleName.add(params.confListName2);
         moleName.add(params.confListName3);
      //   moleName.add(params.confListName5);
-        moleName.add(params.confListName4);
+      //  moleName.add(params.confListName4);
         List<String> moleName2 = new ArrayList<>();
         moleName2.add(params.confName1);
      //   moleName2.add(params.confName2);
      //   moleName2.add(params.confName3);
       //  moleName2.add(params.confName4);
 
-      /*  for ( double j= params.start; j<params.truncLimit; j+=params.truncDiff ){
+       for ( double j= params.start; j<params.truncLimit; j+=params.truncDiff ){
             truncRad.add(j);
-        }*/
-      /*  for ( double j= params.tempStart; j<params.tempFinal; j+=params.tempDiff ){
+        }
+        for ( double j= params.tempStart; j<params.tempFinal; j+=params.tempDiff ){
             truncRad.add(j);
-        }*/
+        }
        // System.out.println(truncRad);
         double rc = params.start;
         System.out.println(rc);
-      /*  for (int j=0; j< moleName.size(); j++){
+        for (int j=0; j< moleName.size(); j++){
             System.out.println(moleName.get(j));
-        }*/
+        }
     //    System.exit(1);
         for(int p=0; p< moleName.size(); p++){
         for ( int m=0; m< moleName2.size(); m++){
         //    double rc = truncRad.get(m);
             double temperatureSim = params.temperature;
-            PDBReaderMOP pdbReaderMOP = new PDBReaderMOP();
+            PDBReaderMOP2 pdbReaderMOP = new PDBReaderMOP2();
             String confName2 = moleName.get(p);
             String confName1 = moleName2.get(m);
             species1 = pdbReaderMOP.getSpecies(confName1, false, centreMol, false, true);
-            //System.out.println(species1);
-            printCOM(species1);
+            System.out.println(species1);
+           // printCOM(species1);
             //List<AtomType> atomTypes1 = species1.getUniqueAtomTypes();
             List<List<AtomType>> pairsAtoms1 = getSpeciesPairs(species1);
             int pairAtomSize = pairsAtoms1.size();
 
             PDBReaderReplica pdbReaderReplica = new PDBReaderReplica();
             species2 = pdbReaderReplica.getSpecies(confName2, true, new Vector3D(0,0,0), false);
-           // printCOM(species2);
+            System.out.println(species2);
+            // printCOM(species2);
             List<List<AtomType>> pairsAtoms2 = getSpeciesPairs(species2);
             int pairAtomSize2 = pairsAtoms2.size();
             SpeciesManager sm1 = new SpeciesManager.Builder().addSpecies(species1).addSpecies(species2).build();
@@ -100,26 +116,26 @@ public class VirialMultiUFF {
             //System.out.println(nPoints+" at "+temperature+"K");
             //temperature = Kelvin.UNIT.toSim(temperature);
 
-            ArrayList<ArrayList<Integer>> connectedAtoms1 = pdbReaderMOP.getConnectivity();
+            ArrayList<ArrayList<Integer>> connectedAtoms1 = pdbReaderReplica.getConnectivity();
             // System.out.println(connectedAtoms1);
-            ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderMOP.getConnectivityModified();
+            ArrayList<ArrayList<Integer>> connectivityModified1 = pdbReaderReplica.getConnectivityModifiedWithoutRunning();
             //System.out.println(connectivityModified1);
-            Map<Integer,String> atomMap1 = pdbReaderMOP.getAtomMap();
+            Map<Integer,String> atomMap1 = pdbReaderReplica.getAtomMap();
             // System.out.println(atomMap1);
-            Map<Integer, String> atomMapModified1 = pdbReaderMOP.getAtomMapModifiedWithoutRunning();
+            Map<Integer, String> atomMapModified1 = pdbReaderReplica.getAtomMapModifiedWithoutRunning();
             //System.out.println(atomMapModified1);
-            ArrayList<Integer> bondList1 = pdbReaderMOP.getBondList(connectedAtoms1, atomMap1);
+            ArrayList<Integer> bondList1 = pdbReaderReplica.getBondList(connectedAtoms1, atomMap1);
             // System.out.println(bondList1);
             Unit kcals = new UnitRatio(new PrefixedUnit(Prefix.KILO,Calorie.UNIT),Mole.UNIT);
-            Map<String, double[]> atomicPotMap1 = pdbReaderMOP.atomicPotMap();
+            Map<String, double[]> atomicPotMap1 = pdbReaderReplica.atomicPotMap();
             //System.out.println(atomicPotMap1);
-            ArrayList<Integer> bondsNum1 = pdbReaderMOP.getBonds();
+            ArrayList<Integer> bondsNum1 = pdbReaderReplica.getBonds();
 
             //Map<Integer, String> atomIdentifierMapModified1 = PDBReader.atomIdentifierMapModified(connectivityModified1, atomMapModified1);
-            Map<Integer, String> atomIdentifierMapModified1 = pdbReaderMOP.getModifiedAtomIdentifierMap();
-            List<int[]>dupletsSorted1= pdbReaderMOP.getDupletesSorted();
-            List<int[]>tripletsSorted1= pdbReaderMOP.getAnglesSorted();
-            List<int[]>quadrupletsSorted1= pdbReaderMOP.getTorsionSorted();
+            Map<Integer, String> atomIdentifierMapModified1 = pdbReaderReplica.getModifiedAtomIdentifierMap();
+            List<int[]>dupletsSorted1= pdbReaderReplica.getDupletesSorted();
+            List<int[]>tripletsSorted1= pdbReaderReplica.getAnglesSorted();
+            List<int[]>quadrupletsSorted1= pdbReaderReplica.getTorsionSorted();
 
             Map<String[],List<int[]>> bondTypesMap1= pdbReaderMOP.idenBondTypes(dupletsSorted1, atomIdentifierMapModified1);
             Map<String[],List<int[]>> angleTypesMap1= pdbReaderMOP.idenAngleTypes(tripletsSorted1, atomIdentifierMapModified1);
@@ -380,7 +396,7 @@ public class VirialMultiUFF {
 
 
 
-       /* if(false) {
+      /*  if(false) {
             double size =20;
             sim.box[0].getBoundary().setBoxSize(etomica.space.Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
@@ -499,7 +515,7 @@ public class VirialMultiUFF {
                 extraNames[i] = n;
             }
             sim.printResults(refIntegral, extraNames);
-            // System.out.println("time: "+(t2-t1)/1e9);
+             System.out.println("time: "+(t2-t1)/1e9);
             System.out.println(" \n");
 
             //  }
@@ -729,10 +745,10 @@ public class VirialMultiUFF {
         String confListName1 = "F://Avagadro//molecule//ethene";
         String confListName2 = "F://Avagadro//molecule//ethane";
         String confListName3 = "F://Avagadro//molecule//Ar";
-        String confListName4 = "F://Avagadro//molecule//h2";
+        String confListName4 = "F://Avagadro//molecule//ethane";
       //  String confListName5 = "F://Avagadro//molecule//ch4";
 
-        String confName1 = "F://Avagadro//mop//mop3//verify//p4//MOP51";
+        String confName1 = "F://Avagadro//molecule//ethane";
        // String confName2 = "F://Avagadro//mop//tetra_cu";
         String confName3 = "F://Avagadro//mop//tetra_cu_3C";
         String confName4 = "F://Avagadro//MOP_new//rhombic//propyl_Co_MOP";

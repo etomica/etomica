@@ -85,7 +85,7 @@ public class virialUFF {
         Space space = Space3D.getInstance();
         List<String> confString = new ArrayList<>();
         confString.add(params.confName);
-        confString.add(params.conf2Name);
+       // confString.add(params.conf2Name);
       //  confString.add(params.conf3Name);
 for(int alpha =0; alpha< confString.size(); alpha++){
         String confName = confString.get(alpha);
@@ -372,7 +372,7 @@ for(int alpha =0; alpha< confString.size(); alpha++){
         }
         List<Integer> temp = new ArrayList<>();
 
-        for(int j =1; j< 11; j++){
+        for(int j =1; j< 2; j++){
             double temperatureNew =Kelvin.UNIT.toSim(j*params.temperature) ;
             System.out.println("\n" +j*params.temperature + " " + temperatureNew);
             targetCluster.setTemperature(temperatureNew);
@@ -568,7 +568,7 @@ for(int alpha =0; alpha< confString.size(); alpha++){
         public String conf3Name ="F://Avagadro//molecule//butadiene";
         public int nPoints =2;
         public double temperature =100;// Kelvin
-        public long numSteps = 500000;
+        public long numSteps = 100000;
         public double rc = 10;
         public double refFreq = -1;
         public double sigmaHSRef = 7;

@@ -1057,7 +1057,7 @@ public class GCMCMOP extends Simulation {
         Vector boxSize = params.boxSize;
         double truncatedRadius = params.truncatedRadius;
         double truncatedRadiusLJ =0.0;
-        double temperature = params.temperature;
+     //   double temperature = params.temperature;
         Vector centreMOP = params.centreMOP;
         Vector grapheneOne = params.grapheneOne;
         Vector grapheneTwo = params.grapheneTwo;
@@ -1115,16 +1115,16 @@ public class GCMCMOP extends Simulation {
 
 
         List<String> gasSim = new ArrayList<>();
-        //gasSim.add(params.confNamegas);
-       // gasSim.add(params.confNameGasOne);
-        //gasSim.add(params.confNameGasTwo);
+        gasSim.add(params.confNamegas);
+        gasSim.add(params.confNameGasOne);
+     /*   gasSim.add(params.confNameGasTwo);
         gasSim.add(params.confNameGasThree);
         gasSim.add(params.confNameGasFour);
-       /* gasSim.add(params.confNameGasFive);
+        gasSim.add(params.confNameGasFive);
         gasSim.add(params.confNameGasSix);
         gasSim.add(params.confNameGasSeven);
         gasSim.add(params.confNameGasEight);
-        gasSim.add(params.confNameGasNine);*/
+        //gasSim.add(params.confNameGasNine);*/
 
 
        // gasSim.add(params.confNameGasTwo);
@@ -1135,14 +1135,20 @@ public class GCMCMOP extends Simulation {
         }
        // muValues.add(-1588);
         //muValues.add(-2196);
-
+    /*    muValues.add(250);
+        muValues.add(270);
+        muValues.add(290);
+        muValues.add(300);
+        muValues.add(310);
+        muValues.add(330);
+        muValues.add(350);*/
         System.out.println(muValues);
 
         int num = 0;
         String confNameMOPOne = new String("");
 
-        System.out.println(temperature);
-
+    //    System.out.println(temperature);
+        double temperature = 298;
         //String confNameMOPOne = params.confNameEight1;
         for(int gamma = 0; gamma< mu2Values.size(); gamma++) {
 
@@ -1160,11 +1166,11 @@ public class GCMCMOP extends Simulation {
               // Vector boxSizeAct = Vector.of(params.ax, params.ay, params.az);
                     truncatedRadiusLJ = 12.5;
                     //System.out.println("Box " + boxSizeAct+ " "+ truncatedRadiusLJ+ " ");
-
+                //int mu = -3750;
                     for (int i = 0; i < muValues.size(); i++) {
                         long numSteps = params.numSteps;
-                        int mu = muValues.get(i);
-                        System.out.println("mu1 " + mu);
+                        double mu = muValues.get(i);
+                        System.out.println("mu " + mu);
 //                        //System.out.println("temperature " + params.temperature);
                        // GCMCMOP sim = new GCMCMOP(confNameMOPOne, gasSimAct, params.confNameGasTwo, confNameGraphene, params.struc, geom, centreMOP, centreMOPTwo, grapheneOne, grapheneTwo, grapheneThree, grapheneFour, numAtomOne, numAtomTwo, temperature, truncatedRadius, truncatedRadiusLJ, sigma, mu, mu2, ifGraphenePresent, ifSecondGasPresent, ifMultipleGraphenePresent, ifMoveRotateMoves, boxSizeAct, makeAllMove, doElectrostatics, multiplier, isGasCOMPASS, isGasTraPPE, ifMOPPresent, ifCOFPresent, ifautoMOP, params.ifXYZfile);
                        GCMCMOP sim = new GCMCMOP(confNameMOPOne, gasSimAct, temperature, truncatedRadiusLJ, sigma, mu, ax, ay, az,
@@ -1301,11 +1307,11 @@ public class GCMCMOP extends Simulation {
                         int pInterval = 2;
                         long bs = params.numSteps / (pInterval * 5);
                         if (bs == 0) bs = 1;
-               /*MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
+               MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
                 pMeter.setTemperature(sim.integrator.getTemperature());
                 AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(bs);
                 DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, pInterval);
-                sim.integrator.getEventManager().addListener(pPump);*/
+                sim.integrator.getEventManager().addListener(pPump);
 
                         bs = params.numSteps / 50;
                         if (bs == 0) bs = 1;
@@ -1458,13 +1464,13 @@ public class GCMCMOP extends Simulation {
                         //  System.out.println("runtime: " + (t2 - t1) * 0.001);
                         Unit pUnit = Bar.UNIT;
                         //     Unit MegaPascal = new PrefixedUnit(Prefix.MEGA, Pascal.UNIT);
-            /*   Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
+              Unit kiloPascal = new PrefixedUnit(Prefix.KILO, Pascal.UNIT);
               double avgP = pAccumulator.getData(pAccumulator.AVERAGE).getValue(0);
                 double errP = pAccumulator.getData(pAccumulator.ERROR).getValue(0);
                 double corP = pAccumulator.getData(pAccumulator.BLOCK_CORRELATION).getValue(0);
-                        System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);*/
+                        System.out.println("P (Bar) " + pUnit.fromSim(avgP) + " bar " + pUnit.fromSim(errP) + " " + corP);
              //   System.out.println("P (MPa) " + MegaPascal.fromSim(avgP) + " MPa " + MegaPascal.fromSim(errP) + " " + corP);
-               //  System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);
+                 System.out.println("P (kPa) " + kiloPascal.fromSim(avgP) + " kPa " + kiloPascal.fromSim(errP) + " " + corP);
                         //double muR = Constants.BOLTZMANN_K * temperature * Math.log(avgP/temperature);
                         //System.out.println("muR: " + muR);*/
 
@@ -1506,11 +1512,11 @@ public class GCMCMOP extends Simulation {
                         }
                         System.out.println("insertions "+ mcInsertDelete.getTracker().acceptanceRatio() );
                         System.out.println("Num atoms One : " + numAtomsAvg + " " + errnum  +" "+ err1 );
-                         double massPer = (numAtomsAvg* sim.speciesGas.getMass())/((sim.speciesMOP.getMass())+ (numAtomsAvg* sim.speciesGas.getMass()));
-                        System.out.println("mass by  mass " +massPer*100);
-                        double numMass = (numAtomsAvg)/(sim.speciesMOP.getMass());
-                        System.out.println("gas by mass " +numMass*100 + " "+ sim.speciesMOP.getMass() +"\n");
-                        //System.out.println("mol/mass : "+ numAtomsAvg/ sim.speciesMOP.getMass() + " "+ sim.speciesMOP.getMass() + " " + moleperKilo.fromSim(numAtomsAvg/ sim.speciesMOP.getMass()));
+                     //    double massPer = (numAtomsAvg* sim.speciesGas.getMass())/((sim.speciesMOP.getMass())+ (numAtomsAvg* sim.speciesGas.getMass()));
+                    //    System.out.println("mass by  mass " +massPer*100);
+                     //   double numMass = (numAtomsAvg)/(sim.speciesMOP.getMass());
+                     //   System.out.println("gas by mass " +numMass*100 + " "+ sim.speciesMOP.getMass() +"\n");
+                     //   System.out.println("mol/mass : "+ numAtomsAvg/ sim.speciesMOP.getMass() + " "+ sim.speciesMOP.getMass() + " " + moleperKilo.fromSim(numAtomsAvg/ sim.speciesMOP.getMass()));
                         //  System.out.println("Actual "+ avgRho);
                         //System.out.println("nm " + nm3.fromSim(sim.box.getBoundary().volume()));
                         //System.out.println("Num atoms : " + numAtomsAvg + " " + errnum + " " + cornum + " " + (sim.speciesGas.getMass()*numAtomsAvg*1000/sim.speciesMOP.getMass()));
@@ -1652,19 +1658,19 @@ public class GCMCMOP extends Simulation {
         public Vector boxSize = new Vector3D(16, 16, 16);
         public double temperature = 298;
         public double mu2 = -470;
-        public double mu1 = -2400;
+        public double mu1 = -2100;
         public double muDecrease = -100;
         public int muLimit = -3105;
-        public long numSteps =10000000;
-        public double ax = 27.763700;
+        public long numSteps =1000000;
+        public double ax = 40;
         public double ay = 0;
         public double az = 0;
-        public double bx = -13.881850;
-        public double by = 24.044070;
+        public double bx = 0;
+        public double by = 40;
         public double bz = 0;
         public double cx = 0;
         public double cy = 0;
-        public double cz = 47.146900;
+        public double cz = 40;
 
         public Vector vectorZero = new Vector3D(34.517000, 0.000000, 0.000000);
         public Vector vectorOne = new Vector3D(0.000000, 34.517000, 0.000000);
@@ -1673,19 +1679,19 @@ public class GCMCMOP extends Simulation {
        // public double side =50.0;
         public boolean ifXYZfile = false;
 
-        public String confNameEight4 = "D:\\Sem-X\\AllMOP\\partOne\\101002adma202310061\\QUNXEG\\structure";
+        public String confNameEight4 = "D:\\Sem-X\\Tax\\output_structure_min";
      //public String confNameEight4 = "Cu_c3mod";
         public String geomOne = "tetra" ;
 
-        public String confNamegas = "ch4";
-        public String confNameGasOne = "ethane" ;
+        public String confNamegas = "F:\\Avagadro\\molecule\\Xe";
+        public String confNameGasOne = "F:\\Avagadro\\molecule\\Kr" ;
         public String confNameGasTwo = "ethene" ;
         public String confNameGasThree = "propane" ;
         public String confNameGasFour = "propene" ;
         public String confNameGasFive = "nbutane" ;
         public String confNameGasSix = "butene" ;
         public String confNameGasSeven = "13butadiene" ;
-        public String confNameGasEight = "methylpropene" ;
+        public String confNameGasEight = "methylpropane" ;
         public String confNameGasNine = "methylpropane" ;
 
 
@@ -1697,7 +1703,7 @@ public class GCMCMOP extends Simulation {
         public String confNamegasNine = "ch4" ;
         public String confNamegasTen = "propane" ;
         public String confNamegasEleven = "propene" ;
-        public boolean isGasTraPPE = true;
+        public boolean isGasTraPPE = false;
         public double sizeOne =29.28;
         public double sizeTwo = 49.0051;
         public double sizeThree = 38.5022;
@@ -1733,7 +1739,7 @@ public class GCMCMOP extends Simulation {
         public double truncatedRadius = truncatedRadiusLJ;
         public String struc = "edge";
         public boolean doFFAnalaysis = true;
-        public boolean doGraphics = false;
+        public boolean doGraphics = true;
         public boolean ifautoMOP = true;
         public boolean isGasCOMPASS = false;
         public boolean ifGraphenePresent = false;

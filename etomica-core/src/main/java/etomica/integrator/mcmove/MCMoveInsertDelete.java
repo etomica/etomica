@@ -137,7 +137,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         double b = uOld - uNew;
         if (insert) b += mu;
         else b -= mu;
-
+        //System.out.println("uNew "+ uNew +" uOld "+ uOld );
         return (insert ? a : 1.0 / a) * Math.exp(b / temperature);
     }
 

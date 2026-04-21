@@ -455,11 +455,11 @@ public class SetPotential {
             pmBonding.setBondingPotentialQuad(species, p4BondTorsionTraPPET1, torsions);
 
         } else if (name.equals("methylpropane") || name.equals("methylpropene")) {
-            bondArr = new int[]{0,1};
+            bondArr = new int[]{1,0};
             bond.add(bondArr);
-            bondArr = new int[]{2,1};
+            bondArr = new int[]{2,0};
             bond.add(bondArr);
-            bondArr = new int[]{3,1};
+            bondArr = new int[]{3,0};
             bond.add(bondArr);
 
             pmBonding.setBondingPotentialPair(species, p2Bond, bond );

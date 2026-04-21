@@ -237,6 +237,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             box[iBox] = new BoxCluster(sampleClusters[iBox], space, boxLengths[iBox]);
             addBox(box[iBox]);
             for (ISpecies sp : getSpeciesList()) {
+                //System.out.println(sp);
                 box[iBox].setNMolecules(sp, nMolecules[sp.getIndex()]);
             }
 

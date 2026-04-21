@@ -72,9 +72,9 @@ public class PotentialMoleculePair implements IPotentialMolecular {
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(a1.getPosition(), a0.getPosition());
                 u += p2.u(dr.squared());
-                if(u>8E7){
-                  //  System.out.println("Next One");
-                }
+               /* if(Math.abs(u) < 0.001){
+                    System.out.println("Next One");
+                }*/
                 //System.out.println(" sum : "+ u + " " + a0 +" "+a1);
             }
         }

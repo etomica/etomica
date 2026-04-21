@@ -47,7 +47,7 @@ import etomica.virial.VirialMultiUFF;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
+/*
 public class GasMOPSimulation extends Simulation{
     public PotentialCompute pcAgg;
     public IntegratorMC integratorMC;
@@ -146,12 +146,12 @@ public class GasMOPSimulation extends Simulation{
             dupletsIntArrayList1[i] = intArrayList;
             //  System.out.println(dupletsIntArrayList[i]);
         }
-       /* for (IntArrayList list : dupletsIntArrayList1) {
+        for (IntArrayList list : dupletsIntArrayList1) {
             for (i = 0; i < list.size(); i++) {
                 int value = list.getInt(i);
                // System.out.print(value + " ");
             }
-        }*/
+        }
         SetPotential setPotential = new SetPotential();
         PotentialMasterBonding.FullBondingInfo bondingInfo1 = new PotentialMasterBonding.FullBondingInfo(sm1);
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(getSpeciesManager(), box, 5, pmBonding.getBondingInfo());
@@ -197,12 +197,12 @@ public class GasMOPSimulation extends Simulation{
             dupletsIntArrayList2[i] = intArrayList;
             //  System.out.println(dupletsIntArrayList[i]);
         }
-      /*  for (IntArrayList list : dupletsIntArrayList2) {
+        for (IntArrayList list : dupletsIntArrayList2) {
             for (i = 0; i < list.size(); i++) {
                 int value = list.getInt(i);
                 System.out.print(value + " ");
             }
-        }*/
+        }
         setPotential.setupBondStrech(speciesGas,bondTypesMap2, angleTypesMap2, torsionTypesMap2, bondsNum2, bondList2,quadrupletsSorted2, atomIdentifierMapModified2, atomicPotMap2, bondingInfo1, pmBonding);
         LJUFF[] p2LJ2 = new LJUFF[pairAtomSize2];
         IPotential2[] p2lj2 = new IPotential2[pairAtomSize2];
@@ -225,7 +225,7 @@ public class GasMOPSimulation extends Simulation{
                 pairsAtomsTotal.add(subPair);
             }
         }
-      /*  for(i=0; i<list2Size; i++) {
+        for(i=0; i<list2Size; i++) {
             String name = list2.get(i).getName();
             for(j =0; j<list3.size(); j++){
                 String nameSet = list3.get(j).getName();
@@ -251,7 +251,7 @@ public class GasMOPSimulation extends Simulation{
                     pairsAtomsTotal.add(subPair);
                 }
             }
-        }*/
+        }
         //System.out.println(pairsAtomsTotal);
         int pairAtomsTotalSize = pairsAtomsTotal.size();
         LJUFF[] p2LJTotal = new LJUFF[pairAtomsTotalSize];
@@ -272,12 +272,12 @@ public class GasMOPSimulation extends Simulation{
 
         mcMoveMoleculeRotate = new MCMoveMoleculeRotate(random, pcAgg, box);
         integratorMC.getMoveManager().addMCMove(mcMoveMoleculeRotate);
-        ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);*/
+        ((MoleculeSourceRandomMolecule) mcMoveMoleculeRotate.getMoleculeSource()).setSpecies(speciesGas);
 
         potentialMasterCell.init();
      //   double u0 = potentialMasterCell.computeAll(true);
       //  System.out.println(kcals.fromSim(u0) + " " + u0);
-/*
+
 
         if (configFileName != null) {
             ConfigurationFile config = new ConfigurationFile(configFileName);
@@ -342,7 +342,7 @@ public class GasMOPSimulation extends Simulation{
             }
         }
 
-*/
+
     }
 
 
@@ -352,12 +352,12 @@ public class GasMOPSimulation extends Simulation{
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         }
-       /* else {
+        else {
             params.density = 0.0000003;
             params.configFilename = null; // "octane";
             params.numSteps = 20000;
             params.graphics = true;
-        }*/
+        }
 
 
       //Unit dUnit = new SimpleUnit(Null.DIMENSION, 100, "Density", "g/cm^3", false);
@@ -458,10 +458,10 @@ public class GasMOPSimulation extends Simulation{
             DiameterHashByType dhbt = (DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash();
             dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
             //dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
-            /*dhbt.setDiameter(sim.speciesMOP.getAtomType(1), 1);
+            dhbt.setDiameter(sim.speciesMOP.getAtomType(1), 1);
             dhbt.setDiameter(sim.speciesMOP.getAtomType(2), 1);
             dhbt.setDiameter(sim.speciesMOP.getAtomType(3), 1);
-            dhbt.setDiameter(sim.speciesMOP.getAtomType(4), 1);*/
+            dhbt.setDiameter(sim.speciesMOP.getAtomType(4), 1);
             //dhbt.setDiameter(sim.speciesMOP.getAtomType(5), 1);
             //dhbt.setDiameter(sim.speciesMOP.getAtomType(0), 1);
             //dhbt.setDiameter(sim.speciesGrapheneTwo.getAtomType(0), 1);
@@ -504,8 +504,8 @@ public class GasMOPSimulation extends Simulation{
             muDataFork.addDataSink(muDataAccu);
             sim.integratorMC.getEventManager().addListener(muDataPump);
             muDataAccu.setPushInterval(100);
-        /*AccumulatorHistory muHistoryA = new AccumulatorHistory(new HistoryCollapsingAverage());
-        muDataAccu.addDataSink(muHistoryA);*/
+        AccumulatorHistory muHistoryA = new AccumulatorHistory(new HistoryCollapsingAverage());
+        muDataAccu.addDataSink(muHistoryA);
             DataProcessor uProcessor = new DataProcessorFunction(new IFunction() {
                 public double f(double x) {
                     if (x == 0) return Double.POSITIVE_INFINITY;
@@ -516,7 +516,7 @@ public class GasMOPSimulation extends Simulation{
 
             //  System.out.println("Reached after interval");
 
-/*
+
        AccumulatorAverageFixed accU = new AccumulatorAverageFixed((numSteps/10)/1000);
         DataPumpListener pumpU = new DataPumpListener(meterU, accU, 500);
         sim.integratorMC.getEventManager().addListener(pumpU);
@@ -529,7 +529,7 @@ public class GasMOPSimulation extends Simulation{
         dpZm1oR.addDataSink(accZm1oR);
         DataPumpListener pumpP = new DataPumpListener(meterP, forkP, 8*numMoleculesGas);
         sim.integratorMC.getEventManager().addListener(pumpP);
-*/
+
             long t1 = System.nanoTime();
             sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, numSteps));
             long t2 = System.nanoTime();
@@ -547,7 +547,7 @@ public class GasMOPSimulation extends Simulation{
             double[] arrBox = boxSize.toArray();
             System.out.println("B2 " + -0.5*arrBox[0]*arrBox[1]*arrBox[2]*(1-avg) + " " + -0.5*arrBox[0]*arrBox[1]*arrBox[2]*(avg-1));
 
-       /* IData dataU = muDataAccu.getData();
+        IData dataU = muDataAccu.getData();
         double avgU = dataU.getValue(AccumulatorAverage.AVERAGE.index) / numMoleculesGas;
         double errU = dataU.getValue(AccumulatorAverage.ERROR.index) / numMoleculesGas;
         double corU = dataU.getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
@@ -555,8 +555,8 @@ public class GasMOPSimulation extends Simulation{
 
         UnitRatio jouleMole = new UnitRatio(Joule.UNIT, Mole.UNIT);
         double valjouleMole = jouleMole.fromSim(dataU.getValue(AccumulatorAverage.AVERAGE.index/numMoleculesGas));
-        System.out.println(valjouleMole + " J/mol");*/
-     /*   IData dataP = accP.getData();
+        System.out.println(valjouleMole + " J/mol");
+        //IData dataP = accP.getData();
         UnitRatio den = new UnitRatio(Mole.UNIT, Liter.UNIT);
         System.out.println(den.fromSim(density) + " desnity");
         double avgP = dataP.getValue(AccumulatorAverage.AVERAGE.index);
@@ -575,7 +575,7 @@ public class GasMOPSimulation extends Simulation{
         double avgZ_ = dataZ_.getValue(AccumulatorAverage.AVERAGE.index);
         double errZ_ = dataZ_.getValue(AccumulatorAverage.ERROR.index);
         double corZ_ = dataZ_.getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
-        System.out.println("(Z-1)/rho: "+" "+avgZ_+"   err: "+" "+errZ_+"   cor: "+" "+corZ_);*/
+        System.out.println("(Z-1)/rho: "+" "+avgZ_+"   err: "+" "+errZ_+"   cor: "+" "+corZ_);
 
             System.out.println("time: "+" "+(t2-t1)/1e9);
         }
@@ -634,4 +634,4 @@ public class GasMOPSimulation extends Simulation{
         public boolean isResidual = true;
 
     }
-}
+}*/
