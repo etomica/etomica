@@ -52,8 +52,7 @@ public class PotentialMasterCellPI extends PotentialMasterCell {
                 int jType = jAtom.getType().getIndex();
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
-                uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc, skipIntra);
+                uTot += handleComputeAll(doForces, iAtom, jAtom, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
             }
             int iCell = atomCell[i];
             for (int k=0; k<numCellOffsets; k++) {
@@ -67,8 +66,7 @@ public class PotentialMasterCellPI extends PotentialMasterCell {
                     int jType = jAtom.getType().getIndex();
                     IPotential2 pij = ip[jType];
                     if (pij == null) continue;
-                    boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
-                    uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij, pc, skipIntra);
+                    uTot += handleComputeAll(doForces, iAtom, jAtom, i, j, ri, jAtom.getPosition(), jbo, pij, pc);
                 }
             }
         }
@@ -123,9 +121,8 @@ public class PotentialMasterCellPI extends PotentialMasterCell {
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
                 Vector rj = jAtom.getPosition();
-                u1 += handleComputeOne(pij, ri, rj, jbo, i, j, skipIntra);
+                u1 += handleComputeOne(iAtom, jAtom, ri, rj, jbo, pij);
             }
         }
         for (int cellOffset : cellOffsets) {
@@ -139,8 +136,7 @@ public class PotentialMasterCellPI extends PotentialMasterCell {
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
-                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
+                u1 += handleComputeOne(iAtom, jAtom, ri, jAtom.getPosition(), jbo, pij);
             }
 
             // now down
@@ -154,8 +150,7 @@ public class PotentialMasterCellPI extends PotentialMasterCell {
                 IPotential2 pij = ip[jType];
                 if (pij == null) continue;
                 if (arrayContains(jAtom, startExcludeIdx, excludedAtoms)) continue;
-                boolean skipIntra = bondingInfo.skipBondedPair(isPureAtoms, iAtom, jAtom);
-                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j, skipIntra);
+                u1 += handleComputeOne(iAtom, jAtom, ri, jAtom.getPosition(), jbo, pij);
             }
         }
         tMC += System.nanoTime() - t1;

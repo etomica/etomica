@@ -44,8 +44,9 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
         xValues = new double[n];
         setXRange(xRange);
     }
-	
-	public void reset() {
+
+
+    public void reset() {
         //resets all histogram values and counts to zero
 	    sum = 0;
 	    for(int i=0; i<nBins; i++) {
