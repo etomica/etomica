@@ -98,6 +98,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
 
     @Override
     public boolean doTrial() {
+
         uOld = potential.computeAll(false);
         wNew = wOld = 1;
         if (!skipW && box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -170,7 +171,7 @@ public class MCMoveClusterAngle extends MCMoveBoxStep {
         }
 
 
-        if(fixedCOM && (iMolecule==0 || (constraintMap != null && constraintMap[iMolecule] == 0))) {
+        if(false && fixedCOM && (iMolecule==0 || (constraintMap != null && constraintMap[iMolecule] == 0))) {
             if (doLattice) {
                 shift.E(CenterOfMass.position(box, molecule));
                 shift.TE(-1);
@@ -248,7 +249,7 @@ for(int i = 0 ;i<2 && false;i++){
 
     @Override
     public double getChi(double temperature) {
-        if( box.getIndex()==0 && IntegratorMC.dodebug){
+        if(false){
             System.out.println("old "+wOld+" "+uOld+" new "+ wNew+" "+uNew);
         }
         return (wOld == 0 ? 1 : wNew / wOld) * Math.exp(-(uNew - uOld) / temperature);

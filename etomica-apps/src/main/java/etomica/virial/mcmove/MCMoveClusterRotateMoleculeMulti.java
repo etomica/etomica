@@ -95,6 +95,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     }
 public boolean skipW=false;
     public boolean doTrial() {
+
         if (!skipW) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, illegal initial configuration");

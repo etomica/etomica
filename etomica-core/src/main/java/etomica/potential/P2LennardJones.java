@@ -36,6 +36,9 @@ public class P2LennardJones implements IPotential2 {
      * The energy u.
      */
     public double u(double r2) {
+        if(epsilon==0) {
+            return 0;
+        }
         double s2 = sigmaSquared/r2;
         double s6 = s2*s2*s2;
         return epsilon4*s6*(s6 - 1.0);

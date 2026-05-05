@@ -103,6 +103,8 @@ public class MCMoveClusterAngleMulti extends MCMoveBoxStep {
 
     @Override
     public boolean doTrial() {
+
+
         uOld = potential.computeAll(false);
         wNew = wOld = 1;
         if (!skipW && box instanceof BoxCluster) wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);

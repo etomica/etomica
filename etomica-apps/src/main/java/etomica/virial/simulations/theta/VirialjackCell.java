@@ -19,6 +19,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterRadiusGyration;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
+import etomica.graph.model.Graph;
 import etomica.graphics.*;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorListenerAction;
@@ -27,6 +28,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
+import etomica.molecule.MoleculePositionFirstAtom;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.NeighborCellManagerMulti;
 import etomica.nbr.cell.NeighborIteratorCellMulti;
@@ -48,21 +50,18 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.virial.BoxCluster;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.PotentialMoleculePairCell;
+import etomica.virial.*;
 import etomica.virial.cluster.*;
 import etomica.virial.mcmove.*;
 import etomica.virial.simulations.SimulationVirialOverlap2;
+import etomica.virial.simulations.VirialAlkane;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -87,14 +86,14 @@ public class VirialjackCell {
         } else {
 
 
-            params.nPoints = 3;
-            params.armLength =8;
-            params.coreSigma=1;
-            params.numArms = 12;
-            params.temperature = 12;
-            params.numSteps =10000000L;
-            params.boxLength =50;
-            params.sigmaHSRef = 0;
+            params.nPoints = 4;
+            params.armLength = 2;
+            params.coreSigma = 1;
+            params.numArms = 6;
+            params.temperature = 5;
+            params.numSteps = 10000000L;
+            params.boxLength = 50;
+            params.sigmaHSRef = 1.5;
             params.rc = 2.5;
         }
 
@@ -104,7 +103,7 @@ public class VirialjackCell {
         double temperature = params.temperature;
         long steps = params.numSteps;
         double refFreq = params.refFreq;
-        if (armLength< 2){
+        if (armLength < 2) {
             throw new RuntimeException("arm length must be at least 2");
         }
 
@@ -118,12 +117,11 @@ public class VirialjackCell {
 
         // --- Two atom types: core vs monomer (keeps indices identical) ---
         AtomType typeCore = AtomType.simple("Core");
-        AtomType typeMono = AtomType.simple("Mono");
-
+        AtomType typeMono = AtomType.simple("Mono",0);
 
 
         // species: 1 core + (numArms*armLength) monomers
-                ISpecies species = new SpeciesBuilder(Space3D.getInstance())
+        ISpecies species = new SpeciesBuilder(Space3D.getInstance())
                 .addCount(typeCore, 1)
                 .addCount(typeMono, numArms * armLength)
                 .withConformation(conf)
@@ -131,12 +129,12 @@ public class VirialjackCell {
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
         // Pair potentials (molecule-level wrapper)
-        PotentialMoleculePairCell pTargetInTarget = new PotentialMoleculePairCell( sm);
-        PotentialMoleculePairCell pTargetInReference = new PotentialMoleculePairCell( sm);
+        PotentialMoleculePairCell pTargetInTarget = new PotentialMoleculePairCell(sm);
+        PotentialMoleculePairCell pTargetInReference = new PotentialMoleculePairCell(sm);
         //added to compare
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
 
-        System.out.println(numArms+" arms of length "+armLength+"  B"+nPoints+" at T = "+temperature);
+        System.out.println(numArms + " arms of length " + armLength + "  B" + nPoints + " at T = " + temperature);
 
         // --- Define LJ potentials per pair (defaults preserve old behavior: ε=1, σ=1) ---
         // --- Define LJ using combining rules (Lorentz–Berthelot) ---
@@ -145,13 +143,13 @@ public class VirialjackCell {
         double sigM = 1;   // mono σ
         double epsM = 1;     // mono ε
 
-        double sigCM = 0.5*(sigC + sigM);           // Lorentz
+        double sigCM = 0.5 * (sigC + sigM);           // Lorentz
         double epsCM = Math.sqrt(epsC * epsM);      // Berthelot
 
         TruncationFactory tf = new TruncationFactorySimple(params.rc);
-        IPotential2 p2CoreCore  = P2LennardJones.makeTruncated(sigC,epsC,tf);
-        IPotential2 p2MonoMono = P2LennardJones.makeTruncated(sigM,epsM,tf);
-        IPotential2 p2CoreMono = P2LennardJones.makeTruncated(sigCM,epsCM,tf);
+        IPotential2 p2CoreCore = P2LennardJones.makeTruncated(sigC, epsC, tf);
+        IPotential2 p2MonoMono = P2LennardJones.makeTruncated(sigM, epsM, tf);
+        IPotential2 p2CoreMono = P2LennardJones.makeTruncated(sigCM, epsCM, tf);
 
 
         // Mayer functions
@@ -168,7 +166,9 @@ public class VirialjackCell {
                 : 1.0;
 
         MayerFunction fRefPos = new MayerFunction() {
-            public void setBox(Box box) {}
+            public void setBox(Box box) {
+            }
+
             public double f(IMoleculeList pair, double r2, double beta) {
                 return r2 < sigmaHSRef * sigmaHSRef ? 1 : 0;
             }
@@ -177,70 +177,123 @@ public class VirialjackCell {
         boolean flex = nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, flex);
         alkaneDiagrams.setDoReeHoover(false);
-        ClusterAbstract targetInTargetCluster = alkaneDiagrams.makeVirialCluster(fTargetInTarget);
+        ClusterSum targetInTargetCluster = alkaneDiagrams.makeVirialCluster(fTargetInTarget);
         ClusterAbstract targetInReferenceCluster = alkaneDiagrams.makeVirialCluster(fTargetInReference);
         ClusterChainHS refCluster = new ClusterChainHS(nPoints, fRefPos);
 
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double refIntegral = SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1);
+        ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
+        int[] targetDiagramNumbers = new int[0];
+        boolean[] diagramFlexCorrection = null;
+
+        if (true) {
+            targetDiagrams = alkaneDiagrams.makeSingleVirialClusters(targetInTargetCluster, null, fTargetInTarget);
+            targetDiagramNumbers = new int[targetDiagrams.length];
+            System.out.println("individual clusters:");
+            Set<Graph> singleGraphs = alkaneDiagrams.getMSMCGraphs(true, false);
+            Map<Graph,Graph> cancelMap = alkaneDiagrams.getCancelMap();
+            int iGraph = 0;
+            diagramFlexCorrection = new boolean[targetDiagrams.length];
+            for (Graph g : singleGraphs) {
+                System.out.print((iGraph+1)+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
+                targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+
+                Graph cancelGraph = cancelMap.get(g);
+                if (cancelGraph != null) {
+                    diagramFlexCorrection[iGraph] = true;
+                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
+
+                    System.out.print(" - "+ VirialAlkane.getSplitGraphString(gSplit, alkaneDiagrams, false));
+
+                }
+                System.out.println();
+                iGraph++;
+            }
+            System.out.println();
+            Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
+            if (disconnectedGraphs.size() > 0) {
+                System.out.println("extra clusters:");
+
+                for (Graph g : disconnectedGraphs) {
+                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
+                    System.out.println(g.coefficient()+" "+VirialAlkane.getSplitGraphString(gSplit, alkaneDiagrams, true));
+                }
+                System.out.println();
+            }
+        }
+
 
         targetInTargetCluster.setTemperature(temperature);
         targetInReferenceCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
+        for (int i=0; i<targetDiagrams.length; i++) {
+            targetDiagrams[i].setTemperature(temperature);
+        }
 
-        System.out.println("sigmaHSRef: "+sigmaHSRef);
-        System.out.println("B"+nPoints+"HS: "+refIntegral);
+        System.out.println("sigmaHSRef: " + sigmaHSRef);
+        System.out.println("B" + nPoints + "HS: " + refIntegral);
 
         // --- Bonding info (unchanged logic; just ensure intramolecular LJ is computed) ---
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm) {
             @Override
-            public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) { return false; }
+            public boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom) {
+                return false;
+            }
         };
         // dummy bonding potential to force intramolecular nonbonded calc
         IPotential2 pBonding = new IPotential2() {
-            @Override public double getRange() { return 2; }
-            @Override public void u012add(double r2, double[] u012) { }
+            @Override
+            public double getRange() {
+                return 2;
+            }
+
+            @Override
+            public void u012add(double r2, double[] u012) {
+            }
         };
         List<int[]> pairs = new ArrayList<>();
-        for (int i=0; i<numArms; i++) {
-            pairs.add(new int[]{0,1+armLength*i});
-            for (int j = 0; j < armLength-1; j++) {
-                pairs.add(new int[]{1+armLength*i+j, 1+armLength*i+j+1});
+        for (int i = 0; i < numArms; i++) {
+            pairs.add(new int[]{0, 1 + armLength * i});
+            for (int j = 0; j < armLength - 1; j++) {
+                pairs.add(new int[]{1 + armLength * i + j, 1 + armLength * i + j + 1});
             }
         }
         bondingInfo.setBondingPotentialPair(species, pBonding, pairs);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm,
-                new int[]{flex ? (nPoints+1) : nPoints}, temperature, refCluster, targetInTargetCluster);
+                new int[]{flex ? (nPoints + 1) : nPoints}, temperature, refCluster, targetInTargetCluster);
+        sim.setExtraTargetClusters(targetDiagrams);
         sim.setDoWiggle(false);
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTargetInTarget.getAtomPotentials());
-        sim.setOverlapClusters(refCluster.makeCopy(),targetInReferenceCluster);
-        sim.setRandom(new RandomMersenneTwister(3 ));
+        sim.setOverlapClusters(refCluster.makeCopy(), targetInReferenceCluster);
+        sim.setRandom(new RandomMersenneTwister(3));
         sim.setPotentialComputeFactory(new SimulationVirialOverlap2.PotentialComputeFactory() {
             @Override
             public PotentialCompute makePotentialCompute(SpeciesManager sm, BoxCluster box) {
-                return box.getIndex()==0?pTargetInReference.makePotentialComputeIntra():pTargetInTarget.makePotentialComputeIntra();
+                return box.getIndex() == 0 ? pTargetInReference.makePotentialComputeIntra() : pTargetInTarget.makePotentialComputeIntra();
             }
         });
         sim.init();
-        System.out.println("random seeds: "+ Arrays.toString(sim.getRandomSeeds()));
-
+        //((CoordinatePairMoleculeSet) ((BoxCluster) sim.box[0]).getCPairSet()).setPositionDefinition(new MoleculePositionFirstAtom());
+        //((CoordinatePairMoleculeSet) ((BoxCluster) sim.box[1]).getCPairSet()).setPositionDefinition(new MoleculePositionFirstAtom());
+        System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
 
 
         pTargetInTarget.setBox(sim.box[1]);
         pTargetInReference.setBox(sim.box[0]);
-        pTargetInTarget.integrator=sim.integrators[1];
-        pTargetInReference.integrator=sim.integrators[0];
+        pTargetInTarget.integrator = sim.integrators[1];
+        pTargetInReference.integrator = sim.integrators[0];
 
-        sim.box[0].getBoundary().setBoxSize(Vector.of(params.boxLength,params.boxLength,params.boxLength));
-        sim.box[1].getBoundary().setBoxSize(Vector.of(params.boxLength,params.boxLength,params.boxLength));
-        NeighborCellManager targetCellManager = new NeighborCellManager(sm,sim.box[1],2,bondingInfo);/*{
+        sim.box[0].getBoundary().setBoxSize(Vector.of(params.boxLength, params.boxLength, params.boxLength));
+        sim.box[1].getBoundary().setBoxSize(Vector.of(params.boxLength, params.boxLength, params.boxLength));
+        NeighborCellManager targetCellManager = new NeighborCellManager(sm, sim.box[1], 2, bondingInfo);/*{
             public NeighborIterator makeNeighborIterator() {
                 return new NeighborIteratorCellFaster(this,sim.box[1]);
             }
         };*/
-        NeighborCellManager referenceCellManager = new NeighborCellManager(sm,sim.box[0],2,bondingInfo);/*{
+        NeighborCellManager referenceCellManager = new NeighborCellManager(sm, sim.box[0], 2, bondingInfo);/*{
             public NeighborIterator makeNeighborIterator() {
                 return new NeighborIteratorCellFaster(this,sim.box[0]);
             }
@@ -257,20 +310,22 @@ public class VirialjackCell {
         mcMoveHSC.setCellManager(referenceCellManager);
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
-        ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setCellManager(targetCellManager);
-        ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setCellManager(targetCellManager);
-        ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setCellManager(referenceCellManager);
+        ((MCMoveClusterMoleculeMulti) sim.mcMoveTranslate[1]).setCellManager(targetCellManager);
+        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).setCellManager(targetCellManager);
+        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[0]).setCellManager(referenceCellManager);
         //((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setDoXAxis(true);
         //((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setFixedAtom(0);
 
-        int[] constraintMap = new int[nPoints+1];
-        for (int i=0; i<nPoints; i++) { constraintMap[i] = i; }
+        int[] constraintMap = new int[nPoints + 1];
+        for (int i = 0; i < nPoints; i++) {
+            constraintMap[i] = i;
+        }
         if (flex) {
             constraintMap[nPoints] = 0;
             mcMoveHSC.setConstraintMap(constraintMap);
-            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
-            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
-            ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
+            ((MCMoveClusterMoleculeMulti) sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
+            ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
+            ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
         }
 
         if (refFreq >= 0) {
@@ -279,7 +334,7 @@ public class VirialjackCell {
         }
 
         sim.integratorOS.setNumSubSteps(1000);
-        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
+        System.out.println(steps + " steps (1000 blocks of " + steps / 1000 + ")");
         steps /= 1000;
 
         // --- Assign pair potentials to atom-type pairs (key change) ---
@@ -292,7 +347,7 @@ public class VirialjackCell {
         pTargetInReference.setAtomPotential(typeMono, typeMono, p2MonoMono);
         pTargetInReference.setAtomPotential(typeCore, typeMono, p2CoreMono);
         pTargetInReference.setAtomPotential(typeMono, typeCore, p2CoreMono);
-         //to compare
+        //to compare
         pTarget.setAtomPotential(typeCore, typeCore, p2CoreCore);
         pTarget.setAtomPotential(typeMono, typeMono, p2MonoMono);
         pTarget.setAtomPotential(typeCore, typeMono, p2CoreMono);
@@ -303,20 +358,20 @@ public class VirialjackCell {
         MCMoveClusterAngle[] angleMoves;
         MCMoveClusterStretch[] stretchMoves = null;
 
-        IntArrayList[] bonding = new IntArrayList[1+numArms*armLength];
+        IntArrayList[] bonding = new IntArrayList[1 + numArms * armLength];
         bonding[0] = new IntArrayList(numArms);
-        for (int i=0; i<numArms; i++) {
-            bonding[0].add(1+i*armLength);
+        for (int i = 0; i < numArms; i++) {
+            bonding[0].add(1 + i * armLength);
             if (armLength > 1) {
                 bonding[1 + i * armLength] = new IntArrayList(new int[]{0, 1 + i * armLength + 1});
             } else {
                 bonding[1 + i * armLength] = new IntArrayList(new int[]{0});
             }
-            for (int j = 1; j < armLength-1; j++) {
-                bonding[1+armLength*i+j] = new IntArrayList(new int []{1+armLength*i+j-1, 1+armLength*i+j+1});
+            for (int j = 1; j < armLength - 1; j++) {
+                bonding[1 + armLength * i + j] = new IntArrayList(new int[]{1 + armLength * i + j - 1, 1 + armLength * i + j + 1});
             }
             if (armLength > 1) {
-                bonding[1 + (i+1) * armLength - 1] = new IntArrayList(new int[]{1 + (i+1) * armLength - 2});
+                bonding[1 + (i + 1) * armLength - 1] = new IntArrayList(new int[]{1 + (i + 1) * armLength - 2});
             }
         }
 
@@ -324,72 +379,83 @@ public class VirialjackCell {
         PotentialCompute pc1 = sim.integrators[1].getPotentialCompute();
 
         angleMoves = new MCMoveClusterAngle[4];
-        angleMoves[0] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,1,armLength/2));
-        angleMoves[0].setBox(sim.box[0]);
-        angleMoves[0].setConstraintMap(constraintMap);
-       angleMoves[0].setFixedCOM(false);
-        sim.integrators[0].getMoveManager().addMCMove(angleMoves[0],0.1);
-        angleMoves[1] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,1,armLength/2));
-        angleMoves[1].setBox(sim.box[1]);
-        angleMoves[1].setConstraintMap(constraintMap);
-        angleMoves[0].setCellManager(referenceCellManager);
-        angleMoves[1].setFixedCOM(false);
-        angleMoves[1].setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMoves[1],0.1);
+       if (armLength>2) {
+           angleMoves[0] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1,
+                   new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2));
+           angleMoves[0].setBox(sim.box[0]);
+           angleMoves[0].setConstraintMap(constraintMap);
+           angleMoves[0].setFixedCOM(false);
+           sim.integrators[0].getMoveManager().addMCMove(angleMoves[0], 0.1);
+
+           angleMoves[1] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
+                   new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2));
+           angleMoves[1].setBox(sim.box[1]);
+           angleMoves[1].setConstraintMap(constraintMap);
+           angleMoves[0].setCellManager(referenceCellManager);
+           angleMoves[1].setFixedCOM(false);
+           angleMoves[1].setCellManager(targetCellManager);
+           sim.integrators[1].getMoveManager().addMCMove(angleMoves[1], 0.1);
+       }
 
         angleMoves[2] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2+1,armLength));
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength));
         angleMoves[2].setBox(sim.box[0]);
         angleMoves[2].setConstraintMap(constraintMap);
         angleMoves[2].setFixedCOM(false);
-        sim.integrators[0].getMoveManager().addMCMove(angleMoves[2],0.1);
+        sim.integrators[0].getMoveManager().addMCMove(angleMoves[2], 0.1);
         angleMoves[3] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2+1,armLength));
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength));
         angleMoves[3].setBox(sim.box[1]);
         angleMoves[3].setConstraintMap(constraintMap);
         angleMoves[2].setCellManager(referenceCellManager);
         angleMoves[3].setFixedCOM(false);
         angleMoves[3].setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMoves[3],0.1);
+        sim.integrators[1].getMoveManager().addMCMove(angleMoves[3], 0.1);
 
-        MCMoveClusterAngleMulti angleMovesMulti1 = new MCMoveClusterAngleMulti(pc1, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,1,armLength/2),5);
-        angleMovesMulti1.setBox(sim.box[1]);
-        angleMovesMulti1.setConstraintMap(constraintMap);
-        
-        angleMovesMulti1.setFixedCOM(false);
-        angleMovesMulti1.setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1,0.4);
+        MCMoveClusterAngleMulti angleMovesMulti1=null;
+        MCMoveClusterAngleMulti angleMovesMulti0=null;
+        if (armLength >2) {
+             angleMovesMulti1 = new MCMoveClusterAngleMulti(pc1, space, bonding, sim.getRandom(), 1,
+                    new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2), 5);
+
+            angleMovesMulti1.setBox(sim.box[1]);
+            angleMovesMulti1.setConstraintMap(constraintMap);
+
+            angleMovesMulti1.setFixedCOM(false);
+            angleMovesMulti1.setCellManager(targetCellManager);
+            sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1, 0.4);
+        }
 
         MCMoveClusterAngleMulti angleMovesMulti1outer = new MCMoveClusterAngleMulti(pc1, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2 + 1,armLength),10);
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength), 10);
         angleMovesMulti1outer.setBox(sim.box[1]);
         angleMovesMulti1outer.setConstraintMap(constraintMap);
         //new
-        MCMoveClusterAngleMulti angleMovesMulti0 = new MCMoveClusterAngleMulti(pc0, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,1,armLength/2),5);
-        angleMovesMulti0.setBox(sim.box[0]);
-        angleMovesMulti0.setConstraintMap(constraintMap);
-        angleMovesMulti0.setFixedCOM(false);
-        angleMovesMulti0.setCellManager(referenceCellManager);
-        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0,0.4);
+      if (armLength>2) {
+           angleMovesMulti0 = new MCMoveClusterAngleMulti(pc0, space, bonding, sim.getRandom(), 1,
+                  new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2), 5);
+
+          angleMovesMulti0.setBox(sim.box[0]);
+          angleMovesMulti0.setConstraintMap(constraintMap);
+          angleMovesMulti0.setFixedCOM(false);
+          angleMovesMulti0.setCellManager(referenceCellManager);
+          sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0, 0.4);
+      }
 
         MCMoveClusterAngleMulti angleMovesMulti0outer = new MCMoveClusterAngleMulti(pc0, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(),numArms,armLength,armLength/2+1,armLength),10);
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength), 10);
         angleMovesMulti0outer.setBox(sim.box[0]);
         angleMovesMulti0outer.setConstraintMap(constraintMap);
         angleMovesMulti0outer.setFixedCOM(false);
         angleMovesMulti0outer.setCellManager(referenceCellManager);
-        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0outer,0.4);
+        sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0outer, 0.4);
 
         angleMovesMulti1outer.setFixedCOM(false);
         angleMovesMulti1outer.setCellManager(targetCellManager);
-        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1outer,0.4);
+        sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1outer, 0.4);
 
         MCMoveClusterShuffle shuffleMove0 = null, shuffleMove1 = null;
-        if (false && armLength > 5 ) {
+        if (false && armLength > 5) {
             shuffleMove0 = new MCMoveClusterShuffle(pc0, space, sim.getRandom());
             shuffleMove0.setBox(sim.box[0]);
             shuffleMove0.setBonding(bonding);
@@ -404,7 +470,7 @@ public class VirialjackCell {
             shuffleMove1.setConstraintMap(constraintMap);
             shuffleMove1.setCellManager(targetCellManager);
             shuffleMove0.setCellManager(referenceCellManager);
-           // sim.integrators[1].getMoveManager().addMCMove(shuffleMove1);
+            // sim.integrators[1].getMoveManager().addMCMove(shuffleMove1);
             ((MCMoveStepTracker) shuffleMove1.getTracker()).setAcceptanceTarget(0.3);
         }
 
@@ -414,20 +480,30 @@ public class VirialjackCell {
 
         targetInTargetCluster.setTemperature(temperature * 100);
         targetInReferenceCluster.setTemperature(temperature * 100);
-        long relaxSteps = steps/40;
-        IntegratorMC relaxIntegrator= new IntegratorMC(sim.integrators[1].getPotentialCompute(), sim.getRandom(), temperature*100,sim.box[1]);
-        angleMoves[1].skipW=true;
-        angleMoves[3].skipW=true;
-        angleMovesMulti1.skipW=true;
+        long relaxSteps = steps / 40;
+        IntegratorMC relaxIntegrator = new IntegratorMC(sim.integrators[1].getPotentialCompute(), sim.getRandom(), temperature * 100, sim.box[1]);
+
+        if (armLength > 2) {
+
+            angleMoves[0].skipW=true;
+            angleMoves[1].skipW = true;
+
+            angleMovesMulti1.skipW = true;
+            angleMovesMulti0.skipW=true;
+
+            relaxIntegrator.getMoveManager().addMCMove(angleMoves[1], 0.1);
+
+            relaxIntegrator.getMoveManager().addMCMove(angleMovesMulti1, 0.4);
+
+    }
         angleMovesMulti1outer.skipW=true;
-        relaxIntegrator.getMoveManager().addMCMove(angleMoves[1],0.1);
-        relaxIntegrator.getMoveManager().addMCMove(angleMoves[3],0.1);
-        relaxIntegrator.getMoveManager().addMCMove(angleMovesMulti1, 0.4);
+        angleMoves[3].skipW = true;
         relaxIntegrator.getMoveManager().addMCMove(angleMovesMulti1outer, 0.4);
+        relaxIntegrator.getMoveManager().addMCMove(angleMoves[3], 0.1);
         //new
-        angleMoves[0].skipW=true;
+
         angleMoves[2].skipW=true;
-        angleMovesMulti0.skipW=true;
+
         angleMovesMulti0outer.skipW=true;
         sim.integrators[0].getMoveManager().setFrequency(mcMoveHSC, 0);
         sim.integrators[0].getMoveManager().setFrequency(sim.mcMoveRotate[0], 0);
@@ -438,12 +514,15 @@ public class VirialjackCell {
        // shuffleMove1.skipW=true;
         //relaxIntegrator.getMoveManager().addMCMove(shuffleMove1);
         //((MCMoveStepTracker) shuffleMove1.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker) angleMoves[1].getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker) angleMoves[3].getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker) angleMovesMulti1.getTracker()).setNoisyAdjustment(true);
+        if (armLength > 2) {
+            ((MCMoveStepTracker) angleMoves[1].getTracker()).setNoisyAdjustment(true);
+
+            ((MCMoveStepTracker) angleMovesMulti1.getTracker()).setNoisyAdjustment(true);
+            //((MCMoveStepTracker) shuffleMove1.getTracker()).setAcceptanceTarget(0.5);
+            ((MCMoveStepTracker) angleMoves[1].getTracker()).setAcceptanceTarget(0.5);
+        }
         ((MCMoveStepTracker) angleMovesMulti1outer.getTracker()).setNoisyAdjustment(true);
-        //((MCMoveStepTracker) shuffleMove1.getTracker()).setAcceptanceTarget(0.5);
-        ((MCMoveStepTracker) angleMoves[1].getTracker()).setAcceptanceTarget(0.5);
+        ((MCMoveStepTracker) angleMoves[3].getTracker()).setNoisyAdjustment(true);
         //((MCMoveStepTracker) angleMoves[3].getTracker()).setAcceptanceTarget(0.20);
         //((MCMoveStepTracker) angleMovesMulti1.getTracker()).setAcceptanceTarget(0.5);           // NEW
         //((MCMoveStepTracker) angleMovesMulti1outer.getTracker()).setAcceptanceTarget(0.20);
@@ -660,7 +739,7 @@ public class VirialjackCell {
             return;
         }
 
-        angleMoves[1].skipW=false;
+        if (armLength > 2) angleMoves[1].skipW=false;
 
         if(false){
             int nextAtom[]=targetCellManager.getCellNextAtom();
@@ -748,19 +827,24 @@ public class VirialjackCell {
             System.out.println("time to relax: " +trelax/ 1e9);
 
             //new
-        angleMoves[0].skipW=false;
+
         angleMoves[2].skipW=false;
-        angleMovesMulti0.skipW=false;
+
         angleMovesMulti0outer.skipW=false;
         sim.integrators[0].getMoveManager().setFrequency(mcMoveHSC, 1);
         sim.integrators[0].getMoveManager().setFrequency(sim.mcMoveRotate[0], 1);
         sim.integrators[1].getMoveManager().setFrequency(sim.mcMoveTranslate[1], 1);
         sim.integrators[1].getMoveManager().setFrequency(sim.mcMoveRotate[1], 1);
 
-        angleMoves[1].skipW=false;
-        angleMoves[3].skipW=false;
-        angleMovesMulti1.skipW=false;
+        if (armLength > 2) {
+            angleMoves[1].skipW = false;
+            angleMovesMulti0.skipW=false;
+            angleMoves[0].skipW=false;
+
+            angleMovesMulti1.skipW = false;
+        }
         angleMovesMulti1outer.skipW=false;
+        angleMoves[3].skipW = false;
 
         IntegratorMC.dodebug=false;
 
@@ -916,7 +1000,7 @@ public class VirialjackCell {
 
         }
 
-        String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
+        String refFileName = isCommandline ? "refpref"+nPoints+"_"+numArms+"_"+armLength+"_"+sigC+"_"+temperature : null;
         long initSteps = steps/40;
         if (params.fFile != null) {
             initSteps = steps;
