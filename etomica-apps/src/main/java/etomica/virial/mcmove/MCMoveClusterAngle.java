@@ -7,7 +7,6 @@ package etomica.virial.mcmove;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
@@ -332,6 +331,12 @@ for(int i = 0 ;i<2 && false;i++){
             this(random, f, l, 2, l );
         }
         public AtomChooserStarfl (IRandom random,int f,int l,int start,int stop) {
+            if (f <= 0) {
+                throw new RuntimeException("f must be positive " + f);
+            }
+            if (stop < start) {
+                throw new RuntimeException("Stop ("+stop+") must be greater than start ("+start+")");
+            }
             this.f = f;
             this.l = l;
             this.random = random;
