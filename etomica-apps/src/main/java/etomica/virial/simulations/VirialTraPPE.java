@@ -70,12 +70,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.ethaneEH};
+            params.chemForm = new ChemForm[]{ChemForm.ethaneEH, ChemForm.ethane};
             params.nPoints = 3; //B order
             params.temperature = 1000;
             params.diagram = "5c";
             params.numSteps = 10000000;
             params.refFrac = -1;
+            params.types = new int[]{1, 1, 0};
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
@@ -2179,7 +2180,7 @@ public class VirialTraPPE {
                 //TraPPE-EH
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE); //methylene carbo n
-                AtomType typeCH = new AtomType(new ElementSimple("CH", 0)); //virtual
+                AtomType typeCH = new AtomType(new ElementSimple("CHP", 0)); //virtual
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH};
                 isFlex = true;
@@ -2269,7 +2270,7 @@ public class VirialTraPPE {
             else if (chemForm == ChemForm.ethaneEH) {
                 //TraPPE-EH
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
-                AtomType typeCH = new AtomType(new ElementSimple("CH", 1)); //virtual
+                AtomType typeCH = new AtomType(new ElementSimple("CHE", 1)); //virtual
 
                 atomTypes = new AtomType[]{typeCH3, typeCH};
                 isFlex = true;
@@ -2333,7 +2334,7 @@ public class VirialTraPPE {
                 //TraPPE-EH
                 AtomType typeCH3 = new AtomType(Carbon.INSTANCE); //methyl carbon
                 AtomType typeCH2 = new AtomType(Carbon.INSTANCE); //methylene carbo n
-                AtomType typeCH = new AtomType(new ElementSimple("CH", 0)); //zero mass for hydrogen so that the conformation places COM at origin
+                AtomType typeCH = new AtomType(new ElementSimple("CHB", 0)); //zero mass for hydrogen so that the conformation places COM at origin
 
                 atomTypes = new AtomType[]{typeCH3, typeCH2, typeCH};
                 isFlex = true;
@@ -2481,22 +2482,22 @@ public class VirialTraPPE {
                 Vector3D posH4 = new Vector3D(new double[]{ (-x1/rC)*(rC+rCH), (-y1/rC)*(rC+rCH), 0 });
                 Vector3D posH5 = new Vector3D(new double[]{ (-x1/rC)*(rC+rCH), (y1/rC)*(rC+rCH), 0 });
                 Vector3D posH6 = new Vector3D(new double[]{ 0, (rC+rCH), 0 });
-                // Print all positions
-                System.out.println("Carbon positions:");
-                System.out.println("C1: " + posC1);
-                System.out.println("C2: " + posC2);
-                System.out.println("C3: " + posC3);
-                System.out.println("C4: " + posC4);
-                System.out.println("C5: " + posC5);
-                System.out.println("C6: " + posC6);
-
-                System.out.println("\nHydrogen positions:");
-                System.out.println("H1: " + posH1);
-                System.out.println("H2: " + posH2);
-                System.out.println("H3: " + posH3);
-                System.out.println("H4: " + posH4);
-                System.out.println("H5: " + posH5);
-                System.out.println("H6: " + posH6);
+//                // Print all positions
+//                System.out.println("Carbon positions:");
+//                System.out.println("C1: " + posC1);
+//                System.out.println("C2: " + posC2);
+//                System.out.println("C3: " + posC3);
+//                System.out.println("C4: " + posC4);
+//                System.out.println("C5: " + posC5);
+//                System.out.println("C6: " + posC6);
+//
+//                System.out.println("\nHydrogen positions:");
+//                System.out.println("H1: " + posH1);
+//                System.out.println("H2: " + posH2);
+//                System.out.println("H3: " + posH3);
+//                System.out.println("H4: " + posH4);
+//                System.out.println("H5: " + posH5);
+//                System.out.println("H6: " + posH6);
 
                 //Set Geometry
                 species = new SpeciesBuilder(space)
