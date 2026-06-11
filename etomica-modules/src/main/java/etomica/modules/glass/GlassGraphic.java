@@ -41,7 +41,7 @@ public class GlassGraphic extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 20;
     protected SimGlass sim;
 
-    public GlassGraphic(final SimGlass simulation) {
+    public GlassGraphic(final SimGlass simulation, boolean doPautocor) {
 
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -583,13 +583,13 @@ public class GlassGraphic extends SimulationGraphic {
 
         //unnormalized AC of all stress tensor components
         AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(256, sim.integrator.getTimeStep());
-        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
+        if (doPautocor && sim.box.getLeafList().size() > 200) {
             pTensorFork.addDataSink(dpAutocor);
         }
 
         //normalized AC of shear stress components
         AccumulatorAutocorrelationShearStress dpxyAutocor = new AccumulatorAutocorrelationShearStress(256, sim.integrator.getTimeStep());
-        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
+        if (doPautocor && sim.box.getLeafList().size() > 200) {
             pTensorFork.addDataSink(dpxyAutocor);
         }
 
@@ -1272,6 +1272,7 @@ public class GlassGraphic extends SimulationGraphic {
         ptacPanel.add(nMaxSlider.getPanel(), gbc);
         gbc.gridy = 1;
         ptacPanel.add(pushIntervalSlider.getPanel(), gbc);
+        if (doPautocor) addAsTab(ptacPanel, "P Tensor autocor", true);
 
         pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getAvgErrFork().getTag(), pAutoCorErr.getTag()}, "err+");
@@ -1281,7 +1282,6 @@ public class GlassGraphic extends SimulationGraphic {
         plotPxyTensorAutocor.setLabel("Pxy autocor");
         plotPxyTensorAutocor.setLegend(new DataTag[]{dpxyAutocor.getTag()}, "avg");
         dpxyAutocor.addDataSink(plotPxyTensorAutocor.getDataSet().makeDataSink());
-//        add(plotPxyTensorAutocor);
         DeviceSlider nMaxSliderShear = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -1361,6 +1361,7 @@ public class GlassGraphic extends SimulationGraphic {
         shearacPanel.add(nMaxSliderShear.graphic(), gbc);
         gbc.gridy = 1;
         shearacPanel.add(pushIntervalSliderShear.graphic(), gbc);
+        if (doPautocor) addAsTab(shearacPanel, "Shear autocor", true);
 
 
         //Potential energy
@@ -2270,8 +2271,12 @@ public class GlassGraphic extends SimulationGraphic {
         getPanel().tabbedPane.add("SFac", plotsPaneSFac);
     }
 
+    public static class GlassGraphicParams extends SimGlass.GlassParams {
+        public boolean doPautocor = false;
+    }
+
     public static void main(String[] args) {
-        SimGlass.GlassParams params = new SimGlass.GlassParams();
+        GlassGraphicParams params = new GlassGraphicParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
@@ -2282,8 +2287,13 @@ public class GlassGraphic extends SimulationGraphic {
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
+        double vA = Math.PI/6;
+        double vB = Math.PI/6*Math.pow(sim.sigmaB,3);
+        double V = (params.nA+params.nB)/params.density;
+        double phi = (vA*params.nA + vB*params.nB)/V;
+        System.out.println("phi "+phi);
 
-        GlassGraphic ljmdGraphic = new GlassGraphic(sim);
+        GlassGraphic ljmdGraphic = new GlassGraphic(sim, params.doPautocor);
         SimulationGraphic.makeAndDisplayFrame
                 (ljmdGraphic.getPanel(), sim.potentialChoice + " " + APP_NAME);
         if (params.potential == SimGlass.PotentialChoice.HS) {
