@@ -120,6 +120,7 @@ public class SimGlass extends Simulation {
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(potentialBB, 2.5);
             potentialMaster.setPairPotential(speciesB.getLeafType(), speciesB.getLeafType(), p2TruncatedBB);
         } else if (potentialChoice == PotentialChoice.HS) {
+            if (sigmaB==0) sigmaB = 1.0 / 1.4;
             chs = getMaxCHS();
             double sigmaA = 0.01 * chs;
             double L = Math.pow((nA + nB) / density, 1.0 / 3.0);
@@ -127,7 +128,6 @@ public class SimGlass extends Simulation {
             double nbrCut = 1.7;
             if (L < nbrCut * 2) nbrCut = L / 2.001;
             neighborManager.setNeighborRange(nbrCut);
-            if (sigmaB==0) sigmaB = 1.0 / 1.4;
             p2AA = P2SquareWell.makePotential(sigmaA, 1 / sigmaA, -100);
             potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), p2AA);
             p2AB = P2SquareWell.makePotential(0.5*(sigmaA + sigmaB), (1+sigmaB)/(sigmaA+sigmaB), -100);
@@ -182,7 +182,7 @@ public class SimGlass extends Simulation {
         for (IAtom a1 : box.getLeafList()) {
             if (a1.getType() != speciesA.getLeafType()) continue;
             for (IAtom a2 : box.getLeafList()) {
-                if (a2 == a1) continue;
+                if (a2.getType() == speciesA.getLeafType() && a2.getLeafIndex() <= a1.getLeafIndex()) continue;
                 dr.Ev1Mv2(a2.getPosition(), a1.getPosition());
                 box.getBoundary().nearestImage(dr);
                 if (a2.getType() == speciesA.getLeafType()) minAA = Math.min(minAA, dr.squared());
@@ -206,42 +206,42 @@ public class SimGlass extends Simulation {
         return new Activity() {
             @Override
             public void runActivity(Controller.ControllerHandle handle) {
-                if (potentialChoice != PotentialChoice.HS || chs == 100) return;
-                PotentialComputePairGeneral potentialMaster = (PotentialComputePairGeneral) integrator.getPotentialCompute();
-                PotentialComputePair potentialMasterMC = (PotentialComputePair) integratorMC.getPotentialCompute();
-                double tStepOld = integrator.getTimeStep();
-                integrator.setTimeStep(0.001);
-                // run MD and increase sigma
-                while (chs < 100) {
-                    integrator.reset();
-                    for (int i = 0; i < 1000; i++) {
-                        handle.yield(integrator::doStep);
-                    }
-                    int newCHS = getMaxCHS();
-                    if (newCHS == chs) continue;
-                    chs = newCHS;
-                    if (chs < 100) {
-                        double sigmaA = 0.01 * chs;
-                        p2AA.setCollisionDiameter(0, sigmaA);
-                        p2AB.setCollisionDiameter(0, 0.5*(sigmaA + sigmaB));
-                    }
-                    else {
-                        // potentialMaster makes a copy of integrator's potentials, so set both
-                        // ironically, potentialMasterMC potentials are the same as integrator
-                        P2HardGeneric pAA = P2HardSphere.makePotential(1);
-                        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
-                        potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
-
-                        P2HardGeneric pAB = P2HardSphere.makePotential(0.5*(1 + sigmaB));
-                        potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
-                        potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
-                    }
-                    potentialMaster.computeAll(false);
-
-                }
+            if (potentialChoice != PotentialChoice.HS || chs == 100) return;
+            PotentialComputePairGeneral potentialMaster = (PotentialComputePairGeneral) integrator.getPotentialCompute();
+            PotentialComputePair potentialMasterMC = (PotentialComputePair) integratorMC.getPotentialCompute();
+            double tStepOld = integrator.getTimeStep();
+            integrator.setTimeStep(0.001);
+            // run MD and increase sigma
+            while (chs < 100) {
                 integrator.reset();
-                integrator.resetStepCount();
-                integrator.setTimeStep(tStepOld);
+                for (int i = 0; i < 1000; i++) {
+                    handle.yield(integrator::doStep);
+                }
+                int newCHS = getMaxCHS();
+                if (newCHS == chs) continue;
+                chs = newCHS;
+                if (chs < 100) {
+                    double sigmaA = 0.01 * chs;
+                    p2AA.setCollisionDiameter(0, sigmaA);
+                    p2AB.setCollisionDiameter(0, 0.5*(sigmaA + sigmaB));
+                }
+                else {
+                    // potentialMaster makes a copy of integrator's potentials, so set both
+                    // ironically, potentialMasterMC potentials are the same as integrator
+                    P2HardGeneric pAA = P2HardSphere.makePotential(1);
+                    potentialMaster.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+                    potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesA.getLeafType(), pAA);
+
+                    P2HardGeneric pAB = P2HardSphere.makePotential(0.5*(1 + sigmaB));
+                    potentialMaster.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
+                    potentialMasterMC.setPairPotential(speciesA.getLeafType(), speciesB.getLeafType(), pAB);
+                }
+                potentialMaster.computeAll(false);
+
+            }
+            integrator.reset();
+            integrator.resetStepCount();
+            integrator.setTimeStep(tStepOld);
             }
         };
     }
