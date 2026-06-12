@@ -50,6 +50,7 @@ subprojects {
         implementation files("$rootProject.projectDir/libs/ptolemy.jar")
 
         testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
+        testImplementation 'org.junit.platform:junit-platform-launcher:1.8.2'
     }
 
     test {
