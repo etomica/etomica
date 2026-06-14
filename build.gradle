@@ -38,19 +38,21 @@ subprojects {
     }
 
     dependencies {
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.3'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.0'
         implementation 'gov.nist.math:jama:1.0.3'
-        implementation 'org.apache.commons:commons-math3:3.3'
-        implementation 'org.apache.commons:commons-lang3:3.6'
-        implementation "org.knowm.xchart:xchart:3.6.4"
-        implementation 'com.miglayout:miglayout-swing:5.2'
-        implementation "com.formdev:flatlaf:0.37"
-        implementation "io.github.lukehutch:fast-classpath-scanner:2.9.4"
+        implementation 'org.apache.commons:commons-math3:3.6.1'
+        implementation 'org.apache.commons:commons-lang3:3.20.0'
+        // later versions of xchart (now up to v4) have API changes
+        implementation 'org.knowm.xchart:xchart:3.6.6'
+        implementation 'com.miglayout:miglayout-swing:11.4.3'
+        implementation 'com.formdev:flatlaf:3.7.1'
+        // later versions of classpath (io.github.classpath:classpath, now up to v4.8) have API changes
+        implementation 'io.github.lukehutch:fast-classpath-scanner:2.21'
 
         implementation files("$rootProject.projectDir/libs/ptolemy.jar")
 
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
-        testImplementation 'org.junit.platform:junit-platform-launcher:1.8.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter:6.1.0'
+        testImplementation 'org.junit.platform:junit-platform-launcher:6.1.0'
     }
 
     test {
