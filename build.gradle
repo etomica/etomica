@@ -13,10 +13,6 @@ tasks.withType(JavaCompile) {
     options.fork = true
 }
 
-repositories {
-    mavenCentral()
-}
-
 subprojects {
     repositories {
         mavenCentral()
