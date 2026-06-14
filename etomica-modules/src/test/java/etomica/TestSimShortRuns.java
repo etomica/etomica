@@ -4,6 +4,8 @@ import etomica.integrator.Integrator;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,10 +35,11 @@ public class TestSimShortRuns {
         // This beautiful method will search through constructible simulations looking for ones
         // with one and only one field of type Integrator (getIntegrator isn't reliable, and with
         // more than one we don't know which one to use), instantiate the simulations, and return the integrators.
-        List<Class<?>> classes =  SCAN.classNamesToClassRefs(SCAN.getNamesOfSubclassesOf(Simulation.class));
+        ClassInfoList classes =  SCAN.getSubclasses(Simulation.class);
         List<Arguments> args = new ArrayList<>();
 
-        for (Class<?> cl : classes) {
+        for (ClassInfo ci : classes) {
+            Class<?> cl = ci.loadClass();
             if (EXCLUDED.contains(cl)) {
                 continue;
             }

@@ -4,8 +4,10 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,24 +19,24 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class TestSimConstructors {
-    public static final ScanResult SCAN = new FastClasspathScanner("etomica").scan();
+    public static final ScanResult SCAN = new ClassGraph().acceptPackages("etomica").scan();
     private static final List<Constructor<?>> constructors = new ArrayList<>();
     private static final List<Constructor<?>> spaceConstructors = new ArrayList<>();
 
     @BeforeAll
     static void setUp() {
-        List<Class<?>> classes =  SCAN.classNamesToClassRefs(SCAN.getNamesOfSubclassesOf(Simulation.class));
-        for (Class<?> cls : classes) {
+        ClassInfoList classes =  SCAN.getSubclasses(Simulation.class);
+        for (ClassInfo ci : classes) {
             try {
-                constructors.add(cls.getConstructor());
+                constructors.add(ci.loadClass().getConstructor());
             } catch (NoSuchMethodException e) {
                 continue;
             }
         }
 
-        for (Class<?> cls : classes) {
+        for (ClassInfo ci : classes) {
             try {
-                spaceConstructors.add(cls.getConstructor(Space.class));
+                spaceConstructors.add(ci.loadClass().getConstructor(Space.class));
             } catch (NoSuchMethodException e) {
                 continue;
             }

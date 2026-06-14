@@ -42,8 +42,7 @@ subprojects {
         implementation 'org.knowm.xchart:xchart:3.6.6'
         implementation 'com.miglayout:miglayout-swing:11.4.3'
         implementation 'com.formdev:flatlaf:3.7.1'
-        // later versions of classpath (io.github.classpath:classpath, now up to v4.8) have API changes
-        implementation 'io.github.lukehutch:fast-classpath-scanner:2.21'
+        implementation 'io.github.classgraph:classgraph:4.8.184'
 
         implementation files("$rootProject.projectDir/libs/ptolemy.jar")
 
