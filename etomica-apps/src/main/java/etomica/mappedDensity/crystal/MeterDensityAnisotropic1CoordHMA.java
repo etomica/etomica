@@ -19,9 +19,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.math.DoubleRange;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
@@ -32,14 +30,11 @@ import java.util.Objects;
  */
 public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
-    protected final PotentialMaster potentialMaster;
-    protected final IteratorDirective id;
+    protected final PotentialCompute potentialMaster;
     protected DataSourceUniform xDataSourceR;
     protected DataSourceUniform xDataSourceTheta;
     protected DataSourceUniform xDataSourcePhi;
 
-    protected final PotentialCalculationForceSum pc;
-    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
     protected DataFunction data;
     protected IDataInfo dataInfo;
@@ -71,7 +66,7 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
      * @param temperature
      * @param latticesite
      */
-    public MeterDensityAnisotropic1CoordHMA(double msd, int iX, int nX, double X2, double X3, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
+    public MeterDensityAnisotropic1CoordHMA(double msd, int iX, int nX, double X2, double X3, Box box, PotentialCompute potentialMaster, double temperature, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
 //        this.temperature = 1.0;
@@ -141,10 +136,6 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
 
         tag = new DataTag();
         this.potentialMaster = potentialMaster;
-        id = new IteratorDirective();
-        pc = new PotentialCalculationForceSum();
-        agentManager = new AtomLeafAgentManager<Vector>(this, box);
-        pc.setAgentManager(agentManager);
 
         data = new DataFunction(new int[]{nR,nTheta,nPhi});
         dataInfo = new DataInfoFunction("Mapped Average Profile", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1, -1}), this);
@@ -167,8 +158,8 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        pc.reset();
-        potentialMaster.calculate(box, id, pc);
+        potentialMaster.computeAll(true);
+        Vector[] forces = potentialMaster.getForces();
         data.E(0);
         double[] y = data.getData();
 
@@ -184,7 +175,7 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
             box.getBoundary().nearestImage(rivector);
             double ri = Math.sqrt(rivector.squared());//distance of atom from lattice site, r-R
             riDotA.E(Singlet3DmappingDelta0.xyzDotA(rivector, ri, sigma));
-            double a1 = -beta * agentManager.getAgent(atom).dot(riDotA);
+            double a1 = -beta * forces[atom.getLeafIndex()].dot(riDotA);
 
             double dlnpridr = - ri / sigma2;
             //double rdot = riDotA.dot(rivector) / ri;
@@ -210,7 +201,7 @@ public class MeterDensityAnisotropic1CoordHMA implements IDataSource, DataSource
                         rVec.Ev1Mv2(rivector, deltaVec); // r - delta
                         riDotB.E(Singlet3DmappingDelta0.xyzDotB(rVec, Math.sqrt(rVec.squared())));
 
-                        double a3 = -beta * agentManager.getAgent(atom).dot(riDotB);
+                        double a3 = -beta * forces[atom.getLeafIndex()].dot(riDotB);
 //                        double r2 = rVec.squared()/sigma2;
                         ytemporary[i][j][k] += (pr / q) + (a1 + a2) * pr + a3;
                         if(i==0 && j==0 && k==0 && Objects.equals(atom, atoms.get(0))) {

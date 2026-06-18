@@ -16,8 +16,6 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.math.SpecialFunctions;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.Vector;
@@ -29,13 +27,10 @@ import etomica.units.dimensions.*;
 public class MeterDensityAnisotropicRadialHMA implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
-    protected final IteratorDirective id;
     protected DataSourceUniform xDataSourcer;
     protected DataSourceUniform xDataSourcetheta;
     protected DataSourceUniform xDataSourcephi;
 
-    protected final PotentialCalculationForceSum pc;
-    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
     protected DataFunction data;
     protected IDataInfo dataInfo;
@@ -67,10 +62,6 @@ public class MeterDensityAnisotropicRadialHMA implements IDataSource, DataSource
         xDataSourcer.setXMax(Rmax);
 
         this.potentialMaster = potentialMaster;
-        id = new IteratorDirective();
-        pc = new PotentialCalculationForceSum();
-        agentManager = new AtomLeafAgentManager<Vector>(this, box);
-        pc.setAgentManager(agentManager);
 
         xDataSourcetheta = new DataSourceUniform("theta", Length.DIMENSION);
         xDataSourcetheta.setTypeMax(LimitType.HALF_STEP);
@@ -101,8 +92,8 @@ public class MeterDensityAnisotropicRadialHMA implements IDataSource, DataSource
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        pc.reset();
-        potentialMaster.calculate(box, id, pc);
+        potentialMaster.computeAll(true);
+        Vector[] forces = potentialMaster.getForces();
         data.E(0);
         double[] y = data.getData();
 
@@ -114,7 +105,7 @@ public class MeterDensityAnisotropicRadialHMA implements IDataSource, DataSource
                  rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
                  box.getBoundary().nearestImage(rivector);
                  double ri = Math.sqrt(rivector.squared());
-                 double fr = agentManager.getAgent(atom).dot(rivector) / ri;
+                 double fr = forces[atom.getLeafIndex()].dot(rivector) / ri;
                  double thetai = Math.acos(rivector.getX(2) / ri);
                  double phii = Math.atan2(rivector.getX(1), rivector.getX(0));
                  if (phii < 0) { phii = phii + 2 * Math.PI; }

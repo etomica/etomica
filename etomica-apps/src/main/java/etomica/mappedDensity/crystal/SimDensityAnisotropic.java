@@ -27,15 +27,12 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphere;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -50,7 +47,6 @@ public class SimDensityAnisotropic extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -58,31 +54,33 @@ public class SimDensityAnisotropic extends Simulation {
     public Primitive primitive;
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
-    public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public IPotential2 potential;
+    public SpeciesGeneral species;
 
     public SimDensityAnisotropic(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterList(this, space);
+        box = this.makeBox(boundary);
+        int cellRange = 2;
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, cellRange, rc, BondingInfo.noBonding());
+        potentialMaster.setDoDownNbrs(true);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
-        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
+        integrator.getEventManager().removeListener(potentialMaster);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
-        atomMove.setDoExcludeNonNeighbors(true);
+        //atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
@@ -95,27 +93,21 @@ public class SimDensityAnisotropic extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
-        atomMove.setPotential(potential);
+        potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
+        potential = new P2SoftSphericalTruncated(potential, rc);
+//        atomMove.setPotential(potential);
         AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
+        potentialMaster.setPairPotential(sphereType, sphereType, potential);
 
-        potentialMaster.lrcMaster().setEnabled(false);
+        potentialMaster.doAllTruncationCorrection = false;
+        potentialMaster.doOneTruncationCorrection = false;
 
-        int cellRange = 2;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        potentialMaster.getNeighborManager(box).reset();
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange * 2 + 1) {
-            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
-        }
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        potentialMaster.init();
+//        int potentialCells = neighborManager.getLattice().getSize()[0];
+//        if (potentialCells < cellRange * 2 + 1) {
+//            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
+//        }
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -172,10 +164,9 @@ public class SimDensityAnisotropic extends Simulation {
         }
 
         //start simulation
-        MeterDensity meterDensity = new MeterDensity(sim.getSpace());
-        meterDensity.setBox(sim.box);
+        MeterDensity meterDensity = new MeterDensity(sim.box);
         System.out.println("density is "+meterDensity.getDataAsScalar());
-        MeterPotentialEnergy meterpe = new MeterPotentialEnergy(sim.potentialMaster,sim.box);
+        MeterPotentialEnergy meterpe = new MeterPotentialEnergy(sim.potentialMaster);
         double latticeEnergy = meterpe.getDataAsScalar()/numAtoms;
         System.out.println("lattice energy is "+latticeEnergy);
         System.out.println("temperature is "+sim.integrator.getTemperature());
@@ -195,9 +186,8 @@ public class SimDensityAnisotropic extends Simulation {
         AccumulatorAverageFixed accMSD = new AccumulatorAverageFixed(1);
         DataPumpListener pumpmsd = new DataPumpListener(meterMSD, accMSD, interval);
         sim.getIntegrator().getEventManager().addListener(pumpmsd);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
+
         double avgMSD = accMSD.getData(accMSD.AVERAGE).getValue(0);
         System.out.println("MSD: "+avgMSD);
 ///////////////////////////////////////MSD CALCULATION DONE///////////////////////////////////////////////////////
@@ -271,9 +261,8 @@ public class SimDensityAnisotropic extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
-        sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
 
 //        double[] h = meterMappedAvg3Dmapping.h.getHistogram();
@@ -344,9 +333,7 @@ public class SimDensityAnisotropic extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        getController().runActivityBlocking(new ActivityIntegrate(integrator, initSteps));
         integrator.getMoveManager().setEquilibrating(false);
     }
 

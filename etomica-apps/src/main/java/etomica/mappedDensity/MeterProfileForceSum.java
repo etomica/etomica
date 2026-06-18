@@ -14,8 +14,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -30,9 +28,6 @@ import etomica.units.dimensions.*;
 public class MeterProfileForceSum implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
-    protected final IteratorDirective id;
-    protected final PotentialCalculationForceSum pc;
-    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
@@ -57,10 +52,6 @@ public class MeterProfileForceSum implements IDataSource, DataSourceIndependent,
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
         this.potentialMaster = potentialMaster;
-        id = new IteratorDirective();
-        pc = new PotentialCalculationForceSum();
-        agentManager = new AtomLeafAgentManager<Vector>(this, box);
-        pc.setAgentManager(agentManager);
     }
 
     public IDataInfo getDataInfo() {
@@ -93,8 +84,8 @@ public class MeterProfileForceSum implements IDataSource, DataSourceIndependent,
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        pc.reset();
-        potentialMaster.calculate(box, id, pc);
+        potentialMaster.computeAll(true);
+        Vector[] forces = potentialMaster.getForces();
         Boundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
@@ -102,7 +93,7 @@ public class MeterProfileForceSum implements IDataSource, DataSourceIndependent,
         double L = box.getBoundary().getBoxSize().getX(profileDim);
         double dz = L / xDataSource.getNValues();
         for (IAtom atom : atoms) {
-            double fz = agentManager.getAgent(atom).getX(profileDim);
+            double fz = forces[atom.getLeafIndex()].getX(profileDim);
             double zi = atom.getPosition().getX(profileDim);
             if(zi<-L/2+dz/2){continue;}
             double binzi = zi + 0.5 * dz;

@@ -21,11 +21,13 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -41,7 +43,6 @@ import java.util.List;
 public class SimSingletDensityProfile extends Simulation {
 
     public final PotentialMasterCell potentialMaster;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
 
     /**
@@ -57,7 +58,7 @@ public class SimSingletDensityProfile extends Simulation {
     public SimSingletDensityProfile(SimParams params) {
         super(Space3D.getInstance());
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         Box box = new Box(space);
@@ -70,33 +71,29 @@ public class SimSingletDensityProfile extends Simulation {
         config.initializeCoordinates(box);
 
         double rc = 3;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster = new PotentialMasterCell(getSpeciesManager(), box, 2, BondingInfo.noBonding());
+        potentialMaster.getCellManager().setPotentialRange(rc);
 
-        P2LennardJones p2lj = new P2LennardJones(space);
-        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(space, p2lj, rc);
+        P2LennardJones p2lj = new P2LennardJones(1, 1);
+        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(p2lj, rc);
         AtomType atomType = species.getLeafType();
-        potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
+        potentialMaster.setPairPotential(atomType, atomType, p2);
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box);
 //SINE IS ACTUALLY LN(2+SIN)
          if (params.field==Field.SINE || params.field==Field.PHISINEPSINESUM ) {       //AS FOR PHISINEPSINESUM EXTERNAL POT IS LN(2+SIN)-SAME AS FIELD.SINE
-            P1Sine p1 = new P1Sine(space, 5, params.temperature);
-            potentialMaster.addPotential(p1, new AtomType[]{atomType});
+            P1Sine p1 = new P1Sine(5, params.temperature, box);
+            pcField.setFieldPotential(atomType, p1);
         } else if (params.field == Field.PARABOLIC || params.field == Field.UNIFORM || params.field == Field.PHIPARABOLICPSUMOFGAUSSIANS || params.field==Field.PHIARGPT5PARABOLICPSINESUM) {
-            P1Parabolic p1 = new P1Parabolic(space);
-            potentialMaster.addPotential(p1, new AtomType[]{atomType});
+            P1Parabolic p1 = new P1Parabolic();
+            pcField.setFieldPotential(atomType, p1);
         }
 
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        integrator.setTemperature(params.temperature);
+        integrator = new IntegratorMC(potentialMaster, random, params.temperature, box);
 
-        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        potentialMaster.setCellRange(2);
-        potentialMaster.reset();
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+        potentialMaster.init();
     }
 
     public static void main(String[] args) {
@@ -262,8 +259,7 @@ public class SimSingletDensityProfile extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/10));
         System.out.println("equilibration finished");
 
         // data collection
@@ -310,10 +306,9 @@ public class SimSingletDensityProfile extends Simulation {
         DataPumpListener pumpMappedAvg = new DataPumpListener(densityMeterMappedAvg, accMappedAvg, 5 * params.numAtoms);
         sim.getIntegrator().getEventManager().addListener(pumpMappedAvg);
 
-        sim.activityIntegrate.setMaxSteps(steps);
         sim.getIntegrator().resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         long t2 = System.currentTimeMillis();
         IData data =  acc.getData(acc.AVERAGE);

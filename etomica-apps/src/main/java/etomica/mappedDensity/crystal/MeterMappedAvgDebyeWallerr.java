@@ -17,8 +17,6 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
@@ -31,14 +29,11 @@ import etomica.units.dimensions.*;
 public class MeterMappedAvgDebyeWallerr implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
-    protected final IteratorDirective id;
-    protected final PotentialCalculationForceSum pc;
-    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
     protected IDataInfo dataInfo;
-     protected Vector rivector;
+    protected Vector rivector;
      /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
@@ -49,13 +44,13 @@ public class MeterMappedAvgDebyeWallerr implements IDataSource, DataSourceIndepe
      */
     protected final DataTag tag;
     protected double temperature;
-protected CoordinateDefinition latticesite;
+    protected CoordinateDefinition latticesite;
     protected final FunctionDifferentiable c;
     protected Behavior behavior;
     protected double zidotz;
     protected double msd;
     protected double[] qvector;
-protected int numAtoms;
+    protected int numAtoms;
     public enum Behavior {
         NORMAL, P, ZIDOT, DZIDOT
     }
@@ -68,19 +63,15 @@ protected int numAtoms;
         this.temperature = temperature;
         this.c = c;
         this.qvector = qvector;
-this.numAtoms=numAtoms;
+        this.numAtoms=numAtoms;
         this.msd = msd;
- this.latticesite=latticesite;
-this.rivector =box.getSpace().makeVector();
+        this.latticesite=latticesite;
+        this.rivector =box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
         this.potentialMaster = potentialMaster;
-        id = new IteratorDirective();
-        pc = new PotentialCalculationForceSum();
-        agentManager = new AtomLeafAgentManager<Vector>(this, box);
-        pc.setAgentManager(agentManager);
     }
 
     public void setBehavior(Behavior b) {
@@ -99,8 +90,8 @@ this.rivector =box.getSpace().makeVector();
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        pc.reset();
-        potentialMaster.calculate(box, id, pc);
+        potentialMaster.computeAll(true);
+        Vector[] forces = potentialMaster.getForces();
         data.E(0);
         double[] y = data.getData();
         IAtomList atoms = box.getLeafList();
@@ -109,7 +100,7 @@ this.rivector =box.getSpace().makeVector();
                  rivector.Ev1Mv2(atom.getPosition(),latticesite.getLatticePosition(atom)) ;
                  box.getBoundary().nearestImage(rivector);
                 double ri = Math.sqrt(rivector.squared()) ;
-                double fr = agentManager.getAgent(atom).dot(rivector)/ri;
+                double fr = forces[atom.getLeafIndex()].dot(rivector)/ri;
                 double beta=1/temperature;
                 double erfx = 1- SpecialFunctions.erfc(ri*Math.sqrt(3/(2*msd)));
                 double qdotrcap =0.0;

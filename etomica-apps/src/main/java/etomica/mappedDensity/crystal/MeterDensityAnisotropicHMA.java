@@ -15,8 +15,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.Vector;
@@ -29,13 +27,10 @@ import etomica.units.dimensions.*;
 public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
-    protected final IteratorDirective id;
     protected DataSourceUniform xDataSourcer;
     protected DataSourceUniform xDataSourcetheta;
     protected DataSourceUniform xDataSourcephi;
 
-    protected final PotentialCalculationForceSum pc;
-    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
     protected DataFunction data;
     protected IDataInfo dataInfo;
@@ -77,10 +72,6 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
         xDataSourcer.setXMax(Rmax);
 
         this.potentialMaster = potentialMaster;
-        id = new IteratorDirective();
-        pc = new PotentialCalculationForceSum();
-        agentManager = new AtomLeafAgentManager<Vector>(this, box);
-        pc.setAgentManager(agentManager);
 
         xDataSourcetheta = new DataSourceUniform("theta", Length.DIMENSION);
         xDataSourcetheta.setTypeMax(LimitType.HALF_STEP);
@@ -134,8 +125,9 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
      * Returns the profile for the current configuration.
      */
     public IData getData() {
-        pc.reset();
-        potentialMaster.calculate(box, id, pc);
+        potentialMaster.computeAll(true);
+        Vector[] forces = potentialMaster.getForces();
+
         data.E(0);
         double[] y = data.getData();
 
@@ -176,10 +168,11 @@ public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndepe
                         vel.E(Singlet3DmappingDelta0.xyzDot(rVec, RVec, sigma));
 
                         double rdot = vel.dot(rivector) / ri;
-                        double a1 = -agentManager.getAgent(atom).dot(vel);
+                        Vector f = forces[atom.getLeafIndex()];
+                        double a1 = -f.dot(vel);
                         double a2 =  temperature * rdot * dlnpridr;
       //                  System.out.println(a1+", "+a2+", "+(a1+a2));
-                        ytemporary[i][j][k] += (pr / q) - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr);
+                        ytemporary[i][j][k] += (pr / q) - f.dot(vel) + (temperature * rdot * dlnpridr);
                         if (Double.isNaN(ytemporary[i][j][k])) {
                             Singlet3DmappingDelta0.xyzDot(rivector, deltaVec, sigma);
                             System.out.println("oops");

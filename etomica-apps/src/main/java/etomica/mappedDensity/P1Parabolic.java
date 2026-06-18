@@ -1,64 +1,26 @@
 package etomica.mappedDensity;
 
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.PotentialSoft;
-import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.atom.IAtom;
+import etomica.potential.IPotential1;
 import etomica.space.Vector;
 
 /**
  *
  * parabolic external field
  */
-public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
+public class P1Parabolic implements IPotential1 {
     double arg = 1;  //Vo
-    private double L;
-    private final Vector[] gradient;
-
-    public P1Parabolic(Space space) {
-        gradient = new Vector[]{space.makeVector()};
-    }
 
     @Override
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms) {
-        double z = atoms.get(0).getPosition().getX(2);
-        gradient[0].setX(2, arg*2*(z));
-//        System.out.println(z+" "+energy(atoms)+" "+gradient[0].getX(2));
-        return gradient;
-    }
-
-    @Override
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public double energy(IAtomList atoms) {
-        double z = atoms.get(0).getPosition().getX(2);
+    public double u(IAtom atom) {
+        double z = atom.getPosition().getX(2);
         return arg*(z*z);
     }
 
     @Override
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
+    public double udu(IAtom atom, Vector f) {
+        double z = atom.getPosition().getX(2);
+        f.setX(2, f.getX(2) + arg*2*(z));
+        return arg*(z*z);
     }
-
-    @Override
-    public void setBox(Box box) {
-        L = box.getBoundary().getBoxSize().getX(2);
-    }
-
-    @Override
-    public int nBody() {
-        return 1;
-    }
-
-
 }

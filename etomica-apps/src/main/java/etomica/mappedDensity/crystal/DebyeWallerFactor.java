@@ -10,25 +10,22 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.MeterSolidDACut;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -46,7 +43,6 @@ public class DebyeWallerFactor extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -54,17 +50,19 @@ public class DebyeWallerFactor extends Simulation {
     public Primitive primitive;
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
-    public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public IPotential2 potential;
+    public SpeciesGeneral species;
     public DebyeWallerFactor(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        potentialMaster = new PotentialMasterList(this, space);
+        int cellRange = 2;
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, cellRange, rc, BondingInfo.noBonding());
+        potentialMaster.setDoDownNbrs(true);
 
         // TARGET
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
@@ -74,11 +72,11 @@ public class DebyeWallerFactor extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
+        integrator.getEventManager().removeListener(potentialMaster);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
-        atomMove.setDoExcludeNonNeighbors(true);
+//        atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
 
         primitive = new PrimitiveCubic(space, n * L);
@@ -90,24 +88,18 @@ public class DebyeWallerFactor extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
-        potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(space, potential, rc);
-        atomMove.setPotential(potential);
+        potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
+        potential = new P2SoftSphericalTruncated(potential, rc);
+//        atomMove.setPotential(potential);
         AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        potentialMaster.lrcMaster().setEnabled(false);
-        int cellRange = 2;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
-         potentialMaster.getNeighborManager(box).reset();
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange * 2 + 1) {
-            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
-        }
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        potentialMaster.setPairPotential(sphereType, sphereType, potential);
+        potentialMaster.doAllTruncationCorrection = false;
+        potentialMaster.doOneTruncationCorrection = false;
+        potentialMaster.init();
+//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+//        if (potentialCells < cellRange * 2 + 1) {
+//            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
+//        }
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -214,22 +206,23 @@ public class DebyeWallerFactor extends Simulation {
         }
 
         PotentialMasterList potentialMasterData;
-        Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
+        IPotential2 potential = ss ? new P2SoftSphere(1.0, 4.0, 12) : new P2LennardJones(1.0, 1.0);
         {
-             potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
-            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
-            AtomType sphereType = sim.species.getLeafType();
-            potentialMasterData.addPotential(potentialT, new AtomType[]{sphereType, sphereType});
-            potentialMasterData.lrcMaster().setEnabled(false);
-
             int cellRange = 2;
-            potentialMasterData.setCellRange(cellRange);
+            potentialMasterData = new PotentialMasterList(sim.getSpeciesManager(), sim.box, cellRange, cutoffs[nCutoffs-1], BondingInfo.noBonding());
+            potentialMasterData.setDoDownNbrs(true);
+            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(potential, cutoffs[nCutoffs-1]-0.01);
+            AtomType sphereType = sim.species.getLeafType();
+            potentialMasterData.setPairPotential(sphereType, sphereType, potentialT);
+            potentialMasterData.doAllTruncationCorrection = false;
+            potentialMasterData.doOneTruncationCorrection = false;
+
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            potentialMasterData.getNeighborManager(sim.box).reset();
-            int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
+            potentialMasterData.init();
+//            int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
+//            if (potentialCells < cellRange*2+1) {
+//                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+//            }
 
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
@@ -250,12 +243,6 @@ public class DebyeWallerFactor extends Simulation {
         nCutoffsLS--;
 
         final double[] cutoffsLS = new double[nCutoffsLS];
-        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
-        Potential2SoftSphericalLSMultiLat pLS = null;
-        PotentialMasterMonatomic potentialMasterLJLS = null;
-        Potential2SoftSphericalLSMultiLat pLJLS = null;
-        final double[] uFacCutLS = new double[cutoffsLS.length];
-        MeterSolidDACut meterSolidLS = null;
 
         if (args.length == 0) {
             // quick initialization
@@ -278,7 +265,7 @@ public class DebyeWallerFactor extends Simulation {
         DataPumpListener pumpConDebyeWaller = new DataPumpListener(meterConventionalDebyeWaller, accConDebyeWaller, interval);
         sim.getIntegrator().getEventManager().addListener(pumpConDebyeWaller);
 
-         FunctionDifferentiable f;
+        FunctionDifferentiable f;
         f = new ErrorFunctionMSD(params.msd);
 
         MeterMappedAvgDebyeWallerr meterMappedAvgDebyeWallerr = new MeterMappedAvgDebyeWallerr(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
@@ -289,8 +276,8 @@ public class DebyeWallerFactor extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerr);
 
         int numBlocks = 100;
-         int intervalLS = 5*interval;
-         if (blockSize == 0) blockSize = 1;
+        int intervalLS = 5*interval;
+        if (blockSize == 0) blockSize = 1;
         long blockSizeLS = numSteps/(numBlocks*intervalLS);
         if (blockSizeLS == 0) blockSizeLS = 1;
         int o=2;
@@ -313,9 +300,8 @@ public class DebyeWallerFactor extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
-        sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
 
         IData data =  accConDebyeWaller.getData(accConDebyeWaller.AVERAGE);
@@ -329,14 +315,10 @@ public class DebyeWallerFactor extends Simulation {
     }
 
     public void initialize(long initSteps) {
-         activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        getController().runActivityBlocking(new ActivityIntegrate(integrator, initSteps));
         integrator.getMoveManager().setEquilibrating(false);
     }
 
-
-    
     /**
      * Inner class for parameters understood by the HSMD3D constructor
      */
